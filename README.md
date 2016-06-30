@@ -1,6 +1,6 @@
 # Kubernetes compose (Kompose)
 ===============================
-[![Build Status](https://travis-ci.org/skippbox/kompose.svg?branch=kompose-lite)](https://travis-ci.org/skippbox/kompose)
+[![Build Status](https://travis-ci.org/skippbox/kompose2.svg?branch=master)](https://travis-ci.org/skippbox/kompose2)
 
 `kompose` is a tool to help users familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io) support. It takes a Docker Compose file and translates it into Kubernetes objects, it then submits those objects to a Kubernetes endpoint.
 
@@ -8,16 +8,7 @@
 
 ## Download
 
-Grab the latest [release](https://github.com/skippbox/kompose/releases)
-
-For example on OSX:
-
-```bash
-$ sudo wget https://github.com/skippbox/kompose/releases/download/v0.0.3/kompose_darwin-amd64.tar.gz
-$ sudo tar zxf kompose_darwin-amd64.tar.gz && \
-mv kompose_darwin-amd64/kompose /usr/local/bin/kompose && \
-chmod +x /usr/local/bin/kompose
-```
+Grab the latest [release](https://github.com/skippbox/kompose2/releases)
 
 ## Usage
 
@@ -25,23 +16,22 @@ You need a Docker Compose file handy. There is a sample gitlab compose file in t
 You will convert the compose file to K8s objects with `kompose k8s convert`.
 
 ```bash
-$ cd samples/
+$ cd examples/
 
 $ ls
 docker-gitlab.yml
 
-$ kompose k8s convert -f docker-gitlab.yml -y
+$ kompose convert -f docker-gitlab.yml -y
 
 $ ls
 docker-gitlab.yml       gitlab-rc.yaml   postgresql-deployment.yaml  postgresql-svc.yaml      redisio-rc.yaml
 gitlab-deployment.yaml  gitlab-svc.yaml  postgresql-rc.yaml          redisio-deployment.yaml  redisio-svc.yaml
 ```
 
-Next step you will submit these above objects to a kubernetes endpoint on localhost:8080
-If you have a remote Kubernetes endpoint, simply run a proxy with `kubectl proxy --port=8080`.
+Next step you will submit these above objects to a kubernetes endpoint that is automatically taken from kubectl.
 
 ```bash
-$ kompose k8s up
+$ kompose up
 ```
 
 Check that the replication controllers and services have been created.
@@ -89,21 +79,21 @@ kompose also allows you to list the replication controllers and services with th
 You can delete them with the `delete` subcommand.
 
 ```bash
-$ kompose k8s ps --rc
+$ kompose ps --rc
 Name           Containers     Images                        Replicas  Selectors           
 redisio        redisio        sameersbn/redis               1         service=redisio
 postgresql     postgresql     sameersbn/postgresql:9.4-18   1         service=postgresql
 gitlab         gitlab         sameersbn/gitlab:8.6.4        1         service: gitlab
 
-$ kompose k8s ps --svc
+$ kompose ps --svc
 Name         Cluster IP          Ports                   Selectors
 gitlab       10.0.247.129        TCP(10080),TCP(10022)   service=gitlab
 postgresql   10.0.237.13         TCP(5432)               service=postgresql
 redisio      10.0.242.93         TCP(6379)               service=redisio
 
 
-$ kompose k8s delete --rc --name gitlab
-$ kompose k8s ps --rc
+$ kompose delete --rc --name gitlab
+$ kompose ps --rc
 Name           Containers     Images                        Replicas  Selectors
 redisio        redisio        sameersbn/redis               1         service=redisio
 postgresql     postgresql     sameersbn/postgresql:9.4-18   1         service=postgresql
@@ -112,9 +102,9 @@ postgresql     postgresql     sameersbn/postgresql:9.4-18   1         service=po
 And finally you can scale a replication controller with `scale`.
 
 ```bash
-$ kompose k8s scale --scale 3 --rc redisio
+$ kompose scale --scale 3 --rc redisio
 Scaling redisio to: 3
-$ kompose k8s ps --rc
+$ kompose ps --rc
 Name           Containers     Images                        Replicas  Selectors           
 redisio        redisio        sameersbn/redis               3         service=redisio
 ```
@@ -127,7 +117,7 @@ The command of kompose have been extended to match the `docker-compose` commands
 The default `kompose` transformation will generate replication controllers and services and in format of json. You have alternative option to generate yaml with `-y`. Also, you can alternatively generate [Deployment](http://kubernetes.io/docs/user-guide/deployments/) objects, [DeamonSet](http://kubernetes.io/docs/admin/daemons/), [ReplicaSet](http://kubernetes.io/docs/user-guide/replicasets/) or [Helm](https://github.com/helm/helm) charts.
 
 ```bash
-$ kompose k8s convert -d -y
+$ kompose convert -d -y
 $ ls
 $ tree
 .
@@ -142,7 +132,7 @@ $ tree
 The `*deployment.yaml` files contain the Deployments objects
 
 ```bash
-$ kompose k8s convert --ds -y
+$ kompose convert --ds -y
 $ tree .
   .
   ├── redis-daemonset.yaml
@@ -156,7 +146,7 @@ $ tree .
 The `*daemonset.yaml` files contain the DaemonSet objects
 
 ```bash
-$ kompose k8s convert --rs -y
+$ kompose convert --rs -y
 $ tree .
 .
 ├── redis-rc.yaml
@@ -171,7 +161,7 @@ $ tree .
 The `*replicaset.yaml` files contain the ReplicaSet objects
 
 ```bash
-$ kompose k8s convert -c -y
+$ kompose convert -c -y
 $ tree docker-compose/
 docker-compose/
 ├── Chart.yaml
@@ -194,15 +184,13 @@ The chart structure is aimed at providing a skeleton for building your Helm char
 accordingly.
 
 ```bash
-$ go generate
-# Generate some stuff
 $ go build -o kompose ./cli/main
 ```
 
 ## Contributing and Issues
 
 `kompose` is a work in progress, we will see how far it takes us. We welcome any pull request to make it even better.
-If you find any issues, please [file it](https://github.com/skippbox/kompose/issues).
+If you find any issues, please [file it](https://github.com/skippbox/kompose2/issues).
 
 ## Community, discussion, contribution, and support
 
