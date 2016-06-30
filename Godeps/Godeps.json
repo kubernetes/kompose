@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/skippbox/kompose2",
 	"GoVersion": "go1.6",
-	"GodepVersion": "v74",
+	"GodepVersion": "v71",
 	"Packages": [
 		"./..."
 	],
@@ -560,8 +560,8 @@
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",
-			"Comment": "v1.18.0",
-			"Rev": "1efa31f08b9333f1bd4882d61f9d668a70cd902e"
+			"Comment": "v1.14.0",
+			"Rev": "71f57d300dd6a780ac1856c005c4b518cfd498ec"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/ssh/terminal",
