@@ -1,0 +1,10 @@
+sudo: required
+
+language: go
+
+branches:
+  only:
+    - master
+
+script:
+- make binary
