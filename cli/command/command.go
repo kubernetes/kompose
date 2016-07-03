@@ -17,9 +17,9 @@ limitations under the License.
 package command
 
 import (
-	"github.com/urfave/cli"
 	"github.com/docker/libcompose/project"
 	"github.com/skippbox/kompose2/cli/app"
+	"github.com/urfave/cli"
 )
 
 // ConvertCommand defines the kompose convert subcommand.
@@ -35,6 +35,7 @@ func ConvertCommand(factory app.ProjectFactory) cli.Command {
 				Value:  "docker-compose.yml",
 				EnvVar: "COMPOSE_FILE",
 			},
+			// TODO: validate the flags and make sure only one type is specified
 			cli.BoolFlag{
 				Name:  "deployment,d",
 				Usage: "Generate a deployment resource file",
@@ -54,6 +55,10 @@ func ConvertCommand(factory app.ProjectFactory) cli.Command {
 			cli.BoolFlag{
 				Name:  "yaml, y",
 				Usage: "Generate resource file in yaml format",
+			},
+			cli.BoolFlag{
+				Name:  "stdout,out",
+				Usage: "Print Kubernetes objects to stdout",
 			},
 		},
 	}

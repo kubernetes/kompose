@@ -19,6 +19,7 @@ package app
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 
@@ -211,6 +212,7 @@ func ProjectKuberScale(p *project.Project, c *cli.Context) {
 // ProjectKuberConvert tranforms docker compose to k8s objects
 func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	generateYaml := false
+	toStdout := false
 	composeFile := c.String("file")
 
 	p = project.NewProject(&project.Context{
@@ -224,6 +226,10 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 	if c.BoolT("yaml") {
 		generateYaml = true
+	}
+
+	if c.BoolT("stdout") {
+		toStdout = true
 	}
 
 	var mServices map[string]api.Service = make(map[string]api.Service)
@@ -624,47 +630,21 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 			}
 		}
 
-		fileRC := fmt.Sprintf("%s-rc.json", name)
-		if generateYaml == true {
-			fileRC = fmt.Sprintf("%s-rc.yaml", name)
-		}
-		if err := ioutil.WriteFile(fileRC, []byte(datarc), 0644); err != nil {
-			logrus.Fatalf("Failed to write replication controller: %v", err)
-		}
-
-		/* Create the deployment container */
 		if c.BoolT("deployment") {
-			fileDC := fmt.Sprintf("%s-deployment.json", name)
-			if generateYaml == true {
-				fileDC = fmt.Sprintf("%s-deployment.yaml", name)
-			}
-			if err := ioutil.WriteFile(fileDC, []byte(datadc), 0644); err != nil {
-				logrus.Fatalf("Failed to write deployment container: %v", err)
-			}
+			// Create the deployment
+			print(name, "deployment", datadc, toStdout, generateYaml)
+		} else if c.BoolT("daemonset") {
+			// Create the daemonset
+			print(name, "daemonset", datads, toStdout, generateYaml)
+		} else if c.BoolT("replicaset") {
+			// Create the replicaset container
+			print(name, "replicaset", datars, toStdout, generateYaml)
+		} else {
+			// Create the replication controller
+			print(name, "rc", datarc, toStdout, generateYaml)
 		}
 
-		/* Create the daemonset container */
-		if c.BoolT("daemonset") {
-			fileDS := fmt.Sprintf("%s-daemonset.json", name)
-			if generateYaml == true {
-				fileDS = fmt.Sprintf("%s-daemonset.yaml", name)
-			}
-			if err := ioutil.WriteFile(fileDS, []byte(datads), 0644); err != nil {
-				logrus.Fatalf("Failed to write daemonset: %v", err)
-			}
-		}
-
-		/* Create the replicaset container */
-		if c.BoolT("replicaset") {
-			fileRS := fmt.Sprintf("%s-replicaset.json", name)
-			if generateYaml == true {
-				fileRS = fmt.Sprintf("%s-replicaset.yaml", name)
-			}
-			if err := ioutil.WriteFile(fileRS, []byte(datars), 0644); err != nil {
-				logrus.Fatalf("Failed to write replicaset: %v", err)
-			}
-		}
-
+		// Create the services
 		for k, v := range mServices {
 			for i := 0; i < len(serviceLinks); i++ {
 				// convert datasvc to json / yaml
@@ -678,16 +658,10 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 				logrus.Debugf("%s\n", datasvc)
 
-				fileSVC := fmt.Sprintf("%s-svc.json", k)
-				if generateYaml == true {
-					fileSVC = fmt.Sprintf("%s-svc.yaml", k)
-				}
-
-				if err := ioutil.WriteFile(fileSVC, []byte(datasvc), 0644); err != nil {
-					logrus.Fatalf("Failed to write service controller: %v", err)
-				}
+				print(k, "svc", datasvc, toStdout, generateYaml)
 			}
 		}
+
 	}
 
 	/* Need to iterate through one more time to ensure we capture all service/rc */
@@ -699,6 +673,25 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 			}
 		}
 	}
+}
+
+func print(name, trailing string, data []byte, toStdout, generateYaml bool) {
+	file := fmt.Sprintf("%s-%s.json", name, trailing)
+	if generateYaml {
+		file = fmt.Sprintf("%s-%s.yaml", name, trailing)
+	}
+	if toStdout {
+		separator := ""
+		if generateYaml {
+			separator = "---"
+		}
+		fmt.Fprintf(os.Stdout, "%s%s\n", string(data), separator)
+	} else {
+		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
+			logrus.Fatalf("Failed to write %s: %v", trailing, err)
+		}
+	}
+
 }
 
 // ProjectKuberUp brings up rc, svc.
