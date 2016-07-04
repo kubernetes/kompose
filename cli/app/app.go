@@ -215,6 +215,13 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	toStdout := false
 	composeFile := c.String("file")
 
+	var outFile string
+	outFile = c.String("out")
+
+	if (outFile != "") && c.BoolT("stdout") {
+		logrus.Fatalf("Failed: -o and --stdout can't be put at the same time")
+	}
+
 	p = project.NewProject(&project.Context{
 		ProjectName: "kube",
 		ComposeFile: composeFile,
@@ -632,16 +639,16 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 		if c.BoolT("deployment") {
 			// Create the deployment
-			print(name, "deployment", datadc, toStdout, generateYaml)
+			print(name, "deployment", datadc, toStdout, generateYaml, outFile)
 		} else if c.BoolT("daemonset") {
 			// Create the daemonset
-			print(name, "daemonset", datads, toStdout, generateYaml)
+			print(name, "daemonset", datads, toStdout, generateYaml, outFile)
 		} else if c.BoolT("replicaset") {
 			// Create the replicaset container
-			print(name, "replicaset", datars, toStdout, generateYaml)
+			print(name, "replicaset", datars, toStdout, generateYaml, outFile)
 		} else {
 			// Create the replication controller
-			print(name, "rc", datarc, toStdout, generateYaml)
+			print(name, "rc", datarc, toStdout, generateYaml, outFile)
 		}
 
 		// Create the services
@@ -658,10 +665,9 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 				logrus.Debugf("%s\n", datasvc)
 
-				print(k, "svc", datasvc, toStdout, generateYaml)
+				print(k, "svc", datasvc, toStdout, generateYaml, outFile)
 			}
 		}
-
 	}
 
 	/* Need to iterate through one more time to ensure we capture all service/rc */
@@ -675,23 +681,34 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	}
 }
 
-func print(name, trailing string, data []byte, toStdout, generateYaml bool) {
+func print(name, trailing string, data []byte, toStdout, generateYaml bool, outFile string) {
 	file := fmt.Sprintf("%s-%s.json", name, trailing)
 	if generateYaml {
 		file = fmt.Sprintf("%s-%s.yaml", name, trailing)
 	}
+	if outFile != "" {
+		file = outFile
+	}
+	separator := ""
+	if generateYaml {
+		separator = "---"
+	}
 	if toStdout {
-		separator := ""
-		if generateYaml {
-			separator = "---"
-		}
 		fmt.Fprintf(os.Stdout, "%s%s\n", string(data), separator)
 	} else {
-		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
-			logrus.Fatalf("Failed to write %s: %v", trailing, err)
+		//if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
+		//	logrus.Fatalf("Failed to write %s: %v", trailing, err)
+		//}
+		f, err := os.OpenFile(file, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0644)
+		if err != nil {
+			logrus.Fatalf("error opening file: %v", err)
 		}
-	}
+		defer f.Close()
+		if _, err = f.WriteString(string(data) + "\n" + separator); err != nil {
+			logrus.Fatalf("Failed to write %s to file: %v", trailing, err)
+		}
 
+	}
 }
 
 // ProjectKuberUp brings up rc, svc.

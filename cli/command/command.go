@@ -35,6 +35,11 @@ func ConvertCommand(factory app.ProjectFactory) cli.Command {
 				Value:  "docker-compose.yml",
 				EnvVar: "COMPOSE_FILE",
 			},
+			cli.StringFlag{
+				Name:   "out,o",
+				Usage:  "Specify file name in order to save objects into",
+				EnvVar: "OUTPUT_FILE",
+			},
 			// TODO: validate the flags and make sure only one type is specified
 			cli.BoolFlag{
 				Name:  "deployment,d",
@@ -57,7 +62,7 @@ func ConvertCommand(factory app.ProjectFactory) cli.Command {
 				Usage: "Generate resource file in yaml format",
 			},
 			cli.BoolFlag{
-				Name:  "stdout,out",
+				Name:  "stdout",
 				Usage: "Print Kubernetes objects to stdout",
 			},
 		},
