@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/skippbox/kompose2",
 	"GoVersion": "go1.6",
-	"GodepVersion": "v71",
+	"GodepVersion": "v74",
 	"Packages": [
 		"./..."
 	],
@@ -367,6 +367,10 @@
 		{
 			"ImportPath": "github.com/evanphx/json-patch",
 			"Rev": "7dd4489c2eb6073e5a9d7746c3274c5b5f0387df"
+		},
+		{
+			"ImportPath": "github.com/fatih/structs",
+			"Rev": "be738c8546f55b34e60125afa50ed73a9a9c460e"
 		},
 		{
 			"ImportPath": "github.com/flynn/go-shlex",

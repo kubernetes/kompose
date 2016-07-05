@@ -39,11 +39,46 @@ import (
 	"k8s.io/kubernetes/pkg/util/intstr"
 
 	"github.com/ghodss/yaml"
+	"github.com/fatih/structs"
 )
 
 type ProjectAction func(project *project.Project, c *cli.Context)
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
+var unsupportedKey = map[string]string {
+	"Build": "",
+	"CapAdd": "",
+	"CapDrop": "",
+	"CPUSet": "",
+	"CPUShares": "",
+	"ContainerName": "",
+	"Devices": "",
+	"DNS": "",
+	"DNSSearch": "",
+	"Dockerfile": "",
+	"DomainName": "",
+	"Entrypoint": "",
+	"EnvFile": "",
+	"Hostname": "",
+	"LogDriver": "",
+	"MemLimit": "",
+	"MemSwapLimit": "",
+	"Net": "",
+	"Pid": "",
+	"Uts": "",
+	"Ipc": "",
+	"ReadOnly": "",
+	"StdinOpen": "",
+	"SecurityOpt": "",
+	"Tty": "",
+	"User": "",
+	"VolumeDriver": "",
+	"VolumesFrom": "",
+	"Expose": "",
+	"ExternalLinks": "",
+	"LogOpt": "",
+	"ExtraHosts": "",
+}
 
 // RandStringBytes generates randomly n-character string
 func RandStringBytes(n int) string {
@@ -243,6 +278,9 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	var serviceLinks []string
 
 	for name, service := range p.Configs {
+
+		checkUnsupportedKey(*service)
+
 		rc := &api.ReplicationController{
 			TypeMeta: unversioned.TypeMeta{
 				Kind:       "ReplicationController",
@@ -681,6 +719,17 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	}
 }
 
+func checkUnsupportedKey(service project.ServiceConfig) {
+	s := structs.New(service)
+	for _, f := range s.Fields() {
+		if f.IsExported() && !f.IsZero() {
+			if _, ok := unsupportedKey[f.Name()]; ok {
+				fmt.Println("WARNING: Unsupported key " + f.Name() + " - ignoring")
+			}
+		}
+	}
+}
+
 func print(name, trailing string, data []byte, toStdout, generateYaml bool, outFile string) {
 	file := fmt.Sprintf("%s-%s.json", name, trailing)
 	if generateYaml {
@@ -696,9 +745,6 @@ func print(name, trailing string, data []byte, toStdout, generateYaml bool, outF
 	if toStdout {
 		fmt.Fprintf(os.Stdout, "%s%s\n", string(data), separator)
 	} else {
-		//if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
-		//	logrus.Fatalf("Failed to write %s: %v", trailing, err)
-		//}
 		f, err := os.OpenFile(file, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0644)
 		if err != nil {
 			logrus.Fatalf("error opening file: %v", err)
