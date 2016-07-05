@@ -187,6 +187,25 @@ accordingly.
 $ go build -o kompose ./cli/main
 ```
 
+### Building multi-platform binaries with make
+
+- You need `make`
+
+```
+$ make binary
+```
+
+## Unsupported docker-compose configuration options
+
+Currently `kompose` does not support these below options. Some of them are not reflected into kubernetes objects.
+
+```
+"Build", "CapAdd", "CapDrop", "CPUSet", "CPUShares", "ContainerName", "Devices", "DNS", "DNSSearch",
+"Dockerfile", "DomainName", "Entrypoint", "EnvFile", "Hostname", "LogDriver", "MemLimit", "MemSwapLimit",
+"Net", "Pid", "Uts", "Ipc", "ReadOnly", "StdinOpen", "SecurityOpt", "Tty", "User", "VolumeDriver",
+"VolumesFrom", "Expose", "ExternalLinks", "LogOpt", "ExtraHosts",
+```
+
 ## Contributing and Issues
 
 `kompose` is a work in progress, we will see how far it takes us. We welcome any pull request to make it even better.
