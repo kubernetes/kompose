@@ -22,6 +22,7 @@ import (
 
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/registry/thirdpartyresourcedata"
 	"k8s.io/kubernetes/pkg/runtime"
 )
 
@@ -53,6 +54,20 @@ func (m *Mapper) InfoForData(data []byte, source string) (*Info, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to decode %q: %v", source, err)
 	}
+	var obj runtime.Object
+	var versioned runtime.Object
+	if isThirdParty, gvkOut, err := thirdpartyresourcedata.IsThirdPartyObject(data, gvk); err != nil {
+		return nil, err
+	} else if isThirdParty {
+		obj, err = runtime.Decode(thirdpartyresourcedata.NewDecoder(nil, gvkOut.Kind), data)
+		versioned = obj
+		gvk = gvkOut
+	} else {
+		obj, versioned = versions.Last(), versions.First()
+	}
+	if err != nil {
+		return nil, fmt.Errorf("unable to decode %q: %v [%v]", source, err, gvk)
+	}
 	mapping, err := m.RESTMapping(gvk.GroupKind(), gvk.Version)
 	if err != nil {
 		return nil, fmt.Errorf("unable to recognize %q: %v", source, err)
@@ -63,10 +78,6 @@ func (m *Mapper) InfoForData(data []byte, source string) (*Info, error) {
 		return nil, fmt.Errorf("unable to connect to a server to handle %q: %v", mapping.Resource, err)
 	}
 
-	// TODO: decoding the version object is convenient, but questionable. This is used by apply
-	// and rolling-update today, but both of those cases should probably be requesting the raw
-	// object and performing their own decoding.
-	obj, versioned := versions.Last(), versions.First()
 	name, _ := mapping.MetadataAccessor.Name(obj)
 	namespace, _ := mapping.MetadataAccessor.Namespace(obj)
 	resourceVersion, _ := mapping.MetadataAccessor.ResourceVersion(obj)
@@ -87,7 +98,7 @@ func (m *Mapper) InfoForData(data []byte, source string) (*Info, error) {
 // if the object cannot be introspected. Name and namespace will be set into Info
 // if the mapping's MetadataAccessor can retrieve them.
 func (m *Mapper) InfoForObject(obj runtime.Object, preferredGVKs []unversioned.GroupVersionKind) (*Info, error) {
-	groupVersionKinds, err := m.ObjectKinds(obj)
+	groupVersionKinds, _, err := m.ObjectKinds(obj)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get type info from the object %q: %v", reflect.TypeOf(obj), err)
 	}

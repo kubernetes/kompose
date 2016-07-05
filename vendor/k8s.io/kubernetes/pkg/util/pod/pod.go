@@ -25,7 +25,7 @@ import (
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/errors"
-	unversionedcore "k8s.io/kubernetes/pkg/client/typed/generated/core/unversioned"
+	unversionedcore "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset/typed/core/unversioned"
 	errorsutil "k8s.io/kubernetes/pkg/util/errors"
 	hashutil "k8s.io/kubernetes/pkg/util/hash"
 	"k8s.io/kubernetes/pkg/util/wait"
@@ -86,4 +86,15 @@ func UpdatePodWithRetries(podClient unversionedcore.PodInterface, pod *api.Pod, 
 	// If the error is non-nil the returned pod cannot be trusted; if podUpdated is false, the pod isn't updated;
 	// if the error is nil and podUpdated is true, the returned pod contains the applied update.
 	return pod, podUpdated, err
+}
+
+// Filter uses the input function f to filter the given pod list, and return the filtered pods
+func Filter(podList *api.PodList, f func(api.Pod) bool) []api.Pod {
+	pods := make([]api.Pod, 0)
+	for _, p := range podList.Items {
+		if f(p) {
+			pods = append(pods, p)
+		}
+	}
+	return pods
 }

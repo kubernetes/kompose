@@ -323,7 +323,7 @@ func resolve_time(val string, v reflect.Value, event yaml_event_t) (string, erro
 	} else {
 		matches = timestamp_regexp.FindStringSubmatch(val)
 		if len(matches) == 0 {
-			return "", fmt.Errorf("Invalid timestap: '%s' at %s", val, event.start_mark)
+			return "", fmt.Errorf("Invalid timestamp: '%s' at %s", val, event.start_mark)
 		}
 
 		year, _ := strconv.Atoi(matches[1])

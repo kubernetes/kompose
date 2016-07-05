@@ -68,6 +68,12 @@ type Controller struct {
 	reflectorMutex sync.RWMutex
 }
 
+// TODO make the "Controller" private, and convert all references to use ControllerInterface instead
+type ControllerInterface interface {
+	Run(stopCh <-chan struct{})
+	HasSynced() bool
+}
+
 // New makes a new Controller from the given Config.
 func New(c *Config) *Controller {
 	ctlr := &Controller{
@@ -118,8 +124,7 @@ func (c *Controller) Requeue(obj interface{}) error {
 // concurrently.
 func (c *Controller) processLoop() {
 	for {
-		obj := c.config.Queue.Pop()
-		err := c.config.Process(obj)
+		obj, err := c.config.Queue.Pop(cache.PopProcessFunc(c.config.Process))
 		if err != nil {
 			if c.config.RetryOnError {
 				// This is the safe way to re-enqueue.

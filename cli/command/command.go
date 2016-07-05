@@ -151,17 +151,13 @@ func CommonFlags() []cli.Flag {
 			Value:  "docker-compose.yml",
 			EnvVar: "COMPOSE_FILE",
 		},
-		cli.StringFlag{
-			Name:  "project-name,p",
-			Usage: "Specify an alternate project name (default: directory name)",
-		},
 	}
 }
 
 // Populate updates the specified project context based on command line arguments and subcommands.
 func Populate(context *project.Context, c *cli.Context) {
 	context.ComposeFile = c.GlobalString("file")
-	context.ProjectName = c.GlobalString("project-name")
+	//context.ProjectName = c.GlobalString("project-name")
 
 	if c.Command.Name == "logs" {
 		context.Log = true

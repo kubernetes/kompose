@@ -130,7 +130,7 @@ func ProjectKuberPS(p *project.Project, c *cli.Context) {
 			} else {
 
 				for i := range services.Spec.Ports {
-					p := strconv.Itoa(services.Spec.Ports[i].Port)
+					p := strconv.Itoa(int(services.Spec.Ports[i].Port))
 					ports += ports + string(services.Spec.Ports[i].Protocol) + "(" + p + "),"
 				}
 
@@ -232,7 +232,7 @@ func ProjectKuberScale(p *project.Project, c *cli.Context) {
 				logrus.Fatalf("Error retrieving scaling data: %s\n", err)
 			}
 
-			s.Spec.Replicas = c.Int("scale")
+			s.Spec.Replicas = int32(c.Int("scale"))
 
 			s, err = client.ExtensionsClient.Scales(api.NamespaceDefault).Update("ReplicationController", s)
 			if err != nil {
@@ -524,13 +524,13 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 				if err != nil {
 					logrus.Fatalf("Invalid container port %s for service %s", port, name)
 				}
-				ports = append(ports, api.ContainerPort{ContainerPort: targetPortNumberInt})
+				ports = append(ports, api.ContainerPort{ContainerPort: int32(targetPortNumberInt)})
 			} else {
 				portNumber, err := strconv.Atoi(port)
 				if err != nil {
 					logrus.Fatalf("Invalid container port %s for service %s", port, name)
 				}
-				ports = append(ports, api.ContainerPort{ContainerPort: portNumber})
+				ports = append(ports, api.ContainerPort{ContainerPort: int32(portNumber)})
 			}
 		}
 
@@ -559,7 +559,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 				var targetPort intstr.IntOrString
 				targetPort.StrVal = targetPortNumber
 				targetPort.IntVal = int32(targetPortNumberInt)
-				servicePorts = append(servicePorts, api.ServicePort{Port: portNumberInt, Name: portNumber, Protocol: "TCP", TargetPort: targetPort})
+				servicePorts = append(servicePorts, api.ServicePort{Port: int32(portNumberInt), Name: portNumber, Protocol: "TCP", TargetPort: targetPort})
 			} else {
 				portNumber, err := strconv.Atoi(port)
 				if err != nil {
@@ -568,7 +568,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 				var targetPort intstr.IntOrString
 				targetPort.StrVal = strconv.Itoa(portNumber)
 				targetPort.IntVal = int32(portNumber)
-				servicePorts = append(servicePorts, api.ServicePort{Port: portNumber, Name: strconv.Itoa(portNumber), Protocol: "TCP", TargetPort: targetPort})
+				servicePorts = append(servicePorts, api.ServicePort{Port: int32(portNumber), Name: strconv.Itoa(portNumber), Protocol: "TCP", TargetPort: targetPort})
 			}
 		}
 		sc.Spec.Ports = servicePorts

@@ -306,10 +306,27 @@ func typeByIndex(t reflect.Type, index []int) reflect.Type {
 // It implements the methods to sort by string.
 type stringValues []reflect.Value
 
-func (sv stringValues) Len() int           { return len(sv) }
-func (sv stringValues) Swap(i, j int)      { sv[i], sv[j] = sv[j], sv[i] }
-func (sv stringValues) Less(i, j int) bool { return sv.get(i) < sv.get(j) }
-func (sv stringValues) get(i int) string   { return sv[i].String() }
+func (sv stringValues) Len() int      { return len(sv) }
+func (sv stringValues) Swap(i, j int) { sv[i], sv[j] = sv[j], sv[i] }
+func (sv stringValues) Less(i, j int) bool {
+	av, ak := getElem(sv[i])
+	bv, bk := getElem(sv[j])
+	if ak == reflect.String && bk == reflect.String {
+		return av.String() < bv.String()
+	}
+
+	return ak < bk
+}
+
+func getElem(v reflect.Value) (reflect.Value, reflect.Kind) {
+	k := v.Kind()
+	for k == reflect.Interface || k == reflect.Ptr && !v.IsNil() {
+		v = v.Elem()
+		k = v.Kind()
+	}
+
+	return v, k
+}
 
 // parseTag splits a struct field's json tag into its name and
 // comma-separated options.
