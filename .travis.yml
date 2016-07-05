@@ -2,9 +2,18 @@ sudo: required
 
 language: go
 
+go:
+  - 1.6
+  - tip
+
 branches:
   only:
     - master
+
+install:
+- go get github.com/mitchellh/gox
+- go get github.com/tools/godep
+- godep restore
 
 script:
 - make binary
