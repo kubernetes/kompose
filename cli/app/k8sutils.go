@@ -38,7 +38,7 @@ func generateHelm(filename string, svcname string) error {
 
 	dirName := strings.Replace(filename, ".yml", "", 1)
 	details := ChartDetails{dirName}
-	manifestDir := dirName + string(os.PathSeparator) + "manifests"
+	manifestDir := dirName + string(os.PathSeparator) + "templates"
 	dir, err := os.Open(dirName)
 
 	/* Setup the initial directories/files */
@@ -66,9 +66,11 @@ func generateHelm(filename string, svcname string) error {
 
 		/* Create the Chart.yaml file */
 		chart := `name: {{.Name}}
-description: A generated Helm Chart from Skippbox Kompose
+description: A generated Helm Chart for {{.Name}} from Skippbox Kompose
 version: 0.0.1
-source:
+keywords:
+  - {{.Name}}
+sources:
 home:
 `
 
