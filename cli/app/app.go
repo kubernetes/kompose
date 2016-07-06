@@ -248,6 +248,7 @@ func ProjectKuberScale(p *project.Project, c *cli.Context) {
 func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	generateYaml := false
 	toStdout := false
+
 	composeFile := c.String("file")
 
 	var outFile string
@@ -266,6 +267,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		logrus.Fatalf("Failed to parse the compose project from %s: %v", composeFile, err)
 	}
 
+	// check flags
 	if c.BoolT("yaml") {
 		generateYaml = true
 	}
@@ -753,7 +755,7 @@ func print(name, trailing string, data []byte, toStdout, generateYaml bool, outF
 		if _, err = f.WriteString(string(data) + "\n" + separator); err != nil {
 			logrus.Fatalf("Failed to write %s to file: %v", trailing, err)
 		}
-
+		fmt.Println("file " + file + " has been created")
 	}
 }
 
