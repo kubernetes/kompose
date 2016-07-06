@@ -38,46 +38,47 @@ import (
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
-	"github.com/ghodss/yaml"
 	"github.com/fatih/structs"
+	"github.com/ghodss/yaml"
 )
 
 type ProjectAction func(project *project.Project, c *cli.Context)
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
-var unsupportedKey = map[string]string {
-	"Build": "",
-	"CapAdd": "",
-	"CapDrop": "",
-	"CPUSet": "",
-	"CPUShares": "",
+
+var unsupportedKey = map[string]string{
+	"Build":         "",
+	"CapAdd":        "",
+	"CapDrop":       "",
+	"CPUSet":        "",
+	"CPUShares":     "",
 	"ContainerName": "",
-	"Devices": "",
-	"DNS": "",
-	"DNSSearch": "",
-	"Dockerfile": "",
-	"DomainName": "",
-	"Entrypoint": "",
-	"EnvFile": "",
-	"Hostname": "",
-	"LogDriver": "",
-	"MemLimit": "",
-	"MemSwapLimit": "",
-	"Net": "",
-	"Pid": "",
-	"Uts": "",
-	"Ipc": "",
-	"ReadOnly": "",
-	"StdinOpen": "",
-	"SecurityOpt": "",
-	"Tty": "",
-	"User": "",
-	"VolumeDriver": "",
-	"VolumesFrom": "",
-	"Expose": "",
+	"Devices":       "",
+	"DNS":           "",
+	"DNSSearch":     "",
+	"Dockerfile":    "",
+	"DomainName":    "",
+	"Entrypoint":    "",
+	"EnvFile":       "",
+	"Hostname":      "",
+	"LogDriver":     "",
+	"MemLimit":      "",
+	"MemSwapLimit":  "",
+	"Net":           "",
+	"Pid":           "",
+	"Uts":           "",
+	"Ipc":           "",
+	"ReadOnly":      "",
+	"StdinOpen":     "",
+	"SecurityOpt":   "",
+	"Tty":           "",
+	"User":          "",
+	"VolumeDriver":  "",
+	"VolumesFrom":   "",
+	"Expose":        "",
 	"ExternalLinks": "",
-	"LogOpt": "",
-	"ExtraHosts": "",
+	"LogOpt":        "",
+	"ExtraHosts":    "",
 }
 
 // RandStringBytes generates randomly n-character string
@@ -274,6 +275,17 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 	if c.BoolT("stdout") {
 		toStdout = true
+	}
+
+	// Create the file f to write to if --out is specified
+	var f *os.File
+	var err error
+	if len(outFile) != 0 {
+		f, err = os.Create(outFile)
+		if err != nil {
+			logrus.Fatalf("error opening file: %v", err)
+		}
+		defer f.Close()
 	}
 
 	var mServices map[string]api.Service = make(map[string]api.Service)
@@ -679,16 +691,16 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 		if c.BoolT("deployment") {
 			// Create the deployment
-			print(name, "deployment", datadc, toStdout, generateYaml, outFile)
+			print(name, "deployment", datadc, toStdout, generateYaml, f)
 		} else if c.BoolT("daemonset") {
 			// Create the daemonset
-			print(name, "daemonset", datads, toStdout, generateYaml, outFile)
+			print(name, "daemonset", datads, toStdout, generateYaml, f)
 		} else if c.BoolT("replicaset") {
 			// Create the replicaset container
-			print(name, "replicaset", datars, toStdout, generateYaml, outFile)
+			print(name, "replicaset", datars, toStdout, generateYaml, f)
 		} else {
 			// Create the replication controller
-			print(name, "rc", datarc, toStdout, generateYaml, outFile)
+			print(name, "rc", datarc, toStdout, generateYaml, f)
 		}
 
 		// Create the services
@@ -705,9 +717,12 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 				logrus.Debugf("%s\n", datasvc)
 
-				print(k, "svc", datasvc, toStdout, generateYaml, outFile)
+				print(k, "svc", datasvc, toStdout, generateYaml, f)
 			}
 		}
+	}
+	if f != nil {
+		fmt.Fprintf(os.Stdout, "file %q created\n", outFile)
 	}
 
 	/* Need to iterate through one more time to ensure we capture all service/rc */
@@ -732,13 +747,10 @@ func checkUnsupportedKey(service project.ServiceConfig) {
 	}
 }
 
-func print(name, trailing string, data []byte, toStdout, generateYaml bool, outFile string) {
+func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *os.File) {
 	file := fmt.Sprintf("%s-%s.json", name, trailing)
 	if generateYaml {
 		file = fmt.Sprintf("%s-%s.yaml", name, trailing)
-	}
-	if outFile != "" {
-		file = outFile
 	}
 	separator := ""
 	if generateYaml {
@@ -746,16 +758,18 @@ func print(name, trailing string, data []byte, toStdout, generateYaml bool, outF
 	}
 	if toStdout {
 		fmt.Fprintf(os.Stdout, "%s%s\n", string(data), separator)
-	} else {
-		f, err := os.OpenFile(file, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0644)
-		if err != nil {
-			logrus.Fatalf("error opening file: %v", err)
-		}
-		defer f.Close()
-		if _, err = f.WriteString(string(data) + "\n" + separator); err != nil {
+	} else if f != nil {
+		// Write all content to a single file f
+		if _, err := f.WriteString(fmt.Sprintf("%s%s\n", string(data), separator)); err != nil {
 			logrus.Fatalf("Failed to write %s to file: %v", trailing, err)
 		}
-		fmt.Println("file " + file + " has been created")
+		f.Sync()
+	} else {
+		// Write content separately to each file
+		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
+			logrus.Fatalf("Failed to write %s: %v", trailing, err)
+		}
+		fmt.Fprintf(os.Stdout, "file %q created\n", file)
 	}
 }
 
