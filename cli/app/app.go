@@ -38,46 +38,47 @@ import (
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
-	"github.com/ghodss/yaml"
 	"github.com/fatih/structs"
+	"github.com/ghodss/yaml"
 )
 
 type ProjectAction func(project *project.Project, c *cli.Context)
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
-var unsupportedKey = map[string]string {
-	"Build": "",
-	"CapAdd": "",
-	"CapDrop": "",
-	"CPUSet": "",
-	"CPUShares": "",
+
+var unsupportedKey = map[string]string{
+	"Build":         "",
+	"CapAdd":        "",
+	"CapDrop":       "",
+	"CPUSet":        "",
+	"CPUShares":     "",
 	"ContainerName": "",
-	"Devices": "",
-	"DNS": "",
-	"DNSSearch": "",
-	"Dockerfile": "",
-	"DomainName": "",
-	"Entrypoint": "",
-	"EnvFile": "",
-	"Hostname": "",
-	"LogDriver": "",
-	"MemLimit": "",
-	"MemSwapLimit": "",
-	"Net": "",
-	"Pid": "",
-	"Uts": "",
-	"Ipc": "",
-	"ReadOnly": "",
-	"StdinOpen": "",
-	"SecurityOpt": "",
-	"Tty": "",
-	"User": "",
-	"VolumeDriver": "",
-	"VolumesFrom": "",
-	"Expose": "",
+	"Devices":       "",
+	"DNS":           "",
+	"DNSSearch":     "",
+	"Dockerfile":    "",
+	"DomainName":    "",
+	"Entrypoint":    "",
+	"EnvFile":       "",
+	"Hostname":      "",
+	"LogDriver":     "",
+	"MemLimit":      "",
+	"MemSwapLimit":  "",
+	"Net":           "",
+	"Pid":           "",
+	"Uts":           "",
+	"Ipc":           "",
+	"ReadOnly":      "",
+	"StdinOpen":     "",
+	"SecurityOpt":   "",
+	"Tty":           "",
+	"User":          "",
+	"VolumeDriver":  "",
+	"VolumesFrom":   "",
+	"Expose":        "",
 	"ExternalLinks": "",
-	"LogOpt": "",
-	"ExtraHosts": "",
+	"LogOpt":        "",
+	"ExtraHosts":    "",
 }
 
 // RandStringBytes generates randomly n-character string
@@ -246,16 +247,33 @@ func ProjectKuberScale(p *project.Project, c *cli.Context) {
 
 // ProjectKuberConvert tranforms docker compose to k8s objects
 func ProjectKuberConvert(p *project.Project, c *cli.Context) {
-	generateYaml := false
-	toStdout := false
-
 	composeFile := c.String("file")
+	outFile := c.String("out")
+	generateYaml := c.BoolT("yaml")
+	toStdout := c.BoolT("stdout")
+	createD := c.BoolT("deployment")
+	createDS := c.BoolT("daemonset")
+	createRS := c.BoolT("replicaset")
+	singleOutput := len(outFile) != 0 || toStdout
 
-	var outFile string
-	outFile = c.String("out")
-
-	if (outFile != "") && c.BoolT("stdout") {
-		logrus.Fatalf("Failed: -o and --stdout can't be put at the same time")
+	// Validate the flags
+	if len(outFile) != 0 && toStdout {
+		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
+	}
+	if singleOutput {
+		count := 0
+		if createD {
+			count++
+		}
+		if createDS {
+			count++
+		}
+		if createRS {
+			count++
+		}
+		if count > 1 {
+			logrus.Fatalf("Error: only one type of Kubernetes controller can be generated when --out or --stdout is specified")
+		}
 	}
 
 	p = project.NewProject(&project.Context{
@@ -265,15 +283,6 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 	if err := p.Parse(); err != nil {
 		logrus.Fatalf("Failed to parse the compose project from %s: %v", composeFile, err)
-	}
-
-	// check flags
-	if c.BoolT("yaml") {
-		generateYaml = true
-	}
-
-	if c.BoolT("stdout") {
-		toStdout = true
 	}
 
 	var mServices map[string]api.Service = make(map[string]api.Service)
@@ -677,16 +686,21 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 			}
 		}
 
-		if c.BoolT("deployment") {
+		// If --out or --stdout is set, the validation should already prevent multiple controllers being generated
+		if createD {
 			// Create the deployment
 			print(name, "deployment", datadc, toStdout, generateYaml, outFile)
-		} else if c.BoolT("daemonset") {
+		}
+		if createDS {
 			// Create the daemonset
 			print(name, "daemonset", datads, toStdout, generateYaml, outFile)
-		} else if c.BoolT("replicaset") {
+		}
+		if createRS {
 			// Create the replicaset container
 			print(name, "replicaset", datars, toStdout, generateYaml, outFile)
-		} else {
+		}
+		// We can create RC when we either don't print to --out or --stdout, or we don't create any other controllers
+		if !singleOutput || (!createD && !createDS && !createRS) {
 			// Create the replication controller
 			print(name, "rc", datarc, toStdout, generateYaml, outFile)
 		}
@@ -747,7 +761,7 @@ func print(name, trailing string, data []byte, toStdout, generateYaml bool, outF
 	if toStdout {
 		fmt.Fprintf(os.Stdout, "%s%s\n", string(data), separator)
 	} else {
-		f, err := os.OpenFile(file, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0644)
+		f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
 			logrus.Fatalf("error opening file: %v", err)
 		}
