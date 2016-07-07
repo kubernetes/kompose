@@ -254,7 +254,6 @@ func createOutFile(out string) *os.File {
 		if err != nil {
 			logrus.Fatalf("error opening file: %v", err)
 		}
-		defer f.Close()
 	}
 	return f
 }
@@ -595,6 +594,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	}
 
 	f := createOutFile(outFile)
+	defer f.Close()
 
 	var mServices map[string]api.Service = make(map[string]api.Service)
 	var serviceLinks []string
