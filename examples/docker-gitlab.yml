@@ -14,8 +14,8 @@ gitlab:
   restart: always
   image: sameersbn/gitlab:8.6.4
   links:
-    - redisio:redisio
-    - postgresql:postgresql
+    - redisio
+    - postgresql
   ports:
     - "10080:80"
     - "10022:22"
