@@ -596,7 +596,11 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	f := createOutFile(outFile)
 	defer f.Close()
 
-	var mServices map[string]api.Service = make(map[string]api.Service)
+	var mServices map[string][]byte = make(map[string][]byte)
+	var mReplicationControllers map[string][]byte = make(map[string][]byte)
+	var mDeployments map[string][]byte = make(map[string][]byte)
+	var mDaemonSets map[string][]byte = make(map[string][]byte)
+	var mReplicaSets map[string][]byte = make(map[string][]byte)
 	var serviceLinks []string
 
 	for name, service := range p.Configs {
@@ -740,52 +744,68 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 			logrus.Fatalf(err)
 		}
 
-		mServices[name] = *sc
+		// convert datasvc to json / yaml
+		datasvc, err := transformer(sc, "service controller", generateYaml)
+		if err != "" {
+			logrus.Fatalf(err)
+		}
+
+		mServices[name] = datasvc
+		mReplicationControllers[name] = datarc
+		mDeployments[name] = datadc
+		mDaemonSets[name] = datads
+		mReplicaSets[name] = datars
+		exists := false
 
 		if len(service.Links.Slice()) > 0 {
 			for i := 0; i < len(service.Links.Slice()); i++ {
 				var data string = service.Links.Slice()[i]
-				if len(serviceLinks) == 0 {
-					serviceLinks = append(serviceLinks, data)
-				} else {
-					for _, v := range serviceLinks {
-						if v != data {
-							serviceLinks = append(serviceLinks, data)
-						}
+				for _, v := range serviceLinks {
+					if v == data {
+						exists = true
+						break
 					}
 				}
-			}
-		}
-
-		// If --out or --stdout is set, the validation should already prevent multiple controllers being generated
-		if createD {
-			// Create the deployment
-			print(name, "deployment", datadc, toStdout, generateYaml, f)
-		}
-		if createDS {
-			// Create the daemonset
-			print(name, "daemonset", datads, toStdout, generateYaml, f)
-		}
-		if createRS {
-			// Create the replicaset container
-			print(name, "replicaset", datars, toStdout, generateYaml, f)
-		}
-		// We can create RC when we either don't print to --out or --stdout, or we don't create any other controllers
-		if !singleOutput || (!createD && !createDS && !createRS) {
-			print(name, "rc", datarc, toStdout, generateYaml, f)
-		}
-
-		// Create the services
-		for k, v := range mServices {
-			for i := 0; i < len(serviceLinks); i++ {
-				// convert datasvc to json / yaml
-				datasvc, err := transformer(v, "service controller", generateYaml)
-				if err != "" {
-					logrus.Fatalf(err)
+				if !exists {
+					serviceLinks = append(serviceLinks, data)
 				}
-
-				print(k, "svc", datasvc, toStdout, generateYaml, f)
 			}
+		}
+	}
+
+	for _, serviceLink := range serviceLinks {
+		mServices[serviceLink] = nil
+	}
+
+	for k, v := range mServices {
+		if v != nil {
+			print(k, "svc", v, toStdout, generateYaml, f)
+		}
+	}
+
+	// If --out or --stdout is set, the validation should already prevent multiple controllers being generated
+	if createD {
+		for k, v := range mDeployments {
+			print(k, "deployment", v, toStdout, generateYaml, f)
+		}
+	}
+
+	if createDS {
+		for k, v := range mDaemonSets {
+			print(k, "daemonset", v, toStdout, generateYaml, f)
+		}
+	}
+
+	if createRS {
+		for k, v := range mReplicaSets {
+			print(k, "replicaset", v, toStdout, generateYaml, f)
+		}
+	}
+
+	// We can create RC when we either don't print to --out or --stdout, or we don't create any other controllers
+	if !singleOutput || (!createD && !createDS && !createRS) {
+		for k, v := range mReplicationControllers {
+			print(k, "rc", v, toStdout, generateYaml, f)
 		}
 	}
 
