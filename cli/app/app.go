@@ -245,6 +245,315 @@ func ProjectKuberScale(p *project.Project, c *cli.Context) {
 	}
 }
 
+// Create the file to write to if --out is specified
+func createOutFile(out string) *os.File {
+	var f *os.File
+	var err error
+	if len(out) != 0 {
+		f, err = os.Create(out)
+		if err != nil {
+			logrus.Fatalf("error opening file: %v", err)
+		}
+		defer f.Close()
+	}
+	return f
+}
+
+// Init RC object
+func initRC(name string, service *project.ServiceConfig) *api.ReplicationController {
+	rc := &api.ReplicationController{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "ReplicationController",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+			//Labels: map[string]string{"service": name},
+		},
+		Spec: api.ReplicationControllerSpec{
+			Replicas: 1,
+			Selector: map[string]string{"service": name},
+			Template: &api.PodTemplateSpec{
+				ObjectMeta: api.ObjectMeta{
+				//Labels: map[string]string{"service": name},
+				},
+				Spec: api.PodSpec{
+					Containers: []api.Container{
+						{
+							Name:  name,
+							Image: service.Image,
+						},
+					},
+				},
+			},
+		},
+	}
+	return rc
+}
+
+// Init SC object
+func initSC(name string, service *project.ServiceConfig) *api.Service {
+	sc := &api.Service{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "Service",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+			//Labels: map[string]string{"service": name},
+		},
+		Spec: api.ServiceSpec{
+			Selector: map[string]string{"service": name},
+		},
+	}
+	return sc
+}
+
+// Init DC object
+func initDC(name string, service *project.ServiceConfig) *extensions.Deployment {
+	dc := &extensions.Deployment{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "Deployment",
+			APIVersion: "extensions/v1beta1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name:   name,
+			Labels: map[string]string{"service": name},
+		},
+		Spec: extensions.DeploymentSpec{
+			Replicas: 1,
+			Selector: &unversioned.LabelSelector{
+				MatchLabels: map[string]string{"service": name},
+			},
+			//UniqueLabelKey: p.Name,
+			Template: api.PodTemplateSpec{
+				ObjectMeta: api.ObjectMeta{
+					Labels: map[string]string{"service": name},
+				},
+				Spec: api.PodSpec{
+					Containers: []api.Container{
+						{
+							Name:  name,
+							Image: service.Image,
+						},
+					},
+				},
+			},
+		},
+	}
+	return dc
+}
+
+// Init DS object
+func initDS(name string, service *project.ServiceConfig) *extensions.DaemonSet {
+	ds := &extensions.DaemonSet{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "DaemonSet",
+			APIVersion: "extensions/v1beta1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+		Spec: extensions.DaemonSetSpec{
+			Template: api.PodTemplateSpec{
+				ObjectMeta: api.ObjectMeta{
+					Name: name,
+				},
+				Spec: api.PodSpec{
+					Containers: []api.Container{
+						{
+							Name:  name,
+							Image: service.Image,
+						},
+					},
+				},
+			},
+		},
+	}
+	return ds
+}
+
+// Init RS object
+func initRS(name string, service *project.ServiceConfig) *extensions.ReplicaSet {
+	rs := &extensions.ReplicaSet{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "ReplicaSet",
+			APIVersion: "extensions/v1beta1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+		Spec: extensions.ReplicaSetSpec{
+			Replicas: 1,
+			Selector: &unversioned.LabelSelector{
+				MatchLabels: map[string]string{"service": name},
+			},
+			Template: api.PodTemplateSpec{
+				ObjectMeta: api.ObjectMeta{},
+				Spec: api.PodSpec{
+					Containers: []api.Container{
+						{
+							Name:  name,
+							Image: service.Image,
+						},
+					},
+				},
+			},
+		},
+	}
+	return rs
+}
+
+// Configure the environment variables.
+func configEnvs(name string, service *project.ServiceConfig) ([]api.EnvVar, string) {
+	var envs []api.EnvVar
+	for _, env := range service.Environment.Slice() {
+		var character string = "="
+		if strings.Contains(env, character) {
+			value := env[strings.Index(env, character)+1:]
+			name := env[0:strings.Index(env, character)]
+			name = strings.TrimSpace(name)
+			value = strings.TrimSpace(value)
+			envs = append(envs, api.EnvVar{
+				Name:  name,
+				Value: value,
+			})
+		} else {
+			character = ":"
+			if strings.Contains(env, character) {
+				var charQuote string = "'"
+				value := env[strings.Index(env, character)+1:]
+				name := env[0:strings.Index(env, character)]
+				name = strings.TrimSpace(name)
+				value = strings.TrimSpace(value)
+				if strings.Contains(value, charQuote) {
+					value = strings.Trim(value, "'")
+				}
+				envs = append(envs, api.EnvVar{
+					Name:  name,
+					Value: value,
+				})
+			} else {
+				return nil, "Invalid container env " + env + " for service " + name
+			}
+		}
+	}
+
+	return envs, ""
+}
+
+// Configure the container volumes.
+func configVolumes(service *project.ServiceConfig) ([]api.VolumeMount, []api.Volume) {
+	var volumesMount []api.VolumeMount
+	var volumes []api.Volume
+	for _, volume := range service.Volumes {
+		var character string = ":"
+		if strings.Contains(volume, character) {
+			hostDir := volume[0:strings.Index(volume, character)]
+			hostDir = strings.TrimSpace(hostDir)
+			containerDir := volume[strings.Index(volume, character)+1:]
+			containerDir = strings.TrimSpace(containerDir)
+
+			// check if ro/rw mode is defined
+			var readonly bool = true
+			if strings.Index(volume, character) != strings.LastIndex(volume, character) {
+				mode := volume[strings.LastIndex(volume, character)+1:]
+				if strings.Compare(mode, "rw") == 0 {
+					readonly = false
+				}
+				containerDir = containerDir[0:strings.Index(containerDir, character)]
+			}
+
+			// volumeName = random string of 20 chars
+			volumeName := RandStringBytes(20)
+
+			volumesMount = append(volumesMount, api.VolumeMount{Name: volumeName, ReadOnly: readonly, MountPath: containerDir})
+			p := &api.HostPathVolumeSource{
+				Path: hostDir,
+			}
+			//p.Path = hostDir
+			volumeSource := api.VolumeSource{HostPath: p}
+			volumes = append(volumes, api.Volume{Name: volumeName, VolumeSource: volumeSource})
+		}
+	}
+	return volumesMount, volumes
+}
+
+// Configure the container ports.
+func configPorts(name string, service *project.ServiceConfig) ([]api.ContainerPort, string) {
+	var ports []api.ContainerPort
+	for _, port := range service.Ports {
+		var character string = ":"
+		if strings.Contains(port, character) {
+			//portNumber := port[0:strings.Index(port, character)]
+			targetPortNumber := port[strings.Index(port, character)+1:]
+			targetPortNumber = strings.TrimSpace(targetPortNumber)
+			targetPortNumberInt, err := strconv.Atoi(targetPortNumber)
+			if err != nil {
+				return nil, "Invalid container port " + port + " for service " + name
+			}
+			ports = append(ports, api.ContainerPort{ContainerPort: int32(targetPortNumberInt)})
+		} else {
+			portNumber, err := strconv.Atoi(port)
+			if err != nil {
+				return nil, "Invalid container port " + port + " for service " + name
+			}
+			ports = append(ports, api.ContainerPort{ContainerPort: int32(portNumber)})
+		}
+	}
+	return ports, ""
+}
+
+// Configure the container service ports.
+func configServicePorts(name string, service *project.ServiceConfig) ([]api.ServicePort, string) {
+	var servicePorts []api.ServicePort
+	for _, port := range service.Ports {
+		var character string = ":"
+		if strings.Contains(port, character) {
+			portNumber := port[0:strings.Index(port, character)]
+			portNumber = strings.TrimSpace(portNumber)
+			targetPortNumber := port[strings.Index(port, character)+1:]
+			targetPortNumber = strings.TrimSpace(targetPortNumber)
+			portNumberInt, err := strconv.Atoi(portNumber)
+			if err != nil {
+				return nil, "Invalid container port " + port + " for service " + name
+			}
+			targetPortNumberInt, err1 := strconv.Atoi(targetPortNumber)
+			if err1 != nil {
+				return nil, "Invalid container port " + port + " for service " + name
+			}
+			var targetPort intstr.IntOrString
+			targetPort.StrVal = targetPortNumber
+			targetPort.IntVal = int32(targetPortNumberInt)
+			servicePorts = append(servicePorts, api.ServicePort{Port: int32(portNumberInt), Name: portNumber, Protocol: "TCP", TargetPort: targetPort})
+		} else {
+			portNumber, err := strconv.Atoi(port)
+			if err != nil {
+				return nil, "Invalid container port " + port + " for service " + name
+			}
+			var targetPort intstr.IntOrString
+			targetPort.StrVal = strconv.Itoa(portNumber)
+			targetPort.IntVal = int32(portNumber)
+			servicePorts = append(servicePorts, api.ServicePort{Port: int32(portNumber), Name: strconv.Itoa(portNumber), Protocol: "TCP", TargetPort: targetPort})
+		}
+	}
+	return servicePorts, ""
+}
+
+// Transform data to json/yaml
+func transformer(v interface{}, entity string, generateYaml bool) ([]byte, string) {
+	// convert data to json / yaml
+	data, err := json.MarshalIndent(v, "", "  ")
+	if generateYaml == true {
+		data, err = yaml.Marshal(v)
+	}
+	if err != nil {
+		return nil, "Failed to marshal the " + entity
+	}
+	logrus.Debugf("%s\n", data)
+	return data, ""
+}
+
 // ProjectKuberConvert tranforms docker compose to k8s objects
 func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	composeFile := c.String("file")
@@ -285,25 +594,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		logrus.Fatalf("Failed to parse the compose project from %s: %v", composeFile, err)
 	}
 
-	//// check flags
-	//if c.BoolT("yaml") {
-	//	generateYaml = true
-	//}
-	//
-	//if c.BoolT("stdout") {
-	//	toStdout = true
-	//}
-
-	// Create the file f to write to if --out is specified
-	var f *os.File
-	var err error
-	if len(outFile) != 0 {
-		f, err = os.Create(outFile)
-		if err != nil {
-			logrus.Fatalf("error opening file: %v", err)
-		}
-		defer f.Close()
-	}
+	f := createOutFile(outFile)
 
 	var mServices map[string]api.Service = make(map[string]api.Service)
 	var serviceLinks []string
@@ -312,159 +603,16 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 		checkUnsupportedKey(*service)
 
-		rc := &api.ReplicationController{
-			TypeMeta: unversioned.TypeMeta{
-				Kind:       "ReplicationController",
-				APIVersion: "v1",
-			},
-			ObjectMeta: api.ObjectMeta{
-				Name: name,
-				//Labels: map[string]string{"service": name},
-			},
-			Spec: api.ReplicationControllerSpec{
-				Replicas: 1,
-				Selector: map[string]string{"service": name},
-				Template: &api.PodTemplateSpec{
-					ObjectMeta: api.ObjectMeta{
-					//Labels: map[string]string{"service": name},
-					},
-					Spec: api.PodSpec{
-						Containers: []api.Container{
-							{
-								Name:  name,
-								Image: service.Image,
-							},
-						},
-					},
-				},
-			},
-		}
-		sc := &api.Service{
-			TypeMeta: unversioned.TypeMeta{
-				Kind:       "Service",
-				APIVersion: "v1",
-			},
-			ObjectMeta: api.ObjectMeta{
-				Name: name,
-				//Labels: map[string]string{"service": name},
-			},
-			Spec: api.ServiceSpec{
-				Selector: map[string]string{"service": name},
-			},
-		}
-		dc := &extensions.Deployment{
-			TypeMeta: unversioned.TypeMeta{
-				Kind:       "Deployment",
-				APIVersion: "extensions/v1beta1",
-			},
-			ObjectMeta: api.ObjectMeta{
-				Name:   name,
-				Labels: map[string]string{"service": name},
-			},
-			Spec: extensions.DeploymentSpec{
-				Replicas: 1,
-				Selector: &unversioned.LabelSelector{
-					MatchLabels: map[string]string{"service": name},
-				},
-				//UniqueLabelKey: p.Name,
-				Template: api.PodTemplateSpec{
-					ObjectMeta: api.ObjectMeta{
-						Labels: map[string]string{"service": name},
-					},
-					Spec: api.PodSpec{
-						Containers: []api.Container{
-							{
-								Name:  name,
-								Image: service.Image,
-							},
-						},
-					},
-				},
-			},
-		}
-		ds := &extensions.DaemonSet{
-			TypeMeta: unversioned.TypeMeta{
-				Kind:       "DaemonSet",
-				APIVersion: "extensions/v1beta1",
-			},
-			ObjectMeta: api.ObjectMeta{
-				Name: name,
-			},
-			Spec: extensions.DaemonSetSpec{
-				Template: api.PodTemplateSpec{
-					ObjectMeta: api.ObjectMeta{
-						Name: name,
-					},
-					Spec: api.PodSpec{
-						Containers: []api.Container{
-							{
-								Name:  name,
-								Image: service.Image,
-							},
-						},
-					},
-				},
-			},
-		}
-		rs := &extensions.ReplicaSet{
-			TypeMeta: unversioned.TypeMeta{
-				Kind:       "ReplicaSet",
-				APIVersion: "extensions/v1beta1",
-			},
-			ObjectMeta: api.ObjectMeta{
-				Name: name,
-			},
-			Spec: extensions.ReplicaSetSpec{
-				Replicas: 1,
-				Selector: &unversioned.LabelSelector{
-					MatchLabels: map[string]string{"service": name},
-				},
-				Template: api.PodTemplateSpec{
-					ObjectMeta: api.ObjectMeta{},
-					Spec: api.PodSpec{
-						Containers: []api.Container{
-							{
-								Name:  name,
-								Image: service.Image,
-							},
-						},
-					},
-				},
-			},
-		}
+		rc := initRC(name, service)
+		sc := initSC(name, service)
+		dc := initDC(name, service)
+		ds := initDS(name, service)
+		rs := initRS(name, service)
 
 		// Configure the environment variables.
-		var envs []api.EnvVar
-		for _, env := range service.Environment.Slice() {
-			var character string = "="
-			if strings.Contains(env, character) {
-				value := env[strings.Index(env, character)+1:]
-				name := env[0:strings.Index(env, character)]
-				name = strings.TrimSpace(name)
-				value = strings.TrimSpace(value)
-				envs = append(envs, api.EnvVar{
-					Name:  name,
-					Value: value,
-				})
-			} else {
-				character = ":"
-				if strings.Contains(env, character) {
-					var charQuote string = "'"
-					value := env[strings.Index(env, character)+1:]
-					name := env[0:strings.Index(env, character)]
-					name = strings.TrimSpace(name)
-					value = strings.TrimSpace(value)
-					if strings.Contains(value, charQuote) {
-						value = strings.Trim(value, "'")
-					}
-					envs = append(envs, api.EnvVar{
-						Name:  name,
-						Value: value,
-					})
-				} else {
-					logrus.Fatalf("Invalid container env %s for service %s", env, name)
-				}
-			}
+		envs, err := configEnvs(name, service)
+		if err != "" {
+			logrus.Fatalf(err)
 		}
 
 		rc.Spec.Template.Spec.Containers[0].Env = envs
@@ -489,38 +637,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		rs.Spec.Template.Spec.Containers[0].WorkingDir = service.WorkingDir
 
 		// Configure the container volumes.
-		var volumesMount []api.VolumeMount
-		var volumes []api.Volume
-		for _, volume := range service.Volumes {
-			var character string = ":"
-			if strings.Contains(volume, character) {
-				hostDir := volume[0:strings.Index(volume, character)]
-				hostDir = strings.TrimSpace(hostDir)
-				containerDir := volume[strings.Index(volume, character)+1:]
-				containerDir = strings.TrimSpace(containerDir)
-
-				// check if ro/rw mode is defined
-				var readonly bool = true
-				if strings.Index(volume, character) != strings.LastIndex(volume, character) {
-					mode := volume[strings.LastIndex(volume, character)+1:]
-					if strings.Compare(mode, "rw") == 0 {
-						readonly = false
-					}
-					containerDir = containerDir[0:strings.Index(containerDir, character)]
-				}
-
-				// volumeName = random string of 20 chars
-				volumeName := RandStringBytes(20)
-
-				volumesMount = append(volumesMount, api.VolumeMount{Name: volumeName, ReadOnly: readonly, MountPath: containerDir})
-				p := &api.HostPathVolumeSource{
-					Path: hostDir,
-				}
-				//p.Path = hostDir
-				volumeSource := api.VolumeSource{HostPath: p}
-				volumes = append(volumes, api.Volume{Name: volumeName, VolumeSource: volumeSource})
-			}
-		}
+		volumesMount, volumes := configVolumes(service)
 
 		rc.Spec.Template.Spec.Containers[0].VolumeMounts = volumesMount
 		dc.Spec.Template.Spec.Containers[0].VolumeMounts = volumesMount
@@ -544,25 +661,9 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		}
 
 		// Configure the container ports.
-		var ports []api.ContainerPort
-		for _, port := range service.Ports {
-			var character string = ":"
-			if strings.Contains(port, character) {
-				//portNumber := port[0:strings.Index(port, character)]
-				targetPortNumber := port[strings.Index(port, character)+1:]
-				targetPortNumber = strings.TrimSpace(targetPortNumber)
-				targetPortNumberInt, err := strconv.Atoi(targetPortNumber)
-				if err != nil {
-					logrus.Fatalf("Invalid container port %s for service %s", port, name)
-				}
-				ports = append(ports, api.ContainerPort{ContainerPort: int32(targetPortNumberInt)})
-			} else {
-				portNumber, err := strconv.Atoi(port)
-				if err != nil {
-					logrus.Fatalf("Invalid container port %s for service %s", port, name)
-				}
-				ports = append(ports, api.ContainerPort{ContainerPort: int32(portNumber)})
-			}
+		ports, err := configPorts(name, service)
+		if err != "" {
+			logrus.Fatalf(err)
 		}
 
 		rc.Spec.Template.Spec.Containers[0].Ports = ports
@@ -571,37 +672,11 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		rs.Spec.Template.Spec.Containers[0].Ports = ports
 
 		// Configure the service ports.
-		var servicePorts []api.ServicePort
-		for _, port := range service.Ports {
-			var character string = ":"
-			if strings.Contains(port, character) {
-				portNumber := port[0:strings.Index(port, character)]
-				portNumber = strings.TrimSpace(portNumber)
-				targetPortNumber := port[strings.Index(port, character)+1:]
-				targetPortNumber = strings.TrimSpace(targetPortNumber)
-				portNumberInt, err := strconv.Atoi(portNumber)
-				if err != nil {
-					logrus.Fatalf("Invalid container port %s for service %s", port, name)
-				}
-				targetPortNumberInt, err1 := strconv.Atoi(targetPortNumber)
-				if err1 != nil {
-					logrus.Fatalf("Invalid container port %s for service %s", port, name)
-				}
-				var targetPort intstr.IntOrString
-				targetPort.StrVal = targetPortNumber
-				targetPort.IntVal = int32(targetPortNumberInt)
-				servicePorts = append(servicePorts, api.ServicePort{Port: int32(portNumberInt), Name: portNumber, Protocol: "TCP", TargetPort: targetPort})
-			} else {
-				portNumber, err := strconv.Atoi(port)
-				if err != nil {
-					logrus.Fatalf("Invalid container port %s for service %s", port, name)
-				}
-				var targetPort intstr.IntOrString
-				targetPort.StrVal = strconv.Itoa(portNumber)
-				targetPort.IntVal = int32(portNumber)
-				servicePorts = append(servicePorts, api.ServicePort{Port: int32(portNumber), Name: strconv.Itoa(portNumber), Protocol: "TCP", TargetPort: targetPort})
-			}
+		servicePorts, err := configServicePorts(name, service)
+		if err != "" {
+			logrus.Fatalf(err)
 		}
+
 		sc.Spec.Ports = servicePorts
 
 		// Configure label
@@ -618,7 +693,6 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		dc.ObjectMeta.Labels = labels
 		ds.ObjectMeta.Labels = labels
 		rs.ObjectMeta.Labels = labels
-
 		sc.ObjectMeta.Labels = labels
 
 		// Configure the container restart policy.
@@ -643,51 +717,28 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		}
 
 		// convert datarc to json / yaml
-		datarc, err := json.MarshalIndent(rc, "", "  ")
-		if generateYaml == true {
-			datarc, err = yaml.Marshal(rc)
+		datarc, err := transformer(rc, "replication controller", generateYaml)
+		if err != "" {
+			logrus.Fatalf(err)
 		}
-
-		if err != nil {
-			logrus.Fatalf("Failed to marshal the replication controller: %v", err)
-		}
-		logrus.Debugf("%s\n", datarc)
 
 		// convert datadc to json / yaml
-		datadc, err := json.MarshalIndent(dc, "", "  ")
-		if generateYaml == true {
-			datadc, err = yaml.Marshal(dc)
+		datadc, err := transformer(dc, "deployment", generateYaml)
+		if err != "" {
+			logrus.Fatalf(err)
 		}
 
-		if err != nil {
-			logrus.Fatalf("Failed to marshal the deployment container: %v", err)
+		// convert datads to json / yaml
+		datads, err := transformer(ds, "daemonSet", generateYaml)
+		if err != "" {
+			logrus.Fatalf(err)
 		}
 
-		logrus.Debugf("%s\n", datadc)
-
-		//convert datads to json / yaml
-		datads, err := json.MarshalIndent(ds, "", "  ")
-		if generateYaml == true {
-			datads, err = yaml.Marshal(ds)
+		// convert datars to json / yaml
+		datars, err := transformer(rs, "replicaSet", generateYaml)
+		if err != "" {
+			logrus.Fatalf(err)
 		}
-
-		if err != nil {
-			logrus.Fatalf("Failed to marshal the daemonSet: %v", err)
-		}
-
-		logrus.Debugf("%s\n", datads)
-
-		//convert datars to json / yaml
-		datars, err := json.MarshalIndent(rs, "", "  ")
-		if generateYaml == true {
-			datads, err = yaml.Marshal(rs)
-		}
-
-		if err != nil {
-			logrus.Fatalf("Failed to marshal the replicaSet: %v", err)
-		}
-
-		logrus.Debugf("%s\n", datars)
 
 		mServices[name] = *sc
 
@@ -728,20 +779,16 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		for k, v := range mServices {
 			for i := 0; i < len(serviceLinks); i++ {
 				// convert datasvc to json / yaml
-				datasvc, er := json.MarshalIndent(v, "", "  ")
-				if generateYaml == true {
-					datasvc, er = yaml.Marshal(v)
+				datasvc, err := transformer(v, "service controller", generateYaml)
+				if err != "" {
+					logrus.Fatalf(err)
 				}
-				if er != nil {
-					logrus.Fatalf("Failed to marshal the service controller: %v", er)
-				}
-
-				logrus.Debugf("%s\n", datasvc)
 
 				print(k, "svc", datasvc, toStdout, generateYaml, f)
 			}
 		}
 	}
+
 	if f != nil {
 		fmt.Fprintf(os.Stdout, "file %q created\n", outFile)
 	}
