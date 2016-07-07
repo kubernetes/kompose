@@ -31,7 +31,7 @@ import (
 /**
  * Generate Helm Chart configuration
  */
-func generateHelm(filename string, svcname string) error {
+func generateHelm(filename string, svcname string, generateYaml bool) error {
 	type ChartDetails struct {
 		Name string
 	}
@@ -87,22 +87,28 @@ home:
 		}
 	}
 
-	/* Copy all yaml files into the newly created manifests directory */
-	infile, err := ioutil.ReadFile(svcname + "-rc.json")
+	/* Copy all related json/yaml files into the newly created manifests directory */
+	// TODO: support copying controller files other than rc?
+	// TODO: support copying the file specified by --out?
+	extension := ".json"
+	if generateYaml {
+		extension = ".yaml"
+	}
+	infile, err := ioutil.ReadFile(svcname + "-rc" + extension)
 	if err != nil {
-		logrus.Infof("Error reading %s: %s\n", svcname+"-rc.yaml", err)
+		logrus.Infof("Error reading %s: %s\n", svcname+"-rc"+extension, err)
 		return err
 	}
 
-	err = ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-rc.json", infile, 0644)
+	err = ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-rc"+extension, infile, 0644)
 	if err != nil {
 		return err
 	}
 
 	/* The svc file is optional */
-	infile, err = ioutil.ReadFile(svcname + "-svc.json")
+	infile, err = ioutil.ReadFile(svcname + "-svc" + extension)
 	if err == nil {
-		err = ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-svc.json", infile, 0644)
+		err = ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-svc"+extension, infile, 0644)
 		if err != nil {
 			return err
 		}

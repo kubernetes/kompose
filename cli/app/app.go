@@ -796,7 +796,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	/* Need to iterate through one more time to ensure we capture all service/rc */
 	for name := range p.Configs {
 		if c.BoolT("chart") {
-			err := generateHelm(composeFile, name)
+			err := generateHelm(composeFile, name, generateYaml)
 			if err != nil {
 				logrus.Fatalf("Failed to create Chart data: %s\n", err)
 			}
