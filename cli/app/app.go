@@ -562,11 +562,15 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	createD := c.BoolT("deployment")
 	createDS := c.BoolT("daemonset")
 	createRS := c.BoolT("replicaset")
+	createChart := c.BoolT("chart")
 	singleOutput := len(outFile) != 0 || toStdout
 
 	// Validate the flags
 	if len(outFile) != 0 && toStdout {
 		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
+	}
+	if createChart && toStdout {
+		logrus.Fatalf("Error: chart cannot be generated when --stdout is specified")
 	}
 	if singleOutput {
 		count := 0
@@ -593,8 +597,11 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		logrus.Fatalf("Failed to parse the compose project from %s: %v", composeFile, err)
 	}
 
-	f := createOutFile(outFile)
-	defer f.Close()
+	var f *os.File
+	if !createChart {
+		f = createOutFile(outFile)
+		defer f.Close()
+	}
 
 	var mServices map[string][]byte = make(map[string][]byte)
 	var mReplicationControllers map[string][]byte = make(map[string][]byte)
@@ -602,8 +609,10 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	var mDaemonSets map[string][]byte = make(map[string][]byte)
 	var mReplicaSets map[string][]byte = make(map[string][]byte)
 	var serviceLinks []string
+	var svcnames []string
 
 	for name, service := range p.Configs {
+		svcnames = append(svcnames, name)
 
 		checkUnsupportedKey(*service)
 
@@ -813,13 +822,10 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		fmt.Fprintf(os.Stdout, "file %q created\n", outFile)
 	}
 
-	/* Need to iterate through one more time to ensure we capture all service/rc */
-	for name := range p.Configs {
-		if c.BoolT("chart") {
-			err := generateHelm(composeFile, name, generateYaml)
-			if err != nil {
-				logrus.Fatalf("Failed to create Chart data: %s\n", err)
-			}
+	if createChart {
+		err := generateHelm(composeFile, svcnames, generateYaml)
+		if err != nil {
+			logrus.Fatalf("Failed to create Chart data: %s\n", err)
 		}
 	}
 }
