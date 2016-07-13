@@ -40,8 +40,7 @@ func ConvertCommand(factory app.ProjectFactory) cli.Command {
 				Usage:  "Specify file name in order to save objects into",
 				EnvVar: "OUTPUT_FILE",
 			},
-			// TODO: validate the flags and make sure only one type is specified
-			cli.BoolTFlag{
+			cli.BoolFlag{
 				Name:  "deployment,d",
 				Usage: "Generate a deployment resource file (default on)",
 			},

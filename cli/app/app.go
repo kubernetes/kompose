@@ -566,6 +566,11 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	createRC := c.BoolT("replicationcontroller")
 	singleOutput := len(outFile) != 0 || toStdout
 
+	// Create Deployment by default if no controller has be set
+	if !createD && !createDS && !createRS && !createRC {
+		createD = true
+	}
+
 	// Validate the flags
 	if len(outFile) != 0 && toStdout {
 		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
