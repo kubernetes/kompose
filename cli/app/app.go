@@ -259,7 +259,7 @@ func createOutFile(out string) *os.File {
 }
 
 // Init RC object
-func initRC(name string, service *project.ServiceConfig) *api.ReplicationController {
+func initRC(name string, service *project.ServiceConfig, replicas int) *api.ReplicationController {
 	rc := &api.ReplicationController{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "ReplicationController",
@@ -270,7 +270,7 @@ func initRC(name string, service *project.ServiceConfig) *api.ReplicationControl
 			//Labels: map[string]string{"service": name},
 		},
 		Spec: api.ReplicationControllerSpec{
-			Replicas: 1,
+			Replicas: int32(replicas),
 			Selector: map[string]string{"service": name},
 			Template: &api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
@@ -563,11 +563,11 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	createDS := c.BoolT("daemonset")
 	createRS := c.BoolT("replicaset")
 	createChart := c.BoolT("chart")
-	createRC := c.BoolT("replicationcontroller")
+	replicas := c.Int("replicationcontroller")
 	singleOutput := len(outFile) != 0 || toStdout
 
 	// Create Deployment by default if no controller has be set
-	if !createD && !createDS && !createRS && !createRC {
+	if !createD && !createDS && !createRS && replicas == 0 {
 		createD = true
 	}
 
@@ -589,7 +589,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		if createRS {
 			count++
 		}
-		if createRC {
+		if (replicas != 0) {
 			count++
 		}
 		if count > 1 {
@@ -625,7 +625,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 
 		checkUnsupportedKey(*service)
 
-		rc := initRC(name, service)
+		rc := initRC(name, service, replicas)
 		sc := initSC(name, service)
 		dc := initDC(name, service)
 		ds := initDS(name, service)
@@ -820,7 +820,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		}
 	}
 
-	if createRC {
+	if (replicas != 0) {
 		for k, v := range mReplicationControllers {
 			print(k, "rc", v, toStdout, generateYaml, f)
 		}
@@ -831,7 +831,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	}
 
 	if createChart {
-		err := generateHelm(composeFile, svcnames, generateYaml, createD, createDS, createRS, createRC)
+		err := generateHelm(composeFile, svcnames, generateYaml, createD, createDS, createRS, replicas)
 		if err != nil {
 			logrus.Fatalf("Failed to create Chart data: %s\n", err)
 		}

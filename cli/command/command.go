@@ -48,9 +48,10 @@ func ConvertCommand(factory app.ProjectFactory) cli.Command {
 				Name:  "daemonset,ds",
 				Usage: "Generate a daemonset resource file",
 			},
-			cli.BoolFlag{
+			cli.IntFlag{
 				Name:  "replicationcontroller,rc",
-				Usage: "Generate a replicationcontroller file",
+				Value: 0,
+				Usage: "Specify replicas in order to generate a replication controller resource file",
 			},
 			cli.BoolFlag{
 				Name:  "replicaset,rs",
