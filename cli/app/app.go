@@ -27,6 +27,7 @@ import (
 	"github.com/urfave/cli"
 
 	"github.com/docker/libcompose/project"
+	"github.com/docker/docker/api/client/bundlefile"
 
 	"encoding/json"
 	"io/ioutil"
@@ -553,7 +554,7 @@ func transformer(v interface{}, entity string, generateYaml bool) ([]byte, strin
 	return data, ""
 }
 
-// ProjectKuberConvert tranforms docker compose to k8s objects
+// ProjectKuberConvert tranforms docker compose or dab file to k8s objects
 func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	composeFile := c.String("file")
 	outFile := c.String("out")
@@ -563,6 +564,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	createDS := c.BoolT("daemonset")
 	createRS := c.BoolT("replicaset")
 	createChart := c.BoolT("chart")
+	fromBundles := c.BoolT("from-bundles")
 	singleOutput := len(outFile) != 0 || toStdout
 
 	// Validate the flags
@@ -588,19 +590,37 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		}
 	}
 
-	p = project.NewProject(&project.Context{
-		ProjectName: "kube",
-		ComposeFile: composeFile,
-	})
-
-	if err := p.Parse(); err != nil {
-		logrus.Fatalf("Failed to parse the compose project from %s: %v", composeFile, err)
-	}
-
 	var f *os.File
 	if !createChart {
 		f = createOutFile(outFile)
 		defer f.Close()
+	}
+
+	if fromBundles {
+		p = project.NewProject(&project.Context{
+			ProjectName: "kube",
+		})
+		reader := strings.NewReader(composeFile)
+		bundle, err := bundlefile.LoadFile(reader)
+		if err != nil {
+			logrus.Fatalf("Error: failed to load bundles file", err)
+		}
+		for name, service := range bundle.Services {
+			var serviceConfig *project.ServiceConfig
+			serviceConfig.Image = service.Image
+			// TODO: mapping other fields
+			serviceConfig.WorkingDir = *service.WorkingDir
+			p.Configs[name] = serviceConfig
+		}
+	} else {
+		p = project.NewProject(&project.Context{
+			ProjectName: "kube",
+			ComposeFile: composeFile,
+		})
+
+		if err := p.Parse(); err != nil {
+			logrus.Fatalf("Failed to parse the compose project from %s: %v", composeFile, err)
+		}
 	}
 
 	var mServices map[string][]byte = make(map[string][]byte)

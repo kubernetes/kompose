@@ -65,6 +65,11 @@ func ConvertCommand(factory app.ProjectFactory) cli.Command {
 				Name:  "stdout",
 				Usage: "Print Kubernetes objects to stdout",
 			},
+			// FIXME: this flag should be used together with --file/-f in order to specify dab file.
+			cli.BoolFlag{
+				Name:  "from-bundles",
+				Usage: "Getting input from docker DAB file",
+			},
 		},
 	}
 }
