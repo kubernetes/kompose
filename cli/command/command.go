@@ -41,13 +41,17 @@ func ConvertCommand(factory app.ProjectFactory) cli.Command {
 				EnvVar: "OUTPUT_FILE",
 			},
 			// TODO: validate the flags and make sure only one type is specified
-			cli.BoolFlag{
+			cli.BoolTFlag{
 				Name:  "deployment,d",
-				Usage: "Generate a deployment resource file",
+				Usage: "Generate a deployment resource file (default on)",
 			},
 			cli.BoolFlag{
 				Name:  "daemonset,ds",
 				Usage: "Generate a daemonset resource file",
+			},
+			cli.BoolFlag{
+				Name:  "replicationcontroller,rc",
+				Usage: "Generate a replicationcontroller file",
 			},
 			cli.BoolFlag{
 				Name:  "replicaset,rs",

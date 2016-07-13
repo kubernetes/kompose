@@ -32,7 +32,7 @@ import (
 /**
  * Generate Helm Chart configuration
  */
-func generateHelm(filename string, svcnames []string, generateYaml bool) error {
+func generateHelm(filename string, svcnames []string, generateYaml, createD, createDS, createRS, createRC bool) error {
 	type ChartDetails struct {
 		Name string
 	}
@@ -89,26 +89,35 @@ home:
 	}
 
 	/* Copy all related json/yaml files into the newly created manifests directory */
-	// TODO: support copying controller files other than rc?
 	// TODO: support copying the file specified by --out?
 	for _, svcname := range svcnames {
 		extension := ".json"
 		if generateYaml {
 			extension = ".yaml"
 		}
-		infile, err := ioutil.ReadFile(svcname + "-rc" + extension)
-		if err != nil {
-			logrus.Infof("Error reading %s: %s\n", svcname+"-rc"+extension, err)
-			return err
+		if createD {
+			if err = cpToChart(manifestDir, svcname, "deployment", extension); err != nil {
+				return err
+			}
 		}
-
-		err = ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-rc"+extension, infile, 0644)
-		if err != nil {
-			return err
+		if createDS {
+			if err = cpToChart(manifestDir, svcname, "daemonset", extension); err != nil {
+				return err
+			}
+		}
+		if createRC {
+			if err = cpToChart(manifestDir, svcname, "replicationcontroller", extension); err != nil {
+				return err
+			}
+		}
+		if createRS {
+			if err = cpToChart(manifestDir, svcname, "replicaset", extension); err != nil {
+				return err
+			}
 		}
 
 		/* The svc file is optional */
-		infile, err = ioutil.ReadFile(svcname + "-svc" + extension)
+		infile, err := ioutil.ReadFile(svcname + "-svc" + extension)
 		if err != nil {
 			continue
 		}
@@ -120,4 +129,14 @@ home:
 
 	fmt.Fprintf(os.Stdout, "chart created in %q\n", "."+string(os.PathSeparator)+dirName+string(os.PathSeparator))
 	return nil
+}
+
+func cpToChart(manifestDir, svcname, trailing, extension string) error {
+	infile, err := ioutil.ReadFile(svcname + "-" + trailing + extension)
+	if err != nil {
+		logrus.Infof("Error reading %s: %s\n", svcname+"-"+trailing+extension, err)
+		return err
+	}
+
+	return ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-"+trailing+extension, infile, 0644)
 }
