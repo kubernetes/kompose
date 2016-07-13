@@ -563,6 +563,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	createDS := c.BoolT("daemonset")
 	createRS := c.BoolT("replicaset")
 	createChart := c.BoolT("chart")
+	createRC := c.BoolT("replicationcontroller")
 	singleOutput := len(outFile) != 0 || toStdout
 
 	// Validate the flags
@@ -581,6 +582,9 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 			count++
 		}
 		if createRS {
+			count++
+		}
+		if createRC {
 			count++
 		}
 		if count > 1 {
@@ -811,8 +815,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		}
 	}
 
-	// We can create RC when we either don't print to --out or --stdout, or we don't create any other controllers
-	if !singleOutput || (!createD && !createDS && !createRS) {
+	if createRC {
 		for k, v := range mReplicationControllers {
 			print(k, "rc", v, toStdout, generateYaml, f)
 		}
@@ -823,7 +826,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 	}
 
 	if createChart {
-		err := generateHelm(composeFile, svcnames, generateYaml)
+		err := generateHelm(composeFile, svcnames, generateYaml, createD, createDS, createRS, createRC)
 		if err != nil {
 			logrus.Fatalf("Failed to create Chart data: %s\n", err)
 		}
