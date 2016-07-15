@@ -20,10 +20,10 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
-	dockerApp "github.com/skippbox/kompose2/cli/docker/app"
-	"github.com/skippbox/kompose2/version"
-	"github.com/skippbox/kompose2/cli/command"
-	cliApp "github.com/skippbox/kompose2/cli/app"
+	dockerApp "github.com/skippbox/kompose/cli/docker/app"
+	"github.com/skippbox/kompose/version"
+	"github.com/skippbox/kompose/cli/command"
+	cliApp "github.com/skippbox/kompose/cli/app"
 )
 
 func main() {

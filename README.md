@@ -1,6 +1,6 @@
 # Kubernetes compose (Kompose)
 
-[![Build Status](https://travis-ci.org/skippbox/kompose2.svg?branch=master)](https://travis-ci.org/skippbox/kompose2)
+[![Build Status](https://travis-ci.org/skippbox/kompose.svg?branch=master)](https://travis-ci.org/skippbox/kompose) [![Join us on Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/slack-cmyk-2.png)](https://skippbox.herokuapp.com)
 
 `kompose` is a tool to help users familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). It takes a Docker Compose file and translates it into Kubernetes objects, it can then submit those objects to a Kubernetes endpoint with the `kompose up` command.
 
@@ -8,7 +8,7 @@
 
 ## Download
 
-Grab the latest [release](https://github.com/skippbox/kompose2/releases)
+Grab the latest [release](https://github.com/skippbox/kompose/releases)
 
 ## Usage
 
@@ -166,7 +166,7 @@ Currently `kompose` does not support the following Docker Compose options.
 For example:
 
 ```
-$ cat nginx.yml 
+$ cat nginx.yml
 nginx:
   image: nginx
   dockerfile: foobar
@@ -205,7 +205,7 @@ $ make binary
 ## Contributing and Issues
 
 `kompose` is a work in progress, we will see how far it takes us. We welcome any pull request to make it even better.
-If you find any issues, please [file it](https://github.com/skippbox/kompose2/issues).
+If you find any issues, please [file it](https://github.com/skippbox/kompose/issues).
 
 ## Community, discussion, contribution, and support
 
