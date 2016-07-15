@@ -18,7 +18,7 @@ package app
 
 import (
 	"github.com/urfave/cli"
-	"github.com/skippbox/kompose2/cli/command"
+	"github.com/skippbox/kompose/cli/command"
 	"github.com/docker/libcompose/cli/logger"
 	"github.com/docker/libcompose/docker"
 	"github.com/docker/libcompose/project"

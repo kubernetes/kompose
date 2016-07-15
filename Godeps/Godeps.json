@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/skippbox/kompose2",
+	"ImportPath": "github.com/skippbox/kompose",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Packages": [

@@ -18,7 +18,7 @@ package command
 
 import (
 	"github.com/docker/libcompose/project"
-	"github.com/skippbox/kompose2/cli/app"
+	"github.com/skippbox/kompose/cli/app"
 	"github.com/urfave/cli"
 )
 
