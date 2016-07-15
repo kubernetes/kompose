@@ -1,6 +1,6 @@
 # Kubernetes compose (Kompose)
 
-[![Build Status](https://travis-ci.org/skippbox/kompose2.svg?branch=master)](https://travis-ci.org/skippbox/kompose2)
+[![Build Status](https://travis-ci.org/skippbox/kompose2.svg?branch=master)](https://travis-ci.org/skippbox/kompose2) [![Join us on Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/slack-cmyk-2.png)](https://skippbox.herokuapp.com)
 
 `kompose` is a tool to help users familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). It takes a Docker Compose file and translates it into Kubernetes objects, it can then submit those objects to a Kubernetes endpoint with the `kompose up` command.
 
