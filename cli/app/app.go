@@ -36,6 +36,7 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
+	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
 	"github.com/fatih/structs"
@@ -589,7 +590,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		if createRS {
 			count++
 		}
-		if (replicas != 0) {
+		if replicas != 0 {
 			count++
 		}
 		if count > 1 {
@@ -637,61 +638,19 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 			logrus.Fatalf(err)
 		}
 
-		rc.Spec.Template.Spec.Containers[0].Env = envs
-		dc.Spec.Template.Spec.Containers[0].Env = envs
-		ds.Spec.Template.Spec.Containers[0].Env = envs
-		rs.Spec.Template.Spec.Containers[0].Env = envs
-
 		// Configure the container command.
 		var cmds []string
 		for _, cmd := range service.Command.Slice() {
 			cmds = append(cmds, cmd)
 		}
-		rc.Spec.Template.Spec.Containers[0].Command = cmds
-		dc.Spec.Template.Spec.Containers[0].Command = cmds
-		ds.Spec.Template.Spec.Containers[0].Command = cmds
-		rs.Spec.Template.Spec.Containers[0].Command = cmds
-
-		// Configure the container working dir.
-		rc.Spec.Template.Spec.Containers[0].WorkingDir = service.WorkingDir
-		dc.Spec.Template.Spec.Containers[0].WorkingDir = service.WorkingDir
-		ds.Spec.Template.Spec.Containers[0].WorkingDir = service.WorkingDir
-		rs.Spec.Template.Spec.Containers[0].WorkingDir = service.WorkingDir
-
 		// Configure the container volumes.
 		volumesMount, volumes := configVolumes(service)
-
-		rc.Spec.Template.Spec.Containers[0].VolumeMounts = volumesMount
-		dc.Spec.Template.Spec.Containers[0].VolumeMounts = volumesMount
-		ds.Spec.Template.Spec.Containers[0].VolumeMounts = volumesMount
-		rs.Spec.Template.Spec.Containers[0].VolumeMounts = volumesMount
-
-		rc.Spec.Template.Spec.Volumes = volumes
-		dc.Spec.Template.Spec.Volumes = volumes
-		ds.Spec.Template.Spec.Volumes = volumes
-		rs.Spec.Template.Spec.Volumes = volumes
-
-		// Configure the container privileged mode
-		if service.Privileged == true {
-			securitycontexts := &api.SecurityContext{
-				Privileged: &service.Privileged,
-			}
-			rc.Spec.Template.Spec.Containers[0].SecurityContext = securitycontexts
-			dc.Spec.Template.Spec.Containers[0].SecurityContext = securitycontexts
-			ds.Spec.Template.Spec.Containers[0].SecurityContext = securitycontexts
-			rs.Spec.Template.Spec.Containers[0].SecurityContext = securitycontexts
-		}
 
 		// Configure the container ports.
 		ports, err := configPorts(name, service)
 		if err != "" {
 			logrus.Fatalf(err)
 		}
-
-		rc.Spec.Template.Spec.Containers[0].Ports = ports
-		dc.Spec.Template.Spec.Containers[0].Ports = ports
-		ds.Spec.Template.Spec.Containers[0].Ports = ports
-		rs.Spec.Template.Spec.Containers[0].Ports = ports
 
 		// Configure the service ports.
 		servicePorts, err := configServicePorts(name, service)
@@ -706,37 +665,47 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		for key, value := range service.Labels.MapParts() {
 			labels[key] = value
 		}
-		rc.Spec.Template.ObjectMeta.Labels = labels
-		dc.Spec.Template.ObjectMeta.Labels = labels
-		ds.Spec.Template.ObjectMeta.Labels = labels
-		rs.Spec.Template.ObjectMeta.Labels = labels
 
-		rc.ObjectMeta.Labels = labels
-		dc.ObjectMeta.Labels = labels
-		ds.ObjectMeta.Labels = labels
-		rs.ObjectMeta.Labels = labels
 		sc.ObjectMeta.Labels = labels
 
-		// Configure the container restart policy.
-		switch service.Restart {
-		case "", "always":
-			rc.Spec.Template.Spec.RestartPolicy = api.RestartPolicyAlways
-			dc.Spec.Template.Spec.RestartPolicy = api.RestartPolicyAlways
-			ds.Spec.Template.Spec.RestartPolicy = api.RestartPolicyAlways
-			rs.Spec.Template.Spec.RestartPolicy = api.RestartPolicyAlways
-		case "no":
-			rc.Spec.Template.Spec.RestartPolicy = api.RestartPolicyNever
-			dc.Spec.Template.Spec.RestartPolicy = api.RestartPolicyNever
-			ds.Spec.Template.Spec.RestartPolicy = api.RestartPolicyNever
-			rs.Spec.Template.Spec.RestartPolicy = api.RestartPolicyNever
-		case "on-failure":
-			rc.Spec.Template.Spec.RestartPolicy = api.RestartPolicyOnFailure
-			dc.Spec.Template.Spec.RestartPolicy = api.RestartPolicyOnFailure
-			ds.Spec.Template.Spec.RestartPolicy = api.RestartPolicyOnFailure
-			rs.Spec.Template.Spec.RestartPolicy = api.RestartPolicyOnFailure
-		default:
-			logrus.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
+		// fillTemplate fills the pod template with the value calculated from config
+		fillTemplate := func(template *api.PodTemplateSpec) {
+			template.Spec.Containers[0].Env = envs
+			template.Spec.Containers[0].Command = cmds
+			template.Spec.Containers[0].WorkingDir = service.WorkingDir
+			template.Spec.Containers[0].VolumeMounts = volumesMount
+			template.Spec.Volumes = volumes
+			// Configure the container privileged mode
+			if service.Privileged == true {
+				template.Spec.Containers[0].SecurityContext = &api.SecurityContext{
+					Privileged: &service.Privileged,
+				}
+			}
+			template.Spec.Containers[0].Ports = ports
+			template.ObjectMeta.Labels = labels
+			// Configure the container restart policy.
+			switch service.Restart {
+			case "", "always":
+				template.Spec.RestartPolicy = api.RestartPolicyAlways
+			case "no":
+				template.Spec.RestartPolicy = api.RestartPolicyNever
+			case "on-failure":
+				template.Spec.RestartPolicy = api.RestartPolicyOnFailure
+			default:
+				logrus.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
+			}
 		}
+
+		// fillObjectMeta fills the metadata with the value calculated from config
+		fillObjectMeta := func(meta *api.ObjectMeta) {
+			meta.Labels = labels
+		}
+
+		// Update each supported controllers
+		updateController(rc, fillTemplate, fillObjectMeta)
+		updateController(rs, fillTemplate, fillObjectMeta)
+		updateController(dc, fillTemplate, fillObjectMeta)
+		updateController(ds, fillTemplate, fillObjectMeta)
 
 		// convert datarc to json / yaml
 		datarc, err := transformer(rc, "replication controller", generateYaml)
@@ -820,7 +789,7 @@ func ProjectKuberConvert(p *project.Project, c *cli.Context) {
 		}
 	}
 
-	if (replicas != 0) {
+	if replicas != 0 {
 		for k, v := range mReplicationControllers {
 			print(k, "rc", v, toStdout, generateYaml, f)
 		}
@@ -951,4 +920,25 @@ func ProjectKuberUp(p *project.Project, c *cli.Context) {
 		}
 	}
 
+}
+
+// updateController updates the given object with the given pod template update function and ObjectMeta update function
+func updateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec), updateMeta func(meta *api.ObjectMeta)) {
+	switch t := obj.(type) {
+	case *api.ReplicationController:
+		if t.Spec.Template == nil {
+			t.Spec.Template = &api.PodTemplateSpec{}
+		}
+		updateTemplate(t.Spec.Template)
+		updateMeta(&t.ObjectMeta)
+	case *extensions.Deployment:
+		updateTemplate(&t.Spec.Template)
+		updateMeta(&t.ObjectMeta)
+	case *extensions.ReplicaSet:
+		updateTemplate(&t.Spec.Template)
+		updateMeta(&t.ObjectMeta)
+	case *extensions.DaemonSet:
+		updateTemplate(&t.Spec.Template)
+		updateMeta(&t.ObjectMeta)
+	}
 }
