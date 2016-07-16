@@ -35,6 +35,7 @@ func main() {
 	app.Version = version.VERSION + " (" + version.GITCOMMIT + ")"
 	app.Author = "Skippbox Compose Contributors"
 	app.Email = "https://github.com/skippbox/kompose"
+	app.EnableBashCompletion = true
 	app.Before = cliApp.BeforeApp
 	app.Flags = append(command.CommonFlags())
 	app.Commands = []cli.Command{
