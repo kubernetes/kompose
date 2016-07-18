@@ -181,6 +181,13 @@ WARNING: Unsupported key ContainerName - ignoring
 WARNING: Unsupported key Dockerfile - ignoring
 ```
 
+## Bash completion
+Running this below command in order to benefit from bash completion
+
+```
+$ PROG=kompose source script/bash_autocomplete
+```
+
 ## Building
 
 ### Building with `go`
