@@ -4,39 +4,44 @@ import (
 	"bytes"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/docker/libcompose/project/events"
 )
 
 var (
-	infoEvents = map[EventType]bool{
-		EventProjectDeleteDone:   true,
-		EventProjectDeleteStart:  true,
-		EventProjectDownDone:     true,
-		EventProjectDownStart:    true,
-		EventProjectRestartDone:  true,
-		EventProjectRestartStart: true,
-		EventProjectUpDone:       true,
-		EventProjectUpStart:      true,
-		EventServiceDeleteStart:  true,
-		EventServiceDelete:       true,
-		EventServiceDownStart:    true,
-		EventServiceDown:         true,
-		EventServiceRestartStart: true,
-		EventServiceRestart:      true,
-		EventServiceUpStart:      true,
-		EventServiceUp:           true,
+	infoEvents = map[events.EventType]bool{
+		events.ServiceDeleteStart:  true,
+		events.ServiceDelete:       true,
+		events.ServiceDownStart:    true,
+		events.ServiceDown:         true,
+		events.ServiceStopStart:    true,
+		events.ServiceStop:         true,
+		events.ServiceKillStart:    true,
+		events.ServiceKill:         true,
+		events.ServiceCreateStart:  true,
+		events.ServiceCreate:       true,
+		events.ServiceStartStart:   true,
+		events.ServiceStart:        true,
+		events.ServiceRestartStart: true,
+		events.ServiceRestart:      true,
+		events.ServiceUpStart:      true,
+		events.ServiceUp:           true,
+		events.ServicePauseStart:   true,
+		events.ServicePause:        true,
+		events.ServiceUnpauseStart: true,
+		events.ServiceUnpause:      true,
 	}
 )
 
 type defaultListener struct {
 	project    *Project
-	listenChan chan Event
+	listenChan chan events.Event
 	upCount    int
 }
 
 // NewDefaultListener create a default listener for the specified project.
-func NewDefaultListener(p *Project) chan<- Event {
+func NewDefaultListener(p *Project) chan<- events.Event {
 	l := defaultListener{
-		listenChan: make(chan Event),
+		listenChan: make(chan events.Event),
 		project:    p,
 	}
 	go l.start()
@@ -57,7 +62,7 @@ func (d *defaultListener) start() {
 			}
 		}
 
-		if event.EventType == EventServiceUp {
+		if event.EventType == events.ServiceUp {
 			d.upCount++
 		}
 
@@ -70,7 +75,7 @@ func (d *defaultListener) start() {
 		if event.ServiceName == "" {
 			logf("Project [%s]: %s %s", d.project.Name, event.EventType, buffer.Bytes())
 		} else {
-			logf("[%d/%d] [%s]: %s %s", d.upCount, len(d.project.Configs), event.ServiceName, event.EventType, buffer.Bytes())
+			logf("[%d/%d] [%s]: %s %s", d.upCount, d.project.ServiceConfigs.Len(), event.ServiceName, event.EventType, buffer.Bytes())
 		}
 	}
 }

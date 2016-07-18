@@ -81,6 +81,33 @@ func sameFsTimeSpec(a, b syscall.Timespec) bool {
 // Changes walks the path rw and determines changes for the files in the path,
 // with respect to the parent layers
 func Changes(layers []string, rw string) ([]Change, error) {
+	return changes(layers, rw, aufsDeletedFile, aufsMetadataSkip)
+}
+
+func aufsMetadataSkip(path string) (skip bool, err error) {
+	skip, err = filepath.Match(string(os.PathSeparator)+WhiteoutMetaPrefix+"*", path)
+	if err != nil {
+		skip = true
+	}
+	return
+}
+
+func aufsDeletedFile(root, path string, fi os.FileInfo) (string, error) {
+	f := filepath.Base(path)
+
+	// If there is a whiteout, then the file was removed
+	if strings.HasPrefix(f, WhiteoutPrefix) {
+		originalFile := f[len(WhiteoutPrefix):]
+		return filepath.Join(filepath.Dir(path), originalFile), nil
+	}
+
+	return "", nil
+}
+
+type skipChange func(string) (bool, error)
+type deleteChange func(string, string, os.FileInfo) (string, error)
+
+func changes(layers []string, rw string, dc deleteChange, sc skipChange) ([]Change, error) {
 	var (
 		changes     []Change
 		changedDirs = make(map[string]struct{})
@@ -105,21 +132,24 @@ func Changes(layers []string, rw string) ([]Change, error) {
 			return nil
 		}
 
-		// Skip AUFS metadata
-		if matched, err := filepath.Match(string(os.PathSeparator)+WhiteoutMetaPrefix+"*", path); err != nil || matched {
-			return err
+		if sc != nil {
+			if skip, err := sc(path); skip {
+				return err
+			}
 		}
 
 		change := Change{
 			Path: path,
 		}
 
+		deletedFile, err := dc(rw, path, f)
+		if err != nil {
+			return err
+		}
+
 		// Find out what kind of modification happened
-		file := filepath.Base(path)
-		// If there is a whiteout, then the file was removed
-		if strings.HasPrefix(file, WhiteoutPrefix) {
-			originalFile := file[len(WhiteoutPrefix):]
-			change.Path = filepath.Join(filepath.Dir(path), originalFile)
+		if deletedFile != "" {
+			change.Path = deletedFile
 			change.Kind = ChangeDelete
 		} else {
 			// Otherwise, the file was added
@@ -150,7 +180,7 @@ func Changes(layers []string, rw string) ([]Change, error) {
 
 		// If /foo/bar/file.txt is modified, then /foo/bar must be part of the changed files.
 		// This block is here to ensure the change is recorded even if the
-		// modify time, mode and size of the parent directoriy in the rw and ro layers are all equal.
+		// modify time, mode and size of the parent directory in the rw and ro layers are all equal.
 		// Check https://github.com/docker/docker/pull/13590 for details.
 		if f.IsDir() {
 			changedDirs[path] = struct{}{}
