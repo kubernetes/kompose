@@ -20,13 +20,12 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	//"strconv"
+	"strconv"
 	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 
-	"github.com/docker/libcompose/project"
 	"github.com/docker/docker/api/client/bundlefile"
 
 	"encoding/json"
@@ -38,13 +37,11 @@ import (
 	//client "k8s.io/kubernetes/pkg/client/unversioned"
 	//cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/runtime"
-	//"k8s.io/kubernetes/pkg/util/intstr"
+	"k8s.io/kubernetes/pkg/util/intstr"
 
 	"github.com/fatih/structs"
 	"github.com/ghodss/yaml"
 )
-
-type ProjectAction func(project *project.Project, c *cli.Context)
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
 
@@ -97,11 +94,10 @@ func BeforeApp(c *cli.Context) error {
 	if c.GlobalBool("verbose") {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
-	// logrus.Warning("Note: This is an experimental alternate implementation of the Docker Compose CLI (https://github.com/docker/compose)")
 	return nil
 }
 
-// ProjectKuberPS lists all rc, svc.
+// Ps lists all rc, svc.
 func Ps(c *cli.Context) {
 	//factory := cmdutil.NewFactory(nil)
 	//clientConfig, err := factory.ClientConfig()
@@ -176,7 +172,7 @@ func Ps(c *cli.Context) {
 
 }
 
-// ProjectKuberDelete deletes all rc, svc.
+// Delete deletes all rc, svc.
 func Delete(c *cli.Context) {
 	//factory := cmdutil.NewFactory(nil)
 	//clientConfig, err := factory.ClientConfig()
@@ -204,7 +200,7 @@ func Delete(c *cli.Context) {
 	//}
 }
 
-// ProjectKuberScale scales rc.
+// Scale scales rc.
 func Scale(c *cli.Context) {
 	//factory := cmdutil.NewFactory(nil)
 	//clientConfig, err := factory.ClientConfig()
@@ -395,11 +391,11 @@ func initRS(name string, service ServiceConfig) *extensions.ReplicaSet {
 }
 
 // Configure the environment variables.
-func configEnvs(name string, service ServiceConfig) ([]api.EnvVar) {
+func configEnvs(name string, service ServiceConfig) []api.EnvVar {
 	envs := []api.EnvVar{}
 	for _, v := range service.Environment {
 		envs = append(envs, api.EnvVar{
-			Name: v.Name,
+			Name:  v.Name,
 			Value: v.Value,
 		})
 	}
@@ -411,111 +407,86 @@ func configEnvs(name string, service ServiceConfig) ([]api.EnvVar) {
 func configVolumes(service ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 	volumesMount := []api.VolumeMount{}
 	volumes := []api.Volume{}
-	//for _, volume := range service.Volumes {
-	//	var character string = ":"
-	//	if strings.Contains(volume, character) {
-	//		hostDir := volume[0:strings.Index(volume, character)]
-	//		hostDir = strings.TrimSpace(hostDir)
-	//		containerDir := volume[strings.Index(volume, character)+1:]
-	//		containerDir = strings.TrimSpace(containerDir)
-	//
-	//		// check if ro/rw mode is defined
-	//		var readonly bool = true
-	//		if strings.Index(volume, character) != strings.LastIndex(volume, character) {
-	//			mode := volume[strings.LastIndex(volume, character)+1:]
-	//			if strings.Compare(mode, "rw") == 0 {
-	//				readonly = false
-	//			}
-	//			containerDir = containerDir[0:strings.Index(containerDir, character)]
-	//		}
-	//
-	//		// volumeName = random string of 20 chars
-	//		volumeName := RandStringBytes(20)
-	//
-	//		volumesMount = append(volumesMount, api.VolumeMount{Name: volumeName, ReadOnly: readonly, MountPath: containerDir})
-	//		p := &api.HostPathVolumeSource{
-	//			Path: hostDir,
-	//		}
-	//		//p.Path = hostDir
-	//		volumeSource := api.VolumeSource{HostPath: p}
-	//		volumes = append(volumes, api.Volume{Name: volumeName, VolumeSource: volumeSource})
-	//	}
-	//}
+	for _, volume := range service.Volumes {
+		character := ":"
+		if strings.Contains(volume, character) {
+			hostDir := volume[0:strings.Index(volume, character)]
+			hostDir = strings.TrimSpace(hostDir)
+			containerDir := volume[strings.Index(volume, character)+1:]
+			containerDir = strings.TrimSpace(containerDir)
+
+			// check if ro/rw mode is defined
+			readonly := true
+			if strings.Index(volume, character) != strings.LastIndex(volume, character) {
+				mode := volume[strings.LastIndex(volume, character)+1:]
+				if strings.Compare(mode, "rw") == 0 {
+					readonly = false
+				}
+				containerDir = containerDir[0:strings.Index(containerDir, character)]
+			}
+
+			// volumeName = random string of 20 chars
+			volumeName := RandStringBytes(20)
+
+			volumesMount = append(volumesMount, api.VolumeMount{Name: volumeName, ReadOnly: readonly, MountPath: containerDir})
+			p := &api.HostPathVolumeSource{
+				Path: hostDir,
+			}
+			//p.Path = hostDir
+			volumeSource := api.VolumeSource{HostPath: p}
+			volumes = append(volumes, api.Volume{Name: volumeName, VolumeSource: volumeSource})
+		}
+	}
 	return volumesMount, volumes
 }
 
 // Configure the container ports.
-func configPorts(name string, service ServiceConfig) ([]api.ContainerPort, string) {
+func configPorts(name string, service ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
-	//for _, port := range service.Port {
-	//	var character string = ":"
-	//	if strings.Contains(port, character) {
-	//		//portNumber := port[0:strings.Index(port, character)]
-	//		targetPortNumber := port[strings.Index(port, character)+1:]
-	//		targetPortNumber = strings.TrimSpace(targetPortNumber)
-	//		targetPortNumberInt, err := strconv.Atoi(targetPortNumber)
-	//		if err != nil {
-	//			return nil, "Invalid container port " + port + " for service " + name
-	//		}
-	//		ports = append(ports, api.ContainerPort{ContainerPort: int32(targetPortNumberInt)})
-	//	} else {
-	//		portNumber, err := strconv.Atoi(port)
-	//		if err != nil {
-	//			return nil, "Invalid container port " + port + " for service " + name
-	//		}
-	//		ports = append(ports, api.ContainerPort{ContainerPort: int32(portNumber)})
-	//	}
-	//}
-	//return ports, ""
 	for _, port := range service.Port {
+		var p api.Protocol
+		switch port.Protocol {
+		default:
+			p = api.ProtocolTCP
+		case ProtocolTCP:
+			p = api.ProtocolTCP
+		case ProtocolUDP:
+			p = api.ProtocolUDP
+		}
 		ports = append(ports, api.ContainerPort{
-			HostPort: port.HostPort,
+			HostPort:      port.HostPort,
 			ContainerPort: port.ContainerPort,
-			//Protocol: port.Protocol,
+			Protocol:      p,
 		})
 	}
 
-	return ports, ""
+	return ports
 }
 
 // Configure the container service ports.
-func configServicePorts(name string, service ServiceConfig) ([]api.ServicePort, string) {
+func configServicePorts(name string, service ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
-	//for _, port := range service.Ports {
-	//	var character string = ":"
-	//	if strings.Contains(port, character) {
-	//		portNumber := port[0:strings.Index(port, character)]
-	//		portNumber = strings.TrimSpace(portNumber)
-	//		targetPortNumber := port[strings.Index(port, character)+1:]
-	//		targetPortNumber = strings.TrimSpace(targetPortNumber)
-	//		portNumberInt, err := strconv.Atoi(portNumber)
-	//		if err != nil {
-	//			return nil, "Invalid container port " + port + " for service " + name
-	//		}
-	//		targetPortNumberInt, err1 := strconv.Atoi(targetPortNumber)
-	//		if err1 != nil {
-	//			return nil, "Invalid container port " + port + " for service " + name
-	//		}
-	//		var targetPort intstr.IntOrString
-	//		targetPort.StrVal = targetPortNumber
-	//		targetPort.IntVal = int32(targetPortNumberInt)
-	//		servicePorts = append(servicePorts, api.ServicePort{Port: int32(portNumberInt), Name: portNumber, Protocol: "TCP", TargetPort: targetPort})
-	//	} else {
-	//		portNumber, err := strconv.Atoi(port)
-	//		if err != nil {
-	//			return nil, "Invalid container port " + port + " for service " + name
-	//		}
-	//		var targetPort intstr.IntOrString
-	//		targetPort.StrVal = strconv.Itoa(portNumber)
-	//		targetPort.IntVal = int32(portNumber)
-	//		servicePorts = append(servicePorts, api.ServicePort{Port: int32(portNumber), Name: strconv.Itoa(portNumber), Protocol: "TCP", TargetPort: targetPort})
-	//	}
-	//}
-
-	//for _, port := range service.Port {
-	//
-	//}
-	return servicePorts, ""
+	for _, port := range service.Port {
+		var p api.Protocol
+		switch port.Protocol {
+		default:
+			p = api.ProtocolTCP
+		case ProtocolTCP:
+			p = api.ProtocolTCP
+		case ProtocolUDP:
+			p = api.ProtocolUDP
+		}
+		var targetPort intstr.IntOrString
+		targetPort.IntVal = port.HostPort
+		targetPort.StrVal = strconv.Itoa(int(port.HostPort))
+		servicePorts = append(servicePorts, api.ServicePort{
+			Name:       strconv.Itoa(int(port.ContainerPort)),
+			Protocol:   p,
+			Port:       port.ContainerPort,
+			TargetPort: targetPort,
+		})
+	}
+	return servicePorts
 }
 
 // Transform data to json/yaml
@@ -536,7 +507,7 @@ func transformer(v interface{}, entity string, generateYaml bool) ([]byte, strin
 func loadEnvVars(service bundlefile.Service) ([]EnvVar, string) {
 	envs := []EnvVar{}
 	for _, env := range service.Env {
-		var character string = "="
+		character := "="
 		if strings.Contains(env, character) {
 			value := env[strings.Index(env, character)+1:]
 			name := env[0:strings.Index(env, character)]
@@ -549,7 +520,7 @@ func loadEnvVars(service bundlefile.Service) ([]EnvVar, string) {
 		} else {
 			character = ":"
 			if strings.Contains(env, character) {
-				var charQuote string = "'"
+				charQuote := "'"
 				value := env[strings.Index(env, character)+1:]
 				name := env[0:strings.Index(env, character)]
 				name = strings.TrimSpace(name)
@@ -569,9 +540,40 @@ func loadEnvVars(service bundlefile.Service) ([]EnvVar, string) {
 	return envs, ""
 }
 
+// load Ports from bundles file
+func loadPorts(service bundlefile.Service) ([]Ports, string) {
+	ports := []Ports{}
+	for _, port := range service.Ports {
+		var p Protocol
+		switch port.Protocol {
+		default:
+			p = ProtocolTCP
+		case "TCP":
+			p = ProtocolTCP
+		case "UDP":
+			p = ProtocolUDP
+		}
+		ports = append(ports, Ports{
+			HostPort:      int32(port.Port),
+			ContainerPort: int32(port.Port),
+			Protocol:      p,
+		})
+	}
+	return ports, ""
+}
+
+// load Image from bundles file
+func loadImage(service bundlefile.Service) (string, string) {
+	character := "@"
+	if strings.Contains(service.Image, character) {
+		return service.Image[0:strings.Index(service.Image, character)], ""
+	}
+	return "", "Invalid image format"
+}
+
 // Load DAB file into KomposeObject
-func loadBundlesFile(file string) (KomposeObject) {
-	kObject := KomposeObject{
+func loadBundlesFile(file string) KomposeObject {
+	komposeObject := KomposeObject{
 		ServiceConfigs: make(map[string]ServiceConfig),
 	}
 	buf, err := ioutil.ReadFile(file)
@@ -586,35 +588,44 @@ func loadBundlesFile(file string) (KomposeObject) {
 
 	for name, service := range bundle.Services {
 		serviceConfig := ServiceConfig{}
-		serviceConfig.Image = service.Image
 		serviceConfig.Command = service.Command
 		serviceConfig.Args = service.Args
+		serviceConfig.Labels = service.Labels
+
+		image, err := loadImage(service)
+		if err != "" {
+			logrus.Fatalf("Failed to load image from bundles file: " + err)
+		}
+		serviceConfig.Image = image
 
 		envs, err := loadEnvVars(service)
 		if err != "" {
 			logrus.Fatalf("Failed to load envvar from bundles file: " + err)
 		}
-
 		serviceConfig.Environment = envs
-		serviceConfig.Labels = service.Labels
+
+		ports, err := loadPorts(service)
+		if err != "" {
+			logrus.Fatalf("Failed to load ports from bundles file: " + err)
+		}
+		serviceConfig.Port = ports
+
 		if service.WorkingDir != nil {
 			serviceConfig.WorkingDir = *service.WorkingDir
 		}
-		kObject.ServiceConfigs[name] = serviceConfig
+
+		komposeObject.ServiceConfigs[name] = serviceConfig
 	}
-
-	fmt.Println(kObject)
-
-	return kObject
+	return komposeObject
 }
 
 // Convert komposeObject to K8S controllers
 func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, createDS, createChart, generateYaml bool, replicas int, inputFile string, outFile string, f *os.File) {
-	var mServices map[string][]byte = make(map[string][]byte)
-	var mReplicationControllers map[string][]byte = make(map[string][]byte)
-	var mDeployments map[string][]byte = make(map[string][]byte)
-	var mDaemonSets map[string][]byte = make(map[string][]byte)
-	var mReplicaSets map[string][]byte = make(map[string][]byte)
+	mServices := make(map[string][]byte)
+	mReplicationControllers := make(map[string][]byte)
+	mDeployments := make(map[string][]byte)
+	mDaemonSets := make(map[string][]byte)
+	mReplicaSets := make(map[string][]byte)
 	var svcnames []string
 
 	for name, service := range komposeObject.ServiceConfigs {
@@ -640,17 +651,10 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 		volumesMount, volumes := configVolumes(service)
 
 		// Configure the container ports.
-		ports, err := configPorts(name, service)
-		if err != "" {
-			logrus.Fatalf(err)
-		}
+		ports := configPorts(name, service)
 
 		// Configure the service ports.
-		servicePorts, err := configServicePorts(name, service)
-		if err != "" {
-			logrus.Fatalf(err)
-		}
-
+		servicePorts := configServicePorts(name, service)
 		sc.Spec.Ports = servicePorts
 
 		// Configure label
@@ -658,7 +662,6 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 		for key, value := range service.Labels {
 			labels[key] = value
 		}
-
 		sc.ObjectMeta.Labels = labels
 
 		// fillTemplate fills the pod template with the value calculated from config
@@ -780,7 +783,7 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 	}
 }
 
-// ProjectKuberConvert tranforms docker compose or dab file to k8s objects
+// Convert tranforms docker compose or dab file to k8s objects
 func Convert(c *cli.Context) {
 	inputFile := c.String("file")
 	outFile := c.String("out")
@@ -835,7 +838,7 @@ func Convert(c *cli.Context) {
 
 	// Parse DAB file into komposeObject
 	if fromBundles {
-		komposeObject = loadBundlesFile(inputFile);
+		komposeObject = loadBundlesFile(inputFile)
 	}
 
 	// Convert komposeObject to K8S controllers
@@ -879,7 +882,7 @@ func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *o
 	}
 }
 
-// ProjectKuberUp brings up rc, svc.
+// Up brings up rc, svc.
 func Up(c *cli.Context) {
 	//factory := cmdutil.NewFactory(nil)
 	//clientConfig, err := factory.ClientConfig()

@@ -19,10 +19,10 @@ package main
 import (
 	"os"
 
-	"github.com/urfave/cli"
-	"github.com/skippbox/kompose/version"
-	"github.com/skippbox/kompose/cli/command"
 	cliApp "github.com/skippbox/kompose/cli/app"
+	"github.com/skippbox/kompose/cli/command"
+	"github.com/skippbox/kompose/version"
+	"github.com/urfave/cli"
 )
 
 func main() {
