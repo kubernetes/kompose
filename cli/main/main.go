@@ -20,15 +20,12 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
-	dockerApp "github.com/skippbox/kompose/cli/docker/app"
 	"github.com/skippbox/kompose/version"
 	"github.com/skippbox/kompose/cli/command"
 	cliApp "github.com/skippbox/kompose/cli/app"
 )
 
 func main() {
-	factory := &dockerApp.ProjectFactory{}
-
 	app := cli.NewApp()
 	app.Name = "kompose"
 	app.Usage = "Command line interface for Skippbox."
@@ -39,11 +36,11 @@ func main() {
 	app.Before = cliApp.BeforeApp
 	app.Flags = append(command.CommonFlags())
 	app.Commands = []cli.Command{
-		command.ConvertCommand(factory),
-		command.UpCommand(factory),
-		command.PsCommand(factory),
-		command.DeleteCommand(factory),
-		command.ScaleCommand(factory),
+		command.ConvertCommand(),
+		command.UpCommand(),
+		command.PsCommand(),
+		command.DeleteCommand(),
+		command.ScaleCommand(),
 	}
 
 	app.Run(os.Args)

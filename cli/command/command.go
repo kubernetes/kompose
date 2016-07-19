@@ -17,17 +17,18 @@ limitations under the License.
 package command
 
 import (
-	"github.com/docker/libcompose/project"
 	"github.com/skippbox/kompose/cli/app"
 	"github.com/urfave/cli"
 )
 
 // ConvertCommand defines the kompose convert subcommand.
-func ConvertCommand(factory app.ProjectFactory) cli.Command {
+func ConvertCommand() cli.Command {
 	return cli.Command{
 		Name:   "convert",
 		Usage:  "Convert docker-compose.yml to Kubernetes objects",
-		Action: app.WithProject(factory, app.ProjectKuberConvert),
+		Action: func (c *cli.Context) {
+			app.Convert(c)
+		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "file,f",
@@ -79,20 +80,24 @@ func ConvertCommand(factory app.ProjectFactory) cli.Command {
 }
 
 // UpCommand defines the kompose up subcommand.
-func UpCommand(factory app.ProjectFactory) cli.Command {
+func UpCommand() cli.Command {
 	return cli.Command{
 		Name:   "up",
 		Usage:  "Submit rc, svc objects to kubernetes API endpoint",
-		Action: app.WithProject(factory, app.ProjectKuberUp),
+		Action: func (c *cli.Context) {
+			app.Up(c)
+		},
 	}
 }
 
 // PsCommand defines the kompose ps subcommand.
-func PsCommand(factory app.ProjectFactory) cli.Command {
+func PsCommand() cli.Command {
 	return cli.Command{
 		Name:   "ps",
 		Usage:  "Get active data in the kubernetes cluster",
-		Action: app.WithProject(factory, app.ProjectKuberPS),
+		Action: func (c *cli.Context) {
+			app.Ps(c)
+		},
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "service,svc",
@@ -107,11 +112,13 @@ func PsCommand(factory app.ProjectFactory) cli.Command {
 }
 
 // DeleteCommand defines the kompose delete subcommand.
-func DeleteCommand(factory app.ProjectFactory) cli.Command {
+func DeleteCommand() cli.Command {
 	return cli.Command{
 		Name:   "delete",
 		Usage:  "Remove instantiated services/rc from kubernetes",
-		Action: app.WithProject(factory, app.ProjectKuberDelete),
+		Action: func (c *cli.Context) {
+			app.Delete(c)
+		},
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "replicationcontroller,rc",
@@ -130,11 +137,13 @@ func DeleteCommand(factory app.ProjectFactory) cli.Command {
 }
 
 // ScaleCommand defines the kompose up subcommand.
-func ScaleCommand(factory app.ProjectFactory) cli.Command {
+func ScaleCommand() cli.Command {
 	return cli.Command{
 		Name:   "scale",
 		Usage:  "Globally scale instantiated replication controllers",
-		Action: app.WithProject(factory, app.ProjectKuberScale),
+		Action: func (c *cli.Context) {
+			app.Scale(c)
+		},
 		Flags: []cli.Flag{
 			cli.IntFlag{
 				Name:  "scale",
@@ -162,19 +171,18 @@ func CommonFlags() []cli.Flag {
 		},
 	}
 }
-
-// Populate updates the specified project context based on command line arguments and subcommands.
-func Populate(context *project.Context, c *cli.Context) {
-	context.ComposeFile = c.GlobalString("file")
-	//context.ProjectName = c.GlobalString("project-name")
-
-	if c.Command.Name == "logs" {
-		context.Log = true
-	} else if c.Command.Name == "up" {
-		context.Log = !c.Bool("d")
-		context.NoRecreate = c.Bool("no-recreate")
-		context.ForceRecreate = c.Bool("force-recreate")
-	} else if c.Command.Name == "scale" {
-		context.Timeout = uint(c.Int("timeout"))
-	}
-}
+//
+//// Populate updates the specified project context based on command line arguments and subcommands.
+//func Populate(context *project.Context, c *cli.Context) {
+//	context.ComposeFiles = append(context.ComposeFiles, c.GlobalString("file"))
+//
+//	//if c.Command.Name == "logs" {
+//	//	context.Log = true
+//	//} else if c.Command.Name == "up" {
+//	//	context.Log = !c.Bool("d")
+//	//	context.NoRecreate = c.Bool("no-recreate")
+//	//	context.ForceRecreate = c.Bool("force-recreate")
+//	//} else if c.Command.Name == "scale" {
+//	//	context.Timeout = uint(c.Int("timeout"))
+//	//}
+//}
