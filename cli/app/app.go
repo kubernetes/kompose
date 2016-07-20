@@ -41,6 +41,8 @@ import (
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
+	deployapi "github.com/openshift/origin/pkg/deploy/api"
+
 	"github.com/fatih/structs"
 	"github.com/ghodss/yaml"
 )
@@ -392,6 +394,39 @@ func initRS(name string, service ServiceConfig) *extensions.ReplicaSet {
 	return rs
 }
 
+// initDeploymentConfig initialize OpenShifts DeploymentConfig object
+func initDeploymentConfig(name string, service ServiceConfig) *deployapi.DeploymentConfig {
+	dc := &deployapi.DeploymentConfig{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "DeploymentConfig",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name:   name,
+			Labels: map[string]string{"service": name},
+		},
+		Spec: deployapi.DeploymentConfigSpec{
+			Replicas: 1,
+			Selector: map[string]string{"service": name},
+			//UniqueLabelKey: p.Name,
+			Template: &api.PodTemplateSpec{
+				ObjectMeta: api.ObjectMeta{
+					Labels: map[string]string{"service": name},
+				},
+				Spec: api.PodSpec{
+					Containers: []api.Container{
+						{
+							Name:  name,
+							Image: service.Image,
+						},
+					},
+				},
+			},
+		},
+	}
+	return dc
+}
+
 // Configure the environment variables.
 func configEnvs(name string, service ServiceConfig) []api.EnvVar {
 	envs := []api.EnvVar{}
@@ -739,12 +774,14 @@ func loadComposeFile(file string, c *cli.Context) KomposeObject {
 }
 
 // Convert komposeObject to K8S controllers
-func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, createDS, createChart, generateYaml bool, replicas int, inputFile string, outFile string, f *os.File) {
+func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, createDS, createChart, createDeploymentConfigs, generateYaml bool, replicas int, inputFile string, outFile string, f *os.File) {
 	mServices := make(map[string][]byte)
 	mReplicationControllers := make(map[string][]byte)
 	mDeployments := make(map[string][]byte)
 	mDaemonSets := make(map[string][]byte)
 	mReplicaSets := make(map[string][]byte)
+	// OpenShift DeploymentConfigs
+	mDeploymentConfigs := make(map[string][]byte)
 	var svcnames []string
 
 	for name, service := range komposeObject.ServiceConfigs {
@@ -757,6 +794,7 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 		dc := initDC(name, service)
 		ds := initDS(name, service)
 		rs := initRS(name, service)
+		osDC := initDeploymentConfig(name, service) // OpenShift DeploymentConfigs
 
 		// Configure the environment variables.
 		envs := configEnvs(name, service)
@@ -821,6 +859,8 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 		updateController(rs, fillTemplate, fillObjectMeta)
 		updateController(dc, fillTemplate, fillObjectMeta)
 		updateController(ds, fillTemplate, fillObjectMeta)
+		// OpenShift DeploymentConfigs
+		updateController(osDC, fillTemplate, fillObjectMeta)
 
 		// convert datarc to json / yaml
 		datarc, err := transformer(rc, "replication controller", generateYaml)
@@ -852,11 +892,18 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 			logrus.Fatalf(err)
 		}
 
+		// convert OpenShift DeploymentConfig to json / yaml
+		dataDeploymentConfig, err := transformer(osDC, "deployment config", generateYaml)
+		if err != "" {
+			logrus.Fatalf(err)
+		}
+
 		mServices[name] = datasvc
 		mReplicationControllers[name] = datarc
 		mDeployments[name] = datadc
 		mDaemonSets[name] = datads
 		mReplicaSets[name] = datars
+		mDeploymentConfigs[name] = dataDeploymentConfig
 	}
 
 	for k, v := range mServices {
@@ -900,6 +947,12 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 			logrus.Fatalf("Failed to create Chart data: %s\n", err)
 		}
 	}
+
+	if createDeploymentConfigs {
+		for k, v := range mDeploymentConfigs {
+			print(k, "deploymentconfig", v, toStdout, generateYaml, f)
+		}
+	}
 }
 
 // Convert tranforms docker compose or dab file to k8s objects
@@ -915,9 +968,10 @@ func Convert(c *cli.Context) {
 	fromBundles := c.BoolT("from-bundles")
 	replicas := c.Int("replicationcontroller")
 	singleOutput := len(outFile) != 0 || toStdout
+	createDeploymentConfig := c.BoolT("deploymentconfig")
 
 	// Create Deployment by default if no controller has be set
-	if !createD && !createDS && !createRS && replicas == 0 {
+	if !createD && !createDS && !createRS && replicas == 0 && !createDeploymentConfig {
 		createD = true
 	}
 
@@ -942,6 +996,9 @@ func Convert(c *cli.Context) {
 		if replicas != 0 {
 			count++
 		}
+		if createDeploymentConfig {
+			count++
+		}
 		if count > 1 {
 			logrus.Fatalf("Error: only one type of Kubernetes controller can be generated when --out or --stdout is specified")
 		}
@@ -962,7 +1019,7 @@ func Convert(c *cli.Context) {
 	}
 
 	// Convert komposeObject to K8S controllers
-	komposeConvert(komposeObject, toStdout, createD, createRS, createDS, createChart, generateYaml, replicas, inputFile, outFile, f)
+	komposeConvert(komposeObject, toStdout, createD, createRS, createDS, createChart, createDeploymentConfig, generateYaml, replicas, inputFile, outFile, f)
 }
 
 func checkUnsupportedKey(service ServiceConfig) {
