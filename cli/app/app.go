@@ -27,6 +27,8 @@ import (
 	"github.com/urfave/cli"
 
 	"github.com/docker/docker/api/client/bundlefile"
+	"github.com/docker/libcompose/docker"
+	"github.com/docker/libcompose/project"
 
 	"encoding/json"
 	"io/ioutil"
@@ -41,6 +43,7 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/ghodss/yaml"
+
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -619,6 +622,37 @@ func loadBundlesFile(file string) KomposeObject {
 	return komposeObject
 }
 
+// Load compose file version 1 into KomposeObject
+func loadComposeFile(file string, c *cli.Context) KomposeObject {
+	komposeObject := KomposeObject{
+		ServiceConfigs: make(map[string]ServiceConfig),
+	}
+	context := &docker.Context{}
+	if file == "" {
+		file = "docker-compose.yml"
+	}
+	context.ComposeFiles = []string{file}
+
+	// load compose file into composeObject
+	composeObject := project.NewProject(&context.Context, nil, nil)
+	err := composeObject.Parse()
+	if err != nil {
+		logrus.Fatalf("Failed to load compose file", err)
+	}
+
+	// transform composeObject into komposeObject
+	composeServiceNames := composeObject.ServiceConfigs.Keys()
+	for _, name := range composeServiceNames {
+		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
+			// TODO: mapping composeObject config to komposeObject config
+			serviceConfig := ServiceConfig{}
+			serviceConfig.Image = composeServiceConfig.Image
+			komposeObject.ServiceConfigs[name] = serviceConfig
+		}
+	}
+	return komposeObject
+}
+
 // Convert komposeObject to K8S controllers
 func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, createDS, createChart, generateYaml bool, replicas int, inputFile string, outFile string, f *os.File) {
 	mServices := make(map[string][]byte)
@@ -839,6 +873,8 @@ func Convert(c *cli.Context) {
 	// Parse DAB file into komposeObject
 	if fromBundles {
 		komposeObject = loadBundlesFile(inputFile)
+	} else {
+		komposeObject = loadComposeFile(inputFile, c)
 	}
 
 	// Convert komposeObject to K8S controllers
