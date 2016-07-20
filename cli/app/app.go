@@ -622,7 +622,7 @@ func loadBundlesFile(file string) KomposeObject {
 	return komposeObject
 }
 
-// Load compose file version 1 into KomposeObject
+// Load compose file into KomposeObject
 func loadComposeFile(file string, c *cli.Context) KomposeObject {
 	komposeObject := KomposeObject{
 		ServiceConfigs: make(map[string]ServiceConfig),

@@ -75,10 +75,6 @@ func ConvertCommand() cli.Command {
 				Name:  "from-bundles",
 				Usage: "Getting input from docker DAB file",
 			},
-			cli.BoolFlag{
-				Name:  "from-compose-v2",
-				Usage: "Getting input from docker compose file version 2",
-			},
 		},
 	}
 }
