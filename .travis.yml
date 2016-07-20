@@ -12,7 +12,7 @@ branches:
 install:
 - go get github.com/mitchellh/gox
 - go get github.com/tools/godep
-- godep restore
+- ./script/godep-restore.sh
 
 script:
 - make binary
