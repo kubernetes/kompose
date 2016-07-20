@@ -35,13 +35,14 @@ import (
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/api/v1"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	//client "k8s.io/kubernetes/pkg/client/unversioned"
 	//cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	deployapi "github.com/openshift/origin/pkg/deploy/api/v1"
 
 	"github.com/fatih/structs"
 	"github.com/ghodss/yaml"
@@ -401,7 +402,7 @@ func initDeploymentConfig(name string, service ServiceConfig) *deployapi.Deploym
 			Kind:       "DeploymentConfig",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: v1.ObjectMeta{
 			Name:   name,
 			Labels: map[string]string{"service": name},
 		},
@@ -409,12 +410,12 @@ func initDeploymentConfig(name string, service ServiceConfig) *deployapi.Deploym
 			Replicas: 1,
 			Selector: map[string]string{"service": name},
 			//UniqueLabelKey: p.Name,
-			Template: &api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
+			Template: &v1.PodTemplateSpec{
+				ObjectMeta: v1.ObjectMeta{
 					Labels: map[string]string{"service": name},
 				},
-				Spec: api.PodSpec{
-					Containers: []api.Container{
+				Spec: v1.PodSpec{
+					Containers: []v1.Container{
 						{
 							Name:  name,
 							Image: service.Image,
