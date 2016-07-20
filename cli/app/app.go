@@ -43,7 +43,6 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/ghodss/yaml"
-
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -543,6 +542,43 @@ func loadEnvVars(service bundlefile.Service) ([]EnvVar, string) {
 	return envs, ""
 }
 
+// load Environment Variable from compose file
+func loadEnvVarsFromCompose(e []string) ([]EnvVar, string) {
+	envs := []EnvVar{}
+	for _, env := range e {
+		character := "="
+		if strings.Contains(env, character) {
+			value := env[strings.Index(env, character)+1:]
+			name := env[0:strings.Index(env, character)]
+			name = strings.TrimSpace(name)
+			value = strings.TrimSpace(value)
+			envs = append(envs, EnvVar{
+				Name:  name,
+				Value: value,
+			})
+		} else {
+			character = ":"
+			if strings.Contains(env, character) {
+				charQuote := "'"
+				value := env[strings.Index(env, character)+1:]
+				name := env[0:strings.Index(env, character)]
+				name = strings.TrimSpace(name)
+				value = strings.TrimSpace(value)
+				if strings.Contains(value, charQuote) {
+					value = strings.Trim(value, "'")
+				}
+				envs = append(envs, EnvVar{
+					Name:  name,
+					Value: value,
+				})
+			} else {
+				return envs, "Invalid container env " + env
+			}
+		}
+	}
+	return envs, ""
+}
+
 // load Ports from bundles file
 func loadPorts(service bundlefile.Service) ([]Ports, string) {
 	ports := []Ports{}
@@ -561,6 +597,45 @@ func loadPorts(service bundlefile.Service) ([]Ports, string) {
 			ContainerPort: int32(port.Port),
 			Protocol:      p,
 		})
+	}
+	return ports, ""
+}
+
+// Load Ports from compose file
+func loadPortsFromCompose(composePorts []string) ([]Ports, string) {
+	ports := []Ports{}
+	character := ":"
+	for _, port := range composePorts {
+		p := ProtocolTCP
+		if strings.Contains(port, character) {
+			hostPort := port[0:strings.Index(port, character)]
+			hostPort = strings.TrimSpace(hostPort)
+			hostPortInt, err := strconv.Atoi(hostPort)
+			if err != nil {
+				return nil, "Invalid host port of " + port
+			}
+			containerPort := port[strings.Index(port, character)+1:]
+			containerPort = strings.TrimSpace(containerPort)
+			containerPortInt, err := strconv.Atoi(containerPort)
+			if err != nil {
+				return nil, "Invalid container port of " + port
+			}
+			ports = append(ports, Ports{
+				HostPort:      int32(hostPortInt),
+				ContainerPort: int32(containerPortInt),
+				Protocol:      p,
+			})
+		} else {
+			containerPortInt, err := strconv.Atoi(port)
+			if err != nil {
+				return nil, "Invalid container port of " + port
+			}
+			ports = append(ports, Ports{
+				ContainerPort: int32(containerPortInt),
+				Protocol:      p,
+			})
+		}
+
 	}
 	return ports, ""
 }
@@ -647,6 +722,50 @@ func loadComposeFile(file string, c *cli.Context) KomposeObject {
 			// TODO: mapping composeObject config to komposeObject config
 			serviceConfig := ServiceConfig{}
 			serviceConfig.Image = composeServiceConfig.Image
+			serviceConfig.ContainerName = composeServiceConfig.ContainerName
+
+			// load environment variables
+			environments := composeServiceConfig.Environment
+			if environments != nil {
+				if err := environments.UnmarshalYAML("", environments); err != nil {
+					logrus.Fatalf("Failed to load envvar from compose file: ", err)
+				}
+			}
+			envs, err := loadEnvVarsFromCompose(environments)
+			if err != "" {
+				logrus.Fatalf("Failed to load envvar from compose file: " + err)
+			}
+			serviceConfig.Environment = envs
+
+			// load ports
+			ports, err := loadPortsFromCompose(composeServiceConfig.Ports)
+			if err != "" {
+				logrus.Fatalf("Failed to load ports from compose file: " + err)
+			}
+			serviceConfig.Port = ports
+
+			serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
+			serviceConfig.Volumes = composeServiceConfig.Volumes
+
+			// load labels
+			labels := composeServiceConfig.Labels
+			if labels != nil {
+				if err := labels.UnmarshalYAML("", labels); err != nil {
+					logrus.Fatalf("Failed to load labels from compose file: ", err)
+				}
+			}
+			serviceConfig.Labels = labels
+
+			serviceConfig.CPUSet = composeServiceConfig.CPUSet
+			serviceConfig.CPUShares = composeServiceConfig.CPUShares
+			serviceConfig.CPUQuota = composeServiceConfig.CPUQuota
+			serviceConfig.CapAdd = composeServiceConfig.CapAdd
+			serviceConfig.CapDrop = composeServiceConfig.CapDrop
+			serviceConfig.Expose = composeServiceConfig.Expose
+			serviceConfig.Privileged = composeServiceConfig.Privileged
+			serviceConfig.Restart = composeServiceConfig.Restart
+			serviceConfig.User = composeServiceConfig.User
+
 			komposeObject.ServiceConfigs[name] = serviceConfig
 		}
 	}
@@ -870,7 +989,6 @@ func Convert(c *cli.Context) {
 
 	komposeObject := KomposeObject{}
 
-	// Parse DAB file into komposeObject
 	if fromBundles {
 		komposeObject = loadBundlesFile(inputFile)
 	} else {
