@@ -8,11 +8,11 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/Azure/go-ansiterm",
-			"Rev": "70b2c90b260171e829f1ebd7c17f600c11858dbe"
+			"Rev": "388960b655244e76e24c75f48631564eaefade62"
 		},
 		{
 			"ImportPath": "github.com/Azure/go-ansiterm/winterm",
-			"Rev": "70b2c90b260171e829f1ebd7c17f600c11858dbe"
+			"Rev": "388960b655244e76e24c75f48631564eaefade62"
 		},
 		{
 			"ImportPath": "github.com/Microsoft/go-winio",
@@ -408,11 +408,6 @@
 			"Rev": "0bbddae09c5a5419a8c6dcdd7ff90da3d450393b"
 		},
 		{
-			"ImportPath": "github.com/docker/libcompose/cli/logger",
-			"Comment": "v0.2.0-186-ga12288b",
-			"Rev": "a12288bd636066e330b5d39197737cd04882d164"
-		},
-		{
 			"ImportPath": "github.com/docker/libcompose/config",
 			"Comment": "v0.2.0-186-ga12288b",
 			"Rev": "a12288bd636066e330b5d39197737cd04882d164"
@@ -587,10 +582,6 @@
 		{
 			"ImportPath": "github.com/xeipuuv/gojsonschema",
 			"Rev": "ac452913faa25c08bb78810d3e6f88b8a39f8f25"
-		},
-		{
-			"ImportPath": "golang.org/x/crypto/ssh/terminal",
-			"Rev": "c84e1f8e3a7e322d497cd16c0e8a13c7e127baf3"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
