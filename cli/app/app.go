@@ -533,17 +533,25 @@ func configServicePorts(name string, service ServiceConfig) []api.ServicePort {
 }
 
 // Transform data to json/yaml
-func transformer(v interface{}, entity string, generateYaml bool) ([]byte, string) {
+func transformer(obj runtime.Object, generateYaml bool) ([]byte, error) {
+	//  Convert to versioned object
+	objectVersion := obj.GetObjectKind().GroupVersionKind()
+	version := unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
+	versionedObj, err := api.Scheme.ConvertToVersion(obj, version)
+	if err != nil {
+		return nil, err
+	}
+
 	// convert data to json / yaml
-	data, err := json.MarshalIndent(v, "", "  ")
+	data, err := json.MarshalIndent(versionedObj, "", "  ")
 	if generateYaml == true {
-		data, err = yaml.Marshal(v)
+		data, err = yaml.Marshal(versionedObj)
 	}
 	if err != nil {
-		return nil, "Failed to marshal the " + entity
+		return nil, err
 	}
 	logrus.Debugf("%s\n", data)
-	return data, ""
+	return data, nil
 }
 
 // load Environment Variable from bundles file
@@ -869,39 +877,39 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 		updateController(osDC, fillTemplate, fillObjectMeta)
 
 		// convert datarc to json / yaml
-		datarc, err := transformer(rc, "replication controller", generateYaml)
-		if err != "" {
-			logrus.Fatalf(err)
+		datarc, err := transformer(rc, generateYaml)
+		if err != nil {
+			logrus.Fatalf(err.Error())
 		}
 
 		// convert datadc to json / yaml
-		datadc, err := transformer(dc, "deployment", generateYaml)
-		if err != "" {
-			logrus.Fatalf(err)
+		datadc, err := transformer(dc, generateYaml)
+		if err != nil {
+			logrus.Fatalf(err.Error())
 		}
 
 		// convert datads to json / yaml
-		datads, err := transformer(ds, "daemonSet", generateYaml)
-		if err != "" {
-			logrus.Fatalf(err)
+		datads, err := transformer(ds, generateYaml)
+		if err != nil {
+			logrus.Fatalf(err.Error())
 		}
 
 		// convert datars to json / yaml
-		datars, err := transformer(rs, "replicaSet", generateYaml)
-		if err != "" {
-			logrus.Fatalf(err)
+		datars, err := transformer(rs, generateYaml)
+		if err != nil {
+			logrus.Fatalf(err.Error())
 		}
 
 		// convert datasvc to json / yaml
-		datasvc, err := transformer(sc, "service controller", generateYaml)
-		if err != "" {
-			logrus.Fatalf(err)
+		datasvc, err := transformer(sc, generateYaml)
+		if err != nil {
+			logrus.Fatalf(err.Error())
 		}
 
 		// convert OpenShift DeploymentConfig to json / yaml
-		dataDeploymentConfig, err := transformer(osDC, "deployment config", generateYaml)
-		if err != "" {
-			logrus.Fatalf(err)
+		dataDeploymentConfig, err := transformer(osDC, generateYaml)
+		if err != nil {
+			logrus.Fatalf(err.Error())
 		}
 
 		mServices[name] = datasvc
