@@ -497,7 +497,6 @@ func configPorts(name string, service ServiceConfig) []api.ContainerPort {
 			p = api.ProtocolUDP
 		}
 		ports = append(ports, api.ContainerPort{
-			HostPort:      port.HostPort,
 			ContainerPort: port.ContainerPort,
 			Protocol:      p,
 		})
