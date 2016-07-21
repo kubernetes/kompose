@@ -677,6 +677,11 @@
 			"Rev": "2e48c47ce0371eab4d23ce32c0fec6de2e964dc1"
 		},
 		{
+			"ImportPath": "github.com/openshift/origin/pkg/deploy/api/install",
+			"Comment": "v1.3.0-alpha.2-1281-g2e48c47",
+			"Rev": "2e48c47ce0371eab4d23ce32c0fec6de2e964dc1"
+		},
+		{
 			"ImportPath": "github.com/openshift/origin/pkg/deploy/api/v1",
 			"Comment": "v1.3.0-alpha.2-1281-g2e48c47",
 			"Rev": "2e48c47ce0371eab4d23ce32c0fec6de2e964dc1"
@@ -819,6 +824,11 @@
 			"Rev": "57fb9acc109285378ecd0af925c8160eb8ca19e6"
 		},
 		{
+			"ImportPath": "k8s.io/kubernetes/pkg/api/install",
+			"Comment": "v1.3.0-58-g57fb9ac",
+			"Rev": "57fb9acc109285378ecd0af925c8160eb8ca19e6"
+		},
+		{
 			"ImportPath": "k8s.io/kubernetes/pkg/api/meta",
 			"Comment": "v1.3.0-58-g57fb9ac",
 			"Rev": "57fb9acc109285378ecd0af925c8160eb8ca19e6"
@@ -890,6 +900,16 @@
 		},
 		{
 			"ImportPath": "k8s.io/kubernetes/pkg/apis/extensions",
+			"Comment": "v1.3.0-58-g57fb9ac",
+			"Rev": "57fb9acc109285378ecd0af925c8160eb8ca19e6"
+		},
+		{
+			"ImportPath": "k8s.io/kubernetes/pkg/apis/extensions/install",
+			"Comment": "v1.3.0-58-g57fb9ac",
+			"Rev": "57fb9acc109285378ecd0af925c8160eb8ca19e6"
+		},
+		{
+			"ImportPath": "k8s.io/kubernetes/pkg/apis/extensions/v1beta1",
 			"Comment": "v1.3.0-58-g57fb9ac",
 			"Rev": "57fb9acc109285378ecd0af925c8160eb8ca19e6"
 		},

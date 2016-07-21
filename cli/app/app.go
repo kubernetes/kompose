@@ -33,16 +33,21 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
+	// install kubernetes api
+	_ "k8s.io/kubernetes/pkg/api/install"
+	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
+
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
-	"k8s.io/kubernetes/pkg/api/v1"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	//client "k8s.io/kubernetes/pkg/client/unversioned"
 	//cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
-	deployapi "github.com/openshift/origin/pkg/deploy/api/v1"
+	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	// install kubernetes api
+	_ "github.com/openshift/origin/pkg/deploy/api/install"
 
 	"github.com/fatih/structs"
 	"github.com/ghodss/yaml"
@@ -402,7 +407,7 @@ func initDeploymentConfig(name string, service ServiceConfig) *deployapi.Deploym
 			Kind:       "DeploymentConfig",
 			APIVersion: "v1",
 		},
-		ObjectMeta: v1.ObjectMeta{
+		ObjectMeta: api.ObjectMeta{
 			Name:   name,
 			Labels: map[string]string{"service": name},
 		},
@@ -410,12 +415,12 @@ func initDeploymentConfig(name string, service ServiceConfig) *deployapi.Deploym
 			Replicas: 1,
 			Selector: map[string]string{"service": name},
 			//UniqueLabelKey: p.Name,
-			Template: &v1.PodTemplateSpec{
-				ObjectMeta: v1.ObjectMeta{
+			Template: &api.PodTemplateSpec{
+				ObjectMeta: api.ObjectMeta{
 					Labels: map[string]string{"service": name},
 				},
-				Spec: v1.PodSpec{
-					Containers: []v1.Container{
+				Spec: api.PodSpec{
+					Containers: []api.Container{
 						{
 							Name:  name,
 							Image: service.Image,
@@ -579,7 +584,7 @@ func loadEnvVars(service bundlefile.Service) ([]EnvVar, string) {
 }
 
 // load Environment Variable from compose file
-func loadEnvVarsFromCompose(e map[string]string) ([]EnvVar) {
+func loadEnvVarsFromCompose(e map[string]string) []EnvVar {
 	envs := []EnvVar{}
 	for k, v := range e {
 		envs = append(envs, EnvVar{
@@ -1155,6 +1160,9 @@ func updateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSp
 		updateMeta(&t.ObjectMeta)
 	case *extensions.DaemonSet:
 		updateTemplate(&t.Spec.Template)
+		updateMeta(&t.ObjectMeta)
+	case *deployapi.DeploymentConfig:
+		updateTemplate(t.Spec.Template)
 		updateMeta(&t.ObjectMeta)
 	}
 }
