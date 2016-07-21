@@ -1,3 +1,5 @@
+// +build experimental
+
 package bundlefile
 
 import (
