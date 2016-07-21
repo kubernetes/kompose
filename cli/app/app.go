@@ -453,8 +453,6 @@ func configVolumes(service ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 	for _, volume := range service.Volumes {
 		character := ":"
 		if strings.Contains(volume, character) {
-			hostDir := volume[0:strings.Index(volume, character)]
-			hostDir = strings.TrimSpace(hostDir)
 			containerDir := volume[strings.Index(volume, character)+1:]
 			containerDir = strings.TrimSpace(containerDir)
 
@@ -472,11 +470,10 @@ func configVolumes(service ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 			volumeName := RandStringBytes(20)
 
 			volumesMount = append(volumesMount, api.VolumeMount{Name: volumeName, ReadOnly: readonly, MountPath: containerDir})
-			p := &api.HostPathVolumeSource{
-				Path: hostDir,
-			}
-			//p.Path = hostDir
-			volumeSource := api.VolumeSource{HostPath: p}
+
+			emptyDir := &api.EmptyDirVolumeSource{}
+			volumeSource := api.VolumeSource{EmptyDir: emptyDir}
+
 			volumes = append(volumes, api.Volume{Name: volumeName, VolumeSource: volumeSource})
 		}
 	}
