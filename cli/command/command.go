@@ -49,6 +49,10 @@ func ConvertCommand() cli.Command {
 				Name:  "daemonset,ds",
 				Usage: "Generate a daemonset resource file",
 			},
+			cli.BoolFlag{
+				Name:  "deploymentconfig,dc",
+				Usage: "Generate a DeploymentConfig for OpenShift",
+			},
 			cli.IntFlag{
 				Name:  "replicationcontroller,rc",
 				Value: 0,
