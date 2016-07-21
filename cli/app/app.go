@@ -543,40 +543,15 @@ func loadEnvVars(service bundlefile.Service) ([]EnvVar, string) {
 }
 
 // load Environment Variable from compose file
-func loadEnvVarsFromCompose(e []string) ([]EnvVar, string) {
+func loadEnvVarsFromCompose(e map[string]string) ([]EnvVar) {
 	envs := []EnvVar{}
-	for _, env := range e {
-		character := "="
-		if strings.Contains(env, character) {
-			value := env[strings.Index(env, character)+1:]
-			name := env[0:strings.Index(env, character)]
-			name = strings.TrimSpace(name)
-			value = strings.TrimSpace(value)
-			envs = append(envs, EnvVar{
-				Name:  name,
-				Value: value,
-			})
-		} else {
-			character = ":"
-			if strings.Contains(env, character) {
-				charQuote := "'"
-				value := env[strings.Index(env, character)+1:]
-				name := env[0:strings.Index(env, character)]
-				name = strings.TrimSpace(name)
-				value = strings.TrimSpace(value)
-				if strings.Contains(value, charQuote) {
-					value = strings.Trim(value, "'")
-				}
-				envs = append(envs, EnvVar{
-					Name:  name,
-					Value: value,
-				})
-			} else {
-				return envs, "Invalid container env " + env
-			}
-		}
+	for k, v := range e {
+		envs = append(envs, EnvVar{
+			Name:  k,
+			Value: v,
+		})
 	}
-	return envs, ""
+	return envs
 }
 
 // load Ports from bundles file
@@ -725,16 +700,7 @@ func loadComposeFile(file string, c *cli.Context) KomposeObject {
 			serviceConfig.ContainerName = composeServiceConfig.ContainerName
 
 			// load environment variables
-			environments := composeServiceConfig.Environment
-			if environments != nil {
-				if err := environments.UnmarshalYAML("", environments); err != nil {
-					logrus.Fatalf("Failed to load envvar from compose file: ", err)
-				}
-			}
-			envs, err := loadEnvVarsFromCompose(environments)
-			if err != "" {
-				logrus.Fatalf("Failed to load envvar from compose file: " + err)
-			}
+			envs := loadEnvVarsFromCompose(composeServiceConfig.Environment.ToMap())
 			serviceConfig.Environment = envs
 
 			// load ports
