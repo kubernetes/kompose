@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 
@@ -29,8 +30,23 @@ func NewColorLoggerFactory() *ColorLoggerFactory {
 	}
 }
 
-// Create implements logger.Factory.Create.
-func (c *ColorLoggerFactory) Create(name string) logger.Logger {
+// CreateContainerLogger implements logger.Factory.CreateContainerLogger.
+func (c *ColorLoggerFactory) CreateContainerLogger(name string) logger.Logger {
+	return c.create(name)
+}
+
+// CreateBuildLogger implements logger.Factory.CreateBuildLogger.
+func (c *ColorLoggerFactory) CreateBuildLogger(name string) logger.Logger {
+	return &logger.RawLogger{}
+}
+
+// CreatePullLogger implements logger.Factory.CreatePullLogger.
+func (c *ColorLoggerFactory) CreatePullLogger(name string) logger.Logger {
+	return &logger.NullLogger{}
+}
+
+// CreateBuildLogger implements logger.Factory.CreateContainerLogger.
+func (c *ColorLoggerFactory) create(name string) logger.Logger {
 	if c.maxLength < len(name) {
 		c.maxLength = len(name)
 	}
@@ -60,6 +76,16 @@ func (c *ColorLogger) Err(bytes []byte) {
 	logFmt, name := c.getLogFmt()
 	message := fmt.Sprintf(logFmt, name, string(bytes))
 	fmt.Fprint(os.Stderr, message)
+}
+
+// OutWriter returns the base writer
+func (c *ColorLogger) OutWriter() io.Writer {
+	return os.Stdout
+}
+
+// ErrWriter returns the base writer
+func (c *ColorLogger) ErrWriter() io.Writer {
+	return os.Stderr
 }
 
 func (c *ColorLogger) getLogFmt() (string, string) {

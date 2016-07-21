@@ -2,8 +2,6 @@ package project
 
 import (
 	"strings"
-
-	"github.com/docker/docker/runconfig"
 )
 
 // DefaultDependentServices return the dependent services (as an array of ServiceRelationship)
@@ -15,7 +13,7 @@ func DefaultDependentServices(p *Project, s Service) []ServiceRelationship {
 	}
 
 	result := []ServiceRelationship{}
-	for _, link := range config.Links.Slice() {
+	for _, link := range config.Links {
 		result = append(result, NewServiceRelationship(link, RelTypeLink))
 	}
 
@@ -23,18 +21,18 @@ func DefaultDependentServices(p *Project, s Service) []ServiceRelationship {
 		result = append(result, NewServiceRelationship(volumesFrom, RelTypeVolumesFrom))
 	}
 
-	result = appendNs(p, result, s.Config().Net, RelTypeNetNamespace)
-	result = appendNs(p, result, s.Config().Ipc, RelTypeIpcNamespace)
+	for _, dependsOn := range config.DependsOn {
+		result = append(result, NewServiceRelationship(dependsOn, RelTypeDependsOn))
+	}
+
+	if config.NetworkMode != "" {
+		if strings.HasPrefix(config.NetworkMode, "service:") {
+			serviceName := config.NetworkMode[8:]
+			result = append(result, NewServiceRelationship(serviceName, RelTypeNetworkMode))
+		}
+	}
 
 	return result
-}
-
-func appendNs(p *Project, rels []ServiceRelationship, conf string, relType ServiceRelationshipType) []ServiceRelationship {
-	service := GetContainerFromIpcLikeConfig(p, conf)
-	if service != "" {
-		rels = append(rels, NewServiceRelationship(service, relType))
-	}
-	return rels
 }
 
 // NameAlias returns the name and alias based on the specified string.
@@ -46,23 +44,4 @@ func NameAlias(name string) (string, string) {
 		return parts[0], parts[1]
 	}
 	return parts[0], parts[0]
-}
-
-// GetContainerFromIpcLikeConfig returns name of the service that shares the IPC
-// namespace with the specified service.
-func GetContainerFromIpcLikeConfig(p *Project, conf string) string {
-	ipc := runconfig.IpcMode(conf)
-	if !ipc.IsContainer() {
-		return ""
-	}
-
-	name := ipc.Container()
-	if name == "" {
-		return ""
-	}
-
-	if _, ok := p.Configs[name]; ok {
-		return name
-	}
-	return ""
 }

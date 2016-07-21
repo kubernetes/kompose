@@ -1,15 +1,23 @@
 package logger
 
+import (
+	"io"
+)
+
 // Factory defines methods a factory should implement, to create a Logger
-// based on the specified name.
+// based on the specified container, image or service name.
 type Factory interface {
-	Create(name string) Logger
+	CreateContainerLogger(name string) Logger
+	CreateBuildLogger(name string) Logger
+	CreatePullLogger(name string) Logger
 }
 
 // Logger defines methods to implement for being a logger.
 type Logger interface {
 	Out(bytes []byte)
 	Err(bytes []byte)
+	OutWriter() io.Writer
+	ErrWriter() io.Writer
 }
 
 // Wrapper is a wrapper around Logger that implements the Writer interface,

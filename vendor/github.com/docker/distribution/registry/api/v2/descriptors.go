@@ -271,7 +271,7 @@ type MethodDescriptor struct {
 // RequestDescriptor per API use case.
 type RequestDescriptor struct {
 	// Name provides a short identifier for the request, usable as a title or
-	// to provide quick context for the particalar request.
+	// to provide quick context for the particular request.
 	Name string
 
 	// Description should cover the requests purpose, covering any details for
@@ -303,14 +303,14 @@ type RequestDescriptor struct {
 // ResponseDescriptor describes the components of an API response.
 type ResponseDescriptor struct {
 	// Name provides a short identifier for the response, usable as a title or
-	// to provide quick context for the particalar response.
+	// to provide quick context for the particular response.
 	Name string
 
 	// Description should provide a brief overview of the role of the
 	// response.
 	Description string
 
-	// StatusCode specifies the status recieved by this particular response.
+	// StatusCode specifies the status received by this particular response.
 	StatusCode int
 
 	// Headers covers any headers that may be returned from the response.
@@ -495,7 +495,7 @@ var routeDescriptors = []RouteDescriptor{
 		Methods: []MethodDescriptor{
 			{
 				Method:      "GET",
-				Description: "Fetch the manifest identified by `name` and `reference` where `reference` can be a tag or digest.",
+				Description: "Fetch the manifest identified by `name` and `reference` where `reference` can be a tag or digest. A `HEAD` request can also be issued to this endpoint to obtain resource information without receiving all data.",
 				Requests: []RequestDescriptor{
 					{
 						Headers: []ParameterDescriptor{
@@ -514,7 +514,7 @@ var routeDescriptors = []RouteDescriptor{
 									digestHeader,
 								},
 								Body: BodyDescriptor{
-									ContentType: "application/json; charset=utf-8",
+									ContentType: "<media type of manifest>",
 									Format:      manifestBody,
 								},
 							},
@@ -553,7 +553,7 @@ var routeDescriptors = []RouteDescriptor{
 							referenceParameterDescriptor,
 						},
 						Body: BodyDescriptor{
-							ContentType: "application/json; charset=utf-8",
+							ContentType: "<media type of manifest>",
 							Format:      manifestBody,
 						},
 						Successes: []ResponseDescriptor{
@@ -1041,6 +1041,70 @@ var routeDescriptors = []RouteDescriptor{
 							deniedResponseDescriptor,
 						},
 					},
+					{
+						Name:        "Mount Blob",
+						Description: "Mount a blob identified by the `mount` parameter from another repository.",
+						Headers: []ParameterDescriptor{
+							hostHeader,
+							authHeader,
+							contentLengthZeroHeader,
+						},
+						PathParameters: []ParameterDescriptor{
+							nameParameterDescriptor,
+						},
+						QueryParameters: []ParameterDescriptor{
+							{
+								Name:        "mount",
+								Type:        "query",
+								Format:      "<digest>",
+								Regexp:      digest.DigestRegexp,
+								Description: `Digest of blob to mount from the source repository.`,
+							},
+							{
+								Name:        "from",
+								Type:        "query",
+								Format:      "<repository name>",
+								Regexp:      reference.NameRegexp,
+								Description: `Name of the source repository.`,
+							},
+						},
+						Successes: []ResponseDescriptor{
+							{
+								Description: "The blob has been mounted in the repository and is available at the provided location.",
+								StatusCode:  http.StatusCreated,
+								Headers: []ParameterDescriptor{
+									{
+										Name:   "Location",
+										Type:   "url",
+										Format: "<blob location>",
+									},
+									contentLengthZeroHeader,
+									dockerUploadUUIDHeader,
+								},
+							},
+						},
+						Failures: []ResponseDescriptor{
+							{
+								Name:       "Invalid Name or Digest",
+								StatusCode: http.StatusBadRequest,
+								ErrorCodes: []errcode.ErrorCode{
+									ErrorCodeDigestInvalid,
+									ErrorCodeNameInvalid,
+								},
+							},
+							{
+								Name:        "Not allowed",
+								Description: "Blob mount is not allowed because the registry is configured as a pull-through cache or for some other reason",
+								StatusCode:  http.StatusMethodNotAllowed,
+								ErrorCodes: []errcode.ErrorCode{
+									errcode.ErrorCodeUnsupported,
+								},
+							},
+							unauthorizedResponseDescriptor,
+							repositoryNotFoundResponseDescriptor,
+							deniedResponseDescriptor,
+						},
+					},
 				},
 			},
 		},
@@ -1433,8 +1497,8 @@ var routeDescriptors = []RouteDescriptor{
 				Description: "Retrieve a sorted, json list of repositories available in the registry.",
 				Requests: []RequestDescriptor{
 					{
-						Name:        "Catalog Fetch Complete",
-						Description: "Request an unabridged list of repositories available.",
+						Name:        "Catalog Fetch",
+						Description: "Request an unabridged list of repositories available.  The implementation may impose a maximum limit and return a partial set with pagination links.",
 						Successes: []ResponseDescriptor{
 							{
 								Description: "Returns the unabridged list of repositories as a json response.",

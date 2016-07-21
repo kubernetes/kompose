@@ -6,6 +6,17 @@ import (
 	"text/tabwriter"
 )
 
+// InfoPart holds key/value strings.
+type InfoPart struct {
+	Key, Value string
+}
+
+// InfoSet holds a list of Info.
+type InfoSet []Info
+
+// Info holds a list of InfoPart.
+type Info []InfoPart
+
 func (infos InfoSet) String(titleFlag bool) string {
 	//no error checking, none of this should fail
 	buffer := bytes.NewBuffer(make([]byte, 0, 1024))

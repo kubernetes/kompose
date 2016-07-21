@@ -16,13 +16,54 @@ limitations under the License.
 
 package app
 
-import (
-	"github.com/urfave/cli"
-	"github.com/docker/libcompose/project"
-)
-
-// ProjectFactory is an interface that helps creating libcompose project.
-type ProjectFactory interface {
-	// Create creates a libcompose project from the command line options (codegangsta cli context).
-	Create(c *cli.Context) (*project.Project, error)
+// KomposeObject holds the generic struct of Kompose transformation
+type KomposeObject struct {
+	ServiceConfigs map[string]ServiceConfig
 }
+
+// ServiceConfig holds the basic struct of a container
+type ServiceConfig struct {
+	ContainerName string
+	Image         string
+	Environment   []EnvVar
+	Port          []Ports
+	Command       []string
+	WorkingDir    string
+	Args          []string
+	Volumes       []string
+	Network       []string
+	Labels        map[string]string
+	CPUSet        string
+	CPUShares     int64
+	CPUQuota      int64
+	CapAdd        []string
+	CapDrop       []string
+	Entrypoint    []string
+	Expose        []string
+	Privileged    bool
+	Restart       string
+	User          string
+}
+
+// EnvVar holds the environment variable struct of a container
+type EnvVar struct {
+	Name  string
+	Value string
+}
+
+// Ports holds the ports struct of a container
+type Ports struct {
+	HostPort      int32
+	ContainerPort int32
+	Protocol      Protocol
+}
+
+// Protocol defines network protocols supported for things like container ports.
+type Protocol string
+
+const (
+	// ProtocolTCP is the TCP protocol.
+	ProtocolTCP Protocol = "TCP"
+	// ProtocolUDP is the UDP protocol.
+	ProtocolUDP Protocol = "UDP"
+)

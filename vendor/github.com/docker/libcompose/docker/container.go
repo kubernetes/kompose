@@ -2,78 +2,92 @@ package docker
 
 import (
 	"fmt"
+	"io"
 	"math"
 	"os"
+	"strconv"
 	"strings"
+	"time"
+
+	"golang.org/x/net/context"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/docker/docker/cliconfig"
-	"github.com/docker/docker/pkg/parsers"
-	"github.com/docker/docker/registry"
-	"github.com/docker/docker/utils"
+	"github.com/docker/docker/pkg/promise"
+	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/docker/docker/pkg/term"
+	"github.com/docker/engine-api/client"
+	"github.com/docker/engine-api/types"
+	"github.com/docker/engine-api/types/network"
+	"github.com/docker/go-connections/nat"
+	"github.com/docker/libcompose/config"
+	"github.com/docker/libcompose/labels"
 	"github.com/docker/libcompose/logger"
 	"github.com/docker/libcompose/project"
-	util "github.com/docker/libcompose/utils"
-	dockerclient "github.com/fsouza/go-dockerclient"
 )
 
-// DefaultTag is the name of the default tag of an image.
-const DefaultTag = "latest"
-
 // Container holds information about a docker container and the service it is tied on.
-// It implements Service interface by encapsulating a EmptyService.
 type Container struct {
-	project.EmptyService
-
-	name    string
-	service *Service
-	client  *dockerclient.Client
+	// FIXME(vdemeester) Replace with ContainerClient with engine-api vendor update
+	client    client.APIClient
+	id        string
+	container *types.ContainerJSON
 }
 
-// NewContainer creates a container struct with the specified docker client, name and service.
-func NewContainer(client *dockerclient.Client, name string, service *Service) *Container {
-	return &Container{
-		client:  client,
-		name:    name,
-		service: service,
-	}
-}
-
-func (c *Container) findExisting() (*dockerclient.APIContainers, error) {
-	return GetContainerByName(c.client, c.name)
-}
-
-func (c *Container) findInfo() (*dockerclient.Container, error) {
-	container, err := c.findExisting()
+// CreateContainer creates a container and return a Container struct (and an error if any)
+func CreateContainer(ctx context.Context, client client.APIClient, name string, configWrapper *ConfigWrapper) (*Container, error) {
+	container, err := client.ContainerCreate(ctx, configWrapper.Config, configWrapper.HostConfig, configWrapper.NetworkingConfig, name)
 	if err != nil {
 		return nil, err
 	}
+	return New(ctx, client, container.ID)
+}
 
-	return c.client.InspectContainer(container.ID)
+// New creates a container struct with the specified client, id and name
+func New(ctx context.Context, client client.APIClient, id string) (*Container, error) {
+	container, err := GetContainer(ctx, client, id)
+	if err != nil {
+		return nil, err
+	}
+	return &Container{
+		client:    client,
+		id:        id,
+		container: container,
+	}, nil
+}
+
+// NewInspected creates a container struct from an inspected container
+func NewInspected(client client.APIClient, container *types.ContainerJSON) *Container {
+	return &Container{
+		client:    client,
+		id:        container.ID,
+		container: container,
+	}
 }
 
 // Info returns info about the container, like name, command, state or ports.
-func (c *Container) Info(qFlag bool) (project.Info, error) {
-	container, err := c.findExisting()
-	if err != nil {
+func (c *Container) Info(ctx context.Context, qFlag bool) (project.Info, error) {
+	infos, err := GetContainersByFilter(ctx, c.client, map[string][]string{
+		"name": {c.container.Name},
+	})
+	if err != nil || len(infos) == 0 {
 		return nil, err
 	}
+	info := infos[0]
 
 	result := project.Info{}
-
 	if qFlag {
-		result = append(result, project.InfoPart{Key: "Id", Value: container.ID})
+		result = append(result, project.InfoPart{Key: "Id", Value: c.container.ID})
 	} else {
-		result = append(result, project.InfoPart{Key: "Name", Value: name(container.Names)})
-		result = append(result, project.InfoPart{Key: "Command", Value: container.Command})
-		result = append(result, project.InfoPart{Key: "State", Value: container.Status})
-		result = append(result, project.InfoPart{Key: "Ports", Value: portString(container.Ports)})
+		result = append(result, project.InfoPart{Key: "Name", Value: name(info.Names)})
+		result = append(result, project.InfoPart{Key: "Command", Value: info.Command})
+		result = append(result, project.InfoPart{Key: "State", Value: info.Status})
+		result = append(result, project.InfoPart{Key: "Ports", Value: portString(info.Ports)})
 	}
 
 	return result, nil
 }
 
-func portString(ports []dockerclient.APIPort) string {
+func portString(ports []types.Port) string {
 	result := []string{}
 
 	for _, port := range ports {
@@ -101,455 +115,234 @@ func name(names []string) string {
 	return current[1:]
 }
 
-// Recreate will not refresh the container by means of relaxation and enjoyment,
-// just delete it and create a new one with the current configuration
-func (c *Container) Recreate(imageName string) (*dockerclient.APIContainers, error) {
-	info, err := c.findInfo()
-	if err != nil {
-		return nil, err
-	} else if info == nil {
-		return nil, fmt.Errorf("Can not find container to recreate for service: %s", c.service.Name())
-	}
-
-	hash := info.Config.Labels[HASH.Str()]
-	if hash == "" {
-		return nil, fmt.Errorf("Failed to find hash on old container: %s", info.Name)
-	}
-
-	name := info.Name[1:]
-	newName := fmt.Sprintf("%s_%s", name, info.ID[:12])
-	logrus.Debugf("Renaming %s => %s", name, newName)
-	if err := c.client.RenameContainer(dockerclient.RenameContainerOptions{ID: info.ID, Name: newName}); err != nil {
-		logrus.Errorf("Failed to rename old container %s", c.name)
-		return nil, err
-	}
-
-	newContainer, err := c.createContainer(imageName, info.ID)
-	if err != nil {
-		return nil, err
-	}
-	logrus.Debugf("Created replacement container %s", newContainer.ID)
-
-	if err := c.client.RemoveContainer(
-		dockerclient.RemoveContainerOptions{ID: info.ID, Force: true, RemoveVolumes: false}); err != nil {
-
-		logrus.Errorf("Failed to remove old container %s", c.name)
-		return nil, err
-	}
-	logrus.Debugf("Removed old container %s %s", c.name, info.ID)
-
-	return newContainer, nil
+// Rename rename the container.
+func (c *Container) Rename(ctx context.Context, newName string) error {
+	return c.client.ContainerRename(ctx, c.container.ID, newName)
 }
 
-// Create creates the container based on the specified image name and send an event
-// to notify the container has been created. If the container already exists, does
-// nothing.
-func (c *Container) Create(imageName string) (*dockerclient.APIContainers, error) {
-	container, err := c.findExisting()
-	if err != nil {
-		return nil, err
-	}
-
-	if container == nil {
-		container, err = c.createContainer(imageName, "")
-		if err != nil {
-			return nil, err
-		}
-		c.service.context.Project.Notify(project.EventContainerCreated, c.service.Name(), map[string]string{
-			"name": c.Name(),
-		})
-	}
-
-	return container, err
-}
-
-// Down stops the container.
-func (c *Container) Down() error {
-	return c.withContainer(func(container *dockerclient.APIContainers) error {
-		return c.client.StopContainer(container.ID, c.service.context.Timeout)
+// Remove removes the container.
+func (c *Container) Remove(ctx context.Context, removeVolume bool) error {
+	return c.client.ContainerRemove(ctx, c.container.ID, types.ContainerRemoveOptions{
+		Force:         true,
+		RemoveVolumes: removeVolume,
 	})
+}
+
+// Stop stops the container.
+func (c *Container) Stop(ctx context.Context, timeout int) error {
+	timeoutDuration := time.Duration(timeout) * time.Second
+	return c.client.ContainerStop(ctx, c.container.ID, &timeoutDuration)
 }
 
 // Pause pauses the container. If the containers are already paused, don't fail.
-func (c *Container) Pause() error {
-	return c.withContainer(func(container *dockerclient.APIContainers) error {
-		if !strings.Contains(container.Status, "Paused") {
-			return c.client.PauseContainer(container.ID)
+func (c *Container) Pause(ctx context.Context) error {
+	if !c.container.State.Paused {
+		if err := c.client.ContainerPause(ctx, c.container.ID); err != nil {
+			return err
 		}
-		return nil
-	})
+		return c.updateInnerContainer(ctx)
+	}
+	return nil
 }
 
 // Unpause unpauses the container. If the containers are not paused, don't fail.
-func (c *Container) Unpause() error {
-	return c.withContainer(func(container *dockerclient.APIContainers) error {
-		if strings.Contains(container.Status, "Paused") {
-			return c.client.UnpauseContainer(container.ID)
+func (c *Container) Unpause(ctx context.Context) error {
+	if c.container.State.Paused {
+		if err := c.client.ContainerUnpause(ctx, c.container.ID); err != nil {
+			return err
 		}
-		return nil
-	})
+		return c.updateInnerContainer(ctx)
+	}
+	return nil
+}
+
+func (c *Container) updateInnerContainer(ctx context.Context) error {
+	container, err := GetContainer(ctx, c.client, c.container.ID)
+	if err != nil {
+		return err
+	}
+	c.container = container
+	return nil
 }
 
 // Kill kill the container.
-func (c *Container) Kill() error {
-	return c.withContainer(func(container *dockerclient.APIContainers) error {
-		return c.client.KillContainer(dockerclient.KillContainerOptions{ID: container.ID, Signal: dockerclient.Signal(c.service.context.Signal)})
-	})
+func (c *Container) Kill(ctx context.Context, signal string) error {
+	return c.client.ContainerKill(ctx, c.container.ID, signal)
 }
 
-// Delete removes the container if existing. If the container is running, it tries
-// to stop it first.
-func (c *Container) Delete() error {
-	container, err := c.findExisting()
-	if err != nil || container == nil {
-		return err
+// IsRunning returns the running state of the container.
+// FIXME(vdemeester): remove the nil error here
+func (c *Container) IsRunning(ctx context.Context) (bool, error) {
+	return c.container.State.Running, nil
+}
+
+// Run creates, start and attach to the container based on the image name,
+// the specified configuration.
+// It will always create a new container.
+func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfig) (int, error) {
+	var (
+		errCh       chan error
+		out, stderr io.Writer
+		in          io.ReadCloser
+	)
+
+	if configOverride.StdinOpen {
+		in = os.Stdin
+	}
+	if configOverride.Tty {
+		out = os.Stdout
+	}
+	if configOverride.Tty {
+		stderr = os.Stderr
 	}
 
-	info, err := c.client.InspectContainer(container.ID)
+	options := types.ContainerAttachOptions{
+		Stream: true,
+		Stdin:  configOverride.StdinOpen,
+		Stdout: configOverride.Tty,
+		Stderr: configOverride.Tty,
+	}
+
+	resp, err := c.client.ContainerAttach(ctx, c.container.ID, options)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	if info.State.Running {
-		err := c.client.StopContainer(container.ID, c.service.context.Timeout)
-		if err != nil {
-			return err
-		}
+	// set raw terminal
+	inFd, _ := term.GetFdInfo(in)
+	state, err := term.SetRawTerminal(inFd)
+	if err != nil {
+		return -1, err
+	}
+	// restore raw terminal
+	defer term.RestoreTerminal(inFd, state)
+	// holdHijackedConnection (in goroutine)
+	errCh = promise.Go(func() error {
+		return holdHijackedConnection(configOverride.Tty, in, out, stderr, resp)
+	})
+
+	if err := c.client.ContainerStart(ctx, c.container.ID, types.ContainerStartOptions{}); err != nil {
+		return -1, err
 	}
 
-	return c.client.RemoveContainer(dockerclient.RemoveContainerOptions{ID: container.ID, Force: true, RemoveVolumes: c.service.context.Volume})
+	if err := <-errCh; err != nil {
+		logrus.Debugf("Error hijack: %s", err)
+		return -1, err
+	}
+
+	exitedContainer, err := c.client.ContainerInspect(ctx, c.container.ID)
+	if err != nil {
+		return -1, err
+	}
+
+	return exitedContainer.State.ExitCode, nil
 }
 
-// Up creates and start the container based on the image name and send an event
-// to notify the container has been created. If the container exists but is stopped
-// it tries to start it.
-func (c *Container) Up(imageName string) error {
+func holdHijackedConnection(tty bool, inputStream io.ReadCloser, outputStream, errorStream io.Writer, resp types.HijackedResponse) error {
 	var err error
+	receiveStdout := make(chan error, 1)
+	if outputStream != nil || errorStream != nil {
+		go func() {
+			// When TTY is ON, use regular copy
+			if tty && outputStream != nil {
+				_, err = io.Copy(outputStream, resp.Reader)
+			} else {
+				_, err = stdcopy.StdCopy(outputStream, errorStream, resp.Reader)
+			}
+			logrus.Debugf("[hijack] End of stdout")
+			receiveStdout <- err
+		}()
+	}
 
-	defer func() {
-		if err == nil && c.service.context.Log {
-			go c.Log()
+	stdinDone := make(chan struct{})
+	go func() {
+		if inputStream != nil {
+			io.Copy(resp.Conn, inputStream)
+			logrus.Debugf("[hijack] End of stdin")
 		}
+
+		if err := resp.CloseWrite(); err != nil {
+			logrus.Debugf("Couldn't send EOF: %s", err)
+		}
+		close(stdinDone)
 	}()
 
-	container, err := c.Create(imageName)
-	if err != nil {
-		return err
-	}
-
-	info, err := c.client.InspectContainer(container.ID)
-	if err != nil {
-		return err
-	}
-
-	if !info.State.Running {
-		logrus.WithFields(logrus.Fields{"container.ID": container.ID, "c.name": c.name}).Debug("Starting container")
-		if err = c.client.StartContainer(container.ID, nil); err != nil {
-			logrus.WithFields(logrus.Fields{"container.ID": container.ID, "c.name": c.name}).Debug("Failed to start container")
+	select {
+	case err := <-receiveStdout:
+		if err != nil {
+			logrus.Debugf("Error receiveStdout: %s", err)
 			return err
 		}
-
-		c.service.context.Project.Notify(project.EventContainerStarted, c.service.Name(), map[string]string{
-			"name": c.Name(),
-		})
+	case <-stdinDone:
+		if outputStream != nil || errorStream != nil {
+			if err := <-receiveStdout; err != nil {
+				logrus.Debugf("Error receiveStdout: %s", err)
+				return err
+			}
+		}
 	}
 
 	return nil
 }
 
-// OutOfSync checks if the container is out of sync with the service definition.
-// It looks if the the service hash container label is the same as the computed one.
-func (c *Container) OutOfSync(imageName string) (bool, error) {
-	info, err := c.findInfo()
-	if err != nil || info == nil {
-		return false, err
+// Start the specified container with the specified host config
+func (c *Container) Start(ctx context.Context) error {
+	logrus.WithFields(logrus.Fields{"container.ID": c.container.ID, "container.Name": c.container.Name}).Debug("Starting container")
+	if err := c.client.ContainerStart(ctx, c.container.ID, types.ContainerStartOptions{}); err != nil {
+		logrus.WithFields(logrus.Fields{"container.ID": c.container.ID, "container.Name": c.container.Name}).Debug("Failed to start container")
+		return err
 	}
-
-	if info.Config.Image != imageName {
-		logrus.Debugf("Images for %s do not match %s!=%s", c.name, info.Config.Image, imageName)
-		return true, nil
-	}
-
-	if info.Config.Labels[HASH.Str()] != c.getHash() {
-		logrus.Debugf("Hashes for %s do not match %s!=%s", c.name, info.Config.Labels[HASH.Str()], c.getHash())
-		return true, nil
-	}
-
-	image, err := c.client.InspectImage(info.Config.Image)
-	if err != nil && (err.Error() == "Not found" || image == nil) {
-		logrus.Debugf("Image %s do not exist, do not know if it's out of sync", info.Config.Image)
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-
-	logrus.Debugf("Checking existing image name vs id: %s == %s", image.ID, info.Image)
-	return image.ID != info.Image, err
-}
-
-func (c *Container) getHash() string {
-	return project.GetServiceHash(c.service.Name(), c.service.Config())
-}
-
-func volumeBinds(volumes map[string]struct{}, container *dockerclient.Container) []string {
-	result := make([]string, 0, len(container.Mounts))
-	for _, mount := range container.Mounts {
-		if _, ok := volumes[mount.Destination]; ok {
-			result = append(result, fmt.Sprint(mount.Source, ":", mount.Destination))
-		}
-	}
-	return result
-}
-
-func (c *Container) createContainer(imageName, oldContainer string) (*dockerclient.APIContainers, error) {
-	createOpts, err := ConvertToAPI(c.service.serviceConfig, c.name)
-	if err != nil {
-		return nil, err
-	}
-
-	createOpts.Config.Image = imageName
-
-	if createOpts.Config.Labels == nil {
-		createOpts.Config.Labels = map[string]string{}
-	}
-
-	createOpts.Config.Labels[NAME.Str()] = c.name
-	createOpts.Config.Labels[SERVICE.Str()] = c.service.name
-	createOpts.Config.Labels[PROJECT.Str()] = c.service.context.Project.Name
-	createOpts.Config.Labels[HASH.Str()] = c.getHash()
-
-	err = c.populateAdditionalHostConfig(createOpts.HostConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	if oldContainer != "" {
-		info, err := c.client.InspectContainer(oldContainer)
-		if err != nil {
-			return nil, err
-		}
-		createOpts.HostConfig.Binds = util.Merge(createOpts.HostConfig.Binds, volumeBinds(createOpts.Config.Volumes, info))
-	}
-
-	logrus.Debugf("Creating container %s %#v", c.name, createOpts)
-
-	container, err := c.client.CreateContainer(*createOpts)
-	if err != nil && err == dockerclient.ErrNoSuchImage {
-		logrus.Debugf("Not Found, pulling image %s", createOpts.Config.Image)
-		if err = c.pull(createOpts.Config.Image); err != nil {
-			return nil, err
-		}
-		if container, err = c.client.CreateContainer(*createOpts); err != nil {
-			return nil, err
-		}
-	}
-
-	if err != nil {
-		logrus.Debugf("Failed to create container %s: %v", c.name, err)
-		return nil, err
-	}
-
-	return GetContainerByID(c.client, container.ID)
-}
-
-func (c *Container) populateAdditionalHostConfig(hostConfig *dockerclient.HostConfig) error {
-	links := map[string]string{}
-
-	for _, link := range c.service.DependentServices() {
-		if _, ok := c.service.context.Project.Configs[link.Target]; !ok {
-			continue
-		}
-
-		service, err := c.service.context.Project.CreateService(link.Target)
-		if err != nil {
-			return err
-		}
-
-		containers, err := service.Containers()
-		if err != nil {
-			return err
-		}
-
-		if link.Type == project.RelTypeLink {
-			c.addLinks(links, service, link, containers)
-		} else if link.Type == project.RelTypeIpcNamespace {
-			hostConfig, err = c.addIpc(hostConfig, service, containers)
-		} else if link.Type == project.RelTypeNetNamespace {
-			hostConfig, err = c.addNetNs(hostConfig, service, containers)
-		}
-
-		if err != nil {
-			return err
-		}
-	}
-
-	hostConfig.Links = []string{}
-	for k, v := range links {
-		hostConfig.Links = append(hostConfig.Links, strings.Join([]string{v, k}, ":"))
-	}
-	for _, v := range c.service.Config().ExternalLinks {
-		hostConfig.Links = append(hostConfig.Links, v)
-	}
-
 	return nil
-}
-
-func (c *Container) addLinks(links map[string]string, service project.Service, rel project.ServiceRelationship, containers []project.Container) {
-	for _, container := range containers {
-		if _, ok := links[rel.Alias]; !ok {
-			links[rel.Alias] = container.Name()
-		}
-
-		links[container.Name()] = container.Name()
-	}
-}
-
-func (c *Container) addIpc(config *dockerclient.HostConfig, service project.Service, containers []project.Container) (*dockerclient.HostConfig, error) {
-	if len(containers) == 0 {
-		return nil, fmt.Errorf("Failed to find container for IPC %v", c.service.Config().Ipc)
-	}
-
-	id, err := containers[0].ID()
-	if err != nil {
-		return nil, err
-	}
-
-	config.IpcMode = "container:" + id
-	return config, nil
-}
-
-func (c *Container) addNetNs(config *dockerclient.HostConfig, service project.Service, containers []project.Container) (*dockerclient.HostConfig, error) {
-	if len(containers) == 0 {
-		return nil, fmt.Errorf("Failed to find container for networks ns %v", c.service.Config().Net)
-	}
-
-	id, err := containers[0].ID()
-	if err != nil {
-		return nil, err
-	}
-
-	config.NetworkMode = "container:" + id
-	return config, nil
 }
 
 // ID returns the container Id.
 func (c *Container) ID() (string, error) {
-	container, err := c.findExisting()
-	if container == nil {
-		return "", err
-	}
-	return container.ID, err
+	return c.container.ID, nil
 }
 
 // Name returns the container name.
 func (c *Container) Name() string {
-	return c.name
-}
-
-// Pull pulls the image the container is based on.
-func (c *Container) Pull() error {
-	return c.pull(c.service.serviceConfig.Image)
+	return c.container.Name
 }
 
 // Restart restarts the container if existing, does nothing otherwise.
-func (c *Container) Restart() error {
-	container, err := c.findExisting()
-	if err != nil || container == nil {
-		return err
-	}
-
-	return c.client.RestartContainer(container.ID, c.service.context.Timeout)
+func (c *Container) Restart(ctx context.Context, timeout int) error {
+	timeoutDuration := time.Duration(timeout) * time.Second
+	return c.client.ContainerRestart(ctx, c.container.ID, &timeoutDuration)
 }
 
 // Log forwards container logs to the project configured logger.
-func (c *Container) Log() error {
-	container, err := c.findExisting()
-	if container == nil || err != nil {
+func (c *Container) Log(ctx context.Context, l logger.Logger, follow bool) error {
+	info, err := c.client.ContainerInspect(ctx, c.container.ID)
+	if err != nil {
 		return err
 	}
 
-	info, err := c.client.InspectContainer(container.ID)
-	if info == nil || err != nil {
+	options := types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Follow:     follow,
+		Tail:       "all",
+	}
+	responseBody, err := c.client.ContainerLogs(ctx, c.container.ID, options)
+	if err != nil {
 		return err
 	}
+	defer responseBody.Close()
 
-	l := c.service.context.LoggerFactory.Create(c.name)
-
-	err = c.client.Logs(dockerclient.LogsOptions{
-		Container:    c.name,
-		Follow:       true,
-		Stdout:       true,
-		Stderr:       true,
-		Tail:         "0",
-		OutputStream: &logger.Wrapper{Logger: l},
-		ErrorStream:  &logger.Wrapper{Logger: l, Err: true},
-		RawTerminal:  info.Config.Tty,
-	})
+	if info.Config.Tty {
+		_, err = io.Copy(&logger.Wrapper{Logger: l}, responseBody)
+	} else {
+		_, err = stdcopy.StdCopy(&logger.Wrapper{Logger: l}, &logger.Wrapper{Logger: l, Err: true}, responseBody)
+	}
 	logrus.WithFields(logrus.Fields{"Logger": l, "err": err}).Debug("c.client.Logs() returned error")
 
 	return err
 }
 
-func (c *Container) pull(image string) error {
-	return pullImage(c.client, c.service, image)
-}
-
-func pullImage(client *dockerclient.Client, service *Service, image string) error {
-	taglessRemote, tag := parsers.ParseRepositoryTag(image)
-	if tag == "" {
-		image = utils.ImageReference(taglessRemote, DefaultTag)
-	}
-
-	repoInfo, err := registry.ParseRepositoryInfo(taglessRemote)
-	if err != nil {
-		return err
-	}
-
-	authConfig := cliconfig.AuthConfig{}
-	if service.context.ConfigFile != nil && repoInfo != nil && repoInfo.Index != nil {
-		authConfig = registry.ResolveAuthConfig(service.context.ConfigFile, repoInfo.Index)
-	}
-
-	err = client.PullImage(
-		dockerclient.PullImageOptions{
-			Repository:   image,
-			OutputStream: os.Stderr, // TODO maybe get the stream from some configured place
-		},
-		dockerclient.AuthConfiguration{
-			Username: authConfig.Username,
-			Password: authConfig.Password,
-			Email:    authConfig.Email,
-		},
-	)
-
-	if err != nil {
-		logrus.Errorf("Failed to pull image %s: %v", image, err)
-	}
-
-	return err
-}
-
-func (c *Container) withContainer(action func(*dockerclient.APIContainers) error) error {
-	container, err := c.findExisting()
-	if err != nil {
-		return err
-	}
-
-	if container != nil {
-		return action(container)
-	}
-
-	return nil
-}
-
 // Port returns the host port the specified port is mapped on.
-func (c *Container) Port(port string) (string, error) {
-	info, err := c.findInfo()
-	if err != nil {
-		return "", err
-	}
-
-	if bindings, ok := info.NetworkSettings.Ports[dockerclient.Port(port)]; ok {
+func (c *Container) Port(ctx context.Context, port string) (string, error) {
+	if bindings, ok := c.container.NetworkSettings.Ports[nat.Port(port)]; ok {
 		result := []string{}
 		for _, binding := range bindings {
 			result = append(result, binding.HostIP+":"+binding.HostPort)
@@ -558,4 +351,32 @@ func (c *Container) Port(port string) (string, error) {
 		return strings.Join(result, "\n"), nil
 	}
 	return "", nil
+}
+
+// Networks returns the containers network
+func (c *Container) Networks() (map[string]*network.EndpointSettings, error) {
+	return c.container.NetworkSettings.Networks, nil
+}
+
+// Image returns the container image. Depending on the engine version its either
+// the complete id or the digest reference the image.
+func (c *Container) Image() string {
+	return c.container.Image
+}
+
+// ImageConfig returns the container image stored in the config. It's the
+// human-readable name of the image.
+func (c *Container) ImageConfig() string {
+	return c.container.Config.Image
+}
+
+// Hash returns the container hash stored as label.
+func (c *Container) Hash() string {
+	return c.container.Config.Labels[labels.HASH.Str()]
+}
+
+// Number returns the container number stored as label.
+func (c *Container) Number() (int, error) {
+	numberStr := c.container.Config.Labels[labels.NUMBER.Str()]
+	return strconv.Atoi(numberStr)
 }
