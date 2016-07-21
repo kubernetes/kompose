@@ -12,31 +12,37 @@ Grab the latest [release](https://github.com/skippbox/kompose/releases)
 
 ## Usage
 
-You need a Docker Compose file handy. There is a sample gitlab compose file in the `samples/` directory for testing.
-You will convert the compose file to K8s objects with `kompose k8s convert`.
+You need a Docker Compose file handy. There is a sample gitlab compose file in the `examples/` directory for testing.
+You will convert the compose file to K8s objects with `kompose convert`.
 
-```bash
+```console
 $ cd examples/
 
 $ ls
 docker-gitlab.yml
 
 $ kompose convert -f docker-gitlab.yml -y
+file "redisio-svc.yaml" created
+file "gitlab-svc.yaml" created
+file "postgresql-svc.yaml" created
+file "gitlab-deployment.yaml" created
+file "postgresql-deployment.yaml" created
+file "redisio-deployment.yaml" created
 
-$ ls
-docker-gitlab.yml       gitlab-rc.yaml   postgresql-deployment.yaml  postgresql-svc.yaml      redisio-rc.yaml
-gitlab-deployment.yaml  gitlab-svc.yaml  postgresql-rc.yaml          redisio-deployment.yaml  redisio-svc.yaml
+$ ls *.yaml
+gitlab-deployment.yaml  postgresql-deployment.yaml  redis-deployment.yaml    redisio-svc.yaml  web-deployment.yaml
+gitlab-svc.yaml         postgresql-svc.yaml         redisio-deployment.yaml  redis-svc.yaml    web-svc.yaml
 ```
 
-Next step you will submit these above objects to a kubernetes endpoint that is automatically taken from kubectl.
+Next step you will submit these above objects to a Kubernetes endpoint that is automatically taken from [`kubectl`](http://kubernetes.io/docs/user-guide/kubectl/kubectl/).
 
-```bash
+```console
 $ kompose up
 ```
 
 Check that the replication controllers and services have been created.
 
-```bash
+```console
 $ kubectl get rc
 NAME         DESIRED   CURRENT   AGE
 gitlab       1         1         1m
@@ -54,7 +60,7 @@ redisio      10.0.242.93    <none>        6379/TCP              1m
 kompose also allows you to list the replication controllers and services with the `ps` subcommand.
 You can delete them with the `delete` subcommand.
 
-```bash
+```console
 $ kompose ps --rc
 Name           Containers     Images                        Replicas  Selectors           
 redisio        redisio        sameersbn/redis               1         service=redisio
@@ -77,7 +83,7 @@ postgresql     postgresql     sameersbn/postgresql:9.4-18   1         service=po
 
 And finally you can scale a replication controller with `scale`.
 
-```bash
+```console
 $ kompose scale --scale 3 --rc redisio
 Scaling redisio to: 3
 $ kompose ps --rc
@@ -90,64 +96,66 @@ The command of kompose have been extended to match the `docker-compose` commands
 
 ## Alternate formats
 
-The default `kompose` transformation will generate replication controllers and services and in format of json. You have alternative option to generate yaml with `-y`. Also, you can alternatively generate [Deployment](http://kubernetes.io/docs/user-guide/deployments/) objects, [DeamonSet](http://kubernetes.io/docs/admin/daemons/), [ReplicaSet](http://kubernetes.io/docs/user-guide/replicasets/) or [Helm](https://github.com/helm/helm) charts.
+The default `kompose` transformation will generate Kubernetes [Deployments](http://kubernetes.io/docs/user-guide/deployments/) and [Services](http://kubernetes.io/docs/user-guide/services/), in json format. You have alternative option to generate yaml with `-y`. Also, you can alternatively generate [Replication Controllers](http://kubernetes.io/docs/user-guide/replication-controller/) objects, [Deamon Sets](http://kubernetes.io/docs/admin/daemons/), [Replica Sets](http://kubernetes.io/docs/user-guide/replicasets/) or [Helm](https://github.com/helm/helm) charts.
 
-```bash
-$ kompose convert -d -y
-$ ls
-$ tree
-.
-├── docker-compose.yml
-├── redis-deployment.yaml
-├── redis-rc.yaml
-├── redis-svc.yaml
-├── web-deployment.yaml
-└── web-rc.yaml
+```console
+$ kompose convert 
+file "redis-svc.json" created
+file "web-svc.json" created
+file "redis-deployment.json" created
+file "web-deployment.json" created
+```
+The `*-deployment.json` files contain the Deployment objects.
+
+```console
+$ kompose convert --rc "1" -y
+file "redis-svc.yaml" created
+file "web-svc.yaml" created
+file "redis-rc.yaml" created
+file "web-rc.yaml" created
 ```
 
-The `*deployment.yaml` files contain the Deployments objects
+The `*-rc.yaml` files contain the Replication Controller objects.
 
-```bash
+```console
 $ kompose convert --ds -y
-$ tree .
-  .
-  ├── redis-daemonset.yaml
-  ├── redis-rc.yaml
-  ├── redis-svc.yaml
-  ├── web-daemonset.yaml
-  ├── web-rc.yaml
-  └── web-svc.yaml
+file "redis-svc.yaml" created
+file "web-svc.yaml" created
+file "redis-daemonset.yaml" created
+file "web-daemonset.yaml" created
 ```
 
-The `*daemonset.yaml` files contain the DaemonSet objects
+The `*-daemonset.yaml` files contain the Daemon Set objects
 
-```bash
+```console
 $ kompose convert --rs -y
-$ tree .
-.
-├── redis-rc.yaml
-├── redis-replicaset.yaml
-├── redis-svc.yaml
-├── web-rc.yaml
-├── web-replicaset.yaml
-└── web-svc.yaml
-
+file "redis-svc.yaml" created
+file "web-svc.yaml" created
+file "redis-replicaset.yaml" created
+file "web-replicaset.yaml" created
 ```
 
-The `*replicaset.yaml` files contain the ReplicaSet objects
+The `*-replicaset.yaml` files contain the Replica Set objects
 
 If you want to generate a Chart to be used with [Helm](https://github.com/kubernetes/helm) simply do:
 
-```bash
+```console
 $ kompose convert -c -y
+file "web-svc.yaml" created
+file "redis-svc.yaml" created
+file "web-deployment.yaml" created
+file "redis-deployment.yaml" created
+chart created in "./docker-compose/"
+
 $ tree docker-compose/
-docker-compose/
+docker-compose
 ├── Chart.yaml
 ├── README.md
 └── templates
-    ├── redis-rc.yaml
+    ├── redis-deployment.yaml
     ├── redis-svc.yaml
-    └── web-rc.yaml
+    ├── web-deployment.yaml
+    └── web-svc.yaml
 ```
 
 The chart structure is aimed at providing a skeleton for building your Helm charts.
@@ -184,7 +192,7 @@ WARNING: Unsupported key Dockerfile - ignoring
 ## Bash completion
 Running this below command in order to benefit from bash completion
 
-```
+```console
 $ PROG=kompose source script/bash_autocomplete
 ```
 
@@ -197,7 +205,7 @@ $ PROG=kompose source script/bash_autocomplete
 - If your working copy is not in your `GOPATH`, you need to set it
 accordingly.
 
-```bash
+```console
 $ go build -o kompose ./cli/main
 ```
 
@@ -205,7 +213,7 @@ $ go build -o kompose ./cli/main
 
 - You need `make`
 
-```
+```console
 $ make binary
 ```
 
