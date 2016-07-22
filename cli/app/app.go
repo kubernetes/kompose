@@ -506,6 +506,9 @@ func configPorts(name string, service ServiceConfig) []api.ContainerPort {
 func configServicePorts(name string, service ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
 	for _, port := range service.Port {
+		if port.HostPort == 0 {
+			port.HostPort = port.ContainerPort
+		}
 		var p api.Protocol
 		switch port.Protocol {
 		default:
@@ -516,12 +519,12 @@ func configServicePorts(name string, service ServiceConfig) []api.ServicePort {
 			p = api.ProtocolUDP
 		}
 		var targetPort intstr.IntOrString
-		targetPort.IntVal = port.HostPort
-		targetPort.StrVal = strconv.Itoa(int(port.HostPort))
+		targetPort.IntVal = port.ContainerPort
+		targetPort.StrVal = strconv.Itoa(int(port.ContainerPort))
 		servicePorts = append(servicePorts, api.ServicePort{
-			Name:       strconv.Itoa(int(port.ContainerPort)),
+			Name:       strconv.Itoa(int(port.HostPort)),
 			Protocol:   p,
-			Port:       port.ContainerPort,
+			Port:       port.HostPort,
 			TargetPort: targetPort,
 		})
 	}
