@@ -206,8 +206,11 @@ $ PROG=kompose source script/bash_autocomplete
 accordingly.
 
 ```console
-$ go build -o kompose ./cli/main
+$ go build -tags experimental -o kompose ./cli/main
 ```
+
+You need `-tags experimental` because the current `bundlefile` package of docker/libcompose is still experimental.
+
 
 ### Building multi-platform binaries with make
 
