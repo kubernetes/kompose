@@ -61,33 +61,42 @@ var unsupportedKey = map[string]string{
 	"CapDrop":       "",
 	"CPUSet":        "",
 	"CPUShares":     "",
-	"ContainerName": "",
+	"CPUQuota":      "",
+	"CgroupParent":  "",
 	"Devices":       "",
+	"DependsOn":     "",
 	"DNS":           "",
 	"DNSSearch":     "",
-	"Dockerfile":    "",
 	"DomainName":    "",
 	"Entrypoint":    "",
 	"EnvFile":       "",
+	"Expose":        "",
+	"Extends":       "",
+	"ExternalLinks": "",
+	"ExtraHosts":    "",
 	"Hostname":      "",
-	"LogDriver":     "",
+	"Ipc":           "",
+	"Logging":       "",
+	"MacAddress":    "",
 	"MemLimit":      "",
 	"MemSwapLimit":  "",
-	"Net":           "",
+	"NetworkMode":   "",
+	"Networks":      "",
 	"Pid":           "",
-	"Uts":           "",
-	"Ipc":           "",
-	"ReadOnly":      "",
-	"StdinOpen":     "",
 	"SecurityOpt":   "",
-	"Tty":           "",
-	"User":          "",
+	"ShmSize":       "",
+	"StopSignal":    "",
 	"VolumeDriver":  "",
 	"VolumesFrom":   "",
-	"Expose":        "",
-	"ExternalLinks": "",
-	"LogOpt":        "",
-	"ExtraHosts":    "",
+	"Uts":           "",
+	"ReadOnly":      "",
+	"StdinOpen":     "",
+	"Tty":           "",
+	"User":          "",
+	"Ulimits":       "",
+	"Dockerfile":    "",
+	"Net":           "",
+	"Args":          "",
 }
 
 // RandStringBytes generates randomly n-character string
@@ -688,6 +697,8 @@ func loadBundlesFile(file string) KomposeObject {
 	}
 
 	for name, service := range bundle.Services {
+		checkUnsupportedKey(service)
+
 		serviceConfig := ServiceConfig{}
 		serviceConfig.Command = service.Command
 		serviceConfig.Args = service.Args
@@ -743,6 +754,7 @@ func loadComposeFile(file string, c *cli.Context) KomposeObject {
 	for _, name := range composeServiceNames {
 		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
 			// TODO: mapping composeObject config to komposeObject config
+			checkUnsupportedKey(composeServiceConfig)
 			serviceConfig := ServiceConfig{}
 			serviceConfig.Image = composeServiceConfig.Image
 			serviceConfig.ContainerName = composeServiceConfig.ContainerName
@@ -800,7 +812,7 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 	for name, service := range komposeObject.ServiceConfigs {
 		svcnames = append(svcnames, name)
 
-		checkUnsupportedKey(service)
+		//checkUnsupportedKey(service)
 
 		rc := initRC(name, service, replicas)
 		sc := initSC(name, service)
@@ -1035,7 +1047,7 @@ func Convert(c *cli.Context) {
 	komposeConvert(komposeObject, toStdout, createD, createRS, createDS, createChart, createDeploymentConfig, generateYaml, replicas, inputFile, outFile, f)
 }
 
-func checkUnsupportedKey(service ServiceConfig) {
+func checkUnsupportedKey(service interface{}) {
 	s := structs.New(service)
 	for _, f := range s.Fields() {
 		if f.IsExported() && !f.IsZero() {
