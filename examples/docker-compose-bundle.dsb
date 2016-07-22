@@ -1,0 +1,25 @@
+{
+  "services": {
+    "redis": {
+      "Image": "redis@sha256:561a224089a0c9a59de16bd596403010b42f417ef7c17142e9b64d7524e97beb", 
+      "Networks": [], 
+      "Ports": [
+        {
+          "Port": 6379, 
+          "Protocol": "tcp"
+        }
+      ]
+    }, 
+    "web": {
+      "Image": "tuna/docker-counter23@sha256:c6755a375f5eda203c35940cbd05625517207efca4015e6a4a2c6fdef08cf5ed", 
+      "Networks": [], 
+      "Ports": [
+        {
+          "Port": 5000, 
+          "Protocol": "tcp"
+        }
+      ]
+    }
+  }, 
+  "version": "0.1"
+}
