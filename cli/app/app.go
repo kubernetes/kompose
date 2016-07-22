@@ -1061,9 +1061,11 @@ func Convert(c *cli.Context) {
 	}
 
 	komposeObject := KomposeObject{}
+	file := inputFile
 
 	if len(dabFile) > 0 {
 		komposeObject = loadBundlesFile(dabFile)
+		file = dabFile
 	} else {
 		komposeObject = loadComposeFile(inputFile, c)
 	}
@@ -1079,7 +1081,7 @@ func Convert(c *cli.Context) {
 		createChart:            createChart,
 		generateYaml:           generateYaml,
 		replicas:               replicas,
-		inputFile:              inputFile,
+		inputFile:              file,
 		outFile:                outFile,
 		f:                      f,
 	}
