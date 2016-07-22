@@ -1,0 +1,1 @@
+// This doc describe the internal design of Kompose
