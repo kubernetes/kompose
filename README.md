@@ -227,12 +227,13 @@ If you find any issues, please [file it](https://github.com/skippbox/kompose/iss
 
 ## Community, discussion, contribution, and support
 
+We follow the Kubernetes community principles.
+
 Learn how to engage with the Kubernetes community on the [community page](http://kubernetes.io/community/).
 
 You can reach the maintainers of this project at:
 
-- Slack: #kubernetes-dev
-- Mailing List: https://groups.google.com/forum/#!forum/kubernetes-dev
+- [Slack](https://skippbox.kerokuapp.com): #kompose
 
 ### Code of conduct
 
