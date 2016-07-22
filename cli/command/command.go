@@ -53,14 +53,18 @@ func ConvertCommand() cli.Command {
 				Name:  "deploymentconfig,dc",
 				Usage: "Generate a DeploymentConfig for OpenShift",
 			},
-			cli.IntFlag{
+			cli.BoolFlag{
 				Name:  "replicationcontroller,rc",
-				Value: 0,
-				Usage: "Specify replicas in order to generate a replication controller resource file",
+				Usage: "Generate a replication controller resource file",
 			},
 			cli.BoolFlag{
 				Name:  "replicaset,rs",
 				Usage: "Generate a replicaset resource file",
+			},
+			cli.IntFlag{
+				Name:  "replicas",
+				Value: 1,
+				Usage: "Specify the number of replicas in the generated resource spec (default 1)",
 			},
 			cli.BoolFlag{
 				Name:  "chart,c",
