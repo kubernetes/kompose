@@ -53,7 +53,10 @@ import (
 	"github.com/ghodss/yaml"
 )
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
+const (
+	letterBytes        = "abcdefghijklmnopqrstuvwxyz0123456789"
+	DefaultComposeFile = "docker-compose.yml"
+)
 
 var unsupportedKey = map[string]string{
 	"Build":         "",
@@ -998,6 +1001,7 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 // Convert tranforms docker compose or dab file to k8s objects
 func Convert(c *cli.Context) {
 	inputFile := c.String("file")
+	dabFile := c.String("bundle")
 	outFile := c.String("out")
 	generateYaml := c.BoolT("yaml")
 	toStdout := c.BoolT("stdout")
@@ -1006,7 +1010,6 @@ func Convert(c *cli.Context) {
 	createRS := c.BoolT("replicaset")
 	createRC := c.BoolT("replicationcontroller")
 	createChart := c.BoolT("chart")
-	fromBundles := c.BoolT("from-bundles")
 	replicas := c.Int("replicas")
 	singleOutput := len(outFile) != 0 || toStdout
 	createDeploymentConfig := c.BoolT("deploymentconfig")
@@ -1047,6 +1050,9 @@ func Convert(c *cli.Context) {
 			logrus.Fatalf("Error: only one type of Kubernetes controller can be generated when --out or --stdout is specified")
 		}
 	}
+	if len(dabFile) > 0 && len(inputFile) > 0 && inputFile != DefaultComposeFile {
+		logrus.Fatalf("Error: compose file and dab file cannot be specified at the same time")
+	}
 
 	var f *os.File
 	if !createChart {
@@ -1056,8 +1062,8 @@ func Convert(c *cli.Context) {
 
 	komposeObject := KomposeObject{}
 
-	if fromBundles {
-		komposeObject = loadBundlesFile(inputFile)
+	if len(dabFile) > 0 {
+		komposeObject = loadBundlesFile(dabFile)
 	} else {
 		komposeObject = loadComposeFile(inputFile, c)
 	}
