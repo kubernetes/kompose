@@ -276,8 +276,8 @@ func initRC(name string, service ServiceConfig, replicas int) *api.ReplicationCo
 			//Labels: map[string]string{"service": name},
 		},
 		Spec: api.ReplicationControllerSpec{
-			Replicas: int32(replicas),
 			Selector: map[string]string{"service": name},
+			Replicas: int32(replicas),
 			Template: &api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
 				//Labels: map[string]string{"service": name},
@@ -315,7 +315,7 @@ func initSC(name string, service ServiceConfig) *api.Service {
 }
 
 // Init DC object
-func initDC(name string, service ServiceConfig) *extensions.Deployment {
+func initDC(name string, service ServiceConfig, replicas int) *extensions.Deployment {
 	dc := &extensions.Deployment{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Deployment",
@@ -326,7 +326,7 @@ func initDC(name string, service ServiceConfig) *extensions.Deployment {
 			Labels: map[string]string{"service": name},
 		},
 		Spec: extensions.DeploymentSpec{
-			Replicas: 1,
+			Replicas: int32(replicas),
 			Selector: &unversioned.LabelSelector{
 				MatchLabels: map[string]string{"service": name},
 			},
@@ -379,7 +379,7 @@ func initDS(name string, service ServiceConfig) *extensions.DaemonSet {
 }
 
 // Init RS object
-func initRS(name string, service ServiceConfig) *extensions.ReplicaSet {
+func initRS(name string, service ServiceConfig, replicas int) *extensions.ReplicaSet {
 	rs := &extensions.ReplicaSet{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "ReplicaSet",
@@ -389,7 +389,7 @@ func initRS(name string, service ServiceConfig) *extensions.ReplicaSet {
 			Name: name,
 		},
 		Spec: extensions.ReplicaSetSpec{
-			Replicas: 1,
+			Replicas: int32(replicas),
 			Selector: &unversioned.LabelSelector{
 				MatchLabels: map[string]string{"service": name},
 			},
@@ -410,7 +410,7 @@ func initRS(name string, service ServiceConfig) *extensions.ReplicaSet {
 }
 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
-func initDeploymentConfig(name string, service ServiceConfig) *deployapi.DeploymentConfig {
+func initDeploymentConfig(name string, service ServiceConfig, replicas int) *deployapi.DeploymentConfig {
 	dc := &deployapi.DeploymentConfig{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DeploymentConfig",
@@ -421,7 +421,7 @@ func initDeploymentConfig(name string, service ServiceConfig) *deployapi.Deploym
 			Labels: map[string]string{"service": name},
 		},
 		Spec: deployapi.DeploymentConfigSpec{
-			Replicas: 1,
+			Replicas: int32(replicas),
 			Selector: map[string]string{"service": name},
 			//UniqueLabelKey: p.Name,
 			Template: &api.PodTemplateSpec{
@@ -798,8 +798,23 @@ func loadComposeFile(file string, c *cli.Context) KomposeObject {
 	return komposeObject
 }
 
+type convertOptions struct {
+	toStdout               bool
+	createD                bool
+	createRS               bool
+	createRC               bool
+	createDS               bool
+	createDeploymentConfig bool
+	createChart            bool
+	generateYaml           bool
+	replicas               int
+	inputFile              string
+	outFile                string
+	f                      *os.File
+}
+
 // Convert komposeObject to K8S controllers
-func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, createDS, createChart, createDeploymentConfigs, generateYaml bool, replicas int, inputFile string, outFile string, f *os.File) {
+func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 	mServices := make(map[string][]byte)
 	mReplicationControllers := make(map[string][]byte)
 	mDeployments := make(map[string][]byte)
@@ -814,12 +829,12 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 
 		//checkUnsupportedKey(service)
 
-		rc := initRC(name, service, replicas)
+		rc := initRC(name, service, opt.replicas)
 		sc := initSC(name, service)
-		dc := initDC(name, service)
+		dc := initDC(name, service, opt.replicas)
 		ds := initDS(name, service)
-		rs := initRS(name, service)
-		osDC := initDeploymentConfig(name, service) // OpenShift DeploymentConfigs
+		rs := initRS(name, service, opt.replicas)
+		osDC := initDeploymentConfig(name, service, opt.replicas) // OpenShift DeploymentConfigs
 
 		// Configure the environment variables.
 		envs := configEnvs(name, service)
@@ -888,37 +903,37 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 		updateController(osDC, fillTemplate, fillObjectMeta)
 
 		// convert datarc to json / yaml
-		datarc, err := transformer(rc, generateYaml)
+		datarc, err := transformer(rc, opt.generateYaml)
 		if err != nil {
 			logrus.Fatalf(err.Error())
 		}
 
 		// convert datadc to json / yaml
-		datadc, err := transformer(dc, generateYaml)
+		datadc, err := transformer(dc, opt.generateYaml)
 		if err != nil {
 			logrus.Fatalf(err.Error())
 		}
 
 		// convert datads to json / yaml
-		datads, err := transformer(ds, generateYaml)
+		datads, err := transformer(ds, opt.generateYaml)
 		if err != nil {
 			logrus.Fatalf(err.Error())
 		}
 
 		// convert datars to json / yaml
-		datars, err := transformer(rs, generateYaml)
+		datars, err := transformer(rs, opt.generateYaml)
 		if err != nil {
 			logrus.Fatalf(err.Error())
 		}
 
 		// convert datasvc to json / yaml
-		datasvc, err := transformer(sc, generateYaml)
+		datasvc, err := transformer(sc, opt.generateYaml)
 		if err != nil {
 			logrus.Fatalf(err.Error())
 		}
 
 		// convert OpenShift DeploymentConfig to json / yaml
-		dataDeploymentConfig, err := transformer(osDC, generateYaml)
+		dataDeploymentConfig, err := transformer(osDC, opt.generateYaml)
 		if err != nil {
 			logrus.Fatalf(err.Error())
 		}
@@ -933,49 +948,49 @@ func komposeConvert(komposeObject KomposeObject, toStdout, createD, createRS, cr
 
 	for k, v := range mServices {
 		if v != nil {
-			print(k, "svc", v, toStdout, generateYaml, f)
+			print(k, "svc", v, opt.toStdout, opt.generateYaml, opt.f)
 		}
 	}
 
 	// If --out or --stdout is set, the validation should already prevent multiple controllers being generated
-	if createD {
+	if opt.createD {
 		for k, v := range mDeployments {
-			print(k, "deployment", v, toStdout, generateYaml, f)
+			print(k, "deployment", v, opt.toStdout, opt.generateYaml, opt.f)
 		}
 	}
 
-	if createDS {
+	if opt.createDS {
 		for k, v := range mDaemonSets {
-			print(k, "daemonset", v, toStdout, generateYaml, f)
+			print(k, "daemonset", v, opt.toStdout, opt.generateYaml, opt.f)
 		}
 	}
 
-	if createRS {
+	if opt.createRS {
 		for k, v := range mReplicaSets {
-			print(k, "replicaset", v, toStdout, generateYaml, f)
+			print(k, "replicaset", v, opt.toStdout, opt.generateYaml, opt.f)
 		}
 	}
 
-	if replicas != 0 {
+	if opt.createRC {
 		for k, v := range mReplicationControllers {
-			print(k, "rc", v, toStdout, generateYaml, f)
+			print(k, "rc", v, opt.toStdout, opt.generateYaml, opt.f)
 		}
 	}
 
-	if f != nil {
-		fmt.Fprintf(os.Stdout, "file %q created\n", outFile)
+	if opt.f != nil {
+		fmt.Fprintf(os.Stdout, "file %q created\n", opt.outFile)
 	}
 
-	if createChart {
-		err := generateHelm(inputFile, svcnames, generateYaml, createD, createDS, createRS, replicas)
+	if opt.createChart {
+		err := generateHelm(opt.inputFile, svcnames, opt.generateYaml, opt.createD, opt.createDS, opt.createRS, opt.createRC)
 		if err != nil {
 			logrus.Fatalf("Failed to create Chart data: %s\n", err)
 		}
 	}
 
-	if createDeploymentConfigs {
+	if opt.createDeploymentConfig {
 		for k, v := range mDeploymentConfigs {
-			print(k, "deploymentconfig", v, toStdout, generateYaml, f)
+			print(k, "deploymentconfig", v, opt.toStdout, opt.generateYaml, opt.f)
 		}
 	}
 }
@@ -989,14 +1004,15 @@ func Convert(c *cli.Context) {
 	createD := c.BoolT("deployment")
 	createDS := c.BoolT("daemonset")
 	createRS := c.BoolT("replicaset")
+	createRC := c.BoolT("replicationcontroller")
 	createChart := c.BoolT("chart")
 	fromBundles := c.BoolT("from-bundles")
-	replicas := c.Int("replicationcontroller")
+	replicas := c.Int("replicas")
 	singleOutput := len(outFile) != 0 || toStdout
 	createDeploymentConfig := c.BoolT("deploymentconfig")
 
 	// Create Deployment by default if no controller has be set
-	if !createD && !createDS && !createRS && replicas == 0 && !createDeploymentConfig {
+	if !createD && !createDS && !createRS && !createRC && !createDeploymentConfig {
 		createD = true
 	}
 
@@ -1006,6 +1022,9 @@ func Convert(c *cli.Context) {
 	}
 	if createChart && toStdout {
 		logrus.Fatalf("Error: chart cannot be generated when --stdout is specified")
+	}
+	if replicas < 0 {
+		logrus.Fatalf("Error: --replicas cannot be negative")
 	}
 	if singleOutput {
 		count := 0
@@ -1018,7 +1037,7 @@ func Convert(c *cli.Context) {
 		if createRS {
 			count++
 		}
-		if replicas != 0 {
+		if createRC {
 			count++
 		}
 		if createDeploymentConfig {
@@ -1044,7 +1063,21 @@ func Convert(c *cli.Context) {
 	}
 
 	// Convert komposeObject to K8S controllers
-	komposeConvert(komposeObject, toStdout, createD, createRS, createDS, createChart, createDeploymentConfig, generateYaml, replicas, inputFile, outFile, f)
+	opt := convertOptions{
+		toStdout:               toStdout,
+		createD:                createD,
+		createRS:               createRS,
+		createRC:               createRC,
+		createDS:               createDS,
+		createDeploymentConfig: createDeploymentConfig,
+		createChart:            createChart,
+		generateYaml:           generateYaml,
+		replicas:               replicas,
+		inputFile:              inputFile,
+		outFile:                outFile,
+		f:                      f,
+	}
+	komposeConvert(komposeObject, opt)
 }
 
 func checkUnsupportedKey(service interface{}) {
