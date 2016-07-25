@@ -32,7 +32,7 @@ import (
 /**
  * Generate Helm Chart configuration
  */
-func generateHelm(filename string, svcnames []string, generateYaml, createD, createDS, createRS, createRC bool) error {
+func generateHelm(filename string, svcnames []string, generateYaml, createD, createDS, createRS, createRC bool, outFile string) error {
 	type ChartDetails struct {
 		Name string
 	}
@@ -90,41 +90,46 @@ home:
 	}
 
 	/* Copy all related json/yaml files into the newly created manifests directory */
-	// TODO: support copying the file specified by --out?
-	for _, svcname := range svcnames {
-		extension := ".json"
-		if generateYaml {
-			extension = ".yaml"
-		}
-		if createD {
-			if err = cpToChart(manifestDir, svcname, "deployment", extension); err != nil {
-				return err
-			}
-		}
-		if createDS {
-			if err = cpToChart(manifestDir, svcname, "daemonset", extension); err != nil {
-				return err
-			}
-		}
-		if createRC {
-			if err = cpToChart(manifestDir, svcname, "rc", extension); err != nil {
-				return err
-			}
-		}
-		if createRS {
-			if err = cpToChart(manifestDir, svcname, "replicaset", extension); err != nil {
-				return err
-			}
-		}
-
-		/* The svc file is optional */
-		infile, err := ioutil.ReadFile(svcname + "-svc" + extension)
-		if err != nil {
-			continue
-		}
-		err = ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-svc"+extension, infile, 0644)
-		if err != nil {
+	if len(outFile) > 0 {
+		if err = cpFileToChart(manifestDir, outFile); err != nil {
 			return err
+		}
+	} else {
+		for _, svcname := range svcnames {
+			extension := ".json"
+			if generateYaml {
+				extension = ".yaml"
+			}
+			if createD {
+				if err = cpToChart(manifestDir, svcname, "deployment", extension); err != nil {
+					return err
+				}
+			}
+			if createDS {
+				if err = cpToChart(manifestDir, svcname, "daemonset", extension); err != nil {
+					return err
+				}
+			}
+			if createRC {
+				if err = cpToChart(manifestDir, svcname, "rc", extension); err != nil {
+					return err
+				}
+			}
+			if createRS {
+				if err = cpToChart(manifestDir, svcname, "replicaset", extension); err != nil {
+					return err
+				}
+			}
+
+			/* The svc file is optional */
+			infile, err := ioutil.ReadFile(svcname + "-svc" + extension)
+			if err != nil {
+				continue
+			}
+			err = ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-svc"+extension, infile, 0644)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -133,11 +138,15 @@ home:
 }
 
 func cpToChart(manifestDir, svcname, trailing, extension string) error {
-	infile, err := ioutil.ReadFile(svcname + "-" + trailing + extension)
+	return cpFileToChart(manifestDir, svcname+"-"+trailing+extension)
+}
+
+func cpFileToChart(manifestDir, filename string) error {
+	infile, err := ioutil.ReadFile(filename)
 	if err != nil {
-		logrus.Infof("Error reading %s: %s\n", svcname+"-"+trailing+extension, err)
+		logrus.Infof("Error reading %s: %s\n", filename, err)
 		return err
 	}
 
-	return ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-"+trailing+extension, infile, 0644)
+	return ioutil.WriteFile(manifestDir+string(os.PathSeparator)+filename, infile, 0644)
 }

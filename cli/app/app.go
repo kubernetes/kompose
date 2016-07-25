@@ -735,7 +735,7 @@ func loadBundlesFile(file string) KomposeObject {
 }
 
 // Load compose file into KomposeObject
-func loadComposeFile(file string, c *cli.Context) KomposeObject {
+func loadComposeFile(file string) KomposeObject {
 	komposeObject := KomposeObject{
 		ServiceConfigs: make(map[string]ServiceConfig),
 	}
@@ -813,7 +813,6 @@ type convertOptions struct {
 	replicas               int
 	inputFile              string
 	outFile                string
-	f                      *os.File
 }
 
 // Convert komposeObject to K8S controllers
@@ -825,6 +824,10 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 	mReplicaSets := make(map[string][]byte)
 	// OpenShift DeploymentConfigs
 	mDeploymentConfigs := make(map[string][]byte)
+
+	f := createOutFile(opt.outFile)
+	defer f.Close()
+
 	var svcnames []string
 
 	for name, service := range komposeObject.ServiceConfigs {
@@ -951,41 +954,41 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 
 	for k, v := range mServices {
 		if v != nil {
-			print(k, "svc", v, opt.toStdout, opt.generateYaml, opt.f)
+			print(k, "svc", v, opt.toStdout, opt.generateYaml, f)
 		}
 	}
 
 	// If --out or --stdout is set, the validation should already prevent multiple controllers being generated
 	if opt.createD {
 		for k, v := range mDeployments {
-			print(k, "deployment", v, opt.toStdout, opt.generateYaml, opt.f)
+			print(k, "deployment", v, opt.toStdout, opt.generateYaml, f)
 		}
 	}
 
 	if opt.createDS {
 		for k, v := range mDaemonSets {
-			print(k, "daemonset", v, opt.toStdout, opt.generateYaml, opt.f)
+			print(k, "daemonset", v, opt.toStdout, opt.generateYaml, f)
 		}
 	}
 
 	if opt.createRS {
 		for k, v := range mReplicaSets {
-			print(k, "replicaset", v, opt.toStdout, opt.generateYaml, opt.f)
+			print(k, "replicaset", v, opt.toStdout, opt.generateYaml, f)
 		}
 	}
 
 	if opt.createRC {
 		for k, v := range mReplicationControllers {
-			print(k, "rc", v, opt.toStdout, opt.generateYaml, opt.f)
+			print(k, "rc", v, opt.toStdout, opt.generateYaml, f)
 		}
 	}
 
-	if opt.f != nil {
+	if f != nil {
 		fmt.Fprintf(os.Stdout, "file %q created\n", opt.outFile)
 	}
 
 	if opt.createChart {
-		err := generateHelm(opt.inputFile, svcnames, opt.generateYaml, opt.createD, opt.createDS, opt.createRS, opt.createRC)
+		err := generateHelm(opt.inputFile, svcnames, opt.generateYaml, opt.createD, opt.createDS, opt.createRS, opt.createRC, opt.outFile)
 		if err != nil {
 			logrus.Fatalf("Failed to create Chart data: %s\n", err)
 		}
@@ -993,7 +996,7 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 
 	if opt.createDeploymentConfig {
 		for k, v := range mDeploymentConfigs {
-			print(k, "deploymentconfig", v, opt.toStdout, opt.generateYaml, opt.f)
+			print(k, "deploymentconfig", v, opt.toStdout, opt.generateYaml, f)
 		}
 	}
 }
@@ -1054,12 +1057,6 @@ func Convert(c *cli.Context) {
 		logrus.Fatalf("Error: compose file and dab file cannot be specified at the same time")
 	}
 
-	var f *os.File
-	if !createChart {
-		f = createOutFile(outFile)
-		defer f.Close()
-	}
-
 	komposeObject := KomposeObject{}
 	file := inputFile
 
@@ -1067,7 +1064,7 @@ func Convert(c *cli.Context) {
 		komposeObject = loadBundlesFile(dabFile)
 		file = dabFile
 	} else {
-		komposeObject = loadComposeFile(inputFile, c)
+		komposeObject = loadComposeFile(inputFile)
 	}
 
 	// Convert komposeObject to K8S controllers
@@ -1083,7 +1080,6 @@ func Convert(c *cli.Context) {
 		replicas:               replicas,
 		inputFile:              file,
 		outFile:                outFile,
-		f:                      f,
 	}
 	komposeConvert(komposeObject, opt)
 }
