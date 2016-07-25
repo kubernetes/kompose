@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
+	"path/filepath"
 	"text/template"
 
 	"github.com/Sirupsen/logrus"
@@ -37,7 +37,8 @@ func generateHelm(filename string, svcnames []string, generateYaml, createD, cre
 		Name string
 	}
 
-	dirName := strings.Replace(filename, ".yml", "", 1)
+	extension := filepath.Ext(filename)
+	dirName := filename[0 : len(filename)-len(extension)]
 	details := ChartDetails{dirName}
 	manifestDir := dirName + string(os.PathSeparator) + "templates"
 	dir, err := os.Open(dirName)

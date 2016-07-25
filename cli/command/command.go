@@ -17,6 +17,8 @@ limitations under the License.
 package command
 
 import (
+	"fmt"
+
 	"github.com/skippbox/kompose/cli/app"
 	"github.com/urfave/cli"
 )
@@ -25,16 +27,21 @@ import (
 func ConvertCommand() cli.Command {
 	return cli.Command{
 		Name:  "convert",
-		Usage: "Convert docker-compose.yml to Kubernetes objects",
+		Usage: fmt.Sprintf("Convert %s to Kubernetes objects", app.DefaultComposeFile),
 		Action: func(c *cli.Context) {
 			app.Convert(c)
 		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "file,f",
-				Usage:  "Specify an alternate compose file (default: docker-compose.yml)",
-				Value:  "docker-compose.yml",
+				Usage:  fmt.Sprintf("Specify an alternate compose file (default: %s)", app.DefaultComposeFile),
+				Value:  app.DefaultComposeFile,
 				EnvVar: "COMPOSE_FILE",
+			},
+			cli.StringFlag{
+				Name:   "bundle,dab",
+				Usage:  "Specify a Distributed Application Bundle (DAB) file",
+				EnvVar: "DAB_FILE",
 			},
 			cli.StringFlag{
 				Name:   "out,o",
@@ -77,11 +84,6 @@ func ConvertCommand() cli.Command {
 			cli.BoolFlag{
 				Name:  "stdout",
 				Usage: "Print Kubernetes objects to stdout",
-			},
-			// FIXME: this flag should be used together with --file/-f in order to specify dab file.
-			cli.BoolFlag{
-				Name:  "from-bundles",
-				Usage: "Getting input from docker DAB file",
 			},
 		},
 	}
