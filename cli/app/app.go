@@ -58,48 +58,48 @@ const (
 	DefaultComposeFile = "docker-compose.yml"
 )
 
-var unsupportedKey = map[string]string{
-	"Build":         "",
-	"CapAdd":        "",
-	"CapDrop":       "",
-	"CPUSet":        "",
-	"CPUShares":     "",
-	"CPUQuota":      "",
-	"CgroupParent":  "",
-	"Devices":       "",
-	"DependsOn":     "",
-	"DNS":           "",
-	"DNSSearch":     "",
-	"DomainName":    "",
-	"Entrypoint":    "",
-	"EnvFile":       "",
-	"Expose":        "",
-	"Extends":       "",
-	"ExternalLinks": "",
-	"ExtraHosts":    "",
-	"Hostname":      "",
-	"Ipc":           "",
-	"Logging":       "",
-	"MacAddress":    "",
-	"MemLimit":      "",
-	"MemSwapLimit":  "",
-	"NetworkMode":   "",
-	"Networks":      "",
-	"Pid":           "",
-	"SecurityOpt":   "",
-	"ShmSize":       "",
-	"StopSignal":    "",
-	"VolumeDriver":  "",
-	"VolumesFrom":   "",
-	"Uts":           "",
-	"ReadOnly":      "",
-	"StdinOpen":     "",
-	"Tty":           "",
-	"User":          "",
-	"Ulimits":       "",
-	"Dockerfile":    "",
-	"Net":           "",
-	"Args":          "",
+var unsupportedKey = map[string]int{
+	"Build":         0,
+	"CapAdd":        0,
+	"CapDrop":       0,
+	"CPUSet":        0,
+	"CPUShares":     0,
+	"CPUQuota":      0,
+	"CgroupParent":  0,
+	"Devices":       0,
+	"DependsOn":     0,
+	"DNS":           0,
+	"DNSSearch":     0,
+	"DomainName":    0,
+	"Entrypoint":    0,
+	"EnvFile":       0,
+	"Expose":        0,
+	"Extends":       0,
+	"ExternalLinks": 0,
+	"ExtraHosts":    0,
+	"Hostname":      0,
+	"Ipc":           0,
+	"Logging":       0,
+	"MacAddress":    0,
+	"MemLimit":      0,
+	"MemSwapLimit":  0,
+	"NetworkMode":   0,
+	"Networks":      0,
+	"Pid":           0,
+	"SecurityOpt":   0,
+	"ShmSize":       0,
+	"StopSignal":    0,
+	"VolumeDriver":  0,
+	"VolumesFrom":   0,
+	"Uts":           0,
+	"ReadOnly":      0,
+	"StdinOpen":     0,
+	"Tty":           0,
+	"User":          0,
+	"Ulimits":       0,
+	"Dockerfile":    0,
+	"Net":           0,
+	"Args":          0,
 }
 
 // RandStringBytes generates randomly n-character string
@@ -1092,8 +1092,9 @@ func checkUnsupportedKey(service interface{}) {
 	s := structs.New(service)
 	for _, f := range s.Fields() {
 		if f.IsExported() && !f.IsZero() {
-			if _, ok := unsupportedKey[f.Name()]; ok {
+			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
 				fmt.Println("WARNING: Unsupported key " + f.Name() + " - ignoring")
+				unsupportedKey[f.Name()]++
 			}
 		}
 	}
