@@ -12,14 +12,13 @@ Grab the latest [release](https://github.com/skippbox/kompose/releases)
 
 ## Usage
 
-You need a Docker Compose file handy. There is a sample gitlab compose file in the `examples/` directory for testing.
-You will convert the compose file to K8s objects with `kompose convert`.
+Currently Kompose supports to transform either Docker Compose file (both of v1 and v2) and [experimental Distributed Application Bundles](https://blog.docker.com/2016/06/docker-app-bundle/) into Kubernetes objects. There is a couple of sample files in the `examples/` directory for testing. You will convert the compose or dab file to K8s objects with `kompose convert`.
 
 ```console
 $ cd examples/
 
 $ ls
-docker-gitlab.yml
+docker-compose.yml  docker-compose-bundle.dsb  docker-gitlab.yml  docker-voting.yml
 
 $ kompose convert -f docker-gitlab.yml -y
 file "redisio-svc.yaml" created
@@ -34,65 +33,38 @@ gitlab-deployment.yaml  postgresql-deployment.yaml  redis-deployment.yaml    red
 gitlab-svc.yaml         postgresql-svc.yaml         redisio-deployment.yaml  redis-svc.yaml    web-svc.yaml
 ```
 
-Next step you will submit these above objects to a Kubernetes endpoint that is automatically taken from [`kubectl`](http://kubernetes.io/docs/user-guide/kubectl/kubectl/).
+You can try with a Docker Compose version 2 like this:
 
 ```console
-$ kompose up
+$ kompose convert --file docker-voting.yml
+WARNING: Unsupported key Networks - ignoring
+WARNING: Unsupported key Build - ignoring
+file "worker-svc.json" created
+file "db-svc.json" created
+file "redis-svc.json" created
+file "result-svc.json" created
+file "vote-svc.json" created
+file "redis-deployment.json" created
+file "result-deployment.json" created
+file "vote-deployment.json" created
+file "worker-deployment.json" created
+file "db-deployment.json" created
+
+$ ls
+db-deployment.json  docker-compose.yml         docker-gitlab.yml  redis-deployment.json  result-deployment.json  vote-deployment.json  worker-deployment.json
+db-svc.json         docker-compose-bundle.dsb  docker-voting.yml  redis-svc.json         result-svc.json         vote-svc.json         worker-svc.json
 ```
 
-Check that the replication controllers and services have been created.
+Using `--bundle, --dab` to specify a DAB file as below:
 
 ```console
-$ kubectl get rc
-NAME         DESIRED   CURRENT   AGE
-gitlab       1         1         1m
-postgresql   1         1         1m
-redisio      1         1         1m
-
-$ kubectl get svc
-NAME         CLUSTER-IP     EXTERNAL-IP   PORT(S)               AGE
-gitlab       10.0.247.129   nodes         10080/TCP,10022/TCP   1m
-kubernetes   10.0.0.1       <none>        443/TCP               17h
-postgresql   10.0.237.13    <none>        5432/TCP              1m
-redisio      10.0.242.93    <none>        6379/TCP              1m
+$ kompose convert --bundle docker-compose-bundle.dsb
+WARNING: Unsupported key Networks - ignoring
+file "redis-svc.json" created
+file "web-svc.json" created
+file "web-deployment.json" created
+file "redis-deployment.json" created
 ```
-
-kompose also allows you to list the replication controllers and services with the `ps` subcommand.
-You can delete them with the `delete` subcommand.
-
-```console
-$ kompose ps --rc
-Name           Containers     Images                        Replicas  Selectors           
-redisio        redisio        sameersbn/redis               1         service=redisio
-postgresql     postgresql     sameersbn/postgresql:9.4-18   1         service=postgresql
-gitlab         gitlab         sameersbn/gitlab:8.6.4        1         service: gitlab
-
-$ kompose ps --svc
-Name         Cluster IP          Ports                   Selectors
-gitlab       10.0.247.129        TCP(10080),TCP(10022)   service=gitlab
-postgresql   10.0.237.13         TCP(5432)               service=postgresql
-redisio      10.0.242.93         TCP(6379)               service=redisio
-
-
-$ kompose delete --rc --name gitlab
-$ kompose ps --rc
-Name           Containers     Images                        Replicas  Selectors
-redisio        redisio        sameersbn/redis               1         service=redisio
-postgresql     postgresql     sameersbn/postgresql:9.4-18   1         service=postgresql
-```
-
-And finally you can scale a replication controller with `scale`.
-
-```console
-$ kompose scale --scale 3 --rc redisio
-Scaling redisio to: 3
-$ kompose ps --rc
-Name           Containers     Images                        Replicas  Selectors           
-redisio        redisio        sameersbn/redis               3         service=redisio
-```
-
-Note that you can of course manage the services and replication controllers that have been created with `kubectl`.
-The command of kompose have been extended to match the `docker-compose` commands.
 
 ## Alternate formats
 
@@ -108,14 +80,14 @@ file "web-deployment.json" created
 The `*-deployment.json` files contain the Deployment objects.
 
 ```console
-$ kompose convert --rc "1" -y
+$ kompose convert --rc -y
 file "redis-svc.yaml" created
 file "web-svc.yaml" created
 file "redis-rc.yaml" created
 file "web-rc.yaml" created
 ```
 
-The `*-rc.yaml` files contain the Replication Controller objects.
+The `*-rc.yaml` files contain the Replication Controller objects. If you want to specify replicas (default is 1), use `--replicas` flag: `$ kompose convert --rc --replicas 3 -y`
 
 ```console
 $ kompose convert --ds -y
