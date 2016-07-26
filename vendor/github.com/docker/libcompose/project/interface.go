@@ -37,6 +37,7 @@ type APIProject interface {
 	CreateService(name string) (Service, error)
 	AddConfig(name string, config *config.ServiceConfig) error
 	Load(bytes []byte) error
+	ListStoppedContainers(ctx context.Context, services ...string) ([]string, error)
 }
 
 // RuntimeProject defines runtime-specific methods for a libcompose implementation.

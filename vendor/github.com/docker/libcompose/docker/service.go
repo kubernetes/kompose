@@ -556,7 +556,7 @@ func (s *Service) Kill(ctx context.Context, signal string) error {
 func (s *Service) Delete(ctx context.Context, options options.Delete) error {
 	return s.collectContainersAndDo(ctx, func(c *Container) error {
 		running, _ := c.IsRunning(ctx)
-		if !running {
+		if !running || options.RemoveRunning {
 			return c.Remove(ctx, options.RemoveVolume)
 		}
 		return nil
