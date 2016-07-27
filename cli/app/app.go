@@ -932,10 +932,16 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 			logrus.Fatalf(err.Error())
 		}
 
-		// convert datasvc to json / yaml
-		datasvc, err := transformer(sc, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
+		var datasvc []byte
+		// If ports not provided in configuration we will not make service
+		if len(ports) == 0 {
+			logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
+		} else {
+			// convert datasvc to json / yaml
+			datasvc, err = transformer(sc, opt.generateYaml)
+			if err != nil {
+				logrus.Fatalf(err.Error())
+			}
 		}
 
 		// convert OpenShift DeploymentConfig to json / yaml
