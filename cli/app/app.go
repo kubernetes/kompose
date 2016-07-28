@@ -27,12 +27,6 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 
-	"github.com/docker/docker/api/client/bundlefile"
-	"github.com/docker/libcompose/config"
-	"github.com/docker/libcompose/docker"
-	"github.com/docker/libcompose/lookup"
-	"github.com/docker/libcompose/project"
-
 	"encoding/json"
 	"io/ioutil"
 
@@ -45,6 +39,7 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
+
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
@@ -52,8 +47,12 @@ import (
 	// install kubernetes api
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
 
-	"github.com/fatih/structs"
 	"github.com/ghodss/yaml"
+	"github.com/skippbox/kompose/pkg/kobject"
+	"github.com/skippbox/kompose/pkg/transformer"
+	"github.com/docker/libcompose/lookup"
+	"github.com/docker/libcompose/config"
+	"github.com/docker/libcompose/project"
 )
 
 const (
@@ -61,49 +60,7 @@ const (
 	DefaultComposeFile = "docker-compose.yml"
 )
 
-var unsupportedKey = map[string]int{
-	"Build":         0,
-	"CapAdd":        0,
-	"CapDrop":       0,
-	"CPUSet":        0,
-	"CPUShares":     0,
-	"CPUQuota":      0,
-	"CgroupParent":  0,
-	"Devices":       0,
-	"DependsOn":     0,
-	"DNS":           0,
-	"DNSSearch":     0,
-	"DomainName":    0,
-	"Entrypoint":    0,
-	"EnvFile":       0,
-	"Expose":        0,
-	"Extends":       0,
-	"ExternalLinks": 0,
-	"ExtraHosts":    0,
-	"Hostname":      0,
-	"Ipc":           0,
-	"Logging":       0,
-	"MacAddress":    0,
-	"MemLimit":      0,
-	"MemSwapLimit":  0,
-	"NetworkMode":   0,
-	"Networks":      0,
-	"Pid":           0,
-	"SecurityOpt":   0,
-	"ShmSize":       0,
-	"StopSignal":    0,
-	"VolumeDriver":  0,
-	"VolumesFrom":   0,
-	"Uts":           0,
-	"ReadOnly":      0,
-	"StdinOpen":     0,
-	"Tty":           0,
-	"User":          0,
-	"Ulimits":       0,
-	"Dockerfile":    0,
-	"Net":           0,
-	"Args":          0,
-}
+var inputFormat = "compose"
 
 var composeOptions = map[string]string{
 	"Build":         "build",
@@ -315,7 +272,7 @@ func createOutFile(out string) *os.File {
 }
 
 // Init RC object
-func initRC(name string, service ServiceConfig, replicas int) *api.ReplicationController {
+func initRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
 	rc := &api.ReplicationController{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "ReplicationController",
@@ -347,7 +304,7 @@ func initRC(name string, service ServiceConfig, replicas int) *api.ReplicationCo
 }
 
 // Init SC object
-func initSC(name string, service ServiceConfig) *api.Service {
+func initSC(name string, service kobject.ServiceConfig) *api.Service {
 	sc := &api.Service{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Service",
@@ -365,7 +322,7 @@ func initSC(name string, service ServiceConfig) *api.Service {
 }
 
 // Init DC object
-func initDC(name string, service ServiceConfig, replicas int) *extensions.Deployment {
+func initDC(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
 	dc := &extensions.Deployment{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Deployment",
@@ -400,7 +357,7 @@ func initDC(name string, service ServiceConfig, replicas int) *extensions.Deploy
 }
 
 // Init DS object
-func initDS(name string, service ServiceConfig) *extensions.DaemonSet {
+func initDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
 	ds := &extensions.DaemonSet{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DaemonSet",
@@ -429,7 +386,7 @@ func initDS(name string, service ServiceConfig) *extensions.DaemonSet {
 }
 
 // Init RS object
-func initRS(name string, service ServiceConfig, replicas int) *extensions.ReplicaSet {
+func initRS(name string, service kobject.ServiceConfig, replicas int) *extensions.ReplicaSet {
 	rs := &extensions.ReplicaSet{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "ReplicaSet",
@@ -460,7 +417,7 @@ func initRS(name string, service ServiceConfig, replicas int) *extensions.Replic
 }
 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
-func initDeploymentConfig(name string, service ServiceConfig, replicas int) *deployapi.DeploymentConfig {
+func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
 	dc := &deployapi.DeploymentConfig{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DeploymentConfig",
@@ -493,7 +450,7 @@ func initDeploymentConfig(name string, service ServiceConfig, replicas int) *dep
 }
 
 // Configure the environment variables.
-func configEnvs(name string, service ServiceConfig) []api.EnvVar {
+func configEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
 	envs := []api.EnvVar{}
 	for _, v := range service.Environment {
 		envs = append(envs, api.EnvVar{
@@ -506,7 +463,7 @@ func configEnvs(name string, service ServiceConfig) []api.EnvVar {
 }
 
 // Configure the container volumes.
-func configVolumes(service ServiceConfig) ([]api.VolumeMount, []api.Volume) {
+func configVolumes(service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 	volumesMount := []api.VolumeMount{}
 	volumes := []api.Volume{}
 	volumeSource := api.VolumeSource{}
@@ -574,16 +531,16 @@ func isPath(substring string) bool {
 }
 
 // Configure the container ports.
-func configPorts(name string, service ServiceConfig) []api.ContainerPort {
+func configPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
 	for _, port := range service.Port {
 		var p api.Protocol
 		switch port.Protocol {
 		default:
 			p = api.ProtocolTCP
-		case ProtocolTCP:
+		case kobject.ProtocolTCP:
 			p = api.ProtocolTCP
-		case ProtocolUDP:
+		case kobject.ProtocolUDP:
 			p = api.ProtocolUDP
 		}
 		ports = append(ports, api.ContainerPort{
@@ -596,7 +553,7 @@ func configPorts(name string, service ServiceConfig) []api.ContainerPort {
 }
 
 // Configure the container service ports.
-func configServicePorts(name string, service ServiceConfig) []api.ServicePort {
+func configServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
@@ -606,9 +563,9 @@ func configServicePorts(name string, service ServiceConfig) []api.ServicePort {
 		switch port.Protocol {
 		default:
 			p = api.ProtocolTCP
-		case ProtocolTCP:
+		case kobject.ProtocolTCP:
 			p = api.ProtocolTCP
-		case ProtocolUDP:
+		case kobject.ProtocolUDP:
 			p = api.ProtocolUDP
 		}
 		var targetPort intstr.IntOrString
@@ -625,7 +582,7 @@ func configServicePorts(name string, service ServiceConfig) []api.ServicePort {
 }
 
 // Transform data to json/yaml
-func transformer(obj runtime.Object, generateYaml bool) ([]byte, error) {
+func transformData(obj runtime.Object, generateYaml bool) ([]byte, error) {
 	//  Convert to versioned object
 	objectVersion := obj.GetObjectKind().GroupVersionKind()
 	version := unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
@@ -644,284 +601,6 @@ func transformer(obj runtime.Object, generateYaml bool) ([]byte, error) {
 	}
 	logrus.Debugf("%s\n", data)
 	return data, nil
-}
-
-// load Environment Variable from bundles file
-func loadEnvVars(service bundlefile.Service) ([]EnvVar, string) {
-	envs := []EnvVar{}
-	for _, env := range service.Env {
-		character := "="
-		if strings.Contains(env, character) {
-			value := env[strings.Index(env, character)+1:]
-			name := env[0:strings.Index(env, character)]
-			name = strings.TrimSpace(name)
-			value = strings.TrimSpace(value)
-			envs = append(envs, EnvVar{
-				Name:  name,
-				Value: value,
-			})
-		} else {
-			character = ":"
-			if strings.Contains(env, character) {
-				charQuote := "'"
-				value := env[strings.Index(env, character)+1:]
-				name := env[0:strings.Index(env, character)]
-				name = strings.TrimSpace(name)
-				value = strings.TrimSpace(value)
-				if strings.Contains(value, charQuote) {
-					value = strings.Trim(value, "'")
-				}
-				envs = append(envs, EnvVar{
-					Name:  name,
-					Value: value,
-				})
-			} else {
-				return envs, "Invalid container env " + env
-			}
-		}
-	}
-	return envs, ""
-}
-
-// load Environment Variable from compose file
-func loadEnvVarsFromCompose(e map[string]string) []EnvVar {
-	envs := []EnvVar{}
-	for k, v := range e {
-		envs = append(envs, EnvVar{
-			Name:  k,
-			Value: v,
-		})
-	}
-	return envs
-}
-
-// load Ports from bundles file
-func loadPorts(service bundlefile.Service) ([]Ports, string) {
-	ports := []Ports{}
-	for _, port := range service.Ports {
-		var p Protocol
-		switch port.Protocol {
-		default:
-			p = ProtocolTCP
-		case "TCP":
-			p = ProtocolTCP
-		case "UDP":
-			p = ProtocolUDP
-		}
-		ports = append(ports, Ports{
-			HostPort:      int32(port.Port),
-			ContainerPort: int32(port.Port),
-			Protocol:      p,
-		})
-	}
-	return ports, ""
-}
-
-// Load Ports from compose file
-func loadPortsFromCompose(composePorts []string) ([]Ports, string) {
-	ports := []Ports{}
-	character := ":"
-	for _, port := range composePorts {
-		p := ProtocolTCP
-		if strings.Contains(port, character) {
-			hostPort := port[0:strings.Index(port, character)]
-			hostPort = strings.TrimSpace(hostPort)
-			hostPortInt, err := strconv.Atoi(hostPort)
-			if err != nil {
-				return nil, "Invalid host port of " + port
-			}
-			containerPort := port[strings.Index(port, character)+1:]
-			containerPort = strings.TrimSpace(containerPort)
-			containerPortInt, err := strconv.Atoi(containerPort)
-			if err != nil {
-				return nil, "Invalid container port of " + port
-			}
-			ports = append(ports, Ports{
-				HostPort:      int32(hostPortInt),
-				ContainerPort: int32(containerPortInt),
-				Protocol:      p,
-			})
-		} else {
-			containerPortInt, err := strconv.Atoi(port)
-			if err != nil {
-				return nil, "Invalid container port of " + port
-			}
-			ports = append(ports, Ports{
-				ContainerPort: int32(containerPortInt),
-				Protocol:      p,
-			})
-		}
-
-	}
-	return ports, ""
-}
-
-// load Image from bundles file
-func loadImage(service bundlefile.Service) (string, string) {
-	character := "@"
-	if strings.Contains(service.Image, character) {
-		return service.Image[0:strings.Index(service.Image, character)], ""
-	}
-	return "", "Invalid image format"
-}
-
-// Load DAB file into KomposeObject
-func loadBundlesFile(file string) KomposeObject {
-	komposeObject := KomposeObject{
-		ServiceConfigs: make(map[string]ServiceConfig),
-	}
-	buf, err := ioutil.ReadFile(file)
-	if err != nil {
-		logrus.Fatalf("Failed to read bundles file: %v", err)
-	}
-	reader := strings.NewReader(string(buf))
-	bundle, err := bundlefile.LoadFile(reader)
-	if err != nil {
-		logrus.Fatalf("Failed to parse bundles file: %v", err)
-	}
-
-	for name, service := range bundle.Services {
-		checkUnsupportedKey(service)
-		serviceConfig := ServiceConfig{}
-		serviceConfig.Command = service.Command
-		serviceConfig.Args = service.Args
-		// convert bundle labels to annotations
-		serviceConfig.Annotations = service.Labels
-
-		image, err := loadImage(service)
-		if err != "" {
-			logrus.Fatalf("Failed to load image from bundles file: %v", err)
-		}
-		serviceConfig.Image = image
-
-		envs, err := loadEnvVars(service)
-		if err != "" {
-			logrus.Fatalf("Failed to load envvar from bundles file: %v", err)
-		}
-		serviceConfig.Environment = envs
-
-		ports, err := loadPorts(service)
-		if err != "" {
-			logrus.Fatalf("Failed to load ports from bundles file: %v", err)
-		}
-		serviceConfig.Port = ports
-
-		if service.WorkingDir != nil {
-			serviceConfig.WorkingDir = *service.WorkingDir
-		}
-
-		komposeObject.ServiceConfigs[name] = serviceConfig
-	}
-	return komposeObject
-}
-
-// Load compose file into KomposeObject
-func loadComposeFile(file string) KomposeObject {
-	komposeObject := KomposeObject{
-		ServiceConfigs: make(map[string]ServiceConfig),
-	}
-	context := &docker.Context{}
-	if file == "" {
-		file = "docker-compose.yml"
-	}
-	context.ComposeFiles = []string{file}
-
-	if context.ResourceLookup == nil {
-		context.ResourceLookup = &lookup.FileResourceLookup{}
-	}
-
-	if context.EnvironmentLookup == nil {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return KomposeObject{}
-		}
-		context.EnvironmentLookup = &lookup.ComposableEnvLookup{
-			Lookups: []config.EnvironmentLookup{
-				&lookup.EnvfileLookup{
-					Path: filepath.Join(cwd, ".env"),
-				},
-				&lookup.OsEnvLookup{},
-			},
-		}
-	}
-
-	// load compose file into composeObject
-	composeObject := project.NewProject(&context.Context, nil, nil)
-	err := composeObject.Parse()
-	if err != nil {
-		logrus.Fatalf("Failed to load compose file: %v", err)
-	}
-
-	// transform composeObject into komposeObject
-	composeServiceNames := composeObject.ServiceConfigs.Keys()
-
-	// volume config and network config are not supported
-	if len(composeObject.NetworkConfigs) > 0 {
-		logrus.Warningf("Unsupported network configuration of compose v2 - ignoring")
-	}
-	if len(composeObject.VolumeConfigs) > 0 {
-		logrus.Warningf("Unsupported volume configuration of compose v2 - ignoring")
-	}
-
-	networksWarningFound := false
-	for _, name := range composeServiceNames {
-		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
-			//FIXME: networks always contains one default element, even it isn't declared in compose v2.
-			if len(composeServiceConfig.Networks.Networks) > 0 &&
-				composeServiceConfig.Networks.Networks[0].Name != "default" &&
-				!networksWarningFound {
-				logrus.Warningf("Unsupported key networks - ignoring")
-				networksWarningFound = true
-			}
-			checkUnsupportedKey(composeServiceConfig)
-			serviceConfig := ServiceConfig{}
-			serviceConfig.Image = composeServiceConfig.Image
-			serviceConfig.ContainerName = composeServiceConfig.ContainerName
-
-			// load environment variables
-			envs := loadEnvVarsFromCompose(composeServiceConfig.Environment.ToMap())
-			serviceConfig.Environment = envs
-
-			// load ports
-			ports, err := loadPortsFromCompose(composeServiceConfig.Ports)
-			if err != "" {
-				logrus.Fatalf("Failed to load ports from compose file: %v", err)
-			}
-			serviceConfig.Port = ports
-
-			serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
-			serviceConfig.Volumes = composeServiceConfig.Volumes
-
-			// convert compose labels to annotations
-			serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
-
-			serviceConfig.CPUSet = composeServiceConfig.CPUSet
-			serviceConfig.CPUShares = composeServiceConfig.CPUShares
-			serviceConfig.CPUQuota = composeServiceConfig.CPUQuota
-			serviceConfig.CapAdd = composeServiceConfig.CapAdd
-			serviceConfig.CapDrop = composeServiceConfig.CapDrop
-			serviceConfig.Expose = composeServiceConfig.Expose
-			serviceConfig.Privileged = composeServiceConfig.Privileged
-			serviceConfig.Restart = composeServiceConfig.Restart
-			serviceConfig.User = composeServiceConfig.User
-
-			komposeObject.ServiceConfigs[name] = serviceConfig
-		}
-	}
-	return komposeObject
-}
-
-type convertOptions struct {
-	toStdout               bool
-	createD                bool
-	createRC               bool
-	createDS               bool
-	createDeploymentConfig bool
-	createChart            bool
-	generateYaml           bool
-	replicas               int
-	inputFile              string
-	outFile                string
 }
 
 // Convert komposeObject to K8S controllers
@@ -1119,28 +798,28 @@ func ConvertToVersion(objs []runtime.Object) ([]runtime.Object, error) {
 	return ret, nil
 }
 
-func validateFlags(opt convertOptions, singleOutput bool, dabFile, inputFile string) {
-	if len(opt.outFile) != 0 && opt.toStdout {
+func validateFlags(opt kobject.ConvertOptions, singleOutput bool, dabFile, inputFile string) {
+	if len(opt.OutFile) != 0 && opt.ToStdout {
 		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
 	}
-	if opt.createChart && opt.toStdout {
+	if opt.CreateChart && opt.ToStdout {
 		logrus.Fatalf("Error: chart cannot be generated when --stdout is specified")
 	}
-	if opt.replicas < 0 {
+	if opt.Replicas < 0 {
 		logrus.Fatalf("Error: --replicas cannot be negative")
 	}
 	if singleOutput {
 		count := 0
-		if opt.createD {
+		if opt.CreateD {
 			count++
 		}
-		if opt.createDS {
+		if opt.CreateDS {
 			count++
 		}
-		if opt.createRC {
+		if opt.CreateRC {
 			count++
 		}
-		if opt.createDeploymentConfig {
+		if opt.CreateDeploymentConfig {
 			count++
 		}
 		if count > 1 {
@@ -1172,51 +851,42 @@ func Convert(c *cli.Context) {
 		createD = true
 	}
 
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+	}
+
 	file := inputFile
 	if len(dabFile) > 0 {
+		inputFormat = "bundle"
 		file = dabFile
 	}
 
-	opt := convertOptions{
-		toStdout:               toStdout,
-		createD:                createD,
-		createRC:               createRC,
-		createDS:               createDS,
-		createDeploymentConfig: createDeploymentConfig,
-		createChart:            createChart,
-		generateYaml:           generateYaml,
-		replicas:               replicas,
-		inputFile:              file,
-		outFile:                outFile,
+	opt := kobject.ConvertOptions{
+		ToStdout:               toStdout,
+		CreateD:                createD,
+		CreateRC:               createRC,
+		CreateDS:               createDS,
+		CreateDeploymentConfig: createDeploymentConfig,
+		CreateChart:            createChart,
+		GenerateYaml:           generateYaml,
+		Replicas:               replicas,
+		InputFile:              file,
+		OutFile:                outFile,
 	}
+
+	f := createOutFile(opt.OutFile)
+	defer f.Close()
 
 	validateFlags(opt, singleOutput, dabFile, inputFile)
 
-	komposeObject := KomposeObject{}
+	komposeObject.Loader(file, inputFormat)
 
-	if len(dabFile) > 0 {
-		komposeObject = loadBundlesFile(dabFile)
-	} else {
-		komposeObject = loadComposeFile(inputFile)
-	}
-
+	//komposeObject.Transformer(opt)
 	// Convert komposeObject to K8S controllers
-	objects := komposeConvert(komposeObject, opt)
+	mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames := transformer.Transform(komposeObject, opt)
 
-	// print output to places as needed
-	PrintList(objects, opt)
-}
-
-func checkUnsupportedKey(service interface{}) {
-	s := structs.New(service)
-	for _, f := range s.Fields() {
-		if f.IsExported() && !f.IsZero() && f.Name() != "Networks" {
-			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
-				logrus.Warningf("Unsupported key %s - ignoring", composeOptions[f.Name()])
-				unsupportedKey[f.Name()]++
-			}
-		}
-	}
+	// Print output
+	transformer.PrintControllers(mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames, opt, f)
 }
 
 // Either print to stdout or to file/s
