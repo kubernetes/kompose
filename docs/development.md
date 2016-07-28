@@ -114,8 +114,11 @@ If it is not a valid version try, make sure you have updated the godep repo with
 
 ```console
 cd $GOPATH/src/github.com/skippbox
-godep restore
+script/godep-restore.sh
 ```
+
+Reason for calling `script/godep-restore.sh` instead of just `godep restore` is that Kompose is using `github.com/openshift/kubernetes` instead of `github.com/kubernetes/kubernetes`.
+
 
 2. Add a new dependency.
 
