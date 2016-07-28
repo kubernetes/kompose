@@ -26,10 +26,6 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 
-	"github.com/docker/docker/api/client/bundlefile"
-	"github.com/docker/libcompose/docker"
-	"github.com/docker/libcompose/project"
-
 	"encoding/json"
 	"io/ioutil"
 
@@ -40,8 +36,6 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	//client "k8s.io/kubernetes/pkg/client/unversioned"
-	//cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
@@ -49,8 +43,8 @@ import (
 	// install kubernetes api
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
 
-	"github.com/fatih/structs"
 	"github.com/ghodss/yaml"
+	"github.com/skippbox/kompose/pkg/kobject"
 )
 
 const (
@@ -58,49 +52,7 @@ const (
 	DefaultComposeFile = "docker-compose.yml"
 )
 
-var unsupportedKey = map[string]int{
-	"Build":         0,
-	"CapAdd":        0,
-	"CapDrop":       0,
-	"CPUSet":        0,
-	"CPUShares":     0,
-	"CPUQuota":      0,
-	"CgroupParent":  0,
-	"Devices":       0,
-	"DependsOn":     0,
-	"DNS":           0,
-	"DNSSearch":     0,
-	"DomainName":    0,
-	"Entrypoint":    0,
-	"EnvFile":       0,
-	"Expose":        0,
-	"Extends":       0,
-	"ExternalLinks": 0,
-	"ExtraHosts":    0,
-	"Hostname":      0,
-	"Ipc":           0,
-	"Logging":       0,
-	"MacAddress":    0,
-	"MemLimit":      0,
-	"MemSwapLimit":  0,
-	"NetworkMode":   0,
-	"Networks":      0,
-	"Pid":           0,
-	"SecurityOpt":   0,
-	"ShmSize":       0,
-	"StopSignal":    0,
-	"VolumeDriver":  0,
-	"VolumesFrom":   0,
-	"Uts":           0,
-	"ReadOnly":      0,
-	"StdinOpen":     0,
-	"Tty":           0,
-	"User":          0,
-	"Ulimits":       0,
-	"Dockerfile":    0,
-	"Net":           0,
-	"Args":          0,
-}
+var inputFormat = "compose"
 
 // RandStringBytes generates randomly n-character string
 func RandStringBytes(n int) string {
@@ -268,7 +220,7 @@ func createOutFile(out string) *os.File {
 }
 
 // Init RC object
-func initRC(name string, service ServiceConfig, replicas int) *api.ReplicationController {
+func initRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
 	rc := &api.ReplicationController{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "ReplicationController",
@@ -300,7 +252,7 @@ func initRC(name string, service ServiceConfig, replicas int) *api.ReplicationCo
 }
 
 // Init SC object
-func initSC(name string, service ServiceConfig) *api.Service {
+func initSC(name string, service kobject.ServiceConfig) *api.Service {
 	sc := &api.Service{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Service",
@@ -318,7 +270,7 @@ func initSC(name string, service ServiceConfig) *api.Service {
 }
 
 // Init DC object
-func initDC(name string, service ServiceConfig, replicas int) *extensions.Deployment {
+func initDC(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
 	dc := &extensions.Deployment{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Deployment",
@@ -353,7 +305,7 @@ func initDC(name string, service ServiceConfig, replicas int) *extensions.Deploy
 }
 
 // Init DS object
-func initDS(name string, service ServiceConfig) *extensions.DaemonSet {
+func initDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
 	ds := &extensions.DaemonSet{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DaemonSet",
@@ -382,7 +334,7 @@ func initDS(name string, service ServiceConfig) *extensions.DaemonSet {
 }
 
 // Init RS object
-func initRS(name string, service ServiceConfig, replicas int) *extensions.ReplicaSet {
+func initRS(name string, service kobject.ServiceConfig, replicas int) *extensions.ReplicaSet {
 	rs := &extensions.ReplicaSet{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "ReplicaSet",
@@ -413,7 +365,7 @@ func initRS(name string, service ServiceConfig, replicas int) *extensions.Replic
 }
 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
-func initDeploymentConfig(name string, service ServiceConfig, replicas int) *deployapi.DeploymentConfig {
+func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
 	dc := &deployapi.DeploymentConfig{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DeploymentConfig",
@@ -446,7 +398,7 @@ func initDeploymentConfig(name string, service ServiceConfig, replicas int) *dep
 }
 
 // Configure the environment variables.
-func configEnvs(name string, service ServiceConfig) []api.EnvVar {
+func configEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
 	envs := []api.EnvVar{}
 	for _, v := range service.Environment {
 		envs = append(envs, api.EnvVar{
@@ -459,7 +411,7 @@ func configEnvs(name string, service ServiceConfig) []api.EnvVar {
 }
 
 // Configure the container volumes.
-func configVolumes(service ServiceConfig) ([]api.VolumeMount, []api.Volume) {
+func configVolumes(service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 	volumesMount := []api.VolumeMount{}
 	volumes := []api.Volume{}
 	for _, volume := range service.Volumes {
@@ -493,16 +445,16 @@ func configVolumes(service ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 }
 
 // Configure the container ports.
-func configPorts(name string, service ServiceConfig) []api.ContainerPort {
+func configPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
 	for _, port := range service.Port {
 		var p api.Protocol
 		switch port.Protocol {
 		default:
 			p = api.ProtocolTCP
-		case ProtocolTCP:
+		case kobject.ProtocolTCP:
 			p = api.ProtocolTCP
-		case ProtocolUDP:
+		case kobject.ProtocolUDP:
 			p = api.ProtocolUDP
 		}
 		ports = append(ports, api.ContainerPort{
@@ -515,7 +467,7 @@ func configPorts(name string, service ServiceConfig) []api.ContainerPort {
 }
 
 // Configure the container service ports.
-func configServicePorts(name string, service ServiceConfig) []api.ServicePort {
+func configServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
@@ -525,9 +477,9 @@ func configServicePorts(name string, service ServiceConfig) []api.ServicePort {
 		switch port.Protocol {
 		default:
 			p = api.ProtocolTCP
-		case ProtocolTCP:
+		case kobject.ProtocolTCP:
 			p = api.ProtocolTCP
-		case ProtocolUDP:
+		case kobject.ProtocolUDP:
 			p = api.ProtocolUDP
 		}
 		var targetPort intstr.IntOrString
@@ -563,442 +515,6 @@ func transformer(obj runtime.Object, generateYaml bool) ([]byte, error) {
 	}
 	logrus.Debugf("%s\n", data)
 	return data, nil
-}
-
-// load Environment Variable from bundles file
-func loadEnvVars(service bundlefile.Service) ([]EnvVar, string) {
-	envs := []EnvVar{}
-	for _, env := range service.Env {
-		character := "="
-		if strings.Contains(env, character) {
-			value := env[strings.Index(env, character)+1:]
-			name := env[0:strings.Index(env, character)]
-			name = strings.TrimSpace(name)
-			value = strings.TrimSpace(value)
-			envs = append(envs, EnvVar{
-				Name:  name,
-				Value: value,
-			})
-		} else {
-			character = ":"
-			if strings.Contains(env, character) {
-				charQuote := "'"
-				value := env[strings.Index(env, character)+1:]
-				name := env[0:strings.Index(env, character)]
-				name = strings.TrimSpace(name)
-				value = strings.TrimSpace(value)
-				if strings.Contains(value, charQuote) {
-					value = strings.Trim(value, "'")
-				}
-				envs = append(envs, EnvVar{
-					Name:  name,
-					Value: value,
-				})
-			} else {
-				return envs, "Invalid container env " + env
-			}
-		}
-	}
-	return envs, ""
-}
-
-// load Environment Variable from compose file
-func loadEnvVarsFromCompose(e map[string]string) []EnvVar {
-	envs := []EnvVar{}
-	for k, v := range e {
-		envs = append(envs, EnvVar{
-			Name:  k,
-			Value: v,
-		})
-	}
-	return envs
-}
-
-// load Ports from bundles file
-func loadPorts(service bundlefile.Service) ([]Ports, string) {
-	ports := []Ports{}
-	for _, port := range service.Ports {
-		var p Protocol
-		switch port.Protocol {
-		default:
-			p = ProtocolTCP
-		case "TCP":
-			p = ProtocolTCP
-		case "UDP":
-			p = ProtocolUDP
-		}
-		ports = append(ports, Ports{
-			HostPort:      int32(port.Port),
-			ContainerPort: int32(port.Port),
-			Protocol:      p,
-		})
-	}
-	return ports, ""
-}
-
-// Load Ports from compose file
-func loadPortsFromCompose(composePorts []string) ([]Ports, string) {
-	ports := []Ports{}
-	character := ":"
-	for _, port := range composePorts {
-		p := ProtocolTCP
-		if strings.Contains(port, character) {
-			hostPort := port[0:strings.Index(port, character)]
-			hostPort = strings.TrimSpace(hostPort)
-			hostPortInt, err := strconv.Atoi(hostPort)
-			if err != nil {
-				return nil, "Invalid host port of " + port
-			}
-			containerPort := port[strings.Index(port, character)+1:]
-			containerPort = strings.TrimSpace(containerPort)
-			containerPortInt, err := strconv.Atoi(containerPort)
-			if err != nil {
-				return nil, "Invalid container port of " + port
-			}
-			ports = append(ports, Ports{
-				HostPort:      int32(hostPortInt),
-				ContainerPort: int32(containerPortInt),
-				Protocol:      p,
-			})
-		} else {
-			containerPortInt, err := strconv.Atoi(port)
-			if err != nil {
-				return nil, "Invalid container port of " + port
-			}
-			ports = append(ports, Ports{
-				ContainerPort: int32(containerPortInt),
-				Protocol:      p,
-			})
-		}
-
-	}
-	return ports, ""
-}
-
-// load Image from bundles file
-func loadImage(service bundlefile.Service) (string, string) {
-	character := "@"
-	if strings.Contains(service.Image, character) {
-		return service.Image[0:strings.Index(service.Image, character)], ""
-	}
-	return "", "Invalid image format"
-}
-
-// Load DAB file into KomposeObject
-func loadBundlesFile(file string) KomposeObject {
-	komposeObject := KomposeObject{
-		ServiceConfigs: make(map[string]ServiceConfig),
-	}
-	buf, err := ioutil.ReadFile(file)
-	if err != nil {
-		logrus.Fatalf("Failed to read bundles file: ", err)
-	}
-	reader := strings.NewReader(string(buf))
-	bundle, err := bundlefile.LoadFile(reader)
-	if err != nil {
-		logrus.Fatalf("Failed to parse bundles file: ", err)
-	}
-
-	for name, service := range bundle.Services {
-		checkUnsupportedKey(service)
-
-		serviceConfig := ServiceConfig{}
-		serviceConfig.Command = service.Command
-		serviceConfig.Args = service.Args
-		serviceConfig.Labels = service.Labels
-
-		image, err := loadImage(service)
-		if err != "" {
-			logrus.Fatalf("Failed to load image from bundles file: " + err)
-		}
-		serviceConfig.Image = image
-
-		envs, err := loadEnvVars(service)
-		if err != "" {
-			logrus.Fatalf("Failed to load envvar from bundles file: " + err)
-		}
-		serviceConfig.Environment = envs
-
-		ports, err := loadPorts(service)
-		if err != "" {
-			logrus.Fatalf("Failed to load ports from bundles file: " + err)
-		}
-		serviceConfig.Port = ports
-
-		if service.WorkingDir != nil {
-			serviceConfig.WorkingDir = *service.WorkingDir
-		}
-
-		komposeObject.ServiceConfigs[name] = serviceConfig
-	}
-	return komposeObject
-}
-
-// Load compose file into KomposeObject
-func loadComposeFile(file string) KomposeObject {
-	komposeObject := KomposeObject{
-		ServiceConfigs: make(map[string]ServiceConfig),
-	}
-	context := &docker.Context{}
-	if file == "" {
-		file = "docker-compose.yml"
-	}
-	context.ComposeFiles = []string{file}
-
-	// load compose file into composeObject
-	composeObject := project.NewProject(&context.Context, nil, nil)
-	err := composeObject.Parse()
-	if err != nil {
-		logrus.Fatalf("Failed to load compose file", err)
-	}
-
-	// transform composeObject into komposeObject
-	composeServiceNames := composeObject.ServiceConfigs.Keys()
-	for _, name := range composeServiceNames {
-		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
-			// TODO: mapping composeObject config to komposeObject config
-			checkUnsupportedKey(composeServiceConfig)
-			serviceConfig := ServiceConfig{}
-			serviceConfig.Image = composeServiceConfig.Image
-			serviceConfig.ContainerName = composeServiceConfig.ContainerName
-
-			// load environment variables
-			envs := loadEnvVarsFromCompose(composeServiceConfig.Environment.ToMap())
-			serviceConfig.Environment = envs
-
-			// load ports
-			ports, err := loadPortsFromCompose(composeServiceConfig.Ports)
-			if err != "" {
-				logrus.Fatalf("Failed to load ports from compose file: " + err)
-			}
-			serviceConfig.Port = ports
-
-			serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
-			serviceConfig.Volumes = composeServiceConfig.Volumes
-
-			// load labels
-			labels := composeServiceConfig.Labels
-			if labels != nil {
-				if err := labels.UnmarshalYAML("", labels); err != nil {
-					logrus.Fatalf("Failed to load labels from compose file: ", err)
-				}
-			}
-			serviceConfig.Labels = labels
-
-			serviceConfig.CPUSet = composeServiceConfig.CPUSet
-			serviceConfig.CPUShares = composeServiceConfig.CPUShares
-			serviceConfig.CPUQuota = composeServiceConfig.CPUQuota
-			serviceConfig.CapAdd = composeServiceConfig.CapAdd
-			serviceConfig.CapDrop = composeServiceConfig.CapDrop
-			serviceConfig.Expose = composeServiceConfig.Expose
-			serviceConfig.Privileged = composeServiceConfig.Privileged
-			serviceConfig.Restart = composeServiceConfig.Restart
-			serviceConfig.User = composeServiceConfig.User
-
-			komposeObject.ServiceConfigs[name] = serviceConfig
-		}
-	}
-	return komposeObject
-}
-
-type convertOptions struct {
-	toStdout               bool
-	createD                bool
-	createRS               bool
-	createRC               bool
-	createDS               bool
-	createDeploymentConfig bool
-	createChart            bool
-	generateYaml           bool
-	replicas               int
-	inputFile              string
-	outFile                string
-}
-
-// Convert komposeObject to K8S controllers
-func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
-	mServices := make(map[string][]byte)
-	mReplicationControllers := make(map[string][]byte)
-	mDeployments := make(map[string][]byte)
-	mDaemonSets := make(map[string][]byte)
-	mReplicaSets := make(map[string][]byte)
-	// OpenShift DeploymentConfigs
-	mDeploymentConfigs := make(map[string][]byte)
-
-	f := createOutFile(opt.outFile)
-	defer f.Close()
-
-	var svcnames []string
-
-	for name, service := range komposeObject.ServiceConfigs {
-		svcnames = append(svcnames, name)
-
-		//checkUnsupportedKey(service)
-
-		rc := initRC(name, service, opt.replicas)
-		sc := initSC(name, service)
-		dc := initDC(name, service, opt.replicas)
-		ds := initDS(name, service)
-		rs := initRS(name, service, opt.replicas)
-		osDC := initDeploymentConfig(name, service, opt.replicas) // OpenShift DeploymentConfigs
-
-		// Configure the environment variables.
-		envs := configEnvs(name, service)
-
-		// Configure the container command.
-		var cmds []string
-		for _, cmd := range service.Command {
-			cmds = append(cmds, cmd)
-		}
-		// Configure the container volumes.
-		volumesMount, volumes := configVolumes(service)
-
-		// Configure the container ports.
-		ports := configPorts(name, service)
-
-		// Configure the service ports.
-		servicePorts := configServicePorts(name, service)
-		sc.Spec.Ports = servicePorts
-
-		// Configure label
-		labels := map[string]string{"service": name}
-		for key, value := range service.Labels {
-			labels[key] = value
-		}
-		sc.ObjectMeta.Labels = labels
-
-		// fillTemplate fills the pod template with the value calculated from config
-		fillTemplate := func(template *api.PodTemplateSpec) {
-			template.Spec.Containers[0].Env = envs
-			template.Spec.Containers[0].Command = cmds
-			template.Spec.Containers[0].WorkingDir = service.WorkingDir
-			template.Spec.Containers[0].VolumeMounts = volumesMount
-			template.Spec.Volumes = volumes
-			// Configure the container privileged mode
-			if service.Privileged == true {
-				template.Spec.Containers[0].SecurityContext = &api.SecurityContext{
-					Privileged: &service.Privileged,
-				}
-			}
-			template.Spec.Containers[0].Ports = ports
-			template.ObjectMeta.Labels = labels
-			// Configure the container restart policy.
-			switch service.Restart {
-			case "", "always":
-				template.Spec.RestartPolicy = api.RestartPolicyAlways
-			case "no":
-				template.Spec.RestartPolicy = api.RestartPolicyNever
-			case "on-failure":
-				template.Spec.RestartPolicy = api.RestartPolicyOnFailure
-			default:
-				logrus.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
-			}
-		}
-
-		// fillObjectMeta fills the metadata with the value calculated from config
-		fillObjectMeta := func(meta *api.ObjectMeta) {
-			meta.Labels = labels
-		}
-
-		// Update each supported controllers
-		updateController(rc, fillTemplate, fillObjectMeta)
-		updateController(rs, fillTemplate, fillObjectMeta)
-		updateController(dc, fillTemplate, fillObjectMeta)
-		updateController(ds, fillTemplate, fillObjectMeta)
-		// OpenShift DeploymentConfigs
-		updateController(osDC, fillTemplate, fillObjectMeta)
-
-		// convert datarc to json / yaml
-		datarc, err := transformer(rc, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		// convert datadc to json / yaml
-		datadc, err := transformer(dc, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		// convert datads to json / yaml
-		datads, err := transformer(ds, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		// convert datars to json / yaml
-		datars, err := transformer(rs, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		// convert datasvc to json / yaml
-		datasvc, err := transformer(sc, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		// convert OpenShift DeploymentConfig to json / yaml
-		dataDeploymentConfig, err := transformer(osDC, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		mServices[name] = datasvc
-		mReplicationControllers[name] = datarc
-		mDeployments[name] = datadc
-		mDaemonSets[name] = datads
-		mReplicaSets[name] = datars
-		mDeploymentConfigs[name] = dataDeploymentConfig
-	}
-
-	for k, v := range mServices {
-		if v != nil {
-			print(k, "svc", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
-
-	// If --out or --stdout is set, the validation should already prevent multiple controllers being generated
-	if opt.createD {
-		for k, v := range mDeployments {
-			print(k, "deployment", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
-
-	if opt.createDS {
-		for k, v := range mDaemonSets {
-			print(k, "daemonset", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
-
-	if opt.createRS {
-		for k, v := range mReplicaSets {
-			print(k, "replicaset", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
-
-	if opt.createRC {
-		for k, v := range mReplicationControllers {
-			print(k, "rc", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
-
-	if f != nil {
-		fmt.Fprintf(os.Stdout, "file %q created\n", opt.outFile)
-	}
-
-	if opt.createChart {
-		err := generateHelm(opt.inputFile, svcnames, opt.generateYaml, opt.createD, opt.createDS, opt.createRS, opt.createRC, opt.outFile)
-		if err != nil {
-			logrus.Fatalf("Failed to create Chart data: %s\n", err)
-		}
-	}
-
-	if opt.createDeploymentConfig {
-		for k, v := range mDeploymentConfigs {
-			print(k, "deploymentconfig", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
 }
 
 // Convert tranforms docker compose or dab file to k8s objects
@@ -1057,43 +573,33 @@ func Convert(c *cli.Context) {
 		logrus.Fatalf("Error: compose file and dab file cannot be specified at the same time")
 	}
 
-	komposeObject := KomposeObject{}
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+	}
 	file := inputFile
 
 	if len(dabFile) > 0 {
-		komposeObject = loadBundlesFile(dabFile)
+		inputFormat = "bundle"
 		file = dabFile
-	} else {
-		komposeObject = loadComposeFile(inputFile)
 	}
 
-	// Convert komposeObject to K8S controllers
-	opt := convertOptions{
-		toStdout:               toStdout,
-		createD:                createD,
-		createRS:               createRS,
-		createRC:               createRC,
-		createDS:               createDS,
-		createDeploymentConfig: createDeploymentConfig,
-		createChart:            createChart,
-		generateYaml:           generateYaml,
-		replicas:               replicas,
-		inputFile:              file,
-		outFile:                outFile,
-	}
-	komposeConvert(komposeObject, opt)
-}
+	komposeObject.Loader(file, inputFormat)
 
-func checkUnsupportedKey(service interface{}) {
-	s := structs.New(service)
-	for _, f := range s.Fields() {
-		if f.IsExported() && !f.IsZero() {
-			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
-				fmt.Println("WARNING: Unsupported key " + f.Name() + " - ignoring")
-				unsupportedKey[f.Name()]++
-			}
-		}
+	opt := kobject.ConvertOptions{
+		ToStdout:               toStdout,
+		CreateD:                createD,
+		CreateRS:               createRS,
+		CreateRC:               createRC,
+		CreateDS:               createDS,
+		CreateDeploymentConfig: createDeploymentConfig,
+		CreateChart:            createChart,
+		GenerateYaml:           generateYaml,
+		Replicas:               replicas,
+		InputFile:              file,
+		OutFile:                outFile,
 	}
+
+	komposeObject.Transformer(opt)
 }
 
 func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *os.File) {

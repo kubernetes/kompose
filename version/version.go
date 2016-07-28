@@ -17,9 +17,9 @@ limitations under the License.
 package version
 
 var (
-// VERSION should be updated by hand at each release
-	VERSION = "0.0.1-alpha"
+	// VERSION should be updated by hand at each release
+	VERSION = "0.0.1-beta"
 
-// GITCOMMIT will be overwritten automatically by the build system
+	// GITCOMMIT will be overwritten automatically by the build system
 	GITCOMMIT = "HEAD"
 )
