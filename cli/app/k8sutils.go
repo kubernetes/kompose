@@ -32,7 +32,7 @@ import (
 /**
  * Generate Helm Chart configuration
  */
-func generateHelm(filename string, svcnames []string, generateYaml, createD, createDS, createRS, createRC bool, outFile string) error {
+func generateHelm(filename string, svcnames []string, generateYaml, createD, createDS, createRC bool, outFile string) error {
 	type ChartDetails struct {
 		Name string
 	}
@@ -112,11 +112,6 @@ home:
 			}
 			if createRC {
 				if err = cpToChart(manifestDir, svcname, "rc", extension); err != nil {
-					return err
-				}
-			}
-			if createRS {
-				if err = cpToChart(manifestDir, svcname, "replicaset", extension); err != nil {
 					return err
 				}
 			}

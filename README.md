@@ -68,7 +68,7 @@ file "redis-deployment.json" created
 
 ## Alternate formats
 
-The default `kompose` transformation will generate Kubernetes [Deployments](http://kubernetes.io/docs/user-guide/deployments/) and [Services](http://kubernetes.io/docs/user-guide/services/), in json format. You have alternative option to generate yaml with `-y`. Also, you can alternatively generate [Replication Controllers](http://kubernetes.io/docs/user-guide/replication-controller/) objects, [Deamon Sets](http://kubernetes.io/docs/admin/daemons/), [Replica Sets](http://kubernetes.io/docs/user-guide/replicasets/) or [Helm](https://github.com/helm/helm) charts.
+The default `kompose` transformation will generate Kubernetes [Deployments](http://kubernetes.io/docs/user-guide/deployments/) and [Services](http://kubernetes.io/docs/user-guide/services/), in json format. You have alternative option to generate yaml with `-y`. Also, you can alternatively generate [Replication Controllers](http://kubernetes.io/docs/user-guide/replication-controller/) objects, [Deamon Sets](http://kubernetes.io/docs/admin/daemons/), or [Helm](https://github.com/helm/helm) charts.
 
 ```console
 $ kompose convert 
@@ -98,16 +98,6 @@ file "web-daemonset.yaml" created
 ```
 
 The `*-daemonset.yaml` files contain the Daemon Set objects
-
-```console
-$ kompose convert --rs -y
-file "redis-svc.yaml" created
-file "web-svc.yaml" created
-file "redis-replicaset.yaml" created
-file "web-replicaset.yaml" created
-```
-
-The `*-replicaset.yaml` files contain the Replica Set objects
 
 If you want to generate a Chart to be used with [Helm](https://github.com/kubernetes/helm) simply do:
 
@@ -145,7 +135,7 @@ Currently `kompose` does not support the following Docker Compose options.
 
 For example:
 
-```
+```console
 $ cat nginx.yml
 nginx:
   image: nginx
@@ -154,6 +144,7 @@ nginx:
   cap_add:
     - ALL
   container_name: foobar
+
 $ kompose convert -f nginx.yml
 WARNING: Unsupported key Build - ignoring
 WARNING: Unsupported key CapAdd - ignoring

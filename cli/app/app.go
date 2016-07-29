@@ -804,7 +804,6 @@ func loadComposeFile(file string) KomposeObject {
 type convertOptions struct {
 	toStdout               bool
 	createD                bool
-	createRS               bool
 	createRC               bool
 	createDS               bool
 	createDeploymentConfig bool
@@ -821,7 +820,6 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 	mReplicationControllers := make(map[string][]byte)
 	mDeployments := make(map[string][]byte)
 	mDaemonSets := make(map[string][]byte)
-	mReplicaSets := make(map[string][]byte)
 	// OpenShift DeploymentConfigs
 	mDeploymentConfigs := make(map[string][]byte)
 
@@ -839,7 +837,6 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 		sc := initSC(name, service)
 		dc := initDC(name, service, opt.replicas)
 		ds := initDS(name, service)
-		rs := initRS(name, service, opt.replicas)
 		osDC := initDeploymentConfig(name, service, opt.replicas) // OpenShift DeploymentConfigs
 
 		// Configure the environment variables.
@@ -902,7 +899,6 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 
 		// Update each supported controllers
 		updateController(rc, fillTemplate, fillObjectMeta)
-		updateController(rs, fillTemplate, fillObjectMeta)
 		updateController(dc, fillTemplate, fillObjectMeta)
 		updateController(ds, fillTemplate, fillObjectMeta)
 		// OpenShift DeploymentConfigs
@@ -922,12 +918,6 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 
 		// convert datads to json / yaml
 		datads, err := transformer(ds, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		// convert datars to json / yaml
-		datars, err := transformer(rs, opt.generateYaml)
 		if err != nil {
 			logrus.Fatalf(err.Error())
 		}
@@ -954,7 +944,6 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 		mReplicationControllers[name] = datarc
 		mDeployments[name] = datadc
 		mDaemonSets[name] = datads
-		mReplicaSets[name] = datars
 		mDeploymentConfigs[name] = dataDeploymentConfig
 	}
 
@@ -977,12 +966,6 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 		}
 	}
 
-	if opt.createRS {
-		for k, v := range mReplicaSets {
-			print(k, "replicaset", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
-
 	if opt.createRC {
 		for k, v := range mReplicationControllers {
 			print(k, "rc", v, opt.toStdout, opt.generateYaml, f)
@@ -994,7 +977,7 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 	}
 
 	if opt.createChart {
-		err := generateHelm(opt.inputFile, svcnames, opt.generateYaml, opt.createD, opt.createDS, opt.createRS, opt.createRC, opt.outFile)
+		err := generateHelm(opt.inputFile, svcnames, opt.generateYaml, opt.createD, opt.createDS, opt.createRC, opt.outFile)
 		if err != nil {
 			logrus.Fatalf("Failed to create Chart data: %s\n", err)
 		}
@@ -1016,7 +999,6 @@ func Convert(c *cli.Context) {
 	toStdout := c.BoolT("stdout")
 	createD := c.BoolT("deployment")
 	createDS := c.BoolT("daemonset")
-	createRS := c.BoolT("replicaset")
 	createRC := c.BoolT("replicationcontroller")
 	createChart := c.BoolT("chart")
 	replicas := c.Int("replicas")
@@ -1024,7 +1006,7 @@ func Convert(c *cli.Context) {
 	createDeploymentConfig := c.BoolT("deploymentconfig")
 
 	// Create Deployment by default if no controller has be set
-	if !createD && !createDS && !createRS && !createRC && !createDeploymentConfig {
+	if !createD && !createDS && !createRC && !createDeploymentConfig {
 		createD = true
 	}
 
@@ -1044,9 +1026,6 @@ func Convert(c *cli.Context) {
 			count++
 		}
 		if createDS {
-			count++
-		}
-		if createRS {
 			count++
 		}
 		if createRC {
@@ -1077,7 +1056,6 @@ func Convert(c *cli.Context) {
 	opt := convertOptions{
 		toStdout:               toStdout,
 		createD:                createD,
-		createRS:               createRS,
 		createRC:               createRC,
 		createDS:               createDS,
 		createDeploymentConfig: createDeploymentConfig,
