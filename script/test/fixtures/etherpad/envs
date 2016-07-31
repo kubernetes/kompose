@@ -1,0 +1,6 @@
+DB_HOST=mariadb
+ROOT_PASS=etherpad
+DB_NAME=etherpad
+DB_PASS=etherpad
+DB_USER=etherpad
+DB_PORT=3306

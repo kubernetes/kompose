@@ -1,0 +1,366 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "node3",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "node3"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "8080",
+        "protocol": "TCP",
+        "port": 8080,
+        "targetPort": 8080
+      }
+    ],
+    "selector": {
+      "service": "node3"
+    }
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "redis",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "redis"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "6379",
+        "protocol": "TCP",
+        "port": 6379,
+        "targetPort": 6379
+      }
+    ],
+    "selector": {
+      "service": "redis"
+    }
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nginx",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "nginx"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "80",
+        "protocol": "TCP",
+        "port": 80,
+        "targetPort": 80
+      }
+    ],
+    "selector": {
+      "service": "nginx"
+    }
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "node1",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "node1"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "8080",
+        "protocol": "TCP",
+        "port": 8080,
+        "targetPort": 8080
+      }
+    ],
+    "selector": {
+      "service": "node1"
+    }
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "node2",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "node2"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "8080",
+        "protocol": "TCP",
+        "port": 8080,
+        "targetPort": 8080
+      }
+    ],
+    "selector": {
+      "service": "node2"
+    }
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nginx",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "nginx"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": null,
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "service": "nginx"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "service": "nginx"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "nginx",
+            "ports": [
+              {
+                "containerPort": 80,
+                "protocol": "TCP"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "node1",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "node1"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": null,
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "service": "node1"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "service": "node1"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "node1",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "protocol": "TCP"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "node2",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "node2"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": null,
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "service": "node2"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "service": "node2"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "node2",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "protocol": "TCP"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "node3",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "node3"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": null,
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "service": "node3"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "service": "node3"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "node3",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "protocol": "TCP"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}
+{
+  "kind": "DeploymentConfig",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "redis",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "redis"
+    }
+  },
+  "spec": {
+    "strategy": {
+      "resources": {}
+    },
+    "triggers": null,
+    "replicas": 1,
+    "test": false,
+    "selector": {
+      "service": "redis"
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "service": "redis"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "redis",
+            "image": "redis",
+            "ports": [
+              {
+                "containerPort": 6379,
+                "protocol": "TCP"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    }
+  },
+  "status": {}
+}

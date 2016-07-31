@@ -1,0 +1,284 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "redis",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "redis"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "6379",
+        "protocol": "TCP",
+        "port": 6379,
+        "targetPort": 6379
+      }
+    ],
+    "selector": {
+      "service": "redis"
+    }
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "gitlab",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "gitlab"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "30000",
+        "protocol": "TCP",
+        "port": 30000,
+        "targetPort": 80
+      },
+      {
+        "name": "30001",
+        "protocol": "TCP",
+        "port": 30001,
+        "targetPort": 443
+      },
+      {
+        "name": "30002",
+        "protocol": "TCP",
+        "port": 30002,
+        "targetPort": 22
+      }
+    ],
+    "selector": {
+      "service": "gitlab"
+    }
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "postgresql",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "postgresql"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "5432",
+        "protocol": "TCP",
+        "port": 5432,
+        "targetPort": 5432
+      }
+    ],
+    "selector": {
+      "service": "postgresql"
+    }
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}
+{
+  "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1",
+  "metadata": {
+    "name": "redis",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "redis"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "service": "redis"
+      }
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "service": "redis"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "redis",
+            "image": "swordphilic/redis",
+            "ports": [
+              {
+                "containerPort": 6379,
+                "protocol": "TCP"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    },
+    "strategy": {}
+  },
+  "status": {}
+}
+{
+  "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1",
+  "metadata": {
+    "name": "gitlab",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "gitlab"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "service": "gitlab"
+      }
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "service": "gitlab"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "gitlab",
+            "image": "swordphilic/gitlab",
+            "ports": [
+              {
+                "containerPort": 80,
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 443,
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 22,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "DB_HOST",
+                "value": "postgresql"
+              },
+              {
+                "name": "DB_NAME",
+                "value": "gitlab"
+              },
+              {
+                "name": "DB_PASS",
+                "value": "gitlab"
+              },
+              {
+                "name": "DB_PORT",
+                "value": "5432"
+              },
+              {
+                "name": "DB_TYPE",
+                "value": "postgres"
+              },
+              {
+                "name": "DB_USER",
+                "value": "gitlab"
+              },
+              {
+                "name": "REDIS_HOST",
+                "value": "redis"
+              },
+              {
+                "name": "REDIS_PORT",
+                "value": "6379"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    },
+    "strategy": {}
+  },
+  "status": {}
+}
+{
+  "kind": "Deployment",
+  "apiVersion": "extensions/v1beta1",
+  "metadata": {
+    "name": "postgresql",
+    "creationTimestamp": null,
+    "labels": {
+      "service": "postgresql"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "service": "postgresql"
+      }
+    },
+    "template": {
+      "metadata": {
+        "creationTimestamp": null,
+        "labels": {
+          "service": "postgresql"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "postgresql",
+            "image": "swordphilic/postgresql",
+            "ports": [
+              {
+                "containerPort": 5432,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "DB_NAME",
+                "value": "gitlab"
+              },
+              {
+                "name": "DB_PASS",
+                "value": "gitlab"
+              },
+              {
+                "name": "DB_USER",
+                "value": "gitlab"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "Always"
+      }
+    },
+    "strategy": {}
+  },
+  "status": {}
+}

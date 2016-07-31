@@ -1,0 +1,5 @@
+DB_PORT=5432
+DB_NAME=gitlab
+DB_PASS=gitlab
+DB_USER=gitlab
+REDIS_PORT=6379

@@ -1,0 +1,11 @@
+version: "2"
+
+services:
+  mariadb:
+    ports:
+      - 3306
+
+  etherpad:
+    ports:
+      - "80:9001"
+

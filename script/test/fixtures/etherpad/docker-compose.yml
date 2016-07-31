@@ -1,0 +1,25 @@
+version: "2"
+
+services:
+  mariadb:
+    image: centos/mariadb
+    ports:
+      - "$DB_PORT"
+    environment:
+      MYSQL_ROOT_PASSWORD: $ROOT_PASS
+      MYSQL_DATABASE: $DB_NAME
+      MYSQL_PASSWORD: $DB_PASS
+      MYSQL_USER: $DB_USER
+
+  etherpad:
+    image: centos/etherpad
+    ports:
+      - "80:9001"
+    depends_on:
+      - mariadb
+    environment:
+      DB_HOST: $DB_HOST
+      DB_DBID: $DB_NAME
+      DB_PASS: $DB_PASS
+      DB_PORT: $DB_PORT
+      DB_USER: $DB_USER

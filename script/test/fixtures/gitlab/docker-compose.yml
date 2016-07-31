@@ -1,0 +1,33 @@
+version: "2"
+
+services:
+  postgresql:
+    image: swordphilic/postgresql
+    ports:
+      - "$DB_PORT"
+    environment:
+      DB_NAME: $DB_NAME
+      DB_PASS: $DB_PASS
+      DB_USER: $DB_USER
+
+  gitlab:
+    image: swordphilic/gitlab
+    ports:
+      - "30000:80"
+      - "30001:443"
+      - "30002:22"
+    restart: always
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: postgresql
+      DB_PORT: $DB_PORT
+      DB_NAME: $DB_NAME
+      DB_PASS: $DB_PASS
+      DB_USER: $DB_USER
+      REDIS_HOST: redis
+      REDIS_PORT: $REDIS_PORT
+
+  redis:
+    image: swordphilic/redis
+    ports:
+      - "$REDIS_PORT"
