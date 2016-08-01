@@ -37,8 +37,8 @@ You can try with a Docker Compose version 2 like this:
 
 ```console
 $ kompose convert --file docker-voting.yml
-WARNING: Unsupported key Networks - ignoring
-WARNING: Unsupported key Build - ignoring
+WARN[0000]: Unsupported key networks - ignoring
+WARN[0000]: Unsupported key build - ignoring
 file "worker-svc.json" created
 file "db-svc.json" created
 file "redis-svc.json" created
@@ -59,7 +59,7 @@ Using `--bundle, --dab` to specify a DAB file as below:
 
 ```console
 $ kompose convert --bundle docker-compose-bundle.dsb
-WARNING: Unsupported key Networks - ignoring
+WARN[0000]: Unsupported key networks - ignoring
 file "redis-svc.json" created
 file "web-svc.json" created
 file "web-deployment.json" created
@@ -127,10 +127,11 @@ The chart structure is aimed at providing a skeleton for building your Helm char
 Currently `kompose` does not support the following Docker Compose options.
 
 ```
-"Build", "CapAdd", "CapDrop", "CPUSet", "CPUShares", "ContainerName", "Devices", "DNS", "DNSSearch",
-"Dockerfile", "DomainName", "Entrypoint", "EnvFile", "Hostname", "LogDriver", "MemLimit", "MemSwapLimit",
-"Net", "Pid", "Uts", "Ipc", "ReadOnly", "StdinOpen", "SecurityOpt", "Tty", "User", "VolumeDriver",
-"VolumesFrom", "Expose", "ExternalLinks", "LogOpt", "ExtraHosts",
+"build", "cap_add", "cap_drop", "cpuset", "cpu_shares", "cpu_quota", "cgroup_parent", "devices", "depends_on", "dns",
+"dns_search", "domainname", "entrypoint", "env_file", "expose", "extends", "external_links", "extra_hosts", "hostname", "ipc",
+"logging", "mac_address", "mem_limit", "memswap_limit", "network_mode", "networks", "pid", "security_opt", "shm_size",
+"stop_signal", "volume_driver", "volumes_from", "uts", "read_only", "stdin_open", "tty", "user", "ulimits", "dockerfile",
+"net", "args"
 ```
 
 For example:
@@ -146,10 +147,9 @@ nginx:
   container_name: foobar
 
 $ kompose convert -f nginx.yml
-WARNING: Unsupported key Build - ignoring
-WARNING: Unsupported key CapAdd - ignoring
-WARNING: Unsupported key ContainerName - ignoring
-WARNING: Unsupported key Dockerfile - ignoring
+WARN[0000] Unsupported key build - ignoring             
+WARN[0000] Unsupported key cap_add - ignoring           
+WARN[0000] Unsupported key dockerfile - ignoring
 ```
 
 ## Bash completion
