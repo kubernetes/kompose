@@ -17,12 +17,9 @@ limitations under the License.
 package kobject
 
 import (
-	"github.com/Sirupsen/logrus"
-
 	"fmt"
-	"github.com/skippbox/kompose/pkg/loader"
 	"github.com/fatih/structs"
-	"github.com/skippbox/kompose/pkg/transformer"
+	"math/rand"
 )
 
 var unsupportedKey = map[string]int{
@@ -69,6 +66,50 @@ var unsupportedKey = map[string]int{
 	"Args":          0,
 }
 
+var composeOptions = map[string]string{
+	"Build":         "build",
+	"CapAdd":        "cap_add",
+	"CapDrop":       "cap_drop",
+	"CPUSet":        "cpuset",
+	"CPUShares":     "cpu_shares",
+	"CPUQuota":      "cpu_quota",
+	"CgroupParent":  "cgroup_parent",
+	"Devices":       "devices",
+	"DependsOn":     "depends_on",
+	"DNS":           "dns",
+	"DNSSearch":     "dns_search",
+	"DomainName":    "domainname",
+	"Entrypoint":    "entrypoint",
+	"EnvFile":       "env_file",
+	"Expose":        "expose",
+	"Extends":       "extends",
+	"ExternalLinks": "external_links",
+	"ExtraHosts":    "extra_hosts",
+	"Hostname":      "hostname",
+	"Ipc":           "ipc",
+	"Logging":       "logging",
+	"MacAddress":    "mac_address",
+	"MemLimit":      "mem_limit",
+	"MemSwapLimit":  "memswap_limit",
+	"NetworkMode":   "network_mode",
+	"Networks":      "networks",
+	"Pid":           "pid",
+	"SecurityOpt":   "security_opt",
+	"ShmSize":       "shm_size",
+	"StopSignal":    "stop_signal",
+	"VolumeDriver":  "volume_driver",
+	"VolumesFrom":   "volumes_from",
+	"Uts":           "uts",
+	"ReadOnly":      "read_only",
+	"StdinOpen":     "stdin_open",
+	"Tty":           "tty",
+	"User":          "user",
+	"Ulimits":       "ulimits",
+	"Dockerfile":    "dockerfile",
+	"Net":           "net",
+	"Args":          "args",
+}
+
 // KomposeObject holds the generic struct of Kompose transformation
 type KomposeObject struct {
 	ServiceConfigs map[string]ServiceConfig
@@ -99,6 +140,7 @@ type ServiceConfig struct {
 	Volumes       []string
 	Network       []string
 	Labels        map[string]string
+	Annotations   map[string]string
 	CPUSet        string
 	CPUShares     int64
 	CPUQuota      int64
@@ -135,24 +177,24 @@ const (
 )
 
 // loader takes input and converts to KomposeObject
-func (k *KomposeObject) Loader(file string, inp string) {
-	switch inp {
-	case "bundle":
-		//k.loadBundleFile(file)
-		loader.LoadBundle(k, file)
-	case "compose":
-		//k.loadComposeFile(file)
-		loader.LoadCompose(k, file)
-	default:
-		logrus.Fatalf("Input file format is not supported")
-
-	}
-}
+//func (k *KomposeObject) Loader(file string, inp string) {
+//	switch inp {
+//	case "bundle":
+//		//k.loadBundleFile(file)
+//		loader.LoadBundle(k, file)
+//	case "compose":
+//		//k.loadComposeFile(file)
+//		loader.LoadCompose(k, file)
+//	default:
+//		logrus.Fatalf("Input file format is not supported")
+//
+//	}
+//}
 
 // transformer takes KomposeObject and converts to K8S / OpenShift primitives
-func (k *KomposeObject) Transformer(opt ConvertOptions) {
-	transformer.Transform(k, opt)
-}
+//func (k *KomposeObject) Transformer(opt ConvertOptions) {
+//	transformer.Transform(k, opt)
+//}
 
 func CheckUnsupportedKey(service interface{}) {
 	s := structs.New(service)

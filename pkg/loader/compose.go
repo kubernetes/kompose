@@ -23,6 +23,10 @@ import (
 	"github.com/skippbox/kompose/pkg/kobject"
 	"strconv"
 	"strings"
+	"github.com/docker/libcompose/lookup"
+	"os"
+	"github.com/docker/libcompose/config"
+	"path/filepath"
 )
 
 // load Environment Variable from compose file
@@ -77,7 +81,10 @@ func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, string) {
 }
 
 // load Docker Compose file into KomposeObject
-func LoadCompose(komposeObject *kobject.KomposeObject, file string) {
+func LoadCompose(file string) (kobject.KomposeObject) {
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+	}
 	context := &docker.Context{}
 	if file == "" {
 		file = "docker-compose.yml"
@@ -91,7 +98,7 @@ func LoadCompose(komposeObject *kobject.KomposeObject, file string) {
 		if context.EnvironmentLookup == nil {
 			cwd, err := os.Getwd()
 			if err != nil {
-				return KomposeObject{}
+				return kobject.KomposeObject{}
 			}
 			context.EnvironmentLookup = &lookup.ComposableEnvLookup{
 				Lookups: []config.EnvironmentLookup{
@@ -167,4 +174,6 @@ func LoadCompose(komposeObject *kobject.KomposeObject, file string) {
 			komposeObject.ServiceConfigs[name] = serviceConfig
 		}
 	}
+
+	return komposeObject
 }
