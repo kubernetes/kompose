@@ -81,7 +81,7 @@ func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, string) {
 }
 
 // load Docker Compose file into KomposeObject
-func LoadCompose(file string) (kobject.KomposeObject) {
+func LoadCompose(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}

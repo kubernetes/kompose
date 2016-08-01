@@ -449,7 +449,7 @@ func Convert(c *cli.Context) {
 		file = dabFile
 	}
 
-	//komposeObject.Loader(file, inputFormat)
+	// loader parses input from file into komposeObject.
 	switch inputFormat {
 	case "bundle":
 		komposeObject = loader.LoadBundle(file)
@@ -475,7 +475,7 @@ func Convert(c *cli.Context) {
 
 	validateFlags(opt, singleOutput, dabFile, inputFile)
 
-	// Convert komposeObject to K8S controllers
+	// transformer maps komposeObject to provider(K8S, OpenShift) primitives
 	mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames := transformer.Transform(komposeObject, opt)
 
 	// Print output

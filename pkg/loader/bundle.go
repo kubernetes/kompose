@@ -93,7 +93,7 @@ func loadPortsfromBundle(service bundlefile.Service) ([]kobject.Ports, string) {
 }
 
 // load Bundlefile into KomposeObject
-func LoadBundle(file string) (kobject.KomposeObject) {
+func LoadBundle(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}

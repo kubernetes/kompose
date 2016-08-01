@@ -19,7 +19,6 @@ package kobject
 import (
 	"fmt"
 	"github.com/fatih/structs"
-	"math/rand"
 )
 
 var unsupportedKey = map[string]int{
@@ -176,32 +175,12 @@ const (
 	ProtocolUDP Protocol = "UDP"
 )
 
-// loader takes input and converts to KomposeObject
-//func (k *KomposeObject) Loader(file string, inp string) {
-//	switch inp {
-//	case "bundle":
-//		//k.loadBundleFile(file)
-//		loader.LoadBundle(k, file)
-//	case "compose":
-//		//k.loadComposeFile(file)
-//		loader.LoadCompose(k, file)
-//	default:
-//		logrus.Fatalf("Input file format is not supported")
-//
-//	}
-//}
-
-// transformer takes KomposeObject and converts to K8S / OpenShift primitives
-//func (k *KomposeObject) Transformer(opt ConvertOptions) {
-//	transformer.Transform(k, opt)
-//}
-
 func CheckUnsupportedKey(service interface{}) {
 	s := structs.New(service)
 	for _, f := range s.Fields() {
 		if f.IsExported() && !f.IsZero() {
 			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
-				fmt.Println("WARNING: Unsupported key " + f.Name() + " - ignoring")
+				fmt.Println("WARNING: Unsupported key " + composeOptions[f.Name()] + " - ignoring")
 				unsupportedKey[f.Name()]++
 			}
 		}
