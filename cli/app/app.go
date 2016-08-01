@@ -102,6 +102,50 @@ var unsupportedKey = map[string]int{
 	"Args":          0,
 }
 
+var composeOptions = map[string]string {
+	"Build":         "build",
+	"CapAdd":        "cap_add",
+	"CapDrop":       "cap_drop",
+	"CPUSet":        "cpuset",
+	"CPUShares":     "cpu_shares",
+	"CPUQuota":      "cpu_quota",
+	"CgroupParent":  "cgroup_parent",
+	"Devices":       "devices",
+	"DependsOn":     "depends_on",
+	"DNS":           "dns",
+	"DNSSearch":     "dns_search",
+	"DomainName":    "domainname",
+	"Entrypoint":    "entrypoint",
+	"EnvFile":       "env_file",
+	"Expose":        "expose",
+	"Extends":       "extends",
+	"ExternalLinks": "external_links",
+	"ExtraHosts":    "extra_hosts",
+	"Hostname":      "hostname",
+	"Ipc":           "ipc",
+	"Logging":       "logging",
+	"MacAddress":    "mac_address",
+	"MemLimit":      "mem_limit",
+	"MemSwapLimit":  "memswap_limit",
+	"NetworkMode":   "network_mode",
+	"Networks":      "networks",
+	"Pid":           "pid",
+	"SecurityOpt":   "security_opt",
+	"ShmSize":       "shm_size",
+	"StopSignal":    "stop_signal",
+	"VolumeDriver":  "volume_driver",
+	"VolumesFrom":   "volumes_from",
+	"Uts":           "uts",
+	"ReadOnly":      "read_only",
+	"StdinOpen":     "stdin_open",
+	"Tty":           "tty",
+	"User":          "user",
+	"Ulimits":       "ulimits",
+	"Dockerfile":    "dockerfile",
+	"Net":           "net",
+	"Args":          "args",
+}
+
 // RandStringBytes generates randomly n-character string
 func RandStringBytes(n int) string {
 	b := make([]byte, n)
@@ -1073,7 +1117,7 @@ func checkUnsupportedKey(service interface{}) {
 	for _, f := range s.Fields() {
 		if f.IsExported() && !f.IsZero() {
 			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
-				fmt.Println("WARNING: Unsupported key " + f.Name() + " - ignoring")
+				logrus.Warningf("Unsupported key " + composeOptions[f.Name()] + " - ignoring")
 				unsupportedKey[f.Name()]++
 			}
 		}
