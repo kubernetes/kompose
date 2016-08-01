@@ -15,3 +15,44 @@ limitations under the License.
 */
 
 package transformer
+
+import (
+	"github.com/skippbox/kompose/pkg/kobject"
+	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/api/unversioned"
+
+	deployapi "github.com/openshift/origin/pkg/deploy/api"
+)
+
+// initDeploymentConfig initialize OpenShifts DeploymentConfig object
+func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
+	dc := &deployapi.DeploymentConfig{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "DeploymentConfig",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name:   name,
+			Labels: map[string]string{"service": name},
+		},
+		Spec: deployapi.DeploymentConfigSpec{
+			Replicas: int32(replicas),
+			Selector: map[string]string{"service": name},
+			//UniqueLabelKey: p.Name,
+			Template: &api.PodTemplateSpec{
+				ObjectMeta: api.ObjectMeta{
+					Labels: map[string]string{"service": name},
+				},
+				Spec: api.PodSpec{
+					Containers: []api.Container{
+						{
+							Name:  name,
+							Image: service.Image,
+						},
+					},
+				},
+			},
+		},
+	}
+	return dc
+}

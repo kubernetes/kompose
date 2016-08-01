@@ -33,7 +33,6 @@ import (
 )
 
 const (
-	letterBytes        = "abcdefghijklmnopqrstuvwxyz0123456789"
 	DefaultComposeFile = "docker-compose.yml"
 )
 
@@ -248,7 +247,7 @@ func Convert(c *cli.Context) {
 		file = dabFile
 	}
 
-	//komposeObject.Loader(file, inputFormat)
+	// loader parses input from file into komposeObject.
 	switch inputFormat {
 	case "bundle":
 		komposeObject = loader.LoadBundle(file)
@@ -273,6 +272,7 @@ func Convert(c *cli.Context) {
 		OutFile:                outFile,
 	}
 
+	// transformer maps komposeObject to provider(K8S, OpenShift) primitives
 	transformer.Transform(komposeObject, opt)
 }
 
