@@ -17,12 +17,8 @@ limitations under the License.
 package kobject
 
 import (
-	"github.com/Sirupsen/logrus"
-
 	"fmt"
-	"github.com/skippbox/kompose/pkg/loader"
 	"github.com/fatih/structs"
-	"github.com/skippbox/kompose/pkg/transformer"
 )
 
 var unsupportedKey = map[string]int{
@@ -136,24 +132,24 @@ const (
 )
 
 // loader takes input and converts to KomposeObject
-func (k *KomposeObject) Loader(file string, inp string) {
-	switch inp {
-	case "bundle":
-		//k.loadBundleFile(file)
-		loader.LoadBundle(k, file)
-	case "compose":
-		//k.loadComposeFile(file)
-		loader.LoadCompose(k, file)
-	default:
-		logrus.Fatalf("Input file format is not supported")
-
-	}
-}
+//func (k *KomposeObject) Loader(file string, inp string) {
+//	switch inp {
+//	case "bundle":
+//		//k.loadBundleFile(file)
+//		loader.LoadBundle(k, file)
+//	case "compose":
+//		//k.loadComposeFile(file)
+//		loader.LoadCompose(k, file)
+//	default:
+//		logrus.Fatalf("Input file format is not supported")
+//
+//	}
+//}
 
 // transformer takes KomposeObject and converts to K8S / OpenShift primitives
-func (k *KomposeObject) Transformer(opt ConvertOptions) {
-	transformer.Transform(k, opt)
-}
+//func (k *KomposeObject) Transformer(opt ConvertOptions) {
+//	transformer.Transform(k, opt)
+//}
 
 func CheckUnsupportedKey(service interface{}) {
 	s := structs.New(service)

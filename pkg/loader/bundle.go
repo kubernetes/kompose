@@ -19,9 +19,9 @@ package loader
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/docker/api/client/bundlefile"
+	"github.com/skippbox/kompose/pkg/kobject"
 	"io/ioutil"
 	"strings"
-	"github.com/skippbox/kompose/pkg/kobject"
 )
 
 // load Image from bundles file
@@ -93,7 +93,11 @@ func loadPortsfromBundle(service bundlefile.Service) ([]kobject.Ports, string) {
 }
 
 // load Bundlefile into KomposeObject
-func LoadBundle(komposeObject *kobject.KomposeObject, file string) {
+func LoadBundle(file string) (kobject.KomposeObject) {
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+	}
+
 	buf, err := ioutil.ReadFile(file)
 	if err != nil {
 		logrus.Fatalf("Failed to read bundles file: ", err)
@@ -136,4 +140,6 @@ func LoadBundle(komposeObject *kobject.KomposeObject, file string) {
 
 		komposeObject.ServiceConfigs[name] = serviceConfig
 	}
+
+	return komposeObject
 }

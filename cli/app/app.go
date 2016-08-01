@@ -17,34 +17,19 @@ limitations under the License.
 package app
 
 import (
-	"fmt"
-	"math/rand"
-	"os"
-	"strconv"
-	"strings"
-
 	"github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
-
-	"encoding/json"
-	"io/ioutil"
 
 	// install kubernetes api
 	_ "k8s.io/kubernetes/pkg/api/install"
 	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
 
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/api/unversioned"
-	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/runtime"
-	"k8s.io/kubernetes/pkg/util/intstr"
-
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	// install kubernetes api
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
 
-	"github.com/ghodss/yaml"
 	"github.com/skippbox/kompose/pkg/kobject"
+	"github.com/skippbox/kompose/pkg/loader"
+	"github.com/skippbox/kompose/pkg/transformer"
 )
 
 const (
@@ -53,15 +38,6 @@ const (
 )
 
 var inputFormat = "compose"
-
-// RandStringBytes generates randomly n-character string
-func RandStringBytes(n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(b)
-}
 
 // BeforeApp is an action that is executed before any cli command.
 func BeforeApp(c *cli.Context) error {
@@ -206,317 +182,6 @@ func Scale(c *cli.Context) {
 	//}
 }
 
-// Create the file to write to if --out is specified
-func createOutFile(out string) *os.File {
-	var f *os.File
-	var err error
-	if len(out) != 0 {
-		f, err = os.Create(out)
-		if err != nil {
-			logrus.Fatalf("error opening file: %v", err)
-		}
-	}
-	return f
-}
-
-// Init RC object
-func initRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
-	rc := &api.ReplicationController{
-		TypeMeta: unversioned.TypeMeta{
-			Kind:       "ReplicationController",
-			APIVersion: "v1",
-		},
-		ObjectMeta: api.ObjectMeta{
-			Name: name,
-			//Labels: map[string]string{"service": name},
-		},
-		Spec: api.ReplicationControllerSpec{
-			Selector: map[string]string{"service": name},
-			Replicas: int32(replicas),
-			Template: &api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
-				//Labels: map[string]string{"service": name},
-				},
-				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
-				},
-			},
-		},
-	}
-	return rc
-}
-
-// Init SC object
-func initSC(name string, service kobject.ServiceConfig) *api.Service {
-	sc := &api.Service{
-		TypeMeta: unversioned.TypeMeta{
-			Kind:       "Service",
-			APIVersion: "v1",
-		},
-		ObjectMeta: api.ObjectMeta{
-			Name: name,
-			//Labels: map[string]string{"service": name},
-		},
-		Spec: api.ServiceSpec{
-			Selector: map[string]string{"service": name},
-		},
-	}
-	return sc
-}
-
-// Init DC object
-func initDC(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
-	dc := &extensions.Deployment{
-		TypeMeta: unversioned.TypeMeta{
-			Kind:       "Deployment",
-			APIVersion: "extensions/v1beta1",
-		},
-		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: map[string]string{"service": name},
-		},
-		Spec: extensions.DeploymentSpec{
-			Replicas: int32(replicas),
-			Selector: &unversioned.LabelSelector{
-				MatchLabels: map[string]string{"service": name},
-			},
-			//UniqueLabelKey: p.Name,
-			Template: api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
-					Labels: map[string]string{"service": name},
-				},
-				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
-				},
-			},
-		},
-	}
-	return dc
-}
-
-// Init DS object
-func initDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
-	ds := &extensions.DaemonSet{
-		TypeMeta: unversioned.TypeMeta{
-			Kind:       "DaemonSet",
-			APIVersion: "extensions/v1beta1",
-		},
-		ObjectMeta: api.ObjectMeta{
-			Name: name,
-		},
-		Spec: extensions.DaemonSetSpec{
-			Template: api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
-					Name: name,
-				},
-				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
-				},
-			},
-		},
-	}
-	return ds
-}
-
-// Init RS object
-func initRS(name string, service kobject.ServiceConfig, replicas int) *extensions.ReplicaSet {
-	rs := &extensions.ReplicaSet{
-		TypeMeta: unversioned.TypeMeta{
-			Kind:       "ReplicaSet",
-			APIVersion: "extensions/v1beta1",
-		},
-		ObjectMeta: api.ObjectMeta{
-			Name: name,
-		},
-		Spec: extensions.ReplicaSetSpec{
-			Replicas: int32(replicas),
-			Selector: &unversioned.LabelSelector{
-				MatchLabels: map[string]string{"service": name},
-			},
-			Template: api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{},
-				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
-				},
-			},
-		},
-	}
-	return rs
-}
-
-// initDeploymentConfig initialize OpenShifts DeploymentConfig object
-func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
-	dc := &deployapi.DeploymentConfig{
-		TypeMeta: unversioned.TypeMeta{
-			Kind:       "DeploymentConfig",
-			APIVersion: "v1",
-		},
-		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: map[string]string{"service": name},
-		},
-		Spec: deployapi.DeploymentConfigSpec{
-			Replicas: int32(replicas),
-			Selector: map[string]string{"service": name},
-			//UniqueLabelKey: p.Name,
-			Template: &api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
-					Labels: map[string]string{"service": name},
-				},
-				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
-				},
-			},
-		},
-	}
-	return dc
-}
-
-// Configure the environment variables.
-func configEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
-	envs := []api.EnvVar{}
-	for _, v := range service.Environment {
-		envs = append(envs, api.EnvVar{
-			Name:  v.Name,
-			Value: v.Value,
-		})
-	}
-
-	return envs
-}
-
-// Configure the container volumes.
-func configVolumes(service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume) {
-	volumesMount := []api.VolumeMount{}
-	volumes := []api.Volume{}
-	for _, volume := range service.Volumes {
-		character := ":"
-		if strings.Contains(volume, character) {
-			containerDir := volume[strings.Index(volume, character)+1:]
-			containerDir = strings.TrimSpace(containerDir)
-
-			// check if ro/rw mode is defined
-			readonly := true
-			if strings.Index(volume, character) != strings.LastIndex(volume, character) {
-				mode := volume[strings.LastIndex(volume, character)+1:]
-				if strings.Compare(mode, "rw") == 0 {
-					readonly = false
-				}
-				containerDir = containerDir[0:strings.Index(containerDir, character)]
-			}
-
-			// volumeName = random string of 20 chars
-			volumeName := RandStringBytes(20)
-
-			volumesMount = append(volumesMount, api.VolumeMount{Name: volumeName, ReadOnly: readonly, MountPath: containerDir})
-
-			emptyDir := &api.EmptyDirVolumeSource{}
-			volumeSource := api.VolumeSource{EmptyDir: emptyDir}
-
-			volumes = append(volumes, api.Volume{Name: volumeName, VolumeSource: volumeSource})
-		}
-	}
-	return volumesMount, volumes
-}
-
-// Configure the container ports.
-func configPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
-	ports := []api.ContainerPort{}
-	for _, port := range service.Port {
-		var p api.Protocol
-		switch port.Protocol {
-		default:
-			p = api.ProtocolTCP
-		case kobject.ProtocolTCP:
-			p = api.ProtocolTCP
-		case kobject.ProtocolUDP:
-			p = api.ProtocolUDP
-		}
-		ports = append(ports, api.ContainerPort{
-			ContainerPort: port.ContainerPort,
-			Protocol:      p,
-		})
-	}
-
-	return ports
-}
-
-// Configure the container service ports.
-func configServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
-	servicePorts := []api.ServicePort{}
-	for _, port := range service.Port {
-		if port.HostPort == 0 {
-			port.HostPort = port.ContainerPort
-		}
-		var p api.Protocol
-		switch port.Protocol {
-		default:
-			p = api.ProtocolTCP
-		case kobject.ProtocolTCP:
-			p = api.ProtocolTCP
-		case kobject.ProtocolUDP:
-			p = api.ProtocolUDP
-		}
-		var targetPort intstr.IntOrString
-		targetPort.IntVal = port.ContainerPort
-		targetPort.StrVal = strconv.Itoa(int(port.ContainerPort))
-		servicePorts = append(servicePorts, api.ServicePort{
-			Name:       strconv.Itoa(int(port.HostPort)),
-			Protocol:   p,
-			Port:       port.HostPort,
-			TargetPort: targetPort,
-		})
-	}
-	return servicePorts
-}
-
-// Transform data to json/yaml
-func transformer(obj runtime.Object, generateYaml bool) ([]byte, error) {
-	//  Convert to versioned object
-	objectVersion := obj.GetObjectKind().GroupVersionKind()
-	version := unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
-	versionedObj, err := api.Scheme.ConvertToVersion(obj, version)
-	if err != nil {
-		return nil, err
-	}
-
-	// convert data to json / yaml
-	data, err := json.MarshalIndent(versionedObj, "", "  ")
-	if generateYaml == true {
-		data, err = yaml.Marshal(versionedObj)
-	}
-	if err != nil {
-		return nil, err
-	}
-	logrus.Debugf("%s\n", data)
-	return data, nil
-}
-
 // Convert tranforms docker compose or dab file to k8s objects
 func Convert(c *cli.Context) {
 	inputFile := c.String("file")
@@ -583,7 +248,16 @@ func Convert(c *cli.Context) {
 		file = dabFile
 	}
 
-	komposeObject.Loader(file, inputFormat)
+	//komposeObject.Loader(file, inputFormat)
+	switch inputFormat {
+	case "bundle":
+		komposeObject = loader.LoadBundle(file)
+	case "compose":
+		komposeObject = loader.LoadCompose(file)
+	default:
+		logrus.Fatalf("Input file format is not supported")
+
+	}
 
 	opt := kobject.ConvertOptions{
 		ToStdout:               toStdout,
@@ -599,33 +273,7 @@ func Convert(c *cli.Context) {
 		OutFile:                outFile,
 	}
 
-	komposeObject.Transformer(opt)
-}
-
-func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *os.File) {
-	file := fmt.Sprintf("%s-%s.json", name, trailing)
-	if generateYaml {
-		file = fmt.Sprintf("%s-%s.yaml", name, trailing)
-	}
-	separator := ""
-	if generateYaml {
-		separator = "---"
-	}
-	if toStdout {
-		fmt.Fprintf(os.Stdout, "%s%s\n", string(data), separator)
-	} else if f != nil {
-		// Write all content to a single file f
-		if _, err := f.WriteString(fmt.Sprintf("%s%s\n", string(data), separator)); err != nil {
-			logrus.Fatalf("Failed to write %s to file: %v", trailing, err)
-		}
-		f.Sync()
-	} else {
-		// Write content separately to each file
-		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
-			logrus.Fatalf("Failed to write %s: %v", trailing, err)
-		}
-		fmt.Fprintf(os.Stdout, "file %q created\n", file)
-	}
+	transformer.Transform(komposeObject, opt)
 }
 
 // Up brings up rc, svc.
@@ -704,28 +352,4 @@ func Up(c *cli.Context) {
 	//	}
 	//}
 
-}
-
-// updateController updates the given object with the given pod template update function and ObjectMeta update function
-func updateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec), updateMeta func(meta *api.ObjectMeta)) {
-	switch t := obj.(type) {
-	case *api.ReplicationController:
-		if t.Spec.Template == nil {
-			t.Spec.Template = &api.PodTemplateSpec{}
-		}
-		updateTemplate(t.Spec.Template)
-		updateMeta(&t.ObjectMeta)
-	case *extensions.Deployment:
-		updateTemplate(&t.Spec.Template)
-		updateMeta(&t.ObjectMeta)
-	case *extensions.ReplicaSet:
-		updateTemplate(&t.Spec.Template)
-		updateMeta(&t.ObjectMeta)
-	case *extensions.DaemonSet:
-		updateTemplate(&t.Spec.Template)
-		updateMeta(&t.ObjectMeta)
-	case *deployapi.DeploymentConfig:
-		updateTemplate(t.Spec.Template)
-		updateMeta(&t.ObjectMeta)
-	}
 }

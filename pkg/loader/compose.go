@@ -77,7 +77,10 @@ func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, string) {
 }
 
 // load Docker Compose file into KomposeObject
-func LoadCompose(komposeObject *kobject.KomposeObject, file string) {
+func LoadCompose(file string) (kobject.KomposeObject) {
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+	}
 	context := &docker.Context{}
 	if file == "" {
 		file = "docker-compose.yml"
@@ -136,4 +139,6 @@ func LoadCompose(komposeObject *kobject.KomposeObject, file string) {
 			komposeObject.ServiceConfigs[name] = serviceConfig
 		}
 	}
+
+	return komposeObject
 }
