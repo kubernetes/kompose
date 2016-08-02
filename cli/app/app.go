@@ -105,7 +105,7 @@ var unsupportedKey = map[string]int{
 	"Args":          0,
 }
 
-var composeOptions = map[string]string {
+var composeOptions = map[string]string{
 	"Build":         "build",
 	"CapAdd":        "cap_add",
 	"CapDrop":       "cap_drop",
@@ -732,7 +732,7 @@ func loadImage(service bundlefile.Service) (string, string) {
 }
 
 // Load DAB file into KomposeObject
-func loadBundlesFile(file string) KomposeObject {
+func loadBundlesFile(file string, opt convertOptions) KomposeObject {
 	komposeObject := KomposeObject{
 		ServiceConfigs: make(map[string]ServiceConfig),
 	}
@@ -747,8 +747,9 @@ func loadBundlesFile(file string) KomposeObject {
 	}
 
 	for name, service := range bundle.Services {
-		checkUnsupportedKey(service)
-
+		if !opt.toStdout {
+			checkUnsupportedKey(service)
+		}
 		serviceConfig := ServiceConfig{}
 		serviceConfig.Command = service.Command
 		serviceConfig.Args = service.Args
@@ -782,7 +783,7 @@ func loadBundlesFile(file string) KomposeObject {
 }
 
 // Load compose file into KomposeObject
-func loadComposeFile(file string) KomposeObject {
+func loadComposeFile(file string, opt convertOptions) KomposeObject {
 	komposeObject := KomposeObject{
 		ServiceConfigs: make(map[string]ServiceConfig),
 	}
@@ -822,8 +823,9 @@ func loadComposeFile(file string) KomposeObject {
 	composeServiceNames := composeObject.ServiceConfigs.Keys()
 	for _, name := range composeServiceNames {
 		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
-			// TODO: mapping composeObject config to komposeObject config
-			checkUnsupportedKey(composeServiceConfig)
+			if !opt.toStdout {
+				checkUnsupportedKey(composeServiceConfig)
+			}
 			serviceConfig := ServiceConfig{}
 			serviceConfig.Image = composeServiceConfig.Image
 			serviceConfig.ContainerName = composeServiceConfig.ContainerName
@@ -896,9 +898,6 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 
 	for name, service := range komposeObject.ServiceConfigs {
 		svcnames = append(svcnames, name)
-
-		//checkUnsupportedKey(service)
-
 		rc := initRC(name, service, opt.replicas)
 		sc := initSC(name, service)
 		dc := initDC(name, service, opt.replicas)
@@ -990,9 +989,9 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 
 		var datasvc []byte
 		// If ports not provided in configuration we will not make service
-		if len(ports) == 0 {
+		if len(ports) == 0 && !opt.toStdout {
 			logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
-		} else {
+		} else if len(ports) != 0 {
 			// convert datasvc to json / yaml
 			datasvc, err = transformer(sc, opt.generateYaml)
 			if err != nil {
@@ -1110,14 +1109,6 @@ func Convert(c *cli.Context) {
 
 	komposeObject := KomposeObject{}
 	file := inputFile
-
-	if len(dabFile) > 0 {
-		komposeObject = loadBundlesFile(dabFile)
-		file = dabFile
-	} else {
-		komposeObject = loadComposeFile(inputFile)
-	}
-
 	// Convert komposeObject to K8S controllers
 	opt := convertOptions{
 		toStdout:               toStdout,
@@ -1131,6 +1122,14 @@ func Convert(c *cli.Context) {
 		inputFile:              file,
 		outFile:                outFile,
 	}
+
+	if len(dabFile) > 0 {
+		komposeObject = loadBundlesFile(dabFile, opt)
+		file = dabFile
+	} else {
+		komposeObject = loadComposeFile(inputFile, opt)
+	}
+
 	komposeConvert(komposeObject, opt)
 }
 
