@@ -20,7 +20,7 @@ func relativePath(file, relativeTo string) string {
 	// stdin: return the current working directory if possible.
 	if relativeTo == "-" {
 		if cwd, err := os.Getwd(); err == nil {
-			return cwd
+			return filepath.Join(cwd, file)
 		}
 	}
 
@@ -39,15 +39,15 @@ func relativePath(file, relativeTo string) string {
 	return abs
 }
 
-// FileConfigLookup is a "bare" structure that implements the project.ResourceLookup interface
-type FileConfigLookup struct {
+// FileResourceLookup is a "bare" structure that implements the project.ResourceLookup interface
+type FileResourceLookup struct {
 }
 
 // Lookup returns the content and the actual filename of the file that is "built" using the
 // specified file and relativeTo string. file and relativeTo are supposed to be file path.
 // If file starts with a slash ('/'), it tries to load it, otherwise it will build a
 // filename using the folder part of relativeTo joined with file.
-func (f *FileConfigLookup) Lookup(file, relativeTo string) ([]byte, string, error) {
+func (f *FileResourceLookup) Lookup(file, relativeTo string) ([]byte, string, error) {
 	file = relativePath(file, relativeTo)
 	logrus.Debugf("Reading file %s", file)
 	bytes, err := ioutil.ReadFile(file)
@@ -56,11 +56,11 @@ func (f *FileConfigLookup) Lookup(file, relativeTo string) ([]byte, string, erro
 
 // ResolvePath returns the path to be used for the given path volume. This
 // function already takes care of relative paths.
-func (f *FileConfigLookup) ResolvePath(path, inFile string) string {
+func (f *FileResourceLookup) ResolvePath(path, relativeTo string) string {
 	vs := strings.SplitN(path, ":", 2)
 	if len(vs) != 2 || filepath.IsAbs(vs[0]) {
 		return path
 	}
-	vs[0] = relativePath(vs[0], inFile)
+	vs[0] = relativePath(vs[0], relativeTo)
 	return strings.Join(vs, ":")
 }

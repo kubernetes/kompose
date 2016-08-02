@@ -8,6 +8,8 @@ import (
 
 	yaml "github.com/cloudfoundry-incubator/candiedyaml"
 	"github.com/docker/docker/pkg/urlutil"
+	"github.com/docker/libcompose/utils"
+	composeYaml "github.com/docker/libcompose/yaml"
 )
 
 var (
@@ -86,7 +88,13 @@ func readEnvFile(resourceLookup ResourceLookup, inFile string, serviceData RawSe
 	if _, ok := serviceData["env_file"]; !ok {
 		return serviceData, nil
 	}
-	envFiles := serviceData["env_file"].([]interface{})
+
+	var envFiles composeYaml.Stringorslice
+
+	if err := utils.Convert(serviceData["env_file"], &envFiles); err != nil {
+		return nil, err
+	}
+
 	if len(envFiles) == 0 {
 		return serviceData, nil
 	}
@@ -95,13 +103,16 @@ func readEnvFile(resourceLookup ResourceLookup, inFile string, serviceData RawSe
 		return nil, fmt.Errorf("Can not use env_file in file %s no mechanism provided to load files", inFile)
 	}
 
-	var vars []interface{}
+	var vars composeYaml.MaporEqualSlice
+
 	if _, ok := serviceData["environment"]; ok {
-		vars = serviceData["environment"].([]interface{})
+		if err := utils.Convert(serviceData["environment"], &vars); err != nil {
+			return nil, err
+		}
 	}
 
 	for i := len(envFiles) - 1; i >= 0; i-- {
-		envFile := envFiles[i].(string)
+		envFile := envFiles[i]
 		content, _, err := resourceLookup.Lookup(envFile, inFile)
 		if err != nil {
 			return nil, err
@@ -114,18 +125,21 @@ func readEnvFile(resourceLookup ResourceLookup, inFile string, serviceData RawSe
 		scanner := bufio.NewScanner(bytes.NewBuffer(content))
 		for scanner.Scan() {
 			line := strings.TrimSpace(scanner.Text())
-			key := strings.SplitAfter(line, "=")[0]
 
-			found := false
-			for _, v := range vars {
-				if strings.HasPrefix(v.(string), key) {
-					found = true
-					break
+			if len(line) > 0 && !strings.HasPrefix(line, "#") {
+				key := strings.SplitAfter(line, "=")[0]
+
+				found := false
+				for _, v := range vars {
+					if strings.HasPrefix(v, key) {
+						found = true
+						break
+					}
 				}
-			}
 
-			if !found {
-				vars = append(vars, line)
+				if !found {
+					vars = append(vars, line)
+				}
 			}
 		}
 

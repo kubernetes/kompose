@@ -23,7 +23,7 @@ const ComposeVersion = "1.5.0"
 // NewProject creates a Project with the specified context.
 func NewProject(context *Context, parseOptions *config.ParseOptions) (project.APIProject, error) {
 	if context.ResourceLookup == nil {
-		context.ResourceLookup = &lookup.FileConfigLookup{}
+		context.ResourceLookup = &lookup.FileResourceLookup{}
 	}
 
 	if context.EnvironmentLookup == nil {

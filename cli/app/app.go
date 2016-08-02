@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -27,7 +28,9 @@ import (
 	"github.com/urfave/cli"
 
 	"github.com/docker/docker/api/client/bundlefile"
+	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/docker"
+	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
 
 	"encoding/json"
@@ -788,6 +791,25 @@ func loadComposeFile(file string) KomposeObject {
 		file = "docker-compose.yml"
 	}
 	context.ComposeFiles = []string{file}
+
+	if context.ResourceLookup == nil {
+		context.ResourceLookup = &lookup.FileResourceLookup{}
+	}
+
+	if context.EnvironmentLookup == nil {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return KomposeObject{}
+		}
+		context.EnvironmentLookup = &lookup.ComposableEnvLookup{
+			Lookups: []config.EnvironmentLookup{
+				&lookup.EnvfileLookup{
+					Path: filepath.Join(cwd, ".env"),
+				},
+				&lookup.OsEnvLookup{},
+			},
+		}
+	}
 
 	// load compose file into composeObject
 	composeObject := project.NewProject(&context.Context, nil, nil)
