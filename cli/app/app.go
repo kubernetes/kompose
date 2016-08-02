@@ -102,7 +102,7 @@ var unsupportedKey = map[string]int{
 	"Args":          0,
 }
 
-var composeOptions = map[string]string {
+var composeOptions = map[string]string{
 	"Build":         "build",
 	"CapAdd":        "cap_add",
 	"CapDrop":       "cap_drop",
@@ -735,12 +735,12 @@ func loadBundlesFile(file string) KomposeObject {
 	}
 	buf, err := ioutil.ReadFile(file)
 	if err != nil {
-		logrus.Fatalf("Failed to read bundles file: ", err)
+		logrus.Fatalf("Failed to read bundles file: %v", err)
 	}
 	reader := strings.NewReader(string(buf))
 	bundle, err := bundlefile.LoadFile(reader)
 	if err != nil {
-		logrus.Fatalf("Failed to parse bundles file: ", err)
+		logrus.Fatalf("Failed to parse bundles file: %v", err)
 	}
 
 	for name, service := range bundle.Services {
@@ -753,19 +753,19 @@ func loadBundlesFile(file string) KomposeObject {
 
 		image, err := loadImage(service)
 		if err != "" {
-			logrus.Fatalf("Failed to load image from bundles file: " + err)
+			logrus.Fatalf("Failed to load image from bundles file: %v", err)
 		}
 		serviceConfig.Image = image
 
 		envs, err := loadEnvVars(service)
 		if err != "" {
-			logrus.Fatalf("Failed to load envvar from bundles file: " + err)
+			logrus.Fatalf("Failed to load envvar from bundles file: %v", err)
 		}
 		serviceConfig.Environment = envs
 
 		ports, err := loadPorts(service)
 		if err != "" {
-			logrus.Fatalf("Failed to load ports from bundles file: " + err)
+			logrus.Fatalf("Failed to load ports from bundles file: %v", err)
 		}
 		serviceConfig.Port = ports
 
@@ -793,7 +793,7 @@ func loadComposeFile(file string) KomposeObject {
 	composeObject := project.NewProject(&context.Context, nil, nil)
 	err := composeObject.Parse()
 	if err != nil {
-		logrus.Fatalf("Failed to load compose file", err)
+		logrus.Fatalf("Failed to load compose file: %v", err)
 	}
 
 	// transform composeObject into komposeObject
@@ -813,7 +813,7 @@ func loadComposeFile(file string) KomposeObject {
 			// load ports
 			ports, err := loadPortsFromCompose(composeServiceConfig.Ports)
 			if err != "" {
-				logrus.Fatalf("Failed to load ports from compose file: " + err)
+				logrus.Fatalf("Failed to load ports from compose file: %v", err)
 			}
 			serviceConfig.Port = ports
 
@@ -824,7 +824,7 @@ func loadComposeFile(file string) KomposeObject {
 			labels := composeServiceConfig.Labels
 			if labels != nil {
 				if err := labels.UnmarshalYAML("", labels); err != nil {
-					logrus.Fatalf("Failed to load labels from compose file: ", err)
+					logrus.Fatalf("Failed to load labels from compose file: %v", err)
 				}
 			}
 			serviceConfig.Labels = labels
@@ -1023,7 +1023,7 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 	if opt.createChart {
 		err := generateHelm(opt.inputFile, svcnames, opt.generateYaml, opt.createD, opt.createDS, opt.createRC, opt.outFile)
 		if err != nil {
-			logrus.Fatalf("Failed to create Chart data: %s\n", err)
+			logrus.Fatalf("Failed to create Chart data: %v", err)
 		}
 	}
 
