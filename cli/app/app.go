@@ -509,34 +509,68 @@ func configEnvs(name string, service ServiceConfig) []api.EnvVar {
 func configVolumes(service ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 	volumesMount := []api.VolumeMount{}
 	volumes := []api.Volume{}
+	volumeSource := api.VolumeSource{}
 	for _, volume := range service.Volumes {
-		character := ":"
-		if strings.Contains(volume, character) {
-			containerDir := volume[strings.Index(volume, character)+1:]
-			containerDir = strings.TrimSpace(containerDir)
-
-			// check if ro/rw mode is defined, default rw
-			readonly := false
-			if strings.Index(volume, character) != strings.LastIndex(volume, character) {
-				mode := volume[strings.LastIndex(volume, character)+1:]
-				if strings.Compare(mode, "ro") == 0 {
-					readonly = true
-				}
-				containerDir = containerDir[0:strings.Index(containerDir, character)]
-			}
-
-			// volumeName = random string of 20 chars
-			volumeName := RandStringBytes(20)
-
-			volumesMount = append(volumesMount, api.VolumeMount{Name: volumeName, ReadOnly: readonly, MountPath: containerDir})
-
-			emptyDir := &api.EmptyDirVolumeSource{}
-			volumeSource := api.VolumeSource{EmptyDir: emptyDir}
-
-			volumes = append(volumes, api.Volume{Name: volumeName, VolumeSource: volumeSource})
+		name, host, container, mode, err := parseVolume(volume)
+		if err != nil {
+			logrus.Warningf("Failed to configure container volume: %v", err)
+			continue
 		}
+
+		// if volume name isn't specified, set it to a random string of 20 chars
+		if len(name) == 0 {
+			name = RandStringBytes(20)
+		}
+		// check if ro/rw mode is defined, default rw
+		readonly := len(mode) > 0 && mode == "ro"
+
+		volumesMount = append(volumesMount, api.VolumeMount{Name: name, ReadOnly: readonly, MountPath: container})
+
+		if len(host) > 0 {
+			volumeSource = api.VolumeSource{HostPath: &api.HostPathVolumeSource{Path: host}}
+		} else {
+			volumeSource = api.VolumeSource{EmptyDir: &api.EmptyDirVolumeSource{}}
+		}
+
+		volumes = append(volumes, api.Volume{Name: name, VolumeSource: volumeSource})
 	}
 	return volumesMount, volumes
+}
+
+// parseVolume parse a given volume, which might be [name:][host:]container[:access_mode]
+func parseVolume(volume string) (name, host, container, mode string, err error) {
+	separator := ":"
+	volumeStrings := strings.Split(volume, separator)
+	if len(volumeStrings) == 0 {
+		return
+	}
+	// Set name if existed
+	if !isPath(volumeStrings[0]) {
+		name = volumeStrings[0]
+		volumeStrings = volumeStrings[1:]
+	}
+	if len(volumeStrings) == 0 {
+		err = fmt.Errorf("invalid volume format: %s", volume)
+		return
+	}
+	if volumeStrings[len(volumeStrings)-1] == "rw" || volumeStrings[len(volumeStrings)-1] == "ro" {
+		mode = volumeStrings[len(volumeStrings)-1]
+		volumeStrings = volumeStrings[:len(volumeStrings)-1]
+	}
+	container = volumeStrings[len(volumeStrings)-1]
+	volumeStrings = volumeStrings[:len(volumeStrings)-1]
+	if len(volumeStrings) == 1 {
+		host = volumeStrings[0]
+	}
+	if !isPath(container) || (len(host) > 0 && !isPath(host)) || len(volumeStrings) > 1 {
+		err = fmt.Errorf("invalid volume format: %s", volume)
+		return
+	}
+	return
+}
+
+func isPath(substring string) bool {
+	return strings.Contains(substring, "/")
 }
 
 // Configure the container ports.
