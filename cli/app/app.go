@@ -515,12 +515,12 @@ func configVolumes(service ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 			containerDir := volume[strings.Index(volume, character)+1:]
 			containerDir = strings.TrimSpace(containerDir)
 
-			// check if ro/rw mode is defined
-			readonly := true
+			// check if ro/rw mode is defined, default rw
+			readonly := false
 			if strings.Index(volume, character) != strings.LastIndex(volume, character) {
 				mode := volume[strings.LastIndex(volume, character)+1:]
-				if strings.Compare(mode, "rw") == 0 {
-					readonly = false
+				if strings.Compare(mode, "ro") == 0 {
+					readonly = true
 				}
 				containerDir = containerDir[0:strings.Index(containerDir, character)]
 			}
