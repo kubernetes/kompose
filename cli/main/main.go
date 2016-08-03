@@ -28,19 +28,20 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "kompose"
-	app.Usage = "Command line interface for Skippbox."
+	app.Usage = "A tool helping Docker Compose users move to Kubernetes."
 	app.Version = version.VERSION + " (" + version.GITCOMMIT + ")"
-	app.Author = "Skippbox Compose Contributors"
+	app.Author = "Skippbox Kompose Contributors"
 	app.Email = "https://github.com/skippbox/kompose"
 	app.EnableBashCompletion = true
 	app.Before = cliApp.BeforeApp
 	app.Flags = append(command.CommonFlags())
 	app.Commands = []cli.Command{
 		command.ConvertCommand(),
-		command.UpCommand(),
-		command.PsCommand(),
-		command.DeleteCommand(),
-		command.ScaleCommand(),
+		// TODO: enable these commands and update docs once we fix them
+		//command.UpCommand(),
+		//command.PsCommand(),
+		//command.DeleteCommand(),
+		//command.ScaleCommand(),
 	}
 
 	app.Run(os.Args)
