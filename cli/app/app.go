@@ -1209,14 +1209,16 @@ func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *o
 
 // Up brings up rc, svc.
 func Up(c *cli.Context) {
-	logrus.Infof("We are going to create deployment controller and service for your dockerized application. \n" +
-		"If you need more kind of controllers, consider to use kompose convert and kubectl")
+	fmt.Println("We are going to create deployment controller and service for your dockerized application. \n" +
+		"If you need more kind of controllers, consider to use kompose convert and kubectl. \n")
 
 	inputFile := c.String("file")
 	dabFile := c.String("bundle")
 
 	komposeObject := KomposeObject{}
-	opt := convertOptions{}
+	opt := convertOptions{
+		replicas: 1,
+	}
 
 	if len(dabFile) > 0 {
 		komposeObject = loadBundlesFile(dabFile, opt)
@@ -1245,6 +1247,8 @@ func Up(c *cli.Context) {
 		scCreated, err := client.Services(api.NamespaceDefault).Create(sc)
 		if err != nil {
 			logrus.Fatalf("Failed to create service %s: ", k, err)
+		} else {
+			fmt.Println("Service "+ k +" has been created.")
 		}
 		logrus.Debugf("%s\n", scCreated)
 	}
@@ -1260,6 +1264,8 @@ func Up(c *cli.Context) {
 		dcCreated, err := client.Deployments(api.NamespaceDefault).Create(dc)
 		if err != nil {
 			logrus.Fatalf("Failed to create deployment controller %s: ", k, err)
+		} else {
+			fmt.Println("Deployment controller " + k + " has been created.")
 		}
 		logrus.Debugf("%s\n", dcCreated)
 	}
