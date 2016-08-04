@@ -33,6 +33,7 @@ type ServiceConfig struct {
 	Volumes       []string
 	Network       []string
 	Labels        map[string]string
+	Annotations   map[string]string
 	CPUSet        string
 	CPUShares     int64
 	CPUQuota      int64

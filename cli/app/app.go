@@ -753,7 +753,8 @@ func loadBundlesFile(file string, opt convertOptions) KomposeObject {
 		serviceConfig := ServiceConfig{}
 		serviceConfig.Command = service.Command
 		serviceConfig.Args = service.Args
-		serviceConfig.Labels = service.Labels
+		// convert bundle labels to annotations
+		serviceConfig.Annotations = service.Labels
 
 		image, err := loadImage(service)
 		if err != "" {
@@ -844,14 +845,8 @@ func loadComposeFile(file string, opt convertOptions) KomposeObject {
 			serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
 			serviceConfig.Volumes = composeServiceConfig.Volumes
 
-			// load labels
-			labels := composeServiceConfig.Labels
-			if labels != nil {
-				if err := labels.UnmarshalYAML("", labels); err != nil {
-					logrus.Fatalf("Failed to load labels from compose file: %v", err)
-				}
-			}
-			serviceConfig.Labels = labels
+			// convert compose labels to annotations
+			serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
 
 			serviceConfig.CPUSet = composeServiceConfig.CPUSet
 			serviceConfig.CPUShares = composeServiceConfig.CPUShares
@@ -922,12 +917,15 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 		servicePorts := configServicePorts(name, service)
 		sc.Spec.Ports = servicePorts
 
-		// Configure label
+		// Configure labels
 		labels := map[string]string{"service": name}
-		for key, value := range service.Labels {
-			labels[key] = value
-		}
 		sc.ObjectMeta.Labels = labels
+		// Configure annotations
+		annotations := map[string]string{}
+		for key, value := range service.Annotations {
+			annotations[key] = value
+		}
+		sc.ObjectMeta.Annotations = annotations
 
 		// fillTemplate fills the pod template with the value calculated from config
 		fillTemplate := func(template *api.PodTemplateSpec) {
@@ -960,6 +958,7 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 		// fillObjectMeta fills the metadata with the value calculated from config
 		fillObjectMeta := func(meta *api.ObjectMeta) {
 			meta.Labels = labels
+			meta.Annotations = annotations
 		}
 
 		// Update each supported controllers
