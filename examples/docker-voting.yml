@@ -4,6 +4,8 @@ services:
   vote:
     build: ./vote
     command: python app.py
+    labels:
+     - "com.example.description=Vote"
     volumes:
      - ./vote:/app
     ports:
@@ -18,6 +20,8 @@ services:
 
   db:
     image: postgres:9.4
+    labels:
+     - "com.example.description=Postgres Database"
 
   result:
     build: ./result
