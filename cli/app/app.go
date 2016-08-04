@@ -766,7 +766,7 @@ func loadImage(service bundlefile.Service) (string, string) {
 }
 
 // Load DAB file into KomposeObject
-func loadBundlesFile(file string, opt convertOptions) KomposeObject {
+func loadBundlesFile(file string) KomposeObject {
 	komposeObject := KomposeObject{
 		ServiceConfigs: make(map[string]ServiceConfig),
 	}
@@ -816,7 +816,7 @@ func loadBundlesFile(file string, opt convertOptions) KomposeObject {
 }
 
 // Load compose file into KomposeObject
-func loadComposeFile(file string, opt convertOptions) KomposeObject {
+func loadComposeFile(file string) KomposeObject {
 	komposeObject := KomposeObject{
 		ServiceConfigs: make(map[string]ServiceConfig),
 	}
@@ -1153,10 +1153,10 @@ func Convert(c *cli.Context) {
 	}
 
 	if len(dabFile) > 0 {
-		komposeObject = loadBundlesFile(dabFile, opt)
+		komposeObject = loadBundlesFile(dabFile)
 		file = dabFile
 	} else {
-		komposeObject = loadComposeFile(inputFile, opt)
+		komposeObject = loadComposeFile(inputFile)
 	}
 
 	// Convert komposeObject to K8S controllers
@@ -1221,9 +1221,9 @@ func Up(c *cli.Context) {
 	}
 
 	if len(dabFile) > 0 {
-		komposeObject = loadBundlesFile(dabFile, opt)
+		komposeObject = loadBundlesFile(dabFile)
 	} else {
-		komposeObject = loadComposeFile(inputFile, opt)
+		komposeObject = loadComposeFile(inputFile)
 	}
 
 	// Convert komposeObject to K8S controllers
@@ -1248,7 +1248,7 @@ func Up(c *cli.Context) {
 		if err != nil {
 			logrus.Fatalf("Failed to create service %s: ", k, err)
 		} else {
-			fmt.Println("Service "+ k +" has been created.")
+			fmt.Println("Service " + k + " has been created.")
 		}
 		logrus.Debugf("%s\n", scCreated)
 	}

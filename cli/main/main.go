@@ -37,8 +37,8 @@ func main() {
 	app.Flags = append(command.CommonFlags())
 	app.Commands = []cli.Command{
 		command.ConvertCommand(),
+		command.UpCommand(),
 		// TODO: enable these commands and update docs once we fix them
-		//command.UpCommand(),
 		//command.PsCommand(),
 		//command.DeleteCommand(),
 		//command.ScaleCommand(),
