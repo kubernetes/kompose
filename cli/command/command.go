@@ -27,7 +27,7 @@ import (
 func ConvertCommand() cli.Command {
 	return cli.Command{
 		Name:  "convert",
-		Usage: fmt.Sprintf("Convert %s to Kubernetes objects", app.DefaultComposeFile),
+		Usage: fmt.Sprintf("Convert Docker Compose file (e.g. %s) to Kubernetes objects", app.DefaultComposeFile),
 		Action: func(c *cli.Context) {
 			app.Convert(c)
 		},
@@ -165,15 +165,5 @@ func ScaleCommand() cli.Command {
 
 // CommonFlags defines the flags that are in common for all subcommands.
 func CommonFlags() []cli.Flag {
-	return []cli.Flag{
-		cli.BoolFlag{
-			Name: "verbose,debug",
-		},
-		cli.StringFlag{
-			Name:   "file,f",
-			Usage:  "Specify an alternate compose file (default: docker-compose.yml)",
-			Value:  "docker-compose.yml",
-			EnvVar: "COMPOSE_FILE",
-		},
-	}
+	return []cli.Flag{}
 }
