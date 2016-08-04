@@ -747,9 +747,7 @@ func loadBundlesFile(file string, opt convertOptions) KomposeObject {
 	}
 
 	for name, service := range bundle.Services {
-		if !opt.toStdout {
-			checkUnsupportedKey(service)
-		}
+		checkUnsupportedKey(service)
 		serviceConfig := ServiceConfig{}
 		serviceConfig.Command = service.Command
 		serviceConfig.Args = service.Args
@@ -823,9 +821,7 @@ func loadComposeFile(file string, opt convertOptions) KomposeObject {
 	composeServiceNames := composeObject.ServiceConfigs.Keys()
 	for _, name := range composeServiceNames {
 		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
-			if !opt.toStdout {
-				checkUnsupportedKey(composeServiceConfig)
-			}
+			checkUnsupportedKey(composeServiceConfig)
 			serviceConfig := ServiceConfig{}
 			serviceConfig.Image = composeServiceConfig.Image
 			serviceConfig.ContainerName = composeServiceConfig.ContainerName
@@ -989,7 +985,7 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 
 		var datasvc []byte
 		// If ports not provided in configuration we will not make service
-		if len(ports) == 0 && !opt.toStdout {
+		if len(ports) == 0 {
 			logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
 		} else if len(ports) != 0 {
 			// convert datasvc to json / yaml
