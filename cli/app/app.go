@@ -854,8 +854,25 @@ func loadComposeFile(file string, opt convertOptions) KomposeObject {
 
 	// transform composeObject into komposeObject
 	composeServiceNames := composeObject.ServiceConfigs.Keys()
+
+	// volume config and network config has not supported
+	if len(composeObject.NetworkConfigs) > 0 {
+		logrus.Warningf("Unsupported network configuration of compose v2 - ignoring")
+	}
+	if len(composeObject.VolumeConfigs) > 0 {
+		logrus.Warningf("Unsupported volume configuration of compose v2 - ignoring")
+	}
+
+	count := 0
 	for _, name := range composeServiceNames {
 		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
+			//FIXME: networks always contains one default element, even it isn't declared in compose v2.
+			if len(composeServiceConfig.Networks.Networks) > 0 &&
+				strings.Compare(composeServiceConfig.Networks.Networks[0].Name, "default") != 0 &&
+				count == 0 {
+				logrus.Warningf("Unsupported key networks - ignoring")
+				count++
+			}
 			checkUnsupportedKey(composeServiceConfig)
 			serviceConfig := ServiceConfig{}
 			serviceConfig.Image = composeServiceConfig.Image
@@ -1165,9 +1182,9 @@ func Convert(c *cli.Context) {
 func checkUnsupportedKey(service interface{}) {
 	s := structs.New(service)
 	for _, f := range s.Fields() {
-		if f.IsExported() && !f.IsZero() {
+		if f.IsExported() && !f.IsZero() && strings.Compare(f.Name(), "Networks") != 0 {
 			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
-				logrus.Warningf("Unsupported key " + composeOptions[f.Name()] + " - ignoring")
+				logrus.Warningf("Unsupported key %s - ignoring", composeOptions[f.Name()])
 				unsupportedKey[f.Name()]++
 			}
 		}
