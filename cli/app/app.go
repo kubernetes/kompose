@@ -1085,6 +1085,39 @@ func printControllers(mServices, mDeployments, mDaemonSets, mReplicationControll
 	}
 }
 
+func validateFlags(opt convertOptions, singleOutput bool, dabFile, inputFile string) {
+	if len(opt.outFile) != 0 && opt.toStdout {
+		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
+	}
+	if opt.createChart && opt.toStdout {
+		logrus.Fatalf("Error: chart cannot be generated when --stdout is specified")
+	}
+	if opt.replicas < 0 {
+		logrus.Fatalf("Error: --replicas cannot be negative")
+	}
+	if singleOutput {
+		count := 0
+		if opt.createD {
+			count++
+		}
+		if opt.createDS {
+			count++
+		}
+		if opt.createRC {
+			count++
+		}
+		if opt.createDeploymentConfig {
+			count++
+		}
+		if count > 1 {
+			logrus.Fatalf("Error: only one type of Kubernetes controller can be generated when --out or --stdout is specified")
+		}
+	}
+	if len(dabFile) > 0 && len(inputFile) > 0 && inputFile != DefaultComposeFile {
+		logrus.Fatalf("Error: compose file and dab file cannot be specified at the same time")
+	}
+}
+
 // Convert tranforms docker compose or dab file to k8s objects
 func Convert(c *cli.Context) {
 	inputFile := c.String("file")
@@ -1105,40 +1138,11 @@ func Convert(c *cli.Context) {
 		createD = true
 	}
 
-	// Validate the flags
-	if len(outFile) != 0 && toStdout {
-		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
-	}
-	if createChart && toStdout {
-		logrus.Fatalf("Error: chart cannot be generated when --stdout is specified")
-	}
-	if replicas < 0 {
-		logrus.Fatalf("Error: --replicas cannot be negative")
-	}
-	if singleOutput {
-		count := 0
-		if createD {
-			count++
-		}
-		if createDS {
-			count++
-		}
-		if createRC {
-			count++
-		}
-		if createDeploymentConfig {
-			count++
-		}
-		if count > 1 {
-			logrus.Fatalf("Error: only one type of Kubernetes controller can be generated when --out or --stdout is specified")
-		}
-	}
-	if len(dabFile) > 0 && len(inputFile) > 0 && inputFile != DefaultComposeFile {
-		logrus.Fatalf("Error: compose file and dab file cannot be specified at the same time")
+	file := inputFile
+	if len(dabFile) > 0 {
+		file = dabFile
 	}
 
-	komposeObject := KomposeObject{}
-	file := inputFile
 	opt := convertOptions{
 		toStdout:               toStdout,
 		createD:                createD,
@@ -1152,9 +1156,12 @@ func Convert(c *cli.Context) {
 		outFile:                outFile,
 	}
 
+	validateFlags(opt, singleOutput, dabFile, inputFile)
+
+	komposeObject := KomposeObject{}
+
 	if len(dabFile) > 0 {
 		komposeObject = loadBundlesFile(dabFile)
-		file = dabFile
 	} else {
 		komposeObject = loadComposeFile(inputFile)
 	}
@@ -1207,10 +1214,17 @@ func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *o
 	}
 }
 
-// Up brings up rc, svc.
+// Up brings up deployment, svc.
 func Up(c *cli.Context) {
-	fmt.Println("We are going to create deployment controller and service for your dockerized application. \n" +
-		"If you need more kind of controllers, consider to use kompose convert and kubectl. \n")
+	fmt.Println("We are going to create Kubernetes deployment and service for your dockerized application. \n" +
+		"If you need more kind of controllers, use 'kompose convert' and 'kubectl create -f' instead. \n")
+
+	factory := cmdutil.NewFactory(nil)
+	clientConfig, err := factory.ClientConfig()
+	if err != nil {
+		logrus.Fatalf("Failed to access the Kubernetes cluster. Make sure you have a Kubernetes running: %v", err)
+	}
+	client := client.NewOrDie(clientConfig)
 
 	inputFile := c.String("file")
 	dabFile := c.String("bundle")
@@ -1220,6 +1234,8 @@ func Up(c *cli.Context) {
 		replicas: 1,
 	}
 
+	validateFlags(opt, false, dabFile, inputFile)
+
 	if len(dabFile) > 0 {
 		komposeObject = loadBundlesFile(dabFile)
 	} else {
@@ -1228,13 +1244,6 @@ func Up(c *cli.Context) {
 
 	// Convert komposeObject to K8S controllers
 	mServices, mDeployments, _, _, _, _ := komposeConvert(komposeObject, opt)
-
-	factory := cmdutil.NewFactory(nil)
-	clientConfig, err := factory.ClientConfig()
-	if err != nil {
-		logrus.Fatalf("Failed to get Kubernetes client config: %v", err)
-	}
-	client := client.NewOrDie(clientConfig)
 
 	// submit svc first
 	sc := &api.Service{}
@@ -1248,7 +1257,7 @@ func Up(c *cli.Context) {
 		if err != nil {
 			logrus.Fatalf("Failed to create service %s: ", k, err)
 		} else {
-			fmt.Println("Service " + k + " has been created.")
+			fmt.Printf("Service %q has been created.\n", k)
 		}
 		logrus.Debugf("%s\n", scCreated)
 	}
@@ -1265,10 +1274,12 @@ func Up(c *cli.Context) {
 		if err != nil {
 			logrus.Fatalf("Failed to create deployment controller %s: ", k, err)
 		} else {
-			fmt.Println("Deployment controller " + k + " has been created.")
+			fmt.Printf("Deployment %q has been created.\n", k)
 		}
 		logrus.Debugf("%s\n", dcCreated)
 	}
+
+	fmt.Println("\nApplication has been deployed to Kubernetes. You can run 'kubectl get deployment,svc' for details.")
 }
 
 // updateController updates the given object with the given pod template update function and ObjectMeta update function

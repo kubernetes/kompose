@@ -89,14 +89,14 @@ func ConvertCommand() cli.Command {
 func UpCommand() cli.Command {
 	return cli.Command{
 		Name:  "up",
-		Usage: "Deploy your Dockerized application to Kubernetes (by default create dc and svc)",
+		Usage: "Deploy your Dockerized application to Kubernetes (default: creating Kubernetes deployment and service)",
 		Action: func(c *cli.Context) {
 			app.Up(c)
 		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "file,f",
-				Usage:  fmt.Sprintf("Specify an alternate compose file (default: %s)", app.DefaultComposeFile),
+				Usage:  fmt.Sprintf("Specify an alternative compose file (default: %s)", app.DefaultComposeFile),
 				Value:  app.DefaultComposeFile,
 				EnvVar: "COMPOSE_FILE",
 			},
