@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package transformer
+package kubernetes
 
 import (
 	"bytes"
@@ -29,7 +29,7 @@ import (
 /**
  * Generate Helm Chart configuration
  */
-func generateHelm(filename string, outFiles []string) error {
+func GenerateHelm(filename string, svcnames []string, generateYaml, createD, createDS, createRC bool, outFile string) error {
 	type ChartDetails struct {
 		Name string
 	}

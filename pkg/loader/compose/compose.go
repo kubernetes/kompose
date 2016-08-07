@@ -14,20 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package loader
+package compose
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/docker/libcompose/docker"
-	"github.com/docker/libcompose/project"
-	"github.com/skippbox/kompose/pkg/kobject"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
-	"github.com/docker/libcompose/lookup"
-	"os"
+
+	"github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/config"
-	"path/filepath"
+	"github.com/docker/libcompose/docker"
+	"github.com/docker/libcompose/lookup"
+	"github.com/docker/libcompose/project"
+	"github.com/skippbox/kompose/pkg/kobject"
 )
+
+type Compose struct {
+}
 
 // load Environment Variable from compose file
 func loadEnvVarsfromCompose(e map[string]string) []kobject.EnvVar {
@@ -81,7 +85,7 @@ func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, string) {
 }
 
 // load Docker Compose file into KomposeObject
-func LoadCompose(file string) kobject.KomposeObject {
+func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
@@ -92,23 +96,23 @@ func LoadCompose(file string) kobject.KomposeObject {
 	context.ComposeFiles = []string{file}
 
 	if context.ResourceLookup == nil {
-			context.ResourceLookup = &lookup.FileResourceLookup{}
-		}
+		context.ResourceLookup = &lookup.FileResourceLookup{}
+	}
 
-		if context.EnvironmentLookup == nil {
-			cwd, err := os.Getwd()
-			if err != nil {
-				return kobject.KomposeObject{}
-			}
-			context.EnvironmentLookup = &lookup.ComposableEnvLookup{
-				Lookups: []config.EnvironmentLookup{
-					&lookup.EnvfileLookup{
-						Path: filepath.Join(cwd, ".env"),
-					},
-					&lookup.OsEnvLookup{},
-				},
-			}
+	if context.EnvironmentLookup == nil {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return kobject.KomposeObject{}
 		}
+		context.EnvironmentLookup = &lookup.ComposableEnvLookup{
+			Lookups: []config.EnvironmentLookup{
+				&lookup.EnvfileLookup{
+					Path: filepath.Join(cwd, ".env"),
+				},
+				&lookup.OsEnvLookup{},
+			},
+		}
+	}
 
 	// load compose file into composeObject
 	composeObject := project.NewProject(&context.Context, nil, nil)

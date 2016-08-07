@@ -14,15 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package loader
+package bundle
 
 import (
+	"io/ioutil"
+	"strings"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/docker/api/client/bundlefile"
 	"github.com/skippbox/kompose/pkg/kobject"
-	"io/ioutil"
-	"strings"
 )
+
+type Bundle struct {
+}
 
 // load Image from bundles file
 func loadImage(service bundlefile.Service) (string, string) {
@@ -93,7 +97,7 @@ func loadPortsfromBundle(service bundlefile.Service) ([]kobject.Ports, string) {
 }
 
 // load Bundlefile into KomposeObject
-func LoadBundle(file string) kobject.KomposeObject {
+func (b *Bundle) LoadFile(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
