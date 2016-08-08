@@ -1,0 +1,14 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "Anand Mani Sankar",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.12.3",
+    "hiredis": "^0.2.0",
+    "mocha": "^2.2.1",
+    "redis": "^0.12.1"
+  }
+}

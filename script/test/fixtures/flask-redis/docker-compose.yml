@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  redis:
+    image: dharmit/redis
+    command: redis-server
+    ports:
+      - "6379"
+    volumes:
+      - /opt/redis:/redis
+
+  flask:
+    image: dharmit/flask
+    ports:
+      - "31000:5000"
+    depends_on:
+      - redis
+    environment:
+      REDIS_PORT: 6379
+      REDIS_HOST: redis
