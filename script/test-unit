@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+find_dirs() {
+  (
+    find . -not \( \
+        \( \
+          -path './vendor/*' \
+        \) -prune \
+      \) -name '*_test.go' -print0 | xargs -0n1 dirname | sed 's|^\./||' | sort -u
+  )
+}
+
+TEST_FLAGS="-tags experimental -cover -coverprofile=cover.out"
+
+if [ -z "$TEST_DIRS" ]; then
+  TEST_DIRS=$(find_dirs '*_test.go')
+fi
+
+TESTS_FAILED=()
+
+set +e
+for dir in $TEST_DIRS; do
+  go test ${TEST_FLAGS} "./${dir}"
+done

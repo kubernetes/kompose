@@ -22,3 +22,9 @@ binary-cross:
 
 clean:
 	./script/make.sh clean
+
+test-unit:
+	./script/make.sh test-unit
+
+test-cmd:
+	./script/make.sh test-cmd
