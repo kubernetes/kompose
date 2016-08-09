@@ -18,7 +18,6 @@ package app
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -27,12 +26,10 @@ import (
 	"github.com/Sirupsen/logrus"
 )
 
-/* Ancilliary helper functions to interface with the commands interface */
-
 /**
  * Generate Helm Chart configuration
  */
-func generateHelm(filename string, svcnames []string, generateYaml, createD, createDS, createRC bool, outFile string) error {
+func generateHelm(filename string, outFiles []string) error {
 	type ChartDetails struct {
 		Name string
 	}
@@ -90,56 +87,22 @@ home:
 	}
 
 	/* Copy all related json/yaml files into the newly created manifests directory */
-	if len(outFile) > 0 {
-		if err = cpFileToChart(manifestDir, outFile); err != nil {
-			return err
+	for _, filename := range outFiles {
+		if err = cpFileToChart(manifestDir, filename); err != nil {
+			logrus.Warningln(err)
 		}
-	} else {
-		for _, svcname := range svcnames {
-			extension := ".json"
-			if generateYaml {
-				extension = ".yaml"
-			}
-			if createD {
-				if err = cpToChart(manifestDir, svcname, "deployment", extension); err != nil {
-					return err
-				}
-			}
-			if createDS {
-				if err = cpToChart(manifestDir, svcname, "daemonset", extension); err != nil {
-					return err
-				}
-			}
-			if createRC {
-				if err = cpToChart(manifestDir, svcname, "rc", extension); err != nil {
-					return err
-				}
-			}
-
-			/* The svc file is optional */
-			infile, err := ioutil.ReadFile(svcname + "-svc" + extension)
-			if err != nil {
-				continue
-			}
-			err = ioutil.WriteFile(manifestDir+string(os.PathSeparator)+svcname+"-svc"+extension, infile, 0644)
-			if err != nil {
-				return err
-			}
+		if err = os.Remove(filename); err != nil {
+			logrus.Warningln(err)
 		}
 	}
-
-	fmt.Fprintf(os.Stdout, "chart created in %q\n", "."+string(os.PathSeparator)+dirName+string(os.PathSeparator))
+	logrus.Infof("chart created in %q\n", "."+string(os.PathSeparator)+dirName+string(os.PathSeparator))
 	return nil
-}
-
-func cpToChart(manifestDir, svcname, trailing, extension string) error {
-	return cpFileToChart(manifestDir, svcname+"-"+trailing+extension)
 }
 
 func cpFileToChart(manifestDir, filename string) error {
 	infile, err := ioutil.ReadFile(filename)
 	if err != nil {
-		logrus.Infof("Error reading %s: %s\n", filename, err)
+		logrus.Warningf("Error reading %s: %s\n", filename, err)
 		return err
 	}
 

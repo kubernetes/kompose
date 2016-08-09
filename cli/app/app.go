@@ -925,23 +925,28 @@ type convertOptions struct {
 }
 
 // Convert komposeObject to K8S controllers
-func komposeConvert(komposeObject KomposeObject, opt convertOptions) (map[string][]byte, map[string][]byte, map[string][]byte, map[string][]byte, map[string][]byte, []string) {
-	mServices := make(map[string][]byte)
-	mReplicationControllers := make(map[string][]byte)
-	mDeployments := make(map[string][]byte)
-	mDaemonSets := make(map[string][]byte)
-	// OpenShift DeploymentConfigs
-	mDeploymentConfigs := make(map[string][]byte)
-
+func komposeConvert(komposeObject KomposeObject, opt convertOptions) []runtime.Object {
 	var svcnames []string
 
+	// this will hold all the converted data
+	var allobjects []runtime.Object
 	for name, service := range komposeObject.ServiceConfigs {
+		var objects []runtime.Object
 		svcnames = append(svcnames, name)
-		rc := initRC(name, service, opt.replicas)
 		sc := initSC(name, service)
-		dc := initDC(name, service, opt.replicas)
-		ds := initDS(name, service)
-		osDC := initDeploymentConfig(name, service, opt.replicas) // OpenShift DeploymentConfigs
+
+		if opt.createD {
+			objects = append(objects, initDC(name, service, opt.replicas))
+		}
+		if opt.createDS {
+			objects = append(objects, initDS(name, service))
+		}
+		if opt.createRC {
+			objects = append(objects, initRC(name, service, opt.replicas))
+		}
+		if opt.createDeploymentConfig {
+			objects = append(objects, initDeploymentConfig(name, service, opt.replicas)) // OpenShift DeploymentConfigs
+		}
 
 		// Configure the environment variables.
 		envs := configEnvs(name, service)
@@ -1005,101 +1010,113 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) (map[string
 			meta.Annotations = annotations
 		}
 
-		// Update each supported controllers
-		updateController(rc, fillTemplate, fillObjectMeta)
-		updateController(dc, fillTemplate, fillObjectMeta)
-		updateController(ds, fillTemplate, fillObjectMeta)
-		// OpenShift DeploymentConfigs
-		updateController(osDC, fillTemplate, fillObjectMeta)
-
-		// convert datarc to json / yaml
-		datarc, err := transformer(rc, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
+		// update supported controller
+		for _, obj := range objects {
+			updateController(obj, fillTemplate, fillObjectMeta)
 		}
 
-		// convert datadc to json / yaml
-		datadc, err := transformer(dc, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		// convert datads to json / yaml
-		datads, err := transformer(ds, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		var datasvc []byte
 		// If ports not provided in configuration we will not make service
 		if len(ports) == 0 {
 			logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
-		} else if len(ports) != 0 {
-			// convert datasvc to json / yaml
-			datasvc, err = transformer(sc, opt.generateYaml)
-			if err != nil {
-				logrus.Fatalf(err.Error())
-			}
+		} else {
+			objects = append(objects, sc)
 		}
-
-		// convert OpenShift DeploymentConfig to json / yaml
-		dataDeploymentConfig, err := transformer(osDC, opt.generateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		mServices[name] = datasvc
-		mReplicationControllers[name] = datarc
-		mDeployments[name] = datadc
-		mDaemonSets[name] = datads
-		mDeploymentConfigs[name] = dataDeploymentConfig
+		allobjects = append(allobjects, objects...)
 	}
-
-	return mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames
+	return allobjects
 }
 
-func printControllers(mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs map[string][]byte, svcnames []string, opt convertOptions, f *os.File) {
-	for k, v := range mServices {
-		if v != nil {
-			print(k, "svc", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
+// PrintList will take the data converted and decide on the commandline attributes given
+func PrintList(objects []runtime.Object, opt convertOptions) error {
+	f := createOutFile(opt.outFile)
+	defer f.Close()
 
-	// If --out or --stdout is set, the validation should already prevent multiple controllers being generated
-	if opt.createD {
-		for k, v := range mDeployments {
-			print(k, "deployment", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
+	var err error
+	var files []string
 
-	if opt.createDS {
-		for k, v := range mDaemonSets {
-			print(k, "daemonset", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
+	// if asked to print to stdout or to put in single file
+	// we will create a list
+	if opt.toStdout || f != nil {
+		list := &api.List{}
+		list.Items = objects
 
-	if opt.createRC {
-		for k, v := range mReplicationControllers {
-			print(k, "rc", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
-
-	if f != nil {
-		fmt.Fprintf(os.Stdout, "file %q created\n", opt.outFile)
-	}
-
-	if opt.createChart {
-		err := generateHelm(opt.inputFile, svcnames, opt.generateYaml, opt.createD, opt.createDS, opt.createRC, opt.outFile)
+		// version each object in the list
+		list.Items, err = ConvertToVersion(list.Items)
 		if err != nil {
-			logrus.Fatalf("Failed to create Chart data: %v", err)
+			return err
 		}
+
+		// version list itself
+		listVersion := unversioned.GroupVersion{Group: "", Version: "v1"}
+		convertedList, err := api.Scheme.ConvertToVersion(list, listVersion)
+		if err != nil {
+			return err
+		}
+		data, err := marshal(convertedList, opt.generateYaml)
+		if err != nil {
+			return fmt.Errorf("Error in marshalling the List: %v", err)
+		}
+		files = append(files, print("", "", data, opt.toStdout, opt.generateYaml, f))
+	} else {
+		var file string
+		// create a separate file for each provider
+		for _, v := range objects {
+			data, err := marshal(v, opt.generateYaml)
+			if err != nil {
+				return err
+			}
+			switch t := v.(type) {
+			case *api.ReplicationController:
+				file = print(t.Name, strings.ToLower(t.Kind), data, opt.toStdout, opt.generateYaml, f)
+			case *extensions.Deployment:
+				file = print(t.Name, strings.ToLower(t.Kind), data, opt.toStdout, opt.generateYaml, f)
+			case *extensions.DaemonSet:
+				file = print(t.Name, strings.ToLower(t.Kind), data, opt.toStdout, opt.generateYaml, f)
+			case *deployapi.DeploymentConfig:
+				file = print(t.Name, strings.ToLower(t.Kind), data, opt.toStdout, opt.generateYaml, f)
+			case *api.Service:
+				file = print(t.Name, strings.ToLower(t.Kind), data, opt.toStdout, opt.generateYaml, f)
+			}
+			files = append(files, file)
+
+		}
+	}
+	if opt.createChart {
+		generateHelm(opt.inputFile, files)
+	}
+	return nil
+}
+
+// marshal object runtime.Object and return byte array
+func marshal(obj runtime.Object, yamlFormat bool) (data []byte, err error) {
+	// convert data to yaml or json
+	if yamlFormat {
+		data, err = yaml.Marshal(obj)
+	} else {
+		data, err = json.MarshalIndent(obj, "", "  ")
+	}
+	if err != nil {
+		data = nil
+	}
+	return
+}
+
+// Convert all objects in objs to versioned objects
+func ConvertToVersion(objs []runtime.Object) ([]runtime.Object, error) {
+	ret := []runtime.Object{}
+
+	for _, obj := range objs {
+
+		objectVersion := obj.GetObjectKind().GroupVersionKind()
+		version := unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
+		convertedObject, err := api.Scheme.ConvertToVersion(obj, version)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, convertedObject)
 	}
 
-	if opt.createDeploymentConfig {
-		for k, v := range mDeploymentConfigs {
-			print(k, "deploymentconfig", v, opt.toStdout, opt.generateYaml, f)
-		}
-	}
+	return ret, nil
 }
 
 func validateFlags(opt convertOptions, singleOutput bool, dabFile, inputFile string) {
@@ -1184,13 +1201,10 @@ func Convert(c *cli.Context) {
 	}
 
 	// Convert komposeObject to K8S controllers
-	mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames := komposeConvert(komposeObject, opt)
+	objects := komposeConvert(komposeObject, opt)
 
-	f := createOutFile(opt.outFile)
-	defer f.Close()
-
-	// Print output
-	printControllers(mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames, opt, f)
+	// print output to places as needed
+	PrintList(objects, opt)
 }
 
 func checkUnsupportedKey(service interface{}) {
@@ -1205,20 +1219,21 @@ func checkUnsupportedKey(service interface{}) {
 	}
 }
 
-func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *os.File) {
-	file := fmt.Sprintf("%s-%s.json", name, trailing)
+// Either print to stdout or to file/s
+func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *os.File) string {
+
+	file := ""
 	if generateYaml {
 		file = fmt.Sprintf("%s-%s.yaml", name, trailing)
-	}
-	separator := ""
-	if generateYaml {
-		separator = "---"
+	} else {
+		file = fmt.Sprintf("%s-%s.json", name, trailing)
 	}
 	if toStdout {
-		fmt.Fprintf(os.Stdout, "%s%s\n", string(data), separator)
+		fmt.Fprintf(os.Stdout, "%s\n", string(data))
+		return ""
 	} else if f != nil {
 		// Write all content to a single file f
-		if _, err := f.WriteString(fmt.Sprintf("%s%s\n", string(data), separator)); err != nil {
+		if _, err := f.WriteString(fmt.Sprintf("%s\n", string(data))); err != nil {
 			logrus.Fatalf("Failed to write %s to file: %v", trailing, err)
 		}
 		f.Sync()
@@ -1227,8 +1242,9 @@ func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *o
 		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
 			logrus.Fatalf("Failed to write %s: %v", trailing, err)
 		}
-		fmt.Fprintf(os.Stdout, "file %q created\n", file)
+		logrus.Printf("file %q created", file)
 	}
+	return file
 }
 
 // Up brings up deployment, svc.
@@ -1249,6 +1265,7 @@ func Up(c *cli.Context) {
 	komposeObject := KomposeObject{}
 	opt := convertOptions{
 		replicas: 1,
+		createD:  true,
 	}
 
 	validateFlags(opt, false, dabFile, inputFile)
@@ -1259,44 +1276,47 @@ func Up(c *cli.Context) {
 		komposeObject = loadComposeFile(inputFile)
 	}
 
-	// Convert komposeObject to K8S controllers
-	mServices, mDeployments, _, _, _, _ := komposeConvert(komposeObject, opt)
+	//Convert komposeObject to K8S controllers
+	objects := komposeConvert(komposeObject, opt)
+	objects = sortServicesFirst(objects)
 
-	// submit svc first
-	sc := &api.Service{}
-	for k, v := range mServices {
-		err := json.Unmarshal(v, &sc)
-		if err != nil {
-			logrus.Fatalf("Failed to unmarshal %s to service object: %s\n", k, err)
+	for _, v := range objects {
+		switch t := v.(type) {
+		case *extensions.Deployment:
+			_, err := client.Deployments(api.NamespaceDefault).Create(t)
+			if err != nil {
+				logrus.Fatalf("Error: '%v' while creating deployment: %s", err, t.Name)
+			}
+			logrus.Infof("Successfully created deployment: %s", t.Name)
+		case *api.Service:
+			_, err := client.Services(api.NamespaceDefault).Create(t)
+			if err != nil {
+				logrus.Fatalf("Error: '%v' while creating service: %s", err, t.Name)
+			}
+			logrus.Infof("Successfully created service: %s", t.Name)
 		}
-		//submit sc to k8s
-		scCreated, err := client.Services(api.NamespaceDefault).Create(sc)
-		if err != nil {
-			logrus.Fatalf("Failed to create service %s: ", k, err)
-		} else {
-			fmt.Printf("Service %q has been created.\n", k)
-		}
-		logrus.Debugf("%s\n", scCreated)
 	}
-
-	// then submit dc
-	dc := &extensions.Deployment{}
-	for k, v := range mDeployments {
-		err := json.Unmarshal(v, &dc)
-		if err != nil {
-			logrus.Fatalf("Failed to unmarshal %s to deployment controller object: %s\n", k, err)
-		}
-		//submit sc to k8s
-		dcCreated, err := client.Deployments(api.NamespaceDefault).Create(dc)
-		if err != nil {
-			logrus.Fatalf("Failed to create deployment controller %s: ", k, err)
-		} else {
-			fmt.Printf("Deployment %q has been created.\n", k)
-		}
-		logrus.Debugf("%s\n", dcCreated)
-	}
-
 	fmt.Println("\nApplication has been deployed to Kubernetes. You can run 'kubectl get deployment,svc' for details.")
+}
+
+// the objects that we get can be in any order this keeps services first
+// according to best practice kubernetes services should be created first
+// http://kubernetes.io/docs/user-guide/config-best-practices/
+func sortServicesFirst(objs []runtime.Object) []runtime.Object {
+	var svc []runtime.Object
+	var others []runtime.Object
+	var ret []runtime.Object
+
+	for _, obj := range objs {
+		if obj.GetObjectKind().GroupVersionKind().Kind == "Service" {
+			svc = append(svc, obj)
+		} else {
+			others = append(others, obj)
+		}
+	}
+	ret = append(ret, svc...)
+	ret = append(ret, others...)
+	return ret
 }
 
 // updateController updates the given object with the given pod template update function and ObjectMeta update function
