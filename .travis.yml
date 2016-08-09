@@ -1,18 +1,21 @@
+# we need trusty because test-cmd depends on jq  version >= 1.5
+dist : trusty
 sudo: required
+
 
 language: go
 
 go:
   - 1.6
 
-branches:
-  only:
-    - master
-
 install:
-- go get github.com/mitchellh/gox
-- go get github.com/tools/godep
-- ./script/godep-restore.sh
+  - true
 
 script:
-- make binary
+  - make binary
+  # $GOPATH/bin is in $PATH
+  - mkdir $GOPATH/bin
+  - cp kompose $GOPATH/bin/
+
+  - make test-unit
+  - make test-cmd
