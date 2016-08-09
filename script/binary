@@ -1,26 +1,12 @@
 #!/bin/bash
 set -e
 
-if [ -z "$1" ]; then
-    OS_PLATFORM_ARG=(-os="darwin linux windows")
-else
-    OS_PLATFORM_ARG=($1)
-fi
+# Get rid of existing binary
+rm -f kompose
 
-if [ -z "$2" ]; then
-    OS_ARCH_ARG=(-arch="386 amd64")
-else
-    OS_ARCH_ARG=($2)
-fi
-
-GITCOMMIT=$(git rev-parse --short HEAD)
-
-# Get rid of existing binaries
-rm -f kompose*
-
-# Build binaries
-gox "${OS_PLATFORM_ARG[@]}" "${OS_ARCH_ARG[@]}" \
-    -output="bundles/kompose_{{.OS}}-{{.Arch}}/kompose" \
+# Build binary
+go build \
     -tags experimental \
+    -o kompose \
     -ldflags="-w -X github.com/skippbox/kompose/version.GITCOMMIT=${GITCOMMIT}" \
     ./cli/main
