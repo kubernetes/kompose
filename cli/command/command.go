@@ -89,9 +89,22 @@ func ConvertCommand() cli.Command {
 func UpCommand() cli.Command {
 	return cli.Command{
 		Name:  "up",
-		Usage: "Submit rc, svc objects to kubernetes API endpoint",
+		Usage: "Deploy your Dockerized application to Kubernetes (default: creating Kubernetes deployment and service)",
 		Action: func(c *cli.Context) {
 			app.Up(c)
+		},
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:   "file,f",
+				Usage:  fmt.Sprintf("Specify an alternative compose file (default: %s)", app.DefaultComposeFile),
+				Value:  app.DefaultComposeFile,
+				EnvVar: "COMPOSE_FILE",
+			},
+			cli.StringFlag{
+				Name:   "bundle,dab",
+				Usage:  "Specify a Distributed Application Bundle (DAB) file",
+				EnvVar: "DAB_FILE",
+			},
 		},
 	}
 }

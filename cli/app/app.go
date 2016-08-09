@@ -43,8 +43,8 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	//client "k8s.io/kubernetes/pkg/client/unversioned"
-	//cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
+	client "k8s.io/kubernetes/pkg/client/unversioned"
+	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
@@ -766,7 +766,7 @@ func loadImage(service bundlefile.Service) (string, string) {
 }
 
 // Load DAB file into KomposeObject
-func loadBundlesFile(file string, opt convertOptions) KomposeObject {
+func loadBundlesFile(file string) KomposeObject {
 	komposeObject := KomposeObject{
 		ServiceConfigs: make(map[string]ServiceConfig),
 	}
@@ -816,7 +816,7 @@ func loadBundlesFile(file string, opt convertOptions) KomposeObject {
 }
 
 // Load compose file into KomposeObject
-func loadComposeFile(file string, opt convertOptions) KomposeObject {
+func loadComposeFile(file string) KomposeObject {
 	komposeObject := KomposeObject{
 		ServiceConfigs: make(map[string]ServiceConfig),
 	}
@@ -908,16 +908,13 @@ type convertOptions struct {
 }
 
 // Convert komposeObject to K8S controllers
-func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
+func komposeConvert(komposeObject KomposeObject, opt convertOptions) (map[string][]byte, map[string][]byte, map[string][]byte, map[string][]byte, map[string][]byte, []string) {
 	mServices := make(map[string][]byte)
 	mReplicationControllers := make(map[string][]byte)
 	mDeployments := make(map[string][]byte)
 	mDaemonSets := make(map[string][]byte)
 	// OpenShift DeploymentConfigs
 	mDeploymentConfigs := make(map[string][]byte)
-
-	f := createOutFile(opt.outFile)
-	defer f.Close()
 
 	var svcnames []string
 
@@ -1041,6 +1038,10 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 		mDeploymentConfigs[name] = dataDeploymentConfig
 	}
 
+	return mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames
+}
+
+func printControllers(mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs map[string][]byte, svcnames []string, opt convertOptions, f *os.File) {
 	for k, v := range mServices {
 		if v != nil {
 			print(k, "svc", v, opt.toStdout, opt.generateYaml, f)
@@ -1084,6 +1085,39 @@ func komposeConvert(komposeObject KomposeObject, opt convertOptions) {
 	}
 }
 
+func validateFlags(opt convertOptions, singleOutput bool, dabFile, inputFile string) {
+	if len(opt.outFile) != 0 && opt.toStdout {
+		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
+	}
+	if opt.createChart && opt.toStdout {
+		logrus.Fatalf("Error: chart cannot be generated when --stdout is specified")
+	}
+	if opt.replicas < 0 {
+		logrus.Fatalf("Error: --replicas cannot be negative")
+	}
+	if singleOutput {
+		count := 0
+		if opt.createD {
+			count++
+		}
+		if opt.createDS {
+			count++
+		}
+		if opt.createRC {
+			count++
+		}
+		if opt.createDeploymentConfig {
+			count++
+		}
+		if count > 1 {
+			logrus.Fatalf("Error: only one type of Kubernetes controller can be generated when --out or --stdout is specified")
+		}
+	}
+	if len(dabFile) > 0 && len(inputFile) > 0 && inputFile != DefaultComposeFile {
+		logrus.Fatalf("Error: compose file and dab file cannot be specified at the same time")
+	}
+}
+
 // Convert tranforms docker compose or dab file to k8s objects
 func Convert(c *cli.Context) {
 	inputFile := c.String("file")
@@ -1104,41 +1138,11 @@ func Convert(c *cli.Context) {
 		createD = true
 	}
 
-	// Validate the flags
-	if len(outFile) != 0 && toStdout {
-		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
-	}
-	if createChart && toStdout {
-		logrus.Fatalf("Error: chart cannot be generated when --stdout is specified")
-	}
-	if replicas < 0 {
-		logrus.Fatalf("Error: --replicas cannot be negative")
-	}
-	if singleOutput {
-		count := 0
-		if createD {
-			count++
-		}
-		if createDS {
-			count++
-		}
-		if createRC {
-			count++
-		}
-		if createDeploymentConfig {
-			count++
-		}
-		if count > 1 {
-			logrus.Fatalf("Error: only one type of Kubernetes controller can be generated when --out or --stdout is specified")
-		}
-	}
-	if len(dabFile) > 0 && len(inputFile) > 0 && inputFile != DefaultComposeFile {
-		logrus.Fatalf("Error: compose file and dab file cannot be specified at the same time")
+	file := inputFile
+	if len(dabFile) > 0 {
+		file = dabFile
 	}
 
-	komposeObject := KomposeObject{}
-	file := inputFile
-	// Convert komposeObject to K8S controllers
 	opt := convertOptions{
 		toStdout:               toStdout,
 		createD:                createD,
@@ -1152,14 +1156,24 @@ func Convert(c *cli.Context) {
 		outFile:                outFile,
 	}
 
+	validateFlags(opt, singleOutput, dabFile, inputFile)
+
+	komposeObject := KomposeObject{}
+
 	if len(dabFile) > 0 {
-		komposeObject = loadBundlesFile(dabFile, opt)
-		file = dabFile
+		komposeObject = loadBundlesFile(dabFile)
 	} else {
-		komposeObject = loadComposeFile(inputFile, opt)
+		komposeObject = loadComposeFile(inputFile)
 	}
 
-	komposeConvert(komposeObject, opt)
+	// Convert komposeObject to K8S controllers
+	mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames := komposeConvert(komposeObject, opt)
+
+	f := createOutFile(opt.outFile)
+	defer f.Close()
+
+	// Print output
+	printControllers(mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames, opt, f)
 }
 
 func checkUnsupportedKey(service interface{}) {
@@ -1200,82 +1214,72 @@ func print(name, trailing string, data []byte, toStdout, generateYaml bool, f *o
 	}
 }
 
-// Up brings up rc, svc.
+// Up brings up deployment, svc.
 func Up(c *cli.Context) {
-	//factory := cmdutil.NewFactory(nil)
-	//clientConfig, err := factory.ClientConfig()
-	//if err != nil {
-	//	logrus.Fatalf("Failed to get Kubernetes client config: %v", err)
-	//}
-	//client := client.NewOrDie(clientConfig)
-	//
-	//files, err := ioutil.ReadDir(".")
-	//if err != nil {
-	//	logrus.Fatalf("Failed to load rc, svc manifest files: %s\n", err)
-	//}
-	//
-	//// submit svc first
-	//sc := &api.Service{}
-	//for _, file := range files {
-	//	if strings.Contains(file.Name(), "svc") {
-	//		datasvc, err := ioutil.ReadFile(file.Name())
-	//
-	//		if err != nil {
-	//			logrus.Fatalf("Failed to load %s: %s\n", file.Name(), err)
-	//		}
-	//
-	//		if strings.Contains(file.Name(), "json") {
-	//			err := json.Unmarshal(datasvc, &sc)
-	//			if err != nil {
-	//				logrus.Fatalf("Failed to unmarshal file %s to svc object: %s\n", file.Name(), err)
-	//			}
-	//		}
-	//		if strings.Contains(file.Name(), "yaml") {
-	//			err := yaml.Unmarshal(datasvc, &sc)
-	//			if err != nil {
-	//				logrus.Fatalf("Failed to unmarshal file %s to svc object: %s\n", file.Name(), err)
-	//			}
-	//		}
-	//		// submit sc to k8s
-	//		scCreated, err := client.Services(api.NamespaceDefault).Create(sc)
-	//		if err != nil {
-	//			fmt.Println(err)
-	//		}
-	//		logrus.Debugf("%s\n", scCreated)
-	//	}
-	//}
-	//
-	//// then submit rc
-	//rc := &api.ReplicationController{}
-	//for _, file := range files {
-	//	if strings.Contains(file.Name(), "rc") {
-	//		datarc, err := ioutil.ReadFile(file.Name())
-	//
-	//		if err != nil {
-	//			logrus.Fatalf("Failed to load %s: %s\n", file.Name(), err)
-	//		}
-	//
-	//		if strings.Contains(file.Name(), "json") {
-	//			err := json.Unmarshal(datarc, &rc)
-	//			if err != nil {
-	//				logrus.Fatalf("Failed to unmarshal file %s to rc object: %s\n", file.Name(), err)
-	//			}
-	//		}
-	//		if strings.Contains(file.Name(), "yaml") {
-	//			err := yaml.Unmarshal(datarc, &rc)
-	//			if err != nil {
-	//				logrus.Fatalf("Failed to unmarshal file %s to rc object: %s\n", file.Name(), err)
-	//			}
-	//		}
-	//		// submit rc to k8s
-	//		rcCreated, err := client.ReplicationControllers(api.NamespaceDefault).Create(rc)
-	//		if err != nil {
-	//			fmt.Println(err)
-	//		}
-	//		logrus.Debugf("%s\n", rcCreated)
-	//	}
-	//}
+	fmt.Println("We are going to create Kubernetes deployment and service for your dockerized application. \n" +
+		"If you need more kind of controllers, use 'kompose convert' and 'kubectl create -f' instead. \n")
 
+	factory := cmdutil.NewFactory(nil)
+	clientConfig, err := factory.ClientConfig()
+	if err != nil {
+		logrus.Fatalf("Failed to access the Kubernetes cluster. Make sure you have a Kubernetes running: %v", err)
+	}
+	client := client.NewOrDie(clientConfig)
+
+	inputFile := c.String("file")
+	dabFile := c.String("bundle")
+
+	komposeObject := KomposeObject{}
+	opt := convertOptions{
+		replicas: 1,
+	}
+
+	validateFlags(opt, false, dabFile, inputFile)
+
+	if len(dabFile) > 0 {
+		komposeObject = loadBundlesFile(dabFile)
+	} else {
+		komposeObject = loadComposeFile(inputFile)
+	}
+
+	// Convert komposeObject to K8S controllers
+	mServices, mDeployments, _, _, _, _ := komposeConvert(komposeObject, opt)
+
+	// submit svc first
+	sc := &api.Service{}
+	for k, v := range mServices {
+		err := json.Unmarshal(v, &sc)
+		if err != nil {
+			logrus.Fatalf("Failed to unmarshal %s to service object: %s\n", k, err)
+		}
+		//submit sc to k8s
+		scCreated, err := client.Services(api.NamespaceDefault).Create(sc)
+		if err != nil {
+			logrus.Fatalf("Failed to create service %s: ", k, err)
+		} else {
+			fmt.Printf("Service %q has been created.\n", k)
+		}
+		logrus.Debugf("%s\n", scCreated)
+	}
+
+	// then submit dc
+	dc := &extensions.Deployment{}
+	for k, v := range mDeployments {
+		err := json.Unmarshal(v, &dc)
+		if err != nil {
+			logrus.Fatalf("Failed to unmarshal %s to deployment controller object: %s\n", k, err)
+		}
+		//submit sc to k8s
+		dcCreated, err := client.Deployments(api.NamespaceDefault).Create(dc)
+		if err != nil {
+			logrus.Fatalf("Failed to create deployment controller %s: ", k, err)
+		} else {
+			fmt.Printf("Deployment %q has been created.\n", k)
+		}
+		logrus.Debugf("%s\n", dcCreated)
+	}
+
+	fmt.Println("\nApplication has been deployed to Kubernetes. You can run 'kubectl get deployment,svc' for details.")
 }
 
 // updateController updates the given object with the given pod template update function and ObjectMeta update function
