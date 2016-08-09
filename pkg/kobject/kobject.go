@@ -178,7 +178,7 @@ const (
 func CheckUnsupportedKey(service interface{}) {
 	s := structs.New(service)
 	for _, f := range s.Fields() {
-		if f.IsExported() && !f.IsZero() {
+		if f.IsExported() && !f.IsZero() && f.Name() != "Networks" {
 			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
 				fmt.Println("WARNING: Unsupported key " + composeOptions[f.Name()] + " - ignoring")
 				unsupportedKey[f.Name()]++

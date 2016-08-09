@@ -18,18 +18,31 @@ package kubernetes
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/ghodss/yaml"
+	"github.com/skippbox/kompose/pkg/kobject"
+	"github.com/skippbox/kompose/pkg/transformer"
+
+	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/kubernetes/pkg/runtime"
+
+	deployapi "github.com/openshift/origin/pkg/deploy/api"
 )
 
 /**
  * Generate Helm Chart configuration
  */
-func GenerateHelm(filename string, svcnames []string, generateYaml, createD, createDS, createRC bool, outFile string) error {
+func generateHelm(filename string, outFiles []string) error {
 	type ChartDetails struct {
 		Name string
 	}
@@ -107,4 +120,96 @@ func cpFileToChart(manifestDir, filename string) error {
 	}
 
 	return ioutil.WriteFile(manifestDir+string(os.PathSeparator)+filename, infile, 0644)
+}
+
+// PrintList will take the data converted and decide on the commandline attributes given
+func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
+	f := transformer.CreateOutFile(opt.OutFile)
+	defer f.Close()
+
+	var err error
+	var files []string
+
+	// if asked to print to stdout or to put in single file
+	// we will create a list
+	if opt.ToStdout || f != nil {
+		list := &api.List{}
+		list.Items = objects
+
+		// version each object in the list
+		list.Items, err = convertToVersion(list.Items)
+		if err != nil {
+			return err
+		}
+
+		// version list itself
+		listVersion := unversioned.GroupVersion{Group: "", Version: "v1"}
+		convertedList, err := api.Scheme.ConvertToVersion(list, listVersion)
+		if err != nil {
+			return err
+		}
+		data, err := marshal(convertedList, opt.GenerateYaml)
+		if err != nil {
+			return fmt.Errorf("Error in marshalling the List: %v", err)
+		}
+		files = append(files, transformer.Print("", "", data, opt.ToStdout, opt.GenerateYaml, f))
+	} else {
+		var file string
+		// create a separate file for each provider
+		for _, v := range objects {
+			data, err := marshal(v, opt.GenerateYaml)
+			if err != nil {
+				return err
+			}
+			switch t := v.(type) {
+			case *api.ReplicationController:
+				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			case *extensions.Deployment:
+				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			case *extensions.DaemonSet:
+				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			case *deployapi.DeploymentConfig:
+				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			case *api.Service:
+				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			}
+			files = append(files, file)
+		}
+	}
+	if opt.CreateChart {
+		generateHelm(opt.InputFile, files)
+	}
+	return nil
+}
+
+// marshal object runtime.Object and return byte array
+func marshal(obj runtime.Object, yamlFormat bool) (data []byte, err error) {
+	// convert data to yaml or json
+	if yamlFormat {
+		data, err = yaml.Marshal(obj)
+	} else {
+		data, err = json.MarshalIndent(obj, "", "  ")
+	}
+	if err != nil {
+		data = nil
+	}
+	return
+}
+
+// Convert all objects in objs to versioned objects
+func convertToVersion(objs []runtime.Object) ([]runtime.Object, error) {
+	ret := []runtime.Object{}
+
+	for _, obj := range objs {
+
+		objectVersion := obj.GetObjectKind().GroupVersionKind()
+		version := unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
+		convertedObject, err := api.Scheme.ConvertToVersion(obj, version)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, convertedObject)
+	}
+
+	return ret, nil
 }

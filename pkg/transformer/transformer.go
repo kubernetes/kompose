@@ -16,9 +16,11 @@ limitations under the License.
 
 package transformer
 
-import "github.com/skippbox/kompose/pkg/kobject"
+import (
+	"github.com/skippbox/kompose/pkg/kobject"
+	"k8s.io/kubernetes/pkg/runtime"
+)
 
 type Transformer interface {
-	Transform(kobject.KomposeObject, kobject.ConvertOptions) (map[string][]byte, map[string][]byte, map[string][]byte, map[string][]byte, map[string][]byte, []string)
+	Transform(kobject.KomposeObject, kobject.ConvertOptions) []runtime.Object
 }
-

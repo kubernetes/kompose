@@ -25,6 +25,7 @@ import (
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/runtime"
 )
 
 type OpenShift struct {
@@ -63,40 +64,45 @@ func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas i
 	return dc
 }
 
-func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) (map[string][]byte, map[string][]byte, map[string][]byte, map[string][]byte, map[string][]byte, []string){
-	mServices := make(map[string][]byte)
-	mReplicationControllers := make(map[string][]byte)
-	mDeployments := make(map[string][]byte)
-	mDaemonSets := make(map[string][]byte)
-
-	// OpenShift DeploymentConfigs
-	mDeploymentConfigs := make(map[string][]byte)
-
+func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
 	var svcnames []string
 
+	// this will hold all the converted data
+	var allobjects []runtime.Object
+
 	for name, service := range komposeObject.ServiceConfigs {
+		var objects []runtime.Object
 		svcnames = append(svcnames, name)
 
-		rc := transformer.InitRC(name, service, opt.Replicas)
-		sc := transformer.InitSC(name, service)
-		dc := transformer.InitDC(name, service, opt.Replicas)
-		ds := transformer.InitDS(name, service)
-		osDC := initDeploymentConfig(name, service, opt.Replicas) // OpenShift DeploymentConfigs
+		sc := kubernetes.InitSC(name, service)
+
+		if opt.CreateD {
+			objects = append(objects, kubernetes.InitDC(name, service, opt.Replicas))
+		}
+		if opt.CreateDS {
+			objects = append(objects, kubernetes.InitDS(name, service))
+		}
+		if opt.CreateRC {
+			objects = append(objects, kubernetes.InitRC(name, service, opt.Replicas))
+		}
+		if opt.CreateDeploymentConfig {
+			objects = append(objects, initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
+		}
 
 		// Configure the environment variables.
-		envs := transformer.ConfigEnvs(name, service)
+		envs := kubernetes.ConfigEnvs(name, service)
 
 		// Configure the container command.
 		cmds := transformer.ConfigCommands(service)
 
 		// Configure the container volumes.
-		volumesMount, volumes := transformer.ConfigVolumes(service)
+		volumesMount, volumes := kubernetes.ConfigVolumes(service)
 
 		// Configure the container ports.
-		ports := transformer.ConfigPorts(name, service)
+		ports := kubernetes.ConfigPorts(name, service)
 
 		// Configure the service ports.
-		servicePorts := transformer.ConfigServicePorts(name, service)
+		servicePorts := kubernetes.ConfigServicePorts(name, service)
 		sc.Spec.Ports = servicePorts
 
 		// Configure label
@@ -141,55 +147,19 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			meta.Annotations = annotations
 		}
 
-		// Update each supported controllers
-		kubernetes.UpdateController(rc, fillTemplate, fillObjectMeta)
-		kubernetes.UpdateController(dc, fillTemplate, fillObjectMeta)
-		kubernetes.UpdateController(ds, fillTemplate, fillObjectMeta)
-		// OpenShift DeploymentConfigs
-		kubernetes.UpdateController(osDC, fillTemplate, fillObjectMeta)
-
-		// convert datarc to json / yaml
-		datarc, err := transformer.TransformData(rc, opt.GenerateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
+		// update supported controller
+		for _, obj := range objects {
+			kubernetes.UpdateController(obj, fillTemplate, fillObjectMeta)
 		}
 
-		// convert datadc to json / yaml
-		datadc, err := transformer.TransformData(dc, opt.GenerateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		// convert datads to json / yaml
-		datads, err := transformer.TransformData(ds, opt.GenerateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		var datasvc []byte
 		// If ports not provided in configuration we will not make service
 		if len(ports) == 0 {
 			logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
-		} else if len(ports) != 0 {
-			// convert datasvc to json / yaml
-			datasvc, err = transformer.TransformData(sc, opt.GenerateYaml)
-			if err != nil {
-				logrus.Fatalf(err.Error())
-			}
+		} else {
+			objects = append(objects, sc)
 		}
-
-		// convert OpenShift DeploymentConfig to json / yaml
-		dataDeploymentConfig, err := transformer.TransformData(osDC, opt.GenerateYaml)
-		if err != nil {
-			logrus.Fatalf(err.Error())
-		}
-
-		mServices[name] = datasvc
-		mReplicationControllers[name] = datarc
-		mDeployments[name] = datadc
-		mDaemonSets[name] = datads
-		mDeploymentConfigs[name] = dataDeploymentConfig
+		allobjects = append(allobjects, objects...)
 	}
 
-	return mServices, mDeployments, mDaemonSets, mReplicationControllers, mDeploymentConfigs, svcnames
+	return allobjects
 }
