@@ -10,3 +10,9 @@ go build \
     -o kompose \
     -ldflags="-w -X github.com/skippbox/kompose/version.GITCOMMIT=${GITCOMMIT}" \
     ./cli/main
+
+if [ $? -eq 0 ]; then
+  echo "Build successful. Program saved as ${OUT_FILE}"
+else
+  echo "Build failed."
+fi
