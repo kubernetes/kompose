@@ -1,14 +1,17 @@
 #!/bin/bash
 set -e
 
+source "$(dirname "$BASH_SOURCE")/.build"
+
+OUT_FILE="./kompose"
+
 # Get rid of existing binary
-rm -f kompose
+rm -f $OUT_FILE
 
 # Build binary
 go build \
-    -tags experimental \
-    -o kompose \
-    -ldflags="-w -X github.com/skippbox/kompose/version.GITCOMMIT=${GITCOMMIT}" \
+    "${BUILD_FLAGS[@]}" \
+    -o $OUT_FILE \
     ./cli/main
 
 if [ $? -eq 0 ]; then

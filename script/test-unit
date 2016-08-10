@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+source "$(dirname "$BASH_SOURCE")/.build"
+
 find_dirs() {
   (
     find . -not \( \
@@ -11,7 +13,7 @@ find_dirs() {
   )
 }
 
-TEST_FLAGS="-tags experimental -cover -coverprofile=cover.out"
+TEST_FLAGS=("${BUILD_FLAGS[@]}" -cover -coverprofile=cover.out)
 
 if [ -z "$TEST_DIRS" ]; then
   TEST_DIRS=$(find_dirs '*_test.go')
@@ -19,7 +21,6 @@ fi
 
 TESTS_FAILED=()
 
-set +e
 for dir in $TEST_DIRS; do
-  go test ${TEST_FLAGS} "./${dir}"
+  go test "${TEST_FLAGS[@]}" "./${dir}"
 done
