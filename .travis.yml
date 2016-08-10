@@ -14,7 +14,7 @@ install:
 script:
   - make binary
   # $GOPATH/bin is in $PATH
-  - mkdir $GOPATH/bin
+  - mkdir -p $GOPATH/bin
   - cp kompose $GOPATH/bin/
 
   - make test-unit
