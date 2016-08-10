@@ -71,7 +71,7 @@ file "redis-deployment.json" created
 The default `kompose` transformation will generate Kubernetes [Deployments](http://kubernetes.io/docs/user-guide/deployments/) and [Services](http://kubernetes.io/docs/user-guide/services/), in json format. You have alternative option to generate yaml with `-y`. Also, you can alternatively generate [Replication Controllers](http://kubernetes.io/docs/user-guide/replication-controller/) objects, [Deamon Sets](http://kubernetes.io/docs/admin/daemons/), or [Helm](https://github.com/helm/helm) charts.
 
 ```console
-$ kompose convert 
+$ kompose convert
 file "redis-svc.json" created
 file "web-svc.json" created
 file "redis-deployment.json" created
@@ -180,7 +180,7 @@ You need `-tags experimental` because the current `bundlefile` package of docker
 - You need `make`
 
 ```console
-$ make binary
+$ make binary-cross
 ```
 
 ## Contributing and Issues
