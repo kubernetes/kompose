@@ -16,7 +16,3 @@ all:
 
 binary:
 	CGO_ENABLED=0 ./script/make.sh binary
-
-clean:
-	./script/make.sh clean
-
