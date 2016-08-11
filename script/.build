@@ -1,0 +1,5 @@
+#!/bin/bash
+
+GITCOMMIT=$(git rev-parse --short HEAD)
+
+BUILD_FLAGS=(-tags experimental -ldflags="-w -X github.com/skippbox/kompose/version.GITCOMMIT=${GITCOMMIT}")

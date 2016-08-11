@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./script/test/cmd/tests.sh
