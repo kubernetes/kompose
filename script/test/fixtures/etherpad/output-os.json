@@ -1,188 +1,195 @@
 {
-  "kind": "Service",
+  "kind": "List",
   "apiVersion": "v1",
-  "metadata": {
-    "name": "etherpad",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "etherpad"
-    }
-  },
-  "spec": {
-    "ports": [
-      {
-        "name": "80",
-        "protocol": "TCP",
-        "port": 80,
-        "targetPort": 9001
-      }
-    ],
-    "selector": {
-      "service": "etherpad"
-    }
-  },
-  "status": {
-    "loadBalancer": {}
-  }
-}
-{
-  "kind": "Service",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "mariadb",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "mariadb"
-    }
-  },
-  "spec": {
-    "ports": [
-      {
-        "name": "3306",
-        "protocol": "TCP",
-        "port": 3306,
-        "targetPort": 3306
-      }
-    ],
-    "selector": {
-      "service": "mariadb"
-    }
-  },
-  "status": {
-    "loadBalancer": {}
-  }
-}
-{
-  "kind": "DeploymentConfig",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "etherpad",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "etherpad"
-    }
-  },
-  "spec": {
-    "strategy": {
-      "resources": {}
-    },
-    "triggers": null,
-    "replicas": 1,
-    "test": false,
-    "selector": {
-      "service": "etherpad"
-    },
-    "template": {
+  "metadata": {},
+  "items": [
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
       "metadata": {
+        "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
           "service": "etherpad"
         }
       },
       "spec": {
-        "containers": [
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": null,
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "service": "etherpad"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "etherpad"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "etherpad",
+                "image": "centos/etherpad",
+                "ports": [
+                  {
+                    "containerPort": 9001,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_USER",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_DBID",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_HOST",
+                    "value": "mariadb"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "3306"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "etherpad",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "etherpad"
+        }
+      },
+      "spec": {
+        "ports": [
           {
-            "name": "etherpad",
-            "image": "centos/etherpad",
-            "ports": [
-              {
-                "containerPort": 9001,
-                "protocol": "TCP"
-              }
-            ],
-            "env": [
-              {
-                "name": "DB_PORT",
-                "value": "3306"
-              },
-              {
-                "name": "DB_USER",
-                "value": "etherpad"
-              },
-              {
-                "name": "DB_DBID",
-                "value": "etherpad"
-              },
-              {
-                "name": "DB_HOST",
-                "value": "mariadb"
-              },
-              {
-                "name": "DB_PASS",
-                "value": "etherpad"
-              }
-            ],
-            "resources": {}
+            "name": "80",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 9001
           }
         ],
-        "restartPolicy": "Always"
+        "selector": {
+          "service": "etherpad"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
       }
-    }
-  },
-  "status": {}
-}
-{
-  "kind": "DeploymentConfig",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "mariadb",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "mariadb"
-    }
-  },
-  "spec": {
-    "strategy": {
-      "resources": {}
     },
-    "triggers": null,
-    "replicas": 1,
-    "test": false,
-    "selector": {
-      "service": "mariadb"
-    },
-    "template": {
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
       "metadata": {
+        "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
           "service": "mariadb"
         }
       },
       "spec": {
-        "containers": [
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": null,
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "service": "mariadb"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "mariadb"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "mariadb",
+                "image": "centos/mariadb",
+                "ports": [
+                  {
+                    "containerPort": 3306,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "MYSQL_DATABASE",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_USER",
+                    "value": "etherpad"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "mariadb"
+        }
+      },
+      "spec": {
+        "ports": [
           {
-            "name": "mariadb",
-            "image": "centos/mariadb",
-            "ports": [
-              {
-                "containerPort": 3306,
-                "protocol": "TCP"
-              }
-            ],
-            "env": [
-              {
-                "name": "MYSQL_ROOT_PASSWORD",
-                "value": "etherpad"
-              },
-              {
-                "name": "MYSQL_USER",
-                "value": "etherpad"
-              },
-              {
-                "name": "MYSQL_DATABASE",
-                "value": "etherpad"
-              },
-              {
-                "name": "MYSQL_PASSWORD",
-                "value": "etherpad"
-              }
-            ],
-            "resources": {}
+            "name": "3306",
+            "protocol": "TCP",
+            "port": 3306,
+            "targetPort": 3306
           }
         ],
-        "restartPolicy": "Always"
+        "selector": {
+          "service": "mariadb"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
       }
     }
-  },
-  "status": {}
+  ]
 }

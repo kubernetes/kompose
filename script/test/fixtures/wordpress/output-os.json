@@ -1,184 +1,187 @@
 {
-  "kind": "Service",
+  "kind": "List",
   "apiVersion": "v1",
-  "metadata": {
-    "name": "wordpress",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "wordpress"
-    }
-  },
-  "spec": {
-    "ports": [
-      {
-        "name": "8080",
-        "protocol": "TCP",
-        "port": 8080,
-        "targetPort": 80
-      }
-    ],
-    "selector": {
-      "service": "wordpress"
-    }
-  },
-  "status": {
-    "loadBalancer": {}
-  }
-}
-{
-  "kind": "Service",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "mariadb",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "mariadb"
-    }
-  },
-  "spec": {
-    "ports": [
-      {
-        "name": "3306",
-        "protocol": "TCP",
-        "port": 3306,
-        "targetPort": 3306
-      }
-    ],
-    "selector": {
-      "service": "mariadb"
-    }
-  },
-  "status": {
-    "loadBalancer": {}
-  }
-}
-{
-  "kind": "DeploymentConfig",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "wordpress",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "wordpress"
-    }
-  },
-  "spec": {
-    "strategy": {
-      "resources": {}
-    },
-    "triggers": null,
-    "replicas": 1,
-    "test": false,
-    "selector": {
-      "service": "wordpress"
-    },
-    "template": {
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "creationTimestamp": null,
-        "labels": {
-          "service": "wordpress"
-        }
-      },
-      "spec": {
-        "containers": [
-          {
-            "name": "wordpress",
-            "image": "wordpress",
-            "ports": [
-              {
-                "containerPort": 80,
-                "protocol": "TCP"
-              }
-            ],
-            "env": [
-              {
-                "name": "WORDPRESS_DB_NAME",
-                "value": "wordpress"
-              },
-              {
-                "name": "WORDPRESS_DB_PASSWORD",
-                "value": "wordpress"
-              },
-              {
-                "name": "WORDPRESS_DB_USER",
-                "value": "wordpress"
-              },
-              {
-                "name": "WORDPRESS_DB_HOST",
-                "value": "mariadb:3306"
-              }
-            ],
-            "resources": {}
-          }
-        ],
-        "restartPolicy": "Always"
-      }
-    }
-  },
-  "status": {}
-}
-{
-  "kind": "DeploymentConfig",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "mariadb",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "mariadb"
-    }
-  },
-  "spec": {
-    "strategy": {
-      "resources": {}
-    },
-    "triggers": null,
-    "replicas": 1,
-    "test": false,
-    "selector": {
-      "service": "mariadb"
-    },
-    "template": {
-      "metadata": {
+        "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
           "service": "mariadb"
         }
       },
       "spec": {
-        "containers": [
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "service": "mariadb"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "mariadb"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "mariadb",
+                "image": "centos/mariadb",
+                "ports": [
+                  {
+                    "containerPort": 3306,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "MYSQL_USER",
+                    "value": "wordpress"
+                  },
+                  {
+                    "name": "MYSQL_DATABASE",
+                    "value": "wordpress"
+                  },
+                  {
+                    "name": "MYSQL_PASSWORD",
+                    "value": "wordpress"
+                  },
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "wordpress"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "mariadb"
+        }
+      },
+      "spec": {
+        "ports": [
           {
-            "name": "mariadb",
-            "image": "centos/mariadb",
-            "ports": [
-              {
-                "containerPort": 3306,
-                "protocol": "TCP"
-              }
-            ],
-            "env": [
-              {
-                "name": "MYSQL_ROOT_PASSWORD",
-                "value": "wordpress"
-              },
-              {
-                "name": "MYSQL_USER",
-                "value": "wordpress"
-              },
-              {
-                "name": "MYSQL_DATABASE",
-                "value": "wordpress"
-              },
-              {
-                "name": "MYSQL_PASSWORD",
-                "value": "wordpress"
-              }
-            ],
-            "resources": {}
+            "name": "3306",
+            "protocol": "TCP",
+            "port": 3306,
+            "targetPort": 3306
           }
         ],
-        "restartPolicy": "Always"
+        "selector": {
+          "service": "mariadb"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "wordpress",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "wordpress"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "service": "wordpress"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "wordpress"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "wordpress",
+                "image": "wordpress",
+                "ports": [
+                  {
+                    "containerPort": 80,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "WORDPRESS_DB_HOST",
+                    "value": "mariadb:3306"
+                  },
+                  {
+                    "name": "WORDPRESS_DB_NAME",
+                    "value": "wordpress"
+                  },
+                  {
+                    "name": "WORDPRESS_DB_PASSWORD",
+                    "value": "wordpress"
+                  },
+                  {
+                    "name": "WORDPRESS_DB_USER",
+                    "value": "wordpress"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "wordpress",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "wordpress"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "8080",
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "service": "wordpress"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
       }
     }
-  },
-  "status": {}
+  ]
 }

@@ -1,356 +1,363 @@
 {
-  "kind": "Service",
+  "kind": "List",
   "apiVersion": "v1",
-  "metadata": {
-    "name": "redis",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "redis"
-    }
-  },
-  "spec": {
-    "ports": [
-      {
-        "name": "6379",
-        "protocol": "TCP",
-        "port": 6379,
-        "targetPort": 6379
-      }
-    ],
-    "selector": {
-      "service": "redis"
-    }
-  },
-  "status": {
-    "loadBalancer": {}
-  }
-}
-{
-  "kind": "Service",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "nginx",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "nginx"
-    }
-  },
-  "spec": {
-    "ports": [
-      {
-        "name": "80",
-        "protocol": "TCP",
-        "port": 80,
-        "targetPort": 80
-      }
-    ],
-    "selector": {
-      "service": "nginx"
-    }
-  },
-  "status": {
-    "loadBalancer": {}
-  }
-}
-{
-  "kind": "Service",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "node1",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "node1"
-    }
-  },
-  "spec": {
-    "ports": [
-      {
-        "name": "8080",
-        "protocol": "TCP",
-        "port": 8080,
-        "targetPort": 8080
-      }
-    ],
-    "selector": {
-      "service": "node1"
-    }
-  },
-  "status": {
-    "loadBalancer": {}
-  }
-}
-{
-  "kind": "Service",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "node2",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "node2"
-    }
-  },
-  "spec": {
-    "ports": [
-      {
-        "name": "8080",
-        "protocol": "TCP",
-        "port": 8080,
-        "targetPort": 8080
-      }
-    ],
-    "selector": {
-      "service": "node2"
-    }
-  },
-  "status": {
-    "loadBalancer": {}
-  }
-}
-{
-  "kind": "Service",
-  "apiVersion": "v1",
-  "metadata": {
-    "name": "node3",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "node3"
-    }
-  },
-  "spec": {
-    "ports": [
-      {
-        "name": "8080",
-        "protocol": "TCP",
-        "port": 8080,
-        "targetPort": 8080
-      }
-    ],
-    "selector": {
-      "service": "node3"
-    }
-  },
-  "status": {
-    "loadBalancer": {}
-  }
-}
-{
-  "kind": "Deployment",
-  "apiVersion": "extensions/v1beta1",
-  "metadata": {
-    "name": "nginx",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "nginx"
-    }
-  },
-  "spec": {
-    "replicas": 1,
-    "selector": {
-      "matchLabels": {
-        "service": "nginx"
-      }
-    },
-    "template": {
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "creationTimestamp": null,
-        "labels": {
-          "service": "nginx"
-        }
-      },
-      "spec": {
-        "containers": [
-          {
-            "name": "nginx",
-            "ports": [
-              {
-                "containerPort": 80,
-                "protocol": "TCP"
-              }
-            ],
-            "resources": {}
-          }
-        ],
-        "restartPolicy": "Always"
-      }
-    },
-    "strategy": {}
-  },
-  "status": {}
-}
-{
-  "kind": "Deployment",
-  "apiVersion": "extensions/v1beta1",
-  "metadata": {
-    "name": "node1",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "node1"
-    }
-  },
-  "spec": {
-    "replicas": 1,
-    "selector": {
-      "matchLabels": {
-        "service": "node1"
-      }
-    },
-    "template": {
-      "metadata": {
-        "creationTimestamp": null,
-        "labels": {
-          "service": "node1"
-        }
-      },
-      "spec": {
-        "containers": [
-          {
-            "name": "node1",
-            "ports": [
-              {
-                "containerPort": 8080,
-                "protocol": "TCP"
-              }
-            ],
-            "resources": {}
-          }
-        ],
-        "restartPolicy": "Always"
-      }
-    },
-    "strategy": {}
-  },
-  "status": {}
-}
-{
-  "kind": "Deployment",
-  "apiVersion": "extensions/v1beta1",
-  "metadata": {
-    "name": "node2",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "node2"
-    }
-  },
-  "spec": {
-    "replicas": 1,
-    "selector": {
-      "matchLabels": {
-        "service": "node2"
-      }
-    },
-    "template": {
-      "metadata": {
+        "name": "node2",
         "creationTimestamp": null,
         "labels": {
           "service": "node2"
         }
       },
       "spec": {
-        "containers": [
-          {
-            "name": "node2",
-            "ports": [
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "service": "node2"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "node2"
+            }
+          },
+          "spec": {
+            "containers": [
               {
-                "containerPort": 8080,
-                "protocol": "TCP"
+                "name": "node2",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {}
               }
             ],
-            "resources": {}
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "node2",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "node2"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "8080",
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 8080
           }
         ],
-        "restartPolicy": "Always"
+        "selector": {
+          "service": "node2"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
       }
     },
-    "strategy": {}
-  },
-  "status": {}
-}
-{
-  "kind": "Deployment",
-  "apiVersion": "extensions/v1beta1",
-  "metadata": {
-    "name": "node3",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "node3"
-    }
-  },
-  "spec": {
-    "replicas": 1,
-    "selector": {
-      "matchLabels": {
-        "service": "node3"
-      }
-    },
-    "template": {
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
       "metadata": {
+        "name": "node3",
         "creationTimestamp": null,
         "labels": {
           "service": "node3"
         }
       },
       "spec": {
-        "containers": [
-          {
-            "name": "node3",
-            "ports": [
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "service": "node3"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "node3"
+            }
+          },
+          "spec": {
+            "containers": [
               {
-                "containerPort": 8080,
-                "protocol": "TCP"
+                "name": "node3",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {}
               }
             ],
-            "resources": {}
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "node3",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "node3"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "8080",
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 8080
           }
         ],
-        "restartPolicy": "Always"
+        "selector": {
+          "service": "node3"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
       }
     },
-    "strategy": {}
-  },
-  "status": {}
-}
-{
-  "kind": "Deployment",
-  "apiVersion": "extensions/v1beta1",
-  "metadata": {
-    "name": "redis",
-    "creationTimestamp": null,
-    "labels": {
-      "service": "redis"
-    }
-  },
-  "spec": {
-    "replicas": 1,
-    "selector": {
-      "matchLabels": {
-        "service": "redis"
-      }
-    },
-    "template": {
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
       "metadata": {
+        "name": "redis",
         "creationTimestamp": null,
         "labels": {
           "service": "redis"
         }
       },
       "spec": {
-        "containers": [
-          {
-            "name": "redis",
-            "image": "redis",
-            "ports": [
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "service": "redis"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "redis"
+            }
+          },
+          "spec": {
+            "containers": [
               {
-                "containerPort": 6379,
-                "protocol": "TCP"
+                "name": "redis",
+                "image": "redis",
+                "ports": [
+                  {
+                    "containerPort": 6379,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {}
               }
             ],
-            "resources": {}
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "redis"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6379",
+            "protocol": "TCP",
+            "port": 6379,
+            "targetPort": 6379
           }
         ],
-        "restartPolicy": "Always"
+        "selector": {
+          "service": "redis"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
       }
     },
-    "strategy": {}
-  },
-  "status": {}
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "nginx",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "nginx"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "service": "nginx"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "nginx"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "nginx",
+                "ports": [
+                  {
+                    "containerPort": 80,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "nginx",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "nginx"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "80",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "service": "nginx"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "node1",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "node1"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "service": "node1"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "node1"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "node1",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "node1",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "node1"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "8080",
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "service": "node1"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    }
+  ]
 }
