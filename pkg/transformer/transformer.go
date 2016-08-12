@@ -14,12 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package version
+package transformer
 
-var (
-	// VERSION should be updated by hand at each release
-	VERSION = "0.0.1-beta"
-
-	// GITCOMMIT will be overwritten automatically by the build system
-	GITCOMMIT = "HEAD"
+import (
+	"github.com/skippbox/kompose/pkg/kobject"
+	"k8s.io/kubernetes/pkg/runtime"
 )
+
+type Transformer interface {
+	Transform(kobject.KomposeObject, kobject.ConvertOptions) []runtime.Object
+}

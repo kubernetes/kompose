@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package version
+package loader
 
-var (
-	// VERSION should be updated by hand at each release
-	VERSION = "0.0.1-beta"
+import "github.com/skippbox/kompose/pkg/kobject"
 
-	// GITCOMMIT will be overwritten automatically by the build system
-	GITCOMMIT = "HEAD"
-)
+type Loader interface {
+	LoadFile(file string) kobject.KomposeObject
+}

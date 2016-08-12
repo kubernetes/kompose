@@ -19,6 +19,7 @@ package app
 import (
 	"fmt"
 	"testing"
+	"github.com/skippbox/kompose/pkg/transformer"
 )
 
 func TestParseVolume(t *testing.T) {
@@ -99,7 +100,7 @@ func TestParseVolume(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		name, host, container, mode, err := parseVolume(test.volume)
+		name, host, container, mode, err := transformer.ParseVolume(test.volume)
 		if err != nil {
 			t.Errorf("In test case %q, returned unexpected error %v", test.test, err)
 		}
