@@ -137,7 +137,7 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	for _, name := range composeServiceNames {
 		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
 			//FIXME: networks always contains one default element, even it isn't declared in compose v2.
-			if len(composeServiceConfig.Networks.Networks) > 0 &&
+			if composeServiceConfig.Networks != nil && len(composeServiceConfig.Networks.Networks) > 0 &&
 				composeServiceConfig.Networks.Networks[0].Name != "default" &&
 				!networksWarningFound {
 				logrus.Warningf("Unsupported key networks - ignoring")

@@ -17,7 +17,7 @@ limitations under the License.
 package kobject
 
 import (
-	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/fatih/structs"
 )
 
@@ -180,7 +180,7 @@ func CheckUnsupportedKey(service interface{}) {
 	for _, f := range s.Fields() {
 		if f.IsExported() && !f.IsZero() && f.Name() != "Networks" {
 			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
-				fmt.Println("WARNING: Unsupported key " + composeOptions[f.Name()] + " - ignoring")
+				logrus.Warningf("Unsupported key %s - ignoring", composeOptions[f.Name()])
 				unsupportedKey[f.Name()]++
 			}
 		}
