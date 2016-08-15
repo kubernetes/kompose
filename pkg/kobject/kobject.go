@@ -19,6 +19,7 @@ package kobject
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/fatih/structs"
+	"k8s.io/kubernetes/pkg/api"
 )
 
 var unsupportedKey = map[string]int{
@@ -162,18 +163,8 @@ type EnvVar struct {
 type Ports struct {
 	HostPort      int32
 	ContainerPort int32
-	Protocol      Protocol
+	Protocol      api.Protocol
 }
-
-// Protocol defines network protocols supported for things like container ports.
-type Protocol string
-
-const (
-	// ProtocolTCP is the TCP protocol.
-	ProtocolTCP Protocol = "TCP"
-	// ProtocolUDP is the UDP protocol.
-	ProtocolUDP Protocol = "UDP"
-)
 
 func CheckUnsupportedKey(service interface{}) {
 	s := structs.New(service)

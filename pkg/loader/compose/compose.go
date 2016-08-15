@@ -22,6 +22,8 @@ import (
 	"strconv"
 	"strings"
 
+	"k8s.io/kubernetes/pkg/api"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/docker"
@@ -50,7 +52,7 @@ func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, string) {
 	ports := []kobject.Ports{}
 	character := ":"
 	for _, port := range composePorts {
-		p := kobject.ProtocolTCP
+		p := api.ProtocolTCP
 		if strings.Contains(port, character) {
 			hostPort := port[0:strings.Index(port, character)]
 			hostPort = strings.TrimSpace(hostPort)

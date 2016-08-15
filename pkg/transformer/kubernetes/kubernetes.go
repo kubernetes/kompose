@@ -154,18 +154,9 @@ func InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
 func ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
 	for _, port := range service.Port {
-		var p api.Protocol
-		switch port.Protocol {
-		default:
-			p = api.ProtocolTCP
-		case kobject.ProtocolTCP:
-			p = api.ProtocolTCP
-		case kobject.ProtocolUDP:
-			p = api.ProtocolUDP
-		}
 		ports = append(ports, api.ContainerPort{
 			ContainerPort: port.ContainerPort,
-			Protocol:      p,
+			Protocol:      port.Protocol,
 		})
 	}
 
@@ -179,21 +170,12 @@ func ConfigServicePorts(name string, service kobject.ServiceConfig) []api.Servic
 		if port.HostPort == 0 {
 			port.HostPort = port.ContainerPort
 		}
-		var p api.Protocol
-		switch port.Protocol {
-		default:
-			p = api.ProtocolTCP
-		case kobject.ProtocolTCP:
-			p = api.ProtocolTCP
-		case kobject.ProtocolUDP:
-			p = api.ProtocolUDP
-		}
 		var targetPort intstr.IntOrString
 		targetPort.IntVal = port.ContainerPort
 		targetPort.StrVal = strconv.Itoa(int(port.ContainerPort))
 		servicePorts = append(servicePorts, api.ServicePort{
 			Name:       strconv.Itoa(int(port.HostPort)),
-			Protocol:   p,
+			Protocol:   port.Protocol,
 			Port:       port.HostPort,
 			TargetPort: targetPort,
 		})

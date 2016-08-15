@@ -20,6 +20,8 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"k8s.io/kubernetes/pkg/api"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/docker/api/client/bundlefile"
 	"github.com/skippbox/kompose/pkg/kobject"
@@ -78,14 +80,14 @@ func loadEnvVarsfromBundle(service bundlefile.Service) ([]kobject.EnvVar, string
 func loadPortsfromBundle(service bundlefile.Service) ([]kobject.Ports, string) {
 	ports := []kobject.Ports{}
 	for _, port := range service.Ports {
-		var p kobject.Protocol
+		var p api.Protocol
 		switch port.Protocol {
 		default:
-			p = kobject.ProtocolTCP
+			p = api.ProtocolTCP
 		case "TCP":
-			p = kobject.ProtocolTCP
+			p = api.ProtocolTCP
 		case "UDP":
-			p = kobject.ProtocolUDP
+			p = api.ProtocolUDP
 		}
 		ports = append(ports, kobject.Ports{
 			HostPort:      int32(port.Port),
