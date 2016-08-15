@@ -9,17 +9,9 @@
       "metadata": {
         "name": "node2",
         "creationTimestamp": null,
-        "labels": {
-          "service": "node2"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "node2"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,
@@ -80,17 +72,9 @@
       "metadata": {
         "name": "node3",
         "creationTimestamp": null,
-        "labels": {
-          "service": "node3"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "node3"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,
@@ -151,17 +135,9 @@
       "metadata": {
         "name": "redis",
         "creationTimestamp": null,
-        "labels": {
-          "service": "redis"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "redis"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,
@@ -223,17 +199,9 @@
       "metadata": {
         "name": "nginx",
         "creationTimestamp": null,
-        "labels": {
-          "service": "nginx"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "nginx"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,
@@ -294,17 +262,9 @@
       "metadata": {
         "name": "node1",
         "creationTimestamp": null,
-        "labels": {
-          "service": "node1"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "node1"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,

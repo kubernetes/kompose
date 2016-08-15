@@ -74,10 +74,10 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		var objects []runtime.Object
 		svcnames = append(svcnames, name)
 
-		sc := kubernetes.InitSC(name, service)
+		svc := kubernetes.InitSvc(name, service)
 
 		if opt.CreateD {
-			objects = append(objects, kubernetes.InitDC(name, service, opt.Replicas))
+			objects = append(objects, kubernetes.InitD(name, service, opt.Replicas))
 		}
 		if opt.CreateDS {
 			objects = append(objects, kubernetes.InitDS(name, service))
@@ -103,15 +103,15 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 		// Configure the service ports.
 		servicePorts := kubernetes.ConfigServicePorts(name, service)
-		sc.Spec.Ports = servicePorts
+		svc.Spec.Ports = servicePorts
 
 		// Configure label
 		labels := transformer.ConfigLabels(name)
-		sc.ObjectMeta.Labels = labels
+		svc.ObjectMeta.Labels = labels
 
 		// Configure annotations
 		annotations := transformer.ConfigAnnotations(service)
-		sc.ObjectMeta.Annotations = annotations
+		svc.ObjectMeta.Annotations = annotations
 
 		// fillTemplate fills the pod template with the value calculated from config
 		fillTemplate := func(template *api.PodTemplateSpec) {
@@ -154,7 +154,7 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 		// If ports not provided in configuration we will not make service
 		if kubernetes.PortsExist(name, service) {
-			objects = append(objects, sc)
+			objects = append(objects, svc)
 		}
 		allobjects = append(allobjects, objects...)
 	}
