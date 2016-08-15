@@ -116,10 +116,9 @@ func equalPorts(kPorts []kobject.Ports, k8sPorts []api.ContainerPort) bool {
 
 func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec) error {
 	container := template.Spec.Containers[0]
-	// FIXME: we should support container name and uncomment this test
-	//if config.ContainerName != container.Name {
-	//return fmt.Errorf("Found different container name: %v vs. %v", config.ContainerName, container.Name)
-	//}
+	if config.ContainerName != container.Name {
+		return fmt.Errorf("Found different container name: %v vs. %v", config.ContainerName, container.Name)
+	}
 	if config.Image != container.Image {
 		return fmt.Errorf("Found different container image: %v vs. %v", config.Image, container.Image)
 	}
@@ -135,10 +134,9 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 	if config.WorkingDir != container.WorkingDir {
 		return fmt.Errorf("Found different container WorkingDir: %#v vs. %#v", config.WorkingDir, container.WorkingDir)
 	}
-	// FIXME: we should support container args and uncomment this test
-	//if !equalStringSlice(config.Args, container.Args) {
-	//return fmt.Errorf("Found different container args: %#v vs. %#v", config.Args, container.Args)
-	//}
+	if !equalStringSlice(config.Args, container.Args) {
+		return fmt.Errorf("Found different container args: %#v vs. %#v", config.Args, container.Args)
+	}
 	if len(template.Spec.Volumes) == 0 || len(template.Spec.Volumes[0].Name) == 0 ||
 		(template.Spec.Volumes[0].VolumeSource.HostPath == nil && template.Spec.Volumes[0].VolumeSource.EmptyDir == nil) {
 		return fmt.Errorf("Found incorrect volumes: %v vs. %#v", config.Volumes, template.Spec.Volumes)

@@ -276,8 +276,12 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 		// fillTemplate fills the pod template with the value calculated from config
 		fillTemplate := func(template *api.PodTemplateSpec) {
+			if len(service.ContainerName) > 0 {
+				template.Spec.Containers[0].Name = service.ContainerName
+			}
 			template.Spec.Containers[0].Env = envs
 			template.Spec.Containers[0].Command = cmds
+			template.Spec.Containers[0].Args = service.Args
 			template.Spec.Containers[0].WorkingDir = service.WorkingDir
 			template.Spec.Containers[0].VolumeMounts = volumesMount
 			template.Spec.Volumes = volumes
