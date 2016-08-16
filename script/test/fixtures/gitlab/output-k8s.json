@@ -9,17 +9,9 @@
       "metadata": {
         "name": "gitlab",
         "creationTimestamp": null,
-        "labels": {
-          "service": "gitlab"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "gitlab"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,
@@ -135,17 +127,9 @@
       "metadata": {
         "name": "postgresql",
         "creationTimestamp": null,
-        "labels": {
-          "service": "postgresql"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "postgresql"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,
@@ -221,17 +205,9 @@
       "metadata": {
         "name": "redis",
         "creationTimestamp": null,
-        "labels": {
-          "service": "redis"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "redis"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,

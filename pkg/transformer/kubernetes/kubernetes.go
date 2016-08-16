@@ -45,14 +45,12 @@ func InitRC(name string, service kobject.ServiceConfig, replicas int) *api.Repli
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name: name,
-			//Labels: map[string]string{"service": name},
 		},
 		Spec: api.ReplicationControllerSpec{
-			Selector: map[string]string{"service": name},
 			Replicas: int32(replicas),
 			Template: &api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
-				//Labels: map[string]string{"service": name},
+					Labels: transformer.ConfigLabels(name),
 				},
 				Spec: api.PodSpec{
 					Containers: []api.Container{
@@ -68,45 +66,37 @@ func InitRC(name string, service kobject.ServiceConfig, replicas int) *api.Repli
 	return rc
 }
 
-// Init SC object
-func InitSC(name string, service kobject.ServiceConfig) *api.Service {
-	sc := &api.Service{
+// Init Svc object
+func InitSvc(name string, service kobject.ServiceConfig) *api.Service {
+	svc := &api.Service{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Service",
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
-			//Labels: map[string]string{"service": name},
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: api.ServiceSpec{
-			Selector: map[string]string{"service": name},
+			Selector: transformer.ConfigLabels(name),
 		},
 	}
-	return sc
+	return svc
 }
 
-// Init DC object
-func InitDC(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
+// Init Deployment
+func InitD(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
 	dc := &extensions.Deployment{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Deployment",
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: map[string]string{"service": name},
+			Name: name,
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
-			Selector: &unversioned.LabelSelector{
-				MatchLabels: map[string]string{"service": name},
-			},
-			//UniqueLabelKey: p.Name,
 			Template: api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
-					Labels: map[string]string{"service": name},
-				},
 				Spec: api.PodSpec{
 					Containers: []api.Container{
 						{
@@ -133,9 +123,6 @@ func InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
-					Name: name,
-				},
 				Spec: api.PodSpec{
 					Containers: []api.Container{
 						{
@@ -238,10 +225,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		var objects []runtime.Object
 		svcnames = append(svcnames, name)
 
-		sc := InitSC(name, service)
+		svc := InitSvc(name, service)
 
 		if opt.CreateD {
-			objects = append(objects, InitDC(name, service, opt.Replicas))
+			objects = append(objects, InitD(name, service, opt.Replicas))
 		}
 		if opt.CreateDS {
 			objects = append(objects, InitDS(name, service))
@@ -264,15 +251,11 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 		// Configure the service ports.
 		servicePorts := ConfigServicePorts(name, service)
-		sc.Spec.Ports = servicePorts
-
-		// Configure label
-		labels := transformer.ConfigLabels(name)
-		sc.ObjectMeta.Labels = labels
+		svc.Spec.Ports = servicePorts
 
 		// Configure annotations
 		annotations := transformer.ConfigAnnotations(service)
-		sc.ObjectMeta.Annotations = annotations
+		svc.ObjectMeta.Annotations = annotations
 
 		// fillTemplate fills the pod template with the value calculated from config
 		fillTemplate := func(template *api.PodTemplateSpec) {
@@ -288,7 +271,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 			}
 			template.Spec.Containers[0].Ports = ports
-			template.ObjectMeta.Labels = labels
+			template.ObjectMeta.Labels = transformer.ConfigLabels(name)
 			// Configure the container restart policy.
 			switch service.Restart {
 			case "", "always":
@@ -304,7 +287,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 		// fillObjectMeta fills the metadata with the value calculated from config
 		fillObjectMeta := func(meta *api.ObjectMeta) {
-			meta.Labels = labels
 			meta.Annotations = annotations
 		}
 
@@ -315,7 +297,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 		// If ports not provided in configuration we will not make service
 		if PortsExist(name, service) {
-			objects = append(objects, sc)
+			objects = append(objects, svc)
 		}
 
 		allobjects = append(allobjects, objects...)

@@ -9,17 +9,9 @@
       "metadata": {
         "name": "mariadb",
         "creationTimestamp": null,
-        "labels": {
-          "service": "mariadb"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "mariadb"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,
@@ -99,17 +91,9 @@
       "metadata": {
         "name": "wordpress",
         "creationTimestamp": null,
-        "labels": {
-          "service": "wordpress"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "wordpress"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,

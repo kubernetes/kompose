@@ -9,17 +9,9 @@
       "metadata": {
         "name": "etherpad",
         "creationTimestamp": null,
-        "labels": {
-          "service": "etherpad"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "etherpad"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,
@@ -103,17 +95,9 @@
       "metadata": {
         "name": "mariadb",
         "creationTimestamp": null,
-        "labels": {
-          "service": "mariadb"
-        }
       },
       "spec": {
         "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "service": "mariadb"
-          }
-        },
         "template": {
           "metadata": {
             "creationTimestamp": null,
