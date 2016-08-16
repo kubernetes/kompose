@@ -213,3 +213,12 @@ func convertToVersion(objs []runtime.Object) ([]runtime.Object, error) {
 
 	return ret, nil
 }
+
+func PortsExist(name string, service kobject.ServiceConfig) bool {
+	if len(service.Port) == 0 {
+		logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
+		return false
+	} else {
+		return true
+	}
+}

@@ -153,9 +153,7 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		}
 
 		// If ports not provided in configuration we will not make service
-		if len(ports) == 0 {
-			logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
-		} else {
+		if kubernetes.PortsExist(name, service) {
 			objects = append(objects, sc)
 		}
 		allobjects = append(allobjects, objects...)
