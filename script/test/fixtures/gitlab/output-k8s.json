@@ -7,126 +7,8 @@
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "gitlab",
-        "creationTimestamp": null,
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "gitlab"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "gitlab",
-                "image": "swordphilic/gitlab",
-                "ports": [
-                  {
-                    "containerPort": 80,
-                    "protocol": "TCP"
-                  },
-                  {
-                    "containerPort": 443,
-                    "protocol": "TCP"
-                  },
-                  {
-                    "containerPort": 22,
-                    "protocol": "TCP"
-                  }
-                ],
-                "env": [
-                  {
-                    "name": "DB_HOST",
-                    "value": "postgresql"
-                  },
-                  {
-                    "name": "DB_NAME",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "DB_PASS",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "DB_PORT",
-                    "value": "5432"
-                  },
-                  {
-                    "name": "DB_TYPE",
-                    "value": "postgres"
-                  },
-                  {
-                    "name": "DB_USER",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "REDIS_HOST",
-                    "value": "redis"
-                  },
-                  {
-                    "name": "REDIS_PORT",
-                    "value": "6379"
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "gitlab",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "gitlab"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "30000",
-            "protocol": "TCP",
-            "port": 30000,
-            "targetPort": 80
-          },
-          {
-            "name": "30001",
-            "protocol": "TCP",
-            "port": 30001,
-            "targetPort": 443
-          },
-          {
-            "name": "30002",
-            "protocol": "TCP",
-            "port": 30002,
-            "targetPort": 22
-          }
-        ],
-        "selector": {
-          "service": "gitlab"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
         "name": "postgresql",
-        "creationTimestamp": null,
+        "creationTimestamp": null
       },
       "spec": {
         "replicas": 1,
@@ -150,15 +32,15 @@
                 ],
                 "env": [
                   {
-                    "name": "DB_PASS",
-                    "value": "gitlab"
-                  },
-                  {
                     "name": "DB_USER",
                     "value": "gitlab"
                   },
                   {
                     "name": "DB_NAME",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_PASS",
                     "value": "gitlab"
                   }
                 ],
@@ -204,7 +86,7 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "redis",
-        "creationTimestamp": null,
+        "creationTimestamp": null
       },
       "spec": {
         "replicas": 1,
@@ -257,6 +139,124 @@
         ],
         "selector": {
           "service": "redis"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "gitlab",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "gitlab"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "gitlab",
+                "image": "swordphilic/gitlab",
+                "ports": [
+                  {
+                    "containerPort": 80,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 443,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 22,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_TYPE",
+                    "value": "postgres"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "REDIS_HOST",
+                    "value": "redis"
+                  },
+                  {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
+                  },
+                  {
+                    "name": "DB_HOST",
+                    "value": "postgresql"
+                  },
+                  {
+                    "name": "DB_NAME",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "5432"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "gitlab",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "gitlab"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "30000",
+            "protocol": "TCP",
+            "port": 30000,
+            "targetPort": 80
+          },
+          {
+            "name": "30001",
+            "protocol": "TCP",
+            "port": 30001,
+            "targetPort": 443
+          },
+          {
+            "name": "30002",
+            "protocol": "TCP",
+            "port": 30002,
+            "targetPort": 22
+          }
+        ],
+        "selector": {
+          "service": "gitlab"
         }
       },
       "status": {

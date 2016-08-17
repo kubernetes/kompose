@@ -8,7 +8,7 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "node2",
-        "creationTimestamp": null,
+        "creationTimestamp": null
       },
       "spec": {
         "replicas": 1,
@@ -71,7 +71,7 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "node3",
-        "creationTimestamp": null,
+        "creationTimestamp": null
       },
       "spec": {
         "replicas": 1,
@@ -134,7 +134,7 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "redis",
-        "creationTimestamp": null,
+        "creationTimestamp": null
       },
       "spec": {
         "replicas": 1,
@@ -198,7 +198,7 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "nginx",
-        "creationTimestamp": null,
+        "creationTimestamp": null
       },
       "spec": {
         "replicas": 1,
@@ -261,7 +261,7 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "node1",
-        "creationTimestamp": null,
+        "creationTimestamp": null
       },
       "spec": {
         "replicas": 1,
