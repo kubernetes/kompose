@@ -1,6 +1,0 @@
-DB_HOST=mariadb
-ROOT_PASS=wordpress
-DB_NAME=wordpress
-DB_PASS=wordpress
-DB_USER=wordpress
-DB_PORT=3306

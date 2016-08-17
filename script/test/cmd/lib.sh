@@ -69,8 +69,8 @@ function convert::match_output() {
 
     match=$(jq --argfile a $TEMP_STDOUT --argfile b $expected_output -n 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); ($a | (post_recurse | arrays) |= sort) as $a | ($b | (post_recurse | arrays) |= sort) as $b | $a == $b')
 
-    if [ "$match" = false ]; then FAIL_MSGS=$FAIL_MSGS"converted output does not match\n"; return 1;
-    else SUCCESS_MSGS=$SUCCESS_MSGS"converted output matches\n"; return 0; fi
+    if [ "$match" = true ]; then SUCCESS_MSGS=$SUCCESS_MSGS"converted output matches\n"; return 0;
+    else FAIL_MSGS=$FAIL_MSGS"converted output does not match\n"; return 1; fi
 }
 readonly -f convert::match_output
 
