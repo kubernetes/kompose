@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	yaml "github.com/cloudfoundry-incubator/candiedyaml"
 	"github.com/docker/docker/pkg/urlutil"
 	"github.com/docker/libcompose/utils"
 	composeYaml "github.com/docker/libcompose/yaml"
+	"gopkg.in/yaml.v2"
 )
 
 var (
