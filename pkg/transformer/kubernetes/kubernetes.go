@@ -294,3 +294,75 @@ func CreateObjects(client *client.Client, objects []runtime.Object) {
 	}
 	fmt.Println("\nYour application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.")
 }
+
+func DeleteObjects(client *client.Client, name string) {
+	err := client.Services(api.NamespaceDefault).Delete(name)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while deleting service: %s", err, name)
+	}
+	logrus.Infof("Successfully deleted service: %s", name)
+
+	err = client.Deployments(api.NamespaceDefault).Delete(name, nil)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while deleting deployment: %s", err, name)
+	}
+	logrus.Infof("Successfully deleted deployment: %s", name)
+}
+
+func DeleteAll(client *client.Client) {
+	//delete all svc
+	listOpts := api.ListOptions{}
+	svcs, err := client.Services(api.NamespaceDefault).List(listOpts)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while listing services in the cluster", err)
+	}
+	for _, svc := range svcs.Items {
+		if svc.Name == "kubernetes" {
+			continue
+		}
+		err = client.Services(api.NamespaceDefault).Delete(svc.Name)
+		if err != nil {
+			logrus.Fatalf("Error: '%v' while deleting service: %s", err, svc.Name)
+		}
+		logrus.Infof("Successfully deleted service: %s", svc.Name)
+	}
+
+	//delete all deployment
+	deployments, err := client.Deployments(api.NamespaceDefault).List(listOpts)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while listing deployments in the cluster", err)
+	}
+	for _, deployment := range deployments.Items {
+		err = client.Deployments(api.NamespaceDefault).Delete(deployment.Name, nil)
+		if err != nil {
+			logrus.Fatalf("Error: '%v' while deleting deployment: %s", err, deployment.Name)
+		}
+		logrus.Infof("Successfully deleted deployment: %s", deployment.Name)
+	}
+
+	//delete all daemonset
+	daemons, err := client.DaemonSets(api.NamespaceDefault).List(listOpts)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while listing daemonsets in the cluster", err)
+	}
+	for _, daemon := range daemons.Items {
+		err = client.DaemonSets(api.NamespaceDefault).Delete(daemon.Name)
+		if err != nil {
+			logrus.Fatalf("Error: '%v' while deleting daemonset: %s", err, daemon.Name)
+		}
+		logrus.Infof("Successfully deleted daemonset: %s", daemon.Name)
+	}
+
+	//delete all rc
+	rcs, err := client.ReplicationControllers(api.NamespaceDefault).List(listOpts)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while listing replication controllers in the cluster", err)
+	}
+	for _, rc := range rcs.Items {
+		err = client.ReplicationControllers(api.NamespaceDefault).Delete(rc.Name)
+		if err != nil {
+			logrus.Fatalf("Error: '%v' while deleting replication controller: %s", err, rc.Name)
+		}
+		logrus.Infof("Successfully deleted replication controller: %s", rc.Name)
+	}
+}
