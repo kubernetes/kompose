@@ -23,9 +23,9 @@ type ServiceConfigV1 struct {
 	CapAdd        []string             `yaml:"cap_add,omitempty"`
 	CapDrop       []string             `yaml:"cap_drop,omitempty"`
 	CgroupParent  string               `yaml:"cgroup_parent,omitempty"`
-	CPUQuota      int64                `yaml:"cpu_quota,omitempty"`
+	CPUQuota      yaml.StringorInt     `yaml:"cpu_quota,omitempty"`
 	CPUSet        string               `yaml:"cpuset,omitempty"`
-	CPUShares     int64                `yaml:"cpu_shares,omitempty"`
+	CPUShares     yaml.StringorInt     `yaml:"cpu_shares,omitempty"`
 	Command       yaml.Command         `yaml:"command,flow,omitempty"`
 	ContainerName string               `yaml:"container_name,omitempty"`
 	Devices       []string             `yaml:"devices,omitempty"`
@@ -42,8 +42,8 @@ type ServiceConfigV1 struct {
 	Links         yaml.MaporColonSlice `yaml:"links,omitempty"`
 	LogDriver     string               `yaml:"log_driver,omitempty"`
 	MacAddress    string               `yaml:"mac_address,omitempty"`
-	MemLimit      int64                `yaml:"mem_limit,omitempty"`
-	MemSwapLimit  int64                `yaml:"memswap_limit,omitempty"`
+	MemLimit      yaml.StringorInt     `yaml:"mem_limit,omitempty"`
+	MemSwapLimit  yaml.StringorInt     `yaml:"memswap_limit,omitempty"`
 	Name          string               `yaml:"name,omitempty"`
 	Net           string               `yaml:"net,omitempty"`
 	Pid           string               `yaml:"pid,omitempty"`
@@ -53,7 +53,7 @@ type ServiceConfigV1 struct {
 	Privileged    bool                 `yaml:"privileged,omitempty"`
 	Restart       string               `yaml:"restart,omitempty"`
 	ReadOnly      bool                 `yaml:"read_only,omitempty"`
-	ShmSize       int64                `yaml:"shm_size,omitempty"`
+	ShmSize       yaml.StringorInt     `yaml:"shm_size,omitempty"`
 	StdinOpen     bool                 `yaml:"stdin_open,omitempty"`
 	SecurityOpt   []string             `yaml:"security_opt,omitempty"`
 	Tty           bool                 `yaml:"tty,omitempty"`
@@ -81,8 +81,8 @@ type ServiceConfig struct {
 	CapAdd        []string             `yaml:"cap_add,omitempty"`
 	CapDrop       []string             `yaml:"cap_drop,omitempty"`
 	CPUSet        string               `yaml:"cpuset,omitempty"`
-	CPUShares     int64                `yaml:"cpu_shares,omitempty"`
-	CPUQuota      int64                `yaml:"cpu_quota,omitempty"`
+	CPUShares     yaml.StringorInt     `yaml:"cpu_shares,omitempty"`
+	CPUQuota      yaml.StringorInt     `yaml:"cpu_quota,omitempty"`
 	Command       yaml.Command         `yaml:"command,flow,omitempty"`
 	CgroupParent  string               `yaml:"cgroup_parent,omitempty"`
 	ContainerName string               `yaml:"container_name,omitempty"`
@@ -105,18 +105,18 @@ type ServiceConfig struct {
 	Links         yaml.MaporColonSlice `yaml:"links,omitempty"`
 	Logging       Log                  `yaml:"logging,omitempty"`
 	MacAddress    string               `yaml:"mac_address,omitempty"`
-	MemLimit      int64                `yaml:"mem_limit,omitempty"`
-	MemSwapLimit  int64                `yaml:"memswap_limit,omitempty"`
+	MemLimit      yaml.StringorInt     `yaml:"mem_limit,omitempty"`
+	MemSwapLimit  yaml.StringorInt     `yaml:"memswap_limit,omitempty"`
 	NetworkMode   string               `yaml:"network_mode,omitempty"`
 	Networks      *yaml.Networks       `yaml:"networks,omitempty"`
 	Pid           string               `yaml:"pid,omitempty"`
 	Ports         []string             `yaml:"ports,omitempty"`
 	Privileged    bool                 `yaml:"privileged,omitempty"`
 	SecurityOpt   []string             `yaml:"security_opt,omitempty"`
-	ShmSize       int64                `yaml:"shm_size,omitempty"`
+	ShmSize       yaml.StringorInt     `yaml:"shm_size,omitempty"`
 	StopSignal    string               `yaml:"stop_signal,omitempty"`
 	VolumeDriver  string               `yaml:"volume_driver,omitempty"`
-	Volumes       []string             `yaml:"volumes,omitempty"`
+	Volumes       *yaml.Volumes        `yaml:"volumes,omitempty"`
 	VolumesFrom   []string             `yaml:"volumes_from,omitempty"`
 	Uts           string               `yaml:"uts,omitempty"`
 	Restart       string               `yaml:"restart,omitempty"`
@@ -198,6 +198,13 @@ func (c *ServiceConfigs) Get(name string) (*ServiceConfig, bool) {
 func (c *ServiceConfigs) Add(name string, service *ServiceConfig) {
 	c.mu.Lock()
 	c.m[name] = service
+	c.mu.Unlock()
+}
+
+// Remove removes the config with the specified name
+func (c *ServiceConfigs) Remove(name string) {
+	c.mu.Lock()
+	delete(c.m, name)
 	c.mu.Unlock()
 }
 

@@ -37,8 +37,23 @@ type APIProject interface {
 	CreateService(name string) (Service, error)
 	AddConfig(name string, config *config.ServiceConfig) error
 	Load(bytes []byte) error
-	ListStoppedContainers(ctx context.Context, services ...string) ([]string, error)
+	Containers(ctx context.Context, filter Filter, services ...string) ([]string, error)
 }
+
+// Filter holds filter element to filter containers
+type Filter struct {
+	State State
+}
+
+// State defines the supported state you can filter on
+type State string
+
+// Definitions of filter states
+const (
+	AnyState = State("")
+	Running  = State("running")
+	Stopped  = State("stopped")
+)
 
 // RuntimeProject defines runtime-specific methods for a libcompose implementation.
 type RuntimeProject interface {

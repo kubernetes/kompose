@@ -1,6 +1,7 @@
 package yaml
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/docker/engine-api/types/strslice"
@@ -11,22 +12,31 @@ import (
 type Command strslice.StrSlice
 
 // UnmarshalYAML implements the Unmarshaller interface.
-func (s *Command) UnmarshalYAML(tag string, value interface{}) error {
-	switch value := value.(type) {
-	case []interface{}:
-		parts, err := toStrings(value)
+func (s *Command) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var stringType string
+	if err := unmarshal(&stringType); err == nil {
+		parts, err := shlex.Split(stringType)
 		if err != nil {
 			return err
 		}
 		*s = parts
-	case string:
-		parts, err := shlex.Split(value)
-		if err != nil {
-			return err
-		}
-		*s = parts
-	default:
-		return fmt.Errorf("Failed to unmarshal Command: %#v", value)
+		return nil
 	}
-	return nil
+
+	var sliceType []interface{}
+	if err := unmarshal(&sliceType); err == nil {
+		parts, err := toStrings(sliceType)
+		if err != nil {
+			return err
+		}
+		*s = parts
+		return nil
+	}
+
+	var interfaceType interface{}
+	if err := unmarshal(&interfaceType); err == nil {
+		fmt.Println(interfaceType)
+	}
+
+	return errors.New("Failed to unmarshal Command")
 }
