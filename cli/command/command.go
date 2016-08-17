@@ -109,72 +109,34 @@ func UpCommand() cli.Command {
 	}
 }
 
-// PsCommand defines the kompose ps subcommand.
-//func PsCommand() cli.Command {
-//	return cli.Command{
-//		Name:  "ps",
-//		Usage: "Get active data in the kubernetes cluster",
-//		Action: func(c *cli.Context) {
-//			app.Ps(c)
-//		},
-//		Flags: []cli.Flag{
-//			cli.BoolFlag{
-//				Name:  "service,svc",
-//				Usage: "Get active services",
-//			},
-//			cli.BoolFlag{
-//				Name:  "replicationcontroller,rc",
-//				Usage: "Get active replication controller",
-//			},
-//		},
-//	}
-//}
-
-// DeleteCommand defines the kompose delete subcommand.
-//func DeleteCommand() cli.Command {
-//	return cli.Command{
-//		Name:  "delete",
-//		Usage: "Remove instantiated services/rc from kubernetes",
-//		Action: func(c *cli.Context) {
-//			app.Delete(c)
-//		},
-//		Flags: []cli.Flag{
-//			cli.BoolFlag{
-//				Name:  "replicationcontroller,rc",
-//				Usage: "Remove active replication controllers",
-//			},
-//			cli.BoolFlag{
-//				Name:  "service,svc",
-//				Usage: "Remove active services",
-//			},
-//			cli.StringFlag{
-//				Name:  "name",
-//				Usage: "Name of the object to remove",
-//			},
-//		},
-//	}
-//}
-
-// ScaleCommand defines the kompose up subcommand.
-//func ScaleCommand() cli.Command {
-//	return cli.Command{
-//		Name:  "scale",
-//		Usage: "Globally scale instantiated replication controllers",
-//		Action: func(c *cli.Context) {
-//			app.Scale(c)
-//		},
-//		Flags: []cli.Flag{
-//			cli.IntFlag{
-//				Name:  "scale",
-//				Usage: "New number of replicas",
-//			},
-//			cli.StringFlag{
-//				Name:  "replicationcontroller,rc",
-//				Usage: "A specific replication controller to scale",
-//			},
-//		},
-//	}
-//}
+// DownCommand defines the kompose down subcommand.
+func DownCommand() cli.Command {
+	return cli.Command{
+		Name:  "down",
+		Usage: "Delete instantiated services/deployments from kubernetes",
+		Action: func(c *cli.Context) {
+			app.Down(c)
+		},
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:   "file,f",
+				Usage:  fmt.Sprintf("Specify an alternative compose file (default: %s)", app.DefaultComposeFile),
+				Value:  app.DefaultComposeFile,
+				EnvVar: "COMPOSE_FILE",
+			},
+			cli.StringFlag{
+				Name:   "bundle,dab",
+				Usage:  "Specify a Distributed Application Bundle (DAB) file",
+				EnvVar: "DAB_FILE",
+			},
+			cli.BoolFlag{
+				Name:	"all, a",
+				Usage:	"Delete all resources in default namespace of the kubernetes cluster",
+				EnvVar: "DOWN_ALL",
+			},
+		},
+	}
+}
 
 // CommonFlags defines the flags that are in common for all subcommands.
 func CommonFlags() []cli.Flag {
