@@ -215,22 +215,29 @@ func ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
 	return envs
 }
 
+// Generate a Kubernetes artifacts for each input type service
+func CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
+	var objects []runtime.Object
+
+	if opt.CreateD {
+		objects = append(objects, InitD(name, service, opt.Replicas))
+	}
+	if opt.CreateDS {
+		objects = append(objects, InitDS(name, service))
+	}
+	if opt.CreateRC {
+		objects = append(objects, InitRC(name, service, opt.Replicas))
+	}
+
+	return objects
+}
+
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 
 	for name, service := range komposeObject.ServiceConfigs {
-		var objects []runtime.Object
-
-		if opt.CreateD {
-			objects = append(objects, InitD(name, service, opt.Replicas))
-		}
-		if opt.CreateDS {
-			objects = append(objects, InitDS(name, service))
-		}
-		if opt.CreateRC {
-			objects = append(objects, InitRC(name, service, opt.Replicas))
-		}
+		objects := CreateKubernetesObjects(name, service, opt)
 
 		// If ports not provided in configuration we will not make service
 		if PortsExist(name, service) {
