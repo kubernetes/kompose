@@ -67,17 +67,8 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	var allobjects []runtime.Object
 
 	for name, service := range komposeObject.ServiceConfigs {
-		var objects []runtime.Object
+		objects := kubernetes.CreateKubernetesObjects(name, service, opt)
 
-		if opt.CreateD {
-			objects = append(objects, kubernetes.InitD(name, service, opt.Replicas))
-		}
-		if opt.CreateDS {
-			objects = append(objects, kubernetes.InitDS(name, service))
-		}
-		if opt.CreateRC {
-			objects = append(objects, kubernetes.InitRC(name, service, opt.Replicas))
-		}
 		if opt.CreateDeploymentConfig {
 			objects = append(objects, initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
 		}
