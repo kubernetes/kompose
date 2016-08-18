@@ -216,14 +216,11 @@ func ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
 }
 
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
-	var svcnames []string
-
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 
 	for name, service := range komposeObject.ServiceConfigs {
 		var objects []runtime.Object
-		svcnames = append(svcnames, name)
 
 		if opt.CreateD {
 			objects = append(objects, InitD(name, service, opt.Replicas))
