@@ -63,14 +63,11 @@ func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas i
 }
 
 func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
-	var svcnames []string
-
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 
 	for name, service := range komposeObject.ServiceConfigs {
 		var objects []runtime.Object
-		svcnames = append(svcnames, name)
 
 		if opt.CreateD {
 			objects = append(objects, kubernetes.InitD(name, service, opt.Replicas))
