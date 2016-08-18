@@ -17,10 +17,8 @@ limitations under the License.
 package openshift
 
 import (
-	"github.com/Sirupsen/logrus"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	"github.com/skippbox/kompose/pkg/kobject"
-	"github.com/skippbox/kompose/pkg/transformer"
 	"github.com/skippbox/kompose/pkg/transformer/kubernetes"
 
 	"k8s.io/kubernetes/pkg/api"
@@ -74,8 +72,6 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		var objects []runtime.Object
 		svcnames = append(svcnames, name)
 
-		svc := kubernetes.InitSvc(name, service)
-
 		if opt.CreateD {
 			objects = append(objects, kubernetes.InitD(name, service, opt.Replicas))
 		}
@@ -89,71 +85,9 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			objects = append(objects, initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
 		}
 
-		// Configure the environment variables.
-		envs := kubernetes.ConfigEnvs(name, service)
-
-		// Configure the container command.
-		cmds := transformer.ConfigCommands(service)
-
-		// Configure the container volumes.
-		volumesMount, volumes := kubernetes.ConfigVolumes(service)
-
-		// Configure the container ports.
-		ports := kubernetes.ConfigPorts(name, service)
-
-		// Configure the service ports.
-		servicePorts := kubernetes.ConfigServicePorts(name, service)
-		svc.Spec.Ports = servicePorts
-
-		// Configure label
-		labels := transformer.ConfigLabels(name)
-		svc.ObjectMeta.Labels = labels
-
-		// Configure annotations
-		annotations := transformer.ConfigAnnotations(service)
-		svc.ObjectMeta.Annotations = annotations
-
-		// fillTemplate fills the pod template with the value calculated from config
-		fillTemplate := func(template *api.PodTemplateSpec) {
-			template.Spec.Containers[0].Env = envs
-			template.Spec.Containers[0].Command = cmds
-			template.Spec.Containers[0].WorkingDir = service.WorkingDir
-			template.Spec.Containers[0].VolumeMounts = volumesMount
-			template.Spec.Volumes = volumes
-			// Configure the container privileged mode
-			if service.Privileged == true {
-				template.Spec.Containers[0].SecurityContext = &api.SecurityContext{
-					Privileged: &service.Privileged,
-				}
-			}
-			template.Spec.Containers[0].Ports = ports
-			template.ObjectMeta.Labels = labels
-			// Configure the container restart policy.
-			switch service.Restart {
-			case "", "always":
-				template.Spec.RestartPolicy = api.RestartPolicyAlways
-			case "no":
-				template.Spec.RestartPolicy = api.RestartPolicyNever
-			case "on-failure":
-				template.Spec.RestartPolicy = api.RestartPolicyOnFailure
-			default:
-				logrus.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
-			}
-		}
-
-		// fillObjectMeta fills the metadata with the value calculated from config
-		fillObjectMeta := func(meta *api.ObjectMeta) {
-			meta.Labels = labels
-			meta.Annotations = annotations
-		}
-
-		// update supported controller
-		for _, obj := range objects {
-			kubernetes.UpdateController(obj, fillTemplate, fillObjectMeta)
-		}
-
 		// If ports not provided in configuration we will not make service
 		if kubernetes.PortsExist(name, service) {
+			svc := kubernetes.CreateService(name, service, objects)
 			objects = append(objects, svc)
 		}
 		allobjects = append(allobjects, objects...)

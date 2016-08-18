@@ -225,8 +225,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		var objects []runtime.Object
 		svcnames = append(svcnames, name)
 
-		svc := InitSvc(name, service)
-
 		if opt.CreateD {
 			objects = append(objects, InitD(name, service, opt.Replicas))
 		}
@@ -237,70 +235,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			objects = append(objects, InitRC(name, service, opt.Replicas))
 		}
 
-		// Configure the environment variables.
-		envs := ConfigEnvs(name, service)
-
-		// Configure the container command.
-		cmds := transformer.ConfigCommands(service)
-
-		// Configure the container volumes.
-		volumesMount, volumes := ConfigVolumes(service)
-
-		// Configure the container ports.
-		ports := ConfigPorts(name, service)
-
-		// Configure the service ports.
-		servicePorts := ConfigServicePorts(name, service)
-		svc.Spec.Ports = servicePorts
-
-		// Configure annotations
-		annotations := transformer.ConfigAnnotations(service)
-		svc.ObjectMeta.Annotations = annotations
-
-		// fillTemplate fills the pod template with the value calculated from config
-		fillTemplate := func(template *api.PodTemplateSpec) {
-			if len(service.ContainerName) > 0 {
-				template.Spec.Containers[0].Name = service.ContainerName
-			}
-			template.Spec.Containers[0].Env = envs
-			template.Spec.Containers[0].Command = cmds
-			template.Spec.Containers[0].Args = service.Args
-			template.Spec.Containers[0].WorkingDir = service.WorkingDir
-			template.Spec.Containers[0].VolumeMounts = volumesMount
-			template.Spec.Volumes = volumes
-			// Configure the container privileged mode
-			if service.Privileged == true {
-				template.Spec.Containers[0].SecurityContext = &api.SecurityContext{
-					Privileged: &service.Privileged,
-				}
-			}
-			template.Spec.Containers[0].Ports = ports
-			template.ObjectMeta.Labels = transformer.ConfigLabels(name)
-			// Configure the container restart policy.
-			switch service.Restart {
-			case "", "always":
-				template.Spec.RestartPolicy = api.RestartPolicyAlways
-			case "no":
-				template.Spec.RestartPolicy = api.RestartPolicyNever
-			case "on-failure":
-				template.Spec.RestartPolicy = api.RestartPolicyOnFailure
-			default:
-				logrus.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
-			}
-		}
-
-		// fillObjectMeta fills the metadata with the value calculated from config
-		fillObjectMeta := func(meta *api.ObjectMeta) {
-			meta.Annotations = annotations
-		}
-
-		// update supported controller
-		for _, obj := range objects {
-			UpdateController(obj, fillTemplate, fillObjectMeta)
-		}
-
 		// If ports not provided in configuration we will not make service
 		if PortsExist(name, service) {
+			svc := CreateService(name, service, objects)
 			objects = append(objects, svc)
 		}
 
