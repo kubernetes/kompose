@@ -239,18 +239,6 @@ func Down(c *cli.Context) {
 
 	validateFlags(opt, false, dabFile, inputFile)
 
-	if c.BoolT("all") {
-		if len(file) > 0 && file != "docker-compose.yml" {
-			logrus.Fatalf("Error: --file/--bundle and --all cannot be specified at the same time")
-		}
-		fmt.Print("Are you sure? (yes/no): ")
-		if !askForConfirmation() {
-			return
-		}
-		kubernetes.DeleteAll(client)
-		return
-	}
-
 	// loader parses input from file into komposeObject.
 	var l loader.Loader
 	switch inputFormat {

@@ -129,11 +129,6 @@ func DownCommand() cli.Command {
 				Usage:  "Specify a Distributed Application Bundle (DAB) file",
 				EnvVar: "DAB_FILE",
 			},
-			cli.BoolFlag{
-				Name:	"all, a",
-				Usage:	"Delete all resources in default namespace of the kubernetes cluster",
-				EnvVar: "DOWN_ALL",
-			},
 		},
 	}
 }
