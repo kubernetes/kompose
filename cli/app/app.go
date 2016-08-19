@@ -243,8 +243,7 @@ func Down(c *cli.Context) {
 		if len(file) > 0 && file != "docker-compose.yml" {
 			logrus.Fatalf("Error: --file/--bundle and --all cannot be specified at the same time")
 		}
-		fmt.Println("Using flag --all/-a will delete all resources in the kubernetes cluster.")
-		fmt.Print("Are you sure to continue? (yes/no): ")
+		fmt.Print("Are you sure? (yes/no): ")
 		if !askForConfirmation() {
 			return
 		}

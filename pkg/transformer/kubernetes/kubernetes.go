@@ -31,6 +31,9 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
+	//"k8s.io/kubernetes/pkg/controller/daemon"
+	"k8s.io/kubernetes/pkg/kubectl"
+	"time"
 )
 
 type Kubernetes struct {
@@ -296,13 +299,25 @@ func CreateObjects(client *client.Client, objects []runtime.Object) {
 }
 
 func DeleteObjects(client *client.Client, name string) {
-	err := client.Services(api.NamespaceDefault).Delete(name)
+	//delete svc
+	rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while getting reaper for service", err)
+	}
+	//FIXME: timeout = 300s, gracePeriod is nil
+	err = rpService.Stop(api.NamespaceDefault, name, 300*time.Second, nil)
 	if err != nil {
 		logrus.Fatalf("Error: '%v' while deleting service: %s", err, name)
 	}
 	logrus.Infof("Successfully deleted service: %s", name)
 
-	err = client.Deployments(api.NamespaceDefault).Delete(name, nil)
+	//delete deployment
+	rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while getting reaper for deployment", err)
+	}
+	//FIXME: timeout = 300s, gracePeriod is nil
+	err = rpDeployment.Stop(api.NamespaceDefault, name, 300*time.Second, nil)
 	if err != nil {
 		logrus.Fatalf("Error: '%v' while deleting deployment: %s", err, name)
 	}
@@ -311,6 +326,10 @@ func DeleteObjects(client *client.Client, name string) {
 
 func DeleteAll(client *client.Client) {
 	//delete all svc
+	rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while getting reaper for service", err)
+	}
 	listOpts := api.ListOptions{}
 	svcs, err := client.Services(api.NamespaceDefault).List(listOpts)
 	if err != nil {
@@ -320,7 +339,7 @@ func DeleteAll(client *client.Client) {
 		if svc.Name == "kubernetes" {
 			continue
 		}
-		err = client.Services(api.NamespaceDefault).Delete(svc.Name)
+		err = rpService.Stop(api.NamespaceDefault, svc.Name, 300*time.Second, nil)
 		if err != nil {
 			logrus.Fatalf("Error: '%v' while deleting service: %s", err, svc.Name)
 		}
@@ -328,12 +347,17 @@ func DeleteAll(client *client.Client) {
 	}
 
 	//delete all deployment
+	rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while getting reaper for deployment", err)
+	}
 	deployments, err := client.Deployments(api.NamespaceDefault).List(listOpts)
 	if err != nil {
 		logrus.Fatalf("Error: '%v' while listing deployments in the cluster", err)
 	}
+	//FIXME: timeout = 300s, gracePeriod is nil
 	for _, deployment := range deployments.Items {
-		err = client.Deployments(api.NamespaceDefault).Delete(deployment.Name, nil)
+		err = rpDeployment.Stop(api.NamespaceDefault, deployment.Name, 300*time.Second, nil)
 		if err != nil {
 			logrus.Fatalf("Error: '%v' while deleting deployment: %s", err, deployment.Name)
 		}
@@ -341,28 +365,22 @@ func DeleteAll(client *client.Client) {
 	}
 
 	//delete all daemonset
-	daemons, err := client.DaemonSets(api.NamespaceDefault).List(listOpts)
+	rpDaemonSet, err := kubectl.ReaperFor(extensions.Kind("DaemonSet"), client)
+	if err != nil {
+		logrus.Fatalf("Error: '%v' while getting reaper for daemonset", err)
+	}
+	daemonsets, err := client.DaemonSets(api.NamespaceDefault).List(listOpts)
 	if err != nil {
 		logrus.Fatalf("Error: '%v' while listing daemonsets in the cluster", err)
 	}
-	for _, daemon := range daemons.Items {
-		err = client.DaemonSets(api.NamespaceDefault).Delete(daemon.Name)
+	//FIXME: timeout = 300s, gracePeriod is nil
+	for _, daemonset := range daemonsets.Items {
+		err = rpDaemonSet.Stop(api.NamespaceDefault, daemonset.Name, 300*time.Second, nil)
 		if err != nil {
-			logrus.Fatalf("Error: '%v' while deleting daemonset: %s", err, daemon.Name)
+			logrus.Fatalf("Error: '%v' while deleting daemonset: %s", err, daemonset.Name)
 		}
-		logrus.Infof("Successfully deleted daemonset: %s", daemon.Name)
+		logrus.Infof("Successfully deleted daemonset: %s", daemonset.Name)
 	}
 
-	//delete all rc
-	rcs, err := client.ReplicationControllers(api.NamespaceDefault).List(listOpts)
-	if err != nil {
-		logrus.Fatalf("Error: '%v' while listing replication controllers in the cluster", err)
-	}
-	for _, rc := range rcs.Items {
-		err = client.ReplicationControllers(api.NamespaceDefault).Delete(rc.Name)
-		if err != nil {
-			logrus.Fatalf("Error: '%v' while deleting replication controller: %s", err, rc.Name)
-		}
-		logrus.Infof("Successfully deleted replication controller: %s", rc.Name)
-	}
+	//TODO: delete all jobs
 }
