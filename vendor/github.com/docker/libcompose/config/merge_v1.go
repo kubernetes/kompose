@@ -5,8 +5,8 @@ import (
 	"path"
 
 	"github.com/Sirupsen/logrus"
-	yaml "github.com/cloudfoundry-incubator/candiedyaml"
 	"github.com/docker/libcompose/utils"
+	"gopkg.in/yaml.v2"
 )
 
 // MergeServicesV1 merges a v1 compose file into an existing set of service configs

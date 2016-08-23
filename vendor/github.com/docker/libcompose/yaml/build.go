@@ -1,6 +1,7 @@
 package yaml
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -15,7 +16,7 @@ type Build struct {
 }
 
 // MarshalYAML implements the Marshaller interface.
-func (b Build) MarshalYAML() (tag string, value interface{}, err error) {
+func (b Build) MarshalYAML() (interface{}, error) {
 	m := map[string]interface{}{}
 	if b.Context != "" {
 		m["context"] = b.Context
@@ -26,16 +27,20 @@ func (b Build) MarshalYAML() (tag string, value interface{}, err error) {
 	if len(b.Args) > 0 {
 		m["args"] = b.Args
 	}
-	return "", m, nil
+	return m, nil
 }
 
 // UnmarshalYAML implements the Unmarshaller interface.
-func (b *Build) UnmarshalYAML(tag string, value interface{}) error {
-	switch v := value.(type) {
-	case string:
-		b.Context = v
-	case map[interface{}]interface{}:
-		for mapKey, mapValue := range v {
+func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var stringType string
+	if err := unmarshal(&stringType); err == nil {
+		b.Context = stringType
+		return nil
+	}
+
+	var mapType map[interface{}]interface{}
+	if err := unmarshal(&mapType); err == nil {
+		for mapKey, mapValue := range mapType {
 			switch mapKey {
 			case "context":
 				b.Context = mapValue.(string)
@@ -52,10 +57,10 @@ func (b *Build) UnmarshalYAML(tag string, value interface{}) error {
 				continue
 			}
 		}
-	default:
-		return fmt.Errorf("Failed to unmarshal Build: %#v", value)
+		return nil
 	}
-	return nil
+
+	return errors.New("Failed to unmarshal Build")
 }
 
 func handleBuildArgs(value interface{}) (map[string]string, error) {
@@ -98,6 +103,8 @@ func handleBuildArgMap(m map[interface{}]interface{}) (map[string]string, error)
 		switch a := mapValue.(type) {
 		case string:
 			argValue = a
+		case int:
+			argValue = strconv.Itoa(a)
 		case int64:
 			argValue = strconv.Itoa(int(a))
 		default:
