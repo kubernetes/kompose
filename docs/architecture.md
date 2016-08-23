@@ -1,6 +1,6 @@
 # Kompose - Internal Design
 
-Kompose have been broken to 3 stages: Loader, Transformer and Outputter. Each Stage should have well defined interface so it is easy to write new Loader, Transformer or Outputters and plug it in. Currently Loader and Transformer interfaces are already there.
+`kompose` has 3 stages: Loader, Transformer and Outputter. Each Stage should have well defined interface so it is easy to write new Loader, Transformer or Outputters and plug it in. Currently only Loader and Transformer interfaces are defined.
 
 ![Design Diagram](images/design_diagram.png)
 
@@ -10,7 +10,7 @@ Loader reads input file (now `kompose` supports [Docker Compose](https://docs.do
 
 Loader is represented by a Loader interface:
  
-```console
+```go
 type Loader interface {
       LoadFile(file string) kobject.KomposeObject
 }
@@ -26,7 +26,7 @@ Every loader “implementation” should be placed into `kompose/pkg/loader` (li
 
 `KomposeObject` is Kompose internal representation of all containers loaded from input file. First version of `KomposeObject` looks like this (source: [kobject.go](https://github.com/skippbox/kompose/blob/master/pkg/kobject/kobject.go)):
 
-```console
+```go
 // KomposeObject holds the generic struct of Kompose transformation
 type KomposeObject struct {
 	ServiceConfigs map[string]ServiceConfig
@@ -62,7 +62,7 @@ type ServiceConfig struct {
 
 Transformer takes KomposeObject and converts it to target/output format (at this moment, there are sets of kubernetes/openshift objects). Similar to `Loader`, Transformer is represented by a Transformer interface:
 
-```console
+```go
 type Transformer interface {
      Transform(kobject.KomposeObject, kobject.ConvertOptions) []runtime.Object
 }
