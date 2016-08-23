@@ -162,14 +162,19 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 			serviceConfig.Port = ports
 
 			serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
-			serviceConfig.Volumes = composeServiceConfig.Volumes
+
+			if composeServiceConfig.Volumes != nil {
+				for _, volume := range composeServiceConfig.Volumes.Volumes {
+					serviceConfig.Volumes = append(serviceConfig.Volumes, volume.String())
+				}
+			}
 
 			// convert compose labels to annotations
 			serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
 
 			serviceConfig.CPUSet = composeServiceConfig.CPUSet
-			serviceConfig.CPUShares = composeServiceConfig.CPUShares
-			serviceConfig.CPUQuota = composeServiceConfig.CPUQuota
+			serviceConfig.CPUShares = int64(composeServiceConfig.CPUShares)
+			serviceConfig.CPUQuota = int64(composeServiceConfig.CPUQuota)
 			serviceConfig.CapAdd = composeServiceConfig.CapAdd
 			serviceConfig.CapDrop = composeServiceConfig.CapDrop
 			serviceConfig.Expose = composeServiceConfig.Expose
