@@ -17,6 +17,7 @@ limitations under the License.
 package compose
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -48,7 +49,7 @@ func loadEnvVarsfromCompose(e map[string]string) []kobject.EnvVar {
 }
 
 // Load Ports from compose file
-func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, string) {
+func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, error) {
 	ports := []kobject.Ports{}
 	character := ":"
 	for _, port := range composePorts {
@@ -58,13 +59,13 @@ func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, string) {
 			hostPort = strings.TrimSpace(hostPort)
 			hostPortInt, err := strconv.Atoi(hostPort)
 			if err != nil {
-				return nil, "Invalid host port of " + port
+				return nil, fmt.Errorf("invalid host port %q", port)
 			}
 			containerPort := port[strings.Index(port, character)+1:]
 			containerPort = strings.TrimSpace(containerPort)
 			containerPortInt, err := strconv.Atoi(containerPort)
 			if err != nil {
-				return nil, "Invalid container port of " + port
+				return nil, fmt.Errorf("invalid container port %q", port)
 			}
 			ports = append(ports, kobject.Ports{
 				HostPort:      int32(hostPortInt),
@@ -74,7 +75,7 @@ func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, string) {
 		} else {
 			containerPortInt, err := strconv.Atoi(port)
 			if err != nil {
-				return nil, "Invalid container port of " + port
+				return nil, fmt.Errorf("invalid container port %q", port)
 			}
 			ports = append(ports, kobject.Ports{
 				ContainerPort: int32(containerPortInt),
@@ -83,7 +84,7 @@ func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, string) {
 		}
 
 	}
-	return ports, ""
+	return ports, nil
 }
 
 // load Docker Compose file into KomposeObject
@@ -120,7 +121,7 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	composeObject := project.NewProject(&context.Context, nil, nil)
 	err := composeObject.Parse()
 	if err != nil {
-		logrus.Fatalf("Failed to load compose file", err)
+		logrus.Fatalf("Failed to load compose file: %v", err)
 	}
 
 	// transform composeObject into komposeObject
@@ -156,8 +157,8 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 
 			// load ports
 			ports, err := loadPortsFromCompose(composeServiceConfig.Ports)
-			if err != "" {
-				logrus.Fatalf("Failed to load ports from compose file: " + err)
+			if err != nil {
+				logrus.Fatalf("%q failed to load ports from compose file: %v", name, err)
 			}
 			serviceConfig.Port = ports
 
