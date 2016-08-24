@@ -225,9 +225,20 @@ func PortsExist(name string, service kobject.ServiceConfig) bool {
 
 // create a kubernetes Service
 func CreateService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
-
 	svc := InitSvc(name, service)
 
+	// Configure the service ports.
+	servicePorts := ConfigServicePorts(name, service)
+	svc.Spec.Ports = servicePorts
+
+	// Configure annotations
+	annotations := transformer.ConfigAnnotations(service)
+	svc.ObjectMeta.Annotations = annotations
+
+	return svc
+}
+
+func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects []runtime.Object) {
 	// Configure the environment variables.
 	envs := ConfigEnvs(name, service)
 
@@ -240,13 +251,8 @@ func CreateService(name string, service kobject.ServiceConfig, objects []runtime
 	// Configure the container ports.
 	ports := ConfigPorts(name, service)
 
-	// Configure the service ports.
-	servicePorts := ConfigServicePorts(name, service)
-	svc.Spec.Ports = servicePorts
-
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
-	svc.ObjectMeta.Annotations = annotations
 
 	// fillTemplate fills the pod template with the value calculated from config
 	fillTemplate := func(template *api.PodTemplateSpec) {
@@ -289,6 +295,4 @@ func CreateService(name string, service kobject.ServiceConfig, objects []runtime
 	for _, obj := range objects {
 		UpdateController(obj, fillTemplate, fillObjectMeta)
 	}
-
-	return svc
 }
