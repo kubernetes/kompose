@@ -110,71 +110,71 @@ func UpCommand() cli.Command {
 }
 
 // PsCommand defines the kompose ps subcommand.
-func PsCommand() cli.Command {
-	return cli.Command{
-		Name:  "ps",
-		Usage: "Get active data in the kubernetes cluster",
-		Action: func(c *cli.Context) {
-			app.Ps(c)
-		},
-		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "service,svc",
-				Usage: "Get active services",
-			},
-			cli.BoolFlag{
-				Name:  "replicationcontroller,rc",
-				Usage: "Get active replication controller",
-			},
-		},
-	}
-}
+//func PsCommand() cli.Command {
+//	return cli.Command{
+//		Name:  "ps",
+//		Usage: "Get active data in the kubernetes cluster",
+//		Action: func(c *cli.Context) {
+//			app.Ps(c)
+//		},
+//		Flags: []cli.Flag{
+//			cli.BoolFlag{
+//				Name:  "service,svc",
+//				Usage: "Get active services",
+//			},
+//			cli.BoolFlag{
+//				Name:  "replicationcontroller,rc",
+//				Usage: "Get active replication controller",
+//			},
+//		},
+//	}
+//}
 
 // DeleteCommand defines the kompose delete subcommand.
-func DeleteCommand() cli.Command {
-	return cli.Command{
-		Name:  "delete",
-		Usage: "Remove instantiated services/rc from kubernetes",
-		Action: func(c *cli.Context) {
-			app.Delete(c)
-		},
-		Flags: []cli.Flag{
-			cli.BoolFlag{
-				Name:  "replicationcontroller,rc",
-				Usage: "Remove active replication controllers",
-			},
-			cli.BoolFlag{
-				Name:  "service,svc",
-				Usage: "Remove active services",
-			},
-			cli.StringFlag{
-				Name:  "name",
-				Usage: "Name of the object to remove",
-			},
-		},
-	}
-}
+//func DeleteCommand() cli.Command {
+//	return cli.Command{
+//		Name:  "delete",
+//		Usage: "Remove instantiated services/rc from kubernetes",
+//		Action: func(c *cli.Context) {
+//			app.Delete(c)
+//		},
+//		Flags: []cli.Flag{
+//			cli.BoolFlag{
+//				Name:  "replicationcontroller,rc",
+//				Usage: "Remove active replication controllers",
+//			},
+//			cli.BoolFlag{
+//				Name:  "service,svc",
+//				Usage: "Remove active services",
+//			},
+//			cli.StringFlag{
+//				Name:  "name",
+//				Usage: "Name of the object to remove",
+//			},
+//		},
+//	}
+//}
 
 // ScaleCommand defines the kompose up subcommand.
-func ScaleCommand() cli.Command {
-	return cli.Command{
-		Name:  "scale",
-		Usage: "Globally scale instantiated replication controllers",
-		Action: func(c *cli.Context) {
-			app.Scale(c)
-		},
-		Flags: []cli.Flag{
-			cli.IntFlag{
-				Name:  "scale",
-				Usage: "New number of replicas",
-			},
-			cli.StringFlag{
-				Name:  "replicationcontroller,rc",
-				Usage: "A specific replication controller to scale",
-			},
-		},
-	}
-}
+//func ScaleCommand() cli.Command {
+//	return cli.Command{
+//		Name:  "scale",
+//		Usage: "Globally scale instantiated replication controllers",
+//		Action: func(c *cli.Context) {
+//			app.Scale(c)
+//		},
+//		Flags: []cli.Flag{
+//			cli.IntFlag{
+//				Name:  "scale",
+//				Usage: "New number of replicas",
+//			},
+//			cli.StringFlag{
+//				Name:  "replicationcontroller,rc",
+//				Usage: "A specific replication controller to scale",
+//			},
+//		},
+//	}
+//}
 
 // CommonFlags defines the flags that are in common for all subcommands.
 func CommonFlags() []cli.Flag {
