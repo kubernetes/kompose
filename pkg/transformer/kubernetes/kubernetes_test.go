@@ -153,8 +153,7 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 	if !equalStringSlice(config.Args, container.Args) {
 		return fmt.Errorf("Found different container args: %#v vs. %#v", config.Args, container.Args)
 	}
-	if len(template.Spec.Volumes) == 0 || len(template.Spec.Volumes[0].Name) == 0 ||
-		(template.Spec.Volumes[0].VolumeSource.HostPath == nil && template.Spec.Volumes[0].VolumeSource.EmptyDir == nil) {
+	if len(template.Spec.Volumes) == 0 || len(template.Spec.Volumes[0].Name) == 0 || template.Spec.Volumes[0].VolumeSource.EmptyDir == nil {
 		return fmt.Errorf("Found incorrect volumes: %v vs. %#v", config.Volumes, template.Spec.Volumes)
 	}
 	// We only set controller labels here and k8s server will take care of other defaults, such as selectors
