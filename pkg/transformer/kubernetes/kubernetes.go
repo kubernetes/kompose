@@ -192,10 +192,9 @@ func ConfigVolumes(service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volu
 		volumesMount = append(volumesMount, api.VolumeMount{Name: name, ReadOnly: readonly, MountPath: container})
 
 		if len(host) > 0 {
-			volumeSource = api.VolumeSource{HostPath: &api.HostPathVolumeSource{Path: host}}
-		} else {
-			volumeSource = api.VolumeSource{EmptyDir: &api.EmptyDirVolumeSource{}}
+			logrus.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
 		}
+		volumeSource = api.VolumeSource{EmptyDir: &api.EmptyDirVolumeSource{}}
 
 		volumes = append(volumes, api.Volume{Name: name, VolumeSource: volumeSource})
 	}
