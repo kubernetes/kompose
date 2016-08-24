@@ -36,8 +36,8 @@ import (
 type Compose struct {
 }
 
-// load Environment Variable from compose file
-func loadEnvVarsfromCompose(e map[string]string) []kobject.EnvVar {
+// load environment variables from compose file
+func loadEnvVars(e map[string]string) []kobject.EnvVar {
 	envs := []kobject.EnvVar{}
 	for k, v := range e {
 		envs = append(envs, kobject.EnvVar{
@@ -48,8 +48,8 @@ func loadEnvVarsfromCompose(e map[string]string) []kobject.EnvVar {
 	return envs
 }
 
-// Load Ports from compose file
-func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, error) {
+// Load ports from compose file
+func loadPorts(composePorts []string) ([]kobject.Ports, error) {
 	ports := []kobject.Ports{}
 	character := ":"
 	for _, port := range composePorts {
@@ -87,7 +87,7 @@ func loadPortsFromCompose(composePorts []string) ([]kobject.Ports, error) {
 	return ports, nil
 }
 
-// load Docker Compose file into KomposeObject
+// load compose file into KomposeObject
 func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
@@ -152,11 +152,11 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 			serviceConfig.ContainerName = composeServiceConfig.ContainerName
 
 			// load environment variables
-			envs := loadEnvVarsfromCompose(composeServiceConfig.Environment.ToMap())
+			envs := loadEnvVars(composeServiceConfig.Environment.ToMap())
 			serviceConfig.Environment = envs
 
 			// load ports
-			ports, err := loadPortsFromCompose(composeServiceConfig.Ports)
+			ports, err := loadPorts(composeServiceConfig.Ports)
 			if err != nil {
 				logrus.Fatalf("%q failed to load ports from compose file: %v", name, err)
 			}
