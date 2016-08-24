@@ -244,6 +244,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			objects = append(objects, svc)
 		}
 
+		UpdateKubernetesObjects(name, service, objects)
+
 		allobjects = append(allobjects, objects...)
 	}
 
