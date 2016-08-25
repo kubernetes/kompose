@@ -223,7 +223,7 @@ func PortsExist(name string, service kobject.ServiceConfig) bool {
 	}
 }
 
-// create a kubernetes Service
+// create a k8s service
 func CreateService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
 	svc := InitSvc(name, service)
 
@@ -238,6 +238,7 @@ func CreateService(name string, service kobject.ServiceConfig, objects []runtime
 	return svc
 }
 
+// load configurations to k8s objects
 func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects []runtime.Object) {
 	// Configure the environment variables.
 	envs := ConfigEnvs(name, service)

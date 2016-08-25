@@ -30,7 +30,7 @@ import (
 type Bundle struct {
 }
 
-// load Image from bundles file
+// load image from dab file
 func loadImage(service bundlefile.Service) (string, string) {
 	character := "@"
 	if strings.Contains(service.Image, character) {
@@ -39,8 +39,8 @@ func loadImage(service bundlefile.Service) (string, string) {
 	return "", "Invalid image format"
 }
 
-// load Environment Variable from bundles file
-func loadEnvVarsfromBundle(service bundlefile.Service) ([]kobject.EnvVar, string) {
+// load environment variables from dab file
+func loadEnvVars(service bundlefile.Service) ([]kobject.EnvVar, string) {
 	envs := []kobject.EnvVar{}
 	for _, env := range service.Env {
 		character := "="
@@ -76,8 +76,8 @@ func loadEnvVarsfromBundle(service bundlefile.Service) ([]kobject.EnvVar, string
 	return envs, ""
 }
 
-// load Ports from bundles file
-func loadPortsfromBundle(service bundlefile.Service) ([]kobject.Ports, string) {
+// load ports from dab file
+func loadPorts(service bundlefile.Service) ([]kobject.Ports, string) {
 	ports := []kobject.Ports{}
 	for _, port := range service.Ports {
 		var p api.Protocol
@@ -98,7 +98,7 @@ func loadPortsfromBundle(service bundlefile.Service) ([]kobject.Ports, string) {
 	return ports, ""
 }
 
-// load Bundlefile into KomposeObject
+// load dab file into KomposeObject
 func (b *Bundle) LoadFile(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
@@ -129,13 +129,13 @@ func (b *Bundle) LoadFile(file string) kobject.KomposeObject {
 		}
 		serviceConfig.Image = image
 
-		envs, err := loadEnvVarsfromBundle(service)
+		envs, err := loadEnvVars(service)
 		if err != "" {
 			logrus.Fatalf("Failed to load envvar from bundles file: " + err)
 		}
 		serviceConfig.Environment = envs
 
-		ports, err := loadPortsfromBundle(service)
+		ports, err := loadPorts(service)
 		if err != "" {
 			logrus.Fatalf("Failed to load ports from bundles file: " + err)
 		}
