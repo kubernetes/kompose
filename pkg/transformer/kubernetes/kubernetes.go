@@ -214,7 +214,7 @@ func ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
 	return envs
 }
 
-// Generate a Kubernetes artifacts for each input type service
+// Generate a Kubernetes artifact for each input type service
 func CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
 	var objects []runtime.Object
 
@@ -231,6 +231,7 @@ func CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kob
 	return objects
 }
 
+// Maps komposeObject to k8s objects
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
 	// this will hold all the converted data
 	var allobjects []runtime.Object
@@ -252,7 +253,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	return allobjects
 }
 
-// updateController updates the given object with the given pod template update function and ObjectMeta update function
+// Updates the given object with the given pod template update function and ObjectMeta update function
 func UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec), updateMeta func(meta *api.ObjectMeta)) {
 	switch t := obj.(type) {
 	case *api.ReplicationController:
@@ -273,6 +274,7 @@ func UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSp
 	}
 }
 
+// Submit deployment and svc to k8s endpoint
 func CreateObjects(client *client.Client, objects []runtime.Object) {
 	for _, v := range objects {
 		switch t := v.(type) {

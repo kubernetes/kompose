@@ -62,6 +62,7 @@ func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas i
 	return dc
 }
 
+// Maps komposeObject to openshift objects
 func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
 	// this will hold all the converted data
 	var allobjects []runtime.Object
