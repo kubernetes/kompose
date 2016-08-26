@@ -185,6 +185,7 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 			serviceConfig.Privileged = composeServiceConfig.Privileged
 			serviceConfig.Restart = composeServiceConfig.Restart
 			serviceConfig.User = composeServiceConfig.User
+			serviceConfig.VolumesFrom = composeServiceConfig.VolumesFrom
 
 			komposeObject.ServiceConfigs[name] = serviceConfig
 		}

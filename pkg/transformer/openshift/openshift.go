@@ -19,42 +19,40 @@ package openshift
 import (
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	"github.com/skippbox/kompose/pkg/kobject"
+	"github.com/skippbox/kompose/pkg/transformer"
 	"github.com/skippbox/kompose/pkg/transformer/kubernetes"
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/runtime"
+	"k8s.io/kubernetes/pkg/util/sets"
 )
 
 type OpenShift struct {
 }
 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
-func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
+func initDeploymentConfig(services map[string]kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
+	deploymentName := kubernetes.GetDeploymentName(services)
 	dc := &deployapi.DeploymentConfig{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DeploymentConfig",
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: map[string]string{"service": name},
+			Name:   deploymentName,
+			Labels: transformer.ConfigLabels(deploymentName),
 		},
 		Spec: deployapi.DeploymentConfigSpec{
 			Replicas: int32(replicas),
-			Selector: map[string]string{"service": name},
+			Selector: transformer.ConfigLabels(deploymentName),
 			//UniqueLabelKey: p.Name,
 			Template: &api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
-					Labels: map[string]string{"service": name},
+					Labels: transformer.ConfigLabels(deploymentName),
 				},
 				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
+					Containers: []api.Container{},
 				},
 			},
 		},
@@ -67,22 +65,33 @@ func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas i
 func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
 	// this will hold all the converted data
 	var allobjects []runtime.Object
+	// create a graph of dependecies
+	d := make(map[string]sets.String)
+	// this is a function that is specific to docker-compose directive `volumes_from`
+	// later to add to dependency graph a user can create new function
+	kubernetes.DependencyVolumesFrom(komposeObject, d)
 
-	for name, service := range komposeObject.ServiceConfigs {
-		objects := kubernetes.CreateKubernetesObjects(name, service, opt)
+	resolved := kubernetes.FindDependency(d)
+	colocation := kubernetes.CalculateColocation(resolved)
+
+	for _, svcnames := range colocation {
+		svcConfigs := make(map[string]kobject.ServiceConfig)
+		for _, svcname := range svcnames.List() {
+			svcConfigs[svcname] = komposeObject.ServiceConfigs[svcname]
+		}
+
+		objects := kubernetes.CreateKubernetesObjects(svcConfigs, opt)
 
 		if opt.CreateDeploymentConfig {
-			objects = append(objects, initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
+			objects = append(objects, initDeploymentConfig(svcConfigs, opt.Replicas)) // OpenShift DeploymentConfigs
 		}
 
 		// If ports not provided in configuration we will not make service
-		if kubernetes.PortsExist(name, service) {
-			svc := kubernetes.CreateService(name, service, objects)
+		svcs := kubernetes.InitSvc(svcConfigs)
+		for _, svc := range svcs {
 			objects = append(objects, svc)
 		}
-
-		kubernetes.UpdateKubernetesObjects(name, service, objects)
-
+		kubernetes.UpdateKubernetesObjects(svcConfigs, objects, resolved)
 		allobjects = append(allobjects, objects...)
 	}
 	// sort all object so Services are first

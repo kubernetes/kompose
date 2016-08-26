@@ -1,0 +1,140 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "nginx",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "nginx"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "80",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "service": "nginx"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "nginx"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "3030",
+            "protocol": "TCP",
+            "port": 3030,
+            "targetPort": 3000
+          }
+        ],
+        "selector": {
+          "service": "nginx"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "nginx",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "nginx"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "ls6k1hh2gdnyxxvi7hvs",
+                "emptyDir": {}
+              },
+              {
+                "name": "fpllngzieyoh43e0133o",
+                "emptyDir": {}
+              }
+            ],
+            "containers": [
+              {
+                "name": "nginx",
+                "image": "nginx",
+                "ports": [
+                  {
+                    "containerPort": 80,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "fpllngzieyoh43e0133o",
+                    "mountPath": "/www/public"
+                  },
+                  {
+                    "name": "ls6k1hh2gdnyxxvi7hvs",
+                    "mountPath": "/src/app"
+                  }
+                ]
+              },
+              {
+                "name": "web",
+                "image": "centos/httpd",
+                "args": [
+                  "nodemon",
+                  "-L",
+                  "app/bin/www"
+                ],
+                "ports": [
+                  {
+                    "containerPort": 3000,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "ls6k1hh2gdnyxxvi7hvs",
+                    "mountPath": "/src/app"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}

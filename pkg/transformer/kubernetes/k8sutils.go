@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -231,75 +232,111 @@ func PortsExist(name string, service kobject.ServiceConfig) bool {
 	}
 }
 
-// create a k8s service
-func CreateService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
-	svc := InitSvc(name, service)
+// When `volumes_from` is used this function will help to aggregate the various volumes each container has
+// returns a map of service and volumeMounts which map to each container and list of all volumes for that pod
+func resolveVols(services map[string]kobject.ServiceConfig, resolved Graph) (map[string][]api.VolumeMount, []api.Volume) {
+	volumeMounts := make(map[string][]api.VolumeMount)
+	volumes := make(map[string][]api.Volume)
 
-	// Configure the service ports.
-	servicePorts := ConfigServicePorts(name, service)
-	svc.Spec.Ports = servicePorts
+	// sorting the service names just so that the output is predictable
+	// using maps could change the sequence so sorting this!
+	var names []string
+	for name, _ := range services {
+		names = append(names, name)
+	}
+	sort.Strings(names)
 
-	// Configure annotations
-	annotations := transformer.ConfigAnnotations(service)
-	svc.ObjectMeta.Annotations = annotations
+	for _, name := range names {
+		vm, vols := ConfigVolumes(services[name])
+		volumes[name] = append(volumes[name], vols...)
+		volumeMounts[name] = append(volumeMounts[name], vm...)
+	}
 
-	return svc
+	// another data structure just to make sure overlapping volumes are not added
+	volumeMount := make(map[string][]api.VolumeMount)
+	var volume []api.Volume
+
+	for _, node := range resolved {
+		volumeMount[node.name] = append(volumeMount[node.name], volumeMounts[node.name]...)
+		volume = append(volume, volumes[node.name]...)
+
+		for _, dep := range node.deps {
+			volumeMount[node.name] = append(volumeMount[node.name], volumeMount[dep]...)
+		}
+	}
+	return volumeMount, volume
 }
 
 // load configurations to k8s objects
-func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects []runtime.Object) {
-	// Configure the environment variables.
-	envs := ConfigEnvs(name, service)
-
+func UpdateKubernetesObjects(services map[string]kobject.ServiceConfig, objects []runtime.Object, resolved Graph) {
 	// Configure the container volumes.
-	volumesMount, volumes := ConfigVolumes(service)
+	volumeMounts, volumes := resolveVols(services, resolved)
 
-	// Configure the container ports.
-	ports := ConfigPorts(name, service)
+	deploymentName := GetDeploymentName(services)
 
-	// Configure annotations
-	annotations := transformer.ConfigAnnotations(service)
+	var i int
+	for name, service := range services {
+		// Configure the environment variables.
+		envs := ConfigEnvs(service)
 
-	// fillTemplate fills the pod template with the value calculated from config
-	fillTemplate := func(template *api.PodTemplateSpec) {
-		if len(service.ContainerName) > 0 {
-			template.Spec.Containers[0].Name = service.ContainerName
-		}
-		template.Spec.Containers[0].Env = envs
-		template.Spec.Containers[0].Command = service.Command
-		template.Spec.Containers[0].Args = service.Args
-		template.Spec.Containers[0].WorkingDir = service.WorkingDir
-		template.Spec.Containers[0].VolumeMounts = volumesMount
-		template.Spec.Volumes = volumes
-		// Configure the container privileged mode
-		if service.Privileged == true {
-			template.Spec.Containers[0].SecurityContext = &api.SecurityContext{
-				Privileged: &service.Privileged,
+		// Configure the container ports.
+		ports := ConfigPorts(service)
+
+		// Configure annotations
+		annotations := transformer.ConfigAnnotations(service)
+
+		// fillTemplate fills the pod template with the value calculated from config
+		fillTemplate := func(template *api.PodTemplateSpec) {
+
+			template.Spec.Containers = append(template.Spec.Containers, api.Container{
+				Name:  name,
+				Image: service.Image,
+			})
+
+			if len(service.ContainerName) > 0 {
+				template.Spec.Containers[i].Name = service.ContainerName
+			}
+			template.Spec.Containers[i].Env = envs
+			template.Spec.Containers[i].Command = service.Command
+			template.Spec.Containers[i].Args = service.Args
+			template.Spec.Containers[i].WorkingDir = service.WorkingDir
+			template.Spec.Containers[i].VolumeMounts = volumeMounts[name]
+			// add the calculated volumes info once
+			if template.Spec.Volumes == nil {
+				template.Spec.Volumes = append(template.Spec.Volumes, volumes...)
+			}
+			// Configure the container privileged mode
+			if service.Privileged == true {
+				template.Spec.Containers[i].SecurityContext = &api.SecurityContext{
+					Privileged: &service.Privileged,
+				}
+			}
+			template.Spec.Containers[i].Ports = ports
+			template.ObjectMeta.Labels = transformer.ConfigLabels(deploymentName)
+
+			// Configure the container restart policy.
+			switch service.Restart {
+			case "", "always":
+				template.Spec.RestartPolicy = api.RestartPolicyAlways
+			case "no":
+				template.Spec.RestartPolicy = api.RestartPolicyNever
+			case "on-failure":
+				template.Spec.RestartPolicy = api.RestartPolicyOnFailure
+			default:
+				logrus.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
 			}
 		}
-		template.Spec.Containers[0].Ports = ports
-		template.ObjectMeta.Labels = transformer.ConfigLabels(name)
-		// Configure the container restart policy.
-		switch service.Restart {
-		case "", "always":
-			template.Spec.RestartPolicy = api.RestartPolicyAlways
-		case "no":
-			template.Spec.RestartPolicy = api.RestartPolicyNever
-		case "on-failure":
-			template.Spec.RestartPolicy = api.RestartPolicyOnFailure
-		default:
-			logrus.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
+
+		// fillObjectMeta fills the metadata with the value calculated from config
+		fillObjectMeta := func(meta *api.ObjectMeta) {
+			meta.Annotations = annotations
 		}
-	}
 
-	// fillObjectMeta fills the metadata with the value calculated from config
-	fillObjectMeta := func(meta *api.ObjectMeta) {
-		meta.Annotations = annotations
-	}
-
-	// update supported controller
-	for _, obj := range objects {
-		UpdateController(obj, fillTemplate, fillObjectMeta)
+		// update supported controller
+		for _, obj := range objects {
+			UpdateController(obj, fillTemplate, fillObjectMeta)
+		}
+		i += 1
 	}
 }
 
@@ -319,4 +356,13 @@ func SortServicesFirst(objs *[]runtime.Object) {
 	ret = append(ret, svc...)
 	ret = append(ret, others...)
 	*objs = ret
+}
+
+func GetDeploymentName(services map[string]kobject.ServiceConfig) string {
+	var names []string
+	for name, _ := range services {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names[0]
 }

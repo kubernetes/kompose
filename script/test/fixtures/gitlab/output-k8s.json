@@ -7,148 +7,6 @@
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "postgresql",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "postgresql"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "postgresql",
-                "image": "swordphilic/postgresql",
-                "ports": [
-                  {
-                    "containerPort": 5432,
-                    "protocol": "TCP"
-                  }
-                ],
-                "env": [
-                  {
-                    "name": "DB_USER",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "DB_NAME",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "DB_PASS",
-                    "value": "gitlab"
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "postgresql",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "postgresql"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "5432",
-            "protocol": "TCP",
-            "port": 5432,
-            "targetPort": 5432
-          }
-        ],
-        "selector": {
-          "service": "postgresql"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "redis",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "redis"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "redis",
-                "image": "swordphilic/redis",
-                "ports": [
-                  {
-                    "containerPort": 6379,
-                    "protocol": "TCP"
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "redis",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "redis"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "6379",
-            "protocol": "TCP",
-            "port": 6379,
-            "targetPort": 6379
-          }
-        ],
-        "selector": {
-          "service": "redis"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
         "name": "gitlab",
         "creationTimestamp": null
       },
@@ -257,6 +115,148 @@
         ],
         "selector": {
           "service": "gitlab"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "postgresql",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "postgresql"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "postgresql",
+                "image": "swordphilic/postgresql",
+                "ports": [
+                  {
+                    "containerPort": 5432,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_PASS",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_NAME",
+                    "value": "gitlab"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "postgresql",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "postgresql"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "5432",
+            "protocol": "TCP",
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ],
+        "selector": {
+          "service": "postgresql"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "redis"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis",
+                "image": "swordphilic/redis",
+                "ports": [
+                  {
+                    "containerPort": 6379,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "redis"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6379",
+            "protocol": "TCP",
+            "port": 6379,
+            "targetPort": 6379
+          }
+        ],
+        "selector": {
+          "service": "redis"
         }
       },
       "status": {
