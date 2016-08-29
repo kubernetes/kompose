@@ -119,6 +119,7 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 
 	// load compose file into composeObject
 	composeObject := project.NewProject(&context.Context, nil, nil)
+
 	err := composeObject.Parse()
 	if err != nil {
 		logrus.Fatalf("Failed to load compose file: %v", err)
@@ -150,6 +151,8 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 			serviceConfig := kobject.ServiceConfig{}
 			serviceConfig.Image = composeServiceConfig.Image
 			serviceConfig.ContainerName = composeServiceConfig.ContainerName
+			serviceConfig.Entrypoint = composeServiceConfig.Entrypoint
+			serviceConfig.Command = composeServiceConfig.Command
 
 			// load environment variables
 			envs := loadEnvVars(composeServiceConfig.Environment.ToMap())
