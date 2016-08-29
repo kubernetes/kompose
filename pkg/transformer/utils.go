@@ -41,16 +41,6 @@ func CreateOutFile(out string) *os.File {
 	return f
 }
 
-// Configure the container commands
-func ConfigCommands(service kobject.ServiceConfig) []string {
-	var cmds []string
-	for _, cmd := range service.Command {
-		cmds = append(cmds, cmd)
-	}
-
-	return cmds
-}
-
 // parseVolume parse a given volume, which might be [name:][host:]container[:access_mode]
 func ParseVolume(volume string) (name, host, container, mode string, err error) {
 	separator := ":"
