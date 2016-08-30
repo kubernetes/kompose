@@ -62,7 +62,8 @@ func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas i
 	return dc
 }
 
-// Maps komposeObject to openshift objects
+// Transform maps komposeObject to openshift objects
+// returns objects that are already sorted in the way that Services are first
 func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
 	// this will hold all the converted data
 	var allobjects []runtime.Object
@@ -84,6 +85,7 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 		allobjects = append(allobjects, objects...)
 	}
-
+	// sort all object so Services are first
+	kubernetes.SortServicesFirst(&allobjects)
 	return allobjects
 }
