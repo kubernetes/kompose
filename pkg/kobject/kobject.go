@@ -145,7 +145,6 @@ type ServiceConfig struct {
 	CPUQuota      int64
 	CapAdd        []string
 	CapDrop       []string
-	Entrypoint    []string
 	Expose        []string
 	Privileged    bool
 	Restart       string
