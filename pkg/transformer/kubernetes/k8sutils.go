@@ -258,8 +258,8 @@ func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects
 			template.Spec.Containers[0].Name = service.ContainerName
 		}
 		template.Spec.Containers[0].Env = envs
-		template.Spec.Containers[0].Command = service.Entrypoint
-		template.Spec.Containers[0].Args = service.Command
+		template.Spec.Containers[0].Command = service.Command
+		template.Spec.Containers[0].Args = service.Args
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
 		template.Spec.Containers[0].VolumeMounts = volumesMount
 		template.Spec.Volumes = volumes

@@ -42,13 +42,12 @@ func newServiceConfig() kobject.ServiceConfig {
 		Network:       []string{"network1", "network2"}, // not supported
 		Labels:        nil,
 		Annotations:   map[string]string{"abc": "def"},
-		CPUSet:        "cpu_set",              // not supported
-		CPUShares:     1,                      // not supported
-		CPUQuota:      1,                      // not supported
-		CapAdd:        []string{"cap_add"},    // not supported
-		CapDrop:       []string{"cap_drop"},   // not supported
-		Entrypoint:    []string{"entrypoint"}, // not supported
-		Expose:        []string{"expose"},     // not supported
+		CPUSet:        "cpu_set",            // not supported
+		CPUShares:     1,                    // not supported
+		CPUQuota:      1,                    // not supported
+		CapAdd:        []string{"cap_add"},  // not supported
+		CapDrop:       []string{"cap_drop"}, // not supported
+		Expose:        []string{"expose"},   // not supported
 		Privileged:    true,
 		Restart:       "always",
 		User:          "user", // not supported

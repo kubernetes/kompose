@@ -151,8 +151,8 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 			serviceConfig := kobject.ServiceConfig{}
 			serviceConfig.Image = composeServiceConfig.Image
 			serviceConfig.ContainerName = composeServiceConfig.ContainerName
-			serviceConfig.Entrypoint = composeServiceConfig.Entrypoint
-			serviceConfig.Command = composeServiceConfig.Command
+			serviceConfig.Command = composeServiceConfig.Entrypoint
+			serviceConfig.Args = composeServiceConfig.Command
 
 			// load environment variables
 			envs := loadEnvVars(composeServiceConfig.Environment.ToMap())
