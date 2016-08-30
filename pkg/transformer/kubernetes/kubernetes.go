@@ -234,7 +234,8 @@ func CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kob
 	return objects
 }
 
-// Maps komposeObject to k8s objects
+// Transform maps komposeObject to k8s objects
+// returns object that are already sorted in the way that Services are first
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
 	// this will hold all the converted data
 	var allobjects []runtime.Object
@@ -252,7 +253,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 		allobjects = append(allobjects, objects...)
 	}
-
+	// sort all object so Services are first
+	SortServicesFirst(&allobjects)
 	return allobjects
 }
 
