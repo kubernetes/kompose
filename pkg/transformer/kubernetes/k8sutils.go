@@ -139,7 +139,9 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			if err != nil {
 				return err
 			}
+
 			list.Items = append(list.Items, versionedObject)
+
 		}
 		// version list itself
 		listVersion := unversioned.GroupVersion{Group: "", Version: "v1"}
@@ -302,4 +304,22 @@ func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects
 	for _, obj := range objects {
 		UpdateController(obj, fillTemplate, fillObjectMeta)
 	}
+}
+
+// the objects that we get can be in any order this keeps services first
+// according to best practice kubernetes services should be created first
+// http://kubernetes.io/docs/user-guide/config-best-practices/
+func SortServicesFirst(objs *[]runtime.Object) {
+	var svc, others, ret []runtime.Object
+
+	for _, obj := range *objs {
+		if obj.GetObjectKind().GroupVersionKind().Kind == "Service" {
+			svc = append(svc, obj)
+		} else {
+			others = append(others, obj)
+		}
+	}
+	ret = append(ret, svc...)
+	ret = append(ret, others...)
+	*objs = ret
 }
