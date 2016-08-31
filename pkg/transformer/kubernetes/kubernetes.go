@@ -292,5 +292,5 @@ func CreateObjects(client *client.Client, objects []runtime.Object) {
 			logrus.Infof("Successfully created service: %s", t.Name)
 		}
 	}
-	fmt.Println("\nApplication has been deployed to Kubernetes. You can run 'kubectl get deployment,svc' for details.")
+	fmt.Println("\nYour application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.")
 }
