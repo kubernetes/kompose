@@ -79,7 +79,7 @@ func validateFlags(opt kobject.ConvertOptions, singleOutput bool, dabFile, input
 			count++
 		}
 		if count > 1 {
-			logrus.Fatalf("Error: only one type of Kubernetes controller can be generated when --out or --stdout is specified")
+			logrus.Fatalf("Error: only one kind of Kubernetes resource can be generated when --out or --stdout is specified")
 		}
 	}
 	if len(dabFile) > 0 && len(inputFile) > 0 && inputFile != DefaultComposeFile {
@@ -161,13 +161,13 @@ func Convert(c *cli.Context) {
 
 // Up brings up deployment, svc.
 func Up(c *cli.Context) {
-	fmt.Println("We are going to create Kubernetes deployment and service for your dockerized application. \n" +
-		"If you need more kind of controllers, use 'kompose convert' and 'kubectl create -f' instead. \n")
+	fmt.Println("We are going to create Kubernetes deployments and services for your Dockerized application. \n" +
+		"If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. \n")
 
 	factory := cmdutil.NewFactory(nil)
 	clientConfig, err := factory.ClientConfig()
 	if err != nil {
-		logrus.Fatalf("Failed to access the Kubernetes cluster. Make sure you have a Kubernetes running: %v", err)
+		logrus.Fatalf("Failed to access the Kubernetes cluster. Make sure you have a Kubernetes cluster running: %v", err)
 	}
 	client := client.NewOrDie(clientConfig)
 
