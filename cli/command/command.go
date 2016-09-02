@@ -33,12 +33,6 @@ func ConvertCommand() cli.Command {
 		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "file,f",
-				Usage:  fmt.Sprintf("Specify an alternate compose file (default: %s)", app.DefaultComposeFile),
-				Value:  app.DefaultComposeFile,
-				EnvVar: "COMPOSE_FILE",
-			},
-			cli.StringFlag{
 				Name:   "bundle,dab",
 				Usage:  "Specify a Distributed Application Bundle (DAB) file",
 				EnvVar: "DAB_FILE",
@@ -95,12 +89,6 @@ func UpCommand() cli.Command {
 		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "file,f",
-				Usage:  fmt.Sprintf("Specify an alternative compose file (default: %s)", app.DefaultComposeFile),
-				Value:  app.DefaultComposeFile,
-				EnvVar: "COMPOSE_FILE",
-			},
-			cli.StringFlag{
 				Name:   "bundle,dab",
 				Usage:  "Specify a Distributed Application Bundle (DAB) file",
 				EnvVar: "DAB_FILE",
@@ -119,12 +107,6 @@ func DownCommand() cli.Command {
 		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "file,f",
-				Usage:  fmt.Sprintf("Specify an alternative compose file (default: %s)", app.DefaultComposeFile),
-				Value:  app.DefaultComposeFile,
-				EnvVar: "COMPOSE_FILE",
-			},
-			cli.StringFlag{
 				Name:   "bundle,dab",
 				Usage:  "Specify a Distributed Application Bundle (DAB) file",
 				EnvVar: "DAB_FILE",
@@ -135,5 +117,12 @@ func DownCommand() cli.Command {
 
 // CommonFlags defines the flags that are in common for all subcommands.
 func CommonFlags() []cli.Flag {
-	return []cli.Flag{}
+	return []cli.Flag{
+		cli.StringFlag{
+			Name:   "file,f",
+			Usage:  fmt.Sprintf("Specify an alternative compose file (default: %s)", app.DefaultComposeFile),
+			Value:  app.DefaultComposeFile,
+			EnvVar: "COMPOSE_FILE",
+		},
+	}
 }
