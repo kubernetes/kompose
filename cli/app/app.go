@@ -213,6 +213,49 @@ func Up(c *cli.Context) {
 	kubernetes.CreateObjects(client, objects)
 }
 
+// Down deletes all deployment, svc.
+func Down(c *cli.Context) {
+	factory := cmdutil.NewFactory(nil)
+	clientConfig, err := factory.ClientConfig()
+	if err != nil {
+		logrus.Fatalf("Failed to access the Kubernetes cluster. Make sure you have a Kubernetes running: %v", err)
+	}
+	client := client.NewOrDie(clientConfig)
+
+	inputFile := c.String("file")
+	dabFile := c.String("bundle")
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+	}
+
+	file := inputFile
+	if len(dabFile) > 0 {
+		inputFormat = "bundle"
+		file = dabFile
+	}
+
+	opt := kobject.ConvertOptions{}
+
+	validateFlags(opt, false, dabFile, inputFile)
+
+	// loader parses input from file into komposeObject.
+	var l loader.Loader
+	switch inputFormat {
+	case "bundle":
+		l = new(bundle.Bundle)
+	case "compose":
+		l = new(compose.Compose)
+	default:
+		logrus.Fatalf("Input file format is not supported")
+	}
+	komposeObject = l.LoadFile(file)
+
+	for k := range komposeObject.ServiceConfigs {
+		kubernetes.DeleteObjects(client, k)
+	}
+}
+
 // the objects that we get can be in any order this keeps services first
 // according to best practice kubernetes services should be created first
 // http://kubernetes.io/docs/user-guide/config-best-practices/
@@ -229,4 +272,20 @@ func sortServicesFirst(objs *[]runtime.Object) {
 	ret = append(ret, svc...)
 	ret = append(ret, others...)
 	*objs = ret
+}
+
+func askForConfirmation() bool {
+	var response string
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	if response == "yes" {
+		return true
+	} else if response == "no" {
+		return false
+	} else {
+		fmt.Println("Please type yes or no and then press enter:")
+		return askForConfirmation()
+	}
 }
