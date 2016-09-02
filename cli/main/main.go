@@ -38,9 +38,9 @@ func main() {
 	app.Commands = []cli.Command{
 		command.ConvertCommand(),
 		command.UpCommand(),
+		command.DownCommand(),
 		// TODO: enable these commands and update docs once we fix them
 		//command.PsCommand(),
-		//command.DeleteCommand(),
 		//command.ScaleCommand(),
 	}
 

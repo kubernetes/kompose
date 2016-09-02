@@ -31,6 +31,9 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
+	//"k8s.io/kubernetes/pkg/controller/daemon"
+	"k8s.io/kubernetes/pkg/kubectl"
+	"time"
 )
 
 type Kubernetes struct {
@@ -293,4 +296,32 @@ func CreateObjects(client *client.Client, objects []runtime.Object) {
 		}
 	}
 	fmt.Println("\nYour application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.")
+}
+
+func DeleteObjects(client *client.Client, name string) {
+	//delete svc
+	rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
+	if err != nil {
+		logrus.Warningf("Can't get reaper for service due to '%v'", err)
+	}
+	//FIXME: timeout = 300s, gracePeriod is nil
+	err = rpService.Stop(api.NamespaceDefault, name, 300*time.Second, nil)
+	if err != nil {
+		logrus.Warningf("Can't delete service: %s due to '%v'", name, err)
+	} else {
+		logrus.Infof("Successfully deleted service: %s", name)
+	}
+
+	//delete deployment
+	rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
+	if err != nil {
+		logrus.Warningf("Can't get reaper for deployment due to '%v'", err)
+	}
+	//FIXME: timeout = 300s, gracePeriod is nil
+	err = rpDeployment.Stop(api.NamespaceDefault, name, 300*time.Second, nil)
+	if err != nil {
+		logrus.Warningf("Can't delete deployment: %s due to '%v'", name, err)
+	} else {
+		logrus.Infof("Successfully deleted deployment: %s", name)
+	}
 }
