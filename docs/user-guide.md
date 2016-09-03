@@ -1,6 +1,13 @@
 # User Guide
 
-## Usage
+- [Usage](#user-guide)
+  * [Kompose convert](#kompose-convert)
+  * [Kompose up](#kompose-up)
+  * [Kompose down](#kompose-down)
+- [Alternate formats](#alternate-formats)
+- [Unsupported docker-compose configuration options](#unsupported-docker-compose-configuration-options)
+
+## Kompose convert
 
 Currently Kompose supports to transform either Docker Compose file (both of v1 and v2) and [experimental Distributed Application Bundles](https://blog.docker.com/2016/06/docker-app-bundle/) into Kubernetes objects. There is a couple of sample files in the `examples/` directory for testing. You will convert the compose or dab file to K8s objects with `kompose convert`.
 
@@ -10,7 +17,7 @@ $ cd examples/
 $ ls
 docker-compose.yml  docker-compose-bundle.dsb  docker-gitlab.yml  docker-voting.yml
 
-$ kompose convert -f docker-gitlab.yml -y
+$ kompose -f docker-gitlab.yml convert -y
 file "redisio-svc.yaml" created
 file "gitlab-svc.yaml" created
 file "postgresql-svc.yaml" created
@@ -26,7 +33,7 @@ gitlab-svc.yaml         postgresql-svc.yaml         redisio-deployment.yaml  red
 You can try with a Docker Compose version 2 like this:
 
 ```console
-$ kompose convert --file docker-voting.yml
+$ kompose --file docker-voting.yml convert
 WARN[0000]: Unsupported key networks - ignoring
 WARN[0000]: Unsupported key build - ignoring
 file "worker-svc.json" created
@@ -55,6 +62,59 @@ file "web-svc.json" created
 file "web-deployment.json" created
 file "redis-deployment.json" created
 ```
+
+## Kompose up
+
+Kompose supports a straightforward way to deploy your "composed" application to Kubernetes via `kompose up` like this:
+
+```console
+$ kompose --file ./examples/docker-guestbook.yml up
+We are going to create Kubernetes deployments and services for your Dockerized application. 
+If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. 
+
+INFO[0000] Successfully created service: redis-master   
+INFO[0000] Successfully created service: redis-slave    
+INFO[0000] Successfully created service: frontend       
+INFO[0001] Successfully created deployment: redis-master 
+INFO[0001] Successfully created deployment: redis-slave 
+INFO[0001] Successfully created deployment: frontend    
+
+Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.
+
+$ kubectl get deployment,svc,pods
+NAME                            DESIRED       CURRENT       UP-TO-DATE   AVAILABLE   AGE
+frontend                        1             1             1            1           4m
+redis-master                    1             1             1            1           4m
+redis-slave                     1             1             1            1           4m
+NAME                            CLUSTER-IP    EXTERNAL-IP   PORT(S)      AGE
+frontend                        10.0.174.12   <none>        80/TCP       4m
+kubernetes                      10.0.0.1      <none>        443/TCP      13d
+redis-master                    10.0.202.43   <none>        6379/TCP     4m
+redis-slave                     10.0.1.85     <none>        6379/TCP     4m
+NAME                            READY         STATUS        RESTARTS     AGE
+frontend-2768218532-cs5t5       1/1           Running       0            4m
+redis-master-1432129712-63jn8   1/1           Running       0            4m
+redis-slave-2504961300-nve7b    1/1           Running       0            4m
+```
+Note:
+- You must have a running Kubernetes cluster with a pre-configured kubectl context.
+- Only deployments and services are generated and deployed to Kubernetes. If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead.
+
+## Kompose down
+
+Once you have deployed "composed" application to Kubernetes, `kompose down` will help you to take the application out by deleting its deployments and services. If you need to remove other resources, use the 'kubectl' command.
+
+```console
+$ kompose --file docker-guestbook.yml down
+INFO[0000] Successfully deleted service: redis-master   
+INFO[0004] Successfully deleted deployment: redis-master 
+INFO[0004] Successfully deleted service: redis-slave    
+INFO[0008] Successfully deleted deployment: redis-slave 
+INFO[0009] Successfully deleted service: frontend       
+INFO[0013] Successfully deleted deployment: frontend
+```
+Note:
+- You must have a running Kubernetes cluster with a pre-configured kubectl context.
 
 ## Alternate formats
 
@@ -136,7 +196,7 @@ nginx:
     - ALL
   container_name: foobar
 
-$ kompose convert -f nginx.yml
+$ kompose -f nginx.yml convert
 WARN[0000] Unsupported key build - ignoring             
 WARN[0000] Unsupported key cap_add - ignoring           
 WARN[0000] Unsupported key dockerfile - ignoring
