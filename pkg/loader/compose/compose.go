@@ -27,7 +27,6 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/config"
-	"github.com/docker/libcompose/docker"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
 	"github.com/skippbox/kompose/pkg/kobject"
@@ -92,7 +91,7 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	context := &docker.Context{}
+	context := &project.Context{}
 	if file == "" {
 		file = "docker-compose.yml"
 	}
@@ -118,8 +117,7 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	}
 
 	// load compose file into composeObject
-	composeObject := project.NewProject(&context.Context, nil, nil)
-
+	composeObject := project.NewProject(context, nil, nil)
 	err := composeObject.Parse()
 	if err != nil {
 		logrus.Fatalf("Failed to load compose file: %v", err)
