@@ -27,7 +27,6 @@ import (
 	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
-	"k8s.io/kubernetes/pkg/runtime"
 
 	// install kubernetes api
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
@@ -207,7 +206,6 @@ func Up(c *cli.Context) {
 
 	//Convert komposeObject to K8S controllers
 	objects := t.Transform(komposeObject, opt)
-	sortServicesFirst(&objects)
 
 	//Submit objects to K8s endpoint
 	kubernetes.CreateObjects(client, objects)
@@ -254,24 +252,6 @@ func Down(c *cli.Context) {
 	for k := range komposeObject.ServiceConfigs {
 		kubernetes.DeleteObjects(client, k)
 	}
-}
-
-// the objects that we get can be in any order this keeps services first
-// according to best practice kubernetes services should be created first
-// http://kubernetes.io/docs/user-guide/config-best-practices/
-func sortServicesFirst(objs *[]runtime.Object) {
-	var svc, others, ret []runtime.Object
-
-	for _, obj := range *objs {
-		if obj.GetObjectKind().GroupVersionKind().Kind == "Service" {
-			svc = append(svc, obj)
-		} else {
-			others = append(others, obj)
-		}
-	}
-	ret = append(ret, svc...)
-	ret = append(ret, others...)
-	*objs = ret
 }
 
 func askForConfirmation() bool {

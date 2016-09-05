@@ -127,24 +127,25 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 	f := transformer.CreateOutFile(opt.OutFile)
 	defer f.Close()
 
-	var err error
 	var files []string
 
 	// if asked to print to stdout or to put in single file
 	// we will create a list
 	if opt.ToStdout || f != nil {
 		list := &api.List{}
-		list.Items = objects
+		// convert objects to versioned and add them to list
+		for _, object := range objects {
+			versionedObject, err := convertToVersion(object, unversioned.GroupVersion{})
+			if err != nil {
+				return err
+			}
 
-		// version each object in the list
-		list.Items, err = convertToVersion(list.Items)
-		if err != nil {
-			return err
+			list.Items = append(list.Items, versionedObject)
+
 		}
-
 		// version list itself
 		listVersion := unversioned.GroupVersion{Group: "", Version: "v1"}
-		convertedList, err := api.Scheme.ConvertToVersion(list, listVersion)
+		convertedList, err := convertToVersion(list, listVersion)
 		if err != nil {
 			return err
 		}
@@ -157,10 +158,16 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		var file string
 		// create a separate file for each provider
 		for _, v := range objects {
-			data, err := marshal(v, opt.GenerateYaml)
+			versionedObject, err := convertToVersion(v, unversioned.GroupVersion{})
 			if err != nil {
 				return err
 			}
+
+			data, err := marshal(versionedObject, opt.GenerateYaml)
+			if err != nil {
+				return err
+			}
+
 			switch t := v.(type) {
 			case *api.ReplicationController:
 				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
@@ -196,22 +203,23 @@ func marshal(obj runtime.Object, yamlFormat bool) (data []byte, err error) {
 	return
 }
 
-// Convert all objects in objs to versioned objects
-func convertToVersion(objs []runtime.Object) ([]runtime.Object, error) {
-	ret := []runtime.Object{}
+// Convert object to versioned object
+// if groupVersion is  empty (unversioned.GroupVersion{}), use version from original object (obj)
+func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion) (runtime.Object, error) {
 
-	for _, obj := range objs {
+	var version unversioned.GroupVersion
 
+	if groupVersion.IsEmpty() {
 		objectVersion := obj.GetObjectKind().GroupVersionKind()
-		version := unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
-		convertedObject, err := api.Scheme.ConvertToVersion(obj, version)
-		if err != nil {
-			return nil, err
-		}
-		ret = append(ret, convertedObject)
+		version = unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
+	} else {
+		version = groupVersion
 	}
-
-	return ret, nil
+	convertedObject, err := api.Scheme.ConvertToVersion(obj, version)
+	if err != nil {
+		return nil, err
+	}
+	return convertedObject, nil
 }
 
 func PortsExist(name string, service kobject.ServiceConfig) bool {
@@ -296,4 +304,22 @@ func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects
 	for _, obj := range objects {
 		UpdateController(obj, fillTemplate, fillObjectMeta)
 	}
+}
+
+// the objects that we get can be in any order this keeps services first
+// according to best practice kubernetes services should be created first
+// http://kubernetes.io/docs/user-guide/config-best-practices/
+func SortServicesFirst(objs *[]runtime.Object) {
+	var svc, others, ret []runtime.Object
+
+	for _, obj := range *objs {
+		if obj.GetObjectKind().GroupVersionKind().Kind == "Service" {
+			svc = append(svc, obj)
+		} else {
+			others = append(others, obj)
+		}
+	}
+	ret = append(ret, svc...)
+	ret = append(ret, others...)
+	*objs = ret
 }
