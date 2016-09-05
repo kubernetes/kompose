@@ -68,7 +68,7 @@ Learn how to engage with the Kubernetes community on the [community page](http:/
 
 You can reach the maintainers of this project at:
 
-- [Slack](https://skippbox.kerokuapp.com): #kompose
+- [Slack](https://skippbox.herokuapp.com): #kompose
 
 Incubation of `kompose` into the Kubernetes project will be discussed in the [API Machinery SIG](https://github.com/kubernetes/community)
 
