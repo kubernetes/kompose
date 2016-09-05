@@ -1,0 +1,54 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "base",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "base"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": null,
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "service": "base"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "base"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "base",
+                "image": "busybox",
+                "command": [
+                  "echo"
+                ],
+                "args": [
+                  "foo"
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}
