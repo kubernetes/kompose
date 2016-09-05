@@ -251,9 +251,6 @@ func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects
 	// Configure the environment variables.
 	envs := ConfigEnvs(name, service)
 
-	// Configure the container command.
-	cmds := transformer.ConfigCommands(service)
-
 	// Configure the container volumes.
 	volumesMount, volumes := ConfigVolumes(service)
 
@@ -269,7 +266,7 @@ func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects
 			template.Spec.Containers[0].Name = service.ContainerName
 		}
 		template.Spec.Containers[0].Env = envs
-		template.Spec.Containers[0].Command = cmds
+		template.Spec.Containers[0].Command = service.Command
 		template.Spec.Containers[0].Args = service.Args
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
 		template.Spec.Containers[0].VolumeMounts = volumesMount

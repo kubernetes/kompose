@@ -35,7 +35,6 @@ var unsupportedKey = map[string]int{
 	"DNS":           0,
 	"DNSSearch":     0,
 	"DomainName":    0,
-	"Entrypoint":    0,
 	"EnvFile":       0,
 	"Expose":        0,
 	"Extends":       0,
@@ -146,7 +145,6 @@ type ServiceConfig struct {
 	CPUQuota      int64
 	CapAdd        []string
 	CapDrop       []string
-	Entrypoint    []string
 	Expose        []string
 	Privileged    bool
 	Restart       string

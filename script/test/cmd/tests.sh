@@ -34,5 +34,14 @@ convert::expect_success_and_warning "kompose convert --stdout -f $KOMPOSE_ROOT/s
 # openshift test
 convert::expect_success_and_warning "kompose convert --stdout --dc -f $KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/docker-compose.yml" "$KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/output-os.json" "Unsupported key build - ignoring"
 
+
+######
+# Tests related to docker-compose file in /script/test/fixtures/entrypoint-command
+# kubernetes test
+convert::expect_success_and_warning "kompose convert --stdout -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-k8s.json" "Service cannot be created because of missing port."
+# openshift test
+convert::expect_success_and_warning "kompose convert --stdout --dc -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-os.json" "Service cannot be created because of missing port."
+
+
 exit $EXIT_STATUS
 
