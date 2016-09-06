@@ -38,9 +38,9 @@ convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtur
 ######
 # Tests related to docker-compose file in /script/test/fixtures/entrypoint-command
 # kubernetes test
-convert::expect_success_and_warning "kompose convert --stdout -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-k8s.json" "Service cannot be created because of missing port."
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-k8s.json" "Service cannot be created because of missing port."
 # openshift test
-convert::expect_success_and_warning "kompose convert --stdout --dc -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-os.json" "Service cannot be created because of missing port."
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml convert --stdout --dc" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-os.json" "Service cannot be created because of missing port."
 
 
 exit $EXIT_STATUS
