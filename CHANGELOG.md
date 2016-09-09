@@ -1,5 +1,76 @@
 # Change Log
 
+## [v0.1.0](https://github.com/skippbox/kompose/tree/v0.1.0) (2016-09-09)
+[Full Changelog](https://github.com/skippbox/kompose/compare/v0.0.1-beta.2...v0.1.0)
+
+**Implemented enhancements:**
+
+- hostPath volumes? [\#109](https://github.com/skippbox/kompose/issues/109)
+
+**Fixed bugs:**
+
+- Wrong output when port is missing [\#121](https://github.com/skippbox/kompose/issues/121)
+- kompose convert panic on v1 compose file [\#102](https://github.com/skippbox/kompose/issues/102)
+- Problems of converting volumes [\#75](https://github.com/skippbox/kompose/issues/75)
+- Print warning for unsupported fields in docker-compose format   [\#71](https://github.com/skippbox/kompose/issues/71)
+
+**Closed issues:**
+
+- \[PROPOSAL\] Use -f as a global flag [\#138](https://github.com/skippbox/kompose/issues/138)
+- Should we use libcompose project.Context{} instead of docker.Context{}? [\#134](https://github.com/skippbox/kompose/issues/134)
+- services should be first in List  [\#130](https://github.com/skippbox/kompose/issues/130)
+- cmd tests are not working properly [\#125](https://github.com/skippbox/kompose/issues/125)
+- OpenShift conversoin - invalid DeploymentConfig [\#124](https://github.com/skippbox/kompose/issues/124)
+- Create a pod of containers sharing volume [\#116](https://github.com/skippbox/kompose/issues/116)
+- Release: kompose binary should be statically linked  [\#98](https://github.com/skippbox/kompose/issues/98)
+- Update libcompose to v0.3.0 [\#95](https://github.com/skippbox/kompose/issues/95)
+- Wrong warning about networks [\#88](https://github.com/skippbox/kompose/issues/88)
+- `--stdout` output as `List` kind [\#73](https://github.com/skippbox/kompose/issues/73)
+- Bug: incorrect version  [\#64](https://github.com/skippbox/kompose/issues/64)
+- panic: runtime error: invalid memory address or nil pointer dereference [\#59](https://github.com/skippbox/kompose/issues/59)
+- Breaking code in app.go to multiple packags [\#55](https://github.com/skippbox/kompose/issues/55)
+- Write an architecture document for kompose [\#45](https://github.com/skippbox/kompose/issues/45)
+- new behavior of `kompose delete` [\#41](https://github.com/skippbox/kompose/issues/41)
+- Add OpenShift support [\#36](https://github.com/skippbox/kompose/issues/36)
+- We don't have any tests [\#34](https://github.com/skippbox/kompose/issues/34)
+
+**Merged pull requests:**
+
+- Update README.md [\#143](https://github.com/skippbox/kompose/pull/143) ([luebken](https://github.com/luebken))
+- Use libcompose project.Context{} instead of docker.Context{} [\#142](https://github.com/skippbox/kompose/pull/142) ([ngtuna](https://github.com/ngtuna))
+- update user guide: add `kompose up`, `kompose down` [\#141](https://github.com/skippbox/kompose/pull/141) ([ngtuna](https://github.com/ngtuna))
+- make --file as global flag [\#139](https://github.com/skippbox/kompose/pull/139) ([ngtuna](https://github.com/ngtuna))
+- improve messages of kompose up [\#136](https://github.com/skippbox/kompose/pull/136) ([runseb](https://github.com/runseb))
+- New guestbook example [\#135](https://github.com/skippbox/kompose/pull/135) ([runseb](https://github.com/runseb))
+- Moves examples to docs/user-guide and adds basic roadmap to main readme [\#132](https://github.com/skippbox/kompose/pull/132) ([runseb](https://github.com/runseb))
+- Add more owners [\#128](https://github.com/skippbox/kompose/pull/128) ([janetkuo](https://github.com/janetkuo))
+- docker-compose - Entrypoint support [\#127](https://github.com/skippbox/kompose/pull/127) ([kadel](https://github.com/kadel))
+- Fix conversion to OpenShift \(invalid DeploymentConfig\) [\#126](https://github.com/skippbox/kompose/pull/126) ([kadel](https://github.com/kadel))
+- clean code [\#123](https://github.com/skippbox/kompose/pull/123) ([ngtuna](https://github.com/ngtuna))
+- fix \#121: update all objects, even when port is missing [\#122](https://github.com/skippbox/kompose/pull/122) ([ngtuna](https://github.com/ngtuna))
+- Update architecture doc format [\#120](https://github.com/skippbox/kompose/pull/120) ([janetkuo](https://github.com/janetkuo))
+- Improve error message for invalid port [\#119](https://github.com/skippbox/kompose/pull/119) ([janetkuo](https://github.com/janetkuo))
+- Remove hostPath and print warnings [\#118](https://github.com/skippbox/kompose/pull/118) ([janetkuo](https://github.com/janetkuo))
+- Reuse creation of controller object code [\#115](https://github.com/skippbox/kompose/pull/115) ([surajssd](https://github.com/surajssd))
+- Removed unwanted svcnames list [\#114](https://github.com/skippbox/kompose/pull/114) ([surajssd](https://github.com/surajssd))
+- support kompose down subcommand [\#113](https://github.com/skippbox/kompose/pull/113) ([ngtuna](https://github.com/ngtuna))
+- update Libcompose to v0.3.0 [\#112](https://github.com/skippbox/kompose/pull/112) ([kadel](https://github.com/kadel))
+- Fix output comparison for cmd tests [\#110](https://github.com/skippbox/kompose/pull/110) ([surajssd](https://github.com/surajssd))
+- Create service function in kubernetes utils [\#108](https://github.com/skippbox/kompose/pull/108) ([surajssd](https://github.com/surajssd))
+- Abstracted port checking function [\#107](https://github.com/skippbox/kompose/pull/107) ([surajssd](https://github.com/surajssd))
+- Add more unit tests for Transform [\#106](https://github.com/skippbox/kompose/pull/106) ([janetkuo](https://github.com/janetkuo))
+- Support container name and args in kompose convert [\#105](https://github.com/skippbox/kompose/pull/105) ([janetkuo](https://github.com/janetkuo))
+- Add unit test for komposeConvert [\#104](https://github.com/skippbox/kompose/pull/104) ([janetkuo](https://github.com/janetkuo))
+- Update tests output files [\#101](https://github.com/skippbox/kompose/pull/101) ([surajssd](https://github.com/surajssd))
+- Build statically linked binaries in makefile; remove make clean [\#99](https://github.com/skippbox/kompose/pull/99) ([janetkuo](https://github.com/janetkuo))
+- Output List kind object when using stdout [\#94](https://github.com/skippbox/kompose/pull/94) ([surajssd](https://github.com/surajssd))
+- Run tests on travis-ci [\#93](https://github.com/skippbox/kompose/pull/93) ([kadel](https://github.com/kadel))
+- loader-transformer [\#91](https://github.com/skippbox/kompose/pull/91) ([ngtuna](https://github.com/ngtuna))
+- enhance warning: networks, network config, volume config. Fixes \#88, \#71 [\#90](https://github.com/skippbox/kompose/pull/90) ([ngtuna](https://github.com/ngtuna))
+- Functional Testing for kompose cmdline [\#89](https://github.com/skippbox/kompose/pull/89) ([surajssd](https://github.com/surajssd))
+- New behavior of kompose up [\#86](https://github.com/skippbox/kompose/pull/86) ([ngtuna](https://github.com/ngtuna))
+- Modularize convert into loader & transformer [\#72](https://github.com/skippbox/kompose/pull/72) ([ngtuna](https://github.com/ngtuna))
+
 ## [v0.0.1-beta.2](https://github.com/skippbox/kompose/tree/v0.0.1-beta.2) (2016-08-04)
 [Full Changelog](https://github.com/skippbox/kompose/compare/v0.0.1-beta.1...v0.0.1-beta.2)
 
@@ -11,7 +82,6 @@
 
 - The example .dsb file doesn't work  [\#85](https://github.com/skippbox/kompose/issues/85)
 - docker-compose labels should be converted to k8s annotations instead of labels  [\#81](https://github.com/skippbox/kompose/issues/81)
-- Bug: incorrect version  [\#64](https://github.com/skippbox/kompose/issues/64)
 - Should we support converting to Replica Sets? [\#63](https://github.com/skippbox/kompose/issues/63)
 - `targetPort` is 0 in a converted service definition [\#60](https://github.com/skippbox/kompose/issues/60)
 - docker-compose service with no ports is mapped to k8s svc with no ports [\#58](https://github.com/skippbox/kompose/issues/58)
