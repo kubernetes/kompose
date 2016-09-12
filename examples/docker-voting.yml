@@ -2,12 +2,9 @@ version: "2"
 
 services:
   vote:
-    build: ./vote
-    command: python app.py
+    image: docker/example-voting-app-vote:latest
     labels:
      - "com.example.description=Vote"
-    volumes:
-     - ./vote:/app
     ports:
       - "5000:80"
 
@@ -16,18 +13,15 @@ services:
     ports: ["6379"]
 
   worker:
-    build: ./worker
+    image: docker/example-voting-app-worker:latest
 
   db:
     image: postgres:9.4
+    ports: ["5432"]
     labels:
      - "com.example.description=Postgres Database"
 
   result:
-    build: ./result
-    command: nodemon --debug server.js
-    volumes:
-      - ./result:/app
+    image: tmadams333/example-voting-app-result:latest
     ports:
       - "5001:80"
-      - "5858:5858"
