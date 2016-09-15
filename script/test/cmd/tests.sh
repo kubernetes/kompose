@@ -23,7 +23,8 @@ convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/
 
 # commenting this test case out until image handling is fixed
 convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose-no-image.yml convert --stdout"
-convert::expect_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose-no-ports.yml convert --stdout" "Service cannot be created because of missing port."
+convert::expect_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose-no-ports.yml convert --stdout" "No ports defined, we will create a Headless service."
+
 export $(cat $KOMPOSE_ROOT/script/test/fixtures/etherpad/envs)
 # kubernetes test
 convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/etherpad/output-k8s.json" "Unsupported depends_on key - ignoring"
@@ -51,9 +52,9 @@ convert::expect_success_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/s
 ######
 # Tests related to docker-compose file in /script/test/fixtures/entrypoint-command
 # kubernetes test
-convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-k8s.json" "Service cannot be created because of missing port."
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-k8s.json" "No ports defined, we will create a Headless service."
 # openshift test
-convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-os.json" "Service cannot be created because of missing port."
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-os.json" "No ports defined, we will create a Headless service."
 
 
 ######
@@ -105,7 +106,7 @@ convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_RO
 
 ######
 # Test related to kompose --bundle convert to ensure that DSB bundles are converted properly
-convert::expect_success_and_warning "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/docker-voting-bundle.dsb convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/output-k8s.json" "Service cannot be created because of missing port."
+convert::expect_success_and_warning "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/docker-voting-bundle.dsb convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/output-k8s.json" "No ports defined, we will create a Headless service."
 
 ######
 # Test related to restart options in docker-compose

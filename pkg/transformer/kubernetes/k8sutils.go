@@ -258,7 +258,7 @@ func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion)
 // PortsExist checks if service has ports defined
 func (k *Kubernetes) PortsExist(name string, service kobject.ServiceConfig) bool {
 	if len(service.Port) == 0 {
-		logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
+		logrus.Warningf("[%s] No ports defined, we will create a Headless service.", name)
 		return false
 	}
 	return true
@@ -274,6 +274,27 @@ func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, o
 	svc.Spec.Ports = servicePorts
 
 	svc.Spec.Type = api.ServiceType(service.ServiceType)
+
+	// Configure annotations
+	annotations := transformer.ConfigAnnotations(service)
+	svc.ObjectMeta.Annotations = annotations
+
+	return svc
+}
+
+// CreateHeadlessService creates a k8s headless service
+func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
+	svc := k.InitSvc(name, service)
+
+	servicePorts := []api.ServicePort{}
+	// Configure a dummy port: https://github.com/kubernetes/kubernetes/issues/32766.
+	servicePorts = append(servicePorts, api.ServicePort{
+		Name: "headless",
+		Port: 55555,
+	})
+
+	svc.Spec.Ports = servicePorts
+	svc.Spec.ClusterIP = "None"
 
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
