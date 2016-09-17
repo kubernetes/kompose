@@ -124,5 +124,20 @@ func CommonFlags() []cli.Flag {
 			Value:  app.DefaultComposeFile,
 			EnvVar: "COMPOSE_FILE",
 		},
+		// creating a flag to suppress warnings
+		cli.BoolFlag{
+			Name:  "suppress-warnings",
+			Usage: "Suppress all warnings",
+		},
+		// creating a flag to show all kinds of warnings
+		cli.BoolFlag{
+			Name:  "verbose",
+			Usage: "Show all type of logs",
+		},
+		// flag to treat any warning as error
+		cli.BoolFlag{
+			Name:  "error-on-warning",
+			Usage: "Treat any warning as error",
+		},
 	}
 }
