@@ -45,10 +45,28 @@ const (
 
 var inputFormat = "compose"
 
+// Hook for erroring and exit out on warning
+type errorOnWarningHook struct{}
+
+func (errorOnWarningHook) Levels() []logrus.Level {
+	return []logrus.Level{logrus.WarnLevel}
+}
+
+func (errorOnWarningHook) Fire(entry *logrus.Entry) error {
+	logrus.Fatalln(entry.Message)
+	return nil
+}
+
 // BeforeApp is an action that is executed before any cli command.
 func BeforeApp(c *cli.Context) error {
+
 	if c.GlobalBool("verbose") {
 		logrus.SetLevel(logrus.DebugLevel)
+	} else if c.GlobalBool("suppress-warnings") {
+		logrus.SetLevel(logrus.ErrorLevel)
+	} else if c.GlobalBool("error-on-warning") {
+		hook := errorOnWarningHook{}
+		logrus.AddHook(hook)
 	}
 	return nil
 }
