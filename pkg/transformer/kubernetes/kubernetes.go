@@ -19,6 +19,7 @@ package kubernetes
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
@@ -33,35 +34,32 @@ import (
 	"k8s.io/kubernetes/pkg/util/intstr"
 	//"k8s.io/kubernetes/pkg/controller/daemon"
 	"k8s.io/kubernetes/pkg/kubectl"
-	"time"
+	"k8s.io/kubernetes/pkg/util/sets"
 )
 
 type Kubernetes struct {
 }
 
 // Init RC object
-func InitRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
+func InitRC(services map[string]kobject.ServiceConfig, replicas int) *api.ReplicationController {
+	deploymentName := GetDeploymentName(services)
 	rc := &api.ReplicationController{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "ReplicationController",
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			// using replication controller name as the first service name in docker-compose
+			Name: deploymentName,
 		},
 		Spec: api.ReplicationControllerSpec{
 			Replicas: int32(replicas),
 			Template: &api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
-					Labels: transformer.ConfigLabels(name),
+					Labels: transformer.ConfigLabels(deploymentName),
 				},
 				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
+					Containers: []api.Container{},
 				},
 			},
 		},
@@ -70,43 +68,66 @@ func InitRC(name string, service kobject.ServiceConfig, replicas int) *api.Repli
 }
 
 // Init Svc object
-func InitSvc(name string, service kobject.ServiceConfig) *api.Service {
-	svc := &api.Service{
-		TypeMeta: unversioned.TypeMeta{
-			Kind:       "Service",
-			APIVersion: "v1",
-		},
-		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
-		},
-		Spec: api.ServiceSpec{
-			Selector: transformer.ConfigLabels(name),
-		},
+func InitSvc(services map[string]kobject.ServiceConfig) []*api.Service {
+	deploymentName := GetDeploymentName(services)
+	var svcs []*api.Service
+	// create service for each docker-compose service
+	for name, service := range services {
+		if !PortsExist(name, service) {
+			// if ports does not exist do not create a service
+			continue
+		}
+
+		svc := &api.Service{
+			TypeMeta: unversioned.TypeMeta{
+				Kind:       "Service",
+				APIVersion: "v1",
+			},
+			ObjectMeta: api.ObjectMeta{
+				Name:   name,
+				Labels: transformer.ConfigLabels(deploymentName),
+			},
+			Spec: api.ServiceSpec{
+				Selector: transformer.ConfigLabels(deploymentName),
+			},
+		}
+
+		// Configure the service ports.
+		servicePorts := ConfigServicePorts(service)
+		svc.Spec.Ports = servicePorts
+
+		annotations := transformer.ConfigAnnotations(service)
+		if svc.ObjectMeta.Annotations == nil {
+			svc.ObjectMeta.Annotations = annotations
+		} else {
+			// adding more data to the existing service, so basically updating map
+			for k, v := range annotations {
+				svc.ObjectMeta.Annotations[k] = v
+			}
+		}
+
+		svcs = append(svcs, svc)
 	}
-	return svc
+	return svcs
 }
 
 // Init Deployment
-func InitD(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
+func InitD(services map[string]kobject.ServiceConfig, replicas int) *extensions.Deployment {
+	deploymentName := GetDeploymentName(services)
 	dc := &extensions.Deployment{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Deployment",
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			// using deployment name as the first service name in docker-compose
+			Name: deploymentName,
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
 			Template: api.PodTemplateSpec{
 				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
+					Containers: []api.Container{},
 				},
 			},
 		},
@@ -114,25 +135,22 @@ func InitD(name string, service kobject.ServiceConfig, replicas int) *extensions
 	return dc
 }
 
-// Init DS object
-func InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
+// Init DaemonSet object
+func InitDS(services map[string]kobject.ServiceConfig) *extensions.DaemonSet {
+	deploymentName := GetDeploymentName(services)
 	ds := &extensions.DaemonSet{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DaemonSet",
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			// using daemonset name as the first service name in docker-compose
+			Name: deploymentName,
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
 				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
+					Containers: []api.Container{},
 				},
 			},
 		},
@@ -141,7 +159,7 @@ func InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
 }
 
 // Configure the container ports.
-func ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
+func ConfigPorts(service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
 	for _, port := range service.Port {
 		ports = append(ports, api.ContainerPort{
@@ -154,7 +172,7 @@ func ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort
 }
 
 // Configure the container service ports.
-func ConfigServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
+func ConfigServicePorts(service kobject.ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
@@ -205,7 +223,7 @@ func ConfigVolumes(service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volu
 }
 
 // Configure the environment variables.
-func ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
+func ConfigEnvs(service kobject.ServiceConfig) []api.EnvVar {
 	envs := []api.EnvVar{}
 	for _, v := range service.Environment {
 		envs = append(envs, api.EnvVar{
@@ -218,20 +236,30 @@ func ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
 }
 
 // Generate a Kubernetes artifact for each input type service
-func CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
+func CreateKubernetesObjects(services map[string]kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
 	var objects []runtime.Object
 
 	if opt.CreateD {
-		objects = append(objects, InitD(name, service, opt.Replicas))
+		objects = append(objects, InitD(services, opt.Replicas))
 	}
 	if opt.CreateDS {
-		objects = append(objects, InitDS(name, service))
+		objects = append(objects, InitDS(services))
 	}
 	if opt.CreateRC {
-		objects = append(objects, InitRC(name, service, opt.Replicas))
+		objects = append(objects, InitRC(services, opt.Replicas))
 	}
 
 	return objects
+}
+
+func DependencyVolumesFrom(komposeObject kobject.KomposeObject, d map[string]sets.String) {
+	for name, service := range komposeObject.ServiceConfigs {
+		if _, ok := d[name]; !ok {
+			d[name] = sets.NewString(service.VolumesFrom...)
+		} else {
+			d[name].Insert(service.VolumesFrom...)
+		}
+	}
 }
 
 // Transform maps komposeObject to k8s objects
@@ -239,18 +267,29 @@ func CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kob
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
 	// this will hold all the converted data
 	var allobjects []runtime.Object
+	// create a graph of dependecies
+	d := make(map[string]sets.String)
+	// this is a function that is specific to docker-compose directive `volumes_from`
+	// later to add to dependency graph a user can create new function
+	DependencyVolumesFrom(komposeObject, d)
 
-	for name, service := range komposeObject.ServiceConfigs {
-		objects := CreateKubernetesObjects(name, service, opt)
+	resolved := FindDependency(d)
+	colocation := CalculateColocation(resolved)
 
-		// If ports not provided in configuration we will not make service
-		if PortsExist(name, service) {
-			svc := CreateService(name, service, objects)
+	for _, svcnames := range colocation {
+		svcConfigs := make(map[string]kobject.ServiceConfig)
+		for _, svcname := range svcnames.List() {
+			svcConfigs[svcname] = komposeObject.ServiceConfigs[svcname]
+		}
+
+		objects := CreateKubernetesObjects(svcConfigs, opt)
+
+		svcs := InitSvc(svcConfigs)
+		for _, svc := range svcs {
 			objects = append(objects, svc)
 		}
 
-		UpdateKubernetesObjects(name, service, objects)
-
+		UpdateKubernetesObjects(svcConfigs, objects, resolved)
 		allobjects = append(allobjects, objects...)
 	}
 	// sort all object so Services are first

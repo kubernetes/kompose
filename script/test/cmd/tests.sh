@@ -43,5 +43,13 @@ convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtur
 convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/docker-compose.yml convert --stdout --dc" "$KOMPOSE_ROOT/script/test/fixtures/entrypoint-command/output-os.json" "Service cannot be created because of missing port."
 
 
+######
+# Tests related to docker-compose file in /script/test/fixtures/volumes_from
+# kubernetes test
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volumes_from/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/volumes_from/output-k8s.json" "ignoring path on the host"
+# openshift test
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volumes_from/docker-compose.yml convert --stdout --dc " "$KOMPOSE_ROOT/script/test/fixtures/volumes_from/output-os.json" "ignoring path on the host"
+
+
 exit $EXIT_STATUS
 
