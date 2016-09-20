@@ -77,7 +77,24 @@
         "strategy": {
           "resources": {}
         },
-        "triggers": null,
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "redis"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "redis:3.0"
+              }
+            }
+          }
+        ],
         "replicas": 1,
         "test": false,
         "selector": {
@@ -94,7 +111,7 @@
             "containers": [
               {
                 "name": "redis",
-                "image": "redis:3.0",
+                "image": " ",
                 "ports": [
                   {
                     "containerPort": 6379,
@@ -115,6 +132,31 @@
       "status": {}
     },
     {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "3.0",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "redis:3.0"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -128,7 +170,24 @@
         "strategy": {
           "resources": {}
         },
-        "triggers": null,
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "web"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "web:latest"
+              }
+            }
+          }
+        ],
         "replicas": 1,
         "test": false,
         "selector": {
@@ -145,7 +204,7 @@
             "containers": [
               {
                 "name": "web",
-                "image": "tuna/docker-counter23",
+                "image": " ",
                 "ports": [
                   {
                     "containerPort": 5000,
@@ -160,6 +219,31 @@
         }
       },
       "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "tuna/docker-counter23"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
     }
   ]
 }
