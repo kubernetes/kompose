@@ -4,73 +4,31 @@
   "metadata": {},
   "items": [
     {
-      "kind": "DeploymentConfig",
+      "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "etherpad",
+        "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "service": "etherpad"
+          "service": "mariadb"
         }
       },
       "spec": {
-        "strategy": {
-          "resources": {}
-        },
-        "triggers": null,
-        "replicas": 1,
-        "test": false,
-        "selector": {
-          "service": "etherpad"
-        },
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "etherpad"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "etherpad",
-                "image": "centos/etherpad",
-                "ports": [
-                  {
-                    "containerPort": 9001,
-                    "protocol": "TCP"
-                  }
-                ],
-                "env": [
-                  {
-                    "name": "DB_USER",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "DB_DBID",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "DB_HOST",
-                    "value": "mariadb"
-                  },
-                  {
-                    "name": "DB_PASS",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "DB_PORT",
-                    "value": "3306"
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
+        "ports": [
+          {
+            "name": "3306",
+            "protocol": "TCP",
+            "port": 3306,
+            "targetPort": 3306
           }
+        ],
+        "selector": {
+          "service": "mariadb"
         }
       },
-      "status": {}
+      "status": {
+        "loadBalancer": {}
+      }
     },
     {
       "kind": "Service",
@@ -113,7 +71,24 @@
         "strategy": {
           "resources": {}
         },
-        "triggers": null,
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "mariadb"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "mariadb:latest"
+              }
+            }
+          }
+        ],
         "replicas": 1,
         "test": false,
         "selector": {
@@ -130,7 +105,7 @@
             "containers": [
               {
                 "name": "mariadb",
-                "image": "centos/mariadb",
+                "image": " ",
                 "ports": [
                   {
                     "containerPort": 3306,
@@ -165,30 +140,139 @@
       "status": {}
     },
     {
-      "kind": "Service",
+      "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
         "name": "mariadb",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "centos/mariadb"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "service": "mariadb"
+          "service": "etherpad"
         }
       },
       "spec": {
-        "ports": [
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
           {
-            "name": "3306",
-            "protocol": "TCP",
-            "port": 3306,
-            "targetPort": 3306
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "etherpad"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "etherpad:latest"
+              }
+            }
           }
         ],
+        "replicas": 1,
+        "test": false,
         "selector": {
-          "service": "mariadb"
+          "service": "etherpad"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "etherpad"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "etherpad",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 9001,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_USER",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_DBID",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_HOST",
+                    "value": "mariadb"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "3306"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
         }
       },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "etherpad",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "centos/etherpad"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
       "status": {
-        "loadBalancer": {}
+        "dockerImageRepository": ""
       }
     }
   ]
