@@ -4,95 +4,6 @@
   "metadata": {},
   "items": [
     {
-      "kind": "DeploymentConfig",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "gitlab",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "gitlab"
-        }
-      },
-      "spec": {
-        "strategy": {
-          "resources": {}
-        },
-        "triggers": null,
-        "replicas": 1,
-        "test": false,
-        "selector": {
-          "service": "gitlab"
-        },
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "gitlab"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "gitlab",
-                "image": "swordphilic/gitlab",
-                "ports": [
-                  {
-                    "containerPort": 80,
-                    "protocol": "TCP"
-                  },
-                  {
-                    "containerPort": 443,
-                    "protocol": "TCP"
-                  },
-                  {
-                    "containerPort": 22,
-                    "protocol": "TCP"
-                  }
-                ],
-                "env": [
-                  {
-                    "name": "DB_HOST",
-                    "value": "postgresql"
-                  },
-                  {
-                    "name": "DB_NAME",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "DB_PASS",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "DB_PORT",
-                    "value": "5432"
-                  },
-                  {
-                    "name": "DB_TYPE",
-                    "value": "postgres"
-                  },
-                  {
-                    "name": "DB_USER",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "REDIS_HOST",
-                    "value": "redis"
-                  },
-                  {
-                    "name": "REDIS_PORT",
-                    "value": "6379"
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
@@ -132,6 +43,191 @@
       }
     },
     {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "postgresql",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "postgresql"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "5432",
+            "protocol": "TCP",
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ],
+        "selector": {
+          "service": "postgresql"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "redis"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6379",
+            "protocol": "TCP",
+            "port": 6379,
+            "targetPort": 6379
+          }
+        ],
+        "selector": {
+          "service": "redis"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "gitlab",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "gitlab"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "gitlab"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "gitlab:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "service": "gitlab"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "gitlab"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "gitlab",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 80,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 443,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 22,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_NAME",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "5432"
+                  },
+                  {
+                    "name": "DB_TYPE",
+                    "value": "postgres"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "REDIS_HOST",
+                    "value": "redis"
+                  },
+                  {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
+                  },
+                  {
+                    "name": "DB_HOST",
+                    "value": "postgresql"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "gitlab",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "swordphilic/gitlab"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -145,7 +241,24 @@
         "strategy": {
           "resources": {}
         },
-        "triggers": null,
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "postgresql"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "postgresql:latest"
+              }
+            }
+          }
+        ],
         "replicas": 1,
         "test": false,
         "selector": {
@@ -162,7 +275,7 @@
             "containers": [
               {
                 "name": "postgresql",
-                "image": "swordphilic/postgresql",
+                "image": " ",
                 "ports": [
                   {
                     "containerPort": 5432,
@@ -193,30 +306,28 @@
       "status": {}
     },
     {
-      "kind": "Service",
+      "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
         "name": "postgresql",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "postgresql"
-        }
+        "creationTimestamp": null
       },
       "spec": {
-        "ports": [
+        "tags": [
           {
-            "name": "5432",
-            "protocol": "TCP",
-            "port": 5432,
-            "targetPort": 5432
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "swordphilic/postgresql"
+            },
+            "generation": null,
+            "importPolicy": {}
           }
-        ],
-        "selector": {
-          "service": "postgresql"
-        }
+        ]
       },
       "status": {
-        "loadBalancer": {}
+        "dockerImageRepository": ""
       }
     },
     {
@@ -233,7 +344,24 @@
         "strategy": {
           "resources": {}
         },
-        "triggers": null,
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "redis"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "redis:latest"
+              }
+            }
+          }
+        ],
         "replicas": 1,
         "test": false,
         "selector": {
@@ -250,7 +378,7 @@
             "containers": [
               {
                 "name": "redis",
-                "image": "swordphilic/redis",
+                "image": " ",
                 "ports": [
                   {
                     "containerPort": 6379,
@@ -267,30 +395,28 @@
       "status": {}
     },
     {
-      "kind": "Service",
+      "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
         "name": "redis",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "redis"
-        }
+        "creationTimestamp": null
       },
       "spec": {
-        "ports": [
+        "tags": [
           {
-            "name": "6379",
-            "protocol": "TCP",
-            "port": 6379,
-            "targetPort": 6379
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "swordphilic/redis"
+            },
+            "generation": null,
+            "importPolicy": {}
           }
-        ],
-        "selector": {
-          "service": "redis"
-        }
+        ]
       },
       "status": {
-        "loadBalancer": {}
+        "dockerImageRepository": ""
       }
     }
   ]

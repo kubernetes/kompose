@@ -17,7 +17,24 @@
         "strategy": {
           "resources": {}
         },
-        "triggers": null,
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "base"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "base:latest"
+              }
+            }
+          }
+        ],
         "replicas": 1,
         "test": false,
         "selector": {
@@ -34,7 +51,7 @@
             "containers": [
               {
                 "name": "base",
-                "image": "busybox",
+                "image": " ",
                 "command": [
                   "echo"
                 ],
@@ -49,6 +66,31 @@
         }
       },
       "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "base",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "busybox"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
     }
   ]
 }
