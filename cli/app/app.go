@@ -28,8 +28,9 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 
-	// install OpenShift apis
+	// install OpenShift api
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
+	_ "github.com/openshift/origin/pkg/image/api/install"
 
 	"github.com/skippbox/kompose/pkg/kobject"
 	"github.com/skippbox/kompose/pkg/loader"

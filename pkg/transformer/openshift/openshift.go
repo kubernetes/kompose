@@ -18,19 +18,62 @@ package openshift
 
 import (
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	imageapi "github.com/openshift/origin/pkg/image/api"
+
 	"github.com/skippbox/kompose/pkg/kobject"
 	"github.com/skippbox/kompose/pkg/transformer/kubernetes"
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/runtime"
+
+	"strings"
 )
 
 type OpenShift struct {
 }
 
+// getImageTag get tag name from image name
+// if no tag is specified return 'latest'
+func getImageTag(image string) string {
+	p := strings.Split(image, ":")
+	if len(p) == 2 {
+		return p[1]
+	} else {
+		return "latest"
+	}
+}
+
+// initImageStream initialize ImageStream object
+func initImageStream(name string, service kobject.ServiceConfig) *imageapi.ImageStream {
+	tag := getImageTag(service.Image)
+
+	is := &imageapi.ImageStream{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "ImageStream",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+		Spec: imageapi.ImageStreamSpec{
+			Tags: map[string]imageapi.TagReference{
+				tag: imageapi.TagReference{
+					From: &api.ObjectReference{
+						Kind: "DockerImage",
+						Name: service.Image,
+					},
+				},
+			},
+		},
+	}
+	return is
+}
+
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
 func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
+	tag := getImageTag(service.Image)
+
 	dc := &deployapi.DeploymentConfig{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DeploymentConfig",
@@ -51,8 +94,27 @@ func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas i
 				Spec: api.PodSpec{
 					Containers: []api.Container{
 						{
-							Name:  name,
-							Image: service.Image,
+							Name: name,
+							// Image will be set to ImageStream image by ImageChange trigger.
+							Image: " ",
+						},
+					},
+				},
+			},
+			Triggers: []deployapi.DeploymentTriggerPolicy{
+				// Trigger new deploy when DeploymentConfig is created (config change)
+				deployapi.DeploymentTriggerPolicy{
+					Type: deployapi.DeploymentTriggerOnConfigChange,
+				},
+				deployapi.DeploymentTriggerPolicy{
+					Type: deployapi.DeploymentTriggerOnImageChange,
+					ImageChangeParams: &deployapi.DeploymentTriggerImageChangeParams{
+						//Automatic - if new tag is detected - update image update inside the pod template
+						Automatic:      true,
+						ContainerNames: []string{name},
+						From: api.ObjectReference{
+							Name: name + ":" + tag,
+							Kind: "ImageStreamTag",
 						},
 					},
 				},
@@ -73,6 +135,8 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 		if opt.CreateDeploymentConfig {
 			objects = append(objects, initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
+			// create ImageStream after deployment (creating IS will trigger new deployment)
+			objects = append(objects, initImageStream(name, service))
 		}
 
 		// If ports not provided in configuration we will not make service
