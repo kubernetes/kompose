@@ -52,15 +52,26 @@ func loadPorts(composePorts []string) ([]kobject.Ports, error) {
 	ports := []kobject.Ports{}
 	character := ":"
 	for _, port := range composePorts {
-		p := api.ProtocolTCP
-		if strings.Contains(port, character) {
-			hostPort := port[0:strings.Index(port, character)]
+		proto := api.ProtocolTCP
+		// get protocol
+		p := strings.Split(port, "/")
+		if len(p) == 2 {
+			if strings.EqualFold("tcp", p[1]) {
+				proto = api.ProtocolTCP
+			} else if strings.EqualFold("udp", p[1]) {
+				proto = api.ProtocolUDP
+			}
+		}
+		// port mappings without protocol part
+		portNoProto := p[0]
+		if strings.Contains(portNoProto, character) {
+			hostPort := portNoProto[0:strings.Index(portNoProto, character)]
 			hostPort = strings.TrimSpace(hostPort)
 			hostPortInt, err := strconv.Atoi(hostPort)
 			if err != nil {
 				return nil, fmt.Errorf("invalid host port %q", port)
 			}
-			containerPort := port[strings.Index(port, character)+1:]
+			containerPort := portNoProto[strings.Index(portNoProto, character)+1:]
 			containerPort = strings.TrimSpace(containerPort)
 			containerPortInt, err := strconv.Atoi(containerPort)
 			if err != nil {
@@ -69,16 +80,16 @@ func loadPorts(composePorts []string) ([]kobject.Ports, error) {
 			ports = append(ports, kobject.Ports{
 				HostPort:      int32(hostPortInt),
 				ContainerPort: int32(containerPortInt),
-				Protocol:      p,
+				Protocol:      proto,
 			})
 		} else {
-			containerPortInt, err := strconv.Atoi(port)
+			containerPortInt, err := strconv.Atoi(portNoProto)
 			if err != nil {
 				return nil, fmt.Errorf("invalid container port %q", port)
 			}
 			ports = append(ports, kobject.Ports{
 				ContainerPort: int32(containerPortInt),
-				Protocol:      p,
+				Protocol:      proto,
 			})
 		}
 
