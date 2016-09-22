@@ -28,8 +28,9 @@ import (
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 
-	// install kubernetes api
+	// install OpenShift apis
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
+
 	"github.com/skippbox/kompose/pkg/kobject"
 	"github.com/skippbox/kompose/pkg/loader"
 	"github.com/skippbox/kompose/pkg/loader/bundle"
@@ -186,6 +187,10 @@ func Up(c *cli.Context) {
 	if err != nil {
 		logrus.Fatalf("Failed to access the Kubernetes cluster. Make sure you have a Kubernetes cluster running: %v", err)
 	}
+	namespace, _, err := factory.DefaultNamespace()
+	if err != nil {
+		logrus.Fatalf("Failed to get Namespace")
+	}
 	client := client.NewOrDie(clientConfig)
 
 	inputFile := c.GlobalString("file")
@@ -226,7 +231,7 @@ func Up(c *cli.Context) {
 	objects := t.Transform(komposeObject, opt)
 
 	//Submit objects to K8s endpoint
-	kubernetes.CreateObjects(client, objects)
+	kubernetes.CreateObjects(client, namespace, objects)
 }
 
 // Down deletes all deployment, svc.
