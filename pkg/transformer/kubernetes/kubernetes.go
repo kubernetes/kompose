@@ -32,8 +32,9 @@ import (
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 	//"k8s.io/kubernetes/pkg/controller/daemon"
-	"k8s.io/kubernetes/pkg/kubectl"
 	"time"
+
+	"k8s.io/kubernetes/pkg/kubectl"
 )
 
 type Kubernetes struct {
@@ -280,17 +281,17 @@ func UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSp
 }
 
 // Submit deployment and svc to k8s endpoint
-func CreateObjects(client *client.Client, objects []runtime.Object) {
+func CreateObjects(client *client.Client, namespace string, objects []runtime.Object) {
 	for _, v := range objects {
 		switch t := v.(type) {
 		case *extensions.Deployment:
-			_, err := client.Deployments(api.NamespaceDefault).Create(t)
+			_, err := client.Deployments(namespace).Create(t)
 			if err != nil {
 				logrus.Fatalf("Error: '%v' while creating deployment: %s", err, t.Name)
 			}
 			logrus.Infof("Successfully created deployment: %s", t.Name)
 		case *api.Service:
-			_, err := client.Services(api.NamespaceDefault).Create(t)
+			_, err := client.Services(namespace).Create(t)
 			if err != nil {
 				logrus.Fatalf("Error: '%v' while creating service: %s", err, t.Name)
 			}
