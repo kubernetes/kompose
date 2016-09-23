@@ -16,8 +16,32 @@ limitations under the License.
 
 package loader
 
-import "github.com/skippbox/kompose/pkg/kobject"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/skippbox/kompose/pkg/kobject"
+	"github.com/skippbox/kompose/pkg/loader/bundle"
+	"github.com/skippbox/kompose/pkg/loader/compose"
+)
 
 type Loader interface {
 	LoadFile(file string) kobject.KomposeObject
+}
+
+// GetLoader returns loader for given format
+func GetLoader(format string) (Loader, error) {
+	var l Loader
+
+	switch format {
+	case "bundle":
+		l = new(bundle.Bundle)
+	case "compose":
+		l = new(compose.Compose)
+	default:
+		return nil, errors.New(fmt.Sprintf("Input file format %s is not supported", format))
+	}
+
+	return l, nil
+
 }
