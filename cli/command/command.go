@@ -33,11 +33,6 @@ func ConvertCommand() cli.Command {
 		},
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "bundle,dab",
-				Usage:  "Specify a Distributed Application Bundle (DAB) file",
-				EnvVar: "DAB_FILE",
-			},
-			cli.StringFlag{
 				Name:   "out,o",
 				Usage:  "Specify file name in order to save objects into",
 				EnvVar: "OUTPUT_FILE",
@@ -87,13 +82,6 @@ func UpCommand() cli.Command {
 		Action: func(c *cli.Context) {
 			app.Up(c)
 		},
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "bundle,dab",
-				Usage:  "Specify a Distributed Application Bundle (DAB) file",
-				EnvVar: "DAB_FILE",
-			},
-		},
 	}
 }
 
@@ -105,19 +93,18 @@ func DownCommand() cli.Command {
 		Action: func(c *cli.Context) {
 			app.Down(c)
 		},
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "bundle,dab",
-				Usage:  "Specify a Distributed Application Bundle (DAB) file",
-				EnvVar: "DAB_FILE",
-			},
-		},
 	}
 }
 
 // CommonFlags defines the flags that are in common for all subcommands.
 func CommonFlags() []cli.Flag {
 	return []cli.Flag{
+		cli.StringFlag{
+			Name:   "bundle,dab",
+			Usage:  "Specify a Distributed Application Bundle (DAB) file",
+			EnvVar: "DAB_FILE",
+		},
+
 		cli.StringFlag{
 			Name:   "file,f",
 			Usage:  fmt.Sprintf("Specify an alternative compose file (default: %s)", app.DefaultComposeFile),
