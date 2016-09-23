@@ -25,10 +25,15 @@ import (
 	"github.com/skippbox/kompose/pkg/kobject"
 	"github.com/skippbox/kompose/pkg/transformer"
 
+	// install kubernetes api
 	"k8s.io/kubernetes/pkg/api"
+	_ "k8s.io/kubernetes/pkg/api/install"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
+	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
+
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 	//"k8s.io/kubernetes/pkg/controller/daemon"
@@ -281,50 +286,85 @@ func UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSp
 }
 
 // Submit deployment and svc to k8s endpoint
-func CreateObjects(client *client.Client, namespace string, objects []runtime.Object) {
+func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
+	//Convert komposeObject
+	objects := k.Transform(komposeObject, opt)
+
+	fmt.Println("We are going to create Kubernetes deployments and services for your Dockerized application. \n" +
+		"If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. \n")
+
+	factory := cmdutil.NewFactory(nil)
+	clientConfig, err := factory.ClientConfig()
+	if err != nil {
+		return err
+	}
+	namespace, _, err := factory.DefaultNamespace()
+	if err != nil {
+		return err
+	}
+	client := client.NewOrDie(clientConfig)
+
 	for _, v := range objects {
 		switch t := v.(type) {
 		case *extensions.Deployment:
 			_, err := client.Deployments(namespace).Create(t)
 			if err != nil {
-				logrus.Fatalf("Error: '%v' while creating deployment: %s", err, t.Name)
+				return err
 			}
 			logrus.Infof("Successfully created deployment: %s", t.Name)
 		case *api.Service:
 			_, err := client.Services(namespace).Create(t)
 			if err != nil {
-				logrus.Fatalf("Error: '%v' while creating service: %s", err, t.Name)
+				return err
 			}
 			logrus.Infof("Successfully created service: %s", t.Name)
 		}
 	}
 	fmt.Println("\nYour application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.")
+
+	return nil
 }
 
-func DeleteObjects(client *client.Client, name string) {
-	//delete svc
-	rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
-	if err != nil {
-		logrus.Warningf("Can't get reaper for service due to '%v'", err)
-	}
-	//FIXME: timeout = 300s, gracePeriod is nil
-	err = rpService.Stop(api.NamespaceDefault, name, 300*time.Second, nil)
-	if err != nil {
-		logrus.Warningf("Can't delete service: %s due to '%v'", name, err)
-	} else {
-		logrus.Infof("Successfully deleted service: %s", name)
-	}
+func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 
-	//delete deployment
-	rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
+	factory := cmdutil.NewFactory(nil)
+	clientConfig, err := factory.ClientConfig()
 	if err != nil {
-		logrus.Warningf("Can't get reaper for deployment due to '%v'", err)
+		return err
 	}
-	//FIXME: timeout = 300s, gracePeriod is nil
-	err = rpDeployment.Stop(api.NamespaceDefault, name, 300*time.Second, nil)
+	namespace, _, err := factory.DefaultNamespace()
 	if err != nil {
-		logrus.Warningf("Can't delete deployment: %s due to '%v'", name, err)
-	} else {
-		logrus.Infof("Successfully deleted deployment: %s", name)
+		return err
 	}
+	client := client.NewOrDie(clientConfig)
+
+	// delete objects  from kubernetes
+	for name := range komposeObject.ServiceConfigs {
+		//delete svc
+		rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
+		if err != nil {
+			return err
+		}
+		//FIXME: timeout = 300s, gracePeriod is nil
+		err = rpService.Stop(namespace, name, 300*time.Second, nil)
+		if err != nil {
+			return err
+		} else {
+			logrus.Infof("Successfully deleted service: %s", name)
+		}
+
+		//delete deployment
+		rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
+		if err != nil {
+			return err
+		}
+		//FIXME: timeout = 300s, gracePeriod is nil
+		err = rpDeployment.Stop(namespace, name, 300*time.Second, nil)
+		if err != nil {
+			return err
+		} else {
+			logrus.Infof("Successfully deleted deployment: %s", name)
+		}
+	}
+	return nil
 }
