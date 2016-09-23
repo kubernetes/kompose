@@ -55,7 +55,7 @@ db-svc.json         docker-compose-bundle.dsb  docker-voting.yml  redis-svc.json
 Using `--bundle, --dab` to specify a DAB file as below:
 
 ```console
-$ kompose convert --bundle docker-compose-bundle.dsb
+$ kompose --bundle docker-compose-bundle.dsb convert
 WARN[0000]: Unsupported key networks - ignoring
 file "redis-svc.json" created
 file "web-svc.json" created
