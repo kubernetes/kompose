@@ -25,16 +25,12 @@ import (
 	// install kubernetes api
 	_ "k8s.io/kubernetes/pkg/api/install"
 	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
-	client "k8s.io/kubernetes/pkg/client/unversioned"
-	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 
 	// install OpenShift apis
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
 
 	"github.com/skippbox/kompose/pkg/kobject"
 	"github.com/skippbox/kompose/pkg/loader"
-	"github.com/skippbox/kompose/pkg/loader/bundle"
-	"github.com/skippbox/kompose/pkg/loader/compose"
 	"github.com/skippbox/kompose/pkg/transformer"
 	"github.com/skippbox/kompose/pkg/transformer/kubernetes"
 	"github.com/skippbox/kompose/pkg/transformer/openshift"
@@ -151,14 +147,9 @@ func Convert(c *cli.Context) {
 	validateFlags(opt, singleOutput, dabFile, inputFile)
 
 	// loader parses input from file into komposeObject.
-	var l loader.Loader
-	switch inputFormat {
-	case "bundle":
-		l = new(bundle.Bundle)
-	case "compose":
-		l = new(compose.Compose)
-	default:
-		logrus.Fatalf("Input file format is not supported")
+	l, err := loader.GetLoader(inputFormat)
+	if err != nil {
+		logrus.Fatal(err)
 	}
 
 	komposeObject = l.LoadFile(file)
@@ -179,20 +170,6 @@ func Convert(c *cli.Context) {
 
 // Up brings up deployment, svc.
 func Up(c *cli.Context) {
-	fmt.Println("We are going to create Kubernetes deployments and services for your Dockerized application. \n" +
-		"If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. \n")
-
-	factory := cmdutil.NewFactory(nil)
-	clientConfig, err := factory.ClientConfig()
-	if err != nil {
-		logrus.Fatalf("Failed to access the Kubernetes cluster. Make sure you have a Kubernetes cluster running: %v", err)
-	}
-	namespace, _, err := factory.DefaultNamespace()
-	if err != nil {
-		logrus.Fatalf("Failed to get Namespace")
-	}
-	client := client.NewOrDie(clientConfig)
-
 	inputFile := c.GlobalString("file")
 	dabFile := c.GlobalString("bundle")
 
@@ -214,35 +191,25 @@ func Up(c *cli.Context) {
 	validateFlags(opt, false, dabFile, inputFile)
 
 	// loader parses input from file into komposeObject.
-	var l loader.Loader
-	switch inputFormat {
-	case "bundle":
-		l = new(bundle.Bundle)
-	case "compose":
-		l = new(compose.Compose)
-	default:
-		logrus.Fatalf("Input file format is not supported")
+	l, err := loader.GetLoader(inputFormat)
+	if err != nil {
+		logrus.Fatal(err)
 	}
+
 	komposeObject = l.LoadFile(file)
 
+	//get transfomer
 	t := new(kubernetes.Kubernetes)
 
-	//Convert komposeObject to K8S controllers
-	objects := t.Transform(komposeObject, opt)
-
-	//Submit objects to K8s endpoint
-	kubernetes.CreateObjects(client, namespace, objects)
+	//Submit objects provider
+	errDeploy := t.Deploy(komposeObject, opt)
+	if errDeploy != nil {
+		logrus.Fatalf("Error while deploying application: %s", err)
+	}
 }
 
 // Down deletes all deployment, svc.
 func Down(c *cli.Context) {
-	factory := cmdutil.NewFactory(nil)
-	clientConfig, err := factory.ClientConfig()
-	if err != nil {
-		logrus.Fatalf("Failed to access the Kubernetes cluster. Make sure you have a Kubernetes running: %v", err)
-	}
-	client := client.NewOrDie(clientConfig)
-
 	inputFile := c.GlobalString("file")
 	dabFile := c.GlobalString("bundle")
 
@@ -256,25 +223,30 @@ func Down(c *cli.Context) {
 		file = dabFile
 	}
 
-	opt := kobject.ConvertOptions{}
+	opt := kobject.ConvertOptions{
+		Replicas: 1,
+		CreateD:  true,
+	}
 
 	validateFlags(opt, false, dabFile, inputFile)
 
 	// loader parses input from file into komposeObject.
-	var l loader.Loader
-	switch inputFormat {
-	case "bundle":
-		l = new(bundle.Bundle)
-	case "compose":
-		l = new(compose.Compose)
-	default:
-		logrus.Fatalf("Input file format is not supported")
+	l, err := loader.GetLoader(inputFormat)
+	if err != nil {
+		logrus.Fatal(err)
 	}
+
 	komposeObject = l.LoadFile(file)
 
-	for k := range komposeObject.ServiceConfigs {
-		kubernetes.DeleteObjects(client, k)
+	// get transformer
+	t := new(kubernetes.Kubernetes)
+
+	//Remove deployed application
+	errUndeploy := t.Undeploy(komposeObject, opt)
+	if errUndeploy != nil {
+		logrus.Fatalf("Error while deleting application: %s", err)
 	}
+
 }
 
 func askForConfirmation() bool {
