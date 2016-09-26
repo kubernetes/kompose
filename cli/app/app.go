@@ -117,8 +117,13 @@ func Convert(c *cli.Context) {
 	createRC := c.BoolT("replicationcontroller")
 	createChart := c.BoolT("chart")
 	replicas := c.Int("replicas")
-	singleOutput := len(outFile) != 0 || toStdout
+	singleOutput := len(outFile) != 0 || outFile == "-" || toStdout
 	createDeploymentConfig := c.BoolT("deploymentconfig")
+
+	if outFile == "-" {
+		toStdout = true
+		outFile = ""
+	}
 
 	// Create Deployment by default if no controller has be set
 	if !createD && !createDS && !createRC && !createDeploymentConfig {
