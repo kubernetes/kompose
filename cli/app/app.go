@@ -108,7 +108,7 @@ func validateFlags(opt kobject.ConvertOptions, singleOutput bool, dabFile, input
 // Convert transforms docker compose or dab file to k8s objects
 func Convert(c *cli.Context) {
 	inputFile := c.GlobalString("file")
-	dabFile := c.String("bundle")
+	dabFile := c.GlobalString("bundle")
 	outFile := c.String("out")
 	generateYaml := c.BoolT("yaml")
 	toStdout := c.BoolT("stdout")
@@ -194,7 +194,7 @@ func Up(c *cli.Context) {
 	client := client.NewOrDie(clientConfig)
 
 	inputFile := c.GlobalString("file")
-	dabFile := c.String("bundle")
+	dabFile := c.GlobalString("bundle")
 
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
@@ -244,7 +244,7 @@ func Down(c *cli.Context) {
 	client := client.NewOrDie(clientConfig)
 
 	inputFile := c.GlobalString("file")
-	dabFile := c.String("bundle")
+	dabFile := c.GlobalString("bundle")
 
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),

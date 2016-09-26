@@ -11,7 +11,7 @@
 For example, if you have a Docker bundle like [`docker-compose-bundle.dsb`](./examples/docker-compose-bundle.dsb), you can convert it into Kubernetes deployments and services like this:
 
 ```console
-$ kompose convert --bundle docker-compose-bundle.dsb
+$ kompose --bundle docker-compose-bundle.dsb convert
 WARN[0000]: Unsupported key networks - ignoring
 file "redis-svc.json" created
 file "web-svc.json" created
