@@ -17,6 +17,8 @@ limitations under the License.
 package openshift
 
 import (
+	"errors"
+
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	imageapi "github.com/openshift/origin/pkg/image/api"
 
@@ -152,4 +154,12 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	// sort all object so Services are first
 	kubernetes.SortServicesFirst(&allobjects)
 	return allobjects
+}
+
+func (k *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
+	return errors.New("Not Implemented")
+}
+
+func (k *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
+	return errors.New("Not Implemented")
 }
