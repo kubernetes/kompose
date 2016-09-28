@@ -780,6 +780,26 @@
 			"Rev": "2e48c47ce0371eab4d23ce32c0fec6de2e964dc1"
 		},
 		{
+			"ImportPath": "github.com/openshift/origin/pkg/image/api/docker10",
+			"Comment": "v1.3.0-alpha.2-1281-g2e48c47",
+			"Rev": "2e48c47ce0371eab4d23ce32c0fec6de2e964dc1"
+		},
+		{
+			"ImportPath": "github.com/openshift/origin/pkg/image/api/dockerpre012",
+			"Comment": "v1.3.0-alpha.2-1281-g2e48c47",
+			"Rev": "2e48c47ce0371eab4d23ce32c0fec6de2e964dc1"
+		},
+		{
+			"ImportPath": "github.com/openshift/origin/pkg/image/api/install",
+			"Comment": "v1.3.0-alpha.2-1281-g2e48c47",
+			"Rev": "2e48c47ce0371eab4d23ce32c0fec6de2e964dc1"
+		},
+		{
+			"ImportPath": "github.com/openshift/origin/pkg/image/api/v1",
+			"Comment": "v1.3.0-alpha.2-1281-g2e48c47",
+			"Rev": "2e48c47ce0371eab4d23ce32c0fec6de2e964dc1"
+		},
+		{
 			"ImportPath": "github.com/openshift/origin/pkg/oauth/api",
 			"Comment": "v1.3.0-alpha.2-1281-g2e48c47",
 			"Rev": "2e48c47ce0371eab4d23ce32c0fec6de2e964dc1"

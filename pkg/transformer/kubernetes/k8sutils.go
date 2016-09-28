@@ -37,6 +37,7 @@ import (
 	"k8s.io/kubernetes/pkg/runtime"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	imageapi "github.com/openshift/origin/pkg/image/api"
 )
 
 /**
@@ -176,6 +177,8 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			case *extensions.DaemonSet:
 				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *deployapi.DeploymentConfig:
+				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			case *imageapi.ImageStream:
 				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *api.Service:
 				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
