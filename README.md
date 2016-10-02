@@ -36,16 +36,20 @@ $ PROG=kompose source script/bash_autocomplete
 
 ### Building with `go`
 
-- You need `go` v1.5
-- You need to set export `GO15VENDOREXPERIMENT=1` environment variable
-- If your working copy is not in your `GOPATH`, you need to set it
-accordingly.
+- You need `go` v1.6 or later.
+- If your working copy is not in your `GOPATH`, you need to set it accordingly.
 
 ```console
 $ go build -tags experimental -o kompose ./cli/main
 ```
 
 You need `-tags experimental` because the current `bundlefile` package of docker/libcompose is still experimental.
+
+If you have `go` v1.5, it's still good to build `kompose` with the following settings:
+
+```console
+$ CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose -tags experimental ./cli/main
+```
 
 ### Building multi-platform binaries with make
 
