@@ -19,7 +19,6 @@ package main
 import (
 	"os"
 
-	cliApp "github.com/skippbox/kompose/cli/app"
 	"github.com/skippbox/kompose/cli/command"
 	"github.com/skippbox/kompose/version"
 	"github.com/urfave/cli"
@@ -33,10 +32,15 @@ func main() {
 	app.Author = "Skippbox Kompose Contributors"
 	app.Email = "https://github.com/skippbox/kompose"
 	app.EnableBashCompletion = true
-	app.Before = cliApp.BeforeApp
+	app.Before = command.BeforeApp
 	app.Flags = append(command.CommonFlags())
 	app.Commands = []cli.Command{
-		command.ConvertCommand(),
+		// NOTE: Always add this in first, because this dummy command will be removed later
+		// in  command.BeforeApp function and provider specific command will be added
+		command.ConvertCommandDummy(),
+		// command.ConvertKubernetesCommand or command.ConvertOpenShiftCommand
+		// is added depending on provider mentioned.
+
 		command.UpCommand(),
 		command.DownCommand(),
 		// TODO: enable these commands and update docs once we fix them

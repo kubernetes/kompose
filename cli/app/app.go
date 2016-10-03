@@ -18,6 +18,7 @@ package app
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -39,118 +40,105 @@ import (
 
 const (
 	DefaultComposeFile = "docker-compose.yml"
+	DefaultProvider    = "kubernetes"
 )
 
 var inputFormat = "compose"
 
-// Hook for erroring and exit out on warning
-type errorOnWarningHook struct{}
+func validateFlags(c *cli.Context, opt *kobject.ConvertOptions) {
 
-func (errorOnWarningHook) Levels() []logrus.Level {
-	return []logrus.Level{logrus.WarnLevel}
-}
-
-func (errorOnWarningHook) Fire(entry *logrus.Entry) error {
-	logrus.Fatalln(entry.Message)
-	return nil
-}
-
-// BeforeApp is an action that is executed before any cli command.
-func BeforeApp(c *cli.Context) error {
-
-	if c.GlobalBool("verbose") {
-		logrus.SetLevel(logrus.DebugLevel)
-	} else if c.GlobalBool("suppress-warnings") {
-		logrus.SetLevel(logrus.ErrorLevel)
-	} else if c.GlobalBool("error-on-warning") {
-		hook := errorOnWarningHook{}
-		logrus.AddHook(hook)
+	if opt.OutFile == "-" {
+		opt.ToStdout = true
+		opt.OutFile = ""
 	}
-	return nil
-}
 
-func validateFlags(opt kobject.ConvertOptions, singleOutput bool, dabFile, inputFile string) {
 	if len(opt.OutFile) != 0 && opt.ToStdout {
 		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
 	}
+
 	if opt.CreateChart && opt.ToStdout {
 		logrus.Fatalf("Error: chart cannot be generated when --stdout is specified")
 	}
+
 	if opt.Replicas < 0 {
 		logrus.Fatalf("Error: --replicas cannot be negative")
 	}
-	if singleOutput {
-		count := 0
-		if opt.CreateD {
-			count++
-		}
-		if opt.CreateDS {
-			count++
-		}
-		if opt.CreateRC {
-			count++
-		}
-		if opt.CreateDeploymentConfig {
-			count++
-		}
-		if count > 1 {
-			logrus.Fatalf("Error: only one kind of Kubernetes resource can be generated when --out or --stdout is specified")
-		}
+
+	dabFile := c.GlobalString("bundle")
+
+	if len(dabFile) > 0 {
+		inputFormat = "bundle"
+		opt.InputFile = dabFile
 	}
-	if len(dabFile) > 0 && len(inputFile) > 0 && inputFile != DefaultComposeFile {
-		logrus.Fatalf("Error: compose file and dab file cannot be specified at the same time")
+
+	if len(dabFile) > 0 && len(opt.InputFile) > 0 && opt.InputFile != DefaultComposeFile {
+		logrus.Fatalf("Error: 'compose' file and 'dab' file cannot be specified at the same time")
+	}
+}
+
+func validateControllers(opt *kobject.ConvertOptions) {
+
+	singleOutput := len(opt.OutFile) != 0 || opt.OutFile == "-" || opt.ToStdout
+
+	if opt.Provider == "kubernetes" {
+		// create deployment by default if no controller has been set
+		if !opt.CreateD && !opt.CreateDS && !opt.CreateRC {
+			opt.CreateD = true
+		}
+		if singleOutput {
+			count := 0
+			if opt.CreateD {
+				count++
+			}
+			if opt.CreateDS {
+				count++
+			}
+			if opt.CreateRC {
+				count++
+			}
+			if count > 1 {
+				logrus.Fatalf("Error: only one kind of Kubernetes resource can be generated when --out or --stdout is specified")
+			}
+		}
+
+	} else if opt.Provider == "openshift" {
+		// create deploymentconfig by default if no controller has been set
+		if !opt.CreateDeploymentConfig {
+			opt.CreateDeploymentConfig = true
+		}
+		if singleOutput {
+			count := 0
+			if opt.CreateDeploymentConfig {
+				count++
+			}
+			// Add more controllers here once they are available in OpenShift
+			// if opt.foo {count++}
+
+			if count > 1 {
+				logrus.Fatalf("Error: only one kind of OpenShift resource can be generated when --out or --stdout is specified")
+			}
+		}
 	}
 }
 
 // Convert transforms docker compose or dab file to k8s objects
 func Convert(c *cli.Context) {
-	inputFile := c.GlobalString("file")
-	dabFile := c.GlobalString("bundle")
-	outFile := c.String("out")
-	generateYaml := c.BoolT("yaml")
-	toStdout := c.BoolT("stdout")
-	createD := c.BoolT("deployment")
-	createDS := c.BoolT("daemonset")
-	createRC := c.BoolT("replicationcontroller")
-	createChart := c.BoolT("chart")
-	replicas := c.Int("replicas")
-	singleOutput := len(outFile) != 0 || outFile == "-" || toStdout
-	createDeploymentConfig := c.BoolT("deploymentconfig")
-
-	if outFile == "-" {
-		toStdout = true
-		outFile = ""
-	}
-
-	// Create Deployment by default if no controller has be set
-	if !createD && !createDS && !createRC && !createDeploymentConfig {
-		createD = true
-	}
-
-	komposeObject := kobject.KomposeObject{
-		ServiceConfigs: make(map[string]kobject.ServiceConfig),
-	}
-
-	file := inputFile
-	if len(dabFile) > 0 {
-		inputFormat = "bundle"
-		file = dabFile
-	}
-
 	opt := kobject.ConvertOptions{
-		ToStdout:               toStdout,
-		CreateD:                createD,
-		CreateRC:               createRC,
-		CreateDS:               createDS,
-		CreateDeploymentConfig: createDeploymentConfig,
-		CreateChart:            createChart,
-		GenerateYaml:           generateYaml,
-		Replicas:               replicas,
-		InputFile:              file,
-		OutFile:                outFile,
+		ToStdout:               c.BoolT("stdout"),
+		CreateChart:            c.BoolT("chart"),
+		GenerateYaml:           c.BoolT("yaml"),
+		Replicas:               c.Int("replicas"),
+		InputFile:              c.GlobalString("file"),
+		OutFile:                c.String("out"),
+		Provider:               strings.ToLower(c.GlobalString("provider")),
+		CreateD:                c.BoolT("deployment"),
+		CreateDS:               c.BoolT("daemonset"),
+		CreateRC:               c.BoolT("replicationcontroller"),
+		CreateDeploymentConfig: c.BoolT("deploymentconfig"),
 	}
 
-	validateFlags(opt, singleOutput, dabFile, inputFile)
+	validateFlags(c, &opt)
+	validateControllers(&opt)
 
 	// loader parses input from file into komposeObject.
 	l, err := loader.GetLoader(inputFormat)
@@ -158,11 +146,14 @@ func Convert(c *cli.Context) {
 		logrus.Fatal(err)
 	}
 
-	komposeObject = l.LoadFile(file)
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+	}
+	komposeObject = l.LoadFile(opt.InputFile)
 
 	// transformer maps komposeObject to provider's primitives
 	var t transformer.Transformer
-	if !createDeploymentConfig {
+	if opt.Provider == "kubernetes" {
 		t = new(kubernetes.Kubernetes)
 	} else {
 		t = new(openshift.OpenShift)
@@ -176,25 +167,13 @@ func Convert(c *cli.Context) {
 
 // Up brings up deployment, svc.
 func Up(c *cli.Context) {
-	inputFile := c.GlobalString("file")
-	dabFile := c.GlobalString("bundle")
-
-	komposeObject := kobject.KomposeObject{
-		ServiceConfigs: make(map[string]kobject.ServiceConfig),
-	}
-
-	file := inputFile
-	if len(dabFile) > 0 {
-		inputFormat = "bundle"
-		file = dabFile
-	}
-
 	opt := kobject.ConvertOptions{
-		Replicas: 1,
-		CreateD:  true,
+		InputFile: c.GlobalString("file"),
+		Replicas:  1,
+		Provider:  strings.ToLower(c.GlobalString("provider")),
 	}
-
-	validateFlags(opt, false, dabFile, inputFile)
+	validateFlags(c, &opt)
+	validateControllers(&opt)
 
 	// loader parses input from file into komposeObject.
 	l, err := loader.GetLoader(inputFormat)
@@ -202,39 +181,35 @@ func Up(c *cli.Context) {
 		logrus.Fatal(err)
 	}
 
-	komposeObject = l.LoadFile(file)
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+	}
+	komposeObject = l.LoadFile(opt.InputFile)
 
 	//get transfomer
-	t := new(kubernetes.Kubernetes)
+	var t transformer.Transformer
+	if opt.Provider == "kubernetes" {
+		t = new(kubernetes.Kubernetes)
+	} else {
+		t = new(openshift.OpenShift)
+	}
 
 	//Submit objects provider
 	errDeploy := t.Deploy(komposeObject, opt)
 	if errDeploy != nil {
-		logrus.Fatalf("Error while deploying application: %s", err)
+		logrus.Fatalf("Error while deploying application: %s", errDeploy)
 	}
 }
 
 // Down deletes all deployment, svc.
 func Down(c *cli.Context) {
-	inputFile := c.GlobalString("file")
-	dabFile := c.GlobalString("bundle")
-
-	komposeObject := kobject.KomposeObject{
-		ServiceConfigs: make(map[string]kobject.ServiceConfig),
-	}
-
-	file := inputFile
-	if len(dabFile) > 0 {
-		inputFormat = "bundle"
-		file = dabFile
-	}
-
 	opt := kobject.ConvertOptions{
-		Replicas: 1,
-		CreateD:  true,
+		InputFile: c.GlobalString("file"),
+		Replicas:  1,
+		Provider:  strings.ToLower(c.GlobalString("provider")),
 	}
-
-	validateFlags(opt, false, dabFile, inputFile)
+	validateFlags(c, &opt)
+	validateControllers(&opt)
 
 	// loader parses input from file into komposeObject.
 	l, err := loader.GetLoader(inputFormat)
@@ -242,15 +217,23 @@ func Down(c *cli.Context) {
 		logrus.Fatal(err)
 	}
 
-	komposeObject = l.LoadFile(file)
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+	}
+	komposeObject = l.LoadFile(opt.InputFile)
 
-	// get transformer
-	t := new(kubernetes.Kubernetes)
+	//get transfomer
+	var t transformer.Transformer
+	if opt.Provider == "kubernetes" {
+		t = new(kubernetes.Kubernetes)
+	} else {
+		t = new(openshift.OpenShift)
+	}
 
 	//Remove deployed application
 	errUndeploy := t.Undeploy(komposeObject, opt)
 	if errUndeploy != nil {
-		logrus.Fatalf("Error while deleting application: %s", err)
+		logrus.Fatalf("Error while deleting application: %s", errUndeploy)
 	}
 
 }
