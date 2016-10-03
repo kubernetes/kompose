@@ -125,6 +125,7 @@ type ConvertOptions struct {
 	Replicas               int
 	InputFile              string
 	OutFile                string
+	Provider               string
 }
 
 // ServiceConfig holds the basic struct of a container
