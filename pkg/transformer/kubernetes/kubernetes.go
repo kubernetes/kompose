@@ -28,6 +28,7 @@ import (
 	// install kubernetes api
 	"k8s.io/kubernetes/pkg/api"
 	_ "k8s.io/kubernetes/pkg/api/install"
+	"k8s.io/kubernetes/pkg/api/resource"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
@@ -146,6 +147,38 @@ func InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
 	return ds
 }
 
+// Initialize PersistentVolumeClaim
+func CreatePVC(name string, mode string) *api.PersistentVolumeClaim {
+	size, err := resource.ParseQuantity("100Mi")
+	if err != nil {
+		logrus.Fatalf("Error parsing size")
+	}
+
+	pvc := &api.PersistentVolumeClaim{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "PersistentVolumeClaim",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+		Spec: api.PersistentVolumeClaimSpec{
+			Resources: api.ResourceRequirements{
+				Requests: api.ResourceList{
+					api.ResourceStorage: size,
+				},
+			},
+		},
+	}
+
+	if mode == "ro" {
+		pvc.Spec.AccessModes = []api.PersistentVolumeAccessMode{"ReadWriteOnce"}
+	} else {
+		pvc.Spec.AccessModes = []api.PersistentVolumeAccessMode{"ReadWriteOnce"}
+	}
+	return pvc
+}
+
 // Configure the container ports.
 func ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
@@ -180,34 +213,49 @@ func ConfigServicePorts(name string, service kobject.ServiceConfig) []api.Servic
 }
 
 // Configure the container volumes.
-func ConfigVolumes(service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume) {
+func ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim) {
 	volumesMount := []api.VolumeMount{}
 	volumes := []api.Volume{}
-	volumeSource := api.VolumeSource{}
+	var pvc []*api.PersistentVolumeClaim
+
+	var count int
 	for _, volume := range service.Volumes {
-		name, host, container, mode, err := transformer.ParseVolume(volume)
+		volumeName, host, container, mode, err := transformer.ParseVolume(volume)
 		if err != nil {
 			logrus.Warningf("Failed to configure container volume: %v", err)
 			continue
 		}
-
-		// if volume name isn't specified, set it to a random string of 20 chars
-		if len(name) == 0 {
-			name = transformer.RandStringBytes(20)
+		if volumeName == "" {
+			volumeName = fmt.Sprintf("%s-claim%d", name, count)
+			count++
 		}
 		// check if ro/rw mode is defined, default rw
 		readonly := len(mode) > 0 && mode == "ro"
 
-		volumesMount = append(volumesMount, api.VolumeMount{Name: name, ReadOnly: readonly, MountPath: container})
+		volmount := api.VolumeMount{
+			Name:      volumeName,
+			ReadOnly:  readonly,
+			MountPath: container,
+		}
+		volumesMount = append(volumesMount, volmount)
+
+		vol := api.Volume{
+			Name: volumeName,
+			VolumeSource: api.VolumeSource{
+				PersistentVolumeClaim: &api.PersistentVolumeClaimVolumeSource{
+					ClaimName: volumeName,
+					ReadOnly:  readonly,
+				},
+			},
+		}
+		volumes = append(volumes, vol)
 
 		if len(host) > 0 {
 			logrus.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
 		}
-		volumeSource = api.VolumeSource{EmptyDir: &api.EmptyDirVolumeSource{}}
-
-		volumes = append(volumes, api.Volume{Name: name, VolumeSource: volumeSource})
+		pvc = append(pvc, CreatePVC(volumeName, mode))
 	}
-	return volumesMount, volumes
+	return volumesMount, volumes, pvc
 }
 
 // Configure the environment variables.
@@ -255,7 +303,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			objects = append(objects, svc)
 		}
 
-		UpdateKubernetesObjects(name, service, objects)
+		UpdateKubernetesObjects(name, service, &objects)
 
 		allobjects = append(allobjects, objects...)
 	}

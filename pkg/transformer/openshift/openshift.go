@@ -147,7 +147,7 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			objects = append(objects, svc)
 		}
 
-		kubernetes.UpdateKubernetesObjects(name, service, objects)
+		kubernetes.UpdateKubernetesObjects(name, service, &objects)
 
 		allobjects = append(allobjects, objects...)
 	}

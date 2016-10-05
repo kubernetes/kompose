@@ -1,0 +1,156 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "httpd",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "httpd"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "80",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "service": "httpd"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "httpd",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "httpd"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "httpd"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "httpd:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "service": "httpd"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "httpd"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "httpd-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "httpd-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "httpd",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 80,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "httpd-claim0",
+                    "mountPath": "/var/www/html"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "httpd",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "docker.io/fedora/apache"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "httpd-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}
