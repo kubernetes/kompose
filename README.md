@@ -1,17 +1,24 @@
-# Kubernetes compose (Kompose)
+# Kompose (Kubernetes + Compose)
 
 [![Build Status](https://travis-ci.org/skippbox/kompose.svg?branch=master)](https://travis-ci.org/skippbox/kompose) [![Join us on Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png)](https://skippbox.herokuapp.com)
 
-`kompose` is a tool to help users familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). It takes a Docker Compose file and translates it into Kubernetes resources.
+`kompose` is a tool to help users who are familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). `kompose` takes a Docker Compose file and translates it into Kubernetes resources.
 
-`kompose` is a convenience tool to go from local Docker development to managing your application with Kubernetes. We don't assume that the transformation from docker compose format to Kubernetes API objects will be perfect, but it helps tremendously to start _Kubernetizing_ your application.
+`kompose` is a convenience tool to go from local Docker development to managing your application with Kubernetes. Transformation of the Docker Compose format to Kubernetes resources manifest may not be exact, but it helps tremendously when first deploying an application on Kubernetes.
 
 ## Use Case
 
-For example, if you have a Docker bundle like [`docker-compose-bundle.dsb`](./examples/docker-compose-bundle.dsb), you can convert it into Kubernetes deployments and services like this:
+If you have a Docker Compose [`docker-compose.yml`](./examples/docker-compose.yml) or a Docker Distributed Application Bundle [`docker-compose-bundle.dab`](./examples/docker-compose-bundle.dab) file, you can convert it into Kubernetes deployments and services like this:
 
 ```console
-$ kompose --bundle docker-compose-bundle.dsb convert
+$ kompose --bundle docker-compose-bundle.dab convert
+WARN[0000]: Unsupported key networks - ignoring
+file "redis-svc.json" created
+file "web-svc.json" created
+file "web-deployment.json" created
+file "redis-deployment.json" created
+
+$ kompose docker-compose.yml convert
 WARN[0000]: Unsupported key networks - ignoring
 file "redis-svc.json" created
 file "web-svc.json" created
@@ -19,11 +26,18 @@ file "web-deployment.json" created
 file "redis-deployment.json" created
 ```
 
-Other examples are provided in the _examples_ [directory](./examples)
+Other examples are provided in the _examples_ [directory](./examples).
 
-## Download
+## Installation 
 
-Grab the latest [release](https://github.com/skippbox/kompose/releases)
+Grab the latest [release](https://github.com/skippbox/kompose/releases) for your OS, untar and extract the binary.
+
+Linux example:
+```
+wget https://github.com/skippbox/kompose/releases/download/v0.1.0/kompose_linux-amd64.tar.gz
+tar -xvf kompose_linux-amd64.tar.gz --strip 1
+sudo mv kompose /usr/local/bin
+```
 
 ## Bash completion
 Running this below command in order to benefit from bash completion
@@ -36,8 +50,17 @@ $ PROG=kompose source script/bash_autocomplete
 
 ### Building with `go`
 
+- You need `make`
 - You need `go` v1.6 or later.
 - If your working copy is not in your `GOPATH`, you need to set it accordingly.
+
+You can either build via the Makefile:
+
+```console
+$ make binary
+```
+
+Or `go build`:
 
 ```console
 $ go build -tags experimental -o kompose ./cli/main
@@ -51,9 +74,7 @@ If you have `go` v1.5, it's still good to build `kompose` with the following set
 $ CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose -tags experimental ./cli/main
 ```
 
-### Building multi-platform binaries with make
-
-- You need `make`
+To create a multi-platform binary, use the `binary-cross` command via `make`:
 
 ```console
 $ make binary-cross
