@@ -15,7 +15,7 @@ Currently Kompose supports to transform either Docker Compose file (both of v1 a
 $ cd examples/
 
 $ ls
-docker-compose.yml  docker-compose-bundle.dsb  docker-gitlab.yml  docker-voting.yml
+docker-compose.yml  docker-compose-bundle.dab  docker-gitlab.yml  docker-voting.yml
 
 $ kompose -f docker-gitlab.yml convert -y
 file "redisio-svc.yaml" created
@@ -49,13 +49,13 @@ file "db-deployment.json" created
 
 $ ls
 db-deployment.json  docker-compose.yml         docker-gitlab.yml  redis-deployment.json  result-deployment.json  vote-deployment.json  worker-deployment.json
-db-svc.json         docker-compose-bundle.dsb  docker-voting.yml  redis-svc.json         result-svc.json         vote-svc.json         worker-svc.json
+db-svc.json         docker-compose-bundle.dab  docker-voting.yml  redis-svc.json         result-svc.json         vote-svc.json         worker-svc.json
 ```
 
 Using `--bundle, --dab` to specify a DAB file as below:
 
 ```console
-$ kompose --bundle docker-compose-bundle.dsb convert
+$ kompose --bundle docker-compose-bundle.dab convert
 WARN[0000]: Unsupported key networks - ignoring
 file "redis-svc.json" created
 file "web-svc.json" created
