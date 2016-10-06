@@ -1,5 +1,47 @@
 # Change Log
 
+## [v0.1.1](https://github.com/skippbox/kompose/tree/v0.1.1) (2016-10-06)
+[Full Changelog](https://github.com/skippbox/kompose/compare/v0.1.0...v0.1.1)
+
+**Implemented enhancements:**
+
+- Persistent Volumes [\#150](https://github.com/skippbox/kompose/issues/150)
+- Add flags for sliencing warning and for treating warnings as error [\#100](https://github.com/skippbox/kompose/issues/100)
+
+**Fixed bugs:**
+
+- kompose up always deploys to default namespace [\#162](https://github.com/skippbox/kompose/issues/162)
+- godep save ./... : cannot find package "k8s.io/kubernetes/pkg/apis/authentication.k8s.io" [\#117](https://github.com/skippbox/kompose/issues/117)
+
+**Closed issues:**
+
+- come up with a release schedule [\#187](https://github.com/skippbox/kompose/issues/187)
+- go 1.5 not building [\#181](https://github.com/skippbox/kompose/issues/181)
+- `--provider` flag for kompose [\#179](https://github.com/skippbox/kompose/issues/179)
+- kompose --version - print out dev tag  [\#170](https://github.com/skippbox/kompose/issues/170)
+- suggestion: let `-` denote stdout for -o option [\#169](https://github.com/skippbox/kompose/issues/169)
+- Proposal: make --dab/--bundle global flag [\#161](https://github.com/skippbox/kompose/issues/161)
+- Support for "9995:9995/tcp" [\#158](https://github.com/skippbox/kompose/issues/158)
+- `kompose up`  for OpenShift [\#152](https://github.com/skippbox/kompose/issues/152)
+- Generate ImageStream for every image in DeploymentConfig [\#145](https://github.com/skippbox/kompose/issues/145)
+
+**Merged pull requests:**
+
+- Create PVC object for docker-compose volumes [\#186](https://github.com/skippbox/kompose/pull/186) ([surajssd](https://github.com/surajssd))
+- Update .dsb references to .dab [\#184](https://github.com/skippbox/kompose/pull/184) ([cdrage](https://github.com/cdrage))
+- Update README + Docker Compose Bundle references [\#183](https://github.com/skippbox/kompose/pull/183) ([cdrage](https://github.com/cdrage))
+- --provider global flag for kompose [\#182](https://github.com/skippbox/kompose/pull/182) ([surajssd](https://github.com/surajssd))
+- Changed version tag to reflect the tip of the branch [\#180](https://github.com/skippbox/kompose/pull/180) ([cab105](https://github.com/cab105))
+- Add .gitignore for Go files + compiled Kompose file [\#178](https://github.com/skippbox/kompose/pull/178) ([cdrage](https://github.com/cdrage))
+- support -o - to stdout [\#172](https://github.com/skippbox/kompose/pull/172) ([ngtuna](https://github.com/ngtuna))
+- remove executable perms from docs [\#171](https://github.com/skippbox/kompose/pull/171) ([dustymabe](https://github.com/dustymabe))
+- Make --dab/--bundle global flag [\#168](https://github.com/skippbox/kompose/pull/168) ([kadel](https://github.com/kadel))
+- Prepare up/down for other providers [\#166](https://github.com/skippbox/kompose/pull/166) ([kadel](https://github.com/kadel))
+- kompose up - Get namespace from kubeconfig [\#164](https://github.com/skippbox/kompose/pull/164) ([kadel](https://github.com/kadel))
+- OpenShift - generate DeploymentConfig with ImageStream [\#160](https://github.com/skippbox/kompose/pull/160) ([kadel](https://github.com/kadel))
+- Add port protocol handing for docker-compose. [\#159](https://github.com/skippbox/kompose/pull/159) ([kadel](https://github.com/kadel))
+- Added flag `--suppress-warnings`, `--verbose`, `--error-on-warning` global flags [\#111](https://github.com/skippbox/kompose/pull/111) ([surajssd](https://github.com/surajssd))
+
 ## [v0.1.0](https://github.com/skippbox/kompose/tree/v0.1.0) (2016-09-09)
 [Full Changelog](https://github.com/skippbox/kompose/compare/v0.0.1-beta.2...v0.1.0)
 
@@ -40,9 +82,9 @@
 - Use libcompose project.Context{} instead of docker.Context{} [\#142](https://github.com/skippbox/kompose/pull/142) ([ngtuna](https://github.com/ngtuna))
 - update user guide: add `kompose up`, `kompose down` [\#141](https://github.com/skippbox/kompose/pull/141) ([ngtuna](https://github.com/ngtuna))
 - make --file as global flag [\#139](https://github.com/skippbox/kompose/pull/139) ([ngtuna](https://github.com/ngtuna))
-- improve messages of kompose up [\#136](https://github.com/skippbox/kompose/pull/136) ([runseb](https://github.com/runseb))
-- New guestbook example [\#135](https://github.com/skippbox/kompose/pull/135) ([runseb](https://github.com/runseb))
-- Moves examples to docs/user-guide and adds basic roadmap to main readme [\#132](https://github.com/skippbox/kompose/pull/132) ([runseb](https://github.com/runseb))
+- improve messages of kompose up [\#136](https://github.com/skippbox/kompose/pull/136) ([sebgoa](https://github.com/sebgoa))
+- New guestbook example [\#135](https://github.com/skippbox/kompose/pull/135) ([sebgoa](https://github.com/sebgoa))
+- Moves examples to docs/user-guide and adds basic roadmap to main readme [\#132](https://github.com/skippbox/kompose/pull/132) ([sebgoa](https://github.com/sebgoa))
 - Add more owners [\#128](https://github.com/skippbox/kompose/pull/128) ([janetkuo](https://github.com/janetkuo))
 - docker-compose - Entrypoint support [\#127](https://github.com/skippbox/kompose/pull/127) ([kadel](https://github.com/kadel))
 - Fix conversion to OpenShift \(invalid DeploymentConfig\) [\#126](https://github.com/skippbox/kompose/pull/126) ([kadel](https://github.com/kadel))
