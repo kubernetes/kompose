@@ -182,6 +182,8 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *api.Service:
 				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			case *api.PersistentVolumeClaim:
+				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			}
 			files = append(files, file)
 		}
@@ -250,12 +252,20 @@ func CreateService(name string, service kobject.ServiceConfig, objects []runtime
 }
 
 // load configurations to k8s objects
-func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects []runtime.Object) {
+func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects *[]runtime.Object) {
 	// Configure the environment variables.
 	envs := ConfigEnvs(name, service)
 
 	// Configure the container volumes.
-	volumesMount, volumes := ConfigVolumes(service)
+	volumesMount, volumes, pvc := ConfigVolumes(name, service)
+	if pvc != nil {
+		// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`
+		// because the type of objects and pvc is different, but when doing append
+		// one element at a time it gets converted to runtime.Object for objects slice
+		for _, p := range pvc {
+			*objects = append(*objects, p)
+		}
+	}
 
 	// Configure the container ports.
 	ports := ConfigPorts(name, service)
@@ -301,7 +311,7 @@ func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects
 	}
 
 	// update supported controller
-	for _, obj := range objects {
+	for _, obj := range *objects {
 		UpdateController(obj, fillTemplate, fillObjectMeta)
 	}
 }

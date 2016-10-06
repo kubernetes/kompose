@@ -152,7 +152,7 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 	if !equalStringSlice(config.Args, container.Args) {
 		return fmt.Errorf("Found different container args: %#v vs. %#v", config.Args, container.Args)
 	}
-	if len(template.Spec.Volumes) == 0 || len(template.Spec.Volumes[0].Name) == 0 || template.Spec.Volumes[0].VolumeSource.EmptyDir == nil {
+	if len(template.Spec.Volumes) == 0 || len(template.Spec.Volumes[0].Name) == 0 || template.Spec.Volumes[0].VolumeSource.PersistentVolumeClaim == nil {
 		return fmt.Errorf("Found incorrect volumes: %v vs. %#v", config.Volumes, template.Spec.Volumes)
 	}
 	// We only set controller labels here and k8s server will take care of other defaults, such as selectors
@@ -202,10 +202,12 @@ func TestKomposeConvert(t *testing.T) {
 		opt             kobject.ConvertOptions
 		expectedNumObjs int
 	}{
-		"Convert to Deployments (D)":            {newKomposeObject(), kobject.ConvertOptions{CreateD: true, Replicas: replicas}, 2},
-		"Convert to DaemonSets (DS)":            {newKomposeObject(), kobject.ConvertOptions{CreateDS: true}, 2},
-		"Convert to ReplicationController (RC)": {newKomposeObject(), kobject.ConvertOptions{CreateRC: true, Replicas: replicas}, 2},
-		"Convert to D, DS, and RC":              {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true, Replicas: replicas}, 4},
+		// objects generated are deployment, service and pvc
+		"Convert to Deployments (D)":            {newKomposeObject(), kobject.ConvertOptions{CreateD: true, Replicas: replicas}, 3},
+		"Convert to DaemonSets (DS)":            {newKomposeObject(), kobject.ConvertOptions{CreateDS: true}, 3},
+		"Convert to ReplicationController (RC)": {newKomposeObject(), kobject.ConvertOptions{CreateRC: true, Replicas: replicas}, 3},
+		// objects generated are deployment, daemonset, ReplicationController, service and pvc
+		"Convert to D, DS, and RC": {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true, Replicas: replicas}, 5},
 		// TODO: add more tests
 	}
 
