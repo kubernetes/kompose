@@ -244,6 +244,21 @@ func CreateService(name string, service kobject.ServiceConfig, objects []runtime
 	servicePorts := ConfigServicePorts(name, service)
 	svc.Spec.Ports = servicePorts
 
+	// Configure service types
+	for key, value := range service.Annotations {
+		if key == "kompose.service.type" {
+			if strings.ToLower(value) == "nodeport" {
+				svc.Spec.Type = "NodePort"
+			} else if strings.ToLower(value) == "clusterip" {
+				svc.Spec.Type = "ClusterIP"
+			} else if strings.ToLower(value) == "loadbalancer" {
+				svc.Spec.Type = "LoadBalancer"
+			} else {
+				logrus.Fatalf("Unknown value '%s', supported values are 'NodePort, ClusterIP and LoadBalancer' " , value)
+			}
+		}
+	}
+
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
 	svc.ObjectMeta.Annotations = annotations
