@@ -53,7 +53,6 @@ var unsupportedKey = map[string]int{
 	"ShmSize":       0,
 	"StopSignal":    0,
 	"VolumeDriver":  0,
-	"VolumesFrom":   0,
 	"Uts":           0,
 	"ReadOnly":      0,
 	"StdinOpen":     0,
@@ -150,6 +149,7 @@ type ServiceConfig struct {
 	Privileged    bool
 	Restart       string
 	User          string
+	VolumesFrom   []string
 }
 
 // EnvVar holds the environment variable struct of a container

@@ -56,7 +56,16 @@ convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/te
 # kubernetes test
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/output-k8s.json"
 # openshift test
-convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/docker-compose.yml convert --stdout --dc" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/output-os.json"
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/output-os.json"
+
+
+######
+# Tests related to docker-compose file in /script/test/fixtures/volume-mounts/volumes-from
+# kubernetes test
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-k8s.json" "ignoring path on the host"
+# openshift test
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-os.json" "ignoring path on the host"
+
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/envvars-separators

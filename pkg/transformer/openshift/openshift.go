@@ -160,6 +160,8 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 		allobjects = append(allobjects, objects...)
 	}
+	// If docker-compose has a volumes_from directive it will be handled here
+	kubernetes.VolumesFrom(&allobjects, komposeObject)
 	// sort all object so Services are first
 	kubernetes.SortServicesFirst(&allobjects)
 	return allobjects
