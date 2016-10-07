@@ -307,6 +307,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 		allobjects = append(allobjects, objects...)
 	}
+	// If docker-compose has a volumes_from directive it will be handled here
+	VolumesFrom(&allobjects, komposeObject)
 	// sort all object so Services are first
 	SortServicesFirst(&allobjects)
 	return allobjects
