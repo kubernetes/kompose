@@ -18,7 +18,7 @@ file "web-svc.json" created
 file "web-deployment.json" created
 file "redis-deployment.json" created
 
-$ kompose docker-compose.yml convert
+$ kompose -f docker-compose.yml convert
 WARN[0000]: Unsupported key networks - ignoring
 file "redis-svc.json" created
 file "web-svc.json" created
