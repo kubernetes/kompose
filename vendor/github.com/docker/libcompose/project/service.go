@@ -16,7 +16,7 @@ type Service interface {
 	Create(ctx context.Context, options options.Create) error
 	Delete(ctx context.Context, options options.Delete) error
 	Events(ctx context.Context, messages chan events.ContainerEvent) error
-	Info(ctx context.Context, qFlag bool) (InfoSet, error)
+	Info(ctx context.Context) (InfoSet, error)
 	Log(ctx context.Context, follow bool) error
 	Kill(ctx context.Context, signal string) error
 	Pause(ctx context.Context) error
