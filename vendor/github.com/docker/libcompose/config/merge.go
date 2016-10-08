@@ -23,36 +23,55 @@ var (
 	}
 )
 
+// CreateConfig unmarshals bytes to config and creates config based on version
+func CreateConfig(bytes []byte) (*Config, error) {
+	var config Config
+	if err := yaml.Unmarshal(bytes, &config); err != nil {
+		return nil, err
+	}
+	if config.Version == "2" {
+		for key, value := range config.Networks {
+			if value == nil {
+				config.Networks[key] = &NetworkConfig{}
+			}
+		}
+		for key, value := range config.Volumes {
+			if value == nil {
+				config.Volumes[key] = &VolumeConfig{}
+			}
+		}
+	} else {
+		var baseRawServices RawServiceMap
+		if err := yaml.Unmarshal(bytes, &baseRawServices); err != nil {
+			return nil, err
+		}
+		config.Services = baseRawServices
+	}
+
+	return &config, nil
+}
+
 // Merge merges a compose file into an existing set of service configs
 func Merge(existingServices *ServiceConfigs, environmentLookup EnvironmentLookup, resourceLookup ResourceLookup, file string, bytes []byte, options *ParseOptions) (string, map[string]*ServiceConfig, map[string]*VolumeConfig, map[string]*NetworkConfig, error) {
 	if options == nil {
 		options = &defaultParseOptions
 	}
 
-	var config Config
-	if err := yaml.Unmarshal(bytes, &config); err != nil {
+	config, err := CreateConfig(bytes)
+	if err != nil {
 		return "", nil, nil, nil, err
 	}
+	baseRawServices := config.Services
 
 	var serviceConfigs map[string]*ServiceConfig
-	var volumeConfigs map[string]*VolumeConfig
-	var networkConfigs map[string]*NetworkConfig
 	if config.Version == "2" {
 		var err error
-		serviceConfigs, err = MergeServicesV2(existingServices, environmentLookup, resourceLookup, file, bytes, options)
-		if err != nil {
-			return "", nil, nil, nil, err
-		}
-		volumeConfigs, err = ParseVolumes(bytes)
-		if err != nil {
-			return "", nil, nil, nil, err
-		}
-		networkConfigs, err = ParseNetworks(bytes)
+		serviceConfigs, err = MergeServicesV2(existingServices, environmentLookup, resourceLookup, file, baseRawServices, options)
 		if err != nil {
 			return "", nil, nil, nil, err
 		}
 	} else {
-		serviceConfigsV1, err := MergeServicesV1(existingServices, environmentLookup, resourceLookup, file, bytes, options)
+		serviceConfigsV1, err := MergeServicesV1(existingServices, environmentLookup, resourceLookup, file, baseRawServices, options)
 		if err != nil {
 			return "", nil, nil, nil, err
 		}
@@ -72,7 +91,7 @@ func Merge(existingServices *ServiceConfigs, environmentLookup EnvironmentLookup
 		}
 	}
 
-	return config.Version, serviceConfigs, volumeConfigs, networkConfigs, nil
+	return config.Version, serviceConfigs, config.Volumes, config.Networks, nil
 }
 
 func adjustValues(configs map[string]*ServiceConfig) {

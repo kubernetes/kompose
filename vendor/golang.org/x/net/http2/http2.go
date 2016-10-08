@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -169,8 +170,9 @@ var (
 //  RFC 7230 says:
 //   header-field   = field-name ":" OWS field-value OWS
 //   field-name     = token
+//   token          = 1*tchar
 //   tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." /
-//           "^" / "_" / "
+//           "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
 // Further, http2 says:
 //   "Just as in HTTP/1.x, header field names are strings of ASCII
 //   characters that are compared in a case-insensitive
@@ -426,4 +428,37 @@ var isTokenTable = [127]bool{
 
 type connectionStater interface {
 	ConnectionState() tls.ConnectionState
+}
+
+var sorterPool = sync.Pool{New: func() interface{} { return new(sorter) }}
+
+type sorter struct {
+	v []string // owned by sorter
+}
+
+func (s *sorter) Len() int           { return len(s.v) }
+func (s *sorter) Swap(i, j int)      { s.v[i], s.v[j] = s.v[j], s.v[i] }
+func (s *sorter) Less(i, j int) bool { return s.v[i] < s.v[j] }
+
+// Keys returns the sorted keys of h.
+//
+// The returned slice is only valid until s used again or returned to
+// its pool.
+func (s *sorter) Keys(h http.Header) []string {
+	keys := s.v[:0]
+	for k := range h {
+		keys = append(keys, k)
+	}
+	s.v = keys
+	sort.Sort(s)
+	return keys
+}
+
+func (s *sorter) SortStrings(ss []string) {
+	// Our sorter works on s.v, which sorter owners, so
+	// stash it away while we sort the user's buffer.
+	save := s.v
+	s.v = ss
+	sort.Sort(s)
+	s.v = save
 }

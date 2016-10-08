@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/engine-api/types/strslice"
+	"github.com/docker/docker/api/types/strslice"
 )
 
 // StringorInt represents a string or an integer.

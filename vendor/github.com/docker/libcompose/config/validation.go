@@ -189,20 +189,41 @@ func invalidTypeMessage(service, key string, err gojsonschema.ResultError) strin
 }
 
 func validate(serviceMap RawServiceMap) error {
-	if err := setupSchemaLoaders(); err != nil {
+	if err := setupSchemaLoaders(schemaDataV1, &schemaV1, &schemaLoaderV1, &constraintSchemaLoaderV1); err != nil {
 		return err
 	}
 
 	serviceMap = convertServiceMapKeysToStrings(serviceMap)
 
-	var validationErrors []string
-
 	dataLoader := gojsonschema.NewGoLoader(serviceMap)
 
-	result, err := gojsonschema.Validate(schemaLoader, dataLoader)
+	result, err := gojsonschema.Validate(schemaLoaderV1, dataLoader)
 	if err != nil {
 		return err
 	}
+
+	return generateErrorMessages(serviceMap, schemaV1, result)
+}
+
+func validateV2(serviceMap RawServiceMap) error {
+	if err := setupSchemaLoaders(servicesSchemaDataV2, &schemaV2, &schemaLoaderV2, &constraintSchemaLoaderV2); err != nil {
+		return err
+	}
+
+	serviceMap = convertServiceMapKeysToStrings(serviceMap)
+
+	dataLoader := gojsonschema.NewGoLoader(serviceMap)
+
+	result, err := gojsonschema.Validate(schemaLoaderV2, dataLoader)
+	if err != nil {
+		return err
+	}
+
+	return generateErrorMessages(serviceMap, schemaV2, result)
+}
+
+func generateErrorMessages(serviceMap RawServiceMap, schema map[string]interface{}, result *gojsonschema.Result) error {
+	var validationErrors []string
 
 	// gojsonschema can create extraneous "additional_property_not_allowed" errors in some cases
 	// If this is set, and the error is at root level, skip over that error
@@ -261,7 +282,7 @@ func validate(serviceMap RawServiceMap) error {
 }
 
 func validateServiceConstraints(service RawService, serviceName string) error {
-	if err := setupSchemaLoaders(); err != nil {
+	if err := setupSchemaLoaders(schemaDataV1, &schemaV1, &schemaLoaderV1, &constraintSchemaLoaderV1); err != nil {
 		return err
 	}
 
@@ -271,7 +292,7 @@ func validateServiceConstraints(service RawService, serviceName string) error {
 
 	dataLoader := gojsonschema.NewGoLoader(service)
 
-	result, err := gojsonschema.Validate(constraintSchemaLoader, dataLoader)
+	result, err := gojsonschema.Validate(constraintSchemaLoaderV1, dataLoader)
 	if err != nil {
 		return err
 	}

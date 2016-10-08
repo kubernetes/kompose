@@ -23,7 +23,7 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/docker/docker/api/client/bundlefile"
+	"github.com/docker/docker/cli/command/bundlefile"
 	"github.com/skippbox/kompose/pkg/kobject"
 )
 

@@ -226,6 +226,13 @@ func (c *ServiceConfigs) Keys() []string {
 	return keys
 }
 
+// All returns all the config at once
+func (c *ServiceConfigs) All() map[string]*ServiceConfig {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.m
+}
+
 // RawService is represent a Service in map form unparsed
 type RawService map[string]interface{}
 

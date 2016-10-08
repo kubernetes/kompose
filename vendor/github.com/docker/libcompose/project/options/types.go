@@ -25,7 +25,7 @@ type Create struct {
 	NoRecreate    bool
 	ForceRecreate bool
 	NoBuild       bool
-	// ForceBuild bool
+	ForceBuild    bool
 }
 
 // Run holds options of compose run.

@@ -39,6 +39,11 @@ func Do(ctx context.Context, client *http.Client, req *http.Request) (*http.Resp
 	}
 	result := make(chan responseAndError, 1)
 
+	// Make local copies of test hooks closed over by goroutines below.
+	// Prevents data races in tests.
+	testHookDoReturned := testHookDoReturned
+	testHookDidBodyClose := testHookDidBodyClose
+
 	go func() {
 		resp, err := client.Do(req)
 		testHookDoReturned()
