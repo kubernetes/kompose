@@ -77,7 +77,7 @@ func (e *EmptyService) Scale(ctx context.Context, count int, timeout int) error 
 }
 
 // Info implements Service.Info but does nothing.
-func (e *EmptyService) Info(ctx context.Context, qFlag bool) (InfoSet, error) {
+func (e *EmptyService) Info(ctx context.Context) (InfoSet, error) {
 	return InfoSet{}, nil
 }
 
@@ -133,7 +133,7 @@ func (e *EmptyNetworks) Initialize(ctx context.Context) error {
 	return nil
 }
 
-// Initialize implements Networks.Remove but does nothing.
+// Remove implements Networks.Remove but does nothing.
 func (e *EmptyNetworks) Remove(ctx context.Context) error {
 	return nil
 }

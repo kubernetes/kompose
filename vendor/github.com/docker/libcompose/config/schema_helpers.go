@@ -9,9 +9,12 @@ import (
 )
 
 var (
-	schemaLoader           gojsonschema.JSONLoader
-	constraintSchemaLoader gojsonschema.JSONLoader
-	schema                 map[string]interface{}
+	schemaLoaderV1           gojsonschema.JSONLoader
+	constraintSchemaLoaderV1 gojsonschema.JSONLoader
+	schemaLoaderV2           gojsonschema.JSONLoader
+	constraintSchemaLoaderV2 gojsonschema.JSONLoader
+	schemaV1                 map[string]interface{}
+	schemaV2                 map[string]interface{}
 )
 
 type (
@@ -31,28 +34,28 @@ func (checker portsFormatChecker) IsFormat(input string) bool {
 	return err == nil
 }
 
-func setupSchemaLoaders() error {
-	if schema != nil {
+func setupSchemaLoaders(schemaData string, schema *map[string]interface{}, schemaLoader, constraintSchemaLoader *gojsonschema.JSONLoader) error {
+	if *schema != nil {
 		return nil
 	}
 
 	var schemaRaw interface{}
-	err := json.Unmarshal([]byte(schemaV1), &schemaRaw)
+	err := json.Unmarshal([]byte(schemaData), &schemaRaw)
 	if err != nil {
 		return err
 	}
 
-	schema = schemaRaw.(map[string]interface{})
+	*schema = schemaRaw.(map[string]interface{})
 
 	gojsonschema.FormatCheckers.Add("environment", environmentFormatChecker{})
 	gojsonschema.FormatCheckers.Add("ports", portsFormatChecker{})
 	gojsonschema.FormatCheckers.Add("expose", portsFormatChecker{})
-	schemaLoader = gojsonschema.NewGoLoader(schemaRaw)
+	*schemaLoader = gojsonschema.NewGoLoader(schemaRaw)
 
-	definitions := schema["definitions"].(map[string]interface{})
+	definitions := (*schema)["definitions"].(map[string]interface{})
 	constraints := definitions["constraints"].(map[string]interface{})
 	service := constraints["service"].(map[string]interface{})
-	constraintSchemaLoader = gojsonschema.NewGoLoader(service)
+	*constraintSchemaLoader = gojsonschema.NewGoLoader(service)
 
 	return nil
 }

@@ -163,7 +163,6 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 			serviceConfig.Command = composeServiceConfig.Entrypoint
 			serviceConfig.Args = composeServiceConfig.Command
 
-			// load environment variables
 			envs := loadEnvVars(composeServiceConfig.Environment.ToMap())
 			serviceConfig.Environment = envs
 
