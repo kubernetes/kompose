@@ -18,18 +18,27 @@ package openshift
 
 import (
 	"errors"
-
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
-	imageapi "github.com/openshift/origin/pkg/image/api"
+	"fmt"
+	"strings"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
 
+	"github.com/Sirupsen/logrus"
+
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
 	"k8s.io/kubernetes/pkg/runtime"
 
-	"strings"
+	kclient "k8s.io/kubernetes/pkg/client/unversioned"
+	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
+
+	oclient "github.com/openshift/origin/pkg/client"
+	ocliconfig "github.com/openshift/origin/pkg/cmd/cli/config"
+
+	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	imageapi "github.com/openshift/origin/pkg/image/api"
 )
 
 type OpenShift struct {
@@ -157,7 +166,60 @@ func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 }
 
 func (k *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
-	return errors.New("Not Implemented")
+	//Convert komposeObject
+	objects := k.Transform(komposeObject, opt)
+
+	fmt.Println("We are going to create OpenShift DeploymentConfigs and Services for your Dockerized application. \n" +
+		"If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. \n")
+
+	// initialize OpenShift Client
+	loadingRules := ocliconfig.NewOpenShiftClientConfigLoadingRules()
+	overrides := &clientcmd.ConfigOverrides{}
+	oclientConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides).ClientConfig()
+	if err != nil {
+		return err
+	}
+	oclient := oclient.NewOrDie(oclientConfig)
+
+	// initialize Kubernetes client
+	kfactory := kcmdutil.NewFactory(nil)
+	kclientConfig, err := kfactory.ClientConfig()
+	if err != nil {
+		return err
+	}
+	kclient := kclient.NewOrDie(kclientConfig)
+
+	// get namespace from config
+	namespace, _, err := kfactory.DefaultNamespace()
+	if err != nil {
+		return err
+	}
+
+	for _, v := range objects {
+		switch t := v.(type) {
+		case *imageapi.ImageStream:
+			_, err := oclient.ImageStreams(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created ImageStream: %s", t.Name)
+		case *deployapi.DeploymentConfig:
+			_, err := oclient.DeploymentConfigs(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created deployment: %s", t.Name)
+		case *api.Service:
+			_, err := kclient.Services(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created service: %s", t.Name)
+		}
+	}
+	fmt.Println("\nYour application has been deployed to OpenShift. You can run 'oc get dc,svc,is' for details.")
+
+	return nil
 }
 
 func (k *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
