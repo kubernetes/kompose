@@ -194,7 +194,7 @@ func Up(c *cli.Context) {
 		t = new(openshift.OpenShift)
 	}
 
-	//Submit objects provider
+	//Submit objects to provider
 	errDeploy := t.Deploy(komposeObject, opt)
 	if errDeploy != nil {
 		logrus.Fatalf("Error while deploying application: %s", errDeploy)
