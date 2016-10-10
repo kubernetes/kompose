@@ -6,16 +6,10 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/utils"
-	"gopkg.in/yaml.v2"
 )
 
 // MergeServicesV1 merges a v1 compose file into an existing set of service configs
-func MergeServicesV1(existingServices *ServiceConfigs, environmentLookup EnvironmentLookup, resourceLookup ResourceLookup, file string, bytes []byte, options *ParseOptions) (map[string]*ServiceConfigV1, error) {
-	datas := make(RawServiceMap)
-	if err := yaml.Unmarshal(bytes, &datas); err != nil {
-		return nil, err
-	}
-
+func MergeServicesV1(existingServices *ServiceConfigs, environmentLookup EnvironmentLookup, resourceLookup ResourceLookup, file string, datas RawServiceMap, options *ParseOptions) (map[string]*ServiceConfigV1, error) {
 	if options.Interpolate {
 		if err := Interpolate(environmentLookup, &datas); err != nil {
 			return nil, err
@@ -116,10 +110,11 @@ func parseV1(resourceLookup ResourceLookup, environmentLookup EnvironmentLookup,
 			return nil, err
 		}
 
-		var baseRawServices RawServiceMap
-		if err := yaml.Unmarshal(bytes, &baseRawServices); err != nil {
+		config, err := CreateConfig(bytes)
+		if err != nil {
 			return nil, err
 		}
+		baseRawServices := config.Services
 
 		if options.Interpolate {
 			err = Interpolate(environmentLookup, &baseRawServices)

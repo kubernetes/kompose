@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/docker/engine-api/types/strslice"
+	"github.com/docker/docker/api/types/strslice"
 	"github.com/flynn/go-shlex"
 )
 
