@@ -36,14 +36,27 @@ type Compose struct {
 }
 
 // load environment variables from compose file
-func loadEnvVars(e map[string]string) []kobject.EnvVar {
+func loadEnvVars(envars []string) []kobject.EnvVar {
 	envs := []kobject.EnvVar{}
-	for k, v := range e {
+	var character string
+	for _, e := range envars {
+		//FIXME:(tuna) if envvar string contains both = and :, then = will be first pick up. Consider the case: URL=http://examples.com
+		if strings.Contains(e, "=") {
+			character = "="
+		} else if strings.Contains(e, ":") {
+			character = ":"
+		} else {
+			logrus.Errorf("Invalid environment variable format, only : and = separators are supported")
+			return []kobject.EnvVar{}
+		}
+
+		values := strings.Split(e, character)
 		envs = append(envs, kobject.EnvVar{
-			Name:  k,
-			Value: v,
+			Name: values[0],
+			Value: values[1],
 		})
 	}
+
 	return envs
 }
 
@@ -163,7 +176,8 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 			serviceConfig.Command = composeServiceConfig.Entrypoint
 			serviceConfig.Args = composeServiceConfig.Command
 
-			envs := loadEnvVars(composeServiceConfig.Environment.ToMap())
+			//envs := loadEnvVars(composeServiceConfig.Environment.ToMap())
+			envs := loadEnvVars(composeServiceConfig.Environment)
 			serviceConfig.Environment = envs
 
 			// load ports
