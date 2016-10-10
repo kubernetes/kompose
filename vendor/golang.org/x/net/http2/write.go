@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"sort"
 	"time"
 
 	"golang.org/x/net/http2/hpack"
@@ -230,13 +229,13 @@ func (wu writeWindowUpdate) writeFrame(ctx writeContext) error {
 }
 
 func encodeHeaders(enc *hpack.Encoder, h http.Header, keys []string) {
-	// TODO: garbage. pool sorters like http1? hot path for 1 key?
 	if keys == nil {
-		keys = make([]string, 0, len(h))
-		for k := range h {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
+		sorter := sorterPool.Get().(*sorter)
+		// Using defer here, since the returned keys from the
+		// sorter.Keys method is only valid until the sorter
+		// is returned:
+		defer sorterPool.Put(sorter)
+		keys = sorter.Keys(h)
 	}
 	for _, k := range keys {
 		vv := h[k]

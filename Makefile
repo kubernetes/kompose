@@ -12,13 +12,13 @@ BIND_DIR := bundles
 default: binary
 
 all:
-	CGO_ENABLED=0 ./script/make.sh
+	CGO_ENABLED=1 ./script/make.sh
 
 binary:
-	CGO_ENABLED=0 ./script/make.sh binary
+	CGO_ENABLED=1 ./script/make.sh binary
 
 binary-cross:
-	CGO_ENABLED=0 ./script/make.sh binary-cross
+	CGO_ENABLED=1 ./script/make.sh binary-cross
 
 clean:
 	./script/make.sh clean

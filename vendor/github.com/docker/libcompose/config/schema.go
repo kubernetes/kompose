@@ -1,6 +1,6 @@
 package config
 
-var schemaV1 = `{
+var schemaDataV1 = `{
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "config_schema_v1.json",
 
@@ -87,6 +87,7 @@ var schemaV1 = `{
         "mac_address": {"type": "string"},
         "mem_limit": {"type": ["number", "string"]},
         "memswap_limit": {"type": ["number", "string"]},
+        "mem_swappiness": {"type": "integer"},
         "net": {"type": "string"},
         "pid": {"type": ["string", "null"]},
 
@@ -189,46 +190,14 @@ var schemaV1 = `{
 }
 `
 
-var schemaV2 = `{
+var servicesSchemaDataV2 = `{
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "config_schema_v2.0.json",
   "type": "object",
 
-  "properties": {
-    "version": {
-      "type": "string"
-    },
-
-    "services": {
-      "id": "#/properties/services",
-      "type": "object",
-      "patternProperties": {
-        "^[a-zA-Z0-9._-]+$": {
-          "$ref": "#/definitions/service"
-        }
-      },
-      "additionalProperties": false
-    },
-
-    "networks": {
-      "id": "#/properties/networks",
-      "type": "object",
-      "patternProperties": {
-        "^[a-zA-Z0-9._-]+$": {
-          "$ref": "#/definitions/network"
-        }
-      }
-    },
-
-    "volumes": {
-      "id": "#/properties/volumes",
-      "type": "object",
-      "patternProperties": {
-        "^[a-zA-Z0-9._-]+$": {
-          "$ref": "#/definitions/volume"
-        }
-      },
-      "additionalProperties": false
+  "patternProperties": {
+    "^[a-zA-Z0-9._-]+$": {
+      "$ref": "#/definitions/service"
     }
   },
 
@@ -330,6 +299,7 @@ var schemaV2 = `{
         "mac_address": {"type": "string"},
         "mem_limit": {"type": ["number", "string"]},
         "memswap_limit": {"type": ["number", "string"]},
+        "mem_swappiness": {"type": "integer"},
         "network_mode": {"type": "string"},
 
         "networks": {
@@ -357,6 +327,7 @@ var schemaV2 = `{
             }
           ]
         },
+        "oom_score_adj": {"type": "integer", "minimum": -1000, "maximum": 1000},
         "pid": {"type": ["string", "null"]},
 
         "ports": {
@@ -436,7 +407,8 @@ var schemaV2 = `{
             "name": {"type": "string"}
           },
           "additionalProperties": false
-        }
+        },
+        "internal": {"type": "boolean"}
       },
       "additionalProperties": false
     },
@@ -457,8 +429,7 @@ var schemaV2 = `{
           "properties": {
             "name": {"type": "string"}
           }
-        },
-        "additionalProperties": false
+        }
       },
       "additionalProperties": false
     },
