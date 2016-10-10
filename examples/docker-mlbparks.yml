@@ -1,0 +1,26 @@
+# mlbparks application from openshift examples
+# https://github.com/gshipley/openshift3mlbparks
+# OpenShift template is here: https://raw.githubusercontent.com/gshipley/openshift3mlbparks/master/mlbparks-template-wildfly.json
+version: "2"
+
+services:
+  mongodb:
+    image: centos/mongodb-26-centos7
+    ports:
+      - '27017'
+    environment:
+      MONGODB_USER: user
+      MONGODB_PASSWORD: mypass
+      MONGODB_DATABASE: mlbdb
+      MONGODB_ADMIN_PASSWORD: myrootpass
+  mlbparks:
+    # currently built using v1.1.2 of s2i and then pushed to registry
+    #     - s2i build https://github.com/gshipley/openshift3mlbparks openshift/wildfly-100-centos7 dustymabe/mlbparks
+    image: dustymabe/mlbparks
+    ports:
+      - '8080'
+    environment:
+      MONGODB_USER: user
+      MONGODB_PASSWORD: mypass
+      MONGODB_DATABASE: mlbdb
+      MONGODB_ADMIN_PASSWORD: myrootpass
