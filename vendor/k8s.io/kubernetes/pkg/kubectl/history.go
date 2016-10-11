@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2016 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import (
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
+	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	"k8s.io/kubernetes/pkg/runtime"
-	deploymentutil "k8s.io/kubernetes/pkg/util/deployment"
 	sliceutil "k8s.io/kubernetes/pkg/util/slice"
 )
 
@@ -35,7 +35,7 @@ const (
 	ChangeCauseAnnotation = "kubernetes.io/change-cause"
 )
 
-// HistoryViewer provides an interface for resources that have historical information.
+// HistoryViewer provides an interface for resources have historical information.
 type HistoryViewer interface {
 	ViewHistory(namespace, name string, revision int64) (string, error)
 }
@@ -52,7 +52,7 @@ type DeploymentHistoryViewer struct {
 	c clientset.Interface
 }
 
-// ViewHistory prints the revision history of a deployment
+// ViewHistory returns a revision-to-replicaset map as the revision history of a deployment
 func (h *DeploymentHistoryViewer) ViewHistory(namespace, name string, revision int64) (string, error) {
 	deployment, err := h.c.Extensions().Deployments(namespace).Get(name)
 	if err != nil {
@@ -60,11 +60,15 @@ func (h *DeploymentHistoryViewer) ViewHistory(namespace, name string, revision i
 	}
 	_, allOldRSs, newRS, err := deploymentutil.GetAllReplicaSets(deployment, h.c)
 	if err != nil {
-		return "", fmt.Errorf("failed to retrieve old replica sets from deployment %s: %v", name, err)
+		return "", fmt.Errorf("failed to retrieve replica sets from deployment %s: %v", name, err)
+	}
+	allRSs := allOldRSs
+	if newRS != nil {
+		allRSs = append(allRSs, newRS)
 	}
 
 	historyInfo := make(map[int64]*api.PodTemplateSpec)
-	for _, rs := range append(allOldRSs, newRS) {
+	for _, rs := range allRSs {
 		v, err := deploymentutil.Revision(rs)
 		if err != nil {
 			continue
@@ -95,7 +99,7 @@ func (h *DeploymentHistoryViewer) ViewHistory(namespace, name string, revision i
 	}
 
 	// Sort the revisionToChangeCause map by revision
-	var revisions []int64
+	revisions := make([]int64, 0, len(historyInfo))
 	for r := range historyInfo {
 		revisions = append(revisions, r)
 	}

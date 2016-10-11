@@ -16,11 +16,8 @@ func SetDefaults_ImageImportSpec(obj *ImageImportSpec) {
 	}
 }
 
-func addDefaultingFuncs(scheme *runtime.Scheme) {
-	err := scheme.AddDefaultingFuncs(
+func addDefaultingFuncs(scheme *runtime.Scheme) error {
+	return scheme.AddDefaultingFuncs(
 		SetDefaults_ImageImportSpec,
 	)
-	if err != nil {
-		panic(err)
-	}
 }

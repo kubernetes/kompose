@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors All rights reserved.
+Copyright 2014 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -186,11 +186,15 @@ func (f CodecFactory) SupportedStreamingMediaTypes() []string {
 	return f.streamingAccepts
 }
 
-// LegacyCodec encodes output to a given API version, and decodes output into the internal form from
-// any recognized source. The returned codec will always encode output to JSON.
+// LegacyCodec encodes output to a given API versions, and decodes output into the internal form from
+// any recognized source. The returned codec will always encode output to JSON. If a type is not
+// found in the list of versions an error will be returned.
 //
 // This method is deprecated - clients and servers should negotiate a serializer by mime-type and
 // invoke CodecForVersions. Callers that need only to read data should use UniversalDecoder().
+//
+// TODO: make this call exist only in pkg/api, and initialize it with the set of default versions.
+//   All other callers will be forced to request a Codec directly.
 func (f CodecFactory) LegacyCodec(version ...unversioned.GroupVersion) runtime.Codec {
 	return versioning.NewCodecForScheme(f.scheme, f.legacySerializer, f.universal, unversioned.GroupVersions(version), runtime.InternalGroupVersioner)
 }
@@ -209,6 +213,7 @@ func (f CodecFactory) UniversalDeserializer() runtime.Decoder {
 // defaulting.
 //
 // TODO: the decoder will eventually be removed in favor of dealing with objects in their versioned form
+// TODO: only accept a group versioner
 func (f CodecFactory) UniversalDecoder(versions ...unversioned.GroupVersion) runtime.Decoder {
 	var versioner runtime.GroupVersioner
 	if len(versions) == 0 {
@@ -219,7 +224,7 @@ func (f CodecFactory) UniversalDecoder(versions ...unversioned.GroupVersion) run
 	return f.CodecForVersions(nil, f.universal, nil, versioner)
 }
 
-// CodecFor creates a codec with the provided serializer. If an object is decoded and its group is not in the list,
+// CodecForVersions creates a codec with the provided serializer. If an object is decoded and its group is not in the list,
 // it will default to runtime.APIVersionInternal. If encode is not specified for an object's group, the object is not
 // converted. If encode or decode are nil, no conversion is performed.
 func (f CodecFactory) CodecForVersions(encoder runtime.Encoder, decoder runtime.Decoder, encode runtime.GroupVersioner, decode runtime.GroupVersioner) runtime.Codec {

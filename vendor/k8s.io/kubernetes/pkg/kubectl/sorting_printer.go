@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors All rights reserved.
+Copyright 2014 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,6 +38,10 @@ type SortingPrinter struct {
 	SortField string
 	Delegate  ResourcePrinter
 	Decoder   runtime.Decoder
+}
+
+func (s *SortingPrinter) FinishPrint(w io.Writer, res string) error {
+	return nil
 }
 
 func (s *SortingPrinter) PrintObj(obj runtime.Object, out io.Writer) error {
