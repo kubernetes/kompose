@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors All rights reserved.
+Copyright 2014 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -128,3 +128,5 @@ func (obj *ObjectReference) SetGroupVersionKind(gvk unversioned.GroupVersionKind
 func (obj *ObjectReference) GroupVersionKind() unversioned.GroupVersionKind {
 	return unversioned.FromAPIVersionAndKind(obj.APIVersion, obj.Kind)
 }
+
+func (obj *ObjectReference) GetObjectKind() unversioned.ObjectKind { return obj }

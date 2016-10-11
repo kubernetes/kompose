@@ -214,7 +214,7 @@ func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion)
 
 	var version unversioned.GroupVersion
 
-	if groupVersion.IsEmpty() {
+	if groupVersion.Empty() {
 		objectVersion := obj.GetObjectKind().GroupVersionKind()
 		version = unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
 	} else {

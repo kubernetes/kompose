@@ -1,5 +1,5 @@
 /*
-Copyright 2015 The Kubernetes Authors All rights reserved.
+Copyright 2015 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -91,10 +91,6 @@ type sharedIndexInformer struct {
 
 	started     bool
 	startedLock sync.Mutex
-
-	// blockDeltas gives a way to stop all event distribution so that a late event handler
-	// can safely join the shared informer.
-	blockDeltas sync.Mutex
 }
 
 // dummyController hides the fact that a SharedInformer is different from a dedicated one
@@ -207,35 +203,16 @@ func (s *sharedIndexInformer) AddEventHandler(handler ResourceEventHandler) erro
 	s.startedLock.Lock()
 	defer s.startedLock.Unlock()
 
-	if !s.started {
-		listener := newProcessListener(handler)
-		s.processor.listeners = append(s.processor.listeners, listener)
-		return nil
+	if s.started {
+		return fmt.Errorf("informer has already started")
 	}
-
-	// in order to safely join, we have to
-	// stop sending add/update/delete notification
-	// do a list against the store
-	// send synthetic "Add" events to the new handler
-	// unblock
-	s.blockDeltas.Lock()
-	defer s.blockDeltas.Unlock()
 
 	listener := newProcessListener(handler)
 	s.processor.listeners = append(s.processor.listeners, listener)
-
-	items := s.indexer.List()
-	for i := range items {
-		listener.add(addNotification{newObj: items[i]})
-	}
-
 	return nil
 }
 
 func (s *sharedIndexInformer) HandleDeltas(obj interface{}) error {
-	s.blockDeltas.Lock()
-	defer s.blockDeltas.Unlock()
-
 	// from oldest to newest
 	for _, d := range obj.(cache.Deltas) {
 		switch d.Type {

@@ -7,7 +7,7 @@ import (
 
 // +genclient=true
 
-// PodSecurityPolicySubjectReview checks whether a particular user/SA tuple can create the PodSpec.
+// PodSecurityPolicySubjectReview checks whether a particular user/SA tuple can create the PodTemplateSpec.
 type PodSecurityPolicySubjectReview struct {
 	unversioned.TypeMeta
 
@@ -20,13 +20,13 @@ type PodSecurityPolicySubjectReview struct {
 
 // PodSecurityPolicySubjectReviewSpec defines specification for PodSecurityPolicySubjectReview
 type PodSecurityPolicySubjectReviewSpec struct {
-	// PodSpec is the PodSpec to check. If PodSpec.ServiceAccountName is empty it will not be defaulted.
+	// Template is the PodTemplateSpec to check. If PodTemplateSpec.Spec.ServiceAccountName is empty it will not be defaulted.
 	// If its non-empty, it will be checked.
-	PodSpec kapi.PodSpec
+	Template kapi.PodTemplateSpec
 
 	// User is the user you're testing for.
 	// If you specify "User" but not "Group", then is it interpreted as "What if User were not a member of any groups.
-	// If User and Groups are empty, then the check is performed using *only* the ServiceAccountName in the PodSpec.
+	// If User and Groups are empty, then the check is performed using *only* the ServiceAccountName in the PodTemplateSpec.
 	User string
 
 	// Groups is the groups you're testing for.
@@ -35,7 +35,7 @@ type PodSecurityPolicySubjectReviewSpec struct {
 
 // PodSecurityPolicySubjectReviewStatus contains information/status for PodSecurityPolicySubjectReview.
 type PodSecurityPolicySubjectReviewStatus struct {
-	// AllowedBy is a reference to the rule that allows the PodSpec.
+	// AllowedBy is a reference to the rule that allows the PodTemplateSpec.
 	// A rule can be a SecurityContextConstraint or a PodSecurityPolicy
 	// A `nil`, indicates that it was denied.
 	AllowedBy *kapi.ObjectReference
@@ -45,11 +45,11 @@ type PodSecurityPolicySubjectReviewStatus struct {
 	// is no information available.
 	Reason string
 
-	// PodSpec is the PodSpec after the defaulting is applied.
-	PodSpec kapi.PodSpec
+	// Template is the PodTemplateSpec after the defaulting is applied.
+	Template kapi.PodTemplateSpec
 }
 
-// PodSecurityPolicySelfSubjectReview checks whether this user/SA tuple can create the PodSpec.
+// PodSecurityPolicySelfSubjectReview checks whether this user/SA tuple can create the PodTemplateSpec.
 type PodSecurityPolicySelfSubjectReview struct {
 	unversioned.TypeMeta
 
@@ -62,11 +62,11 @@ type PodSecurityPolicySelfSubjectReview struct {
 
 // PodSecurityPolicySelfSubjectReviewSpec contains specification for PodSecurityPolicySelfSubjectReview.
 type PodSecurityPolicySelfSubjectReviewSpec struct {
-	// PodSpec is the PodSpec to check.
-	PodSpec kapi.PodSpec
+	// Template is the PodTemplateSpec to check.
+	Template kapi.PodTemplateSpec
 }
 
-// PodSecurityPolicyReview checks which service accounts (not users, since that would be cluster-wide) can create the `PodSpec` in question.
+// PodSecurityPolicyReview checks which service accounts (not users, since that would be cluster-wide) can create the `PodTemplateSpec` in question.
 type PodSecurityPolicyReview struct {
 	unversioned.TypeMeta
 
@@ -79,22 +79,22 @@ type PodSecurityPolicyReview struct {
 
 // PodSecurityPolicyReviewSpec defines specification for PodSecurityPolicyReview
 type PodSecurityPolicyReviewSpec struct {
-	// PodSpec is the PodSpec to check. The PodSpec.ServiceAccountName field is used
-	// if ServiceAccountNames is empty, unless the PodSpec.ServiceAccountName is empty,
+	// Template is the PodTemplateSpec to check. The PodTemplateSpec.Spec.ServiceAccountName field is used
+	// if ServiceAccountNames is empty, unless the PodTemplateSpec.Spec.ServiceAccountName is empty,
 	// in which case "default" is used.
-	// If ServiceAccountNames is specified, PodSpec.ServiceAccountName is ignored.
-	PodSpec kapi.PodSpec
+	// If ServiceAccountNames is specified, PodTemplateSpec.Spec.ServiceAccountName is ignored.
+	Template kapi.PodTemplateSpec
 
 	// ServiceAccountNames is an optional set of ServiceAccounts to run the check with.
-	// If ServiceAccountNames is empty, the PodSpec ServiceAccountName is used,
+	// If ServiceAccountNames is empty, the PodTemplateSpec.Spec.ServiceAccountName is used,
 	// unless it's empty, in which case "default" is used instead.
-	// If ServiceAccountNames is specified, PodSpec ServiceAccountName is ignored.
+	// If ServiceAccountNames is specified, PodTemplateSpec.Spec.ServiceAccountName is ignored.
 	ServiceAccountNames []string // TODO: find a way to express 'all service accounts'
 }
 
 // PodSecurityPolicyReviewStatus represents the status of PodSecurityPolicyReview.
 type PodSecurityPolicyReviewStatus struct {
-	// AllowedServiceAccounts returns the list of service accounts in *this* namespace that have the power to create the PodSpec.
+	// AllowedServiceAccounts returns the list of service accounts in *this* namespace that have the power to create the PodTemplateSpec.
 	AllowedServiceAccounts []ServiceAccountPodSecurityPolicyReviewStatus
 }
 

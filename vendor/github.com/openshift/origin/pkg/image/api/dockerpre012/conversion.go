@@ -48,13 +48,9 @@ func Convert_api_DockerImage_to_dockerpre012_ImagePre_012(in *newer.DockerImage,
 	return nil
 }
 
-func addConversionFuncs(scheme *runtime.Scheme) {
-	err := scheme.AddConversionFuncs(
+func addConversionFuncs(scheme *runtime.Scheme) error {
+	return scheme.AddConversionFuncs(
 		Convert_dockerpre012_ImagePre_012_to_api_DockerImage,
 		Convert_api_DockerImage_to_dockerpre012_ImagePre_012,
 	)
-	if err != nil {
-		// If one of the conversion functions is malformed, detect it immediately.
-		panic(err)
-	}
 }

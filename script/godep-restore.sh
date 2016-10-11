@@ -22,7 +22,8 @@ preload-remote() {
 echo "Preloading some dependencies"
 # OpenShift requires its own Kubernets fork :-(
 preload-remote "k8s.io" "kubernetes" "github.com/openshift" "kubernetes"
-
+# OpenShift requires its own glog fork
+preload-remote "github.com/golang" "glog" "github.com/openshift" "glog"
 
 echo "Starting to download all godeps. This takes a while"
 godep restore

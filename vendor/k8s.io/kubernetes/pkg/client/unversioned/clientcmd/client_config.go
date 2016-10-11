@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors All rights reserved.
+Copyright 2014 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -167,6 +167,12 @@ func getUserIdentificationPartialConfig(configAuthInfo clientcmdapi.AuthInfo, fa
 	// blindly overwrite existing values based on precedence
 	if len(configAuthInfo.Token) > 0 {
 		mergedConfig.BearerToken = configAuthInfo.Token
+	} else if len(configAuthInfo.TokenFile) > 0 {
+		tokenBytes, err := ioutil.ReadFile(configAuthInfo.TokenFile)
+		if err != nil {
+			return nil, err
+		}
+		mergedConfig.BearerToken = string(tokenBytes)
 	}
 	if len(configAuthInfo.Impersonate) > 0 {
 		mergedConfig.Impersonate = configAuthInfo.Impersonate
@@ -323,7 +329,7 @@ func (config *DirectClientConfig) getCluster() clientcmdapi.Cluster {
 	clusterInfoName := config.getClusterName()
 
 	var mergedClusterInfo clientcmdapi.Cluster
-	mergo.Merge(&mergedClusterInfo, DefaultCluster)
+	mergo.Merge(&mergedClusterInfo, config.overrides.ClusterDefaults)
 	mergo.Merge(&mergedClusterInfo, EnvVarCluster)
 	if configClusterInfo, exists := clusterInfos[clusterInfoName]; exists {
 		mergo.Merge(&mergedClusterInfo, configClusterInfo)
@@ -344,6 +350,8 @@ func (config *DirectClientConfig) getCluster() clientcmdapi.Cluster {
 // inClusterClientConfig makes a config that will work from within a kubernetes cluster container environment.
 type inClusterClientConfig struct{}
 
+var _ ClientConfig = inClusterClientConfig{}
+
 func (inClusterClientConfig) RawConfig() (clientcmdapi.Config, error) {
 	return clientcmdapi.Config{}, fmt.Errorf("inCluster environment config doesn't support multiple clusters")
 }
@@ -352,21 +360,21 @@ func (inClusterClientConfig) ClientConfig() (*restclient.Config, error) {
 	return restclient.InClusterConfig()
 }
 
-func (inClusterClientConfig) Namespace() (string, error) {
+func (inClusterClientConfig) Namespace() (string, bool, error) {
 	// This way assumes you've set the POD_NAMESPACE environment variable using the downward API.
 	// This check has to be done first for backwards compatibility with the way InClusterConfig was originally set up
 	if ns := os.Getenv("POD_NAMESPACE"); ns != "" {
-		return ns, nil
+		return ns, true, nil
 	}
 
 	// Fall back to the namespace associated with the service account token, if available
 	if data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace"); err == nil {
 		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
-			return ns, nil
+			return ns, true, nil
 		}
 	}
 
-	return "default", nil
+	return "default", false, nil
 }
 
 func (inClusterClientConfig) ConfigAccess() ConfigAccess {

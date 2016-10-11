@@ -164,8 +164,6 @@ func joseBase64UrlEncode(b []byte) string {
 // accordance with the jose specification.
 // http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-31#section-2
 func joseBase64UrlDecode(s string) ([]byte, error) {
-	s = strings.Replace(s, "\n", "", -1)
-	s = strings.Replace(s, " ", "", -1)
 	switch len(s) % 4 {
 	case 0:
 	case 2:
