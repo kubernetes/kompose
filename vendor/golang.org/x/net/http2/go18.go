@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build !go1.5
+// +build go1.8
 
 package http2
 
-import "net/http"
+import "crypto/tls"
 
-func requestCancel(req *http.Request) <-chan struct{} { return nil }
+func cloneTLSConfig(c *tls.Config) *tls.Config { return c.Clone() }
