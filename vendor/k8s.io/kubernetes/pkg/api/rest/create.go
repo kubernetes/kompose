@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors All rights reserved.
+Copyright 2014 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,13 +40,21 @@ type RESTCreateStrategy interface {
 	// the object.  For example: remove fields that are not to be persisted,
 	// sort order-insensitive list fields, etc.  This should not remove fields
 	// whose presence would be considered a validation error.
-	PrepareForCreate(obj runtime.Object)
+	PrepareForCreate(ctx api.Context, obj runtime.Object)
 	// Validate is invoked after default fields in the object have been filled in before
 	// the object is persisted.  This method should not mutate the object.
 	Validate(ctx api.Context, obj runtime.Object) field.ErrorList
 	// Canonicalize is invoked after validation has succeeded but before the
 	// object has been persisted.  This method may mutate the object.
 	Canonicalize(obj runtime.Object)
+}
+
+// RESTBeforeCreateStrategy is an optional strategy interface that may be implemented
+// to get notified of changes before validation
+type RESTBeforeCreateStrategy interface {
+	// BeforeCreate is invoked after PrepareForCreate on the strategy and before Validate.
+	// All field defaulting is provided, but fields may not be valid.
+	BeforeCreate(ctx api.Context, obj runtime.Object) error
 }
 
 // BeforeCreate ensures that common operations for all resources are performed on creation. It only returns
@@ -67,9 +75,18 @@ func BeforeCreate(strategy RESTCreateStrategy, ctx api.Context, obj runtime.Obje
 	}
 	objectMeta.DeletionTimestamp = nil
 	objectMeta.DeletionGracePeriodSeconds = nil
-	strategy.PrepareForCreate(obj)
+	strategy.PrepareForCreate(ctx, obj)
 	api.FillObjectMetaSystemFields(ctx, objectMeta)
 	api.GenerateName(strategy, objectMeta)
+
+	// ClusterName is ignored and should not be saved
+	objectMeta.ClusterName = ""
+
+	if before, ok := strategy.(RESTBeforeCreateStrategy); ok {
+		if err := before.BeforeCreate(ctx, obj); err != nil {
+			return err
+		}
+	}
 
 	if errs := strategy.Validate(ctx, obj); len(errs) > 0 {
 		return errors.NewInvalid(kind.GroupKind(), objectMeta.Name, errs)

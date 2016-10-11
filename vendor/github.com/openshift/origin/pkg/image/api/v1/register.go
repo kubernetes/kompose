@@ -13,19 +13,17 @@ const GroupName = ""
 // SchemeGroupVersion is group version used to register these objects
 var SchemeGroupVersion = unversioned.GroupVersion{Group: GroupName, Version: "v1"}
 
-func AddToScheme(scheme *runtime.Scheme) {
-	docker10.AddToScheme(scheme)
-	dockerpre012.AddToScheme(scheme)
-	addKnownTypes(scheme)
-	addDefaultingFuncs(scheme)
-	addConversionFuncs(scheme)
-}
+var (
+	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes, addConversionFuncs, addDefaultingFuncs, docker10.AddToScheme, dockerpre012.AddToScheme)
+	AddToScheme   = SchemeBuilder.AddToScheme
+)
 
 // Adds the list of known types to api.Scheme.
-func addKnownTypes(scheme *runtime.Scheme) {
+func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&Image{},
 		&ImageList{},
+		&ImageSignature{},
 		&ImageStream{},
 		&ImageStreamList{},
 		&ImageStreamMapping{},
@@ -34,10 +32,12 @@ func addKnownTypes(scheme *runtime.Scheme) {
 		&ImageStreamImage{},
 		&ImageStreamImport{},
 	)
+	return nil
 }
 
 func (obj *Image) GetObjectKind() unversioned.ObjectKind              { return &obj.TypeMeta }
 func (obj *ImageList) GetObjectKind() unversioned.ObjectKind          { return &obj.TypeMeta }
+func (obj *ImageSignature) GetObjectKind() unversioned.ObjectKind     { return &obj.TypeMeta }
 func (obj *ImageStream) GetObjectKind() unversioned.ObjectKind        { return &obj.TypeMeta }
 func (obj *ImageStreamList) GetObjectKind() unversioned.ObjectKind    { return &obj.TypeMeta }
 func (obj *ImageStreamMapping) GetObjectKind() unversioned.ObjectKind { return &obj.TypeMeta }

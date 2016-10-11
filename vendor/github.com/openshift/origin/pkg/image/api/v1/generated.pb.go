@@ -48,6 +48,10 @@ import math "math"
 import k8s_io_kubernetes_pkg_api_unversioned "k8s.io/kubernetes/pkg/api/unversioned"
 import k8s_io_kubernetes_pkg_api_v1 "k8s.io/kubernetes/pkg/api/v1"
 
+import strings "strings"
+import reflect "reflect"
+import github_com_gogo_protobuf_sortkeys "github.com/gogo/protobuf/sortkeys"
+
 import io "io"
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -55,121 +59,127 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (m *DockerImageReference) Reset()         { *m = DockerImageReference{} }
-func (m *DockerImageReference) String() string { return proto.CompactTextString(m) }
-func (*DockerImageReference) ProtoMessage()    {}
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+const _ = proto.GoGoProtoPackageIsVersion1
 
-func (m *Image) Reset()         { *m = Image{} }
-func (m *Image) String() string { return proto.CompactTextString(m) }
-func (*Image) ProtoMessage()    {}
+func (m *DockerImageReference) Reset()                    { *m = DockerImageReference{} }
+func (*DockerImageReference) ProtoMessage()               {}
+func (*DockerImageReference) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{0} }
 
-func (m *ImageImportSpec) Reset()         { *m = ImageImportSpec{} }
-func (m *ImageImportSpec) String() string { return proto.CompactTextString(m) }
-func (*ImageImportSpec) ProtoMessage()    {}
+func (m *Image) Reset()                    { *m = Image{} }
+func (*Image) ProtoMessage()               {}
+func (*Image) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{1} }
 
-func (m *ImageImportStatus) Reset()         { *m = ImageImportStatus{} }
-func (m *ImageImportStatus) String() string { return proto.CompactTextString(m) }
-func (*ImageImportStatus) ProtoMessage()    {}
+func (m *ImageImportSpec) Reset()                    { *m = ImageImportSpec{} }
+func (*ImageImportSpec) ProtoMessage()               {}
+func (*ImageImportSpec) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{2} }
 
-func (m *ImageLayer) Reset()         { *m = ImageLayer{} }
-func (m *ImageLayer) String() string { return proto.CompactTextString(m) }
-func (*ImageLayer) ProtoMessage()    {}
+func (m *ImageImportStatus) Reset()                    { *m = ImageImportStatus{} }
+func (*ImageImportStatus) ProtoMessage()               {}
+func (*ImageImportStatus) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{3} }
 
-func (m *ImageList) Reset()         { *m = ImageList{} }
-func (m *ImageList) String() string { return proto.CompactTextString(m) }
-func (*ImageList) ProtoMessage()    {}
+func (m *ImageLayer) Reset()                    { *m = ImageLayer{} }
+func (*ImageLayer) ProtoMessage()               {}
+func (*ImageLayer) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{4} }
 
-func (m *ImageSignature) Reset()         { *m = ImageSignature{} }
-func (m *ImageSignature) String() string { return proto.CompactTextString(m) }
-func (*ImageSignature) ProtoMessage()    {}
+func (m *ImageList) Reset()                    { *m = ImageList{} }
+func (*ImageList) ProtoMessage()               {}
+func (*ImageList) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{5} }
 
-func (m *ImageStream) Reset()         { *m = ImageStream{} }
-func (m *ImageStream) String() string { return proto.CompactTextString(m) }
-func (*ImageStream) ProtoMessage()    {}
+func (m *ImageSignature) Reset()                    { *m = ImageSignature{} }
+func (*ImageSignature) ProtoMessage()               {}
+func (*ImageSignature) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{6} }
 
-func (m *ImageStreamImage) Reset()         { *m = ImageStreamImage{} }
-func (m *ImageStreamImage) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamImage) ProtoMessage()    {}
+func (m *ImageStream) Reset()                    { *m = ImageStream{} }
+func (*ImageStream) ProtoMessage()               {}
+func (*ImageStream) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{7} }
 
-func (m *ImageStreamImport) Reset()         { *m = ImageStreamImport{} }
-func (m *ImageStreamImport) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamImport) ProtoMessage()    {}
+func (m *ImageStreamImage) Reset()                    { *m = ImageStreamImage{} }
+func (*ImageStreamImage) ProtoMessage()               {}
+func (*ImageStreamImage) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{8} }
 
-func (m *ImageStreamImportSpec) Reset()         { *m = ImageStreamImportSpec{} }
-func (m *ImageStreamImportSpec) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamImportSpec) ProtoMessage()    {}
+func (m *ImageStreamImport) Reset()                    { *m = ImageStreamImport{} }
+func (*ImageStreamImport) ProtoMessage()               {}
+func (*ImageStreamImport) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{9} }
 
-func (m *ImageStreamImportStatus) Reset()         { *m = ImageStreamImportStatus{} }
-func (m *ImageStreamImportStatus) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamImportStatus) ProtoMessage()    {}
+func (m *ImageStreamImportSpec) Reset()                    { *m = ImageStreamImportSpec{} }
+func (*ImageStreamImportSpec) ProtoMessage()               {}
+func (*ImageStreamImportSpec) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{10} }
 
-func (m *ImageStreamList) Reset()         { *m = ImageStreamList{} }
-func (m *ImageStreamList) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamList) ProtoMessage()    {}
+func (m *ImageStreamImportStatus) Reset()      { *m = ImageStreamImportStatus{} }
+func (*ImageStreamImportStatus) ProtoMessage() {}
+func (*ImageStreamImportStatus) Descriptor() ([]byte, []int) {
+	return fileDescriptorGenerated, []int{11}
+}
 
-func (m *ImageStreamMapping) Reset()         { *m = ImageStreamMapping{} }
-func (m *ImageStreamMapping) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamMapping) ProtoMessage()    {}
+func (m *ImageStreamList) Reset()                    { *m = ImageStreamList{} }
+func (*ImageStreamList) ProtoMessage()               {}
+func (*ImageStreamList) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{12} }
 
-func (m *ImageStreamSpec) Reset()         { *m = ImageStreamSpec{} }
-func (m *ImageStreamSpec) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamSpec) ProtoMessage()    {}
+func (m *ImageStreamMapping) Reset()                    { *m = ImageStreamMapping{} }
+func (*ImageStreamMapping) ProtoMessage()               {}
+func (*ImageStreamMapping) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{13} }
 
-func (m *ImageStreamStatus) Reset()         { *m = ImageStreamStatus{} }
-func (m *ImageStreamStatus) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamStatus) ProtoMessage()    {}
+func (m *ImageStreamSpec) Reset()                    { *m = ImageStreamSpec{} }
+func (*ImageStreamSpec) ProtoMessage()               {}
+func (*ImageStreamSpec) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{14} }
 
-func (m *ImageStreamTag) Reset()         { *m = ImageStreamTag{} }
-func (m *ImageStreamTag) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamTag) ProtoMessage()    {}
+func (m *ImageStreamStatus) Reset()                    { *m = ImageStreamStatus{} }
+func (*ImageStreamStatus) ProtoMessage()               {}
+func (*ImageStreamStatus) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{15} }
 
-func (m *ImageStreamTagList) Reset()         { *m = ImageStreamTagList{} }
-func (m *ImageStreamTagList) String() string { return proto.CompactTextString(m) }
-func (*ImageStreamTagList) ProtoMessage()    {}
+func (m *ImageStreamTag) Reset()                    { *m = ImageStreamTag{} }
+func (*ImageStreamTag) ProtoMessage()               {}
+func (*ImageStreamTag) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{16} }
 
-func (m *NamedTagEventList) Reset()         { *m = NamedTagEventList{} }
-func (m *NamedTagEventList) String() string { return proto.CompactTextString(m) }
-func (*NamedTagEventList) ProtoMessage()    {}
+func (m *ImageStreamTagList) Reset()                    { *m = ImageStreamTagList{} }
+func (*ImageStreamTagList) ProtoMessage()               {}
+func (*ImageStreamTagList) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{17} }
 
-func (m *RepositoryImportSpec) Reset()         { *m = RepositoryImportSpec{} }
-func (m *RepositoryImportSpec) String() string { return proto.CompactTextString(m) }
-func (*RepositoryImportSpec) ProtoMessage()    {}
+func (m *NamedTagEventList) Reset()                    { *m = NamedTagEventList{} }
+func (*NamedTagEventList) ProtoMessage()               {}
+func (*NamedTagEventList) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{18} }
 
-func (m *RepositoryImportStatus) Reset()         { *m = RepositoryImportStatus{} }
-func (m *RepositoryImportStatus) String() string { return proto.CompactTextString(m) }
-func (*RepositoryImportStatus) ProtoMessage()    {}
+func (m *RepositoryImportSpec) Reset()                    { *m = RepositoryImportSpec{} }
+func (*RepositoryImportSpec) ProtoMessage()               {}
+func (*RepositoryImportSpec) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{19} }
 
-func (m *SignatureCondition) Reset()         { *m = SignatureCondition{} }
-func (m *SignatureCondition) String() string { return proto.CompactTextString(m) }
-func (*SignatureCondition) ProtoMessage()    {}
+func (m *RepositoryImportStatus) Reset()                    { *m = RepositoryImportStatus{} }
+func (*RepositoryImportStatus) ProtoMessage()               {}
+func (*RepositoryImportStatus) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{20} }
 
-func (m *SignatureGenericEntity) Reset()         { *m = SignatureGenericEntity{} }
-func (m *SignatureGenericEntity) String() string { return proto.CompactTextString(m) }
-func (*SignatureGenericEntity) ProtoMessage()    {}
+func (m *SignatureCondition) Reset()                    { *m = SignatureCondition{} }
+func (*SignatureCondition) ProtoMessage()               {}
+func (*SignatureCondition) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{21} }
 
-func (m *SignatureIssuer) Reset()         { *m = SignatureIssuer{} }
-func (m *SignatureIssuer) String() string { return proto.CompactTextString(m) }
-func (*SignatureIssuer) ProtoMessage()    {}
+func (m *SignatureGenericEntity) Reset()                    { *m = SignatureGenericEntity{} }
+func (*SignatureGenericEntity) ProtoMessage()               {}
+func (*SignatureGenericEntity) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{22} }
 
-func (m *SignatureSubject) Reset()         { *m = SignatureSubject{} }
-func (m *SignatureSubject) String() string { return proto.CompactTextString(m) }
-func (*SignatureSubject) ProtoMessage()    {}
+func (m *SignatureIssuer) Reset()                    { *m = SignatureIssuer{} }
+func (*SignatureIssuer) ProtoMessage()               {}
+func (*SignatureIssuer) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{23} }
 
-func (m *TagEvent) Reset()         { *m = TagEvent{} }
-func (m *TagEvent) String() string { return proto.CompactTextString(m) }
-func (*TagEvent) ProtoMessage()    {}
+func (m *SignatureSubject) Reset()                    { *m = SignatureSubject{} }
+func (*SignatureSubject) ProtoMessage()               {}
+func (*SignatureSubject) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{24} }
 
-func (m *TagEventCondition) Reset()         { *m = TagEventCondition{} }
-func (m *TagEventCondition) String() string { return proto.CompactTextString(m) }
-func (*TagEventCondition) ProtoMessage()    {}
+func (m *TagEvent) Reset()                    { *m = TagEvent{} }
+func (*TagEvent) ProtoMessage()               {}
+func (*TagEvent) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{25} }
 
-func (m *TagImportPolicy) Reset()         { *m = TagImportPolicy{} }
-func (m *TagImportPolicy) String() string { return proto.CompactTextString(m) }
-func (*TagImportPolicy) ProtoMessage()    {}
+func (m *TagEventCondition) Reset()                    { *m = TagEventCondition{} }
+func (*TagEventCondition) ProtoMessage()               {}
+func (*TagEventCondition) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{26} }
 
-func (m *TagReference) Reset()         { *m = TagReference{} }
-func (m *TagReference) String() string { return proto.CompactTextString(m) }
-func (*TagReference) ProtoMessage()    {}
+func (m *TagImportPolicy) Reset()                    { *m = TagImportPolicy{} }
+func (*TagImportPolicy) ProtoMessage()               {}
+func (*TagImportPolicy) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{27} }
+
+func (m *TagReference) Reset()                    { *m = TagReference{} }
+func (*TagReference) ProtoMessage()               {}
+func (*TagReference) Descriptor() ([]byte, []int) { return fileDescriptorGenerated, []int{28} }
 
 func init() {
 	proto.RegisterType((*DockerImageReference)(nil), "github.com.openshift.origin.pkg.image.api.v1.DockerImageReference")
@@ -502,17 +512,25 @@ func (m *ImageSignature) MarshalTo(data []byte) (int, error) {
 	_ = l
 	data[i] = 0xa
 	i++
+	i = encodeVarintGenerated(data, i, uint64(m.ObjectMeta.Size()))
+	n9, err := m.ObjectMeta.MarshalTo(data[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n9
+	data[i] = 0x12
+	i++
 	i = encodeVarintGenerated(data, i, uint64(len(m.Type)))
 	i += copy(data[i:], m.Type)
 	if m.Content != nil {
-		data[i] = 0x12
+		data[i] = 0x1a
 		i++
 		i = encodeVarintGenerated(data, i, uint64(len(m.Content)))
 		i += copy(data[i:], m.Content)
 	}
 	if len(m.Conditions) > 0 {
 		for _, msg := range m.Conditions {
-			data[i] = 0x1a
+			data[i] = 0x22
 			i++
 			i = encodeVarintGenerated(data, i, uint64(msg.Size()))
 			n, err := msg.MarshalTo(data[i:])
@@ -522,13 +540,13 @@ func (m *ImageSignature) MarshalTo(data []byte) (int, error) {
 			i += n
 		}
 	}
-	data[i] = 0x22
+	data[i] = 0x2a
 	i++
 	i = encodeVarintGenerated(data, i, uint64(len(m.ImageIdentity)))
 	i += copy(data[i:], m.ImageIdentity)
 	if len(m.SignedClaims) > 0 {
 		for k := range m.SignedClaims {
-			data[i] = 0x2a
+			data[i] = 0x32
 			i++
 			v := m.SignedClaims[k]
 			mapSize := 1 + len(k) + sovGenerated(uint64(len(k))) + 1 + len(v) + sovGenerated(uint64(len(v)))
@@ -544,34 +562,34 @@ func (m *ImageSignature) MarshalTo(data []byte) (int, error) {
 		}
 	}
 	if m.Created != nil {
-		data[i] = 0x32
-		i++
-		i = encodeVarintGenerated(data, i, uint64(m.Created.Size()))
-		n9, err := m.Created.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n9
-	}
-	if m.IssuedBy != nil {
 		data[i] = 0x3a
 		i++
-		i = encodeVarintGenerated(data, i, uint64(m.IssuedBy.Size()))
-		n10, err := m.IssuedBy.MarshalTo(data[i:])
+		i = encodeVarintGenerated(data, i, uint64(m.Created.Size()))
+		n10, err := m.Created.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
 		i += n10
 	}
-	if m.IssuedTo != nil {
+	if m.IssuedBy != nil {
 		data[i] = 0x42
 		i++
-		i = encodeVarintGenerated(data, i, uint64(m.IssuedTo.Size()))
-		n11, err := m.IssuedTo.MarshalTo(data[i:])
+		i = encodeVarintGenerated(data, i, uint64(m.IssuedBy.Size()))
+		n11, err := m.IssuedBy.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
 		i += n11
+	}
+	if m.IssuedTo != nil {
+		data[i] = 0x4a
+		i++
+		i = encodeVarintGenerated(data, i, uint64(m.IssuedTo.Size()))
+		n12, err := m.IssuedTo.MarshalTo(data[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n12
 	}
 	return i, nil
 }
@@ -594,27 +612,27 @@ func (m *ImageStream) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.ObjectMeta.Size()))
-	n12, err := m.ObjectMeta.MarshalTo(data[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n12
-	data[i] = 0x12
-	i++
-	i = encodeVarintGenerated(data, i, uint64(m.Spec.Size()))
-	n13, err := m.Spec.MarshalTo(data[i:])
+	n13, err := m.ObjectMeta.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
 	i += n13
-	data[i] = 0x1a
+	data[i] = 0x12
 	i++
-	i = encodeVarintGenerated(data, i, uint64(m.Status.Size()))
-	n14, err := m.Status.MarshalTo(data[i:])
+	i = encodeVarintGenerated(data, i, uint64(m.Spec.Size()))
+	n14, err := m.Spec.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
 	i += n14
+	data[i] = 0x1a
+	i++
+	i = encodeVarintGenerated(data, i, uint64(m.Status.Size()))
+	n15, err := m.Status.MarshalTo(data[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n15
 	return i, nil
 }
 
@@ -636,19 +654,19 @@ func (m *ImageStreamImage) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.ObjectMeta.Size()))
-	n15, err := m.ObjectMeta.MarshalTo(data[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n15
-	data[i] = 0x12
-	i++
-	i = encodeVarintGenerated(data, i, uint64(m.Image.Size()))
-	n16, err := m.Image.MarshalTo(data[i:])
+	n16, err := m.ObjectMeta.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
 	i += n16
+	data[i] = 0x12
+	i++
+	i = encodeVarintGenerated(data, i, uint64(m.Image.Size()))
+	n17, err := m.Image.MarshalTo(data[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n17
 	return i, nil
 }
 
@@ -670,27 +688,27 @@ func (m *ImageStreamImport) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.ObjectMeta.Size()))
-	n17, err := m.ObjectMeta.MarshalTo(data[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n17
-	data[i] = 0x12
-	i++
-	i = encodeVarintGenerated(data, i, uint64(m.Spec.Size()))
-	n18, err := m.Spec.MarshalTo(data[i:])
+	n18, err := m.ObjectMeta.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
 	i += n18
-	data[i] = 0x1a
+	data[i] = 0x12
 	i++
-	i = encodeVarintGenerated(data, i, uint64(m.Status.Size()))
-	n19, err := m.Status.MarshalTo(data[i:])
+	i = encodeVarintGenerated(data, i, uint64(m.Spec.Size()))
+	n19, err := m.Spec.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
 	i += n19
+	data[i] = 0x1a
+	i++
+	i = encodeVarintGenerated(data, i, uint64(m.Status.Size()))
+	n20, err := m.Status.MarshalTo(data[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n20
 	return i, nil
 }
 
@@ -721,11 +739,11 @@ func (m *ImageStreamImportSpec) MarshalTo(data []byte) (int, error) {
 		data[i] = 0x12
 		i++
 		i = encodeVarintGenerated(data, i, uint64(m.Repository.Size()))
-		n20, err := m.Repository.MarshalTo(data[i:])
+		n21, err := m.Repository.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n20
+		i += n21
 	}
 	if len(m.Images) > 0 {
 		for _, msg := range m.Images {
@@ -761,21 +779,21 @@ func (m *ImageStreamImportStatus) MarshalTo(data []byte) (int, error) {
 		data[i] = 0xa
 		i++
 		i = encodeVarintGenerated(data, i, uint64(m.Import.Size()))
-		n21, err := m.Import.MarshalTo(data[i:])
+		n22, err := m.Import.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n21
+		i += n22
 	}
 	if m.Repository != nil {
 		data[i] = 0x12
 		i++
 		i = encodeVarintGenerated(data, i, uint64(m.Repository.Size()))
-		n22, err := m.Repository.MarshalTo(data[i:])
+		n23, err := m.Repository.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n22
+		i += n23
 	}
 	if len(m.Images) > 0 {
 		for _, msg := range m.Images {
@@ -810,11 +828,11 @@ func (m *ImageStreamList) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.ListMeta.Size()))
-	n23, err := m.ListMeta.MarshalTo(data[i:])
+	n24, err := m.ListMeta.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n23
+	i += n24
 	if len(m.Items) > 0 {
 		for _, msg := range m.Items {
 			data[i] = 0x12
@@ -848,19 +866,19 @@ func (m *ImageStreamMapping) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.ObjectMeta.Size()))
-	n24, err := m.ObjectMeta.MarshalTo(data[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n24
-	data[i] = 0x12
-	i++
-	i = encodeVarintGenerated(data, i, uint64(m.Image.Size()))
-	n25, err := m.Image.MarshalTo(data[i:])
+	n25, err := m.ObjectMeta.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
 	i += n25
+	data[i] = 0x12
+	i++
+	i = encodeVarintGenerated(data, i, uint64(m.Image.Size()))
+	n26, err := m.Image.MarshalTo(data[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n26
 	data[i] = 0x1a
 	i++
 	i = encodeVarintGenerated(data, i, uint64(len(m.Tag)))
@@ -954,20 +972,20 @@ func (m *ImageStreamTag) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.ObjectMeta.Size()))
-	n26, err := m.ObjectMeta.MarshalTo(data[i:])
+	n27, err := m.ObjectMeta.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n26
+	i += n27
 	if m.Tag != nil {
 		data[i] = 0x12
 		i++
 		i = encodeVarintGenerated(data, i, uint64(m.Tag.Size()))
-		n27, err := m.Tag.MarshalTo(data[i:])
+		n28, err := m.Tag.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n27
+		i += n28
 	}
 	data[i] = 0x18
 	i++
@@ -987,11 +1005,11 @@ func (m *ImageStreamTag) MarshalTo(data []byte) (int, error) {
 	data[i] = 0x2a
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.Image.Size()))
-	n28, err := m.Image.MarshalTo(data[i:])
+	n29, err := m.Image.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n28
+	i += n29
 	return i, nil
 }
 
@@ -1013,11 +1031,11 @@ func (m *ImageStreamTagList) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.ListMeta.Size()))
-	n29, err := m.ListMeta.MarshalTo(data[i:])
+	n30, err := m.ListMeta.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n29
+	i += n30
 	if len(m.Items) > 0 {
 		for _, msg := range m.Items {
 			data[i] = 0x12
@@ -1097,19 +1115,19 @@ func (m *RepositoryImportSpec) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.From.Size()))
-	n30, err := m.From.MarshalTo(data[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n30
-	data[i] = 0x12
-	i++
-	i = encodeVarintGenerated(data, i, uint64(m.ImportPolicy.Size()))
-	n31, err := m.ImportPolicy.MarshalTo(data[i:])
+	n31, err := m.From.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
 	i += n31
+	data[i] = 0x12
+	i++
+	i = encodeVarintGenerated(data, i, uint64(m.ImportPolicy.Size()))
+	n32, err := m.ImportPolicy.MarshalTo(data[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n32
 	data[i] = 0x18
 	i++
 	if m.IncludeManifest {
@@ -1139,11 +1157,11 @@ func (m *RepositoryImportStatus) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.Status.Size()))
-	n32, err := m.Status.MarshalTo(data[i:])
+	n33, err := m.Status.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n32
+	i += n33
 	if len(m.Images) > 0 {
 		for _, msg := range m.Images {
 			data[i] = 0x12
@@ -1200,19 +1218,19 @@ func (m *SignatureCondition) MarshalTo(data []byte) (int, error) {
 	data[i] = 0x1a
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.LastProbeTime.Size()))
-	n33, err := m.LastProbeTime.MarshalTo(data[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n33
-	data[i] = 0x22
-	i++
-	i = encodeVarintGenerated(data, i, uint64(m.LastTransitionTime.Size()))
-	n34, err := m.LastTransitionTime.MarshalTo(data[i:])
+	n34, err := m.LastProbeTime.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
 	i += n34
+	data[i] = 0x22
+	i++
+	i = encodeVarintGenerated(data, i, uint64(m.LastTransitionTime.Size()))
+	n35, err := m.LastTransitionTime.MarshalTo(data[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n35
 	data[i] = 0x2a
 	i++
 	i = encodeVarintGenerated(data, i, uint64(len(m.Reason)))
@@ -1268,11 +1286,11 @@ func (m *SignatureIssuer) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.SignatureGenericEntity.Size()))
-	n35, err := m.SignatureGenericEntity.MarshalTo(data[i:])
+	n36, err := m.SignatureGenericEntity.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n35
+	i += n36
 	return i, nil
 }
 
@@ -1294,11 +1312,11 @@ func (m *SignatureSubject) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.SignatureGenericEntity.Size()))
-	n36, err := m.SignatureGenericEntity.MarshalTo(data[i:])
+	n37, err := m.SignatureGenericEntity.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n36
+	i += n37
 	data[i] = 0x12
 	i++
 	i = encodeVarintGenerated(data, i, uint64(len(m.PublicKeyID)))
@@ -1324,11 +1342,11 @@ func (m *TagEvent) MarshalTo(data []byte) (int, error) {
 	data[i] = 0xa
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.Created.Size()))
-	n37, err := m.Created.MarshalTo(data[i:])
+	n38, err := m.Created.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n37
+	i += n38
 	data[i] = 0x12
 	i++
 	i = encodeVarintGenerated(data, i, uint64(len(m.DockerImageReference)))
@@ -1369,11 +1387,11 @@ func (m *TagEventCondition) MarshalTo(data []byte) (int, error) {
 	data[i] = 0x1a
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.LastTransitionTime.Size()))
-	n38, err := m.LastTransitionTime.MarshalTo(data[i:])
+	n39, err := m.LastTransitionTime.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n38
+	i += n39
 	data[i] = 0x22
 	i++
 	i = encodeVarintGenerated(data, i, uint64(len(m.Reason)))
@@ -1462,11 +1480,11 @@ func (m *TagReference) MarshalTo(data []byte) (int, error) {
 		data[i] = 0x1a
 		i++
 		i = encodeVarintGenerated(data, i, uint64(m.From.Size()))
-		n39, err := m.From.MarshalTo(data[i:])
+		n40, err := m.From.MarshalTo(data[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n39
+		i += n40
 	}
 	data[i] = 0x20
 	i++
@@ -1484,11 +1502,11 @@ func (m *TagReference) MarshalTo(data []byte) (int, error) {
 	data[i] = 0x32
 	i++
 	i = encodeVarintGenerated(data, i, uint64(m.ImportPolicy.Size()))
-	n40, err := m.ImportPolicy.MarshalTo(data[i:])
+	n41, err := m.ImportPolicy.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
-	i += n40
+	i += n41
 	return i, nil
 }
 
@@ -1630,6 +1648,8 @@ func (m *ImageList) Size() (n int) {
 func (m *ImageSignature) Size() (n int) {
 	var l int
 	_ = l
+	l = m.ObjectMeta.Size()
+	n += 1 + l + sovGenerated(uint64(l))
 	l = len(m.Type)
 	n += 1 + l + sovGenerated(uint64(l))
 	if m.Content != nil {
@@ -2000,6 +2020,399 @@ func sovGenerated(x uint64) (n int) {
 }
 func sozGenerated(x uint64) (n int) {
 	return sovGenerated(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (this *DockerImageReference) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&DockerImageReference{`,
+		`Registry:` + fmt.Sprintf("%v", this.Registry) + `,`,
+		`Namespace:` + fmt.Sprintf("%v", this.Namespace) + `,`,
+		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
+		`Tag:` + fmt.Sprintf("%v", this.Tag) + `,`,
+		`ID:` + fmt.Sprintf("%v", this.ID) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Image) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Image{`,
+		`ObjectMeta:` + strings.Replace(strings.Replace(this.ObjectMeta.String(), "ObjectMeta", "k8s_io_kubernetes_pkg_api_v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
+		`DockerImageReference:` + fmt.Sprintf("%v", this.DockerImageReference) + `,`,
+		`DockerImageMetadata:` + strings.Replace(strings.Replace(this.DockerImageMetadata.String(), "RawExtension", "k8s_io_kubernetes_pkg_runtime.RawExtension", 1), `&`, ``, 1) + `,`,
+		`DockerImageMetadataVersion:` + fmt.Sprintf("%v", this.DockerImageMetadataVersion) + `,`,
+		`DockerImageManifest:` + fmt.Sprintf("%v", this.DockerImageManifest) + `,`,
+		`DockerImageLayers:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.DockerImageLayers), "ImageLayer", "ImageLayer", 1), `&`, ``, 1) + `,`,
+		`Signatures:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Signatures), "ImageSignature", "ImageSignature", 1), `&`, ``, 1) + `,`,
+		`DockerImageSignatures:` + fmt.Sprintf("%v", this.DockerImageSignatures) + `,`,
+		`DockerImageManifestMediaType:` + fmt.Sprintf("%v", this.DockerImageManifestMediaType) + `,`,
+		`DockerImageConfig:` + fmt.Sprintf("%v", this.DockerImageConfig) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageImportSpec) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageImportSpec{`,
+		`From:` + strings.Replace(strings.Replace(this.From.String(), "ObjectReference", "k8s_io_kubernetes_pkg_api_v1.ObjectReference", 1), `&`, ``, 1) + `,`,
+		`To:` + strings.Replace(fmt.Sprintf("%v", this.To), "LocalObjectReference", "k8s_io_kubernetes_pkg_api_v1.LocalObjectReference", 1) + `,`,
+		`ImportPolicy:` + strings.Replace(strings.Replace(this.ImportPolicy.String(), "TagImportPolicy", "TagImportPolicy", 1), `&`, ``, 1) + `,`,
+		`IncludeManifest:` + fmt.Sprintf("%v", this.IncludeManifest) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageImportStatus) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageImportStatus{`,
+		`Status:` + strings.Replace(strings.Replace(this.Status.String(), "Status", "k8s_io_kubernetes_pkg_api_unversioned.Status", 1), `&`, ``, 1) + `,`,
+		`Image:` + strings.Replace(fmt.Sprintf("%v", this.Image), "Image", "Image", 1) + `,`,
+		`Tag:` + fmt.Sprintf("%v", this.Tag) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageLayer) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageLayer{`,
+		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
+		`LayerSize:` + fmt.Sprintf("%v", this.LayerSize) + `,`,
+		`MediaType:` + fmt.Sprintf("%v", this.MediaType) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageList) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageList{`,
+		`ListMeta:` + strings.Replace(strings.Replace(this.ListMeta.String(), "ListMeta", "k8s_io_kubernetes_pkg_api_unversioned.ListMeta", 1), `&`, ``, 1) + `,`,
+		`Items:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Items), "Image", "Image", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageSignature) String() string {
+	if this == nil {
+		return "nil"
+	}
+	keysForSignedClaims := make([]string, 0, len(this.SignedClaims))
+	for k := range this.SignedClaims {
+		keysForSignedClaims = append(keysForSignedClaims, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForSignedClaims)
+	mapStringForSignedClaims := "map[string]string{"
+	for _, k := range keysForSignedClaims {
+		mapStringForSignedClaims += fmt.Sprintf("%v: %v,", k, this.SignedClaims[k])
+	}
+	mapStringForSignedClaims += "}"
+	s := strings.Join([]string{`&ImageSignature{`,
+		`ObjectMeta:` + strings.Replace(strings.Replace(this.ObjectMeta.String(), "ObjectMeta", "k8s_io_kubernetes_pkg_api_v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
+		`Type:` + fmt.Sprintf("%v", this.Type) + `,`,
+		`Content:` + valueToStringGenerated(this.Content) + `,`,
+		`Conditions:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Conditions), "SignatureCondition", "SignatureCondition", 1), `&`, ``, 1) + `,`,
+		`ImageIdentity:` + fmt.Sprintf("%v", this.ImageIdentity) + `,`,
+		`SignedClaims:` + mapStringForSignedClaims + `,`,
+		`Created:` + strings.Replace(fmt.Sprintf("%v", this.Created), "Time", "k8s_io_kubernetes_pkg_api_unversioned.Time", 1) + `,`,
+		`IssuedBy:` + strings.Replace(fmt.Sprintf("%v", this.IssuedBy), "SignatureIssuer", "SignatureIssuer", 1) + `,`,
+		`IssuedTo:` + strings.Replace(fmt.Sprintf("%v", this.IssuedTo), "SignatureSubject", "SignatureSubject", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStream) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStream{`,
+		`ObjectMeta:` + strings.Replace(strings.Replace(this.ObjectMeta.String(), "ObjectMeta", "k8s_io_kubernetes_pkg_api_v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
+		`Spec:` + strings.Replace(strings.Replace(this.Spec.String(), "ImageStreamSpec", "ImageStreamSpec", 1), `&`, ``, 1) + `,`,
+		`Status:` + strings.Replace(strings.Replace(this.Status.String(), "ImageStreamStatus", "ImageStreamStatus", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamImage) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamImage{`,
+		`ObjectMeta:` + strings.Replace(strings.Replace(this.ObjectMeta.String(), "ObjectMeta", "k8s_io_kubernetes_pkg_api_v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
+		`Image:` + strings.Replace(strings.Replace(this.Image.String(), "Image", "Image", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamImport) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamImport{`,
+		`ObjectMeta:` + strings.Replace(strings.Replace(this.ObjectMeta.String(), "ObjectMeta", "k8s_io_kubernetes_pkg_api_v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
+		`Spec:` + strings.Replace(strings.Replace(this.Spec.String(), "ImageStreamImportSpec", "ImageStreamImportSpec", 1), `&`, ``, 1) + `,`,
+		`Status:` + strings.Replace(strings.Replace(this.Status.String(), "ImageStreamImportStatus", "ImageStreamImportStatus", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamImportSpec) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamImportSpec{`,
+		`Import:` + fmt.Sprintf("%v", this.Import) + `,`,
+		`Repository:` + strings.Replace(fmt.Sprintf("%v", this.Repository), "RepositoryImportSpec", "RepositoryImportSpec", 1) + `,`,
+		`Images:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Images), "ImageImportSpec", "ImageImportSpec", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamImportStatus) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamImportStatus{`,
+		`Import:` + strings.Replace(fmt.Sprintf("%v", this.Import), "ImageStream", "ImageStream", 1) + `,`,
+		`Repository:` + strings.Replace(fmt.Sprintf("%v", this.Repository), "RepositoryImportStatus", "RepositoryImportStatus", 1) + `,`,
+		`Images:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Images), "ImageImportStatus", "ImageImportStatus", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamList) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamList{`,
+		`ListMeta:` + strings.Replace(strings.Replace(this.ListMeta.String(), "ListMeta", "k8s_io_kubernetes_pkg_api_unversioned.ListMeta", 1), `&`, ``, 1) + `,`,
+		`Items:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Items), "ImageStream", "ImageStream", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamMapping) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamMapping{`,
+		`ObjectMeta:` + strings.Replace(strings.Replace(this.ObjectMeta.String(), "ObjectMeta", "k8s_io_kubernetes_pkg_api_v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
+		`Image:` + strings.Replace(strings.Replace(this.Image.String(), "Image", "Image", 1), `&`, ``, 1) + `,`,
+		`Tag:` + fmt.Sprintf("%v", this.Tag) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamSpec) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamSpec{`,
+		`DockerImageRepository:` + fmt.Sprintf("%v", this.DockerImageRepository) + `,`,
+		`Tags:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Tags), "TagReference", "TagReference", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamStatus) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamStatus{`,
+		`DockerImageRepository:` + fmt.Sprintf("%v", this.DockerImageRepository) + `,`,
+		`Tags:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Tags), "NamedTagEventList", "NamedTagEventList", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamTag) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamTag{`,
+		`ObjectMeta:` + strings.Replace(strings.Replace(this.ObjectMeta.String(), "ObjectMeta", "k8s_io_kubernetes_pkg_api_v1.ObjectMeta", 1), `&`, ``, 1) + `,`,
+		`Tag:` + strings.Replace(fmt.Sprintf("%v", this.Tag), "TagReference", "TagReference", 1) + `,`,
+		`Generation:` + fmt.Sprintf("%v", this.Generation) + `,`,
+		`Conditions:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Conditions), "TagEventCondition", "TagEventCondition", 1), `&`, ``, 1) + `,`,
+		`Image:` + strings.Replace(strings.Replace(this.Image.String(), "Image", "Image", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *ImageStreamTagList) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&ImageStreamTagList{`,
+		`ListMeta:` + strings.Replace(strings.Replace(this.ListMeta.String(), "ListMeta", "k8s_io_kubernetes_pkg_api_unversioned.ListMeta", 1), `&`, ``, 1) + `,`,
+		`Items:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Items), "ImageStreamTag", "ImageStreamTag", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *NamedTagEventList) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&NamedTagEventList{`,
+		`Tag:` + fmt.Sprintf("%v", this.Tag) + `,`,
+		`Items:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Items), "TagEvent", "TagEvent", 1), `&`, ``, 1) + `,`,
+		`Conditions:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Conditions), "TagEventCondition", "TagEventCondition", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *RepositoryImportSpec) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&RepositoryImportSpec{`,
+		`From:` + strings.Replace(strings.Replace(this.From.String(), "ObjectReference", "k8s_io_kubernetes_pkg_api_v1.ObjectReference", 1), `&`, ``, 1) + `,`,
+		`ImportPolicy:` + strings.Replace(strings.Replace(this.ImportPolicy.String(), "TagImportPolicy", "TagImportPolicy", 1), `&`, ``, 1) + `,`,
+		`IncludeManifest:` + fmt.Sprintf("%v", this.IncludeManifest) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *RepositoryImportStatus) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&RepositoryImportStatus{`,
+		`Status:` + strings.Replace(strings.Replace(this.Status.String(), "Status", "k8s_io_kubernetes_pkg_api_unversioned.Status", 1), `&`, ``, 1) + `,`,
+		`Images:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Images), "ImageImportStatus", "ImageImportStatus", 1), `&`, ``, 1) + `,`,
+		`AdditionalTags:` + fmt.Sprintf("%v", this.AdditionalTags) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *SignatureCondition) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&SignatureCondition{`,
+		`Type:` + fmt.Sprintf("%v", this.Type) + `,`,
+		`Status:` + fmt.Sprintf("%v", this.Status) + `,`,
+		`LastProbeTime:` + strings.Replace(strings.Replace(this.LastProbeTime.String(), "Time", "k8s_io_kubernetes_pkg_api_unversioned.Time", 1), `&`, ``, 1) + `,`,
+		`LastTransitionTime:` + strings.Replace(strings.Replace(this.LastTransitionTime.String(), "Time", "k8s_io_kubernetes_pkg_api_unversioned.Time", 1), `&`, ``, 1) + `,`,
+		`Reason:` + fmt.Sprintf("%v", this.Reason) + `,`,
+		`Message:` + fmt.Sprintf("%v", this.Message) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *SignatureGenericEntity) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&SignatureGenericEntity{`,
+		`Organization:` + fmt.Sprintf("%v", this.Organization) + `,`,
+		`CommonName:` + fmt.Sprintf("%v", this.CommonName) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *SignatureIssuer) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&SignatureIssuer{`,
+		`SignatureGenericEntity:` + strings.Replace(strings.Replace(this.SignatureGenericEntity.String(), "SignatureGenericEntity", "SignatureGenericEntity", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *SignatureSubject) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&SignatureSubject{`,
+		`SignatureGenericEntity:` + strings.Replace(strings.Replace(this.SignatureGenericEntity.String(), "SignatureGenericEntity", "SignatureGenericEntity", 1), `&`, ``, 1) + `,`,
+		`PublicKeyID:` + fmt.Sprintf("%v", this.PublicKeyID) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *TagEvent) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&TagEvent{`,
+		`Created:` + strings.Replace(strings.Replace(this.Created.String(), "Time", "k8s_io_kubernetes_pkg_api_unversioned.Time", 1), `&`, ``, 1) + `,`,
+		`DockerImageReference:` + fmt.Sprintf("%v", this.DockerImageReference) + `,`,
+		`Image:` + fmt.Sprintf("%v", this.Image) + `,`,
+		`Generation:` + fmt.Sprintf("%v", this.Generation) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *TagEventCondition) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&TagEventCondition{`,
+		`Type:` + fmt.Sprintf("%v", this.Type) + `,`,
+		`Status:` + fmt.Sprintf("%v", this.Status) + `,`,
+		`LastTransitionTime:` + strings.Replace(strings.Replace(this.LastTransitionTime.String(), "Time", "k8s_io_kubernetes_pkg_api_unversioned.Time", 1), `&`, ``, 1) + `,`,
+		`Reason:` + fmt.Sprintf("%v", this.Reason) + `,`,
+		`Message:` + fmt.Sprintf("%v", this.Message) + `,`,
+		`Generation:` + fmt.Sprintf("%v", this.Generation) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *TagImportPolicy) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&TagImportPolicy{`,
+		`Insecure:` + fmt.Sprintf("%v", this.Insecure) + `,`,
+		`Scheduled:` + fmt.Sprintf("%v", this.Scheduled) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *TagReference) String() string {
+	if this == nil {
+		return "nil"
+	}
+	keysForAnnotations := make([]string, 0, len(this.Annotations))
+	for k := range this.Annotations {
+		keysForAnnotations = append(keysForAnnotations, k)
+	}
+	github_com_gogo_protobuf_sortkeys.Strings(keysForAnnotations)
+	mapStringForAnnotations := "map[string]string{"
+	for _, k := range keysForAnnotations {
+		mapStringForAnnotations += fmt.Sprintf("%v: %v,", k, this.Annotations[k])
+	}
+	mapStringForAnnotations += "}"
+	s := strings.Join([]string{`&TagReference{`,
+		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
+		`Annotations:` + mapStringForAnnotations + `,`,
+		`From:` + strings.Replace(fmt.Sprintf("%v", this.From), "ObjectReference", "k8s_io_kubernetes_pkg_api_v1.ObjectReference", 1) + `,`,
+		`Reference:` + fmt.Sprintf("%v", this.Reference) + `,`,
+		`Generation:` + valueToStringGenerated(this.Generation) + `,`,
+		`ImportPolicy:` + strings.Replace(strings.Replace(this.ImportPolicy.String(), "TagImportPolicy", "TagImportPolicy", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func valueToStringGenerated(v interface{}) string {
+	rv := reflect.ValueOf(v)
+	if rv.IsNil() {
+		return "nil"
+	}
+	pv := reflect.Indirect(rv).Interface()
+	return fmt.Sprintf("*%v", pv)
 }
 func (m *DockerImageReference) Unmarshal(data []byte) error {
 	l := len(data)
@@ -3116,6 +3529,36 @@ func (m *ImageSignature) Unmarshal(data []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ObjectMeta", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenerated
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := data[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenerated
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.ObjectMeta.Unmarshal(data[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
 			}
 			var stringLen uint64
@@ -3143,7 +3586,7 @@ func (m *ImageSignature) Unmarshal(data []byte) error {
 			}
 			m.Type = string(data[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 2:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Content", wireType)
 			}
@@ -3174,7 +3617,7 @@ func (m *ImageSignature) Unmarshal(data []byte) error {
 				m.Content = []byte{}
 			}
 			iNdEx = postIndex
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Conditions", wireType)
 			}
@@ -3205,7 +3648,7 @@ func (m *ImageSignature) Unmarshal(data []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 4:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ImageIdentity", wireType)
 			}
@@ -3234,7 +3677,7 @@ func (m *ImageSignature) Unmarshal(data []byte) error {
 			}
 			m.ImageIdentity = string(data[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field SignedClaims", wireType)
 			}
@@ -3345,7 +3788,7 @@ func (m *ImageSignature) Unmarshal(data []byte) error {
 			}
 			m.SignedClaims[mapkey] = mapvalue
 			iNdEx = postIndex
-		case 6:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Created", wireType)
 			}
@@ -3378,7 +3821,7 @@ func (m *ImageSignature) Unmarshal(data []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 7:
+		case 8:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field IssuedBy", wireType)
 			}
@@ -3411,7 +3854,7 @@ func (m *ImageSignature) Unmarshal(data []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 8:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field IssuedTo", wireType)
 			}
@@ -6703,3 +7146,142 @@ var (
 	ErrInvalidLengthGenerated = fmt.Errorf("proto: negative length found during unmarshaling")
 	ErrIntOverflowGenerated   = fmt.Errorf("proto: integer overflow")
 )
+
+var fileDescriptorGenerated = []byte{
+	// 2154 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xd4, 0x1a, 0x5b, 0x6f, 0x1b, 0x59,
+	0xb9, 0x33, 0xe3, 0x38, 0xce, 0xb1, 0x9b, 0xcb, 0x69, 0xb2, 0xeb, 0x35, 0xdd, 0xb6, 0x1a, 0x76,
+	0x57, 0x8b, 0x68, 0xc7, 0x6a, 0xd0, 0xa2, 0x6e, 0xe9, 0xb6, 0x74, 0xe2, 0xb0, 0x32, 0x6d, 0xb6,
+	0xd5, 0x49, 0x76, 0x55, 0x71, 0xd5, 0xc4, 0x3e, 0x99, 0x0c, 0xb1, 0x67, 0xac, 0x99, 0x71, 0x96,
+	0xf4, 0x09, 0x10, 0x42, 0xbc, 0x20, 0xf1, 0xc0, 0x13, 0xda, 0x37, 0x24, 0x9e, 0xe1, 0x37, 0x50,
+	0xa1, 0x4a, 0xbc, 0x54, 0x3c, 0x70, 0x91, 0x50, 0x81, 0xe5, 0x01, 0xc4, 0x4f, 0xe0, 0x89, 0xef,
+	0x5c, 0xe6, 0xea, 0xb1, 0x37, 0x76, 0x9a, 0xc0, 0x3e, 0x58, 0x9a, 0x39, 0xe7, 0xbb, 0x9d, 0xef,
+	0x7e, 0xbe, 0x31, 0xba, 0x65, 0x3b, 0xe1, 0xfe, 0x70, 0xd7, 0xe8, 0x78, 0xfd, 0xa6, 0x37, 0xa0,
+	0x6e, 0xb0, 0xef, 0xec, 0x85, 0x4d, 0xcf, 0x77, 0x6c, 0xc7, 0x6d, 0x0e, 0x0e, 0xec, 0xa6, 0xd3,
+	0xb7, 0x6c, 0xda, 0xb4, 0x06, 0x4e, 0xf3, 0xf0, 0x7a, 0xd3, 0xa6, 0x2e, 0xf5, 0xad, 0x90, 0x76,
+	0x8d, 0x81, 0xef, 0x85, 0x1e, 0xbe, 0x9a, 0x60, 0x1b, 0x31, 0xb6, 0x21, 0xb0, 0x0d, 0xc0, 0x36,
+	0x38, 0xb6, 0x01, 0xd8, 0xc6, 0xe1, 0xf5, 0xc6, 0xb5, 0x14, 0x2f, 0xdb, 0xb3, 0xbd, 0x26, 0x27,
+	0xb2, 0x3b, 0xdc, 0xe3, 0x6f, 0xfc, 0x85, 0x3f, 0x09, 0xe2, 0x8d, 0xb7, 0x0e, 0x6e, 0x04, 0x86,
+	0xe3, 0x35, 0x0f, 0x86, 0xbb, 0xd4, 0x77, 0x69, 0x48, 0x03, 0x2e, 0x10, 0x13, 0x65, 0xe8, 0x1e,
+	0x52, 0x3f, 0x70, 0x3c, 0x97, 0x76, 0xf3, 0x32, 0x35, 0xae, 0x8e, 0x47, 0x1b, 0x3d, 0x41, 0xe3,
+	0x5a, 0x31, 0xb4, 0x3f, 0x74, 0x43, 0xa7, 0x4f, 0x47, 0xc0, 0xaf, 0x17, 0x83, 0x0f, 0x43, 0xa7,
+	0xd7, 0x74, 0xdc, 0x30, 0x08, 0xfd, 0x3c, 0x8a, 0xfe, 0x7b, 0x05, 0xad, 0xb6, 0xbc, 0xce, 0x01,
+	0xf5, 0xdb, 0x4c, 0x19, 0x84, 0xee, 0x51, 0x9f, 0xba, 0x1d, 0x8a, 0xaf, 0xa2, 0x8a, 0x4f, 0x6d,
+	0x07, 0x70, 0x8e, 0xea, 0xca, 0x15, 0xe5, 0xcd, 0x05, 0x73, 0xf9, 0xe9, 0xf3, 0xcb, 0xe7, 0x3e,
+	0x7e, 0x7e, 0xb9, 0x42, 0xe4, 0x3a, 0x89, 0x21, 0x70, 0x13, 0x2d, 0xb8, 0x56, 0x9f, 0x06, 0x03,
+	0xab, 0x43, 0xeb, 0x2a, 0x07, 0x5f, 0x91, 0xe0, 0x0b, 0xef, 0x45, 0x1b, 0x24, 0x81, 0xc1, 0x57,
+	0x50, 0x89, 0xbd, 0xd4, 0x35, 0x0e, 0x5b, 0x93, 0xb0, 0x25, 0x06, 0x4b, 0xf8, 0x0e, 0x7e, 0x15,
+	0x69, 0xa1, 0x65, 0xd7, 0x4b, 0x1c, 0xa0, 0x2a, 0x01, 0xb4, 0x1d, 0xcb, 0x26, 0x6c, 0x1d, 0x37,
+	0x90, 0xea, 0xb4, 0xea, 0x73, 0x7c, 0x17, 0xc9, 0x5d, 0xb5, 0xdd, 0x22, 0xb0, 0xaa, 0xff, 0x65,
+	0x1e, 0xcd, 0xf1, 0xe3, 0xe0, 0x47, 0xa8, 0xd2, 0xa7, 0xa1, 0xd5, 0xb5, 0x42, 0x8b, 0x9f, 0xa2,
+	0xba, 0xfe, 0xa6, 0x21, 0x94, 0x64, 0x24, 0x4a, 0xe2, 0xbe, 0x20, 0xbc, 0xc0, 0x78, 0xb0, 0xfb,
+	0x1d, 0xda, 0x09, 0xb7, 0x00, 0xc7, 0xc4, 0x92, 0x2a, 0x4a, 0xd6, 0x48, 0x4c, 0x0d, 0x3f, 0x44,
+	0xab, 0xdd, 0x02, 0xbd, 0xc9, 0xc3, 0x5f, 0x94, 0xb8, 0x85, 0xba, 0x25, 0x85, 0x98, 0xf8, 0x31,
+	0xba, 0x90, 0x5a, 0xdf, 0x8a, 0xc4, 0xd6, 0xb8, 0xd8, 0x9f, 0x1f, 0x23, 0xb6, 0x74, 0x05, 0x83,
+	0x58, 0x1f, 0x6e, 0x7e, 0x37, 0x04, 0x1f, 0x07, 0xb7, 0x33, 0x3f, 0x23, 0xb9, 0x5f, 0x68, 0x8d,
+	0xd2, 0x23, 0x45, 0x4c, 0xf0, 0x2e, 0x6a, 0x14, 0x2c, 0x7f, 0x20, 0xdc, 0x58, 0xda, 0x40, 0x97,
+	0x54, 0x1b, 0xad, 0xb1, 0x90, 0x64, 0x02, 0x15, 0xbc, 0x95, 0x3d, 0x9f, 0xe5, 0x3a, 0x7b, 0x34,
+	0x08, 0xa5, 0x09, 0x0b, 0x45, 0x96, 0x20, 0xa4, 0x08, 0x0f, 0x7f, 0x5f, 0x41, 0x2b, 0xa9, 0xf5,
+	0xfb, 0xd6, 0x11, 0xf0, 0xa9, 0x97, 0xaf, 0x68, 0xa0, 0xad, 0x1b, 0xc6, 0x34, 0xa1, 0x6f, 0x24,
+	0x04, 0xcc, 0x57, 0xa4, 0x1c, 0x2b, 0xad, 0x3c, 0x69, 0x32, 0xca, 0x0d, 0x0f, 0x10, 0x0a, 0x1c,
+	0xdb, 0xb5, 0xc2, 0xa1, 0x4f, 0x83, 0xfa, 0x3c, 0xe7, 0x7d, 0x6b, 0x06, 0xde, 0xdb, 0x11, 0x91,
+	0xc4, 0xe9, 0xe2, 0xa5, 0x80, 0xa4, 0x78, 0xe0, 0x07, 0x68, 0x2d, 0x25, 0x46, 0x02, 0x54, 0xaf,
+	0x00, 0xf3, 0x9a, 0xf9, 0x0a, 0xa0, 0xae, 0xb5, 0x8a, 0x00, 0x48, 0x31, 0x1e, 0xde, 0x47, 0x17,
+	0x0b, 0xb4, 0xbb, 0x45, 0xbb, 0x8e, 0xb5, 0x73, 0x34, 0xa0, 0xf5, 0x05, 0x6e, 0x9e, 0xd7, 0xa4,
+	0x58, 0x17, 0x5b, 0x13, 0x60, 0xc9, 0x44, 0x4a, 0xf8, 0xdd, 0x8c, 0xbd, 0x36, 0x3c, 0x77, 0xcf,
+	0xb1, 0xeb, 0x88, 0x93, 0x2f, 0xd2, 0xba, 0x00, 0x20, 0xa3, 0x38, 0xfa, 0xbf, 0x55, 0xb4, 0xc4,
+	0xdf, 0xdb, 0xfd, 0x81, 0xe7, 0x87, 0xdb, 0x03, 0xda, 0x01, 0xbd, 0x94, 0xf6, 0x7c, 0xaf, 0x2f,
+	0x83, 0xfc, 0xda, 0x71, 0x82, 0x3c, 0x8e, 0xbc, 0x24, 0xfd, 0x7c, 0x05, 0x48, 0x10, 0x4e, 0x08,
+	0x7f, 0x15, 0xa9, 0xa1, 0xc7, 0xa3, 0xb9, 0xba, 0xbe, 0x3e, 0x99, 0xdc, 0x7d, 0xaf, 0x63, 0xf5,
+	0xf2, 0x34, 0xcb, 0x2c, 0x1f, 0xed, 0x78, 0x04, 0xa8, 0xe0, 0x0f, 0x51, 0xcd, 0xe1, 0xa2, 0x3e,
+	0xf4, 0x7a, 0x4e, 0xe7, 0x48, 0x86, 0xf4, 0x3b, 0xd3, 0x39, 0x0a, 0x64, 0xbe, 0x76, 0x8a, 0x88,
+	0xb9, 0x2a, 0x85, 0xae, 0xa5, 0x57, 0x49, 0x86, 0x11, 0xbe, 0x8b, 0x96, 0x1c, 0xb7, 0xd3, 0x1b,
+	0x76, 0x93, 0x70, 0x63, 0xb1, 0x5c, 0x31, 0x5f, 0x96, 0xc8, 0x4b, 0xed, 0xec, 0x36, 0xc9, 0xc3,
+	0xeb, 0x7f, 0x85, 0x30, 0x4b, 0x2b, 0x3b, 0x04, 0xbf, 0x09, 0xf0, 0xfb, 0xa8, 0x1c, 0xf0, 0xa7,
+	0x63, 0x28, 0x3c, 0x55, 0x0e, 0x0d, 0x81, 0x6e, 0x2e, 0x4a, 0xf6, 0x65, 0xf1, 0x4e, 0x24, 0x31,
+	0xbc, 0x83, 0xe6, 0xf8, 0x99, 0xa5, 0xde, 0xbf, 0x30, 0x43, 0x28, 0x99, 0x0b, 0x40, 0x57, 0x64,
+	0x7f, 0x22, 0x88, 0x45, 0x95, 0x44, 0x2b, 0xae, 0x24, 0xfa, 0x8f, 0x14, 0x84, 0x92, 0xa0, 0x8e,
+	0x2b, 0x93, 0x32, 0xb6, 0x32, 0xbd, 0x8e, 0x4a, 0x81, 0xf3, 0x58, 0x08, 0xa9, 0x25, 0x75, 0x8e,
+	0xa3, 0x6f, 0xc3, 0x06, 0xe1, 0xdb, 0xac, 0x26, 0xf6, 0xe3, 0x30, 0xd2, 0xb2, 0x35, 0x31, 0x89,
+	0x99, 0x04, 0x46, 0x7f, 0xa2, 0xa0, 0x05, 0x21, 0x08, 0x14, 0x55, 0xfc, 0xcd, 0x91, 0xd2, 0xd5,
+	0x3c, 0xa6, 0x92, 0x19, 0x3a, 0xaf, 0x60, 0x71, 0xc5, 0x8e, 0x56, 0x52, 0xf5, 0xeb, 0x11, 0xa8,
+	0x3a, 0xa4, 0xfd, 0x00, 0x4e, 0xa1, 0xcd, 0xaa, 0xea, 0xf3, 0x92, 0xfe, 0x5c, 0x9b, 0x51, 0x22,
+	0x82, 0xa0, 0xfe, 0xe7, 0x32, 0x5a, 0xcc, 0x66, 0x99, 0x53, 0x2c, 0xc3, 0x60, 0xad, 0x90, 0xe9,
+	0x57, 0xcd, 0x5a, 0x8b, 0xab, 0x96, 0xef, 0x80, 0xb5, 0xe6, 0x3b, 0x9e, 0x0b, 0xa5, 0x31, 0xe4,
+	0x46, 0xa8, 0x99, 0x55, 0x00, 0x98, 0xdf, 0x10, 0x4b, 0x24, 0xda, 0xc3, 0x21, 0x42, 0xf0, 0xd8,
+	0x75, 0x42, 0xd0, 0x61, 0x00, 0x51, 0xc2, 0x94, 0xf2, 0xe5, 0xe9, 0x94, 0x12, 0x9f, 0x77, 0x23,
+	0x22, 0x94, 0x08, 0x1f, 0x2f, 0x41, 0x3a, 0x4f, 0xf8, 0xe0, 0x2f, 0xa1, 0xf3, 0x9c, 0x44, 0xbb,
+	0x0b, 0x32, 0x38, 0xe1, 0x91, 0xac, 0x86, 0x6b, 0x12, 0xed, 0x7c, 0x3b, 0xbd, 0x49, 0xb2, 0xb0,
+	0xf8, 0xc7, 0x0a, 0xaa, 0xb1, 0xd2, 0x40, 0xbb, 0x1b, 0x3d, 0xcb, 0xe9, 0x47, 0xc5, 0xef, 0xbd,
+	0x93, 0x14, 0x20, 0x7e, 0x88, 0x88, 0xe0, 0xa6, 0x0b, 0xbd, 0x5d, 0x92, 0x68, 0xd2, 0x5b, 0x24,
+	0xc3, 0x19, 0x13, 0x50, 0xb2, 0x4f, 0x59, 0x5f, 0x09, 0x55, 0x70, 0x52, 0xbf, 0x92, 0xf7, 0xd5,
+	0x1d, 0x68, 0x5e, 0xa4, 0x45, 0x04, 0x3e, 0x89, 0x08, 0x61, 0x1b, 0x55, 0x9c, 0x20, 0x18, 0xd2,
+	0xae, 0x79, 0x04, 0xd5, 0x6d, 0x86, 0x8c, 0x19, 0x1f, 0xaa, 0xcd, 0xc8, 0xf8, 0x66, 0x8d, 0x85,
+	0x42, 0x5b, 0x92, 0x24, 0x31, 0x71, 0x28, 0x81, 0xf2, 0x79, 0xc7, 0xe3, 0xe5, 0xae, 0xba, 0x7e,
+	0x7b, 0x46, 0x46, 0xdb, 0x43, 0xee, 0xa3, 0x69, 0x4e, 0x50, 0x02, 0x62, 0xea, 0x8d, 0x3b, 0x68,
+	0x65, 0x44, 0xbf, 0x78, 0x19, 0x69, 0x07, 0x54, 0x36, 0xd9, 0x84, 0x3d, 0xe2, 0x55, 0x34, 0x77,
+	0x68, 0xf5, 0x86, 0xd2, 0xab, 0x89, 0x78, 0xb9, 0xa9, 0xde, 0x50, 0xf4, 0x5f, 0xab, 0xa8, 0x2a,
+	0x0c, 0x16, 0x82, 0x96, 0xfa, 0xa7, 0x18, 0x58, 0xdf, 0x86, 0x24, 0x07, 0x85, 0x55, 0x66, 0xe2,
+	0x77, 0x66, 0xf1, 0x29, 0x2e, 0x22, 0xab, 0xce, 0x49, 0x5c, 0xb2, 0x37, 0xc2, 0x09, 0x83, 0x79,
+	0xa3, 0x12, 0x22, 0xca, 0xe1, 0x9d, 0xd9, 0x59, 0x4c, 0x2c, 0x2a, 0xfa, 0x6f, 0x15, 0xb4, 0x9c,
+	0x82, 0x3e, 0xed, 0x8b, 0xc1, 0xa3, 0x17, 0x50, 0xc3, 0x92, 0xc4, 0x9a, 0xaa, 0x63, 0xfa, 0x6f,
+	0x54, 0x59, 0x8a, 0xa3, 0x83, 0xb0, 0x82, 0x7c, 0x8a, 0x27, 0xa1, 0x19, 0x17, 0xd8, 0x98, 0xd9,
+	0x3e, 0x49, 0x9b, 0x56, 0xe8, 0x08, 0xfd, 0x9c, 0x23, 0x6c, 0x9e, 0x94, 0xd1, 0x64, 0x77, 0xf8,
+	0xb9, 0x8a, 0xd6, 0x0a, 0x85, 0xc3, 0x6f, 0xa0, 0xb2, 0xe8, 0x9e, 0xb8, 0x1e, 0x2b, 0x09, 0x05,
+	0x01, 0x43, 0xe4, 0x2e, 0xf6, 0x11, 0xf2, 0xe9, 0xc0, 0x0b, 0x9c, 0xd0, 0x83, 0xcb, 0xb1, 0xd0,
+	0x8e, 0x39, 0x9d, 0xd0, 0x24, 0xc6, 0x4f, 0x29, 0x67, 0x91, 0x59, 0x22, 0xd9, 0x21, 0x29, 0x2e,
+	0x60, 0x8b, 0x32, 0x27, 0xc0, 0x94, 0xa4, 0xcd, 0x18, 0x90, 0x69, 0x56, 0xc9, 0xd1, 0x18, 0x51,
+	0x22, 0x89, 0xeb, 0x7f, 0x54, 0xd1, 0xcb, 0x63, 0x14, 0x0a, 0x0d, 0x49, 0x5a, 0x3d, 0xd5, 0xf5,
+	0xb7, 0x67, 0xb6, 0x93, 0x89, 0x0a, 0xb4, 0x1a, 0x16, 0x68, 0xb5, 0x75, 0x42, 0xad, 0x4a, 0x4f,
+	0x98, 0xa0, 0x57, 0x3b, 0xa7, 0xd7, 0x3b, 0xb3, 0xeb, 0x35, 0xe7, 0x76, 0x39, 0xcd, 0x3e, 0x53,
+	0xe4, 0xa5, 0x45, 0xa8, 0xe0, 0x2c, 0x5a, 0xbc, 0x6f, 0x65, 0x5b, 0xbc, 0x13, 0xd8, 0xab, 0xb8,
+	0xd1, 0xfb, 0xa7, 0x82, 0x70, 0x0a, 0x6a, 0xcb, 0x1a, 0x0c, 0x1c, 0xd7, 0xfe, 0x34, 0xa6, 0xd6,
+	0x4f, 0xba, 0x22, 0x3c, 0xc9, 0x1a, 0x8f, 0x67, 0x8b, 0xed, 0xcc, 0x4d, 0x3c, 0x71, 0x2f, 0x79,
+	0x71, 0x78, 0x55, 0x12, 0x59, 0x6b, 0x15, 0x01, 0x91, 0x62, 0x5c, 0xfc, 0x0d, 0x68, 0x67, 0x2d,
+	0x3b, 0xb2, 0xd8, 0xcd, 0xa9, 0x6f, 0x88, 0x05, 0x77, 0x5a, 0x58, 0x0d, 0x08, 0xa7, 0xaa, 0xff,
+	0x4e, 0xc9, 0x14, 0x10, 0x19, 0xd7, 0xa7, 0x72, 0x10, 0x2b, 0x73, 0x90, 0x29, 0xa3, 0x8a, 0xdd,
+	0xb5, 0xba, 0x20, 0xf7, 0xe6, 0x21, 0x74, 0xba, 0xcc, 0xb1, 0x0b, 0x4f, 0xf3, 0x44, 0x8b, 0xee,
+	0x19, 0xfc, 0x34, 0xb0, 0x73, 0x8a, 0xae, 0xf7, 0xbe, 0x70, 0x10, 0xe1, 0x78, 0x27, 0xb1, 0xcb,
+	0x7c, 0x66, 0x8a, 0xb9, 0x8e, 0x90, 0x9c, 0xc8, 0xb2, 0x39, 0x9b, 0xc6, 0x2f, 0x94, 0xb1, 0x20,
+	0xef, 0xc6, 0x3b, 0x24, 0x05, 0x85, 0x83, 0x82, 0x9b, 0xca, 0x9d, 0xa9, 0x25, 0xe2, 0xba, 0x3d,
+	0xfe, 0x45, 0x25, 0x0e, 0xbd, 0xb9, 0x17, 0xdd, 0xd5, 0xfc, 0x21, 0x9b, 0x45, 0x40, 0xb4, 0xb3,
+	0xc8, 0x8d, 0x56, 0x36, 0x37, 0xde, 0x9a, 0x39, 0x37, 0x82, 0xbc, 0x63, 0xd2, 0xe3, 0x0f, 0xa1,
+	0x5d, 0x1b, 0xf1, 0xe4, 0x28, 0xd3, 0x28, 0x63, 0xc6, 0xda, 0x5f, 0xcf, 0xca, 0xf5, 0xc5, 0xd9,
+	0xec, 0x5a, 0x2c, 0x51, 0xce, 0x73, 0xb4, 0x33, 0xf1, 0x1c, 0xfd, 0x17, 0x2a, 0x5a, 0x2d, 0x6a,
+	0x77, 0x5e, 0xfc, 0xc8, 0x2e, 0x3f, 0x66, 0x53, 0xff, 0x87, 0x63, 0x36, 0x6d, 0xca, 0x31, 0xdb,
+	0xcf, 0x54, 0xf4, 0x52, 0x71, 0xfb, 0x72, 0x5a, 0xb3, 0xb6, 0xa4, 0xf3, 0x51, 0x4f, 0xb5, 0xf3,
+	0xc1, 0x37, 0xd1, 0xa2, 0xd5, 0x15, 0xde, 0x60, 0xf5, 0x58, 0xfe, 0xe6, 0x9e, 0xb7, 0x60, 0x62,
+	0x80, 0x5d, 0xbc, 0x9b, 0xd9, 0x21, 0x39, 0x48, 0xfd, 0xb9, 0x86, 0xf0, 0xe8, 0x58, 0x05, 0x48,
+	0x8a, 0xa9, 0x8f, 0x88, 0xa2, 0x37, 0xd2, 0x53, 0x9f, 0xff, 0x3c, 0xbf, 0xfc, 0xd2, 0x28, 0x46,
+	0x6a, 0x1e, 0xf4, 0x41, 0xac, 0x4e, 0x31, 0x33, 0xba, 0x9d, 0xd5, 0x0f, 0xe0, 0x4f, 0xfc, 0x46,
+	0x67, 0xc4, 0x34, 0x73, 0xfa, 0xdc, 0x47, 0xe7, 0x7b, 0x56, 0x10, 0x3e, 0xf4, 0xbd, 0x5d, 0xca,
+	0xa6, 0x1a, 0x9f, 0xf0, 0xe1, 0xa6, 0x70, 0x10, 0x12, 0xcf, 0x7d, 0xee, 0xa7, 0x29, 0x91, 0x2c,
+	0x61, 0xf0, 0x73, 0xcc, 0x16, 0x76, 0x7c, 0xcb, 0x0d, 0xc4, 0xe9, 0x18, 0xbb, 0xd2, 0xf4, 0xec,
+	0x1a, 0x92, 0x1d, 0xbe, 0x3f, 0x42, 0x8e, 0x14, 0xb0, 0x60, 0x17, 0x24, 0x48, 0x79, 0x01, 0x54,
+	0x2a, 0x31, 0xa6, 0x8a, 0x2d, 0x4e, 0xf8, 0x2a, 0x91, 0xbb, 0xf8, 0x73, 0x68, 0xbe, 0x4f, 0x83,
+	0x80, 0x95, 0x8b, 0x32, 0x07, 0x5c, 0x92, 0x80, 0xf3, 0x5b, 0x62, 0x99, 0x44, 0xfb, 0x6c, 0xf8,
+	0x9a, 0x98, 0x8b, 0x17, 0x3c, 0xa7, 0xb3, 0x29, 0xc6, 0x5b, 0x37, 0x50, 0xcd, 0xf3, 0x6d, 0x08,
+	0x90, 0xc7, 0xa2, 0x3a, 0x0a, 0x63, 0xc7, 0xf1, 0xf8, 0x20, 0xb5, 0x47, 0x32, 0x90, 0xac, 0xaa,
+	0x82, 0x13, 0xf7, 0x3d, 0x97, 0xa5, 0x5f, 0x69, 0xe6, 0x54, 0x9a, 0x8a, 0x76, 0x48, 0x0a, 0x4a,
+	0xff, 0x15, 0xb4, 0x78, 0xb9, 0x81, 0x11, 0xfe, 0x08, 0x84, 0x0b, 0x0a, 0x85, 0x93, 0xa1, 0xd8,
+	0x9a, 0x71, 0x4e, 0x94, 0xa1, 0x65, 0x5e, 0x92, 0xa2, 0x8d, 0x51, 0x04, 0x19, 0x23, 0x83, 0xfe,
+	0x2f, 0x05, 0x2d, 0xe7, 0x47, 0x4f, 0xff, 0xe7, 0x32, 0xe3, 0xb7, 0x50, 0x75, 0x30, 0xdc, 0x85,
+	0xac, 0x79, 0x8f, 0x1e, 0xb5, 0x5b, 0xd2, 0x36, 0x17, 0x24, 0xb1, 0xea, 0xc3, 0x64, 0x8b, 0xa4,
+	0xe1, 0xf4, 0x9f, 0xa8, 0xa8, 0x12, 0x95, 0x1e, 0x88, 0xe0, 0x78, 0xd8, 0xa8, 0x4c, 0xef, 0xf4,
+	0xb1, 0x2f, 0x8e, 0x0c, 0x1c, 0x5f, 0xfc, 0x27, 0xdd, 0xcf, 0x46, 0x5d, 0x93, 0xb8, 0x58, 0x14,
+	0xdf, 0x3d, 0xb2, 0x3d, 0x60, 0xe9, 0x38, 0x3d, 0xa0, 0xfe, 0x4b, 0x0d, 0xad, 0x8c, 0x94, 0x62,
+	0xfc, 0x76, 0x26, 0x2d, 0xbe, 0x9e, 0x4b, 0x8b, 0x6b, 0x23, 0x08, 0x67, 0x90, 0x15, 0x8b, 0x73,
+	0x95, 0x76, 0x96, 0xb9, 0xaa, 0x74, 0xdc, 0x5c, 0x35, 0x37, 0x39, 0x57, 0xe5, 0x0c, 0x55, 0x3e,
+	0x96, 0xa1, 0x06, 0x68, 0x29, 0xd7, 0x51, 0xb0, 0x7f, 0x56, 0x38, 0x6e, 0x40, 0x3b, 0x10, 0x1b,
+	0x72, 0xd0, 0x14, 0x37, 0xaa, 0x6d, 0xb9, 0x4e, 0x62, 0x08, 0xf6, 0x15, 0x29, 0xe8, 0xec, 0xd3,
+	0xee, 0xb0, 0x07, 0xee, 0xae, 0x72, 0xf0, 0xf8, 0x2b, 0xd2, 0x76, 0xb4, 0x41, 0x12, 0x18, 0xfd,
+	0xa3, 0x12, 0xaa, 0xa5, 0x6f, 0x1c, 0xc7, 0xf8, 0xa0, 0xf5, 0x03, 0x05, 0x55, 0x2d, 0xd7, 0xf5,
+	0x42, 0x4b, 0x74, 0x86, 0xa2, 0x21, 0xb8, 0x37, 0xfb, 0x2d, 0xc7, 0xb8, 0x9b, 0x50, 0x13, 0x1f,
+	0x11, 0xe2, 0x10, 0x4f, 0xed, 0x90, 0x34, 0x53, 0x7c, 0x4f, 0xb6, 0x83, 0xda, 0x2c, 0xed, 0x60,
+	0x25, 0xd7, 0x0a, 0x82, 0xd6, 0xfc, 0x38, 0x7e, 0x4b, 0x59, 0xad, 0x25, 0x41, 0x9b, 0xc0, 0x60,
+	0x23, 0x63, 0xdb, 0x39, 0x6e, 0xdb, 0xc5, 0x09, 0x97, 0xb0, 0x7c, 0xaf, 0x59, 0x3e, 0xa3, 0x5e,
+	0xb3, 0x71, 0x1b, 0x2d, 0xe7, 0x95, 0x3b, 0xcd, 0x17, 0x04, 0xf3, 0xb5, 0xa7, 0x7f, 0xbf, 0x74,
+	0xee, 0x19, 0xfc, 0xfe, 0x04, 0xbf, 0xef, 0x7d, 0x7c, 0x49, 0x79, 0x0a, 0xbf, 0x67, 0xf0, 0xfb,
+	0x1b, 0xfc, 0x7e, 0xfa, 0x8f, 0x4b, 0xe7, 0xbe, 0xa6, 0x1e, 0x5e, 0xff, 0x6f, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0x9e, 0x86, 0x6e, 0x0e, 0x79, 0x25, 0x00, 0x00,
+}

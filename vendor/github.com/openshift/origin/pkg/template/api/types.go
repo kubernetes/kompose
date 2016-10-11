@@ -70,3 +70,9 @@ type Parameter struct {
 	// Optional: Indicates the parameter must have a value.  Defaults to false.
 	Required bool
 }
+
+// These constants represent annotations keys affixed to templates
+const (
+	// TemplateDisplayName is an optional annotation that stores the name displayed by a UI when referencing a template.
+	TemplateDisplayName = "openshift.io/display-name"
+)

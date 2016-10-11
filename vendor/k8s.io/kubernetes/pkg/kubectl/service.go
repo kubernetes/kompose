@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors All rights reserved.
+Copyright 2014 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ func paramNames() []GeneratorParam {
 		{"target-port", false},
 		{"port-name", false},
 		{"session-affinity", false},
+		{"cluster-ip", false},
 	}
 }
 
@@ -223,6 +224,13 @@ func generate(genericParams map[string]interface{}) (runtime.Object, error) {
 			service.Spec.SessionAffinity = api.ServiceAffinityClientIP
 		default:
 			return nil, fmt.Errorf("unknown session affinity: %s", params["session-affinity"])
+		}
+	}
+	if len(params["cluster-ip"]) != 0 {
+		if params["cluster-ip"] == "None" {
+			service.Spec.ClusterIP = api.ClusterIPNone
+		} else {
+			service.Spec.ClusterIP = params["cluster-ip"]
 		}
 	}
 	return &service, nil

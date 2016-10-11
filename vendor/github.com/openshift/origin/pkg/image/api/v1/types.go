@@ -35,7 +35,7 @@ type Image struct {
 	// DockerImageLayers represents the layers in the image. May not be set if the image does not define that data.
 	DockerImageLayers []ImageLayer `json:"dockerImageLayers" protobuf:"bytes,6,rep,name=dockerImageLayers"`
 	// Signatures holds all signatures of the image.
-	Signatures []ImageSignature `json:"signatures,omitempty" protobuf:"bytes,7,rep,name=signatures"`
+	Signatures []ImageSignature `json:"signatures,omitempty" patchStrategy:"merge" patchMergeKey:"name" protobuf:"bytes,7,rep,name=signatures"`
 	// DockerImageSignatures provides the signatures as opaque blobs. This is a part of manifest schema v1.
 	DockerImageSignatures [][]byte `json:"dockerImageSignatures,omitempty" protobuf:"bytes,8,rep,name=dockerImageSignatures"`
 	// DockerImageManifestMediaType specifies the mediaType of manifest. This is a part of manifest schema v2.
@@ -57,33 +57,36 @@ type ImageLayer struct {
 // ImageSignature holds a signature of an image. It allows to verify image identity and possibly other claims
 // as long as the signature is trusted. Based on this information it is possible to restrict runnable images
 // to those matching cluster-wide policy.
-// There are two mandatory fields provided by client: Type and Content. They should be parsed by clients doing
-// image verification. The others are parsed from signature's content by the server. They serve just an
-// informative purpose.
+// Mandatory fields should be parsed by clients doing image verification. The others are parsed from
+// signature's content by the server. They serve just an informative purpose.
 type ImageSignature struct {
+	unversioned.TypeMeta `json:",inline"`
+	// Standard object's metadata.
+	kapi.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+
 	// Required: Describes a type of stored blob.
-	Type string `json:"type" protobuf:"bytes,1,opt,name=type"`
+	Type string `json:"type" protobuf:"bytes,2,opt,name=type"`
 	// Required: An opaque binary string which is an image's signature.
-	Content []byte `json:"content" protobuf:"bytes,2,opt,name=content"`
+	Content []byte `json:"content" protobuf:"bytes,3,opt,name=content"`
 	// Conditions represent the latest available observations of a signature's current state.
-	Conditions []SignatureCondition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,3,rep,name=conditions"`
+	Conditions []SignatureCondition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,4,rep,name=conditions"`
 
 	// Following metadata fields will be set by server if the signature content is successfully parsed and
 	// the information available.
 
 	// A human readable string representing image's identity. It could be a product name and version, or an
 	// image pull spec (e.g. "registry.access.redhat.com/rhel7/rhel:7.2").
-	ImageIdentity string `json:"imageIdentity,omitempty" protobuf:"bytes,4,opt,name=imageIdentity"`
+	ImageIdentity string `json:"imageIdentity,omitempty" protobuf:"bytes,5,opt,name=imageIdentity"`
 	// Contains claims from the signature.
-	SignedClaims map[string]string `json:"signedClaims,omitempty" protobuf:"bytes,5,rep,name=signedClaims"`
+	SignedClaims map[string]string `json:"signedClaims,omitempty" protobuf:"bytes,6,rep,name=signedClaims"`
 	// If specified, it is the time of signature's creation.
-	Created *unversioned.Time `json:"created,omitempty" protobuf:"bytes,6,opt,name=created"`
+	Created *unversioned.Time `json:"created,omitempty" protobuf:"bytes,7,opt,name=created"`
 	// If specified, it holds information about an issuer of signing certificate or key (a person or entity
 	// who signed the signing certificate or key).
-	IssuedBy *SignatureIssuer `json:"issuedBy,omitempty" protobuf:"bytes,7,opt,name=issuedBy"`
+	IssuedBy *SignatureIssuer `json:"issuedBy,omitempty" protobuf:"bytes,8,opt,name=issuedBy"`
 	// If specified, it holds information about a subject of signing certificate or key (a person or entity
 	// who signed the image).
-	IssuedTo *SignatureSubject `json:"issuedTo,omitempty" protobuf:"bytes,8,opt,name=issuedTo"`
+	IssuedTo *SignatureSubject `json:"issuedTo,omitempty" protobuf:"bytes,9,opt,name=issuedTo"`
 }
 
 /// SignatureConditionType is a type of image signature condition.
@@ -91,7 +94,7 @@ type SignatureConditionType string
 
 // SignatureCondition describes an image signature condition of particular kind at particular probe time.
 type SignatureCondition struct {
-	// Type of job condition, Complete or Failed.
+	// Type of signature condition, Complete or Failed.
 	Type SignatureConditionType `json:"type" protobuf:"bytes,1,opt,name=type,casttype=SignatureConditionType"`
 	// Status of the condition, one of True, False, Unknown.
 	Status kapi.ConditionStatus `json:"status" protobuf:"bytes,2,opt,name=status,casttype=k8s.io/kubernetes/pkg/api/v1.ConditionStatus"`
