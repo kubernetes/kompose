@@ -95,7 +95,9 @@ You can reach the maintainers of this project at:
 
 - [Slack](https://skippbox.herokuapp.com): #kompose
 
-Incubation of `kompose` into the Kubernetes project will be discussed in the [API Machinery SIG](https://github.com/kubernetes/community)
+Incubation of `kompose` into the Kubernetes project is shepherd in the [SIG-APPS](https://github.com/kubernetes/community).
+
+[@ericchiang](https://github.com/ericchiang) is acting as Champion for [incubation](https://github.com/kubernetes/community/blob/master/incubator.md)
 
 We do a bi-weekly community meeting. Here is the link to [agenda doc](https://docs.google.com/document/d/1I5I21Cp_JZ9Az5MgMcu6Hl7m8WQ1Eqk_WeQLHenNom0/edit?usp=sharing).
 
@@ -103,10 +105,10 @@ Meeting link: [https://bluejeans.com/404059616](https://bluejeans.com/404059616)
 
 ## RoadMap
 
-* September 15th 2016: Enter Kubernetes incubator.
+* September 15th 2016: Propose to Kubernetes incubator.
 * September 30th 2016: Make the first official release of `kompose`, 0.1.0
 * October 1st 2016: Add _build_ support connected to a private registry run by Kubernetes
-* October 15th 2016: Add support for Rancher compose/provider
+* October 15th 2016: Add multi-container Pods, PVC and service types support.
 * November 1st 2016: Add preference file to specify preferred resources for conversion and preferred provider.
 * November 15th 2016: Improve support for Docker bundles to target specific image layers.
 * December 24th 2016: Second release of `kompose`, 0.2.0
