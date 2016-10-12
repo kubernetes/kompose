@@ -99,6 +99,10 @@ Incubation of `kompose` into the Kubernetes project is shepherd in the [SIG-APPS
 
 [@ericchiang](https://github.com/ericchiang) is acting as Champion for [incubation](https://github.com/kubernetes/community/blob/master/incubator.md)
 
+We do a bi-weekly community meeting. Here is the link to [agenda doc](https://docs.google.com/document/d/1I5I21Cp_JZ9Az5MgMcu6Hl7m8WQ1Eqk_WeQLHenNom0/edit?usp=sharing).
+
+Meeting link: [https://bluejeans.com/404059616](https://bluejeans.com/404059616)
+
 ## RoadMap
 
 * September 15th 2016: Propose to Kubernetes incubator.
