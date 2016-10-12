@@ -34,7 +34,7 @@ Grab the latest [release](https://github.com/skippbox/kompose/releases) for your
 
 Linux example:
 ```
-wget https://github.com/skippbox/kompose/releases/download/v0.1.0/kompose_linux-amd64.tar.gz
+wget https://github.com/skippbox/kompose/releases/download/v0.1.1/kompose_linux-amd64.tar.gz
 tar -xvf kompose_linux-amd64.tar.gz --strip 1
 sudo mv kompose /usr/local/bin
 ```
