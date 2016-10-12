@@ -97,6 +97,10 @@ You can reach the maintainers of this project at:
 
 Incubation of `kompose` into the Kubernetes project will be discussed in the [API Machinery SIG](https://github.com/kubernetes/community)
 
+We do a bi-weekly community meeting. Here is the link to [agenda doc](https://docs.google.com/document/d/1I5I21Cp_JZ9Az5MgMcu6Hl7m8WQ1Eqk_WeQLHenNom0/edit?usp=sharing).
+
+Meeting link: [https://bluejeans.com/404059616](https://bluejeans.com/404059616)
+
 ## RoadMap
 
 * September 15th 2016: Enter Kubernetes incubator.
