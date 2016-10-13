@@ -19,3 +19,4 @@ script:
 
   - make test-unit
   - make test-cmd
+  - bash script/pushdocs.sh

@@ -1,7 +1,3 @@
-# Kompose Documentation
+# Docs
 
-
-* [User Guide](user-guide.md)
-* [Architecture](architecture.md)
-* [Development](development.md)
-
+This is automatically created by `mkdocs`! Please checkout [https://skippbox.github.io/kompose](https://cdrage.github.io/kompose) for documentation on Kompose.
