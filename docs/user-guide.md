@@ -7,10 +7,20 @@
 - [Alternate formats](#alternate-formats)
 - [Unsupported docker-compose configuration options](#unsupported-docker-compose-configuration-options)
 
+
+Kompose has support for two providers: OpenShift and Kubernetes.
+You can choose targeted provider either using global option `--provider`, or by setting environment variable `PROVIDER`.
+By setting environment variable `PROVIDER` you can permanently switch to OpenShift provider without need to always specify `--provider openshift` option.
+If no provider is specified Kubernetes is default provider.
+
+
 ## Kompose convert
 
-Currently Kompose supports to transform either Docker Compose file (both of v1 and v2) and [experimental Distributed Application Bundles](https://blog.docker.com/2016/06/docker-app-bundle/) into Kubernetes objects. There is a couple of sample files in the `examples/` directory for testing. You will convert the compose or dab file to K8s objects with `kompose convert`.
+Currently Kompose supports to transform either Docker Compose file (both of v1 and v2) and [experimental Distributed Application Bundles](https://blog.docker.com/2016/06/docker-app-bundle/) into Kubernetes and OpenShift objects.
+There is a couple of sample files in the `examples/` directory for testing. 
+You will convert the compose or dab file to Kubernetes or OpenShift objects with `kompose convert`.
 
+### Kubernetes
 ```console
 $ cd examples/
 
@@ -63,10 +73,45 @@ file "web-deployment.json" created
 file "redis-deployment.json" created
 ```
 
+### OpenShift
+
+```console
+$ kompose --provider openshift --file docker-voting.yml convert
+WARN[0000] [worker] Service cannot be created because of missing port. 
+INFO[0000] file "vote-service.json" created             
+INFO[0000] file "db-service.json" created               
+INFO[0000] file "redis-service.json" created            
+INFO[0000] file "result-service.json" created           
+INFO[0000] file "vote-deploymentconfig.json" created    
+INFO[0000] file "vote-imagestream.json" created         
+INFO[0000] file "worker-deploymentconfig.json" created  
+INFO[0000] file "worker-imagestream.json" created       
+INFO[0000] file "db-deploymentconfig.json" created      
+INFO[0000] file "db-imagestream.json" created           
+INFO[0000] file "redis-deploymentconfig.json" created   
+INFO[0000] file "redis-imagestream.json" created        
+INFO[0000] file "result-deploymentconfig.json" created  
+INFO[0000] file "result-imagestream.json" created  
+```
+
+In similar way you can convert DAB files to OpenShift. 
+```console$
+$ kompose --bundle docker-compose-bundle.dab --provider openshift convert
+WARN[0000]: Unsupported key networks - ignoring
+INFO[0000] file "redis-svc.json" created
+INFO[0000] file "web-svc.json" created
+INFO[0000] file "web-deploymentconfig.json" created
+INFO[0000] file "web-imagestream.json" created           
+INFO[0000] file "redis-deploymentconfig.json" created
+INFO[0000] file "redis-imagestream.json" created
+```
+
 ## Kompose up
 
-Kompose supports a straightforward way to deploy your "composed" application to Kubernetes via `kompose up` like this:
+Kompose supports a straightforward way to deploy your "composed" application to Kubernetes or OpenShift via `kompose up`.
 
+
+### Kubernetes
 ```console
 $ kompose --file ./examples/docker-guestbook.yml up
 We are going to create Kubernetes deployments and services for your Dockerized application. 
@@ -99,6 +144,42 @@ redis-slave-2504961300-nve7b    1/1           Running       0            4m
 Note:
 - You must have a running Kubernetes cluster with a pre-configured kubectl context.
 - Only deployments and services are generated and deployed to Kubernetes. If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead.
+
+### OpenShift
+```console
+$kompose --file ./examples/docker-guestbook.yml --provider openshift up
+We are going to create OpenShift DeploymentConfigs and Services for your Dockerized application. 
+If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. 
+
+INFO[0000] Successfully created service: redis-slave    
+INFO[0000] Successfully created service: frontend       
+INFO[0000] Successfully created service: redis-master   
+INFO[0000] Successfully created deployment: redis-slave 
+INFO[0000] Successfully created ImageStream: redis-slave 
+INFO[0000] Successfully created deployment: frontend    
+INFO[0000] Successfully created ImageStream: frontend   
+INFO[0000] Successfully created deployment: redis-master 
+INFO[0000] Successfully created ImageStream: redis-master 
+
+Your application has been deployed to OpenShift. You can run 'oc get dc,svc,is' for details.
+ 
+$ oc get dc,svc,is
+NAME               REVISION                              DESIRED       CURRENT    TRIGGERED BY
+dc/frontend        0                                     1             0          config,image(frontend:v4)
+dc/redis-master    0                                     1             0          config,image(redis-master:e2e)
+dc/redis-slave     0                                     1             0          config,image(redis-slave:v1)
+NAME               CLUSTER-IP                            EXTERNAL-IP   PORT(S)    AGE
+svc/frontend       172.30.46.64                          <none>        80/TCP     8s
+svc/redis-master   172.30.144.56                         <none>        6379/TCP   8s
+svc/redis-slave    172.30.75.245                         <none>        6379/TCP   8s
+NAME               DOCKER REPO                           TAGS          UPDATED
+is/frontend        172.30.12.200:5000/fff/frontend                     
+is/redis-master    172.30.12.200:5000/fff/redis-master                 
+is/redis-slave     172.30.12.200:5000/fff/redis-slave    v1  
+```
+
+Note:
+- You must have a running OpenShift cluster with a pre-configured `oc` context (`oc login`)
 
 ## Kompose down
 
