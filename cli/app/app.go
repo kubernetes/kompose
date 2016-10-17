@@ -123,6 +123,7 @@ func validateControllers(opt *kobject.ConvertOptions) {
 
 // Convert transforms docker compose or dab file to k8s objects
 func Convert(c *cli.Context) {
+	unknownArgs(c)
 	opt := kobject.ConvertOptions{
 		ToStdout:               c.BoolT("stdout"),
 		CreateChart:            c.BoolT("chart"),
@@ -167,6 +168,7 @@ func Convert(c *cli.Context) {
 
 // Up brings up deployment, svc.
 func Up(c *cli.Context) {
+	unknownArgs(c)
 	opt := kobject.ConvertOptions{
 		InputFile: c.GlobalString("file"),
 		Replicas:  1,
@@ -203,6 +205,7 @@ func Up(c *cli.Context) {
 
 // Down deletes all deployment, svc.
 func Down(c *cli.Context) {
+	unknownArgs(c)
 	opt := kobject.ConvertOptions{
 		InputFile: c.GlobalString("file"),
 		Replicas:  1,
@@ -251,5 +254,10 @@ func askForConfirmation() bool {
 	} else {
 		fmt.Println("Please type yes or no and then press enter:")
 		return askForConfirmation()
+	}
+}
+func unknownArgs(c *cli.Context) {
+	if len(c.Args()) != 0 {
+		logrus.Fatal("Unknwon Arguments ", c.Args())
 	}
 }
