@@ -24,7 +24,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/docker/cli/command/bundlefile"
-	"github.com/skippbox/kompose/pkg/kobject"
+	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 )
 
 type Bundle struct {

@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/skippbox/kompose",
+	"ImportPath": "github.com/kubernetes-incubator/kompose",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Packages": [
