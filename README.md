@@ -1,6 +1,6 @@
 # Kompose (Kubernetes + Compose)
 
-[![Build Status](https://travis-ci.org/skippbox/kompose.svg?branch=master)](https://travis-ci.org/skippbox/kompose) [![Join us on Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png)](https://skippbox.herokuapp.com)
+[![Build Status](https://travis-ci.org/kubernetes-incubator/kompose.svg?branch=master)](https://travis-ci.org/kubernetes-incubator/kompose) [![Join us on Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png)](https://skippbox.herokuapp.com)
 
 `kompose` is a tool to help users who are familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). `kompose` takes a Docker Compose file and translates it into Kubernetes resources.
 
@@ -30,11 +30,11 @@ Other examples are provided in the _examples_ [directory](./examples).
 
 ## Installation 
 
-Grab the latest [release](https://github.com/skippbox/kompose/releases) for your OS, untar and extract the binary.
+Grab the latest [release](https://github.com/kubernetes-incubator/kompose/releases) for your OS, untar and extract the binary.
 
 Linux example:
 ```
-wget https://github.com/skippbox/kompose/releases/download/v0.1.1/kompose_linux-amd64.tar.gz
+wget https://github.com/kubernetes-incubator/kompose/releases/download/v0.1.1/kompose_linux-amd64.tar.gz
 tar -xvf kompose_linux-amd64.tar.gz --strip 1
 sudo mv kompose /usr/local/bin
 ```
@@ -83,7 +83,7 @@ $ make binary-cross
 ## Contributing and Issues
 
 `kompose` is a work in progress, we will see how far it takes us. We welcome any pull request to make it even better.
-If you find any issues, please [file it](https://github.com/skippbox/kompose/issues).
+If you find any issues, please [file it](https://github.com/kubernetes-incubator/kompose/issues).
 
 ## Community, discussion, contribution, and support
 
