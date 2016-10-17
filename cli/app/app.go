@@ -31,11 +31,11 @@ import (
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
 	_ "github.com/openshift/origin/pkg/image/api/install"
 
-	"github.com/skippbox/kompose/pkg/kobject"
-	"github.com/skippbox/kompose/pkg/loader"
-	"github.com/skippbox/kompose/pkg/transformer"
-	"github.com/skippbox/kompose/pkg/transformer/kubernetes"
-	"github.com/skippbox/kompose/pkg/transformer/openshift"
+	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes-incubator/kompose/pkg/loader"
+	"github.com/kubernetes-incubator/kompose/pkg/transformer"
+	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
+	"github.com/kubernetes-incubator/kompose/pkg/transformer/openshift"
 )
 
 const (

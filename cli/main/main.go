@@ -19,8 +19,8 @@ package main
 import (
 	"os"
 
-	"github.com/skippbox/kompose/cli/command"
-	"github.com/skippbox/kompose/version"
+	"github.com/kubernetes-incubator/kompose/cli/command"
+	"github.com/kubernetes-incubator/kompose/version"
 	"github.com/urfave/cli"
 )
 
@@ -30,7 +30,7 @@ func main() {
 	app.Usage = "A tool helping Docker Compose users move to Kubernetes."
 	app.Version = version.VERSION + " (" + version.GITCOMMIT + ")"
 	app.Author = "Skippbox Kompose Contributors"
-	app.Email = "https://github.com/skippbox/kompose"
+	app.Email = "https://github.com/kubernetes-incubator/kompose"
 	app.EnableBashCompletion = true
 	app.Before = command.BeforeApp
 	app.Flags = append(command.CommonFlags())

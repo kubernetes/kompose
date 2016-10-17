@@ -20,9 +20,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/skippbox/kompose/pkg/kobject"
-	"github.com/skippbox/kompose/pkg/loader/bundle"
-	"github.com/skippbox/kompose/pkg/loader/compose"
+	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes-incubator/kompose/pkg/loader/bundle"
+	"github.com/kubernetes-incubator/kompose/pkg/loader/compose"
 )
 
 type Loader interface {
