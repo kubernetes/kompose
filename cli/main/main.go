@@ -29,7 +29,7 @@ func main() {
 	app.Name = "kompose"
 	app.Usage = "A tool helping Docker Compose users move to Kubernetes."
 	app.Version = version.VERSION + " (" + version.GITCOMMIT + ")"
-	app.Author = "Skippbox Kompose Contributors"
+	app.Author = "Kompose Contributors"
 	app.Email = "https://github.com/kubernetes-incubator/kompose"
 	app.EnableBashCompletion = true
 	app.Before = command.BeforeApp
