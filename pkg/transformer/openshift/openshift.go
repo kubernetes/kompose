@@ -22,8 +22,8 @@ import (
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	imageapi "github.com/openshift/origin/pkg/image/api"
 
-	"github.com/skippbox/kompose/pkg/kobject"
-	"github.com/skippbox/kompose/pkg/transformer/kubernetes"
+	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"

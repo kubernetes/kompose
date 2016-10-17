@@ -28,8 +28,8 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/ghodss/yaml"
-	"github.com/skippbox/kompose/pkg/kobject"
-	"github.com/skippbox/kompose/pkg/transformer"
+	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
