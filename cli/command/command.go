@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/skippbox/kompose/cli/app"
+	"github.com/kubernetes-incubator/kompose/cli/app"
 	"github.com/urfave/cli"
 )
 

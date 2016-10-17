@@ -29,7 +29,7 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
-	"github.com/skippbox/kompose/pkg/kobject"
+	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 )
 
 type Compose struct {

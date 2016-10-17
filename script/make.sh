@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-export KOMPOSE_PKG='github.com/skippbox/kompose'
+export KOMPOSE_PKG='github.com/kubernetes-incubator/kompose'
 
 # List of bundles to create when no argument is passed
 DEFAULT_BUNDLES=(
