@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/skippbox/kompose/pkg/transformer"
+	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 )
 
 func TestParseVolume(t *testing.T) {
