@@ -30,7 +30,7 @@ $ make binary
 ## Workflow
 ### Fork the main repository
 
-1. Go to https://github.com/skippbox/kompose
+1. Go to https://github.com/kubernetes-incubator/kompose
 2. Click the "Fork" button (at the top right)
 
 ### Clone your fork
@@ -38,11 +38,11 @@ $ make binary
 The commands below require that you have $GOPATH. We highly recommended you put Kompose' code into your $GOPATH.
 
 ```console
-mkdir -p $GOPATH/src/github.com/skippbox
-cd $GOPATH/src/github.com/skippbox
+mkdir -p $GOPATH/src/github.com/kubernetes-incubator
+cd $GOPATH/src/github.com/kubernetes-incubator
 git clone https://github.com/$YOUR_GITHUB_USERNAME/kompose.git
 cd kompose
-git remote add upstream 'https://github.com/skippbox/kompose'
+git remote add upstream 'https://github.com/kubernetes-incubator/kompose'
 ```
 
 ### Create a branch and make changes
@@ -59,7 +59,7 @@ git fetch upstream
 git rebase upstream/master
 ```
 
-Note: If you have write access to the main repository at github.com/skippbox/kompose, you should modify your git configuration so that you can't accidentally push to upstream:
+Note: If you have write access to the main repository at github.com/kubernetes-incubator/kompose, you should modify your git configuration so that you can't accidentally push to upstream:
 
 ```console
 git remote set-url --push upstream no_push
@@ -119,7 +119,7 @@ If it is not a valid version try, make sure you have updated the godep repo with
 1. Populate dependencies for your Kompose.
 
 ```console
-cd $GOPATH/src/github.com/skippbox
+cd $GOPATH/src/github.com/kubernetes-incubator
 script/godep-restore.sh
 ```
 
