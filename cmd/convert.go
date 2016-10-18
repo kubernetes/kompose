@@ -26,12 +26,12 @@ import (
 )
 
 var (
-	ConvertSource, ConvertOut                                string
-	ConvertChart, ConvertDeployment, ConvertDaemonSet        bool
-	ConvertReplicationController, ConvertYaml, ConvertStdout bool
-	ConvertEmptyVols, ConvertDeploymentConfig                bool
-	ConvertReplicas                                          int
-	ConvertOpt                                               kobject.ConvertOptions
+	ConvertSource, ConvertOut                                     string
+	ConvertChart, ConvertDeployment, ConvertDaemonSet             bool
+	ConvertReplicationController, ConvertYaml, ConvertStdout      bool
+	ConvertEmptyVols, ConvertDeploymentConfig, ConvertBuildConfig bool
+	ConvertReplicas                                               int
+	ConvertOpt                                                    kobject.ConvertOptions
 )
 
 var ConvertProvider string = GlobalProvider
@@ -53,6 +53,7 @@ var convertCmd = &cobra.Command{
 			CreateD:                ConvertDeployment,
 			CreateDS:               ConvertDaemonSet,
 			CreateRC:               ConvertReplicationController,
+			CreateBuildConfig:      ConvertBuildConfig,
 			CreateDeploymentConfig: ConvertDeploymentConfig,
 			EmptyVols:              ConvertEmptyVols,
 		}
@@ -84,6 +85,8 @@ func init() {
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
 	convertCmd.Flags().MarkHidden("deployment-config")
+	convertCmd.Flags().BoolVar(&ConvertBuildConfig, "build-config", false, "Generate an OpenShift buildconfig object")
+	convertCmd.Flags().MarkHidden("build-config")
 
 	// Standard between the two
 	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into yaml format")
@@ -107,6 +110,7 @@ Available Commands:{{range .Commands}}{{if .IsAvailableCommand}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{ if .HasAvailableLocalFlags}}
 
 Resource Flags:
+      --build-config			 Generate an Openshift build config object
   -c, --chart                    Create a Helm chart for converted objects
       --daemon-set               Generate a Kubernetes daemonset object
   -d, --deployment               Generate a Kubernetes deployment object

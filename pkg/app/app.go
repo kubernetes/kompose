@@ -28,6 +28,7 @@ import (
 	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
 
 	// install OpenShift api
+	_ "github.com/openshift/origin/pkg/build/api/install"
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
 	_ "github.com/openshift/origin/pkg/image/api/install"
 	_ "github.com/openshift/origin/pkg/route/api/install"
@@ -62,6 +63,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	// OpenShift specific flags
 	deploymentConfig := cmd.Flags().Lookup("deployment-config").Changed
+	buildConfig := cmd.Flags().Lookup("build-config").Changed
 
 	// Kubernetes specific flags
 	chart := cmd.Flags().Lookup("chart").Changed
@@ -87,6 +89,9 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 	case provider == "kubernetes":
 		if deploymentConfig {
 			logrus.Fatalf("--deployment-config is an OpenShift only flag")
+		}
+		if buildConfig {
+			logrus.Fatalf("--build-config is an Openshift only flag")
 		}
 	}
 

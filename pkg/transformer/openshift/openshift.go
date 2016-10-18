@@ -18,6 +18,7 @@ package openshift
 
 import (
 	"fmt"
+	"os/exec"
 	"strings"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
@@ -26,6 +27,7 @@ import (
 	"github.com/Sirupsen/logrus"
 
 	"k8s.io/kubernetes/pkg/api"
+	kapi "k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
 	"k8s.io/kubernetes/pkg/runtime"
@@ -35,6 +37,7 @@ import (
 
 	"time"
 
+	buildapi "github.com/openshift/origin/pkg/build/api"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	deploymentconfigreaper "github.com/openshift/origin/pkg/deploy/cmd"
 	imageapi "github.com/openshift/origin/pkg/image/api"
@@ -72,6 +75,15 @@ func getImageTag(image string) string {
 	}
 }
 
+// getGitRemote gets git remote URI for the current git repo
+func getGitRemote(remote string) string {
+	out, err := exec.Command("git", "remote", "get-url", remote).Output()
+	if err != nil {
+		return ""
+	}
+	return string(out)
+}
+
 // initImageStream initialize ImageStream object
 func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) *imageapi.ImageStream {
 	tag := getImageTag(service.Image)
@@ -96,6 +108,52 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 		},
 	}
 	return is
+}
+
+// initBuildConfig initialize Openshifts BuildConfig Object
+func initBuildConfig(name string, service kobject.ServiceConfig) *buildapi.BuildConfig {
+	bc := &buildapi.BuildConfig{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "BuildConfig",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+		Spec: buildapi.BuildConfigSpec{
+			// Triggers
+			[]buildapi.BuildTriggerPolicy{
+				{Type: "ConfigChange"},
+				{Type: "ImageChange"},
+			},
+			// RunPolicy
+			"serial",
+			buildapi.CommonSpec{
+				Source: buildapi.BuildSource{
+					Git: &buildapi.GitBuildSource{
+						Ref: "master",
+						URI: getGitRemote("origin"),
+					},
+					ContextDir: "./",
+				},
+				Strategy: buildapi.BuildStrategy{
+					DockerStrategy: &buildapi.DockerBuildStrategy{
+						From: &kapi.ObjectReference{
+							Kind: "ImageStreamTag",
+							Name: name + ":from",
+						},
+					},
+				},
+				Output: buildapi.BuildOutput{
+					To: &kapi.ObjectReference{
+						Kind: "ImageStreamTag",
+						Name: name + ":latest",
+					},
+				},
+			},
+		},
+	}
+	return bc
 }
 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
@@ -210,6 +268,10 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				objects = append(objects, o.initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
 				// create ImageStream after deployment (creating IS will trigger new deployment)
 				objects = append(objects, o.initImageStream(name, service))
+			}
+
+			if opt.CreateBuildConfig && service.Build != "" {
+				objects = append(objects, initBuildConfig(name, service)) // Openshift BuildConfigs
 			}
 
 			// If ports not provided in configuration we will not make service
