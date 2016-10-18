@@ -81,7 +81,8 @@ func (ImageList) SwaggerDoc() map[string]string {
 }
 
 var map_ImageSignature = map[string]string{
-	"":              "ImageSignature holds a signature of an image. It allows to verify image identity and possibly other claims as long as the signature is trusted. Based on this information it is possible to restrict runnable images to those matching cluster-wide policy. There are two mandatory fields provided by client: Type and Content. They should be parsed by clients doing image verification. The others are parsed from signature's content by the server. They serve just an informative purpose.",
+	"":              "ImageSignature holds a signature of an image. It allows to verify image identity and possibly other claims as long as the signature is trusted. Based on this information it is possible to restrict runnable images to those matching cluster-wide policy. Mandatory fields should be parsed by clients doing image verification. The others are parsed from signature's content by the server. They serve just an informative purpose.",
+	"metadata":      "Standard object's metadata.",
 	"type":          "Required: Describes a type of stored blob.",
 	"content":       "Required: An opaque binary string which is an image's signature.",
 	"conditions":    "Conditions represent the latest available observations of a signature's current state.",
@@ -249,7 +250,7 @@ func (RepositoryImportStatus) SwaggerDoc() map[string]string {
 
 var map_SignatureCondition = map[string]string{
 	"":                   "SignatureCondition describes an image signature condition of particular kind at particular probe time.",
-	"type":               "Type of job condition, Complete or Failed.",
+	"type":               "Type of signature condition, Complete or Failed.",
 	"status":             "Status of the condition, one of True, False, Unknown.",
 	"lastProbeTime":      "Last time the condition was checked.",
 	"lastTransitionTime": "Last time the condition transit from one status to another.",

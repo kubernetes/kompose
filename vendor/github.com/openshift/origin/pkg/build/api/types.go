@@ -424,7 +424,7 @@ type BuildStrategy struct {
 	CustomStrategy *CustomBuildStrategy
 
 	// JenkinsPipelineStrategy holds the parameters to the Jenkins Pipeline build strategy.
-	// This strategy is experimental.
+	// This strategy is in tech preview.
 	JenkinsPipelineStrategy *JenkinsPipelineBuildStrategy
 }
 
@@ -512,14 +512,28 @@ type SourceBuildStrategy struct {
 	Scripts string
 
 	// Incremental flag forces the Source build to do incremental builds if true.
-	Incremental bool
+	Incremental *bool
 
 	// ForcePull describes if the builder should pull the images from registry prior to building.
 	ForcePull bool
+
+	// RuntimeImage is an optional image that is used to run an application
+	// without unneeded dependencies installed. The building of the application
+	// is still done in the builder image but, post build, you can copy the
+	// needed artifacts in the runtime image for use.
+	// This field and the feature it enables are in tech preview.
+	RuntimeImage *kapi.ObjectReference
+
+	// RuntimeArtifacts specifies a list of source/destination pairs that will be
+	// copied from the builder to a runtime image. sourcePath can be a file or
+	// directory. destinationDir must be a directory. destinationDir can also be
+	// empty or equal to ".", in this case it just refers to the root of WORKDIR.
+	// This field and the feature it enables are in tech preview.
+	RuntimeArtifacts []ImageSourcePath
 }
 
 // JenkinsPipelineStrategy holds parameters specific to a Jenkins Pipeline build.
-// This strategy is experimental.
+// This strategy is in tech preview.
 type JenkinsPipelineBuildStrategy struct {
 	// JenkinsfilePath is the optional path of the Jenkinsfile that will be used to configure the pipeline
 	// relative to the root of the context (contextDir). If both JenkinsfilePath & Jenkinsfile are
@@ -792,6 +806,7 @@ type GitInfo struct {
 	// Refs is a list of GitRefs for the provided repo - generally sent
 	// when used from a post-receive hook. This field is optional and is
 	// used when sending multiple refs
+	// +k8s:conversion-gen=false
 	Refs []GitRefInfo
 }
 

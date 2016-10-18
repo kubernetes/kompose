@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -183,6 +184,7 @@ func ParseDockerImageReference(spec string) (DockerImageReference, error) {
 		ref.ID = id
 		break
 	default:
+		// TODO: this is no longer true with V2
 		return ref, fmt.Errorf("the docker pull spec %q must be two or three segments separated by slashes", spec)
 	}
 
@@ -434,14 +436,14 @@ func ImageConfigMatchesImage(image *Image, imageConfig []byte) (bool, error) {
 	return v.Verified(), nil
 }
 
-// ImageWithMetadata returns a copy of image with the DockerImageMetadata filled in
-// from the raw DockerImageManifest data stored in the image.
+// ImageWithMetadata mutates the given image. It parses raw DockerImageManifest data stored in the image and
+// fills its DockerImageMetadata and other fields.
 func ImageWithMetadata(image *Image) error {
 	if len(image.DockerImageManifest) == 0 {
 		return nil
 	}
 
-	if len(image.DockerImageLayers) > 0 && image.DockerImageMetadata.Size > 0 {
+	if len(image.DockerImageLayers) > 0 && image.DockerImageMetadata.Size > 0 && len(image.DockerImageManifestMediaType) > 0 {
 		glog.V(5).Infof("Image metadata already filled for %s", image.Name)
 		// don't update image already filled
 		return nil
@@ -458,6 +460,8 @@ func ImageWithMetadata(image *Image) error {
 	case 0:
 		// legacy config object
 	case 1:
+		image.DockerImageManifestMediaType = schema1.MediaTypeManifest
+
 		if len(manifest.History) == 0 {
 			// should never have an empty history, but just in case...
 			return nil
@@ -518,6 +522,8 @@ func ImageWithMetadata(image *Image) error {
 			image.DockerImageMetadata.Size = v1Metadata.Size
 		}
 	case 2:
+		image.DockerImageManifestMediaType = schema2.MediaTypeManifest
+
 		config := DockerImageConfig{}
 		if err := json.Unmarshal([]byte(image.DockerImageConfig), &config); err != nil {
 			return err
@@ -546,8 +552,8 @@ func ImageWithMetadata(image *Image) error {
 		image.DockerImageMetadata.Architecture = config.Architecture
 		image.DockerImageMetadata.Size = int64(len(image.DockerImageConfig))
 
+		layerSet := sets.NewString(image.DockerImageMetadata.ID)
 		if len(image.DockerImageLayers) > 0 {
-			layerSet := sets.NewString()
 			for _, layer := range image.DockerImageLayers {
 				if layerSet.Has(layer.Name) {
 					continue
@@ -555,8 +561,6 @@ func ImageWithMetadata(image *Image) error {
 				layerSet.Insert(layer.Name)
 				image.DockerImageMetadata.Size += layer.LayerSize
 			}
-		} else {
-			image.DockerImageMetadata.Size += config.Size
 		}
 	default:
 		return fmt.Errorf("unrecognized Docker image manifest schema %d for %q (%s)", manifest.SchemaVersion, image.Name, image.DockerImageReference)
@@ -637,6 +641,20 @@ func DifferentTagEvent(stream *ImageStream, tag string, next TagEvent) bool {
 	sameRef := previous.DockerImageReference == next.DockerImageReference
 	sameImage := previous.Image == next.Image
 	return !(sameRef && sameImage)
+}
+
+// DifferentTagEvent compares the generation on tag's spec vs its status.
+// Returns if spec generation is newer than status one.
+func DifferentTagGeneration(stream *ImageStream, tag string) bool {
+	specTag, ok := stream.Spec.Tags[tag]
+	if !ok || specTag.Generation == nil {
+		return true
+	}
+	statusTag, ok := stream.Status.Tags[tag]
+	if !ok || len(statusTag.Items) == 0 {
+		return true
+	}
+	return *specTag.Generation > statusTag.Items[0].Generation
 }
 
 // AddTagEventToImageStream attempts to update the given image stream with a tag event. It will
@@ -1002,4 +1020,56 @@ func SetContainerImageEntrypointAnnotation(annotations map[string]string, contai
 
 func LabelForStream(stream *ImageStream) string {
 	return fmt.Sprintf("%s/%s", stream.Namespace, stream.Name)
+}
+
+// JoinImageSignatureName joins image name and custom signature name into one string with @ separator.
+func JoinImageSignatureName(imageName, signatureName string) (string, error) {
+	if len(imageName) == 0 {
+		return "", fmt.Errorf("imageName may not be empty")
+	}
+	if len(signatureName) == 0 {
+		return "", fmt.Errorf("signatureName may not be empty")
+	}
+	if strings.Count(imageName, "@") > 0 || strings.Count(signatureName, "@") > 0 {
+		return "", fmt.Errorf("neither imageName nor signatureName can contain '@'")
+	}
+	return fmt.Sprintf("%s@%s", imageName, signatureName), nil
+}
+
+// SplitImageSignatureName splits given signature name into image name and signature name.
+func SplitImageSignatureName(imageSignatureName string) (imageName, signatureName string, err error) {
+	segments := strings.Split(imageSignatureName, "@")
+	switch len(segments) {
+	case 2:
+		signatureName = segments[1]
+		imageName = segments[0]
+		if len(imageName) == 0 || len(signatureName) == 0 {
+			err = fmt.Errorf("image signature name %q must have an image name and signature name", imageSignatureName)
+		}
+	default:
+		err = fmt.Errorf("expected exactly one @ in the image signature name %q", imageSignatureName)
+	}
+	return
+}
+
+// IndexOfImageSignatureByName returns an index of signature identified by name in the image if present. It
+// returns -1 otherwise.
+func IndexOfImageSignatureByName(signatures []ImageSignature, name string) int {
+	for i := range signatures {
+		if signatures[i].Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
+// IndexOfImageSignature returns index of signature identified by type and blob in the image if present. It
+// returns -1 otherwise.
+func IndexOfImageSignature(signatures []ImageSignature, sType string, sContent []byte) int {
+	for i := range signatures {
+		if signatures[i].Type == sType && bytes.Equal(signatures[i].Content, sContent) {
+			return i
+		}
+	}
+	return -1
 }

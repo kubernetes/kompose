@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	kapi "k8s.io/kubernetes/pkg/api/v1"
 	"k8s.io/kubernetes/pkg/util/intstr"
@@ -252,6 +254,15 @@ type DeploymentConfig struct {
 	Status DeploymentConfigStatus `json:"status" protobuf:"bytes,3,opt,name=status"`
 }
 
+// DeploymentTriggerPolicies is a list of policies where nil values and different from empty arrays.
+// +protobuf.nullable=true
+// +protobuf.options.(gogoproto.goproto_stringer)=false
+type DeploymentTriggerPolicies []DeploymentTriggerPolicy
+
+func (t DeploymentTriggerPolicies) String() string {
+	return fmt.Sprintf("%v", []DeploymentTriggerPolicy(t))
+}
+
 // DeploymentConfigSpec represents the desired state of the deployment.
 type DeploymentConfigSpec struct {
 	// Strategy describes how a deployment is executed.
@@ -264,8 +275,8 @@ type DeploymentConfigSpec struct {
 
 	// Triggers determine how updates to a DeploymentConfig result in new deployments. If no triggers
 	// are defined, a new deployment can only occur as a result of an explicit client update to the
-	// DeploymentConfig with a new LatestVersion.
-	Triggers []DeploymentTriggerPolicy `json:"triggers" protobuf:"bytes,2,rep,name=triggers"`
+	// DeploymentConfig with a new LatestVersion. If null, defaults to having a config change trigger.
+	Triggers DeploymentTriggerPolicies `json:"triggers" protobuf:"bytes,2,rep,name=triggers"`
 
 	// Replicas is the number of desired replicas.
 	Replicas int32 `json:"replicas" protobuf:"varint,3,opt,name=replicas"`

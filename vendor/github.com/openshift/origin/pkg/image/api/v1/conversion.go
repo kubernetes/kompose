@@ -209,7 +209,7 @@ func Convert_api_TagEventListArray_to_v1_NamedTagEventListArray(in *map[string]n
 	for key := range *in {
 		allKeys = append(allKeys, key)
 	}
-	sort.Strings(allKeys)
+	newer.PrioritizeTags(allKeys)
 
 	for _, key := range allKeys {
 		newTagEventList := (*in)[key]
@@ -255,7 +255,7 @@ func Convert_api_TagReferenceMap_to_v1_TagReferenceArray(in *map[string]newer.Ta
 	return nil
 }
 
-func addConversionFuncs(scheme *runtime.Scheme) {
+func addConversionFuncs(scheme *runtime.Scheme) error {
 	err := scheme.AddConversionFuncs(
 		Convert_v1_NamedTagEventListArray_to_api_TagEventListArray,
 		Convert_api_TagEventListArray_to_v1_NamedTagEventListArray,
@@ -273,18 +273,19 @@ func addConversionFuncs(scheme *runtime.Scheme) {
 	)
 	if err != nil {
 		// If one of the conversion functions is malformed, detect it immediately.
-		panic(err)
+		return err
 	}
 
 	if err := scheme.AddFieldLabelConversionFunc("v1", "Image",
 		oapi.GetFieldLabelConversionFunc(newer.ImageToSelectableFields(&newer.Image{}), nil),
 	); err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := scheme.AddFieldLabelConversionFunc("v1", "ImageStream",
 		oapi.GetFieldLabelConversionFunc(newer.ImageStreamToSelectableFields(&newer.ImageStream{}), map[string]string{"name": "metadata.name"}),
 	); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }

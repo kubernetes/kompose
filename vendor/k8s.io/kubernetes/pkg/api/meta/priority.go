@@ -159,7 +159,7 @@ func (m PriorityRESTMapper) RESTMapping(gk unversioned.GroupKind, versions ...st
 	}
 
 	// any versions the user provides take priority
-	var priorities []unversioned.GroupVersionKind
+	priorities := m.KindPriority
 	if len(versions) > 0 {
 		priorities = make([]unversioned.GroupVersionKind, 0, len(m.KindPriority)+len(versions))
 		for _, version := range versions {
@@ -170,8 +170,6 @@ func (m PriorityRESTMapper) RESTMapping(gk unversioned.GroupKind, versions ...st
 			priorities = append(priorities, gv.WithKind(AnyKind))
 		}
 		priorities = append(priorities, m.KindPriority...)
-	} else {
-		priorities = m.KindPriority
 	}
 
 	remaining := append([]*RESTMapping{}, mappings...)
@@ -195,6 +193,9 @@ func (m PriorityRESTMapper) RESTMapping(gk unversioned.GroupKind, versions ...st
 			// this way you can have a series of selection criteria
 			remaining = matching
 		}
+	}
+	if len(remaining) == 1 {
+		return remaining[0], nil
 	}
 
 	var kinds []unversioned.GroupVersionKind

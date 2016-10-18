@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2016 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -54,6 +54,8 @@ func GetAllFSTypesAsSet() sets.String {
 		string(api.FSTypeFC),
 		string(api.FSTypeConfigMap),
 		string(api.FSTypeVsphereVolume),
+		string(api.FSTypeQuobyte),
+		string(api.FSTypeAzureDisk),
 	)
 	return fstypes
 }
@@ -101,6 +103,10 @@ func GetVolumeFSType(v api.Volume) (api.FSType, error) {
 		return api.FSTypeConfigMap, nil
 	case v.VsphereVolume != nil:
 		return api.FSTypeVsphereVolume, nil
+	case v.Quobyte != nil:
+		return api.FSTypeQuobyte, nil
+	case v.AzureDisk != nil:
+		return api.FSTypeAzureDisk, nil
 	}
 
 	return "", fmt.Errorf("unknown volume type for volume: %#v", v)

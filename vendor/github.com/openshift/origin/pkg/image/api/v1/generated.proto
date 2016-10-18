@@ -5,7 +5,6 @@ syntax = 'proto2';
 
 package github.com.openshift.origin.pkg.image.api.v1;
 
-import "k8s.io/kubernetes/pkg/api/resource/generated.proto";
 import "k8s.io/kubernetes/pkg/api/unversioned/generated.proto";
 import "k8s.io/kubernetes/pkg/api/v1/generated.proto";
 import "k8s.io/kubernetes/pkg/runtime/generated.proto";
@@ -116,36 +115,38 @@ message ImageList {
 // ImageSignature holds a signature of an image. It allows to verify image identity and possibly other claims
 // as long as the signature is trusted. Based on this information it is possible to restrict runnable images
 // to those matching cluster-wide policy.
-// There are two mandatory fields provided by client: Type and Content. They should be parsed by clients doing
-// image verification. The others are parsed from signature's content by the server. They serve just an
-// informative purpose.
+// Mandatory fields should be parsed by clients doing image verification. The others are parsed from
+// signature's content by the server. They serve just an informative purpose.
 message ImageSignature {
+  // Standard object's metadata.
+  optional k8s.io.kubernetes.pkg.api.v1.ObjectMeta metadata = 1;
+
   // Required: Describes a type of stored blob.
-  optional string type = 1;
+  optional string type = 2;
 
   // Required: An opaque binary string which is an image's signature.
-  optional bytes content = 2;
+  optional bytes content = 3;
 
   // Conditions represent the latest available observations of a signature's current state.
-  repeated SignatureCondition conditions = 3;
+  repeated SignatureCondition conditions = 4;
 
   // A human readable string representing image's identity. It could be a product name and version, or an
   // image pull spec (e.g. "registry.access.redhat.com/rhel7/rhel:7.2").
-  optional string imageIdentity = 4;
+  optional string imageIdentity = 5;
 
   // Contains claims from the signature.
-  map<string, string> signedClaims = 5;
+  map<string, string> signedClaims = 6;
 
   // If specified, it is the time of signature's creation.
-  optional k8s.io.kubernetes.pkg.api.unversioned.Time created = 6;
+  optional k8s.io.kubernetes.pkg.api.unversioned.Time created = 7;
 
   // If specified, it holds information about an issuer of signing certificate or key (a person or entity
   // who signed the signing certificate or key).
-  optional SignatureIssuer issuedBy = 7;
+  optional SignatureIssuer issuedBy = 8;
 
   // If specified, it holds information about a subject of signing certificate or key (a person or entity
   // who signed the image).
-  optional SignatureSubject issuedTo = 8;
+  optional SignatureSubject issuedTo = 9;
 }
 
 // ImageStream stores a mapping of tags to images, metadata overrides that are applied
@@ -321,7 +322,7 @@ message RepositoryImportStatus {
 
 // SignatureCondition describes an image signature condition of particular kind at particular probe time.
 message SignatureCondition {
-  // Type of job condition, Complete or Failed.
+  // Type of signature condition, Complete or Failed.
   optional string type = 1;
 
   // Status of the condition, one of True, False, Unknown.
