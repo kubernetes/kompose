@@ -22,3 +22,11 @@ func NetNamespaceToSelectableFields(obj *NetNamespace) fields.Set {
 		"metadata.name": obj.Name,
 	}
 }
+
+// EgressNetworkPolicyToSelectableFields returns a label set that represents the object
+func EgressNetworkPolicyToSelectableFields(obj *EgressNetworkPolicy) fields.Set {
+	return fields.Set{
+		"metadata.name":      obj.Name,
+		"metadata.namespace": obj.Namespace,
+	}
+}

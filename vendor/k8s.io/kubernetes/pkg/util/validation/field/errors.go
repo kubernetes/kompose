@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors All rights reserved.
+Copyright 2014 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	utilerrors "k8s.io/kubernetes/pkg/util/errors"
+	"k8s.io/kubernetes/pkg/util/sets"
 )
 
 // Error is an implementation of the 'error' interface, which represents a
@@ -201,9 +202,15 @@ func NewErrorTypeMatcher(t ErrorType) utilerrors.Matcher {
 
 // ToAggregate converts the ErrorList into an errors.Aggregate.
 func (list ErrorList) ToAggregate() utilerrors.Aggregate {
-	errs := make([]error, len(list))
-	for i := range list {
-		errs[i] = list[i]
+	errs := make([]error, 0, len(list))
+	errorMsgs := sets.NewString()
+	for _, err := range list {
+		msg := fmt.Sprintf("%v", err)
+		if errorMsgs.Has(msg) {
+			continue
+		}
+		errorMsgs.Insert(msg)
+		errs = append(errs, err)
 	}
 	return utilerrors.NewAggregate(errs)
 }

@@ -132,7 +132,7 @@ func Convert_api_RollingDeploymentStrategyParams_To_v1_RollingDeploymentStrategy
 	return nil
 }
 
-func addConversionFuncs(scheme *runtime.Scheme) {
+func addConversionFuncs(scheme *runtime.Scheme) error {
 	err := scheme.AddConversionFuncs(
 		Convert_v1_DeploymentTriggerImageChangeParams_To_api_DeploymentTriggerImageChangeParams,
 		Convert_api_DeploymentTriggerImageChangeParams_To_v1_DeploymentTriggerImageChangeParams,
@@ -141,12 +141,13 @@ func addConversionFuncs(scheme *runtime.Scheme) {
 		Convert_api_RollingDeploymentStrategyParams_To_v1_RollingDeploymentStrategyParams,
 	)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := scheme.AddFieldLabelConversionFunc("v1", "DeploymentConfig",
 		oapi.GetFieldLabelConversionFunc(newer.DeploymentConfigToSelectableFields(&newer.DeploymentConfig{}), nil),
 	); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }

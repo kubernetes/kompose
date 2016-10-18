@@ -112,8 +112,8 @@ message DeploymentConfigSpec {
 
   // Triggers determine how updates to a DeploymentConfig result in new deployments. If no triggers
   // are defined, a new deployment can only occur as a result of an explicit client update to the
-  // DeploymentConfig with a new LatestVersion.
-  repeated DeploymentTriggerPolicy triggers = 2;
+  // DeploymentConfig with a new LatestVersion. If null, defaults to having a config change trigger.
+  optional DeploymentTriggerPolicies triggers = 2;
 
   // Replicas is the number of desired replicas.
   optional int32 replicas = 3;
@@ -267,6 +267,15 @@ message DeploymentTriggerImageChangeParams {
 
   // LastTriggeredImage is the last image to be triggered.
   optional string lastTriggeredImage = 4;
+}
+
+// DeploymentTriggerPolicies is a list of policies where nil values and different from empty arrays.
+// +protobuf.nullable=true
+// +protobuf.options.(gogoproto.goproto_stringer)=false
+message DeploymentTriggerPolicies {
+  // items, if empty, will result in an empty slice
+
+  repeated DeploymentTriggerPolicy items = 1;
 }
 
 // DeploymentTriggerPolicy describes a policy for a single trigger that results in a new deployment.

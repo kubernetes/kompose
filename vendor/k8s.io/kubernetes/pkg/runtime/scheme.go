@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors All rights reserved.
+Copyright 2014 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -211,6 +211,11 @@ func (s *Scheme) KnownTypes(gv unversioned.GroupVersion) map[string]reflect.Type
 	return types
 }
 
+// AllKnownTypes returns the all known types.
+func (s *Scheme) AllKnownTypes() map[unversioned.GroupVersionKind]reflect.Type {
+	return s.gvkToType
+}
+
 // ObjectKind returns the group,version,kind of the go object and true if this object
 // is considered unversioned, or an error if it's not a pointer or is unregistered.
 func (s *Scheme) ObjectKind(obj Object) (unversioned.GroupVersionKind, bool, error) {
@@ -232,7 +237,7 @@ func (s *Scheme) ObjectKinds(obj Object) ([]unversioned.GroupVersionKind, bool, 
 
 	gvks, ok := s.typeToGVK[t]
 	if !ok {
-		return nil, false, &notRegisteredErr{t: t}
+		return nil, false, NewNotRegisteredErr(unversioned.GroupVersionKind{}, t)
 	}
 	_, unversionedType := s.unversionedTypes[t]
 
@@ -270,7 +275,7 @@ func (s *Scheme) New(kind unversioned.GroupVersionKind) (Object, error) {
 	if t, exists := s.unversionedKinds[kind.Kind]; exists {
 		return reflect.New(t).Interface().(Object), nil
 	}
-	return nil, &notRegisteredErr{gvk: kind}
+	return nil, NewNotRegisteredErr(kind, nil)
 }
 
 // AddGenericConversionFunc adds a function that accepts the ConversionFunc call pattern
@@ -357,9 +362,9 @@ func (s *Scheme) AddDeepCopyFuncs(deepCopyFuncs ...interface{}) error {
 
 // Similar to AddDeepCopyFuncs, but registers deep-copy functions that were
 // automatically generated.
-func (s *Scheme) AddGeneratedDeepCopyFuncs(deepCopyFuncs ...interface{}) error {
-	for _, f := range deepCopyFuncs {
-		if err := s.cloner.RegisterGeneratedDeepCopyFunc(f); err != nil {
+func (s *Scheme) AddGeneratedDeepCopyFuncs(deepCopyFuncs ...conversion.GeneratedDeepCopyFunc) error {
+	for _, fn := range deepCopyFuncs {
+		if err := s.cloner.RegisterGeneratedDeepCopyFunc(fn); err != nil {
 			return err
 		}
 	}
@@ -435,6 +440,8 @@ func (s *Scheme) DeepCopy(src interface{}) (interface{}, error) {
 // possible. You can call this with types that haven't been registered (for example,
 // a to test conversion of types that are nested within registered types). The
 // context interface is passed to the convertor.
+// TODO: identify whether context should be hidden, or behind a formal context/scope
+//   interface
 func (s *Scheme) Convert(in, out interface{}, context interface{}) error {
 	flags, meta := s.generateConvertMeta(in)
 	meta.Context = context
@@ -486,38 +493,31 @@ func (s *Scheme) convertToVersion(copy bool, in Object, target GroupVersioner) (
 	}
 	kinds, ok := s.typeToGVK[t]
 	if !ok || len(kinds) == 0 {
-		return nil, &notRegisteredErr{t: t}
+		return nil, NewNotRegisteredErr(unversioned.GroupVersionKind{}, t)
 	}
 
-	// if the Go type is also registered to the destination kind, no conversion is necessary
-	if gv, ok := PreferredGroupVersion(target); ok {
-		for _, kind := range kinds {
-			if kind.Group == gv.Group && kind.Version == gv.Version {
-				return copyAndSetTargetKind(copy, s, in, kind)
-			}
-		}
+	gvk, ok := target.KindForGroupVersionKinds(kinds)
+	if !ok {
+		// TODO: should this be a typed error?
+		return nil, fmt.Errorf("%v is not suitable for converting to %q", t, target)
 	}
+
+	// target wants to use the existing type, set kind and return (no conversion necessary)
 	for _, kind := range kinds {
-		if gv, ok := target.VersionForGroupKind(kind.GroupKind()); ok && kind.Version == gv.Version {
-			return copyAndSetTargetKind(copy, s, in, kind)
+		if gvk == kind {
+			return copyAndSetTargetKind(copy, s, in, gvk)
 		}
 	}
 
 	// type is unversioned, no conversion necessary
 	if unversionedKind, ok := s.unversionedTypes[t]; ok {
-		if desiredGV, ok := target.VersionForGroupKind(unversionedKind.GroupKind()); ok {
-			return copyAndSetTargetKind(copy, s, in, desiredGV.WithKind(unversionedKind.Kind))
+		if gvk, ok := target.KindForGroupVersionKinds([]unversioned.GroupVersionKind{unversionedKind}); ok {
+			return copyAndSetTargetKind(copy, s, in, gvk)
 		}
 		return copyAndSetTargetKind(copy, s, in, unversionedKind)
 	}
 
-	// allocate a new object as the target using the target kind
-	kind, ok := kindForGroupVersioner(kinds, target)
-	if !ok {
-		// TODO: should this be a typed error?
-		return nil, fmt.Errorf("%v is not suitable for converting to %q", t, target)
-	}
-	out, err := s.New(kind)
+	out, err := s.New(gvk)
 	if err != nil {
 		return nil, err
 	}
@@ -536,7 +536,7 @@ func (s *Scheme) convertToVersion(copy bool, in Object, target GroupVersioner) (
 		return nil, err
 	}
 
-	setTargetKind(out, kind)
+	setTargetKind(out, gvk)
 	return out, nil
 }
 

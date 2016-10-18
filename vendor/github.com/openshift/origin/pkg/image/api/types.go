@@ -96,10 +96,12 @@ const (
 // ImageSignature holds a signature of an image. It allows to verify image identity and possibly other claims
 // as long as the signature is trusted. Based on this information it is possible to restrict runnable images
 // to those matching cluster-wide policy.
-// There are two mandatory fields provided by client: Type and Content. They should be parsed by clients doing
-// image verification. The others are parsed from signature's content by the server. They serve just an
-// informative purpose.
+// Mandatory fields should be parsed by clients doing image verification. The others are parsed from
+// signature's content by the server. They serve just an informative purpose.
 type ImageSignature struct {
+	unversioned.TypeMeta
+	kapi.ObjectMeta
+
 	// Required: Describes a type of stored blob.
 	Type string
 	// Required: An opaque binary string which is an image's signature.
@@ -144,7 +146,7 @@ type SignatureConditionType string
 
 // SignatureCondition describes an image signature condition of particular kind at particular probe time.
 type SignatureCondition struct {
-	// Type of job condition, Complete or Failed.
+	// Type of signature condition, Complete or Failed.
 	Type SignatureConditionType
 	// Status of the condition, one of True, False, Unknown.
 	Status kapi.ConditionStatus
@@ -306,6 +308,7 @@ type ImageStreamMapping struct {
 
 	// The Docker image repository the specified image is located in
 	// DEPRECATED: remove once v1beta1 support is dropped
+	// +k8s:conversion-gen=false
 	DockerImageRepository string
 	// A Docker image.
 	Image Image

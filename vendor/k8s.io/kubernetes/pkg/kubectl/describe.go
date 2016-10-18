@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors All rights reserved.
+Copyright 2014 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
 	"k8s.io/kubernetes/federation/apis/federation"
 	fed_clientset "k8s.io/kubernetes/federation/client/clientset_generated/federation_internalclientset"
 	"k8s.io/kubernetes/pkg/api"
@@ -39,18 +38,22 @@ import (
 	"k8s.io/kubernetes/pkg/apis/apps"
 	"k8s.io/kubernetes/pkg/apis/autoscaling"
 	"k8s.io/kubernetes/pkg/apis/batch"
+	"k8s.io/kubernetes/pkg/apis/certificates"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	adapter "k8s.io/kubernetes/pkg/client/unversioned/adapters/internalclientset"
+	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	"k8s.io/kubernetes/pkg/fieldpath"
 	"k8s.io/kubernetes/pkg/fields"
-	qosutil "k8s.io/kubernetes/pkg/kubelet/qos/util"
+	"k8s.io/kubernetes/pkg/kubelet/qos"
 	"k8s.io/kubernetes/pkg/labels"
 	"k8s.io/kubernetes/pkg/types"
-	deploymentutil "k8s.io/kubernetes/pkg/util/deployment"
+	utilcertificates "k8s.io/kubernetes/pkg/util/certificates"
 	"k8s.io/kubernetes/pkg/util/intstr"
 	"k8s.io/kubernetes/pkg/util/sets"
+
+	"github.com/golang/glog"
 )
 
 // Describer generates output for the named resource or an error
@@ -102,18 +105,19 @@ func describerMap(c *client.Client) map[unversioned.GroupKind]Describer {
 		api.Kind("Endpoints"):             &EndpointsDescriber{c},
 		api.Kind("ConfigMap"):             &ConfigMapDescriber{c},
 
-		api.Kind("SecurityContextConstraints"): &SecurityContextConstraintsDescriber{c},
-
-		extensions.Kind("ReplicaSet"):               &ReplicaSetDescriber{c},
-		extensions.Kind("HorizontalPodAutoscaler"):  &HorizontalPodAutoscalerDescriber{c},
-		extensions.Kind("NetworkPolicy"):            &NetworkPolicyDescriber{c},
-		autoscaling.Kind("HorizontalPodAutoscaler"): &HorizontalPodAutoscalerDescriber{c},
-		extensions.Kind("DaemonSet"):                &DaemonSetDescriber{c},
-		extensions.Kind("Deployment"):               &DeploymentDescriber{adapter.FromUnversionedClient(c)},
-		extensions.Kind("Job"):                      &JobDescriber{c},
-		batch.Kind("Job"):                           &JobDescriber{c},
-		apps.Kind("PetSet"):                         &PetSetDescriber{c},
-		extensions.Kind("Ingress"):                  &IngressDescriber{c},
+		extensions.Kind("ReplicaSet"):                  &ReplicaSetDescriber{c},
+		extensions.Kind("HorizontalPodAutoscaler"):     &HorizontalPodAutoscalerDescriber{c},
+		extensions.Kind("NetworkPolicy"):               &NetworkPolicyDescriber{c},
+		autoscaling.Kind("HorizontalPodAutoscaler"):    &HorizontalPodAutoscalerDescriber{c},
+		extensions.Kind("DaemonSet"):                   &DaemonSetDescriber{c},
+		extensions.Kind("Deployment"):                  &DeploymentDescriber{adapter.FromUnversionedClient(c)},
+		extensions.Kind("Job"):                         &JobDescriber{c},
+		extensions.Kind("Ingress"):                     &IngressDescriber{c},
+		batch.Kind("Job"):                              &JobDescriber{c},
+		batch.Kind("ScheduledJob"):                     &ScheduledJobDescriber{adapter.FromUnversionedClient(c)},
+		apps.Kind("PetSet"):                            &PetSetDescriber{c},
+		certificates.Kind("CertificateSigningRequest"): &CertificateSigningRequestDescriber{c},
+		api.Kind("SecurityContextConstraints"):         &SecurityContextConstraintsDescriber{c},
 	}
 
 	return m
@@ -666,7 +670,8 @@ func describePod(pod *api.Pod, events *api.EventList) (string, error) {
 			}
 		}
 		describeVolumes(pod.Spec.Volumes, out, "")
-		fmt.Fprintf(out, "QoS Tier:\t%s\n", qosutil.GetPodQos(pod))
+		fmt.Fprintf(out, "QoS Class:\t%s\n", qos.GetPodQOS(pod))
+		printTolerationsInAnnotationMultiline(out, "Tolerations", pod.Annotations)
 		if events != nil {
 			DescribeEvents(events, out)
 		}
@@ -675,7 +680,7 @@ func describePod(pod *api.Pod, events *api.EventList) (string, error) {
 }
 
 func printControllers(annotation map[string]string) string {
-	value, ok := annotation["kubernetes.io/created-by"]
+	value, ok := annotation[api.CreatedByAnnotation]
 	if ok {
 		var r api.SerializedReference
 		err := json.Unmarshal([]byte(value), &r)
@@ -724,8 +729,12 @@ func describeVolumes(volumes []api.Volume, out io.Writer, space string) {
 			printPersistentVolumeClaimVolumeSource(volume.VolumeSource.PersistentVolumeClaim, out)
 		case volume.VolumeSource.RBD != nil:
 			printRBDVolumeSource(volume.VolumeSource.RBD, out)
+		case volume.VolumeSource.Quobyte != nil:
+			printQuobyteVolumeSource(volume.VolumeSource.Quobyte, out)
 		case volume.VolumeSource.DownwardAPI != nil:
 			printDownwardAPIVolumeSource(volume.VolumeSource.DownwardAPI, out)
+		case volume.VolumeSource.AzureDisk != nil:
+			printAzureDiskVolumeSource(volume.VolumeSource.AzureDisk, out)
 		default:
 			fmt.Fprintf(out, "  <unknown>\n")
 		}
@@ -785,6 +794,14 @@ func printNFSVolumeSource(nfs *api.NFSVolumeSource, out io.Writer) {
 		nfs.Server, nfs.Path, nfs.ReadOnly)
 }
 
+func printQuobyteVolumeSource(quobyte *api.QuobyteVolumeSource, out io.Writer) {
+	fmt.Fprintf(out, "    Type:\tQuobyte (a Quobyte mount on the host that shares a pod's lifetime)\n"+
+		"    Registry:\t%v\n"+
+		"    Volume:\t%v\n"+
+		"    ReadOnly:\t%v\n",
+		quobyte.Registry, quobyte.Volume, quobyte.ReadOnly)
+}
+
 func printISCSIVolumeSource(iscsi *api.ISCSIVolumeSource, out io.Writer) {
 	fmt.Fprintf(out, "    Type:\tISCSI (an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod)\n"+
 		"    TargetPortal:\t%v\n"+
@@ -836,6 +853,16 @@ func printDownwardAPIVolumeSource(d *api.DownwardAPIVolumeSource, out io.Writer)
 	}
 }
 
+func printAzureDiskVolumeSource(d *api.AzureDiskVolumeSource, out io.Writer) {
+	fmt.Fprintf(out, "    Type:\tAzureDisk (an Azure Data Disk mount on the host and bind mount to the pod)\n"+
+		"    DiskName:\t%v\n"+
+		"    DiskURI:\t%v\n"+
+		"    FSType:\t%v\n"+
+		"    CachingMode:\t%v\n"+
+		"    ReadOnly:\t%v\n",
+		d.DiskName, d.DataDiskURI, *d.FSType, *d.CachingMode, *d.ReadOnly)
+}
+
 type PersistentVolumeDescriber struct {
 	client.Interface
 }
@@ -885,6 +912,8 @@ func (d *PersistentVolumeDescriber) Describe(namespace, name string, describerSe
 			printGlusterfsVolumeSource(pv.Spec.Glusterfs, out)
 		case pv.Spec.RBD != nil:
 			printRBDVolumeSource(pv.Spec.RBD, out)
+		case pv.Spec.Quobyte != nil:
+			printQuobyteVolumeSource(pv.Spec.Quobyte, out)
 		}
 
 		if events != nil {
@@ -1013,7 +1042,28 @@ func describeContainers(label string, containers []api.Container, containerStatu
 			probe := DescribeProbe(container.ReadinessProbe)
 			fmt.Fprintf(out, "    Readiness:\t%s\n", probe)
 		}
+
 		none := ""
+		if len(container.VolumeMounts) == 0 {
+			none = "\t<none>"
+		}
+
+		fmt.Fprintf(out, "    Volume Mounts:%s\n", none)
+		sort.Sort(SortableVolumeMounts(container.VolumeMounts))
+		for _, mount := range container.VolumeMounts {
+			flags := []string{}
+			switch {
+			case mount.ReadOnly:
+				flags = append(flags, "ro")
+			case !mount.ReadOnly:
+				flags = append(flags, "rw")
+			case len(mount.SubPath) > 0:
+				flags = append(flags, fmt.Sprintf("path=%q", mount.SubPath))
+			}
+			fmt.Fprintf(out, "      %s from %s (%s)\n", mount.MountPath, mount.Name, strings.Join(flags, ","))
+		}
+
+		none = ""
 		if len(container.Env) == 0 {
 			none = "\t<none>"
 		}
@@ -1036,7 +1086,11 @@ func describeContainers(label string, containers []api.Container, containerStatu
 				if err != nil {
 					valueFrom = ""
 				}
-				fmt.Fprintf(out, "      %s:\t%s (%s)\n", e.Name, valueFrom, e.ValueFrom.ResourceFieldRef.Resource)
+				resource := e.ValueFrom.ResourceFieldRef.Resource
+				if valueFrom == "0" && (resource == "limits.cpu" || resource == "limits.memory") {
+					valueFrom = "node allocatable"
+				}
+				fmt.Fprintf(out, "      %s:\t%s (%s)\n", e.Name, valueFrom, resource)
 			case e.ValueFrom.SecretKeyRef != nil:
 				fmt.Fprintf(out, "      %s:\t<set to the key '%s' in secret '%s'>\n", e.Name, e.ValueFrom.SecretKeyRef.Key, e.ValueFrom.SecretKeyRef.Name)
 			case e.ValueFrom.ConfigMapKeyRef != nil:
@@ -1122,6 +1176,14 @@ func describeStatus(stateName string, state api.ContainerState, out io.Writer) {
 	default:
 		fmt.Fprintf(out, "    %s:\tWaiting\n", stateName)
 	}
+}
+
+func printBoolPtr(value *bool) string {
+	if value != nil {
+		return printBool(*value)
+	}
+
+	return "<unset>"
 }
 
 func printBool(value bool) string {
@@ -1253,18 +1315,18 @@ func describeReplicaSet(rs *extensions.ReplicaSet, events *api.EventList, runnin
 
 // JobDescriber generates information about a job and the pods it has created.
 type JobDescriber struct {
-	client *client.Client
+	client.Interface
 }
 
 func (d *JobDescriber) Describe(namespace, name string, describerSettings DescriberSettings) (string, error) {
-	job, err := d.client.Extensions().Jobs(namespace).Get(name)
+	job, err := d.Batch().Jobs(namespace).Get(name)
 	if err != nil {
 		return "", err
 	}
 
 	var events *api.EventList
 	if describerSettings.ShowEvents {
-		events, _ = d.client.Events(namespace).Search(job)
+		events, _ = d.Events(namespace).Search(job)
 	}
 
 	return describeJob(job, events)
@@ -1297,6 +1359,92 @@ func describeJob(job *batch.Job, events *api.EventList) (string, error) {
 		}
 		return nil
 	})
+}
+
+// ScheduledJobDescriber generates information about a scheduled job and the jobs it has created.
+type ScheduledJobDescriber struct {
+	clientset.Interface
+}
+
+func (d *ScheduledJobDescriber) Describe(namespace, name string, describerSettings DescriberSettings) (string, error) {
+	scheduledJob, err := d.Batch().ScheduledJobs(namespace).Get(name)
+	if err != nil {
+		return "", err
+	}
+
+	var events *api.EventList
+	if describerSettings.ShowEvents {
+		events, _ = d.Core().Events(namespace).Search(scheduledJob)
+	}
+
+	return describeScheduledJob(scheduledJob, events)
+}
+
+func describeScheduledJob(scheduledJob *batch.ScheduledJob, events *api.EventList) (string, error) {
+	return tabbedString(func(out io.Writer) error {
+		fmt.Fprintf(out, "Name:\t%s\n", scheduledJob.Name)
+		fmt.Fprintf(out, "Namespace:\t%s\n", scheduledJob.Namespace)
+		fmt.Fprintf(out, "Schedule:\t%s\n", scheduledJob.Spec.Schedule)
+		fmt.Fprintf(out, "Concurrency Policy:\t%s\n", scheduledJob.Spec.ConcurrencyPolicy)
+		fmt.Fprintf(out, "Suspend:\t%s\n", printBoolPtr(scheduledJob.Spec.Suspend))
+		if scheduledJob.Spec.StartingDeadlineSeconds != nil {
+			fmt.Fprintf(out, "Starting Deadline Seconds:\t%ds\n", *scheduledJob.Spec.StartingDeadlineSeconds)
+		} else {
+			fmt.Fprintf(out, "Starting Deadline Seconds:\t<unset>\n")
+		}
+		describeJobTemplate(scheduledJob.Spec.JobTemplate, out)
+		printLabelsMultiline(out, "Labels", scheduledJob.Labels)
+		if scheduledJob.Status.LastScheduleTime != nil {
+			fmt.Fprintf(out, "Last Schedule Time:\t%s\n", scheduledJob.Status.LastScheduleTime.Time.Format(time.RFC1123Z))
+		} else {
+			fmt.Fprintf(out, "Last Schedule Time:\t<unset>\n")
+		}
+		printActiveJobs(out, "Active Jobs", scheduledJob.Status.Active)
+		if events != nil {
+			DescribeEvents(events, out)
+		}
+		return nil
+	})
+}
+
+func describeJobTemplate(jobTemplate batch.JobTemplateSpec, out io.Writer) {
+	fmt.Fprintf(out, "Image(s):\t%s\n", makeImageList(&jobTemplate.Spec.Template.Spec))
+	if jobTemplate.Spec.Selector != nil {
+		selector, _ := unversioned.LabelSelectorAsSelector(jobTemplate.Spec.Selector)
+		fmt.Fprintf(out, "Selector:\t%s\n", selector)
+	} else {
+		fmt.Fprintf(out, "Selector:\t<unset>\n")
+	}
+	if jobTemplate.Spec.Parallelism != nil {
+		fmt.Fprintf(out, "Parallelism:\t%d\n", *jobTemplate.Spec.Parallelism)
+	} else {
+		fmt.Fprintf(out, "Parallelism:\t<unset>\n")
+	}
+	if jobTemplate.Spec.Completions != nil {
+		fmt.Fprintf(out, "Completions:\t%d\n", *jobTemplate.Spec.Completions)
+	} else {
+		fmt.Fprintf(out, "Completions:\t<unset>\n")
+	}
+	if jobTemplate.Spec.ActiveDeadlineSeconds != nil {
+		fmt.Fprintf(out, "Active Deadline Seconds:\t%ds\n", *jobTemplate.Spec.ActiveDeadlineSeconds)
+	}
+	describeVolumes(jobTemplate.Spec.Template.Spec.Volumes, out, "")
+}
+
+func printActiveJobs(out io.Writer, title string, jobs []api.ObjectReference) {
+	fmt.Fprintf(out, "%s:\t", title)
+	if len(jobs) == 0 {
+		fmt.Fprintln(out, "<none>")
+		return
+	}
+
+	for i, job := range jobs {
+		if i != 0 {
+			fmt.Fprint(out, ", ")
+		}
+		fmt.Fprintf(out, "%s", job.Name)
+	}
+	fmt.Fprintln(out, "")
 }
 
 // DaemonSetDescriber generates information about a daemon set and the pods it has created.
@@ -1552,6 +1700,12 @@ func describeService(service *api.Service, endpoints *api.Endpoints, events *api
 		fmt.Fprintf(out, "Selector:\t%s\n", labels.FormatLabels(service.Spec.Selector))
 		fmt.Fprintf(out, "Type:\t%s\n", service.Spec.Type)
 		fmt.Fprintf(out, "IP:\t%s\n", service.Spec.ClusterIP)
+		if len(service.Spec.ExternalIPs) > 0 {
+			fmt.Fprintf(out, "External IPs:\t%v\n", strings.Join(service.Spec.ExternalIPs, ","))
+		}
+		if service.Spec.ExternalName != "" {
+			fmt.Fprintf(out, "External Name:\t%s\n", service.Spec.ExternalName)
+		}
 		if len(service.Status.LoadBalancer.Ingress) > 0 {
 			list := buildIngressString(service.Status.LoadBalancer.Ingress)
 			fmt.Fprintf(out, "LoadBalancer Ingress:\t%s\n", list)
@@ -1893,6 +2047,74 @@ func (p *PetSetDescriber) Describe(namespace, name string, describerSettings Des
 	})
 }
 
+type CertificateSigningRequestDescriber struct {
+	client *client.Client
+}
+
+func (p *CertificateSigningRequestDescriber) Describe(namespace, name string, describerSettings DescriberSettings) (string, error) {
+	csr, err := p.client.Certificates().CertificateSigningRequests().Get(name)
+	if err != nil {
+		return "", err
+	}
+
+	cr, err := utilcertificates.ParseCertificateRequestObject(csr)
+	if err != nil {
+		return "", fmt.Errorf("Error parsing CSR: %v", err)
+	}
+	status, err := extractCSRStatus(csr)
+	if err != nil {
+		return "", err
+	}
+
+	printListHelper := func(out io.Writer, prefix, name string, values []string) {
+		if len(values) == 0 {
+			return
+		}
+		fmt.Fprintf(out, prefix+name+":\t")
+		fmt.Fprintf(out, strings.Join(values, "\n"+prefix+"\t"))
+		fmt.Fprintf(out, "\n")
+	}
+
+	return tabbedString(func(out io.Writer) error {
+		fmt.Fprintf(out, "Name:\t%s\n", csr.Name)
+		fmt.Fprintf(out, "Labels:\t%s\n", labels.FormatLabels(csr.Labels))
+		fmt.Fprintf(out, "Annotations:\t%s\n", labels.FormatLabels(csr.Annotations))
+		fmt.Fprintf(out, "CreationTimestamp:\t%s\n", csr.CreationTimestamp.Time.Format(time.RFC1123Z))
+		fmt.Fprintf(out, "Requesting User:\t%s\n", csr.Spec.Username)
+		fmt.Fprintf(out, "Status:\t%s\n", status)
+
+		fmt.Fprintf(out, "Subject:\n")
+		fmt.Fprintf(out, "\tCommon Name:\t%s\n", cr.Subject.CommonName)
+		fmt.Fprintf(out, "\tSerial Number:\t%s\n", cr.Subject.SerialNumber)
+		printListHelper(out, "\t", "Organization", cr.Subject.Organization)
+		printListHelper(out, "\t", "Organizational Unit", cr.Subject.OrganizationalUnit)
+		printListHelper(out, "\t", "Country", cr.Subject.Country)
+		printListHelper(out, "\t", "Locality", cr.Subject.Locality)
+		printListHelper(out, "\t", "Province", cr.Subject.Province)
+		printListHelper(out, "\t", "StreetAddress", cr.Subject.StreetAddress)
+		printListHelper(out, "\t", "PostalCode", cr.Subject.PostalCode)
+
+		if len(cr.DNSNames)+len(cr.EmailAddresses)+len(cr.IPAddresses) > 0 {
+			fmt.Fprintf(out, "Subject Alternative Names:\n")
+			printListHelper(out, "\t", "DNS Names", cr.DNSNames)
+			printListHelper(out, "\t", "Email Addresses", cr.EmailAddresses)
+			var ipaddrs []string
+			for _, ipaddr := range cr.IPAddresses {
+				ipaddrs = append(ipaddrs, ipaddr.String())
+			}
+			printListHelper(out, "\t", "IP Addresses", ipaddrs)
+		}
+
+		if describerSettings.ShowEvents {
+			events, _ := p.client.Events(namespace).Search(csr)
+			if events != nil {
+				DescribeEvents(events, out)
+			}
+		}
+		return nil
+	})
+}
+
 // HorizontalPodAutoscalerDescriber generates information about a horizontal pod autoscaler.
 type HorizontalPodAutoscalerDescriber struct {
 	client *client.Client
@@ -1973,7 +2195,7 @@ func describeNodeResource(nodeNonTerminatedPodsList *api.PodList, node *api.Node
 			memoryReq.String(), int64(fractionMemoryReq), memoryLimit.String(), int64(fractionMemoryLimit))
 	}
 
-	fmt.Fprint(out, "Allocated resources:\n  (Total limits may be over 100 percent, i.e., overcommitted. More info: http://releases.k8s.io/HEAD/docs/user-guide/compute-resources.md)\n  CPU Requests\tCPU Limits\tMemory Requests\tMemory Limits\n")
+	fmt.Fprint(out, "Allocated resources:\n  (Total limits may be over 100 percent, i.e., overcommitted.\n  CPU Requests\tCPU Limits\tMemory Requests\tMemory Limits\n")
 	fmt.Fprint(out, "  ------------\t----------\t---------------\t-------------\n")
 	reqs, limits, err := getPodsTotalRequestsAndLimits(nodeNonTerminatedPodsList)
 	if err != nil {
@@ -2033,7 +2255,7 @@ func getPodsTotalRequestsAndLimits(podList *api.PodList) (reqs map[api.ResourceN
 
 func DescribeEvents(el *api.EventList, w io.Writer) {
 	if len(el.Items) == 0 {
-		fmt.Fprint(w, "No events.")
+		fmt.Fprint(w, "No events.\n")
 		return
 	}
 	sort.Sort(SortableEvents(el.Items))
@@ -2087,6 +2309,10 @@ func (dd *DeploymentDescriber) Describe(namespace, name string, describerSetting
 				newRSs = append(newRSs, newRS)
 			}
 			fmt.Fprintf(out, "NewReplicaSet:\t%s\n", printReplicaSetsByLabels(newRSs))
+		}
+		overlapWith := d.Annotations[deploymentutil.OverlapAnnotation]
+		if len(overlapWith) > 0 {
+			fmt.Fprintf(out, "!!!WARNING!!! This deployment has overlapping label selector with deployment %q and won't behave as expected. Please fix it before continue.\n", overlapWith)
 		}
 		if describerSettings.ShowEvents {
 			events, err := dd.Core().Events(namespace).Search(d)
@@ -2472,14 +2698,64 @@ func printTaintsMultilineWithIndent(out io.Writer, initialIndent, title, innerIn
 	}
 	sort.Strings(keys)
 
+	effects := []api.TaintEffect{api.TaintEffectNoSchedule, api.TaintEffectPreferNoSchedule}
+
 	for i, key := range keys {
-		for _, taint := range taints {
-			if taint.Key == key {
+		for _, effect := range effects {
+			for _, taint := range taints {
+				if taint.Key == key && taint.Effect == effect {
+					if i != 0 {
+						fmt.Fprint(out, initialIndent)
+						fmt.Fprint(out, innerIndent)
+					}
+					fmt.Fprintf(out, "%s=%s:%s\n", taint.Key, taint.Value, taint.Effect)
+					i++
+				}
+			}
+		}
+	}
+}
+
+// printTolerationsMultiline prints multiple tolerations with a proper alignment.
+func printTolerationsInAnnotationMultiline(out io.Writer, title string, annotations map[string]string) {
+	tolerations, err := api.GetTolerationsFromPodAnnotations(annotations)
+	if err != nil {
+		tolerations = []api.Toleration{}
+	}
+	printTolerationsMultilineWithIndent(out, "", title, "\t", tolerations)
+}
+
+// printTolerationsMultilineWithIndent prints multiple tolerations with a user-defined alignment.
+func printTolerationsMultilineWithIndent(out io.Writer, initialIndent, title, innerIndent string, tolerations []api.Toleration) {
+	fmt.Fprintf(out, "%s%s:%s", initialIndent, title, innerIndent)
+
+	if tolerations == nil || len(tolerations) == 0 {
+		fmt.Fprintln(out, "<none>")
+		return
+	}
+
+	// to print tolerations in the sorted order
+	keys := make([]string, 0, len(tolerations))
+	for _, toleration := range tolerations {
+		keys = append(keys, toleration.Key)
+	}
+	sort.Strings(keys)
+
+	for i, key := range keys {
+		for _, toleration := range tolerations {
+			if toleration.Key == key {
 				if i != 0 {
 					fmt.Fprint(out, initialIndent)
 					fmt.Fprint(out, innerIndent)
 				}
-				fmt.Fprintf(out, "%s=%s:%s\n", taint.Key, taint.Value, taint.Effect)
+				fmt.Fprintf(out, "%s=%s", toleration.Key, toleration.Value)
+				if len(toleration.Operator) != 0 {
+					fmt.Fprintf(out, ":%s", toleration.Operator)
+				}
+				if len(toleration.Effect) != 0 {
+					fmt.Fprintf(out, ":%s", toleration.Effect)
+				}
+				fmt.Fprintf(out, "\n")
 				i++
 			}
 		}
