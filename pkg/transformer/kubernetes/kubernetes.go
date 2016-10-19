@@ -19,11 +19,12 @@ package kubernetes
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/Sirupsen/logrus"
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
+	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
 	// install kubernetes api
 	"k8s.io/kubernetes/pkg/api"
@@ -33,18 +34,20 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
+	"k8s.io/kubernetes/pkg/kubectl"
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 	//"k8s.io/kubernetes/pkg/controller/daemon"
-	"time"
-
-	"k8s.io/kubernetes/pkg/kubectl"
 )
 
 type Kubernetes struct {
 }
+
+// timeout is how long we'll wait for the termination of kubernetes resource to be successful
+// used when undeploying resources from kubernetes
+const TIMEOUT = 300
 
 // Init RC object
 func InitRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
@@ -338,7 +341,7 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 	//Convert komposeObject
 	objects := k.Transform(komposeObject, opt)
 
-	fmt.Println("We are going to create Kubernetes deployments and services for your Dockerized application. \n" +
+	fmt.Println("We are going to create Kubernetes Deployments, Services and PersistentVolumeClaims for your Dockerized application. \n" +
 		"If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. \n")
 
 	factory := cmdutil.NewFactory(nil)
@@ -366,14 +369,22 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 				return err
 			}
 			logrus.Infof("Successfully created service: %s", t.Name)
+		case *api.PersistentVolumeClaim:
+			_, err := client.PersistentVolumeClaims(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created persistentVolumeClaim: %s", t.Name)
 		}
 	}
-	fmt.Println("\nYour application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.")
+	fmt.Println("\nYour application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods,pvc' for details.")
 
 	return nil
 }
 
 func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
+	//Convert komposeObject
+	objects := k.Transform(komposeObject, opt)
 
 	factory := cmdutil.NewFactory(nil)
 	clientConfig, err := factory.ClientConfig()
@@ -386,33 +397,44 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 	}
 	client := client.NewOrDie(clientConfig)
 
-	// delete objects  from kubernetes
-	for name := range komposeObject.ServiceConfigs {
-		//delete svc
-		rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
-		if err != nil {
-			return err
-		}
-		//FIXME: timeout = 300s, gracePeriod is nil
-		err = rpService.Stop(namespace, name, 300*time.Second, nil)
-		if err != nil {
-			return err
-		} else {
-			logrus.Infof("Successfully deleted service: %s", name)
+	for _, v := range objects {
+		switch t := v.(type) {
+		case *extensions.Deployment:
+			//delete deployment
+			rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
+			if err != nil {
+				return err
+			}
+			//FIXME: gracePeriod is nil
+			err = rpDeployment.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+			if err != nil {
+				return err
+			} else {
+				logrus.Infof("Successfully deleted deployment: %s", t.Name)
+			}
+		case *api.Service:
+			//delete svc
+			rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
+			if err != nil {
+				return err
+			}
+			//FIXME: gracePeriod is nil
+			err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+			if err != nil {
+				return err
+			} else {
+				logrus.Infof("Successfully deleted service: %s", t.Name)
+			}
+		case *api.PersistentVolumeClaim:
+			// delete pvc
+			err = client.PersistentVolumeClaims(namespace).Delete(t.Name)
+			if err != nil {
+				return err
+			} else {
+				logrus.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+			}
 		}
 
-		//delete deployment
-		rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
-		if err != nil {
-			return err
-		}
-		//FIXME: timeout = 300s, gracePeriod is nil
-		err = rpDeployment.Stop(namespace, name, 300*time.Second, nil)
-		if err != nil {
-			return err
-		} else {
-			logrus.Infof("Successfully deleted deployment: %s", name)
-		}
 	}
 	return nil
 }
