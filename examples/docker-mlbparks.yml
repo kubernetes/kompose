@@ -8,6 +8,8 @@ services:
     image: centos/mongodb-26-centos7
     ports:
       - '27017'
+    volumes:
+      - /var/lib/mongodb/data
     environment:
       MONGODB_USER: user
       MONGODB_PASSWORD: mypass
