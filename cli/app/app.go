@@ -71,7 +71,7 @@ func validateFlags(c *cli.Context, opt *kobject.ConvertOptions) {
 		opt.InputFile = dabFile
 	}
 
-	if len(dabFile) > 0 && len(opt.InputFile) > 0 && opt.InputFile != DefaultComposeFile {
+	if len(dabFile) > 0 && c.GlobalIsSet("file") {
 		logrus.Fatalf("Error: 'compose' file and 'dab' file cannot be specified at the same time")
 	}
 }
