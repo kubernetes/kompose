@@ -12,7 +12,7 @@ rm -f $OUT_FILE
 go build \
     "${BUILD_FLAGS[@]}" \
     -o $OUT_FILE \
-    ./cli/main
+    main.go
 
 if [ $? -eq 0 ]; then
   echo "Build successful. Program saved as ${OUT_FILE}"
