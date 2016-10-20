@@ -2,4 +2,4 @@
 
 GITCOMMIT=$(git rev-parse --short HEAD)
 
-BUILD_FLAGS=(-tags experimental -ldflags="-w -X github.com/kubernetes-incubator/kompose/version.GITCOMMIT=${GITCOMMIT}")
+BUILD_FLAGS=(-ldflags="-w -X github.com/kubernetes-incubator/kompose/version.GITCOMMIT=${GITCOMMIT}")

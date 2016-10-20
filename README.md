@@ -64,15 +64,13 @@ $ make binary
 Or `go build`:
 
 ```console
-$ go build -tags experimental -o kompose ./cli/main
+$ go build -o kompose ./cli/main
 ```
-
-You need `-tags experimental` because the current `bundlefile` package of docker/libcompose is still experimental.
 
 If you have `go` v1.5, it's still good to build `kompose` with the following settings:
 
 ```console
-$ CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose -tags experimental ./cli/main
+$ CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose ./cli/main
 ```
 
 To create a multi-platform binary, use the `binary-cross` command via `make`:

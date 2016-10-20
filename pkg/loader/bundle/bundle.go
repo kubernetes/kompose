@@ -17,21 +17,48 @@ limitations under the License.
 package bundle
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"strings"
 
 	"k8s.io/kubernetes/pkg/api"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/docker/docker/cli/command/bundlefile"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 )
 
 type Bundle struct {
 }
 
+// Bundlefile stores the contents of a bundlefile
+type Bundlefile struct {
+	Version  string
+	Services map[string]Service
+}
+
+// Service is a service from a bundlefile
+type Service struct {
+	Image      string
+	Command    []string          `json:",omitempty"`
+	Args       []string          `json:",omitempty"`
+	Env        []string          `json:",omitempty"`
+	Labels     map[string]string `json:",omitempty"`
+	Ports      []Port            `json:",omitempty"`
+	WorkingDir *string           `json:",omitempty"`
+	User       *string           `json:",omitempty"`
+	Networks   []string          `json:",omitempty"`
+}
+
+// Port is a port as defined in a bundlefile
+type Port struct {
+	Protocol string
+	Port     uint32
+}
+
 // load image from dab file
-func loadImage(service bundlefile.Service) (string, string) {
+func loadImage(service Service) (string, string) {
 	character := "@"
 	if strings.Contains(service.Image, character) {
 		return service.Image[0:strings.Index(service.Image, character)], ""
@@ -40,7 +67,7 @@ func loadImage(service bundlefile.Service) (string, string) {
 }
 
 // load environment variables from dab file
-func loadEnvVars(service bundlefile.Service) ([]kobject.EnvVar, string) {
+func loadEnvVars(service Service) ([]kobject.EnvVar, string) {
 	envs := []kobject.EnvVar{}
 	for _, env := range service.Env {
 		character := "="
@@ -77,7 +104,7 @@ func loadEnvVars(service bundlefile.Service) ([]kobject.EnvVar, string) {
 }
 
 // load ports from dab file
-func loadPorts(service bundlefile.Service) ([]kobject.Ports, string) {
+func loadPorts(service Service) ([]kobject.Ports, string) {
 	ports := []kobject.Ports{}
 	for _, port := range service.Ports {
 		var p api.Protocol
@@ -109,7 +136,7 @@ func (b *Bundle) LoadFile(file string) kobject.KomposeObject {
 		logrus.Fatalf("Failed to read bundles file: ", err)
 	}
 	reader := strings.NewReader(string(buf))
-	bundle, err := bundlefile.LoadFile(reader)
+	bundle, err := loadFile(reader)
 	if err != nil {
 		logrus.Fatalf("Failed to parse bundles file: ", err)
 	}
@@ -149,4 +176,29 @@ func (b *Bundle) LoadFile(file string) kobject.KomposeObject {
 	}
 
 	return komposeObject
+}
+
+// LoadFile loads a bundlefile from a path to the file
+func loadFile(reader io.Reader) (*Bundlefile, error) {
+	bundlefile := &Bundlefile{}
+
+	decoder := json.NewDecoder(reader)
+	if err := decoder.Decode(bundlefile); err != nil {
+		switch jsonErr := err.(type) {
+		case *json.SyntaxError:
+			return nil, fmt.Errorf(
+				"JSON syntax error at byte %v: %s",
+				jsonErr.Offset,
+				jsonErr.Error())
+		case *json.UnmarshalTypeError:
+			return nil, fmt.Errorf(
+				"Unexpected type at byte %v. Expected %s but received %s.",
+				jsonErr.Offset,
+				jsonErr.Type,
+				jsonErr.Value)
+		}
+		return nil, err
+	}
+
+	return bundlefile, nil
 }
