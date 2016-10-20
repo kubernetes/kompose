@@ -18,7 +18,9 @@ package openshift
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
@@ -84,6 +86,30 @@ func getGitRemote(remote string) string {
 	return string(out)
 }
 
+// getAbsBuildContext returns build context relative to project root dir
+func getAbsBuildContext(context string) string {
+	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return ""
+	}
+	rootDir := strings.Trim(string(out), "\n")
+
+	var workDir string
+	workDir, err = os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	var relPath string
+	relPath, err = filepath.Rel(rootDir, workDir)
+
+	if err != nil {
+		return ""
+	}
+
+	return relPath
+}
+
 // initImageStream initialize ImageStream object
 func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) *imageapi.ImageStream {
 	tag := getImageTag(service.Image)
@@ -134,7 +160,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig) *buildapi.Build
 						Ref: "master",
 						URI: getGitRemote("origin"),
 					},
-					ContextDir: "./",
+					ContextDir: getAbsBuildContext(service.Build),
 				},
 				Strategy: buildapi.BuildStrategy{
 					DockerStrategy: &buildapi.DockerBuildStrategy{
