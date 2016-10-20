@@ -1,0 +1,286 @@
+mongodb:
+  image: mongo:latest
+  container_name: mongodb
+  command: mongod --smallfiles
+  ports:
+   - "27017:27017"
+  volumes:
+   - ./mongo:/data/db:rw
+  volume_driver: local
+hygieia-api:
+  image: hygieia-api:latest
+  container_name: hygieia-api
+  ports:
+  - "8080:8080"
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+hygieia-ui:
+  image: hygieia-ui:latest
+  container_name: hygieia-ui
+  ports:
+  - "8088:80"
+  links:
+  - hygieia-api
+
+
+hygieia-github-scm-collector:
+  image: hygieia-github-scm-collector:latest
+  container_name: hygieia-github
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+# place any values you want to change in docker-compose.override.yml
+#  environment:
+#  - GITHUB_HOST=github.com
+#  - GITHUB_CRON='0 0/5 * * * *'
+#  - GITHUB_COMMIT_THREASHOLD_DAYS=15
+
+
+
+hygieia-jira-feature-collector:
+  image: hygieia-jira-feature-collector:latest
+  container_name: hygieia-jira
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+  environment:
+        # you can override these by creating a docker-compose.overider.yml and put in entries like this:
+        #REQUIRED Entries
+  - JIRA_BASE_URL=https://jira.atlassian.com
+        #64-bit encoded credentials with the pattern username:password
+        #on a mac you con create them with : echo "username:password" | base64
+        #reference:  https://www.base64decode.org/
+  - JIRA_CREDENTIALS=username:password
+
+        #OPTIONAL - you may want ot tweek these
+#  - JIRA_CRON="0 * * * * *"
+        #Start dates from which to begin collector data, if no other data is present - usually, a month back is appropriate (required)
+#  - JIRA_DELTA_START_DATE=2015-03-01T00:00:00.000000
+#  - JIRA_MASTER_START_DATE=2008-01-01T00:00:00.000000
+
+        #OPTIONAL Overrides if you need them
+        #Page size for data calls (Jira maxes at 1000)
+#  - JIRA_PAGE_SIZE=1000
+        #Jira Connection Details
+#  - JIRA_PROXY_URL=
+#  - JIRA_PROXY_PORT=
+        # Trending Query:  Number of days in a sprint (not-required)
+#  - JIRA_SPRINT_DAYS=60
+        # Trending Query:  Length of sprint week (not-required)
+#  - JIRA_SPRINT_END_PRIOR=7
+        #Scheduled Job prior minutes to recover data created during execution time (usually, 2 minutes is enough)
+#  - JIRA_SCHEDULED_PRIOR_MIN=2
+        #Delta change date that modulates the collector item task - should be about as far back as possible, in ISO format (required)
+#  - JIRA_DELTA_COLLECTOR_ITEM_START_DATE=2008-01-01T00:00:00.000000
+        #Jira Connection Details
+#  - JIRA_QUERY_ENDPOINT=rest/api/2/
+        #OAuth2.0 token credentials (currently not supported in this version)
+#  - JIRA_OAUTH_AUTH_TOKEN=sdfghjkl==
+#  - JIRA_OAUTH_REFRESH_TOKEN=sdfagheh==
+#  - JIRA_OAUTH_REDIRECT_URL=uri.this.is.test:uri
+#  - JIRA_OAUTH_EXPIRE_TIME=234567890987
+
+# In Jira, general IssueType IDs are associated to various "issue"
+# attributes. However, there is one attribute which this collector's
+# queries rely on that change between different instantiations of Jira.
+# Please provide a numerical ID reference to your instance's IssueType for
+# the lowest level of Issues (e.g., "user story") specific to your Jira
+# instance.  Note:  You can retrieve your instance's IssueType ID
+# listings via the following URI:  https://[your-jira-domain-name]/rest/api/2/issuetype/
+#  - JIRA_ISSUE_TYPE_ID=Story
+
+# In Jira, your instance will have its own custom field created for "sprint" or "timebox" details,
+# which includes a list of information.  This field allows you to specify that data field for your
+# instance of Jira. Note: You can retrieve your instance's sprint data field name
+# via the following URI, and look for a package name com.atlassian.greenhopper.service.sprint.Sprint;
+# your custom field name describes the values in this field:
+# https://[your-jira-domain-name]/rest/api/2/issue/[some-issue-name]
+#  - JIRA_SPRINT_DATA_FIELD_NAME=customfield_10007
+
+# In Jira, your instance will have its own custom field created for "super story" or "epic" back-end ID,
+# which includes a list of information.  This field allows you to specify that data field for your instance
+# of Jira.  Note:  You can retrieve your instance's epic ID field name via the following URI where your
+# queried user story issue has a super issue (e.g., epic) tied to it; your custom field name describes the
+# epic value you expect to see, and is the only field that does this for a given issue:
+# https://[your-jira-domain-name]/rest/api/2/issue/[some-issue-name]
+#  - JIRA_EPIC_FIELD_NAME=customfield_10400
+
+# In Jira, your instance will have its own custom field created for "story points"
+# This field allows you to specify that data field for your instance
+# of Jira.  Note:  You can retrieve your instance's storypoints ID field name via the following URI where your
+# queried user story issue has story points set on it; your custom field name describes the
+# story points value you expect to see:
+# https://[your-jira-domain-name]/rest/api/2/issue/[some-issue-name]
+#  - JIRA_STORY_POINTS_FIELD_NAME=customfield_10002
+
+hygieia-jenkins-build-collector:
+  image: hygieia-jenkins-build-collector:latest
+  container_name: hygieia-jenkins-build
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+#  environment:
+#Jenkins server (required) - Can provide multiple
+#  - JENKINS_MASTER=ttp://jenkins.company.com
+#If using username/token for api authentication (required for Cloudbees Jenkins Ops Center) see sample
+#  - JENKINS_OP_CENTER=http://username:token@jenkins.company.com
+#Another option: If using same username/password Jenkins auth - set username/apiKey to use HTTP Basic Auth (blank=no auth)
+#  - JENKINS_USERNAME
+#  - JENKINS_API_KEY
+#  - JENKINS_CRON=0 0/5 * * * *
+#Determines if build console log is collected - defaults to false
+#  - JENKINS_SAVE_LOG=true
+
+hygieia-jenkins-cucumber-test-collector:
+  image: hygieia-jenkins-cucumber-test-collector:latest
+  container_name: hygieia-jenkins-cucumber
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+#  environment:
+#Jenkins server (required) - Can provide multiple
+#  - JENKINS_MASTER=ttp://jenkins.company.com
+#If using username/token for api authentication (required for Cloudbees Jenkins Ops Center) see sample
+#  - JENKINS_OP_CENTER=http://username:token@jenkins.company.com
+#Another option: If using same username/password Jenkins auth - set username/apiKey to use HTTP Basic Auth (blank=no auth)
+#  - JENKINS_USERNAME
+#  - JENKINS_API_KEY
+#  - JENKINS_CRON=0 0/5 * * * *
+#Determines if build console log is collected - defaults to false
+#  - JENKINS_SAVE_LOG=true
+
+hygieia-sonar-codequality-collector:
+  image: hygieia-sonar-codequality-collector:latest
+  container_name: hygieia-sonar-codequality
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+#  environment:
+#  - SONAR_CRON=0 0/5 * * * *
+#  - SONAR_URL=http://localhost:9000
+
+hygieia-chat-ops-collector:
+  image: hygieia-chat-ops-collector:latest
+  container_name: hygieia-chat-ops
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+#  environment:
+#  - CHATOPS_CRON=0 0/5 * * * *
+
+hygieia-subversion-scm-collector:
+  image: hygieia-subversion-scm-collector:latest
+  container_name: hygieia-subversion
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+#  environment:
+#  - SUBVERSION_CRON:-0 0/5 * * * *
+
+#Shared subversion username and password
+#  - SUBVERSION_USERNAME=
+#  - SUBVERSION_PASSWORD=
+
+#Maximum number of days to go back in time when fetching commits
+#  - SUBVERSION_COMMIT_THRESHOLD_DAYS=15
+
+hygieia-bitbucket-scm-collector:
+  image: hygieia-bitbucket-scm-collector:latest
+  container_name: hygieia-bitbucket
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+#  environment:
+    #mandatory
+#  - BITBUCKET_HOST=mybitbucketrepo.com/
+#  - BITBUCKET_API=/rest/api/1.0/
+#  - BITBUCKET_CRON=0 0/5 * * * *
+#  - BITBUCKET_PRODUCT=cloud
+
+#Maximum number of days to go back in time when fetching commits. Only applicable to Bitbucket Cloud.
+#  - BITBUCKET_COMMIT_THRESHOLD_DAYS=15
+
+#Page size for rest calls. Only applicable to Bitbucket Server.
+#  - BITBUCKET_PAGE_SIZE=25
+
+hygieia-versionone-collector:
+  image: hygieia-versionone-collector:latest
+  container_name: hygieia-versionone
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+#  environment:
+#Page size for data calls (VersionOne recommended 2000)
+#  - VERSIONONE_PAGE_SIZE=2000
+
+#In-built folder housing prepared REST queries (required)
+#  - VERSIONONE_QUERY_FOLDER=v1api-queries
+
+#Jira API Query file names (String template requires the files to have .st extension) (required)
+#  - VERSIONONE_STORY_QUERY=story
+#  - VERSIONONE_EPIC_QUERY=epicinfo
+#  - VERSIONONE_PROJECT_QUERY=projectinfo
+#  - VERSIONONE_MEMBBER_QUERY=memberinfo
+#  - VERSIONONE_SPRINT_QUERY=sprintinfo
+#  - VERSIONONE_TEAM_QUERY=teaminfo
+#  - VERSIONONE_TRENDING_QUERY=trendinginfo
+
+# Trending Query:  Number of days in a sprint (not-required)
+#  - VERSIONONE_SPRINT_DAYS=60
+# Trending Query:  Length of sprint week (not-required)
+#  - VERSIONONE_SPRINT_END_PRIOR=7
+
+#Scheduled Job prior minutes to recover data created during execution time (usually, 2 minutes is enough)
+#  - VERSIONONE_SCHEDULED_PRIOR_MIN=2
+
+#Delta change date that modulates the collector item task - should be about as far back as possible, in ISO format (required)
+#  - VERSIONONE_DELTA_COLLECTORITEM_START_DATE=2008-01-01T00:00:00.000000
+
+#VersionOne Connection Details
+#Proxy assumes a host:port syntax
+#  - VERSIONONE_PROXY_URL=""
+#  - VERSIONONE_URL=https://www.versionone.com/our-company-instance/
+#Access token provided by VersionOne
+#  - VERSIONONE_ACCESS_TOKEN=accessToken
+
+#Start dates from which to begin collector data, if no other data is present - usually, a month back is appropriate (required)
+#  - VERSIONONE_DELTA_START_DATE=2015-03-01T00:00:00.000000
+#  - VERSIONONE_MASTER_START_DATE=2008-01-01T00:00:00.000000
+
+hygieia-udeploy-collector:
+  image: hygieia-udeploy-collector:latest
+  container_name: hygieia-udeploy
+  volumes:
+  - ./logs:/hygieia/logs
+  links:
+  - mongodb:mongo
+  - hygieia-api
+  environment:
+#UDeploy server (required) - Can provide multiple
+  - UDEPLOY_URL:-http://udeploy.company.com
+#UDeploy user name (required)
+  - UDEPLOY_USERNAME:-bobama
+#UDeploy password (required)
+  - UDEPLOY_PASSWORD:-s3cr3t
+#Collector schedule (required)
+#  - UDEPLOY_CRON:-0 0/5 * * * *
