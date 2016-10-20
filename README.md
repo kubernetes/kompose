@@ -1,6 +1,7 @@
 # Kompose (Kubernetes + Compose)
 
-[![Build Status](https://travis-ci.org/kubernetes-incubator/kompose.svg?branch=master)](https://travis-ci.org/kubernetes-incubator/kompose) [![Join us on Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png)](https://skippbox.herokuapp.com)
+[![Build Status](https://travis-ci.org/kubernetes-incubator/kompose.svg?branch=master)](https://travis-ci.org/kubernetes-incubator/kompose)
+[![Join us in #kompose on k8s Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png)](http://slack.kubernetes.io) in #kompose channel
 
 `kompose` is a tool to help users who are familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). `kompose` takes a Docker Compose file and translates it into Kubernetes resources.
 
@@ -93,7 +94,7 @@ Learn how to engage with the Kubernetes community on the [community page](http:/
 
 You can reach the maintainers of this project at:
 
-- [Slack](https://skippbox.herokuapp.com): #kompose
+- [Slack](http://slack.kubernetes.io): #kompose
 
 Incubation of `kompose` into the Kubernetes project is shepherd in the [SIG-APPS](https://github.com/kubernetes/community).
 
