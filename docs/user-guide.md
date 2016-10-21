@@ -17,7 +17,7 @@ If no provider is specified Kubernetes is default provider.
 ## Kompose convert
 
 Currently Kompose supports to transform either Docker Compose file (both of v1 and v2) and [experimental Distributed Application Bundles](https://blog.docker.com/2016/06/docker-app-bundle/) into Kubernetes and OpenShift objects.
-There is a couple of sample files in the `examples/` directory for testing. 
+There is a couple of sample files in the `examples/` directory for testing.
 You will convert the compose or dab file to Kubernetes or OpenShift objects with `kompose convert`.
 
 ### Kubernetes
@@ -77,7 +77,7 @@ file "redis-deployment.json" created
 
 ```console
 $ kompose --provider openshift --file docker-voting.yml convert
-WARN[0000] [worker] Service cannot be created because of missing port. 
+WARN[0000] [worker] Service cannot be created because of missing port.
 INFO[0000] file "vote-service.json" created             
 INFO[0000] file "db-service.json" created               
 INFO[0000] file "redis-service.json" created            
@@ -94,7 +94,7 @@ INFO[0000] file "result-deploymentconfig.json" created
 INFO[0000] file "result-imagestream.json" created  
 ```
 
-In similar way you can convert DAB files to OpenShift. 
+In similar way you can convert DAB files to OpenShift.
 ```console$
 $ kompose --bundle docker-compose-bundle.dab --provider openshift convert
 WARN[0000]: Unsupported key networks - ignoring
@@ -114,14 +114,14 @@ Kompose supports a straightforward way to deploy your "composed" application to 
 ### Kubernetes
 ```console
 $ kompose --file ./examples/docker-guestbook.yml up
-We are going to create Kubernetes deployments and services for your Dockerized application. 
-If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. 
+We are going to create Kubernetes deployments and services for your Dockerized application.
+If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead.
 
 INFO[0000] Successfully created service: redis-master   
 INFO[0000] Successfully created service: redis-slave    
 INFO[0000] Successfully created service: frontend       
-INFO[0001] Successfully created deployment: redis-master 
-INFO[0001] Successfully created deployment: redis-slave 
+INFO[0001] Successfully created deployment: redis-master
+INFO[0001] Successfully created deployment: redis-slave
 INFO[0001] Successfully created deployment: frontend    
 
 Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.
@@ -148,21 +148,21 @@ Note:
 ### OpenShift
 ```console
 $kompose --file ./examples/docker-guestbook.yml --provider openshift up
-We are going to create OpenShift DeploymentConfigs and Services for your Dockerized application. 
-If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. 
+We are going to create OpenShift DeploymentConfigs and Services for your Dockerized application.
+If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead.
 
 INFO[0000] Successfully created service: redis-slave    
 INFO[0000] Successfully created service: frontend       
 INFO[0000] Successfully created service: redis-master   
-INFO[0000] Successfully created deployment: redis-slave 
-INFO[0000] Successfully created ImageStream: redis-slave 
+INFO[0000] Successfully created deployment: redis-slave
+INFO[0000] Successfully created ImageStream: redis-slave
 INFO[0000] Successfully created deployment: frontend    
 INFO[0000] Successfully created ImageStream: frontend   
-INFO[0000] Successfully created deployment: redis-master 
-INFO[0000] Successfully created ImageStream: redis-master 
+INFO[0000] Successfully created deployment: redis-master
+INFO[0000] Successfully created ImageStream: redis-master
 
 Your application has been deployed to OpenShift. You can run 'oc get dc,svc,is' for details.
- 
+
 $ oc get dc,svc,is
 NAME               REVISION                              DESIRED       CURRENT    TRIGGERED BY
 dc/frontend        0                                     1             0          config,image(frontend:v4)
@@ -188,9 +188,9 @@ Once you have deployed "composed" application to Kubernetes, `kompose down` will
 ```console
 $ kompose --file docker-guestbook.yml down
 INFO[0000] Successfully deleted service: redis-master   
-INFO[0004] Successfully deleted deployment: redis-master 
+INFO[0004] Successfully deleted deployment: redis-master
 INFO[0004] Successfully deleted service: redis-slave    
-INFO[0008] Successfully deleted deployment: redis-slave 
+INFO[0008] Successfully deleted deployment: redis-slave
 INFO[0009] Successfully deleted service: frontend       
 INFO[0013] Successfully deleted deployment: frontend
 ```
@@ -258,11 +258,7 @@ The chart structure is aimed at providing a skeleton for building your Helm char
 Currently `kompose` does not support the following Docker Compose options.
 
 ```
-"build", "cap_add", "cap_drop", "cpuset", "cpu_shares", "cpu_quota", "cgroup_parent", "devices", "depends_on", "dns",
-"dns_search", "domainname", "entrypoint", "env_file", "expose", "extends", "external_links", "extra_hosts", "hostname", "ipc",
-"logging", "mac_address", "mem_limit", "memswap_limit", "network_mode", "networks", "pid", "security_opt", "shm_size",
-"stop_signal", "volume_driver", "volumes_from", "uts", "read_only", "stdin_open", "tty", "user", "ulimits", "dockerfile",
-"net", "args"
+"build", "cgroup_parent", "devices", "depends_on", "dns", "dns_search", "domainname", "env_file", "extends", "external_links", "extra_hosts", "hostname", "ipc", "logging", "mac_address", "mem_limit", "memswap_limit", "network_mode", "pid", "security_opt", "shm_size", "stop_signal", "volume_driver", "uts", "read_only", "stdin_open", "tty", "user", "ulimits", "dockerfile", "net"
 ```
 
 For example:
@@ -282,4 +278,3 @@ WARN[0000] Unsupported key build - ignoring
 WARN[0000] Unsupported key cap_add - ignoring           
 WARN[0000] Unsupported key dockerfile - ignoring
 ```
-
