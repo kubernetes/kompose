@@ -24,11 +24,6 @@ import (
 
 var unsupportedKey = map[string]int{
 	"Build":         0,
-	"CapAdd":        0,
-	"CapDrop":       0,
-	"CPUSet":        0,
-	"CPUShares":     0,
-	"CPUQuota":      0,
 	"CgroupParent":  0,
 	"Devices":       0,
 	"DependsOn":     0,
@@ -36,7 +31,6 @@ var unsupportedKey = map[string]int{
 	"DNSSearch":     0,
 	"DomainName":    0,
 	"EnvFile":       0,
-	"Expose":        0,
 	"Extends":       0,
 	"ExternalLinks": 0,
 	"ExtraHosts":    0,
@@ -47,22 +41,18 @@ var unsupportedKey = map[string]int{
 	"MemLimit":      0,
 	"MemSwapLimit":  0,
 	"NetworkMode":   0,
-	"Networks":      0,
 	"Pid":           0,
 	"SecurityOpt":   0,
 	"ShmSize":       0,
 	"StopSignal":    0,
 	"VolumeDriver":  0,
-	"VolumesFrom":   0,
 	"Uts":           0,
 	"ReadOnly":      0,
 	"StdinOpen":     0,
 	"Tty":           0,
-	"User":          0,
 	"Ulimits":       0,
 	"Dockerfile":    0,
 	"Net":           0,
-	"Args":          0,
 }
 
 var composeOptions = map[string]string{
