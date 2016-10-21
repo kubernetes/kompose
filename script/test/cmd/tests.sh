@@ -58,4 +58,10 @@ convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mo
 # openshift test
 convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/docker-compose.yml convert --stdout --dc" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/output-os.json"
 
+######
+# Tests related to unknown arguments with cli commands
+convert::expect_failure "kompose up $KOMPOSE_ROOT/script/test/fixtures/gitlab/docker-compose.yml" "Unknown Argument docker-gitlab.yml"
+convert::expect_failure "kompose down $KOMPOSE_ROOT/script/test/fixtures/gitlab/docker-compose.yml" "Unknown Argument docker-gitlab.yml"
+convert::expect_failure "kompose convert $KOMPOSE_ROOT/script/test/fixtures/gitlab/docker-compose.yml" "Unknown Argument docker-gitlab.yml"
+
 exit $EXIT_STATUS
