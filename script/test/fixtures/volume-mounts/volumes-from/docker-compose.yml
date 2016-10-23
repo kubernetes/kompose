@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  web:
+    image: centos/httpd
+    volumes:
+      - "./app:/src/app"
+    ports:
+      - "3030:3000"
+    command: nodemon -L app/bin/www
+
+  nginx:
+    restart: always
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - /www/public
+    volumes_from:
+      - web

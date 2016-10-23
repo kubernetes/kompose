@@ -333,3 +333,53 @@ func SortServicesFirst(objs *[]runtime.Object) {
 	ret = append(ret, others...)
 	*objs = ret
 }
+
+func findDependentVolumes(svcname string, komposeObject kobject.KomposeObject) (volumes []api.Volume, volumeMounts []api.VolumeMount) {
+	// Get all the volumes and volumemounts this particular service is dependent on
+	for _, dependentSvc := range komposeObject.ServiceConfigs[svcname].VolumesFrom {
+		vols, volMounts := findDependentVolumes(dependentSvc, komposeObject)
+		volumes = append(volumes, vols...)
+		volumeMounts = append(volumeMounts, volMounts...)
+	}
+	// add the volumes info of this service
+	volMounts, vols, _ := ConfigVolumes(svcname, komposeObject.ServiceConfigs[svcname])
+	volumes = append(volumes, vols...)
+	volumeMounts = append(volumeMounts, volMounts...)
+	return
+}
+
+func VolumesFrom(objects *[]runtime.Object, komposeObject kobject.KomposeObject) {
+
+	for _, obj := range *objects {
+		switch t := obj.(type) {
+		case *api.ReplicationController:
+			svcName := t.ObjectMeta.Name
+			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
+				volumes, volumeMounts := findDependentVolumes(dependentSvc, komposeObject)
+				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
+				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
+			}
+		case *extensions.Deployment:
+			svcName := t.ObjectMeta.Name
+			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
+				volumes, volumeMounts := findDependentVolumes(dependentSvc, komposeObject)
+				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
+				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
+			}
+		case *extensions.DaemonSet:
+			svcName := t.ObjectMeta.Name
+			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
+				volumes, volumeMounts := findDependentVolumes(dependentSvc, komposeObject)
+				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
+				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
+			}
+		case *deployapi.DeploymentConfig:
+			svcName := t.ObjectMeta.Name
+			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
+				volumes, volumeMounts := findDependentVolumes(dependentSvc, komposeObject)
+				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
+				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
+			}
+		}
+	}
+}

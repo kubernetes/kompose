@@ -1,0 +1,216 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "web"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "3030",
+            "protocol": "TCP",
+            "port": 3030,
+            "targetPort": 3000
+          }
+        ],
+        "selector": {
+          "service": "web"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "nginx",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "nginx"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "80",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "service": "nginx"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "web"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "web-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "web-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "web",
+                "image": "centos/httpd",
+                "args": [
+                  "nodemon",
+                  "-L",
+                  "app/bin/www"
+                ],
+                "ports": [
+                  {
+                    "containerPort": 3000,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "web-claim0",
+                    "mountPath": "/src/app"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "nginx",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "nginx"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "nginx-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "nginx-claim0"
+                }
+              },
+              {
+                "name": "web-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "web-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "nginx",
+                "image": "nginx",
+                "ports": [
+                  {
+                    "containerPort": 80,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "nginx-claim0",
+                    "mountPath": "/www/public"
+                  },
+                  {
+                    "name": "web-claim0",
+                    "mountPath": "/src/app"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "nginx-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}
