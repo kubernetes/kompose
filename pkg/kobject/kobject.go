@@ -53,6 +53,7 @@ var unsupportedKey = map[string]int{
 	"Ulimits":       0,
 	"Dockerfile":    0,
 	"Net":           0,
+	"Networks":      0,
 }
 
 var composeOptions = map[string]string{
