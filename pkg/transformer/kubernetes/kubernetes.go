@@ -219,7 +219,7 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 
 // Configure the container volumes.
 func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim) {
-	volumesMount := []api.VolumeMount{}
+	volumeMounts := []api.VolumeMount{}
 	volumes := []api.Volume{}
 	var pvc []*api.PersistentVolumeClaim
 
@@ -242,7 +242,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			ReadOnly:  readonly,
 			MountPath: container,
 		}
-		volumesMount = append(volumesMount, volmount)
+		volumeMounts = append(volumeMounts, volmount)
 
 		vol := api.Volume{
 			Name: volumeName,
@@ -260,7 +260,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		}
 		pvc = append(pvc, k.CreatePVC(volumeName, mode))
 	}
-	return volumesMount, volumes, pvc
+	return volumeMounts, volumes, pvc
 }
 
 // Configure the environment variables.
