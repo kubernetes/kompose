@@ -72,4 +72,10 @@ convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_RO
 # kubernetes test
 convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/envvars-separators/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/envvars-separators/output-k8s.json"
 
+######
+# Tests related to unknown arguments with cli commands
+convert::expect_failure "kompose up $KOMPOSE_ROOT/script/test/fixtures/gitlab/docker-compose.yml" "Unknown Argument docker-gitlab.yml"
+convert::expect_failure "kompose down $KOMPOSE_ROOT/script/test/fixtures/gitlab/docker-compose.yml" "Unknown Argument docker-gitlab.yml"
+convert::expect_failure "kompose convert $KOMPOSE_ROOT/script/test/fixtures/gitlab/docker-compose.yml" "Unknown Argument docker-gitlab.yml"
+
 exit $EXIT_STATUS
