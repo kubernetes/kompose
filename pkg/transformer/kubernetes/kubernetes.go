@@ -221,7 +221,7 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim) {
 	volumeMounts := []api.VolumeMount{}
 	volumes := []api.Volume{}
-	var pvc []*api.PersistentVolumeClaim
+	var PVCs []*api.PersistentVolumeClaim
 
 	var count int
 	for _, volume := range service.Volumes {
@@ -258,9 +258,9 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		if len(host) > 0 {
 			logrus.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
 		}
-		pvc = append(pvc, k.CreatePVC(volumeName, mode))
+		PVCs = append(PVCs, k.CreatePVC(volumeName, mode))
 	}
-	return volumeMounts, volumes, pvc
+	return volumeMounts, volumes, PVCs
 }
 
 // Configure the environment variables.
