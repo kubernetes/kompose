@@ -223,7 +223,9 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	volumes := []api.Volume{}
 	var PVCs []*api.PersistentVolumeClaim
 
-	useEmptyVolumes := true
+	// Set a var based on if the user wants to use emtpy volumes
+	// as opposed to persistent volumes and volume claims
+	useEmptyVolumes := k.Opt.EmptyVols
 
 	var count int
 	for _, volume := range service.Volumes {

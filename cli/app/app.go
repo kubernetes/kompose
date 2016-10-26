@@ -139,6 +139,7 @@ func Convert(c *cli.Context) {
 		CreateDS:               c.BoolT("daemonset"),
 		CreateRC:               c.BoolT("replicationcontroller"),
 		CreateDeploymentConfig: c.BoolT("deploymentconfig"),
+		EmptyVols:              c.BoolT("emptyvols"),
 	}
 
 	validateFlags(c, &opt)
