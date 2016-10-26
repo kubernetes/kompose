@@ -227,7 +227,7 @@ func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion)
 	return convertedObject, nil
 }
 
-func PortsExist(name string, service kobject.ServiceConfig) bool {
+func (k *Kubernetes) PortsExist(name string, service kobject.ServiceConfig) bool {
 	if len(service.Port) == 0 {
 		logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
 		return false
@@ -237,11 +237,11 @@ func PortsExist(name string, service kobject.ServiceConfig) bool {
 }
 
 // create a k8s service
-func CreateService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
-	svc := InitSvc(name, service)
+func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
+	svc := k.InitSvc(name, service)
 
 	// Configure the service ports.
-	servicePorts := ConfigServicePorts(name, service)
+	servicePorts := k.ConfigServicePorts(name, service)
 	svc.Spec.Ports = servicePorts
 
 	// Configure service types
@@ -267,12 +267,12 @@ func CreateService(name string, service kobject.ServiceConfig, objects []runtime
 }
 
 // load configurations to k8s objects
-func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects *[]runtime.Object) {
+func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects *[]runtime.Object) {
 	// Configure the environment variables.
-	envs := ConfigEnvs(name, service)
+	envs := k.ConfigEnvs(name, service)
 
 	// Configure the container volumes.
-	volumesMount, volumes, pvc := ConfigVolumes(name, service)
+	volumesMount, volumes, pvc := k.ConfigVolumes(name, service)
 	if pvc != nil {
 		// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`
 		// because the type of objects and pvc is different, but when doing append
@@ -283,7 +283,7 @@ func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects
 	}
 
 	// Configure the container ports.
-	ports := ConfigPorts(name, service)
+	ports := k.ConfigPorts(name, service)
 
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
@@ -327,14 +327,14 @@ func UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects
 
 	// update supported controller
 	for _, obj := range *objects {
-		UpdateController(obj, fillTemplate, fillObjectMeta)
+		k.UpdateController(obj, fillTemplate, fillObjectMeta)
 	}
 }
 
 // the objects that we get can be in any order this keeps services first
 // according to best practice kubernetes services should be created first
 // http://kubernetes.io/docs/user-guide/config-best-practices/
-func SortServicesFirst(objs *[]runtime.Object) {
+func (k *Kubernetes) SortServicesFirst(objs *[]runtime.Object) {
 	var svc, others, ret []runtime.Object
 
 	for _, obj := range *objs {
@@ -349,49 +349,49 @@ func SortServicesFirst(objs *[]runtime.Object) {
 	*objs = ret
 }
 
-func findDependentVolumes(svcname string, komposeObject kobject.KomposeObject) (volumes []api.Volume, volumeMounts []api.VolumeMount) {
+func (k *Kubernetes) findDependentVolumes(svcname string, komposeObject kobject.KomposeObject) (volumes []api.Volume, volumeMounts []api.VolumeMount) {
 	// Get all the volumes and volumemounts this particular service is dependent on
 	for _, dependentSvc := range komposeObject.ServiceConfigs[svcname].VolumesFrom {
-		vols, volMounts := findDependentVolumes(dependentSvc, komposeObject)
+		vols, volMounts := k.findDependentVolumes(dependentSvc, komposeObject)
 		volumes = append(volumes, vols...)
 		volumeMounts = append(volumeMounts, volMounts...)
 	}
 	// add the volumes info of this service
-	volMounts, vols, _ := ConfigVolumes(svcname, komposeObject.ServiceConfigs[svcname])
+	volMounts, vols, _ := k.ConfigVolumes(svcname, komposeObject.ServiceConfigs[svcname])
 	volumes = append(volumes, vols...)
 	volumeMounts = append(volumeMounts, volMounts...)
 	return
 }
 
-func VolumesFrom(objects *[]runtime.Object, komposeObject kobject.KomposeObject) {
+func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobject.KomposeObject) {
 
 	for _, obj := range *objects {
 		switch t := obj.(type) {
 		case *api.ReplicationController:
 			svcName := t.ObjectMeta.Name
 			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
-				volumes, volumeMounts := findDependentVolumes(dependentSvc, komposeObject)
+				volumes, volumeMounts := k.findDependentVolumes(dependentSvc, komposeObject)
 				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
 				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
 			}
 		case *extensions.Deployment:
 			svcName := t.ObjectMeta.Name
 			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
-				volumes, volumeMounts := findDependentVolumes(dependentSvc, komposeObject)
+				volumes, volumeMounts := k.findDependentVolumes(dependentSvc, komposeObject)
 				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
 				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
 			}
 		case *extensions.DaemonSet:
 			svcName := t.ObjectMeta.Name
 			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
-				volumes, volumeMounts := findDependentVolumes(dependentSvc, komposeObject)
+				volumes, volumeMounts := k.findDependentVolumes(dependentSvc, komposeObject)
 				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
 				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
 			}
 		case *deployapi.DeploymentConfig:
 			svcName := t.ObjectMeta.Name
 			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
-				volumes, volumeMounts := findDependentVolumes(dependentSvc, komposeObject)
+				volumes, volumeMounts := k.findDependentVolumes(dependentSvc, komposeObject)
 				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
 				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
 			}

@@ -155,14 +155,10 @@ func Convert(c *cli.Context) {
 	}
 	komposeObject = l.LoadFile(opt.InputFile)
 
-	// transformer maps komposeObject to provider's primitives
-	var t transformer.Transformer
-	if opt.Provider == "kubernetes" {
-		t = new(kubernetes.Kubernetes)
-	} else {
-		t = new(openshift.OpenShift)
-	}
+	// Get a transformer that maps komposeObject to provider's primitives
+	t := getTransformer(opt)
 
+	// Do the transformation
 	objects := t.Transform(komposeObject, opt)
 
 	// Print output
@@ -190,13 +186,8 @@ func Up(c *cli.Context) {
 	}
 	komposeObject = l.LoadFile(opt.InputFile)
 
-	//get transfomer
-	var t transformer.Transformer
-	if opt.Provider == "kubernetes" {
-		t = new(kubernetes.Kubernetes)
-	} else {
-		t = new(openshift.OpenShift)
-	}
+	// Get the transformer
+	t := getTransformer(opt)
 
 	//Submit objects to provider
 	errDeploy := t.Deploy(komposeObject, opt)
@@ -226,13 +217,8 @@ func Down(c *cli.Context) {
 	}
 	komposeObject = l.LoadFile(opt.InputFile)
 
-	//get transfomer
-	var t transformer.Transformer
-	if opt.Provider == "kubernetes" {
-		t = new(kubernetes.Kubernetes)
-	} else {
-		t = new(openshift.OpenShift)
-	}
+	// Get the transformer
+	t := getTransformer(opt)
 
 	//Remove deployed application
 	errUndeploy := t.Undeploy(komposeObject, opt)
@@ -240,6 +226,21 @@ func Down(c *cli.Context) {
 		logrus.Fatalf("Error while deleting application: %s", errUndeploy)
 	}
 
+}
+
+// Convenience method to return the appropriate Transformer based on
+// what provider we are using.
+func getTransformer(opt kobject.ConvertOptions) transformer.Transformer {
+	var t transformer.Transformer
+	if opt.Provider == "kubernetes" {
+		// Create/Init new Kubernetes object
+		t = &kubernetes.Kubernetes{}
+	} else {
+		// Create/Init new OpenShift object that is initialized with a newly
+		// created Kubernetes object. Openshift inherits from Kubernetes
+		t = &openshift.OpenShift{kubernetes.Kubernetes{}}
+	}
+	return t
 }
 
 func askForConfirmation() bool {
