@@ -1,0 +1,65 @@
+{
+  "Services": {
+    "db": {
+      "Image": "postgres@sha256:33632bbd3222fa738d80a267b7c706a15d76eb3a59facab94bbd52a69cd1e30c",
+      "Labels": {
+        "com.example.description": "Postgres Database"
+      },
+      "Networks": [
+        "default"
+      ],
+      "Ports": [
+        {
+          "Port": 5432,
+          "Protocol": "tcp"
+        }
+      ]
+    },
+    "redis": {
+      "Image": "redis@sha256:afa4e7f6dc4d4f4294f54835bcfe610201057f5424b36310cba799e625849ebd",
+      "Networks": [
+        "default"
+      ],
+      "Ports": [
+        {
+          "Port": 6379,
+          "Protocol": "tcp"
+        }
+      ]
+    },
+    "result": {
+      "Image": "tmadams333/example-voting-app-result@sha256:97d6ba26e5ffa35a89a3d97627fa3c8a3b0b3df8e708129eabcf9f2755e06d13",
+      "Networks": [
+        "default"
+      ],
+      "Ports": [
+        {
+          "Port": 80,
+          "Protocol": "tcp"
+        }
+      ]
+    },
+    "vote": {
+      "Image": "docker/example-voting-app-vote@sha256:33f7924f9aaabd2aacf3f59a9c98e372360213ec94cb35f60842502632ec2f74",
+      "Labels": {
+        "com.example.description": "Vote"
+      },
+      "Networks": [
+        "default"
+      ],
+      "Ports": [
+        {
+          "Port": 80,
+          "Protocol": "tcp"
+        }
+      ]
+    },
+    "worker": {
+      "Image": "docker/example-voting-app-worker@sha256:62cbf0976fc66192d19412135fc422bfaaed5987a8ae405ff4d1968f1b714f24",
+      "Networks": [
+        "default"
+      ]
+    }
+  },
+  "Version": "0.1"
+}
