@@ -160,6 +160,12 @@ func UpCommand() cli.Command {
 		Action: func(c *cli.Context) {
 			app.Up(c)
 		},
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "emptyvols",
+				Usage: "Use Empty Volumes. Don't generate PVCs",
+			},
+		},
 	}
 }
 
@@ -170,6 +176,12 @@ func DownCommand() cli.Command {
 		Usage: "Delete instantiated services/deployments from kubernetes",
 		Action: func(c *cli.Context) {
 			app.Down(c)
+		},
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name:  "emptyvols",
+				Usage: "Use Empty Volumes. Don't generate PVCs",
+			},
 		},
 	}
 }

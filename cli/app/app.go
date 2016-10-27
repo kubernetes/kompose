@@ -172,6 +172,7 @@ func Up(c *cli.Context) {
 		InputFile: c.GlobalString("file"),
 		Replicas:  1,
 		Provider:  strings.ToLower(c.GlobalString("provider")),
+		EmptyVols: c.BoolT("emptyvols"),
 	}
 	validateFlags(c, &opt)
 	validateControllers(&opt)
@@ -203,6 +204,7 @@ func Down(c *cli.Context) {
 		InputFile: c.GlobalString("file"),
 		Replicas:  1,
 		Provider:  strings.ToLower(c.GlobalString("provider")),
+		EmptyVols: c.BoolT("emptyvols"),
 	}
 	validateFlags(c, &opt)
 	validateControllers(&opt)
