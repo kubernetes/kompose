@@ -177,9 +177,9 @@ func (k *Kubernetes) CreatePVC(name string, mode string) *api.PersistentVolumeCl
 	}
 
 	if mode == "ro" {
-		pvc.Spec.AccessModes = []api.PersistentVolumeAccessMode{"ReadWriteOnce"}
+		pvc.Spec.AccessModes = []api.PersistentVolumeAccessMode{api.ReadOnlyMany}
 	} else {
-		pvc.Spec.AccessModes = []api.PersistentVolumeAccessMode{"ReadWriteOnce"}
+		pvc.Spec.AccessModes = []api.PersistentVolumeAccessMode{api.ReadWriteOnce}
 	}
 	return pvc
 }
