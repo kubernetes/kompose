@@ -89,10 +89,6 @@ func ConvertKubernetesCommand() cli.Command {
 				Usage: "Create a Helm chart for converted objects",
 			},
 			cli.BoolFlag{
-				Name:  "emptyvols",
-				Usage: "Use Empty Volumes. Don't generate PVCs",
-			},
-			cli.BoolFlag{
 				Name:  "deployment,d",
 				Usage: "Generate a Kubernetes deployment object (default on)",
 			},
@@ -123,10 +119,6 @@ func ConvertOpenShiftCommand() cli.Command {
 				Name:  "deploymentconfig,dc",
 				Usage: "Generate a OpenShift DeploymentConfig object",
 			},
-			cli.BoolFlag{
-				Name:  "emptyvols",
-				Usage: "Use Empty Volumes. Don't generate PVCs",
-			},
 		},
 	}
 	command.Flags = append(command.Flags, commonConvertFlags()...)
@@ -152,6 +144,10 @@ func commonConvertFlags() []cli.Flag {
 		cli.BoolFlag{
 			Name:  "stdout",
 			Usage: "Print converted objects to stdout",
+		},
+		cli.BoolFlag{
+			Name:  "emptyvols",
+			Usage: "Use Empty Volumes. Don't generate PVCs",
 		},
 	}
 }
