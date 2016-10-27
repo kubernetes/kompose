@@ -83,7 +83,7 @@ func getGitRemote(remote string) string {
 	if err != nil {
 		return ""
 	}
-	return string(out)
+	return strings.TrimRight(string(out), "\n")
 }
 
 // getAbsBuildContext returns build context relative to project root dir
