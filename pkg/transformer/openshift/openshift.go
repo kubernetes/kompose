@@ -83,7 +83,13 @@ func getGitRemote(remote string) string {
 	if err != nil {
 		return ""
 	}
-	return strings.TrimRight(string(out), "\n")
+	url := strings.TrimRight(string(out), "\n")
+
+	if !strings.HasSuffix(url, ".git") {
+		url += ".git"
+	}
+
+	return url
 }
 
 // getAbsBuildContext returns build context relative to project root dir
