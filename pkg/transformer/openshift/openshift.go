@@ -153,7 +153,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig) *buildapi.Build
 				{Type: "ImageChange"},
 			},
 			// RunPolicy
-			"serial",
+			"Serial",
 			buildapi.CommonSpec{
 				Source: buildapi.BuildSource{
 					Git: &buildapi.GitBuildSource{
@@ -163,12 +163,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig) *buildapi.Build
 					ContextDir: getAbsBuildContext(service.Build),
 				},
 				Strategy: buildapi.BuildStrategy{
-					DockerStrategy: &buildapi.DockerBuildStrategy{
-						From: &kapi.ObjectReference{
-							Kind: "ImageStreamTag",
-							Name: name + ":from",
-						},
-					},
+					DockerStrategy: &buildapi.DockerBuildStrategy{},
 				},
 				Output: buildapi.BuildOutput{
 					To: &kapi.ObjectReference{
