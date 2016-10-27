@@ -233,12 +233,12 @@ func Down(c *cli.Context) {
 func getTransformer(opt kobject.ConvertOptions) transformer.Transformer {
 	var t transformer.Transformer
 	if opt.Provider == "kubernetes" {
-		// Create/Init new Kubernetes object
-		t = &kubernetes.Kubernetes{}
+		// Create/Init new Kubernetes object with CLI opts
+		t = &kubernetes.Kubernetes{Opt: opt}
 	} else {
 		// Create/Init new OpenShift object that is initialized with a newly
 		// created Kubernetes object. Openshift inherits from Kubernetes
-		t = &openshift.OpenShift{kubernetes.Kubernetes{}}
+		t = &openshift.OpenShift{kubernetes.Kubernetes{Opt: opt}}
 	}
 	return t
 }
