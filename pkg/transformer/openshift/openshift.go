@@ -87,27 +87,24 @@ func getGitRemote(remote string) string {
 }
 
 // getAbsBuildContext returns build context relative to project root dir
-func getAbsBuildContext(context string) string {
-	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
-	if err != nil {
-		return ""
-	}
-	rootDir := strings.Trim(string(out), "\n")
-
-	var workDir string
-	workDir, err = os.Getwd()
+func getAbsBuildContext(context string, inputFile string) string {
+	workDir, err := os.Getwd()
 	if err != nil {
 		return ""
 	}
 
-	var relPath string
-	relPath, err = filepath.Rel(rootDir, workDir)
+	composeFileDir := filepath.Dir(filepath.Join(workDir, inputFile))
 
+	var out []byte
+	cmd := exec.Command("git", "rev-parse", "--show-prefix")
+	cmd.Dir = composeFileDir
+	out, err = cmd.Output()
 	if err != nil {
 		return ""
 	}
 
-	return relPath
+	prefix := strings.Trim(string(out), "\n")
+	return filepath.Join(prefix, context)
 }
 
 // initImageStream initialize ImageStream object
@@ -137,7 +134,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 }
 
 // initBuildConfig initialize Openshifts BuildConfig Object
-func initBuildConfig(name string, service kobject.ServiceConfig) *buildapi.BuildConfig {
+func initBuildConfig(name string, service kobject.ServiceConfig, inputFile string) *buildapi.BuildConfig {
 	bc := &buildapi.BuildConfig{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "BuildConfig",
@@ -160,7 +157,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig) *buildapi.Build
 						Ref: "master",
 						URI: getGitRemote("origin"),
 					},
-					ContextDir: getAbsBuildContext(service.Build),
+					ContextDir: getAbsBuildContext(service.Build, inputFile),
 				},
 				Strategy: buildapi.BuildStrategy{
 					DockerStrategy: &buildapi.DockerBuildStrategy{},
@@ -292,7 +289,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 
 			if opt.CreateBuildConfig && service.Build != "" {
-				objects = append(objects, initBuildConfig(name, service)) // Openshift BuildConfigs
+				objects = append(objects, initBuildConfig(name, service, opt.InputFile)) // Openshift BuildConfigs
 			}
 
 			// If ports not provided in configuration we will not make service
