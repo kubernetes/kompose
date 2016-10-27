@@ -78,4 +78,15 @@ convert::expect_failure "kompose up $KOMPOSE_ROOT/script/test/fixtures/gitlab/do
 convert::expect_failure "kompose down $KOMPOSE_ROOT/script/test/fixtures/gitlab/docker-compose.yml" "Unknown Argument docker-gitlab.yml"
 convert::expect_failure "kompose convert $KOMPOSE_ROOT/script/test/fixtures/gitlab/docker-compose.yml" "Unknown Argument docker-gitlab.yml"
 
+# Tests related to kompose --bundle convert usage and that setting the compose file results in a failure
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/bundles/foo.yml --bundle $KOMPOSE_ROOT/script/test/fixtures/bundles/dab/docker-compose-bundle.dab convert"
+
+######
+# Test related to kompose --bundle convert to ensure that docker bundles are converted properly
+convert::expect_success "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bundles/dab/docker-compose-bundle.dab convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/bundles/dab/output-k8s.json"
+
+######
+# Test related to kompose --bundle convert to ensure that DSB bundles are converted properly
+convert::expect_success_and_warning "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/docker-voting-bundle.dsb convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/output-k8s.json" "Service cannot be created because of missing port."
+
 exit $EXIT_STATUS
