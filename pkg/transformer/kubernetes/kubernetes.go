@@ -43,6 +43,8 @@ import (
 )
 
 type Kubernetes struct {
+	// the user provided options from the command line
+	Opt kobject.ConvertOptions
 }
 
 // timeout is how long we'll wait for the termination of kubernetes resource to be successful
