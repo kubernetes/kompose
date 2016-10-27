@@ -36,3 +36,21 @@ _testmain.go
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# 
+# VIM SPECIFIC
+#
+
+# swap
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+
+# session
+Session.vim
+
+# temporary
+.netrwhist
+*~
+
+# auto-generated tag files
+tags
