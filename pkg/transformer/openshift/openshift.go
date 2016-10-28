@@ -210,7 +210,7 @@ func (k *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created deployment: %s", t.Name)
+			logrus.Infof("Successfully created DeploymentConfig: %s", t.Name)
 		case *api.Service:
 			_, err := kclient.Services(namespace).Create(t)
 			if err != nil {
