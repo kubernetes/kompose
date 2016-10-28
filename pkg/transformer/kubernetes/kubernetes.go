@@ -43,6 +43,8 @@ import (
 )
 
 type Kubernetes struct {
+	// the user provided options from the command line
+	Opt kobject.ConvertOptions
 }
 
 // timeout is how long we'll wait for the termination of kubernetes resource to be successful
@@ -50,7 +52,7 @@ type Kubernetes struct {
 const TIMEOUT = 300
 
 // Init RC object
-func InitRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
+func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
 	rc := &api.ReplicationController{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "ReplicationController",
@@ -80,7 +82,7 @@ func InitRC(name string, service kobject.ServiceConfig, replicas int) *api.Repli
 }
 
 // Init Svc object
-func InitSvc(name string, service kobject.ServiceConfig) *api.Service {
+func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Service {
 	svc := &api.Service{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Service",
@@ -98,7 +100,7 @@ func InitSvc(name string, service kobject.ServiceConfig) *api.Service {
 }
 
 // Init Deployment
-func InitD(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
+func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
 	dc := &extensions.Deployment{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Deployment",
@@ -125,7 +127,7 @@ func InitD(name string, service kobject.ServiceConfig, replicas int) *extensions
 }
 
 // Init DS object
-func InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
+func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
 	ds := &extensions.DaemonSet{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DaemonSet",
@@ -151,7 +153,7 @@ func InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
 }
 
 // Initialize PersistentVolumeClaim
-func CreatePVC(name string, mode string) *api.PersistentVolumeClaim {
+func (k *Kubernetes) CreatePVC(name string, mode string) *api.PersistentVolumeClaim {
 	size, err := resource.ParseQuantity("100Mi")
 	if err != nil {
 		logrus.Fatalf("Error parsing size")
@@ -183,7 +185,7 @@ func CreatePVC(name string, mode string) *api.PersistentVolumeClaim {
 }
 
 // Configure the container ports.
-func ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
+func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
 	for _, port := range service.Port {
 		ports = append(ports, api.ContainerPort{
@@ -196,7 +198,7 @@ func ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort
 }
 
 // Configure the container service ports.
-func ConfigServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
+func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
@@ -216,7 +218,7 @@ func ConfigServicePorts(name string, service kobject.ServiceConfig) []api.Servic
 }
 
 // Configure the container volumes.
-func ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim) {
+func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim) {
 	volumesMount := []api.VolumeMount{}
 	volumes := []api.Volume{}
 	var pvc []*api.PersistentVolumeClaim
@@ -256,13 +258,13 @@ func ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMoun
 		if len(host) > 0 {
 			logrus.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
 		}
-		pvc = append(pvc, CreatePVC(volumeName, mode))
+		pvc = append(pvc, k.CreatePVC(volumeName, mode))
 	}
 	return volumesMount, volumes, pvc
 }
 
 // Configure the environment variables.
-func ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
+func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
 	envs := []api.EnvVar{}
 	for _, v := range service.Environment {
 		envs = append(envs, api.EnvVar{
@@ -275,17 +277,17 @@ func ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
 }
 
 // Generate a Kubernetes artifact for each input type service
-func CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
+func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
 	var objects []runtime.Object
 
 	if opt.CreateD {
-		objects = append(objects, InitD(name, service, opt.Replicas))
+		objects = append(objects, k.InitD(name, service, opt.Replicas))
 	}
 	if opt.CreateDS {
-		objects = append(objects, InitDS(name, service))
+		objects = append(objects, k.InitDS(name, service))
 	}
 	if opt.CreateRC {
-		objects = append(objects, InitRC(name, service, opt.Replicas))
+		objects = append(objects, k.InitRC(name, service, opt.Replicas))
 	}
 
 	return objects
@@ -298,27 +300,27 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	var allobjects []runtime.Object
 
 	for name, service := range komposeObject.ServiceConfigs {
-		objects := CreateKubernetesObjects(name, service, opt)
+		objects := k.CreateKubernetesObjects(name, service, opt)
 
 		// If ports not provided in configuration we will not make service
-		if PortsExist(name, service) {
-			svc := CreateService(name, service, objects)
+		if k.PortsExist(name, service) {
+			svc := k.CreateService(name, service, objects)
 			objects = append(objects, svc)
 		}
 
-		UpdateKubernetesObjects(name, service, &objects)
+		k.UpdateKubernetesObjects(name, service, &objects)
 
 		allobjects = append(allobjects, objects...)
 	}
 	// If docker-compose has a volumes_from directive it will be handled here
-	VolumesFrom(&allobjects, komposeObject)
+	k.VolumesFrom(&allobjects, komposeObject)
 	// sort all object so Services are first
-	SortServicesFirst(&allobjects)
+	k.SortServicesFirst(&allobjects)
 	return allobjects
 }
 
 // Updates the given object with the given pod template update function and ObjectMeta update function
-func UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec), updateMeta func(meta *api.ObjectMeta)) {
+func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec), updateMeta func(meta *api.ObjectMeta)) {
 	switch t := obj.(type) {
 	case *api.ReplicationController:
 		if t.Spec.Template == nil {
