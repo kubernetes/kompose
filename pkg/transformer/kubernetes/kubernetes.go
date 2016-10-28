@@ -364,19 +364,19 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created deployment: %s", t.Name)
+			logrus.Infof("Successfully created Deployment: %s", t.Name)
 		case *api.Service:
 			_, err := client.Services(namespace).Create(t)
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created service: %s", t.Name)
+			logrus.Infof("Successfully created Service: %s", t.Name)
 		case *api.PersistentVolumeClaim:
 			_, err := client.PersistentVolumeClaims(namespace).Create(t)
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created persistentVolumeClaim: %s", t.Name)
+			logrus.Infof("Successfully created PersistentVolumeClaim: %s", t.Name)
 		}
 	}
 	fmt.Println("\nYour application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods,pvc' for details.")
@@ -412,7 +412,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			if err != nil {
 				return err
 			} else {
-				logrus.Infof("Successfully deleted deployment: %s", t.Name)
+				logrus.Infof("Successfully deleted Deployment: %s", t.Name)
 			}
 		case *api.Service:
 			//delete svc
@@ -425,7 +425,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			if err != nil {
 				return err
 			} else {
-				logrus.Infof("Successfully deleted service: %s", t.Name)
+				logrus.Infof("Successfully deleted Service: %s", t.Name)
 			}
 		case *api.PersistentVolumeClaim:
 			// delete pvc
