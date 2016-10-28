@@ -216,13 +216,13 @@ func (k *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created service: %s", t.Name)
+			logrus.Infof("Successfully created Service: %s", t.Name)
 		case *api.PersistentVolumeClaim:
 			_, err := kclient.PersistentVolumeClaims(namespace).Create(t)
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created persistentVolumeClaim: %s", t.Name)
+			logrus.Infof("Successfully created PersistentVolumeClaim: %s", t.Name)
 		}
 	}
 	fmt.Println("\nYour application has been deployed to OpenShift. You can run 'oc get dc,svc,is,pvc' for details.")
