@@ -42,6 +42,10 @@ import (
 )
 
 type OpenShift struct {
+	// Anonymous field allows for inheritance. We are basically inheriting
+	// all of kubernetes.Kubernetes Methods and variables here. We'll overwite
+	// some of those methods with our own for openshift.
+	kubernetes.Kubernetes
 }
 
 // getImageTag get tag name from image name
@@ -56,7 +60,7 @@ func getImageTag(image string) string {
 }
 
 // initImageStream initialize ImageStream object
-func initImageStream(name string, service kobject.ServiceConfig) *imageapi.ImageStream {
+func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) *imageapi.ImageStream {
 	tag := getImageTag(service.Image)
 
 	is := &imageapi.ImageStream{
@@ -82,7 +86,7 @@ func initImageStream(name string, service kobject.ServiceConfig) *imageapi.Image
 }
 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
-func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
+func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
 	tag := getImageTag(service.Image)
 
 	dc := &deployapi.DeploymentConfig{
@@ -137,39 +141,39 @@ func initDeploymentConfig(name string, service kobject.ServiceConfig, replicas i
 
 // Transform maps komposeObject to openshift objects
 // returns objects that are already sorted in the way that Services are first
-func (k *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
+func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 
 	for name, service := range komposeObject.ServiceConfigs {
-		objects := kubernetes.CreateKubernetesObjects(name, service, opt)
+		objects := o.CreateKubernetesObjects(name, service, opt)
 
 		if opt.CreateDeploymentConfig {
-			objects = append(objects, initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
+			objects = append(objects, o.initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
 			// create ImageStream after deployment (creating IS will trigger new deployment)
-			objects = append(objects, initImageStream(name, service))
+			objects = append(objects, o.initImageStream(name, service))
 		}
 
 		// If ports not provided in configuration we will not make service
-		if kubernetes.PortsExist(name, service) {
-			svc := kubernetes.CreateService(name, service, objects)
+		if o.PortsExist(name, service) {
+			svc := o.CreateService(name, service, objects)
 			objects = append(objects, svc)
 		}
 
-		kubernetes.UpdateKubernetesObjects(name, service, &objects)
+		o.UpdateKubernetesObjects(name, service, &objects)
 
 		allobjects = append(allobjects, objects...)
 	}
 	// If docker-compose has a volumes_from directive it will be handled here
-	kubernetes.VolumesFrom(&allobjects, komposeObject)
+	o.VolumesFrom(&allobjects, komposeObject)
 	// sort all object so Services are first
-	kubernetes.SortServicesFirst(&allobjects)
+	o.SortServicesFirst(&allobjects)
 	return allobjects
 }
 
-func (k *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
+func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
-	objects := k.Transform(komposeObject, opt)
+	objects := o.Transform(komposeObject, opt)
 
 	fmt.Println("We are going to create OpenShift DeploymentConfigs, Services and PersistentVolumeClaims for your Dockerized application. \n" +
 		"If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. \n")
@@ -230,6 +234,6 @@ func (k *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 	return nil
 }
 
-func (k *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
+func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	return errors.New("Not Implemented")
 }
