@@ -108,7 +108,6 @@ func getAbsBuildContext(context string, inputFile string) string {
 	if err != nil {
 		return ""
 	}
-
 	prefix := strings.Trim(string(out), "\n")
 	return filepath.Join(prefix, context)
 }
@@ -116,6 +115,20 @@ func getAbsBuildContext(context string, inputFile string) string {
 // initImageStream initialize ImageStream object
 func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) *imageapi.ImageStream {
 	tag := getImageTag(service.Image)
+
+	var tags map[string]imageapi.TagReference
+	if service.Build != "" {
+		tags = map[string]imageapi.TagReference{}
+	} else {
+		tags = map[string]imageapi.TagReference{
+			tag: imageapi.TagReference{
+				From: &api.ObjectReference{
+					Kind: "DockerImage",
+					Name: service.Image,
+				},
+			},
+		}
+	}
 
 	is := &imageapi.ImageStream{
 		TypeMeta: unversioned.TypeMeta{
@@ -126,14 +139,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 			Name: name,
 		},
 		Spec: imageapi.ImageStreamSpec{
-			Tags: map[string]imageapi.TagReference{
-				tag: imageapi.TagReference{
-					From: &api.ObjectReference{
-						Kind: "DockerImage",
-						Name: service.Image,
-					},
-				},
-			},
+			Tags: tags,
 		},
 	}
 	return is
