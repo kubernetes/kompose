@@ -278,3 +278,31 @@ WARN[0000] Unsupported key build - ignoring
 WARN[0000] Unsupported key cap_add - ignoring           
 WARN[0000] Unsupported key dockerfile - ignoring
 ```
+
+## Labels
+
+`kompose` supports Kompose-specific labels within the `docker-compose.yml` file in order to explicitly imply a service type upon conversion.
+
+The currently supported options are:
+
+| Key                  | Value                               |
+|----------------------|-------------------------------------|
+| kompose.service.type | nodeport / clusterip / loadbalancer |
+
+
+For example:
+
+```yaml
+--- 
+version: "2"
+services: 
+  nginx:
+    image: nginx
+    dockerfile: foobar
+    build: ./foobar
+    cap_add:
+      - ALL
+    container_name: foobar
+    labels: 
+      kompose.service.type: nodeport
+```
