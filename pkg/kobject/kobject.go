@@ -113,6 +113,7 @@ type ConvertOptions struct {
 	CreateDeploymentConfig bool
 	CreateChart            bool
 	GenerateYaml           bool
+	EmptyVols              bool
 	Replicas               int
 	InputFile              string
 	OutFile                string

@@ -139,6 +139,7 @@ func Convert(c *cli.Context) {
 		CreateDS:               c.BoolT("daemonset"),
 		CreateRC:               c.BoolT("replicationcontroller"),
 		CreateDeploymentConfig: c.BoolT("deploymentconfig"),
+		EmptyVols:              c.BoolT("emptyvols"),
 	}
 
 	validateFlags(c, &opt)
@@ -171,6 +172,7 @@ func Up(c *cli.Context) {
 		InputFile: c.GlobalString("file"),
 		Replicas:  1,
 		Provider:  strings.ToLower(c.GlobalString("provider")),
+		EmptyVols: c.BoolT("emptyvols"),
 	}
 	validateFlags(c, &opt)
 	validateControllers(&opt)
@@ -202,6 +204,7 @@ func Down(c *cli.Context) {
 		InputFile: c.GlobalString("file"),
 		Replicas:  1,
 		Provider:  strings.ToLower(c.GlobalString("provider")),
+		EmptyVols: c.BoolT("emptyvols"),
 	}
 	validateFlags(c, &opt)
 	validateControllers(&opt)
