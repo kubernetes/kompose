@@ -40,6 +40,12 @@ tar -xvf kompose_linux-amd64.tar.gz --strip 1
 sudo mv kompose /usr/local/bin
 ```
 
+Otherwise, you could take the latest development package from master branch. Make sure your PATH includes the $GOPATH/bin directory so your commands can be easily used:
+```console
+$ go get github.com/kubernetes-incubator/kompose
+$ export PATH=$PATH:$GOPATH/bin
+```
+
 ## Bash completion
 Running this below command in order to benefit from bash completion
 
