@@ -18,7 +18,8 @@ binary:
 	CGO_ENABLED=1 ./script/make.sh binary
 
 binary-cross:
-	CGO_ENABLED=1 ./script/make.sh binary-cross
+	# CGO_ENABLED=1 ./script/make.sh binary-cross
+	./script/make.sh binary-cross
 
 clean:
 	./script/make.sh clean
