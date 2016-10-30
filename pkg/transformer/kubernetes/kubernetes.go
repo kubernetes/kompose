@@ -219,9 +219,13 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 
 // Configure the container volumes.
 func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim) {
-	volumesMount := []api.VolumeMount{}
+	volumeMounts := []api.VolumeMount{}
 	volumes := []api.Volume{}
-	var pvc []*api.PersistentVolumeClaim
+	var PVCs []*api.PersistentVolumeClaim
+
+	// Set a var based on if the user wants to use emtpy volumes
+	// as opposed to persistent volumes and volume claims
+	useEmptyVolumes := k.Opt.EmptyVols
 
 	var count int
 	for _, volume := range service.Volumes {
@@ -230,37 +234,66 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			logrus.Warningf("Failed to configure container volume: %v", err)
 			continue
 		}
-		if volumeName == "" {
-			volumeName = fmt.Sprintf("%s-claim%d", name, count)
-			count++
-		}
+
 		// check if ro/rw mode is defined, default rw
 		readonly := len(mode) > 0 && mode == "ro"
 
+		if volumeName == "" {
+			if useEmptyVolumes {
+				volumeName = fmt.Sprintf("%s-empty%d", name, count)
+			} else {
+				volumeName = fmt.Sprintf("%s-claim%d", name, count)
+			}
+			count++
+		}
+
+		// create a new volume mount object and append to list
 		volmount := api.VolumeMount{
 			Name:      volumeName,
 			ReadOnly:  readonly,
 			MountPath: container,
 		}
-		volumesMount = append(volumesMount, volmount)
+		volumeMounts = append(volumeMounts, volmount)
 
+		// Get a volume source based on the type of volume we are using
+		// For PVC we will also create a PVC object and add to list
+		var volsource *api.VolumeSource
+		if useEmptyVolumes {
+			volsource = k.ConfigEmptyVolumeSource()
+		} else {
+			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
+			PVCs = append(PVCs, k.CreatePVC(volumeName, mode))
+		}
+
+		// create a new volume object using the volsource and add to list
 		vol := api.Volume{
-			Name: volumeName,
-			VolumeSource: api.VolumeSource{
-				PersistentVolumeClaim: &api.PersistentVolumeClaimVolumeSource{
-					ClaimName: volumeName,
-					ReadOnly:  readonly,
-				},
-			},
+			Name:         volumeName,
+			VolumeSource: *volsource,
 		}
 		volumes = append(volumes, vol)
 
 		if len(host) > 0 {
 			logrus.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
 		}
-		pvc = append(pvc, k.CreatePVC(volumeName, mode))
 	}
-	return volumesMount, volumes, pvc
+	return volumeMounts, volumes, PVCs
+}
+
+// helper function to create an EmptyDir api.VolumeSource
+func (k *Kubernetes) ConfigEmptyVolumeSource() *api.VolumeSource {
+	return &api.VolumeSource{
+		EmptyDir: &api.EmptyDirVolumeSource{},
+	}
+}
+
+// helper function to create an api.VolumeSource with a PVC
+func (k *Kubernetes) ConfigPVCVolumeSource(name string, readonly bool) *api.VolumeSource {
+	return &api.VolumeSource{
+		PersistentVolumeClaim: &api.PersistentVolumeClaimVolumeSource{
+			ClaimName: name,
+			ReadOnly:  readonly,
+		},
+	}
 }
 
 // Configure the environment variables.
