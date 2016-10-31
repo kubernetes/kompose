@@ -245,6 +245,7 @@ func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, o
 	svc.Spec.Ports = servicePorts
 
 	svc.Spec.Type = api.ServiceType(service.ServiceType)
+
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
 	svc.ObjectMeta.Annotations = annotations
