@@ -133,12 +133,12 @@ func (b *Bundle) LoadFile(file string) kobject.KomposeObject {
 
 	buf, err := ioutil.ReadFile(file)
 	if err != nil {
-		logrus.Fatalf("Failed to read bundles file: ", err)
+		logrus.Fatalf("Failed to read bundles file: %s ", err)
 	}
 	reader := strings.NewReader(string(buf))
 	bundle, err := loadFile(reader)
 	if err != nil {
-		logrus.Fatalf("Failed to parse bundles file: ", err)
+		logrus.Fatalf("Failed to parse bundles file: %s", err)
 	}
 
 	for name, service := range bundle.Services {

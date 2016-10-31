@@ -241,7 +241,7 @@ func getTransformer(opt kobject.ConvertOptions) transformer.Transformer {
 	} else {
 		// Create/Init new OpenShift object that is initialized with a newly
 		// created Kubernetes object. Openshift inherits from Kubernetes
-		t = &openshift.OpenShift{kubernetes.Kubernetes{Opt: opt}}
+		t = &openshift.OpenShift{Kubernetes: kubernetes.Kubernetes{Opt: opt}}
 	}
 	return t
 }
