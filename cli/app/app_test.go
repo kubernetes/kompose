@@ -106,16 +106,16 @@ func TestParseVolume(t *testing.T) {
 			t.Errorf("In test case %q, returned unexpected error %v", test.test, err)
 		}
 		if name != test.name {
-			t.Errorf("In test case %q, returned volume name %s, expected %s", name, test.name)
+			t.Errorf("In test case %q, returned volume name %s, expected %s", test.test, name, test.name)
 		}
 		if host != test.host {
-			t.Errorf("In test case %q, returned host path %s, expected %s", host, test.host)
+			t.Errorf("In test case %q, returned host path %s, expected %s", test.test, host, test.host)
 		}
 		if container != test.container {
-			t.Errorf("In test case %q, returned container path %s, expected %s", container, test.container)
+			t.Errorf("In test case %q, returned container path %s, expected %s", test.test, container, test.container)
 		}
 		if mode != test.mode {
-			t.Errorf("In test case %q, returned access mode %s, expected %s", mode, test.mode)
+			t.Errorf("In test case %q, returned access mode %s, expected %s", test.test, mode, test.mode)
 		}
 	}
 }
