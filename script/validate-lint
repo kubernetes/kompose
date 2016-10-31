@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Copyright 2016 The Kubernetes Authors All rights reserved.
 #
@@ -16,33 +17,21 @@
 
 source "$(dirname "$BASH_SOURCE")/.validate"
 
-# We will eventually get to the point where packages should be the complete list
-# of subpackages, vendoring excluded, as given by:
-#
-IFS=$'\n'
-files=( $(validate_diff --diff-filter=ACMR --name-only -- '*.go' | grep -v '^vendor/\|^integration' || true) )
-unset IFS
-
-errors=()
-for f in "${files[@]}"; do
-	# we use "git show" here to validate that what's committed passes go lint
-	failedLint=$(golint "$f")
-	if [ "$failedLint" ]; then
-		errors+=( "$failedLint" )
+for pkg in $PKGS; do
+	lintOutput=$(golint "$pkg")
+	# if lineOutput is not empty, save it to errros array
+	if [ "$lintOutput" ]; then
+		errors+=("$lintOutput")
 	fi
-done
+done 
+
 
 if [ ${#errors[@]} -eq 0 ]; then
-	echo 'Congratulations!  All Go source files have been linted.'
+	echo "golint OK"
 else
-	{
-		echo "Errors from golint:"
-		for err in "${errors[@]}"; do
-			echo "$err"
-		done
-		echo
-		echo 'Please fix the above errors. You can test via "golint" and commit the result.'
-		echo
-	} >&2
-	false
+	echo "golint ERRORS:"
+	for err in "${errors[@]}"; do
+		echo "$err"
+	done
+	exit 1
 fi

@@ -26,6 +26,14 @@ clean:
 
 test-unit:
 	./script/make.sh test-unit
-
 test-cmd:
 	./script/make.sh test-cmd
+
+validate: gofmt vet
+
+vet:
+	./script/make.sh validate-vet
+lint:
+	./script/make.sh validate-lint
+gofmt:
+	./script/make.sh validate-gofmt
