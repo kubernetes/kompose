@@ -146,7 +146,12 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 }
 
 // initBuildConfig initialize Openshifts BuildConfig Object
-func initBuildConfig(name string, service kobject.ServiceConfig, inputFile string) *buildapi.BuildConfig {
+func initBuildConfig(name string, service kobject.ServiceConfig, inputFile string, repo string, branch string) *buildapi.BuildConfig {
+	uri := repo
+	if uri == "" {
+		uri = getGitRemote("origin")
+	}
+
 	bc := &buildapi.BuildConfig{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "BuildConfig",
@@ -166,8 +171,8 @@ func initBuildConfig(name string, service kobject.ServiceConfig, inputFile strin
 			buildapi.CommonSpec{
 				Source: buildapi.BuildSource{
 					Git: &buildapi.GitBuildSource{
-						Ref: "master",
-						URI: getGitRemote("origin"),
+						Ref: branch,
+						URI: uri,
 					},
 					ContextDir: getAbsBuildContext(service.Build, inputFile),
 				},
@@ -301,7 +306,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 
 			if opt.CreateBuildConfig && service.Build != "" {
-				objects = append(objects, initBuildConfig(name, service, opt.InputFile)) // Openshift BuildConfigs
+				objects = append(objects, initBuildConfig(name, service, opt.InputFile, opt.Repo, opt.Branch)) // Openshift BuildConfigs
 			}
 
 			// If ports not provided in configuration we will not make service

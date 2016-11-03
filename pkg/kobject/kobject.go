@@ -34,6 +34,8 @@ type ConvertOptions struct {
 	CreateDS               bool
 	CreateDeploymentConfig bool
 	CreateBuildConfig      bool
+	Repo                   string
+	Branch                 string
 	CreateChart            bool
 	GenerateYaml           bool
 	EmptyVols              bool
