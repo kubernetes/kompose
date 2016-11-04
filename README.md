@@ -70,13 +70,13 @@ $ make binary
 Or `go build`:
 
 ```console
-$ go build -o kompose ./cli/main
+$ go build -o kompose main.go
 ```
 
 If you have `go` v1.5, it's still good to build `kompose` with the following settings:
 
 ```console
-$ CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose ./cli/main
+$ CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose main.go
 ```
 
 To create a multi-platform binary, use the `binary-cross` command via `make`:
