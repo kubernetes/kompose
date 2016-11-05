@@ -174,8 +174,11 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
 	objects := o.Transform(komposeObject, opt)
-
-	fmt.Println("We are going to create OpenShift DeploymentConfigs, Services and PersistentVolumeClaims for your Dockerized application. \n" +
+	pvcStr := " "
+	if !opt.EmptyVols {
+		pvcStr = " and PersistentVolumeClaims "
+	}
+	fmt.Println("We are going to create OpenShift DeploymentConfigs, Services" +pvcStr+ "for your Dockerized application. \n" +
 		"If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. \n")
 
 	// initialize OpenShift Client
@@ -229,7 +232,13 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 			logrus.Infof("Successfully created PersistentVolumeClaim: %s", t.Name)
 		}
 	}
-	fmt.Println("\nYour application has been deployed to OpenShift. You can run 'oc get dc,svc,is,pvc' for details.")
+
+	if !opt.EmptyVols {
+		pvcStr = ",pvc"
+	} else {
+		pvcStr = ""
+	}
+	fmt.Println("\nYour application has been deployed to OpenShift. You can run 'oc get dc,svc,is" +pvcStr+ "' for details.")
 
 	return nil
 }
