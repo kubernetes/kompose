@@ -207,6 +207,16 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 				}
 			}
 
+			// canonical "Custom Labels" handler
+			// Labels used to influence conversion of kompose will be handled
+			// from here for docker-compose. Each loader will have such handler.
+			for key, value := range composeServiceConfig.Labels {
+				switch key {
+				case "kompose.service.type":
+					serviceConfig.ServiceType = handleServiceType(value)
+				}
+			}
+
 			// convert compose labels to annotations
 			serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
 
@@ -226,4 +236,18 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	}
 
 	return komposeObject
+}
+
+func handleServiceType(ServiceType string) string {
+	switch strings.ToLower(ServiceType) {
+	case "", "clusterip":
+		return string(api.ServiceTypeClusterIP)
+	case "nodeport":
+		return string(api.ServiceTypeNodePort)
+	case "loadbalancer":
+		return string(api.ServiceTypeLoadBalancer)
+	default:
+		logrus.Fatalf("Unknown value '%s', supported values are 'NodePort, ClusterIP or LoadBalancer'", ServiceType)
+		return ""
+	}
 }
