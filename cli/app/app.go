@@ -17,8 +17,10 @@ limitations under the License.
 package app
 
 import (
+	"os/exec"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -177,6 +179,13 @@ func Up(c *cli.Context) {
 	validateFlags(c, &opt)
 	validateControllers(&opt)
 
+	var hasMinikube bool
+	minikubePath, err := exec.LookPath("minikube"); if err != nil {
+		hasMinikube = false
+	} else {
+		hasMinikube = true
+	}
+
 	// loader parses input from file into komposeObject.
 	l, err := loader.GetLoader(inputFormat)
 	if err != nil {
@@ -193,6 +202,29 @@ func Up(c *cli.Context) {
 
 	//Submit objects to provider
 	errDeploy := t.Deploy(komposeObject, opt)
+
+	if errDeploy != nil && opt.Provider == "kubernetes" && hasMinikube {
+		fmt.Printf("Unable to deploy using kubernetes, but found minikube. Should we use minikube to deploy? (y/n): ")
+		c := 'N'
+		_, _ = fmt.Scanf("%c", &c)
+
+		if c == 'y' || c == 'Y' {
+			/* Spawn minikube, and then retry connecting via kubernetes */
+			fmt.Printf("Bringing up minikube...")
+			minikubeCmd := exec.Command(minikubePath, "start")
+			minikubeOutput, err := minikubeCmd.CombinedOutput()
+			if err != nil {
+				logrus.Fatalf("Error spawning minikube: %s", err)
+			}
+			fmt.Printf("%s", minikubeOutput)
+
+			/* Need to pause slightly to give apiServer a chance to start */
+			time.Sleep(5 * time.Second)
+
+			errDeploy = t.Deploy(komposeObject, opt)
+		}
+	}
+
 	if errDeploy != nil {
 		logrus.Fatalf("Error while deploying application: %s", errDeploy)
 	}
