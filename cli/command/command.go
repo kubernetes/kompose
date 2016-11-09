@@ -28,6 +28,12 @@ import (
 // Hook for erroring and exit out on warning
 type errorOnWarningHook struct{}
 
+// array consisting of our common conversion flags that will get passed along
+// for the autocomplete aspect
+var (
+	commonConvertFlagsList = []string{"out", "replicas", "yaml", "stdout", "emptyvols"}
+)
+
 func (errorOnWarningHook) Levels() []logrus.Level {
 	return []logrus.Level{logrus.WarnLevel}
 }
@@ -75,6 +81,17 @@ func ConvertCommandDummy() cli.Command {
 	return command
 }
 
+// Generate the Bash completion flag taking the common flags plus whatever is
+// passed into the function to correspond to the primary command specific args
+func generateBashCompletion(args []string) {
+	commonArgs := []string{"bundle", "file", "suppress-warnings", "verbose", "error-on-warning", "provider"}
+	flags := append(commonArgs, args...)
+
+	for _,f := range flags {
+		fmt.Printf("--%s\n", f)
+	}
+}
+
 // ConvertKubernetesCommand defines the kompose convert subcommand for Kubernetes provider
 func ConvertKubernetesCommand() cli.Command {
 	command := cli.Command{
@@ -82,6 +99,10 @@ func ConvertKubernetesCommand() cli.Command {
 		Usage: fmt.Sprintf("Convert Docker Compose file (e.g. %s) to Kubernetes objects", app.DefaultComposeFile),
 		Action: func(c *cli.Context) {
 			app.Convert(c)
+		},
+		BashComplete: func(c *cli.Context) {
+			flags := []string{"chart", "deployment", "daemonset", "replicationcontroller"}
+			generateBashCompletion(append(flags, commonConvertFlagsList...))
 		},
 		Flags: []cli.Flag{
 			cli.BoolFlag{
@@ -113,6 +134,10 @@ func ConvertOpenShiftCommand() cli.Command {
 		Usage: fmt.Sprintf("Convert Docker Compose file (e.g. %s) to OpenShift objects", app.DefaultComposeFile),
 		Action: func(c *cli.Context) {
 			app.Convert(c)
+		},
+		BashComplete: func(c *cli.Context) {
+			flags := []string{"deploymentconfig"}
+			generateBashCompletion(append(flags, commonConvertFlagsList...))
 		},
 		Flags: []cli.Flag{
 			cli.BoolFlag{
@@ -160,6 +185,10 @@ func UpCommand() cli.Command {
 		Action: func(c *cli.Context) {
 			app.Up(c)
 		},
+		BashComplete: func(c *cli.Context) {
+			flags := []string{"emptyvols"}
+			generateBashCompletion(flags)
+		},
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "emptyvols",
@@ -176,6 +205,10 @@ func DownCommand() cli.Command {
 		Usage: "Delete instantiated services/deployments from kubernetes",
 		Action: func(c *cli.Context) {
 			app.Down(c)
+		},
+		BashComplete: func(c *cli.Context) {
+			flags := []string{"emptyvols"}
+			generateBashCompletion(flags)
 		},
 		Flags: []cli.Flag{
 			cli.BoolFlag{
