@@ -143,6 +143,7 @@ type ServiceConfig struct {
 	Restart       string
 	User          string
 	VolumesFrom   []string
+	ServiceType   string
 }
 
 // EnvVar holds the environment variable struct of a container
