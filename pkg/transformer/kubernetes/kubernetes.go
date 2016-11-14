@@ -373,6 +373,24 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 	}
 }
 
+// Creates the k8s Client, returns k8s client and namespace
+func (o *Kubernetes) GetKubernetesClient() (*client.Client, string, error) {
+	// initialize Kubernetes client
+	factory := cmdutil.NewFactory(nil)
+	clientConfig, err := factory.ClientConfig()
+	if err != nil {
+		return nil, "", err
+	}
+	client := client.NewOrDie(clientConfig)
+
+	// get namespace from config
+	namespace, _, err := factory.DefaultNamespace()
+	if err != nil {
+		return nil, "", err
+	}
+	return client, namespace, nil
+}
+
 // Submit deployment and svc to k8s endpoint
 func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
@@ -385,16 +403,10 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 	fmt.Println("We are going to create Kubernetes Deployments, Services" + pvcStr + "for your Dockerized application. \n" +
 		"If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. \n")
 
-	factory := cmdutil.NewFactory(nil)
-	clientConfig, err := factory.ClientConfig()
+	client, namespace, err := k.GetKubernetesClient()
 	if err != nil {
 		return err
 	}
-	namespace, _, err := factory.DefaultNamespace()
-	if err != nil {
-		return err
-	}
-	client := client.NewOrDie(clientConfig)
 
 	for _, v := range objects {
 		switch t := v.(type) {
@@ -433,16 +445,10 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 	//Convert komposeObject
 	objects := k.Transform(komposeObject, opt)
 
-	factory := cmdutil.NewFactory(nil)
-	clientConfig, err := factory.ClientConfig()
+	client, namespace, err := k.GetKubernetesClient()
 	if err != nil {
 		return err
 	}
-	namespace, _, err := factory.DefaultNamespace()
-	if err != nil {
-		return err
-	}
-	client := client.NewOrDie(clientConfig)
 
 	for _, v := range objects {
 		switch t := v.(type) {
