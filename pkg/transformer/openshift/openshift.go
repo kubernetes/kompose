@@ -77,11 +77,17 @@ func getImageTag(image string) string {
 	}
 }
 
+// hasGitBinary checks if the 'git' binary is available on the system
+func hasGitBinary() bool {
+	_, err := exec.LookPath("git")
+	return err == nil
+}
+
 // getGitRemote gets git remote URI for the current git repo
-func getGitRemote(remote string) string {
+func getGitRemote(remote string) (string, error) {
 	out, err := exec.Command("git", "remote", "get-url", remote).Output()
 	if err != nil {
-		return ""
+		return "", err
 	}
 	url := strings.TrimRight(string(out), "\n")
 
@@ -89,14 +95,14 @@ func getGitRemote(remote string) string {
 		url += ".git"
 	}
 
-	return url
+	return url, nil
 }
 
 // getAbsBuildContext returns build context relative to project root dir
-func getAbsBuildContext(context string, inputFile string) string {
+func getAbsBuildContext(context string, inputFile string) (string, error) {
 	workDir, err := os.Getwd()
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	composeFileDir := filepath.Dir(filepath.Join(workDir, inputFile))
@@ -106,10 +112,10 @@ func getAbsBuildContext(context string, inputFile string) string {
 	cmd.Dir = composeFileDir
 	out, err = cmd.Output()
 	if err != nil {
-		return ""
+		return "", err
 	}
 	prefix := strings.Trim(string(out), "\n")
-	return filepath.Join(prefix, context)
+	return filepath.Join(prefix, context), nil
 }
 
 // initImageStream initialize ImageStream object
@@ -147,10 +153,27 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 
 // initBuildConfig initialize Openshifts BuildConfig Object
 func initBuildConfig(name string, service kobject.ServiceConfig, inputFile string, repo string, branch string) *buildapi.BuildConfig {
+	var err error
+
 	uri := repo
 	if uri == "" {
-		uri = getGitRemote("origin")
+		if hasGitBinary() {
+			uri, err = getGitRemote("origin")
+			if err != nil {
+				logrus.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
+			}
+		} else {
+			logrus.Fatalf("Git is not installed! Please install Git to create buildconfig, else supply source repository to use for build using '--build-repo' option.")
+		}
 	}
+
+	var contextDir string
+	contextDir, err = getAbsBuildContext(service.Build, inputFile)
+	if err != nil {
+		logrus.Fatalf("[%s] Buildconfig cannote be created due to error in creating build context.", name)
+	}
+
+	logrus.Infof("[%s] Buildconfig using repo: %s, branch: %s as source.", name, uri, branch)
 
 	bc := &buildapi.BuildConfig{
 		TypeMeta: unversioned.TypeMeta{
@@ -174,7 +197,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, inputFile strin
 						Ref: branch,
 						URI: uri,
 					},
-					ContextDir: getAbsBuildContext(service.Build, inputFile),
+					ContextDir: contextDir,
 				},
 				Strategy: buildapi.BuildStrategy{
 					DockerStrategy: &buildapi.DockerBuildStrategy{},
