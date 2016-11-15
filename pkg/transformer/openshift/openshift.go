@@ -153,27 +153,10 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 
 // initBuildConfig initialize Openshifts BuildConfig Object
 func initBuildConfig(name string, service kobject.ServiceConfig, inputFile string, repo string, branch string) *buildapi.BuildConfig {
-	var err error
-
-	uri := repo
-	if uri == "" {
-		if hasGitBinary() {
-			uri, err = getGitRemote("origin")
-			if err != nil {
-				logrus.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
-			}
-		} else {
-			logrus.Fatalf("Git is not installed! Please install Git to create buildconfig, else supply source repository to use for build using '--build-repo' option.")
-		}
-	}
-
-	var contextDir string
-	contextDir, err = getAbsBuildContext(service.Build, inputFile)
+	contextDir, err := getAbsBuildContext(service.Build, inputFile)
 	if err != nil {
 		logrus.Fatalf("[%s] Buildconfig cannote be created due to error in creating build context.", name)
 	}
-
-	logrus.Infof("[%s] Buildconfig using repo: %s, branch: %s as source.", name, uri, branch)
 
 	bc := &buildapi.BuildConfig{
 		TypeMeta: unversioned.TypeMeta{
@@ -195,7 +178,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, inputFile strin
 				Source: buildapi.BuildSource{
 					Git: &buildapi.GitBuildSource{
 						Ref: branch,
-						URI: uri,
+						URI: repo,
 					},
 					ContextDir: contextDir,
 				},
@@ -311,6 +294,9 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	}
 	// this will hold all the converted data
 	var allobjects []runtime.Object
+	var err error
+	hasBuild := false
+	buildRepo := ""
 
 	for name, service := range komposeObject.ServiceConfigs {
 		var objects []runtime.Object
@@ -329,7 +315,20 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 
 			if service.Build != "" {
-				objects = append(objects, initBuildConfig(name, service, opt.InputFile, opt.BuildRepo, opt.BuildBranch)) // Openshift BuildConfigs
+				if !hasBuild {
+					if opt.BuildRepo == "" {
+						if hasGitBinary() {
+							buildRepo, err = getGitRemote("origin")
+							if err != nil {
+								logrus.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
+							}
+						} else {
+							logrus.Fatalf("Git is not installed! Please install Git to create buildconfig, else supply source repository to use for build using '--build-repo' option.")
+						}
+					}
+					hasBuild = true
+				}
+				objects = append(objects, initBuildConfig(name, service, opt.InputFile, buildRepo, opt.BuildBranch)) // Openshift BuildConfigs
 			}
 
 			// If ports not provided in configuration we will not make service
@@ -345,6 +344,10 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		o.UpdateKubernetesObjects(name, service, &objects)
 
 		allobjects = append(allobjects, objects...)
+	}
+
+	if hasBuild {
+		logrus.Infof("Buildconfig using %s::%s as source.", buildRepo, opt.BuildBranch)
 	}
 	// If docker-compose has a volumes_from directive it will be handled here
 	o.VolumesFrom(&allobjects, komposeObject)
