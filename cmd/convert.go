@@ -26,12 +26,12 @@ import (
 )
 
 var (
-	ConvertSource, ConvertOut, ConvertRepo, ConvertBranch         string
-	ConvertChart, ConvertDeployment, ConvertDaemonSet             bool
-	ConvertReplicationController, ConvertYaml, ConvertStdout      bool
-	ConvertEmptyVols, ConvertDeploymentConfig, ConvertBuildConfig bool
-	ConvertReplicas                                               int
-	ConvertOpt                                                    kobject.ConvertOptions
+	ConvertSource, ConvertOut, ConvertBuildRepo, ConvertBuildBranch string
+	ConvertChart, ConvertDeployment, ConvertDaemonSet               bool
+	ConvertReplicationController, ConvertYaml, ConvertStdout        bool
+	ConvertEmptyVols, ConvertDeploymentConfig, ConvertBuildConfig   bool
+	ConvertReplicas                                                 int
+	ConvertOpt                                                      kobject.ConvertOptions
 )
 
 var ConvertProvider string = GlobalProvider
@@ -53,9 +53,8 @@ var convertCmd = &cobra.Command{
 			CreateD:                ConvertDeployment,
 			CreateDS:               ConvertDaemonSet,
 			CreateRC:               ConvertReplicationController,
-			CreateBuildConfig:      ConvertBuildConfig,
-			Repo:                   ConvertRepo,
-			Branch:                 ConvertBranch,
+			BuildRepo:              ConvertBuildRepo,
+			BuildBranch:            ConvertBuildBranch,
 			CreateDeploymentConfig: ConvertDeploymentConfig,
 			EmptyVols:              ConvertEmptyVols,
 		}
@@ -87,12 +86,10 @@ func init() {
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
 	convertCmd.Flags().MarkHidden("deployment-config")
-	convertCmd.Flags().BoolVar(&ConvertBuildConfig, "build-config", false, "Generate an OpenShift buildconfig object")
-	convertCmd.Flags().MarkHidden("build-config")
-	convertCmd.Flags().StringVar(&ConvertRepo, "repo", "", "Specify source repository for buildconfig (default remote origin)")
-	convertCmd.Flags().MarkHidden("repo")
-	convertCmd.Flags().StringVar(&ConvertBranch, "branch", "master", "Specify repository branch to use for buildconfig (default master)")
-	convertCmd.Flags().MarkHidden("branch")
+	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
+	convertCmd.Flags().MarkHidden("build-repo")
+	convertCmd.Flags().StringVar(&ConvertBuildBranch, "build-branch", "master", "Specify repository branch to use for buildconfig (default master)")
+	convertCmd.Flags().MarkHidden("build-branch")
 
 	// Standard between the two
 	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into yaml format")
@@ -116,14 +113,13 @@ Available Commands:{{range .Commands}}{{if .IsAvailableCommand}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{ if .HasAvailableLocalFlags}}
 
 Resource Flags:
-      --branch					 Specify repository branch to use for buildconfig (default master)
-      --build-config			 Generate an Openshift build config object
+      --build-branch             Specify repository branch to use for buildconfig (default master)
+      --build-repo               Specify source repository for buildconfig (default remote origin)
   -c, --chart                    Create a Helm chart for converted objects
       --daemon-set               Generate a Kubernetes daemonset object
   -d, --deployment               Generate a Kubernetes deployment object
       --deployment-config        Generate an OpenShift deployment config object
       --replication-controller   Generate a Kubernetes replication controller object
-	  --repo					 Specify source repository for buildconfig (default remote origin)
 
 Flags:
 {{.LocalFlags.FlagUsages | trimRightSpace}}{{end}}{{ if .HasAvailableInheritedFlags}}

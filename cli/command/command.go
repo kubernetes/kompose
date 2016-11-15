@@ -144,21 +144,17 @@ func ConvertOpenShiftCommand() cli.Command {
 				Name:  "deploymentconfig,dc",
 				Usage: "Generate a OpenShift DeploymentConfig object",
 			},
-			cli.BoolFlag{
-				Name:  "buildconfig,bc",
-				Usage: "Generate a BuildConfig for Openshift",
-			},
 			cli.StringFlag{
-				Name:   "repo",
+				Name:   "build-repo",
 				Value:  "",
 				Usage:  "Specify source repository for buildconfig (default remote origin)",
-				EnvVar: "REPO",
+				EnvVar: "BUILDREPO",
 			},
 			cli.StringFlag{
-				Name:   "branch",
+				Name:   "build-branch",
 				Value:  "master",
 				Usage:  "Specify repository branch to use for buildconfig (default master)",
-				EnvVar: "BRANCH",
+				EnvVar: "BUILDBRANCH",
 			},
 		},
 	}
