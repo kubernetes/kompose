@@ -305,8 +305,8 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				objects = append(objects, o.initImageStream(name, service))
 			}
 
-			if opt.CreateBuildConfig && service.Build != "" {
-				objects = append(objects, initBuildConfig(name, service, opt.InputFile, opt.Repo, opt.Branch)) // Openshift BuildConfigs
+			if service.Build != "" {
+				objects = append(objects, initBuildConfig(name, service, opt.InputFile, opt.BuildRepo, opt.BuildBranch)) // Openshift BuildConfigs
 			}
 
 			// If ports not provided in configuration we will not make service
