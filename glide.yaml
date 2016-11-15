@@ -25,6 +25,8 @@ import:
   - pkg/deploy/api/install
   - pkg/image/api
   - pkg/image/api/install
+  - pkg/route/api
+  - pkg/route/api/install
 
 # OpenShift uses Kubernetes fork to carry some patches
 # Kubernetes will be in the same version as what OpenShift is using (from OpenShifts Godeps.json)

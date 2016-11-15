@@ -39,6 +39,7 @@ import (
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	imageapi "github.com/openshift/origin/pkg/image/api"
+	routeapi "github.com/openshift/origin/pkg/route/api"
 )
 
 /**
@@ -201,7 +202,6 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			if err != nil {
 				return err
 			}
-
 			switch t := v.(type) {
 			case *api.ReplicationController:
 				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
@@ -218,6 +218,10 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			case *api.PersistentVolumeClaim:
 				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *api.Pod:
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			case *routeapi.Route:
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			case *extensions.Ingress:
 				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			}
 			files = append(files, file)

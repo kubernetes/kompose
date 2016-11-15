@@ -119,6 +119,28 @@ convert::expect_success "kompose --file $KOMPOSE_ROOT/script/test/fixtures/keyon
 unset $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs | cut -d'=' -f1)
 
 
+# Test related to kompose.expose.service label in docker compose file to ensure that services are exposed properly
+#kubernetes tests
+# when kompose.service.expose="True"
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-true.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-true.json"
+# when kompose.expose.service="<hostname>"
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-hostname.json"
+# when kompose.service.expose="True" and multiple ports in docker compose file (first port should be selected)
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-true-multiple-ports.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-true-multiple-ports.json"
+# when kompose.service.expose="<hostname>" and multiple ports in docker compose file (first port should be selected)
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-multiple-ports.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-hostname-multiple-ports.json"
+
+#openshift tests
+# when kompose.service.expose="True"
+convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-true.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-true.json"
+# when kompose.expose.service="<hostname>"
+convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-hostname.json"
+# when kompose.service.expose="True" and multiple ports in docker compose file (first port should be selected)
+convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-true-multiple-ports.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-true-multiple-ports.json"
+# when kompose.service.expose="<hostname>" and multiple ports in docker compose file (first port should be selected)
+convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-multiple-ports.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-hostname-multiple-ports.json"
+
+
 ######
 # Test the output file behavior of kompose convert
 # Default behavior without -o

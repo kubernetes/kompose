@@ -1,0 +1,12 @@
+web:
+  image: tuna/docker-counter23
+  ports:
+    - "5000:5000"
+  links:
+    - redis
+  labels:
+    kompose.service.expose: "batman.example.com"
+redis:
+  image: redis:3.0
+  ports:
+    - "6379"

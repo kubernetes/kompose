@@ -61,3 +61,34 @@ func TestInitDeploymentConfig(t *testing.T) {
 		t.Errorf("Expected myfoobarname for name, actual %s", spec.Spec.Triggers[1].ImageChangeParams.ContainerNames[0])
 	}
 }
+
+func TestKomposeConvertRoute(t *testing.T) {
+
+	o := OpenShift{}
+	name := "app"
+	sc := newServiceConfig()
+	sc.ExposeService = "true"
+	var port int32 = 5555
+	route := o.initRoute(name, sc, port)
+
+	if route.ObjectMeta.Name != name {
+		t.Errorf("Expected %s for name, actual %s", name, route.ObjectMeta.Name)
+	}
+	if route.Spec.To.Name != name {
+		t.Errorf("Expected %s for name, actual %s", name, route.Spec.To.Name)
+	}
+	if route.Spec.Port.TargetPort.IntVal != port {
+		t.Errorf("Expected %d for port, actual %d", port, route.Spec.Port.TargetPort.IntVal)
+	}
+	if route.Spec.Host != "" {
+		t.Errorf("Expected Spec.Host to not be set, got %s instead", route.Spec.Host)
+	}
+
+	sc.ExposeService = "example.com"
+	route = o.initRoute(name, sc, port)
+
+	if route.Spec.Host != sc.ExposeService {
+		t.Errorf("Expected %s for Spec.Host, actual %s", sc.ExposeService, route.Spec.Host)
+	}
+
+}

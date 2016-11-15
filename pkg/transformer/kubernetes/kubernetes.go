@@ -201,6 +201,45 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 	return ds
 }
 
+func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *extensions.Ingress {
+
+	ingress := &extensions.Ingress{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "Ingress",
+			APIVersion: "extensions/v1beta1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+		Spec: extensions.IngressSpec{
+			Rules: []extensions.IngressRule{
+				{
+					IngressRuleValue: extensions.IngressRuleValue{
+						HTTP: &extensions.HTTPIngressRuleValue{
+							Paths: []extensions.HTTPIngressPath{
+								{
+									Backend: extensions.IngressBackend{
+										ServiceName: name,
+										ServicePort: intstr.IntOrString{
+											IntVal: port,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	if service.ExposeService != "true" {
+		ingress.Spec.Rules[0].Host = service.ExposeService
+	}
+
+	return ingress
+}
+
 // Initialize PersistentVolumeClaim
 func (k *Kubernetes) CreatePVC(name string, mode string) *api.PersistentVolumeClaim {
 	size, err := resource.ParseQuantity("100Mi")
@@ -429,6 +468,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			if k.PortsExist(name, service) {
 				svc := k.CreateService(name, service, objects)
 				objects = append(objects, svc)
+
+				if service.ExposeService != "" {
+					objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+				}
 			}
 		}
 
@@ -527,6 +570,12 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 				return err
 			}
 			logrus.Infof("Successfully created PersistentVolumeClaim: %s", t.Name)
+		case *extensions.Ingress:
+			_, err := client.Ingress(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created Ingress: %s", t.Name)
 		}
 	}
 
@@ -585,8 +634,21 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			} else {
 				logrus.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
 			}
+		case *extensions.Ingress:
+			// delete ingress
+			ingDeleteOptions := &api.DeleteOptions{
+				TypeMeta: unversioned.TypeMeta{
+					Kind:       "Ingress",
+					APIVersion: "extensions/v1beta1",
+				},
+			}
+			err = client.Ingress(namespace).Delete(t.Name, ingDeleteOptions)
+			if err != nil {
+				return err
+			} else {
+				logrus.Infof("Successfully deleted Ingress: %s", t.Name)
+			}
 		}
-
 	}
 	return nil
 }
