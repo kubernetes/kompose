@@ -39,15 +39,13 @@ type schemaPoolDocument struct {
 type schemaPool struct {
 	schemaPoolDocuments map[string]*schemaPoolDocument
 	standaloneDocument  interface{}
-	jsonLoaderFactory   JSONLoaderFactory
 }
 
-func newSchemaPool(f JSONLoaderFactory) *schemaPool {
+func newSchemaPool() *schemaPool {
 
 	p := &schemaPool{}
 	p.schemaPoolDocuments = make(map[string]*schemaPoolDocument)
 	p.standaloneDocument = nil
-	p.jsonLoaderFactory = f
 
 	return p
 }
@@ -95,8 +93,8 @@ func (p *schemaPool) GetDocument(reference gojsonreference.JsonReference) (*sche
 		return spd, nil
 	}
 
-	jsonReferenceLoader := p.jsonLoaderFactory.New(reference.String())
-	document, err := jsonReferenceLoader.LoadJSON()
+	jsonReferenceLoader := NewReferenceLoader(reference.String())
+	document, err := jsonReferenceLoader.loadJSON()
 	if err != nil {
 		return nil, err
 	}

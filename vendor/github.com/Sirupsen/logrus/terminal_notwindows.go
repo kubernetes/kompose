@@ -4,7 +4,6 @@
 // license that can be found in the LICENSE file.
 
 // +build linux darwin freebsd openbsd netbsd dragonfly
-// +build !appengine
 
 package logrus
 

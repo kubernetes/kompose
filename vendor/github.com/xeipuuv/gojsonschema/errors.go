@@ -1,11 +1,9 @@
 package gojsonschema
 
 import (
-	"bytes"
-	"text/template"
+	"fmt"
+	"strings"
 )
-
-var errorTemplates *template.Template
 
 type (
 	// RequiredError. ErrorDetails: property string
@@ -232,32 +230,13 @@ func newError(err ResultError, context *jsonContext, value interface{}, locale l
 	err.SetDescription(formatErrorDescription(d, details))
 }
 
-// formatErrorDescription takes a string in the default text/template
-// format and converts it to a string with replacements. The fields come
-// from the ErrorDetails struct and vary for each type of error.
+// formatErrorDescription takes a string in this format: %field% is required
+// and converts it to a string with replacements. The fields come from
+// the ErrorDetails struct and vary for each type of error.
 func formatErrorDescription(s string, details ErrorDetails) string {
-
-	var tpl *template.Template
-	var descrAsBuffer bytes.Buffer
-	var err error
-
-	if errorTemplates == nil {
-		errorTemplates = template.New("all-errors")
+	for name, val := range details {
+		s = strings.Replace(s, "%"+strings.ToLower(name)+"%", fmt.Sprintf("%v", val), -1)
 	}
 
-	tpl = errorTemplates.Lookup(s)
-	if tpl == nil {
-		tpl = errorTemplates.New(s)
-		tpl, err = tpl.Parse(s)
-		if err != nil {
-			return err.Error()
-		}
-	}
-
-	err = tpl.Execute(&descrAsBuffer, details)
-	if err != nil {
-		return err.Error()
-	}
-
-	return descrAsBuffer.String()
+	return s
 }

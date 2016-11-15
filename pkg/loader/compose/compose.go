@@ -302,6 +302,8 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 				switch key {
 				case "kompose.service.type":
 					serviceConfig.ServiceType = handleServiceType(value)
+				case "kompose.service.expose":
+					serviceConfig.ExposeService = strings.ToLower(value)
 				}
 			}
 
