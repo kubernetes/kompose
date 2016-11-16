@@ -84,8 +84,10 @@ func hasGitBinary() bool {
 }
 
 // getGitRemote gets git remote URI for the current git repo
-func getGitRemote(remote string) (string, error) {
-	out, err := exec.Command("git", "remote", "get-url", remote).Output()
+func getGitRemote(composeFileDir string, remote string) (string, error) {
+	cmd := exec.Command("git", "remote", "get-url", remote)
+	cmd.Dir = composeFileDir
+	out, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
@@ -98,19 +100,23 @@ func getGitRemote(remote string) (string, error) {
 	return url, nil
 }
 
-// getAbsBuildContext returns build context relative to project root dir
-func getAbsBuildContext(context string, inputFile string) (string, error) {
-	workDir, err := os.Getwd()
-	if err != nil {
-		return "", err
+// getComposeFileDir returns compose file directory
+func getComposeFileDir(inputFile string) (string, error) {
+	if strings.Index(inputFile, "/") != 0 {
+		workDir, err := os.Getwd()
+		if err != nil {
+			return "", err
+		}
+		inputFile = filepath.Join(workDir, inputFile)
 	}
+	return filepath.Dir(inputFile), nil
+}
 
-	composeFileDir := filepath.Dir(filepath.Join(workDir, inputFile))
-
-	var out []byte
+// getAbsBuildContext returns build context relative to project root dir
+func getAbsBuildContext(context string, composeFileDir string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-prefix")
 	cmd.Dir = composeFileDir
-	out, err = cmd.Output()
+	out, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
@@ -152,8 +158,8 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 }
 
 // initBuildConfig initialize Openshifts BuildConfig Object
-func initBuildConfig(name string, service kobject.ServiceConfig, inputFile string, repo string, branch string) *buildapi.BuildConfig {
-	contextDir, err := getAbsBuildContext(service.Build, inputFile)
+func initBuildConfig(name string, service kobject.ServiceConfig, composeFileDir string, repo string, branch string) *buildapi.BuildConfig {
+	contextDir, err := getAbsBuildContext(service.Build, composeFileDir)
 	if err != nil {
 		logrus.Fatalf("[%s] Buildconfig cannote be created due to error in creating build context.", name)
 	}
@@ -295,6 +301,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 	var err error
+	var composeFileDir string
 	hasBuild := false
 	buildRepo := ""
 
@@ -316,14 +323,17 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 			if service.Build != "" {
 				if !hasBuild {
+					composeFileDir, err = getComposeFileDir(opt.InputFile)
+					if err != nil {
+						logrus.Warningf("Error in detecting compose file's directory.")
+						continue
+					}
 					if opt.BuildRepo == "" {
 						if hasGitBinary() {
-							buildRepo, err = getGitRemote("origin")
+							buildRepo, err = getGitRemote(composeFileDir, "origin")
 							if err != nil {
 								logrus.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
 							}
-						} else {
-							logrus.Fatalf("Git is not installed! Please install Git to create buildconfig, else supply source repository to use for build using '--build-repo' option.")
 						}
 					}
 					hasBuild = true
