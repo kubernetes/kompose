@@ -64,7 +64,7 @@ func BeforeApp(c *cli.Context) error {
 	case "openshift":
 		c.App.Commands = append(c.App.Commands, ConvertOpenShiftCommand())
 	default:
-		logrus.Fatalf("Error: Unknown provider name. Providers supported are - 'kubernetes', 'openshift'.")
+		logrus.Fatalf("Unknown provider. Supported providers are kubernetes and openshift.")
 	}
 
 	return nil
@@ -87,7 +87,7 @@ func generateBashCompletion(args []string) {
 	commonArgs := []string{"bundle", "file", "suppress-warnings", "verbose", "error-on-warning", "provider"}
 	flags := append(commonArgs, args...)
 
-	for _,f := range flags {
+	for _, f := range flags {
 		fmt.Printf("--%s\n", f)
 	}
 }
