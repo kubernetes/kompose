@@ -10,6 +10,8 @@ services:
       MYSQL_DATABASE: $DB_NAME
       MYSQL_PASSWORD: $DB_PASS
       MYSQL_USER: $DB_USER
+    volumes:
+      - /var/lib/mysql
 
   etherpad:
     image: centos/etherpad
