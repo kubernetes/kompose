@@ -103,4 +103,10 @@ convert::expect_success "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bun
 # Test related to kompose --bundle convert to ensure that DSB bundles are converted properly
 convert::expect_success_and_warning "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/docker-voting-bundle.dsb convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/output-k8s.json" "Service cannot be created because of missing port."
 
+######
+# Test related to multiple-compose files
+# Kubernets test
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-compose.yml,$KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-guestbook.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/output-k8s.json"
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-compose.yml,$KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-guestbook.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/output-openshift.json"
+
 exit $EXIT_STATUS

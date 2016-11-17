@@ -128,11 +128,9 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
+	File := strings.Split(file, ",")
 	context := &project.Context{}
-	if file == "" {
-		file = "docker-compose.yml"
-	}
-	context.ComposeFiles = []string{file}
+	context.ComposeFiles = File
 
 	if context.ResourceLookup == nil {
 		context.ResourceLookup = &lookup.FileResourceLookup{}
