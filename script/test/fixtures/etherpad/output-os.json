@@ -7,33 +7,6 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "mariadb",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "mariadb"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "3306",
-            "protocol": "TCP",
-            "port": 3306,
-            "targetPort": 3306
-          }
-        ],
-        "selector": {
-          "service": "mariadb"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
         "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
@@ -58,7 +31,7 @@
       }
     },
     {
-      "kind": "DeploymentConfig",
+      "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
         "name": "mariadb",
@@ -68,100 +41,20 @@
         }
       },
       "spec": {
-        "strategy": {
-          "resources": {}
-        },
-        "triggers": [
+        "ports": [
           {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange",
-            "imageChangeParams": {
-              "automatic": true,
-              "containerNames": [
-                "mariadb"
-              ],
-              "from": {
-                "kind": "ImageStreamTag",
-                "name": "mariadb:latest"
-              }
-            }
+            "name": "3306",
+            "protocol": "TCP",
+            "port": 3306,
+            "targetPort": 3306
           }
         ],
-        "replicas": 1,
-        "test": false,
         "selector": {
           "service": "mariadb"
-        },
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "mariadb"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "mariadb",
-                "image": " ",
-                "ports": [
-                  {
-                    "containerPort": 3306,
-                    "protocol": "TCP"
-                  }
-                ],
-                "env": [
-                  {
-                    "name": "MYSQL_DATABASE",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "MYSQL_PASSWORD",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "MYSQL_ROOT_PASSWORD",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "MYSQL_USER",
-                    "value": "etherpad"
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
         }
       },
-      "status": {}
-    },
-    {
-      "kind": "ImageStream",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "mariadb",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "tags": [
-          {
-            "name": "latest",
-            "annotations": null,
-            "from": {
-              "kind": "DockerImage",
-              "name": "centos/mariadb"
-            },
-            "generation": null,
-            "importPolicy": {}
-          }
-        ]
-      },
       "status": {
-        "dockerImageRepository": ""
+        "loadBalancer": {}
       }
     },
     {
@@ -221,6 +114,10 @@
                 ],
                 "env": [
                   {
+                    "name": "DB_PORT",
+                    "value": "3306"
+                  },
+                  {
                     "name": "DB_USER",
                     "value": "etherpad"
                   },
@@ -235,10 +132,6 @@
                   {
                     "name": "DB_PASS",
                     "value": "etherpad"
-                  },
-                  {
-                    "name": "DB_PORT",
-                    "value": "3306"
                   }
                 ],
                 "resources": {}
@@ -274,6 +167,146 @@
       "status": {
         "dockerImageRepository": ""
       }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "mariadb"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "mariadb"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "mariadb:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "service": "mariadb"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "mariadb"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "mariadb-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "mariadb-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "mariadb",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 3306,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_USER",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_DATABASE",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_PASSWORD",
+                    "value": "etherpad"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "mariadb-claim0",
+                    "mountPath": "/var/lib/mysql"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "centos/mariadb"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
     }
   ]
 }
