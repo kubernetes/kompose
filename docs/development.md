@@ -119,7 +119,7 @@ If it is not a valid version try, make sure you have updated the godep repo with
 1. Populate dependencies for your Kompose.
 
 ```console
-cd $GOPATH/src/github.com/kubernetes-incubator/kompose/
+cd $GOPATH/src/github.com/kubernetes-incubator/kompose
 script/godep-restore.sh
 ```
 
