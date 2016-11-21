@@ -4,59 +4,31 @@
   "metadata": {},
   "items": [
     {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "kind": "Service",
+      "apiVersion": "v1",
       "metadata": {
-        "name": "mariadb",
-        "creationTimestamp": null
+        "name": "etherpad",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "etherpad"
+        }
       },
       "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "mariadb"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "mariadb",
-                "image": "centos/mariadb",
-                "ports": [
-                  {
-                    "containerPort": 3306,
-                    "protocol": "TCP"
-                  }
-                ],
-                "env": [
-                  {
-                    "name": "MYSQL_DATABASE",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "MYSQL_PASSWORD",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "MYSQL_ROOT_PASSWORD",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "MYSQL_USER",
-                    "value": "etherpad"
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
+        "ports": [
+          {
+            "name": "80",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 9001
           }
-        },
-        "strategy": {}
+        ],
+        "selector": {
+          "service": "etherpad"
+        }
       },
-      "status": {}
+      "status": {
+        "loadBalancer": {}
+      }
     },
     {
       "kind": "Service",
@@ -114,10 +86,6 @@
                 ],
                 "env": [
                   {
-                    "name": "DB_USER",
-                    "value": "etherpad"
-                  },
-                  {
                     "name": "DB_DBID",
                     "value": "etherpad"
                   },
@@ -132,6 +100,10 @@
                   {
                     "name": "DB_PORT",
                     "value": "3306"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "etherpad"
                   }
                 ],
                 "resources": {}
@@ -145,31 +117,92 @@
       "status": {}
     },
     {
-      "kind": "Service",
-      "apiVersion": "v1",
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "etherpad",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "etherpad"
-        }
+        "name": "mariadb",
+        "creationTimestamp": null
       },
       "spec": {
-        "ports": [
-          {
-            "name": "80",
-            "protocol": "TCP",
-            "port": 80,
-            "targetPort": 9001
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "mariadb"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "mariadb-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "mariadb-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "mariadb",
+                "image": "centos/mariadb",
+                "ports": [
+                  {
+                    "containerPort": 3306,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "MYSQL_DATABASE",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_USER",
+                    "value": "etherpad"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "mariadb-claim0",
+                    "mountPath": "/var/lib/mysql"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
           }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
         ],
-        "selector": {
-          "service": "etherpad"
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
         }
       },
-      "status": {
-        "loadBalancer": {}
-      }
+      "status": {}
     }
   ]
 }
