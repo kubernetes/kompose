@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	UnmountableSecretWarning = "UnmountableSecret"
-	MissingSecretWarning     = "MissingSecret"
+	UnmountableSecretWarning    = "UnmountableSecret"
+	MissingSecretWarning        = "MissingSecret"
+	MissingLivenessProbeWarning = "MissingLivenessProbe"
 )
 
 // FindUnmountableSecrets inspects all PodSpecs for any Secret reference that isn't listed as mountable by the referenced ServiceAccount
@@ -73,6 +74,58 @@ func FindMissingSecrets(g osgraph.Graph, f osgraph.Namer) []osgraph.Marker {
 	}
 
 	return markers
+}
+
+// FindMissingLivenessProbes inspects all PodSpecs for missing liveness probes and generates a list of non-duplicate markers
+func FindMissingLivenessProbes(g osgraph.Graph, f osgraph.Namer, setProbeCommand string) []osgraph.Marker {
+	markers := []osgraph.Marker{}
+
+	for _, uncastPodSpecNode := range g.NodesByKind(kubegraph.PodSpecNodeKind) {
+		podSpecNode := uncastPodSpecNode.(*kubegraph.PodSpecNode)
+		if hasLivenessProbe(podSpecNode) {
+			continue
+		}
+
+		topLevelNode := osgraph.GetTopLevelContainerNode(g, podSpecNode)
+
+		// skip any podSpec nodes that are managed by other nodes.
+		// Liveness probes should only be applied to a controlling
+		// podSpec node, and not to any of its children.
+		if hasControllerRefEdge(g, topLevelNode) {
+			continue
+		}
+
+		topLevelString := f.ResourceName(topLevelNode)
+		markers = append(markers, osgraph.Marker{
+			Node:         podSpecNode,
+			RelatedNodes: []graph.Node{topLevelNode},
+
+			Severity: osgraph.WarningSeverity,
+			Key:      MissingLivenessProbeWarning,
+			Message: fmt.Sprintf("%s has no liveness probe to verify pods are still running.",
+				topLevelString),
+			Suggestion: osgraph.Suggestion(fmt.Sprintf("%s %s --liveness ...", setProbeCommand, topLevelString)),
+		})
+	}
+
+	return markers
+}
+
+// hasLivenessProbe iterates through all of the containers in a podSpecNode returning true
+// if at least one container has a liveness probe, or false otherwise
+func hasLivenessProbe(podSpecNode *kubegraph.PodSpecNode) bool {
+	for _, container := range podSpecNode.PodSpec.Containers {
+		if container.LivenessProbe != nil {
+			return true
+		}
+	}
+	return false
+}
+
+// hasControllerRefEdge returns true if a given node contains one or more "ManagedByController" outbound edges
+func hasControllerRefEdge(g osgraph.Graph, node graph.Node) bool {
+	managedEdges := g.OutboundEdges(node, kubeedges.ManagedByControllerEdgeKind)
+	return len(managedEdges) > 0
 }
 
 // CheckForUnmountableSecrets checks to be sure that all the referenced secrets are mountable (by service account)

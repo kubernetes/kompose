@@ -1,6 +1,7 @@
 package clientcmd
 
 import (
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"strings"
@@ -13,6 +14,8 @@ const (
 	unknownReason = iota
 	noServerFoundReason
 	certificateAuthorityUnknownReason
+	certificateHostnameErrorReason
+	certificateInvalidReason
 	configurationInvalidReason
 	tlsOversizedRecordReason
 
@@ -50,6 +53,12 @@ func GetPrettyMessageForServer(err error, serverName string) string {
 			serverName = "server"
 		}
 		return fmt.Sprintf(tlsOversizedRecordMsg, err, serverName)
+
+	case certificateHostnameErrorReason:
+		return fmt.Sprintf("The server is using a certificate that does not match its hostname: %s", err)
+
+	case certificateInvalidReason:
+		return fmt.Sprintf("The server is using an invalid certificate: %s", err)
 	}
 
 	return err.Error()
@@ -91,6 +100,17 @@ func IsTLSOversizedRecord(err error) bool {
 	return detectReason(err) == tlsOversizedRecordReason
 }
 
+// IsCertificateHostnameError checks whether the set of authorized names doesn't match the requested name
+func IsCertificateHostnameError(err error) bool {
+	return detectReason(err) == certificateHostnameErrorReason
+}
+
+// IsCertificateInvalid checks whether the certificate is invalid for reasons like expired,	CA not authorized
+// to sign, there are too many cert intermediates, or the cert usage is not valid for the wanted purpose.
+func IsCertificateInvalid(err error) bool {
+	return detectReason(err) == certificateInvalidReason
+}
+
 func detectReason(err error) int {
 	if err != nil {
 		switch {
@@ -102,6 +122,14 @@ func detectReason(err error) int {
 			return configurationInvalidReason
 		case strings.Contains(err.Error(), "tls: oversized record received"):
 			return tlsOversizedRecordReason
+		}
+		switch err.(type) {
+		case x509.UnknownAuthorityError:
+			return certificateAuthorityUnknownReason
+		case x509.HostnameError:
+			return certificateHostnameErrorReason
+		case x509.CertificateInvalidError:
+			return certificateInvalidReason
 		}
 	}
 	return unknownReason

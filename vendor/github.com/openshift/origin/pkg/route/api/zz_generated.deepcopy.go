@@ -68,6 +68,7 @@ func DeepCopy_api_RouteIngress(in interface{}, out interface{}, c *conversion.Cl
 		} else {
 			out.Conditions = nil
 		}
+		out.WildcardPolicy = in.WildcardPolicy
 		return nil
 	}
 }
@@ -155,6 +156,7 @@ func DeepCopy_api_RouteSpec(in interface{}, out interface{}, c *conversion.Clone
 		} else {
 			out.TLS = nil
 		}
+		out.WildcardPolicy = in.WildcardPolicy
 		return nil
 	}
 }

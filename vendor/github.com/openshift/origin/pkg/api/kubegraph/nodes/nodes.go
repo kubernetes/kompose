@@ -147,6 +147,24 @@ func EnsurePodTemplateSpecNode(g osgraph.MutableUniqueGraph, ptSpec *kapi.PodTem
 	return ptSpecNode
 }
 
+func EnsurePersistentVolumeClaimNode(g osgraph.MutableUniqueGraph, pvc *kapi.PersistentVolumeClaim) *PersistentVolumeClaimNode {
+	return osgraph.EnsureUnique(g,
+		PersistentVolumeClaimNodeName(pvc),
+		func(node osgraph.Node) graph.Node {
+			return &PersistentVolumeClaimNode{Node: node, PersistentVolumeClaim: pvc, IsFound: true}
+		},
+	).(*PersistentVolumeClaimNode)
+}
+
+func FindOrCreateSyntheticPVCNode(g osgraph.MutableUniqueGraph, pvc *kapi.PersistentVolumeClaim) *PersistentVolumeClaimNode {
+	return osgraph.EnsureUnique(g,
+		PersistentVolumeClaimNodeName(pvc),
+		func(node osgraph.Node) graph.Node {
+			return &PersistentVolumeClaimNode{Node: node, PersistentVolumeClaim: pvc, IsFound: false}
+		},
+	).(*PersistentVolumeClaimNode)
+}
+
 func EnsureHorizontalPodAutoscalerNode(g osgraph.MutableUniqueGraph, hpa *autoscaling.HorizontalPodAutoscaler) *HorizontalPodAutoscalerNode {
 	return osgraph.EnsureUnique(g,
 		HorizontalPodAutoscalerNodeName(hpa),

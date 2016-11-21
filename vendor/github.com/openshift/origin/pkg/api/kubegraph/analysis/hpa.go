@@ -11,6 +11,7 @@ import (
 
 	osgraph "github.com/openshift/origin/pkg/api/graph"
 	"github.com/openshift/origin/pkg/api/kubegraph"
+	kubeedges "github.com/openshift/origin/pkg/api/kubegraph"
 	kubenodes "github.com/openshift/origin/pkg/api/kubegraph/nodes"
 	deploygraph "github.com/openshift/origin/pkg/deploy/graph"
 	deploynodes "github.com/openshift/origin/pkg/deploy/graph/nodes"
@@ -117,6 +118,7 @@ func FindOverlappingHPAs(graph osgraph.Graph, namer osgraph.Namer) []osgraph.Mar
 	edgeFilter := osgraph.EdgesOfKind(
 		kubegraph.ScalingEdgeKind,
 		deploygraph.DeploymentEdgeKind,
+		kubeedges.ManagedByControllerEdgeKind,
 	)
 
 	hpaSubGraph := graph.Subgraph(nodeFilter, edgeFilter)

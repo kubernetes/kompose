@@ -59,6 +59,12 @@ type OAuthAuthorizeToken struct {
 	// UserUID is the unique UID associated with this token. UserUID and UserName must both match
 	// for this token to be valid.
 	UserUID string
+
+	// CodeChallenge is the optional code_challenge associated with this authorization code, as described in rfc7636
+	CodeChallenge string
+
+	// CodeChallengeMethod is the optional code_challenge_method associated with this authorization code, as described in rfc7636
+	CodeChallengeMethod string
 }
 
 // +genclient=true
@@ -160,4 +166,16 @@ type OAuthClientAuthorizationList struct {
 	unversioned.TypeMeta
 	unversioned.ListMeta
 	Items []OAuthClientAuthorization
+}
+
+type OAuthRedirectReference struct {
+	unversioned.TypeMeta
+	kapi.ObjectMeta
+	Reference RedirectReference
+}
+
+type RedirectReference struct {
+	Group string
+	Kind  string
+	Name  string
 }

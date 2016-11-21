@@ -1,11 +1,14 @@
 package clientcmd
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
 	"github.com/openshift/origin/pkg/cmd/cli/config"
 	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
+	clientcmdapi "k8s.io/kubernetes/pkg/client/unversioned/clientcmd/api"
 )
 
 func DefaultClientConfig(flags *pflag.FlagSet) clientcmd.ClientConfig {
@@ -13,7 +16,11 @@ func DefaultClientConfig(flags *pflag.FlagSet) clientcmd.ClientConfig {
 	flags.StringVar(&loadingRules.ExplicitPath, config.OpenShiftConfigFlagName, "", "Path to the config file to use for CLI requests.")
 	cobra.MarkFlagFilename(flags, config.OpenShiftConfigFlagName)
 
-	overrides := &clientcmd.ConfigOverrides{}
+	// set our explicit defaults
+	defaultOverrides := &clientcmd.ConfigOverrides{ClusterDefaults: clientcmdapi.Cluster{Server: os.Getenv("KUBERNETES_MASTER")}}
+	loadingRules.DefaultClientConfig = clientcmd.NewDefaultClientConfig(clientcmdapi.Config{}, defaultOverrides)
+
+	overrides := &clientcmd.ConfigOverrides{ClusterDefaults: defaultOverrides.ClusterDefaults}
 	overrideFlags := clientcmd.RecommendedConfigOverrideFlags("")
 	overrideFlags.ContextOverrideFlags.Namespace.ShortName = "n"
 	overrideFlags.AuthOverrideFlags.Username.LongName = ""

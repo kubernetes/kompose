@@ -8,6 +8,15 @@ import (
 	imageapi "github.com/openshift/origin/pkg/image/api"
 )
 
+type ImageComponentType string
+
+const (
+	ImageComponentNodeKind = "ImageComponent"
+
+	ImageComponentTypeConfig ImageComponentType = `Config`
+	ImageComponentTypeLayer  ImageComponentType = `Layer`
+)
+
 var (
 	ImageStreamNodeKind      = reflect.TypeOf(imageapi.ImageStream{}).Name()
 	ImageNodeKind            = reflect.TypeOf(imageapi.Image{}).Name()
@@ -16,7 +25,6 @@ var (
 
 	// non-api types
 	DockerRepositoryNodeKind = reflect.TypeOf(imageapi.DockerImageReference{}).Name()
-	ImageLayerNodeKind       = "ImageLayer"
 )
 
 func ImageStreamNodeName(o *imageapi.ImageStream) osgraph.UniqueName {
@@ -185,23 +193,31 @@ func (*ImageNode) Kind() string {
 	return ImageNodeKind
 }
 
-func ImageLayerNodeName(layer string) osgraph.UniqueName {
-	return osgraph.UniqueName(fmt.Sprintf("%s|%s", ImageLayerNodeKind, layer))
+func ImageComponentNodeName(name string) osgraph.UniqueName {
+	return osgraph.UniqueName(fmt.Sprintf("%s|%s", ImageComponentNodeKind, name))
 }
 
-type ImageLayerNode struct {
+// ImageComponentNode represents either an image layer or image config. All the components are treated the
+// same. A particular component (identified by a hash) can be of just one type.
+type ImageComponentNode struct {
 	osgraph.Node
-	Layer string
+	Component string
+	// An additional information describing the type of the component.
+	Type ImageComponentType
 }
 
-func (n ImageLayerNode) Object() interface{} {
-	return n.Layer
+func (n ImageComponentNode) Object() interface{} {
+	return n.Component
 }
 
-func (n ImageLayerNode) String() string {
-	return string(ImageLayerNodeName(n.Layer))
+func (n ImageComponentNode) String() string {
+	return string(ImageComponentNodeName(n.Component))
 }
 
-func (*ImageLayerNode) Kind() string {
-	return ImageLayerNodeKind
+func (n *ImageComponentNode) Describe() string {
+	return fmt.Sprintf("Image%s|%s", n.Type, n.Component)
+}
+
+func (*ImageComponentNode) Kind() string {
+	return ImageComponentNodeKind
 }

@@ -29,6 +29,7 @@ type ProjectStatus struct {
 }
 
 // +genclient=true
+// +nonNamespaced=true
 
 // Project is a logical top-level container for a set of origin resources
 type Project struct {

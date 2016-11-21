@@ -50,6 +50,7 @@ var DiscoveryRule = PolicyRule{
 		"/apis", "/apis/*",
 		"/oapi", "/oapi/*",
 		"/osapi", "/osapi/", // these cannot be removed until we can drop support for pre 3.1 clients
+		"/.well-known", "/.well-known/*",
 	),
 }
 
@@ -156,6 +157,27 @@ type SelfSubjectRulesReviewSpec struct {
 	// Scopes to use for the evaluation.  Empty means "use the unscoped (full) permissions of the user/groups".
 	// Nil for a self-SubjectRulesReview, means "use the scopes on this request".
 	// Nil for a regular SubjectRulesReview, means the same as empty.
+	Scopes []string
+}
+
+// SubjectRulesReview is a resource you can create to determine which actions another user can perform in a namespace
+type SubjectRulesReview struct {
+	unversioned.TypeMeta
+
+	// Spec adds information about how to conduct the check
+	Spec SubjectRulesReviewSpec
+
+	// Status is completed by the server to tell which permissions you have
+	Status SubjectRulesReviewStatus
+}
+
+// SubjectRulesReviewSpec adds information about how to conduct the check
+type SubjectRulesReviewSpec struct {
+	// User is optional.  At least one of User and Groups must be specified.
+	User string
+	// Groups is optional.  Groups is the list of groups to which the User belongs.  At least one of User and Groups must be specified.
+	Groups []string
+	// Scopes to use for the evaluation.  Empty means "use the unscoped (full) permissions of the user/groups".
 	Scopes []string
 }
 

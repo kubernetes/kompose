@@ -5,7 +5,10 @@ import (
 
 	"github.com/gonum/graph"
 
+	kapi "k8s.io/kubernetes/pkg/api"
+
 	osgraph "github.com/openshift/origin/pkg/api/graph"
+	kubegraph "github.com/openshift/origin/pkg/api/kubegraph/nodes"
 	buildedges "github.com/openshift/origin/pkg/build/graph"
 	buildutil "github.com/openshift/origin/pkg/build/util"
 	deployedges "github.com/openshift/origin/pkg/deploy/graph"
@@ -18,6 +21,9 @@ const (
 	MissingImageStreamErr        = "MissingImageStream"
 	MissingImageStreamTagWarning = "MissingImageStreamTag"
 	MissingReadinessProbeWarning = "MissingReadinessProbe"
+
+	SingleHostVolumeWarning = "SingleHostVolume"
+	MissingPVCWarning       = "MissingPersistentVolumeClaim"
 )
 
 // FindDeploymentConfigTriggerErrors checks for possible failures in deployment config
@@ -123,4 +129,69 @@ Node:
 	}
 
 	return markers
+}
+
+func FindPersistentVolumeClaimWarnings(g osgraph.Graph, f osgraph.Namer) []osgraph.Marker {
+	markers := []osgraph.Marker{}
+
+	for _, uncastDcNode := range g.NodesByKind(deploygraph.DeploymentConfigNodeKind) {
+		dcNode := uncastDcNode.(*deploygraph.DeploymentConfigNode)
+		marker := pvcMarker(g, f, dcNode)
+		if marker != nil {
+			markers = append(markers, *marker)
+		}
+	}
+
+	return markers
+}
+
+func pvcMarker(g osgraph.Graph, f osgraph.Namer, dcNode *deploygraph.DeploymentConfigNode) *osgraph.Marker {
+	for _, uncastPvcNode := range g.SuccessorNodesByEdgeKind(dcNode, deployedges.VolumeClaimEdgeKind) {
+		pvcNode := uncastPvcNode.(*kubegraph.PersistentVolumeClaimNode)
+
+		if !pvcNode.Found() {
+			return &osgraph.Marker{
+				Node:         dcNode,
+				RelatedNodes: []graph.Node{uncastPvcNode},
+
+				Severity: osgraph.WarningSeverity,
+				Key:      MissingPVCWarning,
+				Message:  fmt.Sprintf("%s points to a missing persistent volume claim (%s).", f.ResourceName(dcNode), f.ResourceName(pvcNode)),
+				// TODO: Suggestion: osgraph.Suggestion(fmt.Sprintf("oc create pvc ...")),
+			}
+		}
+
+		dc := dcNode.DeploymentConfig
+		rollingParams := dc.Spec.Strategy.RollingParams
+		isBlockedBySize := dc.Spec.Replicas > 1
+		isBlockedRolling := rollingParams != nil && rollingParams.MaxSurge.IntValue() > 0
+
+		// If the claim is not RWO or deployments will not have more than a pod running at any time
+		// then they should be fine.
+		if !hasRWOAccess(pvcNode) || (!isBlockedRolling && !isBlockedBySize) {
+			continue
+		}
+
+		// This shouldn't be an issue on single-host clusters but they are not the common case anyway.
+		// If github.com/kubernetes/kubernetes/issues/26567 ever gets fixed upstream, then we can drop
+		// this warning.
+		return &osgraph.Marker{
+			Node:         dcNode,
+			RelatedNodes: []graph.Node{uncastPvcNode},
+
+			Severity: osgraph.WarningSeverity,
+			Key:      SingleHostVolumeWarning,
+			Message:  fmt.Sprintf("%s references a volume which may only be used in a single pod at a time - this may lead to hung deployments", f.ResourceName(dcNode)),
+		}
+	}
+	return nil
+}
+
+func hasRWOAccess(pvcNode *kubegraph.PersistentVolumeClaimNode) bool {
+	for _, accessMode := range pvcNode.PersistentVolumeClaim.Spec.AccessModes {
+		if accessMode == kapi.ReadWriteOnce {
+			return true
+		}
+	}
+	return false
 }

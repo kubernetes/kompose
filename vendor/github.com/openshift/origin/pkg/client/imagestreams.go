@@ -68,13 +68,6 @@ func (c *imageStreams) Get(name string) (result *imageapi.ImageStream, err error
 	return
 }
 
-// GetByNamespace returns information about a particular image stream in a particular namespace and error if one occurs.
-func (c *imageStreams) GetByNamespace(namespace, name string) (result *imageapi.ImageStream, err error) {
-	result = &imageapi.ImageStream{}
-	c.r.Get().Namespace(namespace).Resource("imageStreams").Name(name).Do().Into(result)
-	return
-}
-
 // Create create a new image stream. Returns the server's representation of the image stream and error if one occurs.
 func (c *imageStreams) Create(stream *imageapi.ImageStream) (result *imageapi.ImageStream, err error) {
 	result = &imageapi.ImageStream{}

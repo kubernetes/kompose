@@ -20,6 +20,7 @@ var (
 	ReplicationControllerSpecNodeKind = reflect.TypeOf(kapi.ReplicationControllerSpec{}).Name()
 	ServiceAccountNodeKind            = reflect.TypeOf(kapi.ServiceAccount{}).Name()
 	SecretNodeKind                    = reflect.TypeOf(kapi.Secret{}).Name()
+	PersistentVolumeClaimNodeKind     = reflect.TypeOf(kapi.PersistentVolumeClaim{}).Name()
 	HorizontalPodAutoscalerNodeKind   = reflect.TypeOf(autoscaling.HorizontalPodAutoscaler{}).Name()
 	PetSetNodeKind                    = reflect.TypeOf(kapps.PetSet{}).Name()
 	PetSetSpecNodeKind                = reflect.TypeOf(kapps.PetSetSpec{}).Name()
@@ -244,6 +245,37 @@ func (n SecretNode) String() string {
 
 func (*SecretNode) Kind() string {
 	return SecretNodeKind
+}
+
+func PersistentVolumeClaimNodeName(o *kapi.PersistentVolumeClaim) osgraph.UniqueName {
+	return osgraph.GetUniqueRuntimeObjectNodeName(PersistentVolumeClaimNodeKind, o)
+}
+
+type PersistentVolumeClaimNode struct {
+	osgraph.Node
+	PersistentVolumeClaim *kapi.PersistentVolumeClaim
+
+	IsFound bool
+}
+
+func (n PersistentVolumeClaimNode) Found() bool {
+	return n.IsFound
+}
+
+func (n PersistentVolumeClaimNode) Object() interface{} {
+	return n.PersistentVolumeClaim
+}
+
+func (n PersistentVolumeClaimNode) String() string {
+	return string(n.UniqueName())
+}
+
+func (*PersistentVolumeClaimNode) Kind() string {
+	return PersistentVolumeClaimNodeKind
+}
+
+func (n PersistentVolumeClaimNode) UniqueName() osgraph.UniqueName {
+	return PersistentVolumeClaimNodeName(n.PersistentVolumeClaim)
 }
 
 func HorizontalPodAutoscalerNodeName(o *autoscaling.HorizontalPodAutoscaler) osgraph.UniqueName {

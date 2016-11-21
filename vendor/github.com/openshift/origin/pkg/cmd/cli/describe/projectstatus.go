@@ -68,6 +68,7 @@ func (d *ProjectStatusDescriber) MakeGraph(namespace string) (osgraph.Graph, set
 		&serviceLoader{namespace: namespace, lister: d.K},
 		&serviceAccountLoader{namespace: namespace, lister: d.K},
 		&secretLoader{namespace: namespace, lister: d.K},
+		&pvcLoader{namespace: namespace, lister: d.K},
 		&rcLoader{namespace: namespace, lister: d.K},
 		&podLoader{namespace: namespace, lister: d.K},
 		&petsetLoader{namespace: namespace, lister: d.K.Apps()},
@@ -96,6 +97,13 @@ func (d *ProjectStatusDescriber) MakeGraph(namespace string) (osgraph.Graph, set
 				}
 				continue
 			}
+			if kapierrors.IsNotFound(err) {
+				notfoundErr := err.(*kapierrors.StatusError)
+				if (notfoundErr.Status().Details != nil) && (len(notfoundErr.Status().Details.Kind) > 0) {
+					forbiddenResources.Insert(notfoundErr.Status().Details.Kind)
+				}
+				continue
+			}
 			actualErrors = append(actualErrors, err)
 		}
 
@@ -119,6 +127,7 @@ func (d *ProjectStatusDescriber) MakeGraph(namespace string) (osgraph.Graph, set
 	buildedges.AddAllBuildEdges(g)
 	deployedges.AddAllTriggerEdges(g)
 	deployedges.AddAllDeploymentEdges(g)
+	deployedges.AddAllVolumeClaimEdges(g)
 	imageedges.AddAllImageStreamRefEdges(g)
 	imageedges.AddAllImageStreamImageRefEdges(g)
 	routeedges.AddAllRouteEdges(g)
@@ -140,7 +149,10 @@ func (d *ProjectStatusDescriber) Describe(namespace, name string) (string, error
 	if !allNamespaces {
 		p, err := d.C.Projects().Get(namespace)
 		if err != nil {
-			return "", err
+			if !kapierrors.IsNotFound(err) {
+				return "", err
+			}
+			p = &projectapi.Project{ObjectMeta: kapi.ObjectMeta{Name: namespace}}
 		}
 		project = p
 		f = namespacedFormatter{currentNamespace: namespace}
@@ -376,9 +388,13 @@ func getMarkerScanners(logsCommandName, securityPolicyCommandFormat, setProbeCom
 		buildanalysis.FindCircularBuilds,
 		buildanalysis.FindPendingTags,
 		deployanalysis.FindDeploymentConfigTriggerErrors,
+		deployanalysis.FindPersistentVolumeClaimWarnings,
 		buildanalysis.FindMissingInputImageStreams,
 		func(g osgraph.Graph, f osgraph.Namer) []osgraph.Marker {
 			return deployanalysis.FindDeploymentConfigReadinessWarnings(g, f, setProbeCommandName)
+		},
+		func(g osgraph.Graph, f osgraph.Namer) []osgraph.Marker {
+			return kubeanalysis.FindMissingLivenessProbes(g, f, setProbeCommandName)
 		},
 		routeanalysis.FindPortMappingIssues,
 		routeanalysis.FindMissingTLSTerminationType,
@@ -961,7 +977,7 @@ func describeDeployments(f formatter, dcNode *deploygraph.DeploymentConfigNode, 
 		out = append(out, describeDeploymentStatus(deployment.ReplicationController, i == 0, dcNode.DeploymentConfig.Spec.Test, restartCount))
 		switch {
 		case count == -1:
-			if deployutil.DeploymentStatusFor(deployment.ReplicationController) == deployapi.DeploymentStatusComplete {
+			if deployutil.IsCompleteDeployment(deployment.ReplicationController) {
 				return out
 			}
 		default:
@@ -1331,6 +1347,30 @@ func (l *secretLoader) Load() error {
 func (l *secretLoader) AddToGraph(g osgraph.Graph) error {
 	for i := range l.items {
 		kubegraph.EnsureSecretNode(g, &l.items[i])
+	}
+
+	return nil
+}
+
+type pvcLoader struct {
+	namespace string
+	lister    kclient.PersistentVolumeClaimsNamespacer
+	items     []kapi.PersistentVolumeClaim
+}
+
+func (l *pvcLoader) Load() error {
+	list, err := l.lister.PersistentVolumeClaims(l.namespace).List(kapi.ListOptions{})
+	if err != nil {
+		return err
+	}
+
+	l.items = list.Items
+	return nil
+}
+
+func (l *pvcLoader) AddToGraph(g osgraph.Graph) error {
+	for i := range l.items {
+		kubegraph.EnsurePersistentVolumeClaimNode(g, &l.items[i])
 	}
 
 	return nil

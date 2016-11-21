@@ -40,6 +40,9 @@ import (
 	"k8s.io/kubernetes/pkg/apis/batch"
 	"k8s.io/kubernetes/pkg/apis/certificates"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/kubernetes/pkg/apis/policy"
+	"k8s.io/kubernetes/pkg/apis/storage"
+	storageutil "k8s.io/kubernetes/pkg/apis/storage/util"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	adapter "k8s.io/kubernetes/pkg/client/unversioned/adapters/internalclientset"
@@ -118,6 +121,8 @@ func describerMap(c *client.Client) map[unversioned.GroupKind]Describer {
 		apps.Kind("PetSet"):                            &PetSetDescriber{c},
 		certificates.Kind("CertificateSigningRequest"): &CertificateSigningRequestDescriber{c},
 		api.Kind("SecurityContextConstraints"):         &SecurityContextConstraintsDescriber{c},
+		storage.Kind("StorageClass"):                   &StorageClassDescriber{c},
+		policy.Kind("PodDisruptionBudget"):             &PodDisruptionBudgetDescriber{c},
 	}
 
 	return m
@@ -174,13 +179,24 @@ func (d *NamespaceDescriber) Describe(namespace, name string, describerSettings 
 	}
 	resourceQuotaList, err := d.ResourceQuotas(name).List(api.ListOptions{})
 	if err != nil {
-		return "", err
+		if errors.IsNotFound(err) {
+			// Server does not support resource quotas.
+			// Not an error, will not show resource quotas information.
+			resourceQuotaList = nil
+		} else {
+			return "", err
+		}
 	}
 	limitRangeList, err := d.LimitRanges(name).List(api.ListOptions{})
 	if err != nil {
-		return "", err
+		if errors.IsNotFound(err) {
+			// Server does not support limit ranges.
+			// Not an error, will not show limit ranges information.
+			limitRangeList = nil
+		} else {
+			return "", err
+		}
 	}
-
 	return describeNamespace(ns, resourceQuotaList, limitRangeList)
 }
 
@@ -885,6 +901,7 @@ func (d *PersistentVolumeDescriber) Describe(namespace, name string, describerSe
 	return tabbedString(func(out io.Writer) error {
 		fmt.Fprintf(out, "Name:\t%s\n", pv.Name)
 		printLabelsMultiline(out, "Labels", pv.Labels)
+		fmt.Fprintf(out, "StorageClass:\t%s\n", storageutil.GetStorageClassAnnotation(pv.ObjectMeta))
 		fmt.Fprintf(out, "Status:\t%s\n", pv.Status.Phase)
 		if pv.Spec.ClaimRef != nil {
 			fmt.Fprintf(out, "Claim:\t%s\n", pv.Spec.ClaimRef.Namespace+"/"+pv.Spec.ClaimRef.Name)
@@ -950,6 +967,7 @@ func (d *PersistentVolumeClaimDescriber) Describe(namespace, name string, descri
 	return tabbedString(func(out io.Writer) error {
 		fmt.Fprintf(out, "Name:\t%s\n", pvc.Name)
 		fmt.Fprintf(out, "Namespace:\t%s\n", pvc.Namespace)
+		fmt.Fprintf(out, "StorageClass:\t%s\n", storageutil.GetStorageClassAnnotation(pvc.ObjectMeta))
 		fmt.Fprintf(out, "Status:\t%v\n", pvc.Status.Phase)
 		fmt.Fprintf(out, "Volume:\t%s\n", pvc.Spec.VolumeName)
 		printLabelsMultiline(out, "Labels", pvc.Labels)
@@ -2500,6 +2518,64 @@ func describeNetworkPolicy(networkPolicy *extensions.NetworkPolicy) (string, err
 	})
 }
 
+type StorageClassDescriber struct {
+	client.Interface
+}
+
+func (s *StorageClassDescriber) Describe(namespace, name string, describerSettings DescriberSettings) (string, error) {
+	sc, err := s.Storage().StorageClasses().Get(name)
+	if err != nil {
+		return "", err
+	}
+	return tabbedString(func(out io.Writer) error {
+		fmt.Fprintf(out, "Name:\t%s\n", sc.Name)
+		fmt.Fprintf(out, "IsDefaultClass:\t%s\n", storageutil.IsDefaultAnnotationText(sc.ObjectMeta))
+		fmt.Fprintf(out, "Annotations:\t%s\n", labels.FormatLabels(sc.Annotations))
+		fmt.Fprintf(out, "Provisioner:\t%s\n", sc.Provisioner)
+		fmt.Fprintf(out, "Parameters:\t%s\n", labels.FormatLabels(sc.Parameters))
+		if describerSettings.ShowEvents {
+			events, err := s.Events(namespace).Search(sc)
+			if err != nil {
+				return err
+			}
+			if events != nil {
+				DescribeEvents(events, out)
+			}
+		}
+		return nil
+	})
+}
+
+type PodDisruptionBudgetDescriber struct {
+	client *client.Client
+}
+
+func (p *PodDisruptionBudgetDescriber) Describe(namespace, name string, describerSettings DescriberSettings) (string, error) {
+	pdb, err := p.client.Policy().PodDisruptionBudgets(namespace).Get(name)
+	if err != nil {
+		return "", err
+	}
+	return tabbedString(func(out io.Writer) error {
+		fmt.Fprintf(out, "Name:\t%s\n", pdb.Name)
+		fmt.Fprintf(out, "Min available:\t%s\n", pdb.Spec.MinAvailable.String())
+		if pdb.Spec.Selector != nil {
+			fmt.Fprintf(out, "Selector:\t%s\n", unversioned.FormatLabelSelector(pdb.Spec.Selector))
+		} else {
+			fmt.Fprintf(out, "Selector:\t<unset>\n")
+		}
+		if describerSettings.ShowEvents {
+			events, err := p.client.Events(namespace).Search(pdb)
+			if err != nil {
+				return err
+			}
+			if events != nil {
+				DescribeEvents(events, out)
+			}
+		}
+		return nil
+	})
+}
+
 // newErrNoDescriber creates a new ErrNoDescriber with the names of the provided types.
 func newErrNoDescriber(types ...reflect.Type) error {
 	names := make([]string, 0, len(types))
@@ -2694,23 +2770,19 @@ func printTaintsMultilineWithIndent(out io.Writer, initialIndent, title, innerIn
 	// to print taints in the sorted order
 	keys := make([]string, 0, len(taints))
 	for _, taint := range taints {
-		keys = append(keys, taint.Key)
+		keys = append(keys, string(taint.Effect)+","+taint.Key)
 	}
 	sort.Strings(keys)
 
-	effects := []api.TaintEffect{api.TaintEffectNoSchedule, api.TaintEffectPreferNoSchedule}
-
 	for i, key := range keys {
-		for _, effect := range effects {
-			for _, taint := range taints {
-				if taint.Key == key && taint.Effect == effect {
-					if i != 0 {
-						fmt.Fprint(out, initialIndent)
-						fmt.Fprint(out, innerIndent)
-					}
-					fmt.Fprintf(out, "%s=%s:%s\n", taint.Key, taint.Value, taint.Effect)
-					i++
+		for _, taint := range taints {
+			if string(taint.Effect)+","+taint.Key == key {
+				if i != 0 {
+					fmt.Fprint(out, initialIndent)
+					fmt.Fprint(out, innerIndent)
 				}
+				fmt.Fprintf(out, "%s\n", taint.ToString())
+				i++
 			}
 		}
 	}

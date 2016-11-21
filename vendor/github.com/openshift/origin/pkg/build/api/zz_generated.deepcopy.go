@@ -51,9 +51,11 @@ func RegisterDeepCopies(scheme *runtime.Scheme) error {
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_GitSourceRevision, InType: reflect.TypeOf(&GitSourceRevision{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_ImageChangeCause, InType: reflect.TypeOf(&ImageChangeCause{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_ImageChangeTrigger, InType: reflect.TypeOf(&ImageChangeTrigger{})},
+		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_ImageLabel, InType: reflect.TypeOf(&ImageLabel{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_ImageSource, InType: reflect.TypeOf(&ImageSource{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_ImageSourcePath, InType: reflect.TypeOf(&ImageSourcePath{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_JenkinsPipelineBuildStrategy, InType: reflect.TypeOf(&JenkinsPipelineBuildStrategy{})},
+		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_ProxyConfig, InType: reflect.TypeOf(&ProxyConfig{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_SecretBuildSource, InType: reflect.TypeOf(&SecretBuildSource{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_SecretSpec, InType: reflect.TypeOf(&SecretSpec{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_api_SourceBuildStrategy, InType: reflect.TypeOf(&SourceBuildStrategy{})},
@@ -274,6 +276,15 @@ func DeepCopy_api_BuildOutput(in interface{}, out interface{}, c *conversion.Clo
 			**out = **in
 		} else {
 			out.PushSecret = nil
+		}
+		if in.ImageLabels != nil {
+			in, out := &in.ImageLabels, &out.ImageLabels
+			*out = make([]ImageLabel, len(*in))
+			for i := range *in {
+				(*out)[i] = (*in)[i]
+			}
+		} else {
+			out.ImageLabels = nil
 		}
 		return nil
 	}
@@ -635,6 +646,15 @@ func DeepCopy_api_CommonSpec(in interface{}, out interface{}, c *conversion.Clon
 		} else {
 			out.CompletionDeadlineSeconds = nil
 		}
+		if in.NodeSelector != nil {
+			in, out := &in.NodeSelector, &out.NodeSelector
+			*out = make(map[string]string)
+			for key, val := range *in {
+				(*out)[key] = val
+			}
+		} else {
+			out.NodeSelector = nil
+		}
 		return nil
 	}
 }
@@ -766,19 +786,8 @@ func DeepCopy_api_GitBuildSource(in interface{}, out interface{}, c *conversion.
 		out := out.(*GitBuildSource)
 		out.URI = in.URI
 		out.Ref = in.Ref
-		if in.HTTPProxy != nil {
-			in, out := &in.HTTPProxy, &out.HTTPProxy
-			*out = new(string)
-			**out = **in
-		} else {
-			out.HTTPProxy = nil
-		}
-		if in.HTTPSProxy != nil {
-			in, out := &in.HTTPSProxy, &out.HTTPSProxy
-			*out = new(string)
-			**out = **in
-		} else {
-			out.HTTPSProxy = nil
+		if err := DeepCopy_api_ProxyConfig(&in.ProxyConfig, &out.ProxyConfig, c); err != nil {
+			return err
 		}
 		return nil
 	}
@@ -881,6 +890,16 @@ func DeepCopy_api_ImageChangeTrigger(in interface{}, out interface{}, c *convers
 	}
 }
 
+func DeepCopy_api_ImageLabel(in interface{}, out interface{}, c *conversion.Cloner) error {
+	{
+		in := in.(*ImageLabel)
+		out := out.(*ImageLabel)
+		out.Name = in.Name
+		out.Value = in.Value
+		return nil
+	}
+}
+
 func DeepCopy_api_ImageSource(in interface{}, out interface{}, c *conversion.Cloner) error {
 	{
 		in := in.(*ImageSource)
@@ -922,6 +941,35 @@ func DeepCopy_api_JenkinsPipelineBuildStrategy(in interface{}, out interface{}, 
 		out := out.(*JenkinsPipelineBuildStrategy)
 		out.JenkinsfilePath = in.JenkinsfilePath
 		out.Jenkinsfile = in.Jenkinsfile
+		return nil
+	}
+}
+
+func DeepCopy_api_ProxyConfig(in interface{}, out interface{}, c *conversion.Cloner) error {
+	{
+		in := in.(*ProxyConfig)
+		out := out.(*ProxyConfig)
+		if in.HTTPProxy != nil {
+			in, out := &in.HTTPProxy, &out.HTTPProxy
+			*out = new(string)
+			**out = **in
+		} else {
+			out.HTTPProxy = nil
+		}
+		if in.HTTPSProxy != nil {
+			in, out := &in.HTTPSProxy, &out.HTTPSProxy
+			*out = new(string)
+			**out = **in
+		} else {
+			out.HTTPSProxy = nil
+		}
+		if in.NoProxy != nil {
+			in, out := &in.NoProxy, &out.NoProxy
+			*out = new(string)
+			**out = **in
+		} else {
+			out.NoProxy = nil
+		}
 		return nil
 	}
 }

@@ -38,7 +38,7 @@ import (
 func describerMap(c *client.Client, kclient kclient.Interface, host string) map[unversioned.GroupKind]kctl.Describer {
 	m := map[unversioned.GroupKind]kctl.Describer{
 		buildapi.Kind("Build"):                        &BuildDescriber{c, kclient},
-		buildapi.Kind("BuildConfig"):                  &BuildConfigDescriber{c, host},
+		buildapi.Kind("BuildConfig"):                  &BuildConfigDescriber{c, kclient, host},
 		deployapi.Kind("DeploymentConfig"):            &DeploymentConfigDescriber{c, kclient, nil},
 		authorizationapi.Kind("Identity"):             &IdentityDescriber{c},
 		imageapi.Kind("Image"):                        &ImageDescriber{c},
@@ -171,7 +171,8 @@ func describeBuildDuration(build *buildapi.Build) string {
 // BuildConfigDescriber generates information about a buildConfig
 type BuildConfigDescriber struct {
 	client.Interface
-	host string
+	kubeClient kclient.Interface
+	host       string
 }
 
 func nameAndNamespace(ns, name string) string {
@@ -439,23 +440,31 @@ func (d *BuildConfigDescriber) Describe(namespace, name string, settings kctl.De
 		describeCommonSpec(buildConfig.Spec.CommonSpec, out)
 		formatString(out, "\nBuild Run Policy", string(buildConfig.Spec.RunPolicy))
 		d.DescribeTriggers(buildConfig, out)
-		if len(buildList.Items) == 0 {
-			return nil
+
+		if len(buildList.Items) > 0 {
+			fmt.Fprintf(out, "\nBuild\tStatus\tDuration\tCreation Time\n")
+
+			builds := buildList.Items
+			sort.Sort(sort.Reverse(buildapi.BuildSliceByCreationTimestamp(builds)))
+
+			for i, build := range builds {
+				fmt.Fprintf(out, "%s \t%s \t%v \t%v\n",
+					build.Name,
+					strings.ToLower(string(build.Status.Phase)),
+					describeBuildDuration(&build),
+					build.CreationTimestamp.Rfc3339Copy().Time)
+				// only print the 10 most recent builds.
+				if i == 9 {
+					break
+				}
+			}
 		}
-		fmt.Fprintf(out, "\nBuild\tStatus\tDuration\tCreation Time\n")
 
-		builds := buildList.Items
-		sort.Sort(sort.Reverse(buildapi.BuildSliceByCreationTimestamp(builds)))
-
-		for i, build := range builds {
-			fmt.Fprintf(out, "%s \t%s \t%v \t%v\n",
-				build.Name,
-				strings.ToLower(string(build.Status.Phase)),
-				describeBuildDuration(&build),
-				build.CreationTimestamp.Rfc3339Copy().Time)
-			// only print the 10 most recent builds.
-			if i == 9 {
-				break
+		if settings.ShowEvents {
+			events, _ := d.kubeClient.Events(namespace).Search(buildConfig)
+			if events != nil {
+				fmt.Fprint(out, "\n")
+				kctl.DescribeEvents(events, out)
 			}
 		}
 		return nil

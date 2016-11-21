@@ -43,10 +43,33 @@ message DeploymentCauseImageTrigger {
   optional k8s.io.kubernetes.pkg.api.v1.ObjectReference from = 1;
 }
 
-// DeploymentConfig represents a configuration for a single deployment (represented as a
-// ReplicationController). It also contains details about changes which resulted in the current
-// state of the DeploymentConfig. Each change to the DeploymentConfig which should result in
-// a new deployment results in an increment of LatestVersion.
+// DeploymentCondition describes the state of a deployment config at a certain point.
+message DeploymentCondition {
+  // Type of deployment condition.
+  optional string type = 1;
+
+  // Status of the condition, one of True, False, Unknown.
+  optional string status = 2;
+
+  // The last time the condition transitioned from one status to another.
+  optional k8s.io.kubernetes.pkg.api.unversioned.Time lastTransitionTime = 3;
+
+  // The reason for the condition's last transition.
+  optional string reason = 4;
+
+  // A human readable message indicating details about the transition.
+  optional string message = 5;
+}
+
+// Deployment Configs define the template for a pod and manages deploying new images or configuration changes.
+// A single deployment configuration is usually analogous to a single micro-service. Can support many different
+// deployment patterns, including full restart, customizable rolling updates, and  fully custom behaviors, as
+// well as pre- and post- deployment hooks. Each individual deployment is represented as a replication controller.
+// 
+// A deployment is "triggered" when its configuration is changed or a tag in an Image Stream is changed.
+// Triggers can be disabled to allow manual control over a deployment. The "strategy" determines how the deployment
+// is carried out and may be changed at any time. The `latestVersion` field is updated when a new deployment
+// is triggered by any means.
 message DeploymentConfig {
   // Standard object's metadata.
   optional k8s.io.kubernetes.pkg.api.v1.ObjectMeta metadata = 1;
@@ -164,6 +187,9 @@ message DeploymentConfigStatus {
   // Details are the reasons for the update to this deployment config.
   // This could be based on a change made by the user or caused by an automatic trigger
   optional DeploymentDetails details = 7;
+
+  // Conditions represents the latest available observations of a deployment config's current state.
+  repeated DeploymentCondition conditions = 8;
 }
 
 // DeploymentDetails captures information about the causes of a deployment.
@@ -225,12 +251,27 @@ message DeploymentLogOptions {
   optional int64 version = 10;
 }
 
+// DeploymentRequest is a request to a deployment config for a new deployment.
+message DeploymentRequest {
+  // Name of the deployment config for requesting a new deployment.
+  optional string name = 1;
+
+  // Latest will update the deployment config with the latest state from all triggers.
+  optional bool latest = 2;
+
+  // Force will try to force a new deployment to run. If the deployment config is paused,
+  // then setting this to true will return an Invalid error.
+  optional bool force = 3;
+}
+
 // DeploymentStrategy describes how to perform a deployment.
 message DeploymentStrategy {
   // Type is the name of a deployment strategy.
   optional string type = 1;
 
-  // CustomParams are the input to the Custom deployment strategy.
+  // CustomParams are the input to the Custom deployment strategy, and may also
+  // be specified for the Recreate and Rolling strategies to customize the execution
+  // process that runs the deployment.
   optional CustomDeploymentStrategyParams customParams = 2;
 
   // RecreateParams are the input to the Recreate deployment strategy.
@@ -239,7 +280,7 @@ message DeploymentStrategy {
   // RollingParams are the input to the Rolling deployment strategy.
   optional RollingDeploymentStrategyParams rollingParams = 4;
 
-  // Resources contains resource requirements to execute the deployment and any hooks
+  // Resources contains resource requirements to execute the deployment and any hooks.
   optional k8s.io.kubernetes.pkg.api.v1.ResourceRequirements resources = 5;
 
   // Labels is a set of key, value pairs added to custom deployer and lifecycle pre/post hook pods.
@@ -252,9 +293,7 @@ message DeploymentStrategy {
 // DeploymentTriggerImageChangeParams represents the parameters to the ImageChange trigger.
 message DeploymentTriggerImageChangeParams {
   // Automatic means that the detection of a new tag value should result in an image update
-  // inside the pod template. Deployment configs that haven't been deployed yet will always
-  // have their images updated. Deployment configs that have been deployed at least once, will
-  // have their images updated only if this is set to true.
+  // inside the pod template.
   optional bool automatic = 1;
 
   // ContainerNames is used to restrict tag updates to the specified set of container names in a pod.
@@ -382,19 +421,13 @@ message RollingDeploymentStrategyParams {
   // pods.
   optional k8s.io.kubernetes.pkg.util.intstr.IntOrString maxSurge = 5;
 
-  // UpdatePercent is the percentage of replicas to scale up or down each
-  // interval. If nil, one replica will be scaled up and down each interval.
-  // If negative, the scale order will be down/up instead of up/down.
-  // DEPRECATED: Use MaxUnavailable/MaxSurge instead.
-  optional int32 updatePercent = 6;
-
   // Pre is a lifecycle hook which is executed before the deployment process
   // begins. All LifecycleHookFailurePolicy values are supported.
   optional LifecycleHook pre = 7;
 
   // Post is a lifecycle hook which is executed after the strategy has
-  // finished all deployment logic. The LifecycleHookFailurePolicyAbort policy
-  // is NOT supported.
+  // finished all deployment logic. All LifecycleHookFailurePolicy values
+  // are supported.
   optional LifecycleHook post = 8;
 }
 
