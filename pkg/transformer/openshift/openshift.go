@@ -85,7 +85,7 @@ func hasGitBinary() bool {
 
 // getGitRemote gets git remote URI for the current git repo
 func getGitRemote(composeFileDir string, remote string) (string, error) {
-	cmd := exec.Command("git", "remote", "get-url", remote)
+	cmd := exec.Command("git", "ls-remote", "--get-url", remote)
 	cmd.Dir = composeFileDir
 	out, err := cmd.Output()
 	if err != nil {
