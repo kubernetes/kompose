@@ -31,19 +31,24 @@ Other examples are provided in the _examples_ [directory](./examples).
 
 ## Installation 
 
+To install `kompose`, you can either `go get` or install the binary from a new release.
+
+#### Go
+
+```sh
+go get github.com/kubernetes-incubator/kompose
+```
+
+#### GitHub release
+
 Grab the latest [release](https://github.com/kubernetes-incubator/kompose/releases) for your OS, untar and extract the binary.
 
 Linux example:
-```
-wget https://github.com/kubernetes-incubator/kompose/releases/download/v0.1.1/kompose_linux-amd64.tar.gz
+
+```sh
+wget https://github.com/kubernetes-incubator/kompose/releases/download/v0.1.2/kompose_linux-amd64.tar.gz
 tar -xvf kompose_linux-amd64.tar.gz --strip 1
 sudo mv kompose /usr/local/bin
-```
-
-Otherwise, you could take the latest development package from master branch. Make sure your PATH includes the $GOPATH/bin directory so your commands can be easily used:
-```console
-$ go get github.com/kubernetes-incubator/kompose
-$ export PATH=$PATH:$GOPATH/bin
 ```
 
 ## Bash completion
