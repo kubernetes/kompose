@@ -382,7 +382,7 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 	if !opt.EmptyVols {
 		pvcStr = " and PersistentVolumeClaims "
 	}
-	fmt.Println("We are going to create Kubernetes Deployments, Services" +pvcStr+ "for your Dockerized application. \n" +
+	fmt.Println("We are going to create Kubernetes Deployments, Services" + pvcStr + "for your Dockerized application. \n" +
 		"If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. \n")
 
 	factory := cmdutil.NewFactory(nil)
@@ -424,7 +424,7 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 	} else {
 		pvcStr = ""
 	}
-	fmt.Println("\nYour application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods" +pvcStr+ "' for details.")
+	fmt.Println("\nYour application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods" + pvcStr + "' for details.")
 
 	return nil
 }

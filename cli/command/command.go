@@ -87,7 +87,7 @@ func generateBashCompletion(args []string) {
 	commonArgs := []string{"bundle", "file", "suppress-warnings", "verbose", "error-on-warning", "provider"}
 	flags := append(commonArgs, args...)
 
-	for _,f := range flags {
+	for _, f := range flags {
 		fmt.Printf("--%s\n", f)
 	}
 }
