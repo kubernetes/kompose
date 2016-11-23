@@ -1,6 +1,7 @@
 # Kompose (Kubernetes + Compose)
 
 [![Build Status](https://travis-ci.org/kubernetes-incubator/kompose.svg?branch=master)](https://travis-ci.org/kubernetes-incubator/kompose)
+
 [![Join us in #kompose on k8s Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png)](http://slack.kubernetes.io) in #kompose channel
 
 `kompose` is a tool to help users who are familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). `kompose` takes a Docker Compose file and translates it into Kubernetes resources.
@@ -51,7 +52,8 @@ tar -xvf kompose_linux-amd64.tar.gz --strip 1
 sudo mv kompose /usr/local/bin
 ```
 
-## Bash completion
+## Bash Completion
+
 Running this below command in order to benefit from bash completion
 
 ```console
@@ -95,25 +97,19 @@ $ make binary-cross
 `kompose` is a work in progress, we will see how far it takes us. We welcome any pull request to make it even better.
 If you find any issues, please [file it](https://github.com/kubernetes-incubator/kompose/issues).
 
-## Community, discussion, contribution, and support
+## Community, Discussion, Contribution, and Support
 
-We follow the Kubernetes community principles.
+As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
 
-Learn how to engage with the Kubernetes community on the [community page](http://kubernetes.io/community/).
+You can reach the maintainers of this project on [Slack](http://slack.kubernetes.io) in channel #kompose
 
-You can reach the maintainers of this project at:
+`kompose` is being incubated into the Kubernetes community via [SIG-APPS](https://github.com/kubernetes/community/tree/master/sig-apps) on [kubernetes/community](https://github.com/kubernetes/community).
 
-- [Slack](http://slack.kubernetes.io): #kompose
+[@ericchiang](https://github.com/ericchiang) is acting champion for [incubation](https://github.com/kubernetes/community/blob/master/incubator.md).
 
-Incubation of `kompose` into the Kubernetes project is shepherd in the [SIG-APPS](https://github.com/kubernetes/community).
+We do a biweekly community meeting which is [open to the public](https://bluejeans.com/404059616). Each week we outline what we have talked about in an [agenda doc](https://docs.google.com/document/d/1I5I21Cp_JZ9Az5MgMcu6Hl7m8WQ1Eqk_WeQLHenNom0/edit?usp=sharing). This meeting occurs every two weeks on Wednesday 18:00-19:00 GMT.
 
-[@ericchiang](https://github.com/ericchiang) is acting as Champion for [incubation](https://github.com/kubernetes/community/blob/master/incubator.md)
-
-We do a bi-weekly community meeting. Here is the link to [agenda doc](https://docs.google.com/document/d/1I5I21Cp_JZ9Az5MgMcu6Hl7m8WQ1Eqk_WeQLHenNom0/edit?usp=sharing).
-
-Meeting link: [https://bluejeans.com/404059616](https://bluejeans.com/404059616)
-
-## RoadMap
+## Road Map
 
 * September 15th 2016: Propose to Kubernetes incubator.
 * September 30th 2016: Make the first official release of `kompose`, 0.1.0
@@ -123,6 +119,6 @@ Meeting link: [https://bluejeans.com/404059616](https://bluejeans.com/404059616)
 * November 15th 2016: Improve support for Docker bundles to target specific image layers.
 * December 24th 2016: Second release of `kompose`, 0.2.0
 
-### Code of conduct
+### Code of Conduct
 
 Participation in the Kubernetes community is governed by the [Kubernetes Code of Conduct](code-of-conduct.md).
