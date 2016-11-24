@@ -303,7 +303,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	var err error
 	var composeFileDir string
 	hasBuild := false
-	buildRepo := ""
+	buildRepo := opt.BuildRepo
 
 	for name, service := range komposeObject.ServiceConfigs {
 		var objects []runtime.Object
