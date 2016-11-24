@@ -16,6 +16,24 @@
 
 # inspired by: https://github.com/openshift/origin/blob/master/hack/godep-restore.sh
 
+#### HACK ####
+# Sometimes godep just can't handle things. This lets use manually put
+# some deps in place first, so godep won't fall over.
+preload-dep() {
+  org="$1"
+  project="$2"
+  sha="$3"
+
+  # Go get stinks, which is why we have the || true...
+  go get -d "${org}/${project}" >/dev/null 2>&1 || true
+  repo_dir="${GOPATH}/src/${org}/${project}"
+  pushd "${repo_dir}" > /dev/null
+    git remote update > /dev/null
+    git checkout "${sha}" > /dev/null
+  popd > /dev/null
+}
+
+
 # Sometimes godep needs 'other' remotes. So add those remotes
 preload-remote() {
   local orig_org="$1"
@@ -38,6 +56,10 @@ echo "Preloading some dependencies"
 preload-remote "k8s.io" "kubernetes" "github.com/openshift" "kubernetes"
 # OpenShift requires its own glog fork
 preload-remote "github.com/golang" "glog" "github.com/openshift" "glog"
+
+# inspired by https://github.com/openshift/origin/pull/12011
+preload-dep "google.golang.org" "cloud"  "$( go run "./script/godepversion.go" "./Godeps/Godeps.json" "google.golang.org/cloud/internal" )"
+
 
 echo "Starting to download all godeps. This takes a while"
 godep restore
