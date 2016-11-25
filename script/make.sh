@@ -25,10 +25,6 @@ DEFAULT_BUNDLES=(
 	validate-lint
 	validate-vet
 	binary
-
-	# test-unit
-	# test-integration
-	# test-acceptance
 )
 bundle() {
     local bundle="$1"; shift

@@ -12,10 +12,14 @@ install:
   - true
 
 script:
+  - make validate
+  - make test-unit
+  
+  # make test-cmd requires kompose binary
   - make binary
+  
   # $GOPATH/bin is in $PATH
   - mkdir -p $GOPATH/bin
   - cp kompose $GOPATH/bin/
 
-  - make test-unit
   - make test-cmd
