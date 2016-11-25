@@ -16,29 +16,24 @@
 
 source "$(dirname "$BASH_SOURCE")/.validate"
 
-IFS=$'\n'
-files=( $(validate_diff --diff-filter=ACMR --name-only -- '*.go' | grep -v '^vendor/' || true) )
-unset IFS
+GO_FILES=$(find . -path ./vendor -prune -o -name '*.go' -print )
 
-badFiles=()
-for f in "${files[@]}"; do
-	# we use "git show" here to validate that what's committed is formatted
-	if [ "$(git show "$VALIDATE_HEAD:$f" | gofmt -s -l)" ]; then
-		badFiles+=( "$f" )
+
+for file in $GO_FILES; do
+	gofmtOutput=$(gofmt -l "$file")
+	if [ "$gofmtOutput" ]; then
+		errors+=("$gofmtOutput")
 	fi
-done
+done 
 
-if [ ${#badFiles[@]} -eq 0 ]; then
-	echo 'Congratulations!  All Go source files are properly formatted.'
+
+
+if [ ${#errors[@]} -eq 0 ]; then
+	echo "gofmt OK"
 else
-	{
-		echo "These files are not properly gofmt'd:"
-		for f in "${badFiles[@]}"; do
-			echo " - $f"
-		done
-		echo
-		echo 'Please reformat the above files using "gofmt -s -w" and commit the result.'
-		echo
-	} >&2
-	false
+	echo "gofmt ERROR - These files are not formated by gofmt:"
+	for err in "${errors[@]}"; do
+		echo "$err"
+	done
+	exit 1
 fi

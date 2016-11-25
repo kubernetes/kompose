@@ -178,7 +178,7 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 	if !opt.EmptyVols {
 		pvcStr = " and PersistentVolumeClaims "
 	}
-	fmt.Println("We are going to create OpenShift DeploymentConfigs, Services" +pvcStr+ "for your Dockerized application. \n" +
+	fmt.Println("We are going to create OpenShift DeploymentConfigs, Services" + pvcStr + "for your Dockerized application. \n" +
 		"If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. \n")
 
 	// initialize OpenShift Client
@@ -238,7 +238,7 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 	} else {
 		pvcStr = ""
 	}
-	fmt.Println("\nYour application has been deployed to OpenShift. You can run 'oc get dc,svc,is" +pvcStr+ "' for details.")
+	fmt.Println("\nYour application has been deployed to OpenShift. You can run 'oc get dc,svc,is" + pvcStr + "' for details.")
 
 	return nil
 }
