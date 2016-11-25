@@ -35,9 +35,11 @@ import (
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/runtime"
+	"k8s.io/kubernetes/pkg/api/resource"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	imageapi "github.com/openshift/origin/pkg/image/api"
+	"strconv"
 )
 
 /**
@@ -286,6 +288,11 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
 		template.Spec.Containers[0].VolumeMounts = volumesMount
 		template.Spec.Volumes = volumes
+		cpu, err := resource.ParseQuantity(strconv.FormatInt(service.CPUShares,10))
+		if err != nil {
+			logrus.Error(err)
+		}
+		template.Spec.Containers[0].Resources = api.ResourceRequirements{Limits: api.ResourceList{api.ResourceCPU: cpu}}
 		// Configure the container privileged mode
 		if service.Privileged == true {
 			template.Spec.Containers[0].SecurityContext = &api.SecurityContext{
