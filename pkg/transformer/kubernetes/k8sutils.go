@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -286,12 +287,25 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
 		template.Spec.Containers[0].VolumeMounts = volumesMount
 		template.Spec.Volumes = volumes
-		// Configure the container privileged mode
+
+		securityContext := &api.SecurityContext{}
 		if service.Privileged == true {
-			template.Spec.Containers[0].SecurityContext = &api.SecurityContext{
-				Privileged: &service.Privileged,
-			}
+			securityContext.Privileged = &service.Privileged
 		}
+		if service.User != "" {
+			uid, err := strconv.ParseInt(service.User, 10, 64)
+			if err != nil {
+				logrus.Warn("Ignoring user directive. User to be specified as a UID (numeric).")
+			} else {
+				securityContext.RunAsUser = &uid
+			}
+
+		}
+		// update template only if securityContext is not empty
+		if *securityContext != (api.SecurityContext{}) {
+			template.Spec.Containers[0].SecurityContext = securityContext
+		}
+
 		template.Spec.Containers[0].Ports = ports
 		template.ObjectMeta.Labels = transformer.ConfigLabels(name)
 		// Configure the container restart policy.
