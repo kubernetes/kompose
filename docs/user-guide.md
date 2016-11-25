@@ -62,6 +62,31 @@ db-deployment.json  docker-compose.yml         docker-gitlab.yml  redis-deployme
 db-svc.json         docker-compose-bundle.dab  docker-voting.yml  redis-svc.json         result-svc.json         vote-svc.json         worker-svc.json
 ```
 
+You can also provide multiple docker-compose files at the same time:
+
+```console
+$ kompose -f docker-compose.yml -f docker-guestbook.yml convert
+file "frontend-service.json" created         
+file "mlbparks-service.json" created         
+file "mongodb-service.json" created          
+file "redis-master-service.json" created     
+file "redis-slave-service.json" created      
+file "frontend-deployment.json" created      
+file "mlbparks-deployment.json" created      
+file "mongodb-deployment.json" created       
+file "mongodb-claim0-persistentvolumeclaim.json" created 
+file "redis-master-deployment.json" created  
+file "redis-slave-deployment.json" created   
+
+$ ls
+mlbparks-deployment.json  mongodb-service.json                       redis-slave-service.jsonmlbparks-service.json  
+frontend-deployment.json  mongodb-claim0-persistentvolumeclaim.json  redis-master-service.json
+frontend-service.json     mongodb-deployment.json                    redis-slave-deployment.json
+redis-master-deployment.json
+``` 
+
+When multiple docker-compose files are provided the configuration is merged. Any configuration that is common will be over ridden by subsequent file.
+ 
 Using `--bundle, --dab` to specify a DAB file as below:
 
 ```console

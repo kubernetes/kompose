@@ -26,7 +26,7 @@ import (
 )
 
 type Loader interface {
-	LoadFile(file string) kobject.KomposeObject
+	LoadFile(files []string) kobject.KomposeObject
 	///Name() string
 }
 

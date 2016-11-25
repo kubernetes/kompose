@@ -1,0 +1,257 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "etherpad",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "etherpad"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "80",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 9001
+          },
+          {
+            "name": "80",
+            "protocol": "TCP",
+            "port": 80,
+            "targetPort": 9001
+          }
+        ],
+        "selector": {
+          "service": "etherpad"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "mariadb"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "3306",
+            "protocol": "TCP",
+            "port": 3306,
+            "targetPort": 3306
+          },
+          {
+            "name": "3307",
+            "protocol": "TCP",
+            "port": 3307,
+            "targetPort": 3307
+          }
+        ],
+        "selector": {
+          "service": "mariadb"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "etherpad",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "etherpad"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "etherpad",
+                "image": "centos/etherpad",
+                "ports": [
+                  {
+                    "containerPort": 9001,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9001,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_USER",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "DB_DBID",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "DB_HOST",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "openshift"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "mariadb",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "mariadb"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "mariadb-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "mariadb-claim0"
+                }
+              },
+              {
+                "name": "mariadb-claim1",
+                "persistentVolumeClaim": {
+                  "claimName": "mariadb-claim1"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "mariadb",
+                "image": "centos/mariadb",
+                "ports": [
+                  {
+                    "containerPort": 3306,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 3307,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "MYSQL_PASSWORD",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_USER",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_DATABASE",
+                    "value": "openshift"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "mariadb-claim0",
+                    "mountPath": "/var/lib/mysql"
+                  },
+                  {
+                    "name": "mariadb-claim1",
+                    "mountPath": "/var/lib/mysql"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb-claim1",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}
