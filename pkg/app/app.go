@@ -114,7 +114,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	if len(bundle) > 0 {
 		inputFormat = "bundle"
-		opt.InputFile = bundle
+		opt.InputFiles = []string{bundle}
 	}
 
 	if len(bundle) > 0 && isFileSet {
@@ -185,7 +185,7 @@ func Convert(opt kobject.ConvertOptions) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject = l.LoadFile(opt.InputFile)
+	komposeObject = l.LoadFile(opt.InputFiles)
 
 	// Get a transformer that maps komposeObject to provider's primitives
 	t := getTransformer(opt)
@@ -211,7 +211,7 @@ func Up(opt kobject.ConvertOptions) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject = l.LoadFile(opt.InputFile)
+	komposeObject = l.LoadFile(opt.InputFiles)
 
 	// Get the transformer
 	t := getTransformer(opt)
@@ -237,7 +237,7 @@ func Down(opt kobject.ConvertOptions) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject = l.LoadFile(opt.InputFile)
+	komposeObject = l.LoadFile(opt.InputFiles)
 
 	// Get the transformer
 	t := getTransformer(opt)

@@ -173,12 +173,12 @@ func loadPorts(service Service) ([]kobject.Ports, string) {
 }
 
 // load dab file into KomposeObject
-func (b *Bundle) LoadFile(file string) kobject.KomposeObject {
+func (b *Bundle) LoadFile(files []string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 		LoadedFrom:     "bundle",
 	}
-
+	file := files[0]
 	buf, err := ioutil.ReadFile(file)
 	if err != nil {
 		logrus.Fatalf("Failed to read bundles file: %s ", err)

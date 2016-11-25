@@ -47,7 +47,7 @@ var convertCmd = &cobra.Command{
 			CreateChart:            ConvertChart,
 			GenerateYaml:           ConvertYaml,
 			Replicas:               ConvertReplicas,
-			InputFile:              GlobalFile,
+			InputFiles:             GlobalFiles,
 			OutFile:                ConvertOut,
 			Provider:               strings.ToLower(GlobalProvider),
 			CreateD:                ConvertDeployment,

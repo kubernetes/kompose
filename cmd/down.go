@@ -38,10 +38,10 @@ var downCmd = &cobra.Command{
 
 		// Create the Convert options.
 		DownOpt = kobject.ConvertOptions{
-			Replicas:  DownReplicas,
-			InputFile: GlobalFile,
-			Provider:  strings.ToLower(GlobalProvider),
-			EmptyVols: DownEmptyVols,
+			Replicas:   DownReplicas,
+			InputFiles: GlobalFiles,
+			Provider:   strings.ToLower(GlobalProvider),
+			EmptyVols:  DownEmptyVols,
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {

@@ -112,7 +112,9 @@ func getGitCurrentBranch(composeFileDir string) (string, error) {
 }
 
 // getComposeFileDir returns compose file directory
-func getComposeFileDir(inputFile string) (string, error) {
+func getComposeFileDir(inputFiles []string) (string, error) {
+	// Lets assume all the docker-compose files are in the same directory
+	inputFile := inputFiles[0]
 	if strings.Index(inputFile, "/") != 0 {
 		workDir, err := os.Getwd()
 		if err != nil {
@@ -332,7 +334,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			// buildconfig needs to be added to objects after imagestream because of this Openshift bug: https://github.com/openshift/origin/issues/4518
 			if service.Build != "" {
 				if !hasBuild {
-					composeFileDir, err = getComposeFileDir(opt.InputFile)
+					composeFileDir, err = getComposeFileDir(opt.InputFiles)
 					if err != nil {
 						logrus.Warningf("Error in detecting compose file's directory.")
 						continue

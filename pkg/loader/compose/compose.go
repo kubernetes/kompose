@@ -221,16 +221,16 @@ func loadPorts(composePorts []string) ([]kobject.Ports, error) {
 }
 
 // load compose file into KomposeObject
-func (c *Compose) LoadFile(file string) kobject.KomposeObject {
+func (c *Compose) LoadFile(files []string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 		LoadedFrom:     "compose",
 	}
 	context := &project.Context{}
-	if file == "" {
-		file = "docker-compose.yml"
+	if len(files) == 0 {
+		files = append(files, "docker-compose.yml")
 	}
-	context.ComposeFiles = []string{file}
+	context.ComposeFiles = files
 
 	if context.ResourceLookup == nil {
 		context.ResourceLookup = &lookup.FileResourceLookup{}
