@@ -59,10 +59,15 @@ func loadEnvVars(envars []string) []kobject.EnvVar {
 
 		if character == "" {
 			envs = append(envs, kobject.EnvVar{
-				Name: e,
+				Name:  e,
+				Value: os.Getenv(e),
 			})
 		} else {
 			values := strings.SplitN(e, character, 2)
+			// try to get value from os env
+			if values[1] == "" {
+				values[1] = os.Getenv(values[0])
+			}
 			envs = append(envs, kobject.EnvVar{
 				Name:  values[0],
 				Value: values[1],
