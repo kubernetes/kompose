@@ -173,14 +173,12 @@ func initBuildConfig(name string, service kobject.ServiceConfig, composeFileDir 
 			Name: name,
 		},
 		Spec: buildapi.BuildConfigSpec{
-			// Triggers
-			[]buildapi.BuildTriggerPolicy{
+			Triggers: []buildapi.BuildTriggerPolicy{
 				{Type: "ConfigChange"},
 				{Type: "ImageChange"},
 			},
-			// RunPolicy
-			"Serial",
-			buildapi.CommonSpec{
+			RunPolicy: "Serial",
+			CommonSpec: buildapi.CommonSpec{
 				Source: buildapi.BuildSource{
 					Git: &buildapi.GitBuildSource{
 						Ref: branch,
