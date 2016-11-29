@@ -16,7 +16,7 @@ script:
   - make test-unit
   
   # make test-cmd requires kompose binary
-  - make binary
+  - make bin
   
   # $GOPATH/bin is in $PATH
   - mkdir -p $GOPATH/bin
