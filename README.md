@@ -1,6 +1,7 @@
 # Kompose (Kubernetes + Compose)
 
 [![Build Status](https://travis-ci.org/kubernetes-incubator/kompose.svg?branch=master)](https://travis-ci.org/kubernetes-incubator/kompose)
+[![Coverage Status](https://coveralls.io/repos/github/kubernetes-incubator/kompose/badge.svg?branch=master)](https://coveralls.io/github/kubernetes-incubator/kompose?branch=master)
 
 [![Join us in #kompose on k8s Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png)](http://slack.kubernetes.io) in #kompose channel
 
