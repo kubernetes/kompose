@@ -404,6 +404,12 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 				return err
 			}
 			logrus.Infof("Successfully created ImageStream: %s", t.Name)
+		case *buildapi.BuildConfig:
+			_, err := oclient.BuildConfigs(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created BuildConfig: %s", t.Name)
 		case *deployapi.DeploymentConfig:
 			_, err := oclient.DeploymentConfigs(namespace).Create(t)
 			if err != nil {
