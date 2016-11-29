@@ -12,7 +12,7 @@
 
 If you have a Docker Compose [`docker-compose.yml`](./examples/docker-compose.yml) or a Docker Distributed Application Bundle [`docker-compose-bundle.dab`](./examples/docker-compose-bundle.dab) file, you can convert it into Kubernetes deployments and services like this:
 
-```console
+```sh
 $ kompose --bundle docker-compose-bundle.dab convert
 WARN[0000]: Unsupported key networks - ignoring
 file "redis-svc.json" created
@@ -57,7 +57,7 @@ sudo mv kompose /usr/local/bin
 
 Running this below command in order to benefit from bash completion
 
-```console
+```sh
 $ PROG=kompose source script/bash_autocomplete
 ```
 
@@ -65,32 +65,38 @@ $ PROG=kompose source script/bash_autocomplete
 
 ### Building with `go`
 
-- You need `make`
-- You need `go` v1.6 or later.
-- If your working copy is not in your `GOPATH`, you need to set it accordingly.
+- `make`
+- `go` v1.6 or later.
+- `$GOPATH` set
 
-You can either build via the Makefile:
+Change to the Go Kompose path:
 
-```console
-$ make binary
+```sh
+cd $GOPATH/src/github.com/kubernetes-incubator/kompose
+```
+
+Build via `make`:
+
+```sh
+make binary
 ```
 
 Or `go build`:
 
-```console
-$ go build -o kompose main.go
+```sh
+go build -o kompose main.go
 ```
 
-If you have `go` v1.5, it's still good to build `kompose` with the following settings:
+If you have `go` v1.5, you can still build `kompose`, but only with the following flags:
 
-```console
-$ CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose main.go
+```sh
+CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose main.go
 ```
 
 To create a multi-platform binary, use the `binary-cross` command via `make`:
 
-```console
-$ make binary-cross
+```sh
+make binary-cross
 ```
 
 ## Contributing and Issues
