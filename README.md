@@ -30,7 +30,7 @@ file "redis-deployment.json" created
 
 Other examples are provided in the _examples_ [directory](./examples).
 
-## Installation 
+## Installation
 
 To install `kompose`, you can either `go get` or install the binary from a new release.
 
@@ -47,6 +47,7 @@ Grab the latest [release](https://github.com/kubernetes-incubator/kompose/releas
 Linux example:
 
 ```sh
+=======
 wget https://github.com/kubernetes-incubator/kompose/releases/download/v0.1.2/kompose_linux-amd64.tar.gz
 tar -xvf kompose_linux-amd64.tar.gz --strip 1
 sudo mv kompose /usr/local/bin
