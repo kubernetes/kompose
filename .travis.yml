@@ -8,6 +8,9 @@ language: go
 go:
   - 1.6
 
+before_install:
+  - go get github.com/mattn/goveralls
+
 install:
   - true
 
@@ -23,3 +26,4 @@ script:
   - cp kompose $GOPATH/bin/
 
   - make test-cmd
+  - goveralls -service=travis-ci
