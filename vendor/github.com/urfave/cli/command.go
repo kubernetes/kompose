@@ -26,34 +26,42 @@ type Command struct {
 	// The category the command is part of
 	Category string
 	// The function to call when checking for bash command completions
-	BashComplete func(context *Context)
+	BashComplete BashCompleteFunc
 	// An action to execute before any sub-subcommands are run, but after the context is ready
 	// If a non-nil error is returned, no sub-subcommands are run
-	Before func(context *Context) error
-	// An action to execute after any subcommands are run, but before the subcommand has finished
+	Before BeforeFunc
+	// An action to execute after any subcommands are run, but after the subcommand has finished
 	// It is run even if Action() panics
-	After func(context *Context) error
+	After AfterFunc
 	// The function to call when this command is invoked
-	Action func(context *Context)
-	// Execute this function, if an usage error occurs. This is useful for displaying customized usage error messages.
-	// This function is able to replace the original error messages.
-	// If this function is not set, the "Incorrect usage" is displayed and the execution is interrupted.
-	OnUsageError func(context *Context, err error) error
+	Action interface{}
+	// TODO: replace `Action: interface{}` with `Action: ActionFunc` once some kind
+	// of deprecation period has passed, maybe?
+
+	// Execute this function if a usage error occurs.
+	OnUsageError OnUsageErrorFunc
 	// List of child commands
 	Subcommands Commands
 	// List of flags to parse
 	Flags []Flag
 	// Treat all flags as normal arguments if true
 	SkipFlagParsing bool
+	// Skip argument reordering which attempts to move flags before arguments,
+	// but only works if all flags appear after all arguments. This behavior was
+	// removed n version 2 since it only works under specific conditions so we
+	// backport here by exposing it as an option for compatibility.
+	SkipArgReorder bool
 	// Boolean to hide built-in help command
 	HideHelp bool
+	// Boolean to hide this command from help or completion
+	Hidden bool
 
 	// Full name of command for help, defaults to full command name, including parent commands.
 	HelpName        string
 	commandNamePath []string
 }
 
-// Returns the full name of the command.
+// FullName returns the full name of the command.
 // For subcommands this ensures that parent commands are part of the command path
 func (c Command) FullName() string {
 	if c.commandNamePath == nil {
@@ -62,9 +70,10 @@ func (c Command) FullName() string {
 	return strings.Join(c.commandNamePath, " ")
 }
 
+// Commands is a slice of Command
 type Commands []Command
 
-// Invokes the command given the context, parses ctx.Args() to generate command-specific flags
+// Run invokes the command given the context, parses ctx.Args() to generate command-specific flags
 func (c Command) Run(ctx *Context) (err error) {
 	if len(c.Subcommands) > 0 {
 		return c.startApp(ctx)
@@ -78,14 +87,15 @@ func (c Command) Run(ctx *Context) (err error) {
 		)
 	}
 
-	if ctx.App.EnableBashCompletion {
-		c.Flags = append(c.Flags, BashCompletionFlag)
+	set, err := flagSet(c.Name, c.Flags)
+	if err != nil {
+		return err
 	}
-
-	set := flagSet(c.Name, c.Flags)
 	set.SetOutput(ioutil.Discard)
 
-	if !c.SkipFlagParsing {
+	if c.SkipFlagParsing {
+		err = set.Parse(append([]string{"--"}, ctx.Args().Tail()...))
+	} else if !c.SkipArgReorder {
 		firstFlagIndex := -1
 		terminatorIndex := -1
 		for index, arg := range ctx.Args() {
@@ -118,21 +128,7 @@ func (c Command) Run(ctx *Context) (err error) {
 			err = set.Parse(ctx.Args().Tail())
 		}
 	} else {
-		if c.SkipFlagParsing {
-			err = set.Parse(append([]string{"--"}, ctx.Args().Tail()...))
-		}
-	}
-
-	if err != nil {
-		if c.OnUsageError != nil {
-			err := c.OnUsageError(ctx, err)
-			return err
-		} else {
-			fmt.Fprintln(ctx.App.Writer, "Incorrect Usage.")
-			fmt.Fprintln(ctx.App.Writer)
-			ShowCommandHelp(ctx, c.Name)
-			return err
-		}
+		err = set.Parse(ctx.Args().Tail())
 	}
 
 	nerr := normalizeFlags(c.Flags, set)
@@ -142,10 +138,22 @@ func (c Command) Run(ctx *Context) (err error) {
 		ShowCommandHelp(ctx, c.Name)
 		return nerr
 	}
-	context := NewContext(ctx.App, set, ctx)
 
+	context := NewContext(ctx.App, set, ctx)
 	if checkCommandCompletions(context, c.Name) {
 		return nil
+	}
+
+	if err != nil {
+		if c.OnUsageError != nil {
+			err := c.OnUsageError(ctx, err, false)
+			HandleExitCoder(err)
+			return err
+		}
+		fmt.Fprintln(ctx.App.Writer, "Incorrect Usage:", err.Error())
+		fmt.Fprintln(ctx.App.Writer)
+		ShowCommandHelp(ctx, c.Name)
+		return err
 	}
 
 	if checkCommandHelp(context, c.Name) {
@@ -156,6 +164,7 @@ func (c Command) Run(ctx *Context) (err error) {
 		defer func() {
 			afterErr := c.After(context)
 			if afterErr != nil {
+				HandleExitCoder(err)
 				if err != nil {
 					err = NewMultiError(err, afterErr)
 				} else {
@@ -166,20 +175,30 @@ func (c Command) Run(ctx *Context) (err error) {
 	}
 
 	if c.Before != nil {
-		err := c.Before(context)
+		err = c.Before(context)
 		if err != nil {
 			fmt.Fprintln(ctx.App.Writer, err)
 			fmt.Fprintln(ctx.App.Writer)
 			ShowCommandHelp(ctx, c.Name)
+			HandleExitCoder(err)
 			return err
 		}
 	}
 
+	if c.Action == nil {
+		c.Action = helpSubcommand.Action
+	}
+
 	context.Command = c
-	c.Action(context)
-	return nil
+	err = HandleAction(c.Action, context)
+
+	if err != nil {
+		HandleExitCoder(err)
+	}
+	return err
 }
 
+// Names returns the names including short names and aliases.
 func (c Command) Names() []string {
 	names := []string{c.Name}
 
@@ -190,7 +209,7 @@ func (c Command) Names() []string {
 	return append(names, c.Aliases...)
 }
 
-// Returns true if Command.Name or Command.ShortName matches given name
+// HasName returns true if Command.Name or Command.ShortName matches given name
 func (c Command) HasName(name string) bool {
 	for _, n := range c.Names() {
 		if n == name {
@@ -202,7 +221,7 @@ func (c Command) HasName(name string) bool {
 
 func (c Command) startApp(ctx *Context) error {
 	app := NewApp()
-
+	app.Metadata = ctx.App.Metadata
 	// set the name and usage
 	app.Name = fmt.Sprintf("%s %s", ctx.App.Name, c.Name)
 	if c.HelpName == "" {
@@ -259,4 +278,9 @@ func (c Command) startApp(ctx *Context) error {
 	}
 
 	return app.RunAsSubcommand(ctx)
+}
+
+// VisibleFlags returns a slice of the Flags with Hidden=false
+func (c Command) VisibleFlags() []Flag {
+	return visibleFlags(c.Flags)
 }

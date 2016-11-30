@@ -24,6 +24,7 @@ func RegisterDeepCopies(scheme *runtime.Scheme) error {
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_CustomDeploymentStrategyParams, InType: reflect.TypeOf(&CustomDeploymentStrategyParams{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentCause, InType: reflect.TypeOf(&DeploymentCause{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentCauseImageTrigger, InType: reflect.TypeOf(&DeploymentCauseImageTrigger{})},
+		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentCondition, InType: reflect.TypeOf(&DeploymentCondition{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentConfig, InType: reflect.TypeOf(&DeploymentConfig{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentConfigList, InType: reflect.TypeOf(&DeploymentConfigList{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentConfigRollback, InType: reflect.TypeOf(&DeploymentConfigRollback{})},
@@ -33,6 +34,7 @@ func RegisterDeepCopies(scheme *runtime.Scheme) error {
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentDetails, InType: reflect.TypeOf(&DeploymentDetails{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentLog, InType: reflect.TypeOf(&DeploymentLog{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentLogOptions, InType: reflect.TypeOf(&DeploymentLogOptions{})},
+		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentRequest, InType: reflect.TypeOf(&DeploymentRequest{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentStrategy, InType: reflect.TypeOf(&DeploymentStrategy{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentTriggerImageChangeParams, InType: reflect.TypeOf(&DeploymentTriggerImageChangeParams{})},
 		conversion.GeneratedDeepCopyFunc{Fn: DeepCopy_v1_DeploymentTriggerPolicy, InType: reflect.TypeOf(&DeploymentTriggerPolicy{})},
@@ -92,6 +94,19 @@ func DeepCopy_v1_DeploymentCauseImageTrigger(in interface{}, out interface{}, c 
 		in := in.(*DeploymentCauseImageTrigger)
 		out := out.(*DeploymentCauseImageTrigger)
 		out.From = in.From
+		return nil
+	}
+}
+
+func DeepCopy_v1_DeploymentCondition(in interface{}, out interface{}, c *conversion.Cloner) error {
+	{
+		in := in.(*DeploymentCondition)
+		out := out.(*DeploymentCondition)
+		out.Type = in.Type
+		out.Status = in.Status
+		out.LastTransitionTime = in.LastTransitionTime.DeepCopy()
+		out.Reason = in.Reason
+		out.Message = in.Message
 		return nil
 	}
 }
@@ -239,6 +254,17 @@ func DeepCopy_v1_DeploymentConfigStatus(in interface{}, out interface{}, c *conv
 		} else {
 			out.Details = nil
 		}
+		if in.Conditions != nil {
+			in, out := &in.Conditions, &out.Conditions
+			*out = make([]DeploymentCondition, len(*in))
+			for i := range *in {
+				if err := DeepCopy_v1_DeploymentCondition(&(*in)[i], &(*out)[i], c); err != nil {
+					return err
+				}
+			}
+		} else {
+			out.Conditions = nil
+		}
 		return nil
 	}
 }
@@ -317,6 +343,18 @@ func DeepCopy_v1_DeploymentLogOptions(in interface{}, out interface{}, c *conver
 		} else {
 			out.Version = nil
 		}
+		return nil
+	}
+}
+
+func DeepCopy_v1_DeploymentRequest(in interface{}, out interface{}, c *conversion.Cloner) error {
+	{
+		in := in.(*DeploymentRequest)
+		out := out.(*DeploymentRequest)
+		out.TypeMeta = in.TypeMeta
+		out.Name = in.Name
+		out.Latest = in.Latest
+		out.Force = in.Force
 		return nil
 	}
 }
@@ -555,13 +593,6 @@ func DeepCopy_v1_RollingDeploymentStrategyParams(in interface{}, out interface{}
 			**out = **in
 		} else {
 			out.MaxSurge = nil
-		}
-		if in.UpdatePercent != nil {
-			in, out := &in.UpdatePercent, &out.UpdatePercent
-			*out = new(int32)
-			**out = **in
-		} else {
-			out.UpdatePercent = nil
 		}
 		if in.Pre != nil {
 			in, out := &in.Pre, &out.Pre

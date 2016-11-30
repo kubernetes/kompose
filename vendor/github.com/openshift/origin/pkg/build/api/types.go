@@ -19,6 +19,12 @@ const (
 	BuildCloneAnnotation = "openshift.io/build.clone-of"
 	// BuildPodNameAnnotation is an annotation whose value is the name of the pod running this build
 	BuildPodNameAnnotation = "openshift.io/build.pod-name"
+	// BuildJenkinsStatusJSONAnnotation is an annotation holding the Jenkins status information
+	BuildJenkinsStatusJSONAnnotation = "openshift.io/jenkins-status-json"
+	// BuildJenkinsLogURLAnnotation is an annotation holding a link to the Jenkins build console log
+	BuildJenkinsLogURLAnnotation = "openshift.io/jenkins-log-url"
+	// BuildJenkinsBuildURIAnnotation is an annotation holding a link to the Jenkins build
+	BuildJenkinsBuildURIAnnotation = "openshift.io/jenkins-build-uri"
 	// BuildLabel is the key of a Pod label whose value is the Name of a Build which is run.
 	// NOTE: The value for this label may not contain the entire Build name because it will be
 	// truncated to maximum label length.
@@ -106,7 +112,21 @@ type CommonSpec struct {
 	// be active on a node before the system actively tries to terminate the
 	// build; value must be positive integer.
 	CompletionDeadlineSeconds *int64
+
+	// NodeSelector is a selector which must be true for the build pod to fit on a node
+	// If nil, it can be overridden by default build nodeselector values for the cluster.
+	// If set to an empty map or a map with any values, default build nodeselector values
+	// are ignored.
+	NodeSelector map[string]string
 }
+
+const (
+	BuildTriggerCauseManualMsg  = "Manually triggered"
+	BuildTriggerCauseConfigMsg  = "Build configuration change"
+	BuildTriggerCauseImageMsg   = "Image change"
+	BuildTriggerCauseGithubMsg  = "GitHub WebHook"
+	BuildTriggerCauseGenericMsg = "Generic WebHook"
+)
 
 // BuildTriggerCause holds information about a triggered build. It is used for
 // displaying build trigger data for each build and build configuration in oc
@@ -240,32 +260,32 @@ const (
 
 	// StatusReasonCannotCreateBuildPodSpec is an error condition when the build
 	// strategy cannot create a build pod spec.
-	StatusReasonCannotCreateBuildPodSpec = "CannotCreateBuildPodSpec"
+	StatusReasonCannotCreateBuildPodSpec StatusReason = "CannotCreateBuildPodSpec"
 
 	// StatusReasonCannotCreateBuildPod is an error condition when a build pod
 	// cannot be created.
-	StatusReasonCannotCreateBuildPod = "CannotCreateBuildPod"
+	StatusReasonCannotCreateBuildPod StatusReason = "CannotCreateBuildPod"
 
 	// StatusReasonInvalidOutputReference is an error condition when the build
 	// output is an invalid reference.
-	StatusReasonInvalidOutputReference = "InvalidOutputReference"
+	StatusReasonInvalidOutputReference StatusReason = "InvalidOutputReference"
 
 	// StatusReasonCancelBuildFailed is an error condition when cancelling a build
 	// fails.
-	StatusReasonCancelBuildFailed = "CancelBuildFailed"
+	StatusReasonCancelBuildFailed StatusReason = "CancelBuildFailed"
 
 	// StatusReasonBuildPodDeleted is an error condition when the build pod is
 	// deleted before build completion.
-	StatusReasonBuildPodDeleted = "BuildPodDeleted"
+	StatusReasonBuildPodDeleted StatusReason = "BuildPodDeleted"
 
 	// StatusReasonExceededRetryTimeout is an error condition when the build has
 	// not completed and retrying the build times out.
-	StatusReasonExceededRetryTimeout = "ExceededRetryTimeout"
+	StatusReasonExceededRetryTimeout StatusReason = "ExceededRetryTimeout"
 
 	// StatusReasonMissingPushSecret indicates that the build is missing required
 	// secret for pushing the output image.
 	// The build will stay in the pending state until the secret is created, or the build times out.
-	StatusReasonMissingPushSecret = "MissingPushSecret"
+	StatusReasonMissingPushSecret StatusReason = "MissingPushSecret"
 )
 
 // BuildSource is the input used for the build.
@@ -387,6 +407,18 @@ type GitSourceRevision struct {
 	Message string
 }
 
+// ProxyConfig defines what proxies to use for an operation
+type ProxyConfig struct {
+	// HTTPProxy is a proxy used to reach the git repository over http
+	HTTPProxy *string
+
+	// HTTPSProxy is a proxy used to reach the git repository over https
+	HTTPSProxy *string
+
+	// NoProxy is the list of domains for which the proxy should not be used
+	NoProxy *string
+}
+
 // GitBuildSource defines the parameters of a Git SCM
 type GitBuildSource struct {
 	// URI points to the source that will be built. The structure of the source
@@ -396,11 +428,8 @@ type GitBuildSource struct {
 	// Ref is the branch/tag/ref to build.
 	Ref string
 
-	// HTTPProxy is a proxy used to reach the git repository over http
-	HTTPProxy *string
-
-	// HTTPSProxy is a proxy used to reach the git repository over https
-	HTTPSProxy *string
+	// ProxyConfig defines the proxies to use for the git clone operation
+	ProxyConfig
 }
 
 // SourceControlUser defines the identity of a user of source control
@@ -646,6 +675,19 @@ type BuildOutput struct {
 	// up the authentication for executing the Docker push to authentication
 	// enabled Docker Registry (or Docker Hub).
 	PushSecret *kapi.LocalObjectReference
+
+	// ImageLabels define a list of labels that are applied to the resulting image. If there
+	// are multiple labels with the same name then the last one in the list is used.
+	ImageLabels []ImageLabel
+}
+
+// ImageLabel represents a label applied to the resulting image.
+type ImageLabel struct {
+	// Name defines the name of the label. It must have non-zero length.
+	Name string
+
+	// Value defines the literal value of the label.
+	Value string
 }
 
 // BuildConfig is a template which can be used to create new builds.

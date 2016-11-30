@@ -18,6 +18,8 @@ import (
 	"github.com/docker/distribution/manifest/schema1"
 	"github.com/docker/distribution/manifest/schema2"
 	"github.com/golang/glog"
+
+	"github.com/openshift/origin/pkg/image/reference"
 )
 
 const (
@@ -46,24 +48,6 @@ type DefaultRegistryFunc func() (string, bool)
 // DefaultRegistry implements the DefaultRegistry interface for a function.
 func (fn DefaultRegistryFunc) DefaultRegistry() (string, bool) {
 	return fn()
-}
-
-// parseRepositoryTag splits a string into its name component and either tag or id if present.
-// TODO remove
-func parseRepositoryTag(repos string) (base string, tag string, id string) {
-	n := strings.Index(repos, "@")
-	if n >= 0 {
-		parts := strings.Split(repos, "@")
-		return parts[0], "", parts[1]
-	}
-	n = strings.LastIndex(repos, ":")
-	if n < 0 {
-		return repos, "", ""
-	}
-	if tag := repos[n+1:]; !strings.Contains(tag, "/") {
-		return repos[:n], tag, ""
-	}
-	return repos, "", ""
 }
 
 // ParseImageStreamImageName splits a string into its name component and ID component, and returns an error
@@ -109,16 +93,6 @@ func MakeImageStreamImageName(name, id string) string {
 	return fmt.Sprintf("%s@%s", name, id)
 }
 
-func isRegistryName(str string) bool {
-	switch {
-	case strings.Contains(str, ":"),
-		strings.Contains(str, "."),
-		str == "localhost":
-		return true
-	}
-	return false
-}
-
 // IsRegistryDockerHub returns true if the given registry name belongs to
 // Docker hub.
 func IsRegistryDockerHub(registry string) bool {
@@ -134,59 +108,17 @@ func IsRegistryDockerHub(registry string) bool {
 // DockerImageReference.
 func ParseDockerImageReference(spec string) (DockerImageReference, error) {
 	var ref DockerImageReference
-	// TODO replace with docker version once docker/docker PR11109 is merged upstream
-	stream, tag, id := parseRepositoryTag(spec)
 
-	repoParts := strings.Split(stream, "/")
-	switch len(repoParts) {
-	case 2:
-		if isRegistryName(repoParts[0]) {
-			// registry/name
-			ref.Registry = repoParts[0]
-			if IsRegistryDockerHub(ref.Registry) {
-				ref.Namespace = DockerDefaultNamespace
-			}
-			if len(repoParts[1]) == 0 {
-				return ref, fmt.Errorf("the docker pull spec %q must be two or three segments separated by slashes", spec)
-			}
-			ref.Name = repoParts[1]
-			ref.Tag = tag
-			ref.ID = id
-			break
-		}
-		// namespace/name
-		ref.Namespace = repoParts[0]
-		if len(repoParts[1]) == 0 {
-			return ref, fmt.Errorf("the docker pull spec %q must be two or three segments separated by slashes", spec)
-		}
-		ref.Name = repoParts[1]
-		ref.Tag = tag
-		ref.ID = id
-		break
-	case 3:
-		// registry/namespace/name
-		ref.Registry = repoParts[0]
-		ref.Namespace = repoParts[1]
-		if len(repoParts[2]) == 0 {
-			return ref, fmt.Errorf("the docker pull spec %q must be two or three segments separated by slashes", spec)
-		}
-		ref.Name = repoParts[2]
-		ref.Tag = tag
-		ref.ID = id
-		break
-	case 1:
-		// name
-		if len(repoParts[0]) == 0 {
-			return ref, fmt.Errorf("the docker pull spec %q must be two or three segments separated by slashes", spec)
-		}
-		ref.Name = repoParts[0]
-		ref.Tag = tag
-		ref.ID = id
-		break
-	default:
-		// TODO: this is no longer true with V2
-		return ref, fmt.Errorf("the docker pull spec %q must be two or three segments separated by slashes", spec)
+	namedRef, err := reference.ParseNamedDockerImageReference(spec)
+	if err != nil {
+		return ref, err
 	}
+
+	ref.Registry = namedRef.Registry
+	ref.Namespace = namedRef.Namespace
+	ref.Name = namedRef.Name
+	ref.Tag = namedRef.Tag
+	ref.ID = namedRef.ID
 
 	return ref, nil
 }

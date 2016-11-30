@@ -16,4 +16,4 @@ limitations under the License.
 
 // +k8s:deepcopy-gen=package,register
 // +groupName=storage.k8s.io
-package storage
+package storage // import "k8s.io/kubernetes/pkg/apis/storage"

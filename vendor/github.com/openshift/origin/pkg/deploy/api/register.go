@@ -32,6 +32,7 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&DeploymentConfig{},
 		&DeploymentConfigList{},
 		&DeploymentConfigRollback{},
+		&DeploymentRequest{},
 		&DeploymentLog{},
 		&DeploymentLogOptions{},
 	)
@@ -41,5 +42,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 func (obj *DeploymentConfig) GetObjectKind() unversioned.ObjectKind         { return &obj.TypeMeta }
 func (obj *DeploymentConfigList) GetObjectKind() unversioned.ObjectKind     { return &obj.TypeMeta }
 func (obj *DeploymentConfigRollback) GetObjectKind() unversioned.ObjectKind { return &obj.TypeMeta }
+func (obj *DeploymentRequest) GetObjectKind() unversioned.ObjectKind        { return &obj.TypeMeta }
 func (obj *DeploymentLog) GetObjectKind() unversioned.ObjectKind            { return &obj.TypeMeta }
 func (obj *DeploymentLogOptions) GetObjectKind() unversioned.ObjectKind     { return &obj.TypeMeta }

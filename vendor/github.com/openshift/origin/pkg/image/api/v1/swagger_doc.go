@@ -119,7 +119,7 @@ func (ImageStreamImage) SwaggerDoc() map[string]string {
 }
 
 var map_ImageStreamImport = map[string]string{
-	"":         "ImageStreamImport imports an image from remote repositories into OpenShift.",
+	"":         "The image stream import resource provides an easy way for a user to find and import Docker images from other Docker registries into the server. Individual images or an entire image repository may be imported, and users may choose to see the results of the import prior to tagging the resulting images into the specified image stream.\n\nThis API is intended for end-user tools that need to see the metadata of the image prior to import (for instance, to generate an application from it). Clients that know the desired image can continue to create spec.tags directly into their image streams.",
 	"metadata": "Standard object's metadata.",
 	"spec":     "Spec is a description of the images that the user wishes to import",
 	"status":   "Status is the the result of importing the image",
