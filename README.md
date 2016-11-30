@@ -72,7 +72,7 @@ $ PROG=kompose source script/bash_autocomplete
 You can either build via the Makefile:
 
 ```console
-$ make binary
+$ make bin
 ```
 
 Or `go build`:
@@ -87,10 +87,10 @@ If you have `go` v1.5, it's still good to build `kompose` with the following set
 $ CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose main.go
 ```
 
-To create a multi-platform binary, use the `binary-cross` command via `make`:
+To create a multi-platform binary, use the `cross` command via `make`:
 
 ```console
-$ make binary-cross
+$ make cross
 ```
 
 ## Contributing and Issues
