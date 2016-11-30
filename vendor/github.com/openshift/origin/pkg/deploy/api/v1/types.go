@@ -8,37 +8,83 @@ import (
 	"k8s.io/kubernetes/pkg/util/intstr"
 )
 
-// DeploymentPhase describes the possible states a deployment can be in.
-type DeploymentPhase string
+// +genclient=true
 
-const (
-	// DeploymentPhaseNew means the deployment has been accepted but not yet acted upon.
-	DeploymentPhaseNew DeploymentPhase = "New"
-	// DeploymentPhasePending means the deployment been handed over to a deployment strategy,
-	// but the strategy has not yet declared the deployment to be running.
-	DeploymentPhasePending DeploymentPhase = "Pending"
-	// DeploymentPhaseRunning means the deployment strategy has reported the deployment as
-	// being in-progress.
-	DeploymentPhaseRunning DeploymentPhase = "Running"
-	// DeploymentPhaseComplete means the deployment finished without an error.
-	DeploymentPhaseComplete DeploymentPhase = "Complete"
-	// DeploymentPhaseFailed means the deployment finished with an error.
-	DeploymentPhaseFailed DeploymentPhase = "Failed"
-)
+// Deployment Configs define the template for a pod and manages deploying new images or configuration changes.
+// A single deployment configuration is usually analogous to a single micro-service. Can support many different
+// deployment patterns, including full restart, customizable rolling updates, and  fully custom behaviors, as
+// well as pre- and post- deployment hooks. Each individual deployment is represented as a replication controller.
+//
+// A deployment is "triggered" when its configuration is changed or a tag in an Image Stream is changed.
+// Triggers can be disabled to allow manual control over a deployment. The "strategy" determines how the deployment
+// is carried out and may be changed at any time. The `latestVersion` field is updated when a new deployment
+// is triggered by any means.
+type DeploymentConfig struct {
+	unversioned.TypeMeta `json:",inline"`
+	// Standard object's metadata.
+	kapi.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+
+	// Spec represents a desired deployment state and how to deploy to it.
+	Spec DeploymentConfigSpec `json:"spec" protobuf:"bytes,2,opt,name=spec"`
+
+	// Status represents the current deployment state.
+	Status DeploymentConfigStatus `json:"status" protobuf:"bytes,3,opt,name=status"`
+}
+
+// DeploymentConfigSpec represents the desired state of the deployment.
+type DeploymentConfigSpec struct {
+	// Strategy describes how a deployment is executed.
+	Strategy DeploymentStrategy `json:"strategy" protobuf:"bytes,1,opt,name=strategy"`
+
+	// MinReadySeconds is the minimum number of seconds for which a newly created pod should
+	// be ready without any of its container crashing, for it to be considered available.
+	// Defaults to 0 (pod will be considered available as soon as it is ready)
+	MinReadySeconds int32 `json:"minReadySeconds,omitempty" protobuf:"varint,9,opt,name=minReadySeconds"`
+
+	// Triggers determine how updates to a DeploymentConfig result in new deployments. If no triggers
+	// are defined, a new deployment can only occur as a result of an explicit client update to the
+	// DeploymentConfig with a new LatestVersion. If null, defaults to having a config change trigger.
+	Triggers DeploymentTriggerPolicies `json:"triggers" protobuf:"bytes,2,rep,name=triggers"`
+
+	// Replicas is the number of desired replicas.
+	Replicas int32 `json:"replicas" protobuf:"varint,3,opt,name=replicas"`
+
+	// RevisionHistoryLimit is the number of old ReplicationControllers to retain to allow for rollbacks.
+	// This field is a pointer to allow for differentiation between an explicit zero and not specified.
+	RevisionHistoryLimit *int32 `json:"revisionHistoryLimit,omitempty" protobuf:"varint,4,opt,name=revisionHistoryLimit"`
+
+	// Test ensures that this deployment config will have zero replicas except while a deployment is running. This allows the
+	// deployment config to be used as a continuous deployment test - triggering on images, running the deployment, and then succeeding
+	// or failing. Post strategy hooks and After actions can be used to integrate successful deployment with an action.
+	Test bool `json:"test" protobuf:"varint,5,opt,name=test"`
+
+	// Paused indicates that the deployment config is paused resulting in no new deployments on template
+	// changes or changes in the template caused by other triggers.
+	Paused bool `json:"paused,omitempty" protobuf:"varint,6,opt,name=paused"`
+
+	// Selector is a label query over pods that should match the Replicas count.
+	Selector map[string]string `json:"selector,omitempty" protobuf:"bytes,7,rep,name=selector"`
+
+	// Template is the object that describes the pod that will be created if
+	// insufficient replicas are detected.
+	Template *kapi.PodTemplateSpec `json:"template,omitempty" protobuf:"bytes,8,opt,name=template"`
+}
 
 // DeploymentStrategy describes how to perform a deployment.
 type DeploymentStrategy struct {
 	// Type is the name of a deployment strategy.
 	Type DeploymentStrategyType `json:"type,omitempty" protobuf:"bytes,1,opt,name=type,casttype=DeploymentStrategyType"`
 
-	// CustomParams are the input to the Custom deployment strategy.
+	// CustomParams are the input to the Custom deployment strategy, and may also
+	// be specified for the Recreate and Rolling strategies to customize the execution
+	// process that runs the deployment.
 	CustomParams *CustomDeploymentStrategyParams `json:"customParams,omitempty" protobuf:"bytes,2,opt,name=customParams"`
 	// RecreateParams are the input to the Recreate deployment strategy.
 	RecreateParams *RecreateDeploymentStrategyParams `json:"recreateParams,omitempty" protobuf:"bytes,3,opt,name=recreateParams"`
 	// RollingParams are the input to the Rolling deployment strategy.
 	RollingParams *RollingDeploymentStrategyParams `json:"rollingParams,omitempty" protobuf:"bytes,4,opt,name=rollingParams"`
 
-	// Resources contains resource requirements to execute the deployment and any hooks
+	// Resources contains resource requirements to execute the deployment and any hooks.
 	Resources kapi.ResourceRequirements `json:"resources,omitempty" protobuf:"bytes,5,opt,name=resources"`
 	// Labels is a set of key, value pairs added to custom deployer and lifecycle pre/post hook pods.
 	Labels map[string]string `json:"labels,omitempty" protobuf:"bytes,6,rep,name=labels"`
@@ -85,56 +131,6 @@ type RecreateDeploymentStrategyParams struct {
 	Post *LifecycleHook `json:"post,omitempty" protobuf:"bytes,4,opt,name=post"`
 }
 
-// LifecycleHook defines a specific deployment lifecycle action. Only one type of action may be specified at any time.
-type LifecycleHook struct {
-	// FailurePolicy specifies what action to take if the hook fails.
-	FailurePolicy LifecycleHookFailurePolicy `json:"failurePolicy" protobuf:"bytes,1,opt,name=failurePolicy,casttype=LifecycleHookFailurePolicy"`
-
-	// ExecNewPod specifies the options for a lifecycle hook backed by a pod.
-	ExecNewPod *ExecNewPodHook `json:"execNewPod,omitempty" protobuf:"bytes,2,opt,name=execNewPod"`
-
-	// TagImages instructs the deployer to tag the current image referenced under a container onto an image stream tag.
-	TagImages []TagImageHook `json:"tagImages,omitempty" protobuf:"bytes,3,rep,name=tagImages"`
-}
-
-// LifecycleHookFailurePolicy describes possibles actions to take if a hook fails.
-type LifecycleHookFailurePolicy string
-
-const (
-	// LifecycleHookFailurePolicyRetry means retry the hook until it succeeds.
-	LifecycleHookFailurePolicyRetry LifecycleHookFailurePolicy = "Retry"
-	// LifecycleHookFailurePolicyAbort means abort the deployment (if possible).
-	LifecycleHookFailurePolicyAbort LifecycleHookFailurePolicy = "Abort"
-	// LifecycleHookFailurePolicyIgnore means ignore failure and continue the deployment.
-	LifecycleHookFailurePolicyIgnore LifecycleHookFailurePolicy = "Ignore"
-)
-
-// ExecNewPodHook is a hook implementation which runs a command in a new pod
-// based on the specified container which is assumed to be part of the
-// deployment template.
-type ExecNewPodHook struct {
-	// Command is the action command and its arguments.
-	Command []string `json:"command" protobuf:"bytes,1,rep,name=command"`
-	// Env is a set of environment variables to supply to the hook pod's container.
-	Env []kapi.EnvVar `json:"env,omitempty" protobuf:"bytes,2,rep,name=env"`
-	// ContainerName is the name of a container in the deployment pod template
-	// whose Docker image will be used for the hook pod's container.
-	ContainerName string `json:"containerName" protobuf:"bytes,3,opt,name=containerName"`
-	// Volumes is a list of named volumes from the pod template which should be
-	// copied to the hook pod. Volumes names not found in pod spec are ignored.
-	// An empty list means no volumes will be copied.
-	Volumes []string `json:"volumes,omitempty" protobuf:"bytes,4,rep,name=volumes"`
-}
-
-// TagImageHook is a request to tag the image in a particular container onto an ImageStreamTag.
-type TagImageHook struct {
-	// ContainerName is the name of a container in the deployment config whose image value will be used as the source of the tag. If there is only a single
-	// container this value will be defaulted to the name of that container.
-	ContainerName string `json:"containerName" protobuf:"bytes,1,opt,name=containerName"`
-	// To is the target ImageStreamTag to set the container's image onto.
-	To kapi.ObjectReference `json:"to" protobuf:"bytes,2,opt,name=to"`
-}
-
 // RollingDeploymentStrategyParams are the input to the Rolling deployment
 // strategy.
 type RollingDeploymentStrategyParams struct {
@@ -173,85 +169,63 @@ type RollingDeploymentStrategyParams struct {
 	// pods running at any time during the update is atmost 130% of original
 	// pods.
 	MaxSurge *intstr.IntOrString `json:"maxSurge,omitempty" protobuf:"bytes,5,opt,name=maxSurge"`
-	// UpdatePercent is the percentage of replicas to scale up or down each
-	// interval. If nil, one replica will be scaled up and down each interval.
-	// If negative, the scale order will be down/up instead of up/down.
-	// DEPRECATED: Use MaxUnavailable/MaxSurge instead.
-	UpdatePercent *int32 `json:"updatePercent,omitempty" protobuf:"varint,6,opt,name=updatePercent"`
 	// Pre is a lifecycle hook which is executed before the deployment process
 	// begins. All LifecycleHookFailurePolicy values are supported.
 	Pre *LifecycleHook `json:"pre,omitempty" protobuf:"bytes,7,opt,name=pre"`
 	// Post is a lifecycle hook which is executed after the strategy has
-	// finished all deployment logic. The LifecycleHookFailurePolicyAbort policy
-	// is NOT supported.
+	// finished all deployment logic. All LifecycleHookFailurePolicy values
+	// are supported.
 	Post *LifecycleHook `json:"post,omitempty" protobuf:"bytes,8,opt,name=post"`
 }
 
-// These constants represent keys used for correlating objects related to deployments.
+// LifecycleHook defines a specific deployment lifecycle action. Only one type of action may be specified at any time.
+type LifecycleHook struct {
+	// FailurePolicy specifies what action to take if the hook fails.
+	FailurePolicy LifecycleHookFailurePolicy `json:"failurePolicy" protobuf:"bytes,1,opt,name=failurePolicy,casttype=LifecycleHookFailurePolicy"`
+
+	// ExecNewPod specifies the options for a lifecycle hook backed by a pod.
+	ExecNewPod *ExecNewPodHook `json:"execNewPod,omitempty" protobuf:"bytes,2,opt,name=execNewPod"`
+
+	// TagImages instructs the deployer to tag the current image referenced under a container onto an image stream tag.
+	TagImages []TagImageHook `json:"tagImages,omitempty" protobuf:"bytes,3,rep,name=tagImages"`
+}
+
+// LifecycleHookFailurePolicy describes possibles actions to take if a hook fails.
+type LifecycleHookFailurePolicy string
+
 const (
-	// DeploymentConfigAnnotation is an annotation name used to correlate a deployment with the
-	// DeploymentConfig on which the deployment is based.
-	DeploymentConfigAnnotation = "openshift.io/deployment-config.name"
-	// DeploymentAnnotation is an annotation on a deployer Pod. The annotation value is the name
-	// of the deployment (a ReplicationController) on which the deployer Pod acts.
-	DeploymentAnnotation = "openshift.io/deployment.name"
-	// DeploymentPodAnnotation is an annotation on a deployment (a ReplicationController). The
-	// annotation value is the name of the deployer Pod which will act upon the ReplicationController
-	// to implement the deployment behavior.
-	DeploymentPodAnnotation = "openshift.io/deployer-pod.name"
-	// DeploymentPodTypeLabel is a label with which contains a type of deployment pod.
-	DeploymentPodTypeLabel = "openshift.io/deployer-pod.type"
-	// DeployerPodForDeploymentLabel is a label which groups pods related to a
-	// deployment. The value is a deployment name. The deployer pod and hook pods
-	// created by the internal strategies will have this label. Custom
-	// strategies can apply this label to any pods they create, enabling
-	// platform-provided cancellation and garbage collection support.
-	DeployerPodForDeploymentLabel = "openshift.io/deployer-pod-for.name"
-	// DeploymentPhaseAnnotation is an annotation name used to retrieve the DeploymentPhase of
-	// a deployment.
-	DeploymentPhaseAnnotation = "openshift.io/deployment.phase"
-	// DeploymentEncodedConfigAnnotation is an annotation name used to retrieve specific encoded
-	// DeploymentConfig on which a given deployment is based.
-	DeploymentEncodedConfigAnnotation = "openshift.io/encoded-deployment-config"
-	// DeploymentVersionAnnotation is an annotation on a deployment (a ReplicationController). The
-	// annotation value is the LatestVersion value of the DeploymentConfig which was the basis for
-	// the deployment.
-	DeploymentVersionAnnotation = "openshift.io/deployment-config.latest-version"
-	// DeploymentLabel is the name of a label used to correlate a deployment with the Pod created
-	// to execute the deployment logic.
-	// TODO: This is a workaround for upstream's lack of annotation support on PodTemplate. Once
-	// annotations are available on PodTemplate, audit this constant with the goal of removing it.
-	DeploymentLabel = "deployment"
-	// DeploymentConfigLabel is the name of a label used to correlate a deployment with the
-	// DeploymentConfigs on which the deployment is based.
-	DeploymentConfigLabel = "deploymentconfig"
-	// DeploymentStatusReasonAnnotation represents the reason for deployment being in a given state
-	// Used for specifying the reason for cancellation or failure of a deployment
-	DeploymentStatusReasonAnnotation = "openshift.io/deployment.status-reason"
-	// DeploymentCancelledAnnotation indicates that the deployment has been cancelled
-	// The annotation value does not matter and its mere presence indicates cancellation
-	DeploymentCancelledAnnotation = "openshift.io/deployment.cancelled"
-	// DeploymentInstantiatedAnnotation indicates that the deployment has been instantiated.
-	// The annotation value does not matter and its mere presence indicates instantiation.
-	DeploymentInstantiatedAnnotation = "openshift.io/deployment.instantiated"
+	// LifecycleHookFailurePolicyRetry means retry the hook until it succeeds.
+	LifecycleHookFailurePolicyRetry LifecycleHookFailurePolicy = "Retry"
+	// LifecycleHookFailurePolicyAbort means abort the deployment.
+	LifecycleHookFailurePolicyAbort LifecycleHookFailurePolicy = "Abort"
+	// LifecycleHookFailurePolicyIgnore means ignore failure and continue the deployment.
+	LifecycleHookFailurePolicyIgnore LifecycleHookFailurePolicy = "Ignore"
 )
 
-// +genclient=true
+// ExecNewPodHook is a hook implementation which runs a command in a new pod
+// based on the specified container which is assumed to be part of the
+// deployment template.
+type ExecNewPodHook struct {
+	// Command is the action command and its arguments.
+	Command []string `json:"command" protobuf:"bytes,1,rep,name=command"`
+	// Env is a set of environment variables to supply to the hook pod's container.
+	Env []kapi.EnvVar `json:"env,omitempty" protobuf:"bytes,2,rep,name=env"`
+	// ContainerName is the name of a container in the deployment pod template
+	// whose Docker image will be used for the hook pod's container.
+	ContainerName string `json:"containerName" protobuf:"bytes,3,opt,name=containerName"`
+	// Volumes is a list of named volumes from the pod template which should be
+	// copied to the hook pod. Volumes names not found in pod spec are ignored.
+	// An empty list means no volumes will be copied.
+	Volumes []string `json:"volumes,omitempty" protobuf:"bytes,4,rep,name=volumes"`
+}
 
-// DeploymentConfig represents a configuration for a single deployment (represented as a
-// ReplicationController). It also contains details about changes which resulted in the current
-// state of the DeploymentConfig. Each change to the DeploymentConfig which should result in
-// a new deployment results in an increment of LatestVersion.
-type DeploymentConfig struct {
-	unversioned.TypeMeta `json:",inline"`
-	// Standard object's metadata.
-	kapi.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
-
-	// Spec represents a desired deployment state and how to deploy to it.
-	Spec DeploymentConfigSpec `json:"spec" protobuf:"bytes,2,opt,name=spec"`
-
-	// Status represents the current deployment state.
-	Status DeploymentConfigStatus `json:"status" protobuf:"bytes,3,opt,name=status"`
+// TagImageHook is a request to tag the image in a particular container onto an ImageStreamTag.
+type TagImageHook struct {
+	// ContainerName is the name of a container in the deployment config whose image value will be used as the source of the tag. If there is only a single
+	// container this value will be defaulted to the name of that container.
+	ContainerName string `json:"containerName" protobuf:"bytes,1,opt,name=containerName"`
+	// To is the target ImageStreamTag to set the container's image onto.
+	To kapi.ObjectReference `json:"to" protobuf:"bytes,2,opt,name=to"`
 }
 
 // DeploymentTriggerPolicies is a list of policies where nil values and different from empty arrays.
@@ -261,66 +235,6 @@ type DeploymentTriggerPolicies []DeploymentTriggerPolicy
 
 func (t DeploymentTriggerPolicies) String() string {
 	return fmt.Sprintf("%v", []DeploymentTriggerPolicy(t))
-}
-
-// DeploymentConfigSpec represents the desired state of the deployment.
-type DeploymentConfigSpec struct {
-	// Strategy describes how a deployment is executed.
-	Strategy DeploymentStrategy `json:"strategy" protobuf:"bytes,1,opt,name=strategy"`
-
-	// MinReadySeconds is the minimum number of seconds for which a newly created pod should
-	// be ready without any of its container crashing, for it to be considered available.
-	// Defaults to 0 (pod will be considered available as soon as it is ready)
-	MinReadySeconds int32 `json:"minReadySeconds,omitempty" protobuf:"varint,9,opt,name=minReadySeconds"`
-
-	// Triggers determine how updates to a DeploymentConfig result in new deployments. If no triggers
-	// are defined, a new deployment can only occur as a result of an explicit client update to the
-	// DeploymentConfig with a new LatestVersion. If null, defaults to having a config change trigger.
-	Triggers DeploymentTriggerPolicies `json:"triggers" protobuf:"bytes,2,rep,name=triggers"`
-
-	// Replicas is the number of desired replicas.
-	Replicas int32 `json:"replicas" protobuf:"varint,3,opt,name=replicas"`
-
-	// RevisionHistoryLimit is the number of old ReplicationControllers to retain to allow for rollbacks.
-	// This field is a pointer to allow for differentiation between an explicit zero and not specified.
-	RevisionHistoryLimit *int32 `json:"revisionHistoryLimit,omitempty" protobuf:"varint,4,opt,name=revisionHistoryLimit"`
-
-	// Test ensures that this deployment config will have zero replicas except while a deployment is running. This allows the
-	// deployment config to be used as a continuous deployment test - triggering on images, running the deployment, and then succeeding
-	// or failing. Post strategy hooks and After actions can be used to integrate successful deployment with an action.
-	Test bool `json:"test" protobuf:"varint,5,opt,name=test"`
-
-	// Paused indicates that the deployment config is paused resulting in no new deployments on template
-	// changes or changes in the template caused by other triggers.
-	Paused bool `json:"paused,omitempty" protobuf:"varint,6,opt,name=paused"`
-
-	// Selector is a label query over pods that should match the Replicas count.
-	Selector map[string]string `json:"selector,omitempty" protobuf:"bytes,7,rep,name=selector"`
-
-	// Template is the object that describes the pod that will be created if
-	// insufficient replicas are detected.
-	Template *kapi.PodTemplateSpec `json:"template,omitempty" protobuf:"bytes,8,opt,name=template"`
-}
-
-// DeploymentConfigStatus represents the current deployment state.
-type DeploymentConfigStatus struct {
-	// LatestVersion is used to determine whether the current deployment associated with a deployment
-	// config is out of sync.
-	LatestVersion int64 `json:"latestVersion,omitempty" protobuf:"varint,1,opt,name=latestVersion"`
-	// ObservedGeneration is the most recent generation observed by the deployment config controller.
-	ObservedGeneration int64 `json:"observedGeneration,omitempty" protobuf:"varint,2,opt,name=observedGeneration"`
-	// Replicas is the total number of pods targeted by this deployment config.
-	Replicas int32 `json:"replicas,omitempty" protobuf:"varint,3,opt,name=replicas"`
-	// UpdatedReplicas is the total number of non-terminated pods targeted by this deployment config
-	// that have the desired template spec.
-	UpdatedReplicas int32 `json:"updatedReplicas,omitempty" protobuf:"varint,4,opt,name=updatedReplicas"`
-	// AvailableReplicas is the total number of available pods targeted by this deployment config.
-	AvailableReplicas int32 `json:"availableReplicas,omitempty" protobuf:"varint,5,opt,name=availableReplicas"`
-	// UnavailableReplicas is the total number of unavailable pods targeted by this deployment config.
-	UnavailableReplicas int32 `json:"unavailableReplicas,omitempty" protobuf:"varint,6,opt,name=unavailableReplicas"`
-	// Details are the reasons for the update to this deployment config.
-	// This could be based on a change made by the user or caused by an automatic trigger
-	Details *DeploymentDetails `json:"details,omitempty" protobuf:"bytes,7,opt,name=details"`
 }
 
 // DeploymentTriggerPolicy describes a policy for a single trigger that results in a new deployment.
@@ -346,9 +260,7 @@ const (
 // DeploymentTriggerImageChangeParams represents the parameters to the ImageChange trigger.
 type DeploymentTriggerImageChangeParams struct {
 	// Automatic means that the detection of a new tag value should result in an image update
-	// inside the pod template. Deployment configs that haven't been deployed yet will always
-	// have their images updated. Deployment configs that have been deployed at least once, will
-	// have their images updated only if this is set to true.
+	// inside the pod template.
 	Automatic bool `json:"automatic,omitempty" protobuf:"varint,1,opt,name=automatic"`
 	// ContainerNames is used to restrict tag updates to the specified set of container names in a pod.
 	ContainerNames []string `json:"containerNames,omitempty" protobuf:"bytes,2,rep,name=containerNames"`
@@ -358,6 +270,29 @@ type DeploymentTriggerImageChangeParams struct {
 	From kapi.ObjectReference `json:"from" protobuf:"bytes,3,opt,name=from"`
 	// LastTriggeredImage is the last image to be triggered.
 	LastTriggeredImage string `json:"lastTriggeredImage,omitempty" protobuf:"bytes,4,opt,name=lastTriggeredImage"`
+}
+
+// DeploymentConfigStatus represents the current deployment state.
+type DeploymentConfigStatus struct {
+	// LatestVersion is used to determine whether the current deployment associated with a deployment
+	// config is out of sync.
+	LatestVersion int64 `json:"latestVersion,omitempty" protobuf:"varint,1,opt,name=latestVersion"`
+	// ObservedGeneration is the most recent generation observed by the deployment config controller.
+	ObservedGeneration int64 `json:"observedGeneration,omitempty" protobuf:"varint,2,opt,name=observedGeneration"`
+	// Replicas is the total number of pods targeted by this deployment config.
+	Replicas int32 `json:"replicas,omitempty" protobuf:"varint,3,opt,name=replicas"`
+	// UpdatedReplicas is the total number of non-terminated pods targeted by this deployment config
+	// that have the desired template spec.
+	UpdatedReplicas int32 `json:"updatedReplicas,omitempty" protobuf:"varint,4,opt,name=updatedReplicas"`
+	// AvailableReplicas is the total number of available pods targeted by this deployment config.
+	AvailableReplicas int32 `json:"availableReplicas,omitempty" protobuf:"varint,5,opt,name=availableReplicas"`
+	// UnavailableReplicas is the total number of unavailable pods targeted by this deployment config.
+	UnavailableReplicas int32 `json:"unavailableReplicas,omitempty" protobuf:"varint,6,opt,name=unavailableReplicas"`
+	// Details are the reasons for the update to this deployment config.
+	// This could be based on a change made by the user or caused by an automatic trigger
+	Details *DeploymentDetails `json:"details,omitempty" protobuf:"bytes,7,opt,name=details"`
+	// Conditions represents the latest available observations of a deployment config's current state.
+	Conditions []DeploymentCondition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,8,rep,name=conditions"`
 }
 
 // DeploymentDetails captures information about the causes of a deployment.
@@ -382,6 +317,37 @@ type DeploymentCauseImageTrigger struct {
 	// From is a reference to the changed object which triggered a deployment. The field may have
 	// the kinds DockerImage, ImageStreamTag, or ImageStreamImage.
 	From kapi.ObjectReference `json:"from" protobuf:"bytes,1,opt,name=from"`
+}
+
+type DeploymentConditionType string
+
+// These are valid conditions of a deployment config.
+const (
+	// DeploymentAvailable means the deployment config is available, ie. at least the minimum available
+	// replicas required are up and running for at least minReadySeconds.
+	DeploymentAvailable DeploymentConditionType = "Available"
+	// DeploymentProgressing means the deployment config is progressing. Progress for a deployment
+	// config is considered when a new replica set is created or adopted, and when new pods scale up or
+	// old pods scale down. Progress is not estimated for paused deployment configs, when the deployment
+	// config needs to rollback, or when progressDeadlineSeconds is not specified.
+	DeploymentProgressing DeploymentConditionType = "Progressing"
+	// DeploymentReplicaFailure is added in a deployment config when one of its pods
+	// fails to be created or deleted.
+	DeploymentReplicaFailure DeploymentConditionType = "ReplicaFailure"
+)
+
+// DeploymentCondition describes the state of a deployment config at a certain point.
+type DeploymentCondition struct {
+	// Type of deployment condition.
+	Type DeploymentConditionType `json:"type" protobuf:"bytes,1,opt,name=type,casttype=DeploymentConditionType"`
+	// Status of the condition, one of True, False, Unknown.
+	Status kapi.ConditionStatus `json:"status" protobuf:"bytes,2,opt,name=status,casttype=k8s.io/kubernetes/pkg/api/v1.ConditionStatus"`
+	// The last time the condition transitioned from one status to another.
+	LastTransitionTime unversioned.Time `json:"lastTransitionTime,omitempty" protobuf:"bytes,3,opt,name=lastTransitionTime"`
+	// The reason for the condition's last transition.
+	Reason string `json:"reason,omitempty" protobuf:"bytes,4,opt,name=reason"`
+	// A human readable message indicating details about the transition.
+	Message string `json:"message,omitempty" protobuf:"bytes,5,opt,name=message"`
 }
 
 // DeploymentConfigList is a collection of deployment configs.
@@ -419,6 +385,18 @@ type DeploymentConfigRollbackSpec struct {
 	IncludeReplicationMeta bool `json:"includeReplicationMeta" protobuf:"varint,5,opt,name=includeReplicationMeta"`
 	// IncludeStrategy specifies whether to include the deployment Strategy.
 	IncludeStrategy bool `json:"includeStrategy" protobuf:"varint,6,opt,name=includeStrategy"`
+}
+
+// DeploymentRequest is a request to a deployment config for a new deployment.
+type DeploymentRequest struct {
+	unversioned.TypeMeta `json:",inline"`
+	// Name of the deployment config for requesting a new deployment.
+	Name string `json:"name" protobuf:"bytes,1,opt,name=name"`
+	// Latest will update the deployment config with the latest state from all triggers.
+	Latest bool `json:"latest" protobuf:"varint,2,opt,name=latest"`
+	// Force will try to force a new deployment to run. If the deployment config is paused,
+	// then setting this to true will return an Invalid error.
+	Force bool `json:"force" protobuf:"varint,3,opt,name=force"`
 }
 
 // DeploymentLog represents the logs for a deployment

@@ -26,6 +26,8 @@ func RegisterConversions(scheme *runtime.Scheme) error {
 		Convert_api_DeploymentCause_To_v1_DeploymentCause,
 		Convert_v1_DeploymentCauseImageTrigger_To_api_DeploymentCauseImageTrigger,
 		Convert_api_DeploymentCauseImageTrigger_To_v1_DeploymentCauseImageTrigger,
+		Convert_v1_DeploymentCondition_To_api_DeploymentCondition,
+		Convert_api_DeploymentCondition_To_v1_DeploymentCondition,
 		Convert_v1_DeploymentConfig_To_api_DeploymentConfig,
 		Convert_api_DeploymentConfig_To_v1_DeploymentConfig,
 		Convert_v1_DeploymentConfigList_To_api_DeploymentConfigList,
@@ -44,6 +46,8 @@ func RegisterConversions(scheme *runtime.Scheme) error {
 		Convert_api_DeploymentLog_To_v1_DeploymentLog,
 		Convert_v1_DeploymentLogOptions_To_api_DeploymentLogOptions,
 		Convert_api_DeploymentLogOptions_To_v1_DeploymentLogOptions,
+		Convert_v1_DeploymentRequest_To_api_DeploymentRequest,
+		Convert_api_DeploymentRequest_To_v1_DeploymentRequest,
 		Convert_v1_DeploymentStrategy_To_api_DeploymentStrategy,
 		Convert_api_DeploymentStrategy_To_v1_DeploymentStrategy,
 		Convert_v1_DeploymentTriggerImageChangeParams_To_api_DeploymentTriggerImageChangeParams,
@@ -161,6 +165,36 @@ func autoConvert_api_DeploymentCauseImageTrigger_To_v1_DeploymentCauseImageTrigg
 
 func Convert_api_DeploymentCauseImageTrigger_To_v1_DeploymentCauseImageTrigger(in *api.DeploymentCauseImageTrigger, out *DeploymentCauseImageTrigger, s conversion.Scope) error {
 	return autoConvert_api_DeploymentCauseImageTrigger_To_v1_DeploymentCauseImageTrigger(in, out, s)
+}
+
+func autoConvert_v1_DeploymentCondition_To_api_DeploymentCondition(in *DeploymentCondition, out *api.DeploymentCondition, s conversion.Scope) error {
+	out.Type = api.DeploymentConditionType(in.Type)
+	out.Status = pkg_api.ConditionStatus(in.Status)
+	if err := pkg_api.Convert_unversioned_Time_To_unversioned_Time(&in.LastTransitionTime, &out.LastTransitionTime, s); err != nil {
+		return err
+	}
+	out.Reason = in.Reason
+	out.Message = in.Message
+	return nil
+}
+
+func Convert_v1_DeploymentCondition_To_api_DeploymentCondition(in *DeploymentCondition, out *api.DeploymentCondition, s conversion.Scope) error {
+	return autoConvert_v1_DeploymentCondition_To_api_DeploymentCondition(in, out, s)
+}
+
+func autoConvert_api_DeploymentCondition_To_v1_DeploymentCondition(in *api.DeploymentCondition, out *DeploymentCondition, s conversion.Scope) error {
+	out.Type = DeploymentConditionType(in.Type)
+	out.Status = api_v1.ConditionStatus(in.Status)
+	if err := pkg_api.Convert_unversioned_Time_To_unversioned_Time(&in.LastTransitionTime, &out.LastTransitionTime, s); err != nil {
+		return err
+	}
+	out.Reason = in.Reason
+	out.Message = in.Message
+	return nil
+}
+
+func Convert_api_DeploymentCondition_To_v1_DeploymentCondition(in *api.DeploymentCondition, out *DeploymentCondition, s conversion.Scope) error {
+	return autoConvert_api_DeploymentCondition_To_v1_DeploymentCondition(in, out, s)
 }
 
 func autoConvert_v1_DeploymentConfig_To_api_DeploymentConfig(in *DeploymentConfig, out *api.DeploymentConfig, s conversion.Scope) error {
@@ -409,6 +443,17 @@ func autoConvert_v1_DeploymentConfigStatus_To_api_DeploymentConfigStatus(in *Dep
 	} else {
 		out.Details = nil
 	}
+	if in.Conditions != nil {
+		in, out := &in.Conditions, &out.Conditions
+		*out = make([]api.DeploymentCondition, len(*in))
+		for i := range *in {
+			if err := Convert_v1_DeploymentCondition_To_api_DeploymentCondition(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Conditions = nil
+	}
 	return nil
 }
 
@@ -431,6 +476,17 @@ func autoConvert_api_DeploymentConfigStatus_To_v1_DeploymentConfigStatus(in *api
 		}
 	} else {
 		out.Details = nil
+	}
+	if in.Conditions != nil {
+		in, out := &in.Conditions, &out.Conditions
+		*out = make([]DeploymentCondition, len(*in))
+		for i := range *in {
+			if err := Convert_api_DeploymentCondition_To_v1_DeploymentCondition(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Conditions = nil
 	}
 	return nil
 }
@@ -543,6 +599,34 @@ func Convert_api_DeploymentLogOptions_To_v1_DeploymentLogOptions(in *api.Deploym
 	return autoConvert_api_DeploymentLogOptions_To_v1_DeploymentLogOptions(in, out, s)
 }
 
+func autoConvert_v1_DeploymentRequest_To_api_DeploymentRequest(in *DeploymentRequest, out *api.DeploymentRequest, s conversion.Scope) error {
+	if err := pkg_api.Convert_unversioned_TypeMeta_To_unversioned_TypeMeta(&in.TypeMeta, &out.TypeMeta, s); err != nil {
+		return err
+	}
+	out.Name = in.Name
+	out.Latest = in.Latest
+	out.Force = in.Force
+	return nil
+}
+
+func Convert_v1_DeploymentRequest_To_api_DeploymentRequest(in *DeploymentRequest, out *api.DeploymentRequest, s conversion.Scope) error {
+	return autoConvert_v1_DeploymentRequest_To_api_DeploymentRequest(in, out, s)
+}
+
+func autoConvert_api_DeploymentRequest_To_v1_DeploymentRequest(in *api.DeploymentRequest, out *DeploymentRequest, s conversion.Scope) error {
+	if err := pkg_api.Convert_unversioned_TypeMeta_To_unversioned_TypeMeta(&in.TypeMeta, &out.TypeMeta, s); err != nil {
+		return err
+	}
+	out.Name = in.Name
+	out.Latest = in.Latest
+	out.Force = in.Force
+	return nil
+}
+
+func Convert_api_DeploymentRequest_To_v1_DeploymentRequest(in *api.DeploymentRequest, out *DeploymentRequest, s conversion.Scope) error {
+	return autoConvert_api_DeploymentRequest_To_v1_DeploymentRequest(in, out, s)
+}
+
 func autoConvert_v1_DeploymentStrategy_To_api_DeploymentStrategy(in *DeploymentStrategy, out *api.DeploymentStrategy, s conversion.Scope) error {
 	SetDefaults_DeploymentStrategy(in)
 	out.Type = api.DeploymentStrategyType(in.Type)
@@ -587,6 +671,15 @@ func Convert_v1_DeploymentStrategy_To_api_DeploymentStrategy(in *DeploymentStrat
 
 func autoConvert_api_DeploymentStrategy_To_v1_DeploymentStrategy(in *api.DeploymentStrategy, out *DeploymentStrategy, s conversion.Scope) error {
 	out.Type = DeploymentStrategyType(in.Type)
+	if in.CustomParams != nil {
+		in, out := &in.CustomParams, &out.CustomParams
+		*out = new(CustomDeploymentStrategyParams)
+		if err := Convert_api_CustomDeploymentStrategyParams_To_v1_CustomDeploymentStrategyParams(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.CustomParams = nil
+	}
 	if in.RecreateParams != nil {
 		in, out := &in.RecreateParams, &out.RecreateParams
 		*out = new(RecreateDeploymentStrategyParams)
@@ -604,15 +697,6 @@ func autoConvert_api_DeploymentStrategy_To_v1_DeploymentStrategy(in *api.Deploym
 		}
 	} else {
 		out.RollingParams = nil
-	}
-	if in.CustomParams != nil {
-		in, out := &in.CustomParams, &out.CustomParams
-		*out = new(CustomDeploymentStrategyParams)
-		if err := Convert_api_CustomDeploymentStrategyParams_To_v1_CustomDeploymentStrategyParams(*in, *out, s); err != nil {
-			return err
-		}
-	} else {
-		out.CustomParams = nil
 	}
 	if err := api_v1.Convert_api_ResourceRequirements_To_v1_ResourceRequirements(&in.Resources, &out.Resources, s); err != nil {
 		return err

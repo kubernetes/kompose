@@ -49,6 +49,13 @@ func ScaleFromConfig(dc *DeploymentConfig) *extensions.Scale {
 	}
 }
 
+// RequestForConfig builds a new deployment request for a deployment config.
+func RequestForConfig(dc *DeploymentConfig) *DeploymentRequest {
+	return &DeploymentRequest{
+		Name: dc.Name,
+	}
+}
+
 // TemplateImage is a structure for helping a caller iterate over a PodSpec
 type TemplateImage struct {
 	Image string

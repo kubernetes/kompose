@@ -1,0 +1,59 @@
+package: github.com/kubernetes-incubator/kompose
+homepage: https://github.com/kubernetes-incubator/kompose
+licence: Apache-2.0
+
+import:
+
+- package: github.com/Sirupsen/logrus
+- package: github.com/fatih/structs
+- package: github.com/ghodss/yaml
+- package: github.com/urfave/cli
+
+- package: github.com/docker/libcompose
+  version: fbdac0a6a80837c63eb6c8f43514f7bb3f32df6c
+  subpackages:
+  - config
+  - lookup
+  - project
+
+- package: github.com/openshift/origin
+  version: v1.4.0-rc1
+  subpackages:
+  - pkg/client
+  - pkg/cmd/cli/config
+  - pkg/deploy/api
+  - pkg/deploy/api/install
+  - pkg/image/api
+  - pkg/image/api/install
+
+# OpenShift uses Kubernetes fork to carry some patches
+# Kubernetes will be in the same version as what OpenShift is using (from OpenShifts Godeps.json)
+- package: k8s.io/kubernetes
+  repo: https://github.com/openshift/kubernetes
+  subpackages:
+  - pkg/api
+  - pkg/api/install
+  - pkg/api/resource
+  - pkg/api/unversioned
+  - pkg/apis/extensions
+  - pkg/apis/extensions/install
+  - pkg/client/unversioned
+  - pkg/client/unversioned/clientcmd
+  - pkg/kubectl
+  - pkg/kubectl/cmd/util
+  - pkg/runtime
+  - pkg/util/intstr
+
+# OpenShift uses glog fork to carry some patches
+# There are more forks that openshift is using (see: https://github.com/openshift/origin/blob/master/hack/godep-restore.sh)
+# But we are not importing any packages that are using forked packages (expect glog).
+# This is why only glog is here.
+- package: github.com/golang/glog
+  repo: https://github.com/openshift/glog
+
+# libcompose and OpenShift depends on different Docker version,
+# this makes sure that we are using version that is compatible with both.
+# Glide will show WARN about conflicting rev (it this case it is OK)
+- package: github.com/docker/docker
+  version: 601004e1a714d77d3a43e957b8ae8adbc867b280
+  

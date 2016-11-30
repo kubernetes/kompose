@@ -42,6 +42,10 @@ type RouteSpec struct {
 
 	//TLS provides the ability to configure certificates and termination for the route
 	TLS *TLSConfig
+
+	// Wildcard policy if any for the route.
+	// Currently only 'Subdomain' or 'None' is allowed.
+	WildcardPolicy WildcardPolicyType
 }
 
 // RouteTargetReference specifies the target that resolve into endpoints. Only the 'Service'
@@ -77,6 +81,8 @@ type RouteIngress struct {
 	RouterName string
 	// Conditions is the state of the route, may be empty.
 	Conditions []RouteIngressCondition
+	// Wildcard policy is the wildcard policy that was allowed where this route is exposed.
+	WildcardPolicy WildcardPolicyType
 }
 
 // RouteIngressConditionType is a valid value for RouteCondition
@@ -179,4 +185,18 @@ const (
 	// As an example, for routers that support HTTP and HTTPS, the
 	// insecure HTTP connections will be redirected to use HTTPS.
 	InsecureEdgeTerminationPolicyRedirect InsecureEdgeTerminationPolicyType = "Redirect"
+)
+
+// WildcardPolicyType indicates the type of wildcard support needed by routes.
+type WildcardPolicyType string
+
+const (
+	// WildcardPolicyNone indicates no wildcard support is needed.
+	WildcardPolicyNone WildcardPolicyType = "None"
+
+	// WildcardPolicySubdomain indicates the host needs wildcard support for the subdomain.
+	// Example: With host = "www.acme.test", indicates that the router
+	//          should support requests for *.acme.test
+	//          Note that this will not match acme.test only *.acme.test
+	WildcardPolicySubdomain WildcardPolicyType = "Subdomain"
 )
