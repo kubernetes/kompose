@@ -152,7 +152,7 @@ func ConvertOpenShiftCommand() cli.Command {
 			},
 			cli.StringFlag{
 				Name:   "build-branch",
-				Value:  "master",
+				Value:  "",
 				Usage:  "Specify repository branch to use for buildconfig (default master)",
 				EnvVar: "BUILDBRANCH",
 			},
