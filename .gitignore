@@ -37,7 +37,7 @@ _testmain.go
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# 
+#
 # VIM SPECIFIC
 #
 
@@ -54,3 +54,6 @@ Session.vim
 
 # auto-generated tag files
 tags
+
+# IntelliJ IDE specific
+.idea
