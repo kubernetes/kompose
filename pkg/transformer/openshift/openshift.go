@@ -100,6 +100,29 @@ func getGitRemote(composeFileDir string, remote string) (string, error) {
 	return url, nil
 }
 
+// getGitCurrentBranch gets current git branch name for the current git repo
+func getGitCurrentBranch(composeFileDir string) (string, error) {
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	cmd.Dir = composeFileDir
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimRight(string(out), "\n"), nil
+}
+
+// getGitRemoteForBranch gets git remote for a branch
+func getGitRemoteForBranch(composeFileDir string, branch string) (string, error) {
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("git branch -r | grep %s", branch))
+	cmd.Dir = composeFileDir
+
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.Split(strings.Trim(string(out), "\n "), "/")[0], nil
+}
+
 // getComposeFileDir returns compose file directory
 func getComposeFileDir(inputFile string) (string, error) {
 	if strings.Index(inputFile, "/") != 0 {
@@ -302,6 +325,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	var composeFileDir string
 	hasBuild := false
 	buildRepo := opt.BuildRepo
+	buildBranch := opt.BuildBranch
 
 	for name, service := range komposeObject.ServiceConfigs {
 		var objects []runtime.Object
@@ -326,12 +350,24 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 						logrus.Warningf("Error in detecting compose file's directory.")
 						continue
 					}
+					if !hasGitBinary() && (buildRepo == "" || buildBranch == "") {
+						logrus.Fatalf("Git is not installed! Please install Git to create buildconfig, else supply source repository to use for build using '--build-repo' option.")
+					}
+					if buildBranch == "" {
+						buildBranch, err = getGitCurrentBranch(composeFileDir)
+						if err != nil {
+							logrus.Fatalf("Buildconfig cannot be created because current git branch couldn't be detected.")
+						}
+					}
 					if opt.BuildRepo == "" {
-						if hasGitBinary() {
-							buildRepo, err = getGitRemote(composeFileDir, "origin")
-							if err != nil {
-								logrus.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
-							}
+						var buildRemote string
+						buildRemote, err = getGitRemoteForBranch(composeFileDir, buildBranch)
+						if err != nil {
+							logrus.Fatalf("Buildconfig cannot be created because remote for current git branch couldn't be detected.")
+						}
+						buildRepo, err = getGitRemote(composeFileDir, buildRemote)
+						if err != nil {
+							logrus.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
 						}
 					}
 					hasBuild = true

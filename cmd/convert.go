@@ -113,8 +113,8 @@ Available Commands:{{range .Commands}}{{if .IsAvailableCommand}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{ if .HasAvailableLocalFlags}}
 
 Resource Flags:
-      --build-branch             Specify repository branch to use for buildconfig (default master)
-      --build-repo               Specify source repository for buildconfig (default remote origin)
+      --build-branch             Specify repository branch to use for buildconfig (default is current branch name)
+      --build-repo               Specify source repository for buildconfig (default is current branch's remote url
   -c, --chart                    Create a Helm chart for converted objects
       --daemon-set               Generate a Kubernetes daemonset object
   -d, --deployment               Generate a Kubernetes deployment object
