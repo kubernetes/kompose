@@ -112,15 +112,19 @@ func getGitCurrentBranch(composeFileDir string) (string, error) {
 }
 
 // getGitRemoteForBranch gets git remote for a branch
-func getGitRemoteForBranch(composeFileDir string, branch string) (string, error) {
-	cmd := exec.Command("sh", "-c", fmt.Sprintf("git branch -r | grep %s", branch))
+func getGitRemoteForCurrentBranch(composeFileDir string) (string, error) {
+	cmd := exec.Command("sh", "-c", "git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD)")
 	cmd.Dir = composeFileDir
 
 	out, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
-	return strings.Split(strings.Trim(string(out), "\n "), "/")[0], nil
+	output := strings.Trim(string(out), "\n ")
+	if output == "" {
+		return "", errors.New("Remote missing for current branch.")
+	}
+	return strings.Split(output, "/")[0], nil
 }
 
 // getComposeFileDir returns compose file directory
@@ -361,7 +365,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 					}
 					if opt.BuildRepo == "" {
 						var buildRemote string
-						buildRemote, err = getGitRemoteForBranch(composeFileDir, buildBranch)
+						buildRemote, err = getGitRemoteForCurrentBranch(composeFileDir)
 						if err != nil {
 							logrus.Fatalf("Buildconfig cannot be created because remote for current git branch couldn't be detected.")
 						}
