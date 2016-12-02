@@ -83,9 +83,9 @@ func hasGitBinary() bool {
 	return err == nil
 }
 
-// getGitRemote gets git remote URI for the current git repo
-func getGitRemote(composeFileDir string, remote string) (string, error) {
-	cmd := exec.Command("git", "ls-remote", "--get-url", remote)
+// getGitCurrentRemoteUrl gets current git remote URI for the current git repo
+func getGitCurrentRemoteUrl(composeFileDir string) (string, error) {
+	cmd := exec.Command("git", "ls-remote", "--get-url")
 	cmd.Dir = composeFileDir
 	out, err := cmd.Output()
 	if err != nil {
@@ -109,22 +109,6 @@ func getGitCurrentBranch(composeFileDir string) (string, error) {
 		return "", err
 	}
 	return strings.TrimRight(string(out), "\n"), nil
-}
-
-// getGitRemoteForBranch gets git remote for a branch
-func getGitRemoteForCurrentBranch(composeFileDir string) (string, error) {
-	cmd := exec.Command("sh", "-c", "git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD)")
-	cmd.Dir = composeFileDir
-
-	out, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	output := strings.Trim(string(out), "\n ")
-	if output == "" {
-		return "", errors.New("Remote missing for current branch.")
-	}
-	return strings.Split(output, "/")[0], nil
 }
 
 // getComposeFileDir returns compose file directory
@@ -364,12 +348,10 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 						}
 					}
 					if opt.BuildRepo == "" {
-						var buildRemote string
-						buildRemote, err = getGitRemoteForCurrentBranch(composeFileDir)
 						if err != nil {
 							logrus.Fatalf("Buildconfig cannot be created because remote for current git branch couldn't be detected.")
 						}
-						buildRepo, err = getGitRemote(composeFileDir, buildRemote)
+						buildRepo, err = getGitCurrentRemoteUrl(composeFileDir)
 						if err != nil {
 							logrus.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
 						}
