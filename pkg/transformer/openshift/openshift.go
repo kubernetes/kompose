@@ -140,9 +140,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 	tag := getImageTag(service.Image)
 
 	var tags map[string]imageapi.TagReference
-	if service.Build != "" {
-		tags = map[string]imageapi.TagReference{}
-	} else {
+	if service.Build == "" {
 		tags = map[string]imageapi.TagReference{
 			tag: imageapi.TagReference{
 				From: &api.ObjectReference{
