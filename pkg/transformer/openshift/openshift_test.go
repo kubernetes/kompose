@@ -17,11 +17,17 @@ limitations under the License.
 package openshift
 
 import (
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	"os"
+	"path/filepath"
+	"testing"
+
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/runtime"
-	"testing"
+
+	deployapi "github.com/openshift/origin/pkg/deploy/api"
+
+	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes-incubator/kompose/pkg/test"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
@@ -118,5 +124,184 @@ func TestKomposeConvertRoute(t *testing.T) {
 	if route.Spec.Host != sc.ExposeService {
 		t.Errorf("Expected %s for Spec.Host, actual %s", sc.ExposeService, route.Spec.Host)
 	}
+}
 
+func TestGetGitRemote(t *testing.T) {
+	var output string
+	var err error
+
+	gitDir := test.CreateLocalGitDirectory(t)
+	test.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
+	test.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
+	dir := test.CreateLocalDirectory(t)
+	defer os.RemoveAll(gitDir)
+	defer os.RemoveAll(dir)
+
+	testCases := map[string]struct {
+		expectError bool
+		dir         string
+		branch      string
+		output      string
+	}{
+		"Get git remote for branch success":   {false, gitDir, "newbranch", "https://git.test.com/somerepo.git"},
+		"Get git remote error in non git dir": {true, dir, "", ""},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case: ", name)
+		output, err = getGitCurrentRemoteUrl(test.dir)
+
+		if test.expectError {
+			if err == nil {
+				t.Errorf("Expected error, got success instead!")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("Expected success, got error: %v", err)
+			}
+			if output != test.output {
+				t.Errorf("Expected: %#v, got: %#v", test.output, output)
+			}
+		}
+	}
+}
+
+func TestGitGetCurrentBranch(t *testing.T) {
+	var output string
+	var err error
+
+	gitDir := test.CreateLocalGitDirectory(t)
+	test.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
+	test.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
+	dir := test.CreateLocalDirectory(t)
+	defer os.RemoveAll(gitDir)
+	defer os.RemoveAll(dir)
+
+	testCases := map[string]struct {
+		expectError bool
+		dir         string
+		output      string
+	}{
+		"Get git current branch success": {false, gitDir, "newbranch"},
+		"Get git current branch error":   {true, dir, ""},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case: ", name)
+		output, err = getGitCurrentBranch(test.dir)
+
+		if test.expectError {
+			if err == nil {
+				t.Errorf("Expected error, got success instead!")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("Expected success, got error: %v", err)
+			}
+			if output != test.output {
+				t.Errorf("Expected: %#v, got: %#v", test.output, output)
+			}
+		}
+	}
+}
+
+func TestGetComposeFileDir(t *testing.T) {
+	var output string
+	var err error
+	wd, _ := os.Getwd()
+
+	testCases := map[string]struct {
+		inputFile string
+		output    string
+	}{
+		"Get compose file dir for relative input file path": {"foo/bar.yaml", filepath.Join(wd, "foo")},
+		"Get compose file dir for abs input file path":      {"/abs/path/to/compose.yaml", "/abs/path/to"},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case: ", name)
+
+		output, err = getComposeFileDir(test.inputFile)
+
+		if err != nil {
+			t.Errorf("Expected success, got error: %#v", err)
+		}
+
+		if output != test.output {
+			t.Errorf("Expected output: %#v, got: %#v", test.output, output)
+		}
+	}
+}
+
+func TestGetAbsBuildContext(t *testing.T) {
+	var output string
+	var err error
+
+	gitDir := test.CreateLocalGitDirectory(t)
+	test.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
+	test.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
+	test.CreateSubdir(t, gitDir, "a/b")
+	dir := test.CreateLocalDirectory(t)
+	defer os.RemoveAll(gitDir)
+	defer os.RemoveAll(dir)
+
+	testCases := map[string]struct {
+		expectError    bool
+		context        string
+		composeFileDir string
+		output         string
+	}{
+		"Get abs build context success": {false, "./b/build", filepath.Join(gitDir, "a"), "a/b/build"},
+		"Get abs build context error":   {true, "", dir, ""},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case: ", name)
+		output, err = getAbsBuildContext(test.context, test.composeFileDir)
+
+		if test.expectError {
+			if err == nil {
+				t.Errorf("Expected error, got success instead!")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("Expected success, got error: %v", err)
+			}
+			if output != test.output {
+				t.Errorf("Expected: %#v, got: %#v", test.output, output)
+			}
+		}
+	}
+}
+
+func TestInitBuildConfig(t *testing.T) {
+	dir := test.CreateLocalGitDirectory(t)
+	test.CreateSubdir(t, dir, "a/build")
+	defer os.RemoveAll(dir)
+
+	serviceName := "serviceA"
+	composeFileDir := filepath.Join(dir, "a")
+	repo := "https://git.test.com/org/repo"
+	branch := "somebranch"
+	sc := kobject.ServiceConfig{
+		Build: "./build",
+	}
+	bc := initBuildConfig(serviceName, sc, composeFileDir, repo, branch)
+
+	testCases := map[string]struct {
+		field string
+		value string
+	}{
+		"Assert buildconfig source git URI":     {bc.Spec.CommonSpec.Source.Git.URI, repo},
+		"Assert buildconfig source git Ref":     {bc.Spec.CommonSpec.Source.Git.Ref, branch},
+		"Assert buildconfig source context dir": {bc.Spec.CommonSpec.Source.ContextDir, "a/build"},
+		"Assert buildconfig output name":        {bc.Spec.CommonSpec.Output.To.Name, serviceName + ":latest"},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case: ", name)
+		if test.field != test.value {
+			t.Errorf("Expected: %#v, got: %#v", test.value, test.field)
+		}
+	}
 }
