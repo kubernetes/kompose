@@ -53,6 +53,20 @@ tar -xvf kompose_linux-amd64.tar.gz --strip 1
 sudo mv kompose /usr/local/bin
 ```
 
+#### CentOS
+
+```bash
+sudo yum -y install centos-release-openshift-origin && sudo yum -y install kompose
+```
+
+[`centos-release-openshift-origin`](https://github.com/CentOS-PaaS-SIG/centos-release-openshift-origin) provides the YUM repository file for packages of the CentOS PaaS SIG that are used with OpenShift Origin.
+
+#### Fedora
+
+```bash
+sudo dnf -y install kompose
+```
+
 ## Bash Completion
 
 Running this below command in order to benefit from bash completion
