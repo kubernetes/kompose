@@ -337,7 +337,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 						continue
 					}
 					if !hasGitBinary() && (buildRepo == "" || buildBranch == "") {
-						logrus.Fatalf("Git is not installed! Please install Git to create buildconfig, else supply source repository to use for build using '--build-repo' option.")
+						logrus.Fatalf("Git is not installed! Please install Git to create buildconfig, else supply source repository and branch to use for build using '--build-repo', '--build-branch' options respectively")
 					}
 					if buildBranch == "" {
 						buildBranch, err = getGitCurrentBranch(composeFileDir)
