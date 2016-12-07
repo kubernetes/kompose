@@ -10,13 +10,17 @@ go:
 
 before_install:
   - go get github.com/mattn/goveralls
+  - go get github.com/modocache/gover
 
 install:
   - true
 
 script:
   - make validate
-  - make test-unit
+  - make test-unit-cover
+  # gover collects all .coverprofile files and saves it to one file gover.coverprofile
+  - gover
+  - goveralls -coverprofile=gover.coverprofile -service=travis-ci
   
   # make test-cmd requires kompose binary
   - make bin
@@ -26,4 +30,3 @@ script:
   - cp kompose $GOPATH/bin/
 
   - make test-cmd
-  - goveralls -service=travis-ci
