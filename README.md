@@ -126,13 +126,7 @@ We do a biweekly community meeting which is [open to the public](https://bluejea
 
 ## Road Map
 
-* September 15th 2016: Propose to Kubernetes incubator.
-* September 30th 2016: Make the first official release of `kompose`, 0.1.0
-* October 1st 2016: Add _build_ support connected to a private registry run by Kubernetes
-* October 15th 2016: Add multi-container Pods, PVC and service types support.
-* November 1st 2016: Add preference file to specify preferred resources for conversion and preferred provider.
-* November 15th 2016: Improve support for Docker bundles to target specific image layers.
-* December 24th 2016: Second release of `kompose`, 0.2.0
+An up-to-date roadmap of upcoming releases is located at [ROADMAP.md](/ROADMAP.md).
 
 ### Code of Conduct
 
