@@ -43,6 +43,8 @@ test-unit:
 	./script/make.sh test-unit
 test-cmd:
 	./script/make.sh test-cmd
+test-unit-cover:
+	./script/make.sh test-unit-cover
 
 validate: gofmt vet
 
