@@ -11,11 +11,14 @@ go:
 before_install:
   - go get github.com/mattn/goveralls
   - go get github.com/modocache/gover
+  - go get github.com/Masterminds/glide
+  - go get github.com/sgotti/glide-vc
 
 install:
   - true
 
 script:
+  - make check-vendor
   - make validate
   - make test-unit-cover
   # gover collects all .coverprofile files and saves it to one file gover.coverprofile
