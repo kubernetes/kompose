@@ -18,9 +18,15 @@ package compose
 
 import (
 	"os"
+	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+
+	"github.com/docker/libcompose/config"
+	"github.com/docker/libcompose/project"
+	"github.com/docker/libcompose/yaml"
 )
 
 // Test if service types are parsed properly on user input
@@ -111,4 +117,84 @@ func TestLoadEnvVar(t *testing.T) {
 			t.Errorf("Expected %q, got %q", tt.results, result[0])
 		}
 	}
+}
+
+// TestUnsupportedKeys test checkUnsupportedKey function with various
+// docker-compose projects
+func TestUnsupportedKeys(t *testing.T) {
+	// create project that will be used in test cases
+	projectWithNetworks := project.NewProject(&project.Context{}, nil, nil)
+	projectWithNetworks.ServiceConfigs = config.NewServiceConfigs()
+	projectWithNetworks.ServiceConfigs.Add("foo", &config.ServiceConfig{
+		Image: "foo/bar",
+		Build: yaml.Build{
+			Context: "./build",
+		},
+		Hostname: "localhost",
+		Ports:    []string{}, // test empty array
+		Networks: &yaml.Networks{
+			Networks: []*yaml.Network{
+				&yaml.Network{
+					Name: "net1",
+				},
+			},
+		},
+	})
+	projectWithNetworks.VolumeConfigs = map[string]*config.VolumeConfig{
+		"foo": &config.VolumeConfig{
+			Driver: "storage",
+		},
+	}
+	projectWithNetworks.NetworkConfigs = map[string]*config.NetworkConfig{
+		"foo": &config.NetworkConfig{
+			Driver: "bridge",
+		},
+	}
+
+	projectWithEmptyNetwork := project.NewProject(&project.Context{}, nil, nil)
+	projectWithEmptyNetwork.ServiceConfigs = config.NewServiceConfigs()
+	projectWithEmptyNetwork.ServiceConfigs.Add("foo", &config.ServiceConfig{
+		Networks: &yaml.Networks{},
+	})
+
+	projectWithDefaultNetwork := project.NewProject(&project.Context{}, nil, nil)
+	projectWithDefaultNetwork.ServiceConfigs = config.NewServiceConfigs()
+
+	projectWithDefaultNetwork.ServiceConfigs.Add("foo", &config.ServiceConfig{
+		Networks: &yaml.Networks{
+			Networks: []*yaml.Network{
+				&yaml.Network{
+					Name: "default",
+				},
+			},
+		},
+	})
+
+	// define all test cases for checkUnsupportedKey function
+	testCases := map[string]struct {
+		composeProject          *project.Project
+		expectedUnsupportedKeys []string
+	}{
+		"With Networks (service and root level)": {
+			projectWithNetworks,
+			[]string{"root level networks", "root level volumes", "hostname", "networks"},
+		},
+		"Empty Networks on Service level": {
+			projectWithEmptyNetwork,
+			[]string{"networks"},
+		},
+		"Default root level Network": {
+			projectWithDefaultNetwork,
+			[]string(nil),
+		},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		keys := checkUnsupportedKey(test.composeProject)
+		if !reflect.DeepEqual(keys, test.expectedUnsupportedKeys) {
+			t.Errorf("ERROR: Expecting unsupported keys: ['%s']. Got: ['%s']", strings.Join(test.expectedUnsupportedKeys, "', '"), strings.Join(keys, "', '"))
+		}
+	}
+
 }
