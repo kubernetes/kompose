@@ -33,11 +33,12 @@ import (
 	oclient "github.com/openshift/origin/pkg/client"
 	ocliconfig "github.com/openshift/origin/pkg/cmd/cli/config"
 
+	"time"
+
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	deploymentconfigreaper "github.com/openshift/origin/pkg/deploy/cmd"
 	imageapi "github.com/openshift/origin/pkg/image/api"
 	"k8s.io/kubernetes/pkg/kubectl"
-	"time"
 )
 
 type OpenShift struct {
@@ -50,6 +51,13 @@ type OpenShift struct {
 // timeout is how long we'll wait for the termination of OpenShift resource to be successful
 // used when undeploying resources from OpenShift
 const TIMEOUT = 300
+
+// list of all unsupported keys for this transformer
+// Keys are names of variables in kobject struct.
+// this is map to make searching for keys easier
+// also counts how many times was given key found in kobject
+// to make sure that we show warning only once for every key
+var unsupportedKey = map[string]int{}
 
 // getImageTag get tag name from image name
 // if no tag is specified return 'latest'
@@ -151,6 +159,10 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 // Transform maps komposeObject to openshift objects
 // returns objects that are already sorted in the way that Services are first
 func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
+	noSupKeys := o.Kubernetes.CheckUnsupportedKey(&komposeObject, unsupportedKey)
+	for _, keyName := range noSupKeys {
+		logrus.Warningf("OpenShift provider doesn't support %s key - ignoring", keyName)
+	}
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 

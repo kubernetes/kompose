@@ -21,6 +21,8 @@ import "k8s.io/kubernetes/pkg/api"
 // KomposeObject holds the generic struct of Kompose transformation
 type KomposeObject struct {
 	ServiceConfigs map[string]ServiceConfig
+	// name of the loader that was created KomposeObject
+	LoadedFrom string
 }
 
 type ConvertOptions struct {
@@ -40,29 +42,30 @@ type ConvertOptions struct {
 
 // ServiceConfig holds the basic struct of a container
 type ServiceConfig struct {
+	// use tags to mark from what element this value comes
 	ContainerName string
-	Image         string
-	Environment   []EnvVar
-	Port          []Ports
-	Command       []string
-	WorkingDir    string
-	Args          []string
-	Volumes       []string
-	Network       []string
-	Labels        map[string]string
-	Annotations   map[string]string
-	CPUSet        string
-	CPUShares     int64
-	CPUQuota      int64
-	CapAdd        []string
-	CapDrop       []string
-	Expose        []string
-	Privileged    bool
-	Restart       string
-	User          string
-	VolumesFrom   []string
-	ServiceType   string
-	Build         string
+	Image         string            `compose:"image",bundle:"Image"`
+	Environment   []EnvVar          `compose:"environment",bundle:"Env"`
+	Port          []Ports           `compose:"ports",bundle:"Ports"`
+	Command       []string          `compose:"command",bundle:"Command"`
+	WorkingDir    string            `compose:"",bundle:"WorkingDir"`
+	Args          []string          `compose:"args",bundle:"Args"`
+	Volumes       []string          `compose:"volumes",bundle:"Volumes"`
+	Network       []string          `compose:"network",bundle:"Networks"`
+	Labels        map[string]string `compose:"labels",bundle:"Labels"`
+	Annotations   map[string]string `compose:"",bundle:""`
+	CPUSet        string            `compose:"cpuset",bundle:""`
+	CPUShares     int64             `compose:"cpu_shares",bundle:""`
+	CPUQuota      int64             `compose:"cpu_quota",bundle:""`
+	CapAdd        []string          `compose:"cap_add",bundle:""`
+	CapDrop       []string          `compose:"cap_drop",bundle:""`
+	Expose        []string          `compose:"expose",bundle:""`
+	Privileged    bool              `compose:"privileged",bundle:""`
+	Restart       string            `compose:"restart",bundle:""`
+	User          string            `compose:"user",bundle:"User"`
+	VolumesFrom   []string          `compose:"volumes_from",bundle:""`
+	ServiceType   string            `compose:"kompose.service.type",bundle:""`
+	Build         string            `compose:"build",bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container
