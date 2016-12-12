@@ -88,6 +88,12 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
 func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
 	tag := getImageTag(service.Image)
+	containerName := []string{name}
+
+	// Use ContainerName if it was set
+	if service.ContainerName != "" {
+		containerName = []string{service.ContainerName}
+	}
 
 	dc := &deployapi.DeploymentConfig{
 		TypeMeta: unversioned.TypeMeta{
@@ -126,7 +132,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 					ImageChangeParams: &deployapi.DeploymentTriggerImageChangeParams{
 						//Automatic - if new tag is detected - update image update inside the pod template
 						Automatic:      true,
-						ContainerNames: []string{name},
+						ContainerNames: containerName,
 						From: api.ObjectReference{
 							Name: name + ":" + tag,
 							Kind: "ImageStreamTag",
