@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  foo:
+    image: "foobar"
+    restart: "on-failure"
+    environment:
+      GITHUB: surajssd
+
