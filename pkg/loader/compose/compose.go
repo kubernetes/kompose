@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -29,10 +30,105 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
+	"github.com/fatih/structs"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 )
 
 type Compose struct {
+}
+
+// checkUnsupportedKey checks if libcompose project contains
+// keys that are not supported by this loader.
+// list of all unsupported keys are stored in unsupportedKey variable
+// returns list of unsupported YAML keys from docker-compose
+func checkUnsupportedKey(composeProject *project.Project) []string {
+
+	// list of all unsupported keys for this loader
+	// this is map to make searching for keys easier
+	// also counts how many times was given key found in service
+	// to make sure that we show warning only once for every key
+	var unsupportedKey = map[string]int{
+		"CgroupParent":  0,
+		"Devices":       0,
+		"DependsOn":     0,
+		"DNS":           0,
+		"DNSSearch":     0,
+		"DomainName":    0,
+		"EnvFile":       0,
+		"Extends":       0,
+		"ExternalLinks": 0,
+		"ExtraHosts":    0,
+		"Hostname":      0,
+		"Ipc":           0,
+		"Logging":       0,
+		"MacAddress":    0,
+		"MemLimit":      0,
+		"MemSwapLimit":  0,
+		"NetworkMode":   0,
+		"Pid":           0,
+		"SecurityOpt":   0,
+		"ShmSize":       0,
+		"StopSignal":    0,
+		"VolumeDriver":  0,
+		"Uts":           0,
+		"ReadOnly":      0,
+		"StdinOpen":     0,
+		"Tty":           0,
+		"Ulimits":       0,
+		"Dockerfile":    0,
+		"Net":           0,
+		"Networks":      0, // there are special checks for Network in checkUnsupportedKey function996607
+	}
+
+	// collect all keys found in project
+	var keysFound []string
+
+	// Root level keys
+	// volume config and network config are not supported
+	if len(composeProject.NetworkConfigs) > 0 {
+		keysFound = append(keysFound, "root level networks")
+	}
+	if len(composeProject.VolumeConfigs) > 0 {
+		keysFound = append(keysFound, "root level volumes")
+	}
+
+	for _, serviceConfig := range composeProject.ServiceConfigs.All() {
+		// this reflection is used in check for empty arrays
+		val := reflect.ValueOf(serviceConfig).Elem()
+		s := structs.New(serviceConfig)
+
+		for _, f := range s.Fields() {
+			if f.IsExported() && !f.IsZero() {
+				// IsZero returns false for empty array/slice ([])
+				// this check if field is Slice, and then it checks its size
+				if field := val.FieldByName(f.Name()); field.Kind() == reflect.Slice {
+					if field.Len() == 0 {
+						// array is empty it doesn't metter if it is in unsupportedKey or not
+						continue
+					}
+				}
+
+				if counter, ok := unsupportedKey[f.Name()]; ok {
+					//get yaml tag name instad of variable name
+					yamlTagName := strings.Split(f.Tag("yaml"), ",")[0]
+					if f.Name() == "Networks" {
+						// networks always contains one default element, even it isn't declared in compose v2.
+						if len(serviceConfig.Networks.Networks) == 1 && serviceConfig.Networks.Networks[0].Name == "default" {
+							// this is empty Network definition, skip it
+							continue
+						} else {
+							yamlTagName = "networks"
+						}
+					}
+					if counter == 0 {
+						keysFound = append(keysFound, yamlTagName)
+					}
+					unsupportedKey[f.Name()]++
+				}
+			}
+		}
+	}
+	return keysFound
 }
 
 // load environment variables from compose file
@@ -132,6 +228,7 @@ func loadPorts(composePorts []string) ([]kobject.Ports, error) {
 func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+		LoadedFrom:     "compose",
 	}
 	context := &project.Context{}
 	if file == "" {
@@ -168,31 +265,19 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 	// transform composeObject into komposeObject
 	composeServiceNames := composeObject.ServiceConfigs.Keys()
 
-	// volume config and network config are not supported
-	if len(composeObject.NetworkConfigs) > 0 {
-		logrus.Warningf("Unsupported network configuration of compose v2 - ignoring")
+	noSupKeys := checkUnsupportedKey(composeObject)
+	for _, keyName := range noSupKeys {
+		logrus.Warningf("Unsupported %s key - ignoring", keyName)
 	}
-	if len(composeObject.VolumeConfigs) > 0 {
-		logrus.Warningf("Unsupported volume configuration of compose v2 - ignoring")
-	}
-
-	networksWarningFound := false
 
 	for _, name := range composeServiceNames {
 		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
-			//FIXME: networks always contains one default element, even it isn't declared in compose v2.
-			if composeServiceConfig.Networks != nil && len(composeServiceConfig.Networks.Networks) > 0 &&
-				composeServiceConfig.Networks.Networks[0].Name != "default" &&
-				!networksWarningFound {
-				logrus.Warningf("Unsupported key networks - ignoring")
-				networksWarningFound = true
-			}
-			kobject.CheckUnsupportedKey(composeServiceConfig)
 			serviceConfig := kobject.ServiceConfig{}
 			serviceConfig.Image = composeServiceConfig.Image
 			serviceConfig.ContainerName = composeServiceConfig.ContainerName
 			serviceConfig.Command = composeServiceConfig.Entrypoint
 			serviceConfig.Args = composeServiceConfig.Command
+			serviceConfig.Build = composeServiceConfig.Build.Context
 
 			envs := loadEnvVars(composeServiceConfig.Environment)
 			serviceConfig.Environment = envs

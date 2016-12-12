@@ -16,89 +16,7 @@ limitations under the License.
 
 package kobject
 
-import (
-	"github.com/Sirupsen/logrus"
-	"github.com/fatih/structs"
-	"k8s.io/kubernetes/pkg/api"
-)
-
-var unsupportedKey = map[string]int{
-	"Build":         0,
-	"CgroupParent":  0,
-	"Devices":       0,
-	"DependsOn":     0,
-	"DNS":           0,
-	"DNSSearch":     0,
-	"DomainName":    0,
-	"EnvFile":       0,
-	"Extends":       0,
-	"ExternalLinks": 0,
-	"ExtraHosts":    0,
-	"Hostname":      0,
-	"Ipc":           0,
-	"Logging":       0,
-	"MacAddress":    0,
-	"MemLimit":      0,
-	"MemSwapLimit":  0,
-	"NetworkMode":   0,
-	"Pid":           0,
-	"SecurityOpt":   0,
-	"ShmSize":       0,
-	"StopSignal":    0,
-	"VolumeDriver":  0,
-	"Uts":           0,
-	"ReadOnly":      0,
-	"StdinOpen":     0,
-	"Tty":           0,
-	"Ulimits":       0,
-	"Dockerfile":    0,
-	"Net":           0,
-	"Networks":      0,
-}
-
-var composeOptions = map[string]string{
-	"Build":         "build",
-	"CapAdd":        "cap_add",
-	"CapDrop":       "cap_drop",
-	"CPUSet":        "cpuset",
-	"CPUShares":     "cpu_shares",
-	"CPUQuota":      "cpu_quota",
-	"CgroupParent":  "cgroup_parent",
-	"Devices":       "devices",
-	"DependsOn":     "depends_on",
-	"DNS":           "dns",
-	"DNSSearch":     "dns_search",
-	"DomainName":    "domainname",
-	"Entrypoint":    "entrypoint",
-	"EnvFile":       "env_file",
-	"Expose":        "expose",
-	"Extends":       "extends",
-	"ExternalLinks": "external_links",
-	"ExtraHosts":    "extra_hosts",
-	"Hostname":      "hostname",
-	"Ipc":           "ipc",
-	"Logging":       "logging",
-	"MacAddress":    "mac_address",
-	"MemLimit":      "mem_limit",
-	"MemSwapLimit":  "memswap_limit",
-	"NetworkMode":   "network_mode",
-	"Networks":      "networks",
-	"Pid":           "pid",
-	"SecurityOpt":   "security_opt",
-	"ShmSize":       "shm_size",
-	"StopSignal":    "stop_signal",
-	"VolumeDriver":  "volume_driver",
-	"VolumesFrom":   "volumes_from",
-	"Uts":           "uts",
-	"ReadOnly":      "read_only",
-	"StdinOpen":     "stdin_open",
-	"Tty":           "tty",
-	"User":          "user",
-	"Ulimits":       "ulimits",
-	"Dockerfile":    "dockerfile",
-	"Net":           "net",
-	"Args":          "args",
-}
+import "k8s.io/kubernetes/pkg/api"
 
 // KomposeObject holds the generic struct of Kompose transformation
 type KomposeObject struct {
@@ -144,6 +62,7 @@ type ServiceConfig struct {
 	User          string
 	VolumesFrom   []string
 	ServiceType   string
+	Build         string
 }
 
 // EnvVar holds the environment variable struct of a container
@@ -157,16 +76,4 @@ type Ports struct {
 	HostPort      int32
 	ContainerPort int32
 	Protocol      api.Protocol
-}
-
-func CheckUnsupportedKey(service interface{}) {
-	s := structs.New(service)
-	for _, f := range s.Fields() {
-		if f.IsExported() && !f.IsZero() && f.Name() != "Networks" {
-			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
-				logrus.Warningf("Unsupported key %s - ignoring", composeOptions[f.Name()])
-				unsupportedKey[f.Name()]++
-			}
-		}
-	}
 }
