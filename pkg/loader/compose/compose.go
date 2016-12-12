@@ -45,39 +45,39 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 
 	// list of all unsupported keys for this loader
 	// this is map to make searching for keys easier
-	// also counts how many times was given key found in service
-	// to make sure that we show warning only once for every key
-	var unsupportedKey = map[string]int{
-		"CgroupParent":  0,
-		"Devices":       0,
-		"DependsOn":     0,
-		"DNS":           0,
-		"DNSSearch":     0,
-		"DomainName":    0,
-		"EnvFile":       0,
-		"Extends":       0,
-		"ExternalLinks": 0,
-		"ExtraHosts":    0,
-		"Hostname":      0,
-		"Ipc":           0,
-		"Logging":       0,
-		"MacAddress":    0,
-		"MemLimit":      0,
-		"MemSwapLimit":  0,
-		"NetworkMode":   0,
-		"Pid":           0,
-		"SecurityOpt":   0,
-		"ShmSize":       0,
-		"StopSignal":    0,
-		"VolumeDriver":  0,
-		"Uts":           0,
-		"ReadOnly":      0,
-		"StdinOpen":     0,
-		"Tty":           0,
-		"Ulimits":       0,
-		"Dockerfile":    0,
-		"Net":           0,
-		"Networks":      0, // there are special checks for Network in checkUnsupportedKey function996607
+	// to make sure that unsupported key is not going to be reported twice
+	// by keeping record if already saw this key in another service
+	var unsupportedKey = map[string]bool{
+		"CgroupParent":  false,
+		"Devices":       false,
+		"DependsOn":     false,
+		"DNS":           false,
+		"DNSSearch":     false,
+		"DomainName":    false,
+		"EnvFile":       false,
+		"Extends":       false,
+		"ExternalLinks": false,
+		"ExtraHosts":    false,
+		"Hostname":      false,
+		"Ipc":           false,
+		"Logging":       false,
+		"MacAddress":    false,
+		"MemLimit":      false,
+		"MemSwapLimit":  false,
+		"NetworkMode":   false,
+		"Pid":           false,
+		"SecurityOpt":   false,
+		"ShmSize":       false,
+		"StopSignal":    false,
+		"VolumeDriver":  false,
+		"Uts":           false,
+		"ReadOnly":      false,
+		"StdinOpen":     false,
+		"Tty":           false,
+		"Ulimits":       false,
+		"Dockerfile":    false,
+		"Net":           false,
+		"Networks":      false, // there are special checks for Network in checkUnsupportedKey function
 	}
 
 	// collect all keys found in project
@@ -98,17 +98,17 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		s := structs.New(serviceConfig)
 
 		for _, f := range s.Fields() {
-			if f.IsExported() && !f.IsZero() {
-				// IsZero returns false for empty array/slice ([])
-				// this check if field is Slice, and then it checks its size
-				if field := val.FieldByName(f.Name()); field.Kind() == reflect.Slice {
-					if field.Len() == 0 {
-						// array is empty it doesn't metter if it is in unsupportedKey or not
-						continue
+			// Check if given key is among unsupported keys, and skip it if we already saw this key
+			if alreadySaw, ok := unsupportedKey[f.Name()]; ok && !alreadySaw {
+				if f.IsExported() && !f.IsZero() {
+					// IsZero returns false for empty array/slice ([])
+					// this check if field is Slice, and then it checks its size
+					if field := val.FieldByName(f.Name()); field.Kind() == reflect.Slice {
+						if field.Len() == 0 {
+							// array is empty it doesn't matter if it is in unsupportedKey or not
+							continue
+						}
 					}
-				}
-
-				if counter, ok := unsupportedKey[f.Name()]; ok {
 					//get yaml tag name instad of variable name
 					yamlTagName := strings.Split(f.Tag("yaml"), ",")[0]
 					if f.Name() == "Networks" {
@@ -120,10 +120,8 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 							yamlTagName = "networks"
 						}
 					}
-					if counter == 0 {
-						keysFound = append(keysFound, yamlTagName)
-					}
-					unsupportedKey[f.Name()]++
+					keysFound = append(keysFound, yamlTagName)
+					unsupportedKey[f.Name()] = true
 				}
 			}
 		}

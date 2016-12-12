@@ -55,9 +55,9 @@ const TIMEOUT = 300
 // list of all unsupported keys for this transformer
 // Keys are names of variables in kobject struct.
 // this is map to make searching for keys easier
-// also counts how many times was given key found in kobject
-// to make sure that we show warning only once for every key
-var unsupportedKey = map[string]int{}
+// to make sure that unsupported key is not going to be reported twice
+// by keeping record if already saw this key in another service
+var unsupportedKey = map[string]bool{}
 
 // getImageTag get tag name from image name
 // if no tag is specified return 'latest'
