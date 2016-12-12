@@ -185,6 +185,8 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *api.PersistentVolumeClaim:
 				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+			case *api.Pod:
+				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			}
 			files = append(files, file)
 		}

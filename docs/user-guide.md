@@ -306,3 +306,27 @@ services:
     labels: 
       kompose.service.type: nodeport
 ```
+
+## Restart
+
+If you want to create normal pods without controllers you can use `restart` construct of docker-compose to define that. Follow table below to see what heppens on the `restart` value.
+
+| `docker-compose` `restart` | object created    | Pod `restartPolicy` |
+|----------------------------|-------------------|---------------------|
+| `""`                       | controller object | `Always`            |
+| `always`                   | controller object | `Always`            |
+| `on-failure`               | Pod               | `OnFailure`         |
+| `no`                       | Pod               | `Never`             |
+
+**Note**: controller object could be `deployment` or `replicationcontroller`, etc.
+
+For e.g. `mariadb` service will become pod down here.
+
+```yaml
+version: "2"
+
+services:
+  mariadb:
+    image: centos/mariadb
+    restart: "no"
+```
