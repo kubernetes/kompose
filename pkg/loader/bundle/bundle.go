@@ -66,10 +66,10 @@ type Port struct {
 func checkUnsupportedKey(bundleStruct *Bundlefile) []string {
 	// list of all unsupported keys for this loader
 	// this is map to make searching for keys easier
-	// also counts how many times was given key found in service
-	// to make sure that we show warning only once for every key
-	var unsupportedKey = map[string]int{
-		"Networks": 0,
+	// to make sure that unsupported key is not going to be reported twice
+	// by keeping record if already saw this key in another service
+	var unsupportedKey = map[string]bool{
+		"Networks": false,
 	}
 
 	// collect all keys found in project
@@ -80,25 +80,23 @@ func checkUnsupportedKey(bundleStruct *Bundlefile) []string {
 		s := structs.New(service)
 
 		for _, f := range s.Fields() {
-			if f.IsExported() && !f.IsZero() {
-				jsonTagName := strings.Split(f.Tag("json"), ",")[0]
-				if jsonTagName == "" {
-					jsonTagName = f.Name()
-				}
-
-				// IsZero returns false for empty array/slice ([])
-				// this check if field is Slice, and then it checks its size
-				if field := val.FieldByName(f.Name()); field.Kind() == reflect.Slice {
-					if field.Len() == 0 {
-						// array is empty it doesn't metter if it is in unsupportedKey or not
-						continue
+			// Check if given key is among unsupported keys, and skip it if we already saw this key
+			if alreadySaw, ok := unsupportedKey[f.Name()]; ok && !alreadySaw {
+				if f.IsExported() && !f.IsZero() {
+					jsonTagName := strings.Split(f.Tag("json"), ",")[0]
+					if jsonTagName == "" {
+						jsonTagName = f.Name()
 					}
-				}
-				if counter, ok := unsupportedKey[f.Name()]; ok {
-					if counter == 0 {
-						keysFound = append(keysFound, jsonTagName)
+					// IsZero returns false for empty array/slice ([])
+					// this check if field is Slice, and then it checks its size
+					if field := val.FieldByName(f.Name()); field.Kind() == reflect.Slice {
+						if field.Len() == 0 {
+							// array is empty it doesn't matter if it is in unsupportedKey or not
+							continue
+						}
 					}
-					unsupportedKey[f.Name()]++
+					keysFound = append(keysFound, jsonTagName)
+					unsupportedKey[f.Name()] = true
 				}
 			}
 		}

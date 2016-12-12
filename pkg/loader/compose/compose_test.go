@@ -140,6 +140,21 @@ func TestUnsupportedKeys(t *testing.T) {
 			},
 		},
 	})
+	projectWithNetworks.ServiceConfigs.Add("bar", &config.ServiceConfig{
+		Image: "bar/foo",
+		Build: yaml.Build{
+			Context: "./build",
+		},
+		Hostname: "localhost",
+		Ports:    []string{}, // test empty array
+		Networks: &yaml.Networks{
+			Networks: []*yaml.Network{
+				&yaml.Network{
+					Name: "net1",
+				},
+			},
+		},
+	})
 	projectWithNetworks.VolumeConfigs = map[string]*config.VolumeConfig{
 		"foo": &config.VolumeConfig{
 			Driver: "storage",

@@ -21,7 +21,9 @@ import "k8s.io/kubernetes/pkg/api"
 // KomposeObject holds the generic struct of Kompose transformation
 type KomposeObject struct {
 	ServiceConfigs map[string]ServiceConfig
-	// name of the loader that was created KomposeObject
+	// LoadedFrom is name of the loader that created KomposeObject
+	// Transformer need to know origin format in order to tell user what tag is not supported in origin format
+	// as they can have different names. For example environment variables  are called environment in compose but Env in bundle.
 	LoadedFrom string
 }
 

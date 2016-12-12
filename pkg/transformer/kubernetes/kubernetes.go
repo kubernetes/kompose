@@ -57,17 +57,17 @@ const TIMEOUT = 300
 // list of all unsupported keys for this transformer
 // Keys are names of variables in kobject struct.
 // this is map to make searching for keys easier
-// also counts how many times was given key found in kobject
-// to make sure that we show warning only once for every key
-var unsupportedKey = map[string]int{
-	"Build": 0,
+// to make sure that unsupported key is not going to be reported twice
+// by keeping record if already saw this key in another service
+var unsupportedKey = map[string]bool{
+	"Build": false,
 }
 
 // checkUnsupportedKey checks if given komposeObject contains
 // keys that are not supported by this tranfomer.
 // list of all unsupported keys are stored in unsupportedKey variable
 // returns list of TODO: ....
-func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, unsupportedKey map[string]int) []string {
+func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, unsupportedKey map[string]bool) []string {
 	// collect all keys found in project
 	var keysFound []string
 
@@ -77,22 +77,22 @@ func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, u
 		s := structs.New(serviceConfig)
 
 		for _, f := range s.Fields() {
-			if f.IsExported() && !f.IsZero() {
-				// IsZero returns false for empty array/slice ([])
-				// this check if field is Slice, and then it checks its size
-				if field := val.FieldByName(f.Name()); field.Kind() == reflect.Slice {
-					if field.Len() == 0 {
-						// array is empty it doesn't metter if it is in unsupportedKey or not
-						continue
+			// Check if given key is among unsupported keys, and skip it if we already saw this key
+			if alreadySaw, ok := unsupportedKey[f.Name()]; ok && !alreadySaw {
+
+				if f.IsExported() && !f.IsZero() {
+					// IsZero returns false for empty array/slice ([])
+					// this check if field is Slice, and then it checks its size
+					if field := val.FieldByName(f.Name()); field.Kind() == reflect.Slice {
+						if field.Len() == 0 {
+							// array is empty it doesn't matter if it is in unsupportedKey or not
+							continue
+						}
 					}
-				}
-				if counter, ok := unsupportedKey[f.Name()]; ok {
-					if counter == 0 {
-						//get tag from kobject service configure
-						tag := f.Tag(komposeObject.LoadedFrom)
-						keysFound = append(keysFound, tag)
-					}
-					unsupportedKey[f.Name()]++
+					//get tag from kobject service configure
+					tag := f.Tag(komposeObject.LoadedFrom)
+					keysFound = append(keysFound, tag)
+					unsupportedKey[f.Name()] = true
 				}
 			}
 		}
