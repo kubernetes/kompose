@@ -126,6 +126,7 @@ func TestKomposeConvertRoute(t *testing.T) {
 	}
 }
 
+//Test getting git remote url for a directory
 func TestGetGitRemote(t *testing.T) {
 	var output string
 	var err error
@@ -166,6 +167,7 @@ func TestGetGitRemote(t *testing.T) {
 	}
 }
 
+// Test getting current git branch in a directory
 func TestGitGetCurrentBranch(t *testing.T) {
 	var output string
 	var err error
@@ -205,6 +207,7 @@ func TestGitGetCurrentBranch(t *testing.T) {
 	}
 }
 
+// Test getting compose file directory path: relative to project dir or absolute path
 func TestGetComposeFileDir(t *testing.T) {
 	var output string
 	var err error
@@ -233,6 +236,7 @@ func TestGetComposeFileDir(t *testing.T) {
 	}
 }
 
+// Test getting build context relative to project's root dir
 func TestGetAbsBuildContext(t *testing.T) {
 	var output string
 	var err error
@@ -274,6 +278,7 @@ func TestGetAbsBuildContext(t *testing.T) {
 	}
 }
 
+// Test initializing buildconfig for a service
 func TestInitBuildConfig(t *testing.T) {
 	dir := testutils.CreateLocalGitDirectory(t)
 	testutils.CreateSubdir(t, dir, "a/build")
