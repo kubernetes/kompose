@@ -27,7 +27,7 @@ import (
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/test"
+	"github.com/kubernetes-incubator/kompose/pkg/testutils"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
@@ -130,10 +130,10 @@ func TestGetGitRemote(t *testing.T) {
 	var output string
 	var err error
 
-	gitDir := test.CreateLocalGitDirectory(t)
-	test.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
-	test.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
-	dir := test.CreateLocalDirectory(t)
+	gitDir := testutils.CreateLocalGitDirectory(t)
+	testutils.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
+	testutils.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
+	dir := testutils.CreateLocalDirectory(t)
 	defer os.RemoveAll(gitDir)
 	defer os.RemoveAll(dir)
 
@@ -170,10 +170,10 @@ func TestGitGetCurrentBranch(t *testing.T) {
 	var output string
 	var err error
 
-	gitDir := test.CreateLocalGitDirectory(t)
-	test.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
-	test.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
-	dir := test.CreateLocalDirectory(t)
+	gitDir := testutils.CreateLocalGitDirectory(t)
+	testutils.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
+	testutils.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
+	dir := testutils.CreateLocalDirectory(t)
 	defer os.RemoveAll(gitDir)
 	defer os.RemoveAll(dir)
 
@@ -237,11 +237,11 @@ func TestGetAbsBuildContext(t *testing.T) {
 	var output string
 	var err error
 
-	gitDir := test.CreateLocalGitDirectory(t)
-	test.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
-	test.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
-	test.CreateSubdir(t, gitDir, "a/b")
-	dir := test.CreateLocalDirectory(t)
+	gitDir := testutils.CreateLocalGitDirectory(t)
+	testutils.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
+	testutils.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
+	testutils.CreateSubdir(t, gitDir, "a/b")
+	dir := testutils.CreateLocalDirectory(t)
 	defer os.RemoveAll(gitDir)
 	defer os.RemoveAll(dir)
 
@@ -275,8 +275,8 @@ func TestGetAbsBuildContext(t *testing.T) {
 }
 
 func TestInitBuildConfig(t *testing.T) {
-	dir := test.CreateLocalGitDirectory(t)
-	test.CreateSubdir(t, dir, "a/build")
+	dir := testutils.CreateLocalGitDirectory(t)
+	testutils.CreateSubdir(t, dir, "a/build")
 	defer os.RemoveAll(dir)
 
 	serviceName := "serviceA"
