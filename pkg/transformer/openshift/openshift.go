@@ -17,7 +17,6 @@ limitations under the License.
 package openshift
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -31,14 +30,14 @@ import (
 	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
 	"k8s.io/kubernetes/pkg/runtime"
 
-	kclient "k8s.io/kubernetes/pkg/client/unversioned"
-	kcmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
-
 	oclient "github.com/openshift/origin/pkg/client"
 	ocliconfig "github.com/openshift/origin/pkg/cmd/cli/config"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	deploymentconfigreaper "github.com/openshift/origin/pkg/deploy/cmd"
 	imageapi "github.com/openshift/origin/pkg/image/api"
+	"k8s.io/kubernetes/pkg/kubectl"
+	"time"
 )
 
 type OpenShift struct {
@@ -47,6 +46,10 @@ type OpenShift struct {
 	// some of those methods with our own for openshift.
 	kubernetes.Kubernetes
 }
+
+// timeout is how long we'll wait for the termination of OpenShift resource to be successful
+// used when undeploying resources from OpenShift
+const TIMEOUT = 300
 
 // getImageTag get tag name from image name
 // if no tag is specified return 'latest'
@@ -177,6 +180,19 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	return allobjects
 }
 
+// Create OpenShift client, returns OpenShift client
+func (o *OpenShift) getOpenShiftClient() (*oclient.Client, error) {
+	// initialize OpenShift Client
+	loadingRules := ocliconfig.NewOpenShiftClientConfigLoadingRules()
+	overrides := &clientcmd.ConfigOverrides{}
+	oclientConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides).ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+	oclient := oclient.NewOrDie(oclientConfig)
+	return oclient, nil
+}
+
 func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
 	objects := o.Transform(komposeObject, opt)
@@ -187,25 +203,11 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 	fmt.Println("We are going to create OpenShift DeploymentConfigs, Services" + pvcStr + "for your Dockerized application. \n" +
 		"If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. \n")
 
-	// initialize OpenShift Client
-	loadingRules := ocliconfig.NewOpenShiftClientConfigLoadingRules()
-	overrides := &clientcmd.ConfigOverrides{}
-	oclientConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides).ClientConfig()
+	oclient, err := o.getOpenShiftClient()
 	if err != nil {
 		return err
 	}
-	oclient := oclient.NewOrDie(oclientConfig)
-
-	// initialize Kubernetes client
-	kfactory := kcmdutil.NewFactory(nil)
-	kclientConfig, err := kfactory.ClientConfig()
-	if err != nil {
-		return err
-	}
-	kclient := kclient.NewOrDie(kclientConfig)
-
-	// get namespace from config
-	namespace, _, err := kfactory.DefaultNamespace()
+	kclient, namespace, err := o.GetKubernetesClient()
 	if err != nil {
 		return err
 	}
@@ -250,5 +252,59 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 }
 
 func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
-	return errors.New("Not Implemented")
+	//Convert komposeObject
+	objects := o.Transform(komposeObject, opt)
+
+	oclient, err := o.getOpenShiftClient()
+	if err != nil {
+		return err
+	}
+	kclient, namespace, err := o.GetKubernetesClient()
+	if err != nil {
+		return err
+	}
+
+	for _, v := range objects {
+		switch t := v.(type) {
+		case *imageapi.ImageStream:
+			//delete imageStream
+			err = oclient.ImageStreams(namespace).Delete(t.Name)
+			if err != nil {
+				return err
+			} else {
+				logrus.Infof("Successfully deleted ImageStream: %s", t.Name)
+			}
+		case *deployapi.DeploymentConfig:
+			// delete deploymentConfig
+			dcreaper := deploymentconfigreaper.NewDeploymentConfigReaper(oclient, kclient)
+			err := dcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+			if err != nil {
+				return err
+			} else {
+				logrus.Infof("Successfully deleted DeploymentConfig: %s", t.Name)
+			}
+		case *api.Service:
+			//delete svc
+			rpService, err := kubectl.ReaperFor(api.Kind("Service"), kclient)
+			if err != nil {
+				return err
+			}
+			//FIXME: gracePeriod is nil
+			err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+			if err != nil {
+				return err
+			} else {
+				logrus.Infof("Successfully deleted service: %s", t.Name)
+			}
+		case *api.PersistentVolumeClaim:
+			// delete pvc
+			err = kclient.PersistentVolumeClaims(namespace).Delete(t.Name)
+			if err != nil {
+				return err
+			} else {
+				logrus.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+			}
+		}
+	}
+	return nil
 }
