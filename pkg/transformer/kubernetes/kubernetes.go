@@ -326,6 +326,27 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 	return objects
 }
 
+func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Pod {
+	pod := api.Pod{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+		Spec: api.PodSpec{
+			Containers: []api.Container{
+				{
+					Name:  name,
+					Image: service.Image,
+				},
+			},
+		},
+	}
+	return &pod
+}
+
 // Transform maps komposeObject to k8s objects
 // returns object that are already sorted in the way that Services are first
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
@@ -333,12 +354,19 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	var allobjects []runtime.Object
 
 	for name, service := range komposeObject.ServiceConfigs {
-		objects := k.CreateKubernetesObjects(name, service, opt)
+		var objects []runtime.Object
 
-		// If ports not provided in configuration we will not make service
-		if k.PortsExist(name, service) {
-			svc := k.CreateService(name, service, objects)
-			objects = append(objects, svc)
+		// Generate pod only and nothing more
+		if service.Restart == "no" || service.Restart == "on-failure" {
+			pod := k.InitPod(name, service)
+			objects = append(objects, pod)
+		} else {
+			objects = k.CreateKubernetesObjects(name, service, opt)
+			// If ports not provided in configuration we will not make service
+			if k.PortsExist(name, service) {
+				svc := k.CreateService(name, service, objects)
+				objects = append(objects, svc)
+			}
 		}
 
 		k.UpdateKubernetesObjects(name, service, &objects)
@@ -370,6 +398,14 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 	case *deployapi.DeploymentConfig:
 		updateTemplate(t.Spec.Template)
 		updateMeta(&t.ObjectMeta)
+	case *api.Pod:
+		p := api.PodTemplateSpec{
+			ObjectMeta: t.ObjectMeta,
+			Spec:       t.Spec,
+		}
+		updateTemplate(&p)
+		t.Spec = p.Spec
+		t.ObjectMeta = p.ObjectMeta
 	}
 }
 

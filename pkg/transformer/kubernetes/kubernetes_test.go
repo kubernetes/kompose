@@ -319,3 +319,37 @@ func TestKomposeConvert(t *testing.T) {
 		}
 	}
 }
+
+func TestConvertRestartOptions(t *testing.T) {
+	var opt kobject.ConvertOptions
+	var k Kubernetes
+
+	testCases := map[string]struct {
+		svc           kobject.KomposeObject
+		restartPolicy api.RestartPolicy
+	}{
+		"'restart' is set to 'no'":         {kobject.KomposeObject{ServiceConfigs: map[string]kobject.ServiceConfig{"app": kobject.ServiceConfig{Image: "foobar", Restart: "no"}}}, api.RestartPolicyNever},
+		"'restart' is set to 'on-failure'": {kobject.KomposeObject{ServiceConfigs: map[string]kobject.ServiceConfig{"app": kobject.ServiceConfig{Image: "foobar", Restart: "on-failure"}}}, api.RestartPolicyOnFailure},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test Case:", name)
+
+		objs := k.Transform(test.svc, opt)
+
+		if len(objs) != 1 {
+			t.Errorf("Expected only one pod, more elements generated.")
+		}
+
+		for _, obj := range objs {
+			if pod, ok := obj.(*api.Pod); ok {
+
+				if pod.Spec.RestartPolicy != test.restartPolicy {
+					t.Errorf("Expected restartPolicy as %s, got %#v", test.restartPolicy, pod.Spec.RestartPolicy)
+				}
+			} else {
+				t.Errorf("Expected 'pod' object not found one")
+			}
+		}
+	}
+}

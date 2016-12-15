@@ -155,20 +155,27 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	var allobjects []runtime.Object
 
 	for name, service := range komposeObject.ServiceConfigs {
-		objects := o.CreateKubernetesObjects(name, service, opt)
+		var objects []runtime.Object
 
-		if opt.CreateDeploymentConfig {
-			objects = append(objects, o.initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
-			// create ImageStream after deployment (creating IS will trigger new deployment)
-			objects = append(objects, o.initImageStream(name, service))
+		// Generate pod only and nothing more
+		if service.Restart == "no" || service.Restart == "on-failure" {
+			pod := o.InitPod(name, service)
+			objects = append(objects, pod)
+		} else {
+			objects = o.CreateKubernetesObjects(name, service, opt)
+
+			if opt.CreateDeploymentConfig {
+				objects = append(objects, o.initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
+				// create ImageStream after deployment (creating IS will trigger new deployment)
+				objects = append(objects, o.initImageStream(name, service))
+			}
+
+			// If ports not provided in configuration we will not make service
+			if o.PortsExist(name, service) {
+				svc := o.CreateService(name, service, objects)
+				objects = append(objects, svc)
+			}
 		}
-
-		// If ports not provided in configuration we will not make service
-		if o.PortsExist(name, service) {
-			svc := o.CreateService(name, service, objects)
-			objects = append(objects, svc)
-		}
-
 		o.UpdateKubernetesObjects(name, service, &objects)
 
 		allobjects = append(allobjects, objects...)
