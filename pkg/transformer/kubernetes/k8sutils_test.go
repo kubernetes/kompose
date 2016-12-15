@@ -23,6 +23,8 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	"os"
+	"path/filepath"
 )
 
 /*
@@ -114,4 +116,48 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 		}
 	}
 
+}
+
+func TestIsDir(t *testing.T) {
+	tempPath := "/tmp/kompose_unit"
+	tempDir := filepath.Join(tempPath, "i_am_dir")
+	tempFile := filepath.Join(tempPath, "i_am_file")
+	tempAbsentDirPath := filepath.Join(tempPath, "i_do_not_exist")
+
+	// create directory
+	err := os.MkdirAll(tempDir, 0744)
+	if err != nil {
+		t.Errorf("Unable to create directory: %v", err)
+	}
+
+	// create empty file
+	f, err := os.Create(tempFile)
+	if err != nil {
+		t.Errorf("Unable to create empty file: %v", err)
+	}
+	f.Close()
+
+	// Check output if directory exists
+	output := isDir(tempDir)
+	if output != true {
+		t.Errorf("directory %v exists but isDir() returned %v", tempDir, output)
+	}
+
+	// Check output if file is provided
+	output = isDir(tempFile)
+	if output != false {
+		t.Errorf("%v is a file but isDir() returned %v", tempDir, output)
+	}
+
+	// Check output if path does not exist
+	output = isDir(tempAbsentDirPath)
+	if output != false {
+		t.Errorf("Directory %v does not exist, but isDir() returned %v", tempAbsentDirPath, output)
+	}
+
+	// delete temporary directory
+	err = os.RemoveAll(tempPath)
+	if err != nil {
+		t.Errorf("Error removing the temporary directory during cleanup: %v", err)
+	}
 }

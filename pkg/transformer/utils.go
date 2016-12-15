@@ -31,6 +31,7 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/runtime"
+	"path/filepath"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -51,7 +52,7 @@ func CreateOutFile(out string) *os.File {
 	if len(out) != 0 {
 		f, err = os.Create(out)
 		if err != nil {
-			logrus.Fatalf("error opening file: %v", err)
+			logrus.Fatalf("error creating file: %v", err)
 		}
 	}
 	return f
@@ -131,7 +132,7 @@ func TransformData(obj runtime.Object, GenerateYaml bool) ([]byte, error) {
 }
 
 // Either print to stdout or to file/s
-func Print(name, trailing string, data []byte, toStdout, generateYaml bool, f *os.File) string {
+func Print(name, path string, trailing string, data []byte, toStdout, generateYaml bool, f *os.File) string {
 
 	file := ""
 	if generateYaml {
@@ -150,6 +151,7 @@ func Print(name, trailing string, data []byte, toStdout, generateYaml bool, f *o
 		f.Sync()
 	} else {
 		// Write content separately to each file
+		file = filepath.Join(path, file)
 		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
 			logrus.Fatalf("Failed to write %s: %v", trailing, err)
 		}
