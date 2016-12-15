@@ -42,9 +42,16 @@ type simpleBalancer struct {
 	// upc closes when upEps transitions from empty to non-zero or the balancer closes.
 	upc chan struct{}
 
+	// grpc issues TLS cert checks using the string passed into dial so
+	// that string must be the host. To recover the full scheme://host URL,
+	// have a map from hosts to the original endpoint.
+	host2ep map[string]string
+
 	// pinAddr is the currently pinned address; set to the empty string on
 	// intialization and shutdown.
 	pinAddr string
+
+	closed bool
 }
 
 func newSimpleBalancer(eps []string) *simpleBalancer {
@@ -60,11 +67,12 @@ func newSimpleBalancer(eps []string) *simpleBalancer {
 		readyc:   make(chan struct{}),
 		upEps:    make(map[string]struct{}),
 		upc:      make(chan struct{}),
+		host2ep:  getHost2ep(eps),
 	}
 	return sb
 }
 
-func (b *simpleBalancer) Start(target string) error { return nil }
+func (b *simpleBalancer) Start(target string, config grpc.BalancerConfig) error { return nil }
 
 func (b *simpleBalancer) ConnectNotify() <-chan struct{} {
 	b.mu.Lock()
@@ -72,17 +80,70 @@ func (b *simpleBalancer) ConnectNotify() <-chan struct{} {
 	return b.upc
 }
 
+func (b *simpleBalancer) getEndpoint(host string) string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.host2ep[host]
+}
+
+func getHost2ep(eps []string) map[string]string {
+	hm := make(map[string]string, len(eps))
+	for i := range eps {
+		_, host, _ := parseEndpoint(eps[i])
+		hm[host] = eps[i]
+	}
+	return hm
+}
+
+func (b *simpleBalancer) updateAddrs(eps []string) {
+	np := getHost2ep(eps)
+
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	match := len(np) == len(b.host2ep)
+	for k, v := range np {
+		if b.host2ep[k] != v {
+			match = false
+			break
+		}
+	}
+	if match {
+		// same endpoints, so no need to update address
+		return
+	}
+
+	b.host2ep = np
+
+	addrs := make([]grpc.Address, 0, len(eps))
+	for i := range eps {
+		addrs = append(addrs, grpc.Address{Addr: getHost(eps[i])})
+	}
+	b.addrs = addrs
+	b.notifyCh <- addrs
+}
+
 func (b *simpleBalancer) Up(addr grpc.Address) func(error) {
 	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	// gRPC might call Up after it called Close. We add this check
+	// to "fix" it up at application layer. Or our simplerBalancer
+	// might panic since b.upc is closed.
+	if b.closed {
+		return func(err error) {}
+	}
+
 	if len(b.upEps) == 0 {
 		// notify waiting Get()s and pin first connected address
 		close(b.upc)
 		b.pinAddr = addr.Addr
 	}
 	b.upEps[addr.Addr] = struct{}{}
-	b.mu.Unlock()
+
 	// notify client that a connection is up
 	b.readyOnce.Do(func() { close(b.readyc) })
+
 	return func(err error) {
 		b.mu.Lock()
 		delete(b.upEps, addr.Addr)
@@ -128,13 +189,19 @@ func (b *simpleBalancer) Notify() <-chan []grpc.Address { return b.notifyCh }
 
 func (b *simpleBalancer) Close() error {
 	b.mu.Lock()
+	defer b.mu.Unlock()
+	// In case gRPC calls close twice. TODO: remove the checking
+	// when we are sure that gRPC wont call close twice.
+	if b.closed {
+		return nil
+	}
+	b.closed = true
 	close(b.notifyCh)
 	// terminate all waiting Get()s
 	b.pinAddr = ""
 	if len(b.upEps) == 0 {
 		close(b.upc)
 	}
-	b.mu.Unlock()
 	return nil
 }
 

@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strings"
 
+	kerrors "k8s.io/kubernetes/pkg/api/errors"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	clientcmdapi "k8s.io/kubernetes/pkg/client/unversioned/clientcmd/api"
 	"k8s.io/kubernetes/third_party/forked/golang/netutil"
@@ -34,11 +35,7 @@ func GetClusterNicknameFromURL(apiServerLocation string) (string, error) {
 // GetUserNicknameFromConfig returns "username(as known by the server)/GetClusterNicknameFromConfig".  This allows tab completion for switching users to
 // work easily and obviously.
 func GetUserNicknameFromConfig(clientCfg *restclient.Config) (string, error) {
-	client, err := osclient.New(clientCfg)
-	if err != nil {
-		return "", err
-	}
-	userInfo, err := client.Users().Get("~")
+	userPartOfNick, err := getUserPartOfNickname(clientCfg)
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +45,7 @@ func GetUserNicknameFromConfig(clientCfg *restclient.Config) (string, error) {
 		return "", err
 	}
 
-	return userInfo.Name + "/" + clusterNick, nil
+	return userPartOfNick + "/" + clusterNick, nil
 }
 
 func GetUserNicknameFromCert(clusterNick string, chain ...*x509.Certificate) (string, error) {
@@ -60,15 +57,32 @@ func GetUserNicknameFromCert(clusterNick string, chain ...*x509.Certificate) (st
 	return userInfo.GetName() + "/" + clusterNick, nil
 }
 
-// GetContextNicknameFromConfig returns "namespace/GetClusterNicknameFromConfig/username(as known by the server)".  This allows tab completion for switching projects/context
-// to work easily.  First tab is the most selective on project.  Second stanza in the next most selective on cluster name.  The chances of a user trying having
-// one projects on a single server that they want to operate against with two identities is low, so username is last.
-func GetContextNicknameFromConfig(namespace string, clientCfg *restclient.Config) (string, error) {
+func getUserPartOfNickname(clientCfg *restclient.Config) (string, error) {
 	client, err := osclient.New(clientCfg)
 	if err != nil {
 		return "", err
 	}
 	userInfo, err := client.Users().Get("~")
+	if kerrors.IsNotFound(err) {
+		// if we're talking to kube (or likely talking to kube), take a best guess consistent with login
+		switch {
+		case len(clientCfg.BearerToken) > 0:
+			userInfo.Name = clientCfg.BearerToken
+		case len(clientCfg.Username) > 0:
+			userInfo.Name = clientCfg.Username
+		}
+	} else if err != nil {
+		return "", err
+	}
+
+	return userInfo.Name, nil
+}
+
+// GetContextNicknameFromConfig returns "namespace/GetClusterNicknameFromConfig/username(as known by the server)".  This allows tab completion for switching projects/context
+// to work easily.  First tab is the most selective on project.  Second stanza in the next most selective on cluster name.  The chances of a user trying having
+// one projects on a single server that they want to operate against with two identities is low, so username is last.
+func GetContextNicknameFromConfig(namespace string, clientCfg *restclient.Config) (string, error) {
+	userPartOfNick, err := getUserPartOfNickname(clientCfg)
 	if err != nil {
 		return "", err
 	}
@@ -78,7 +92,7 @@ func GetContextNicknameFromConfig(namespace string, clientCfg *restclient.Config
 		return "", err
 	}
 
-	return namespace + "/" + clusterNick + "/" + userInfo.Name, nil
+	return namespace + "/" + clusterNick + "/" + userPartOfNick, nil
 }
 
 func GetContextNickname(namespace, clusterNick, userNick string) string {

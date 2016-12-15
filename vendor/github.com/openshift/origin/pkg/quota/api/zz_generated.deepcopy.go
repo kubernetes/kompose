@@ -156,9 +156,7 @@ func DeepCopy_api_ClusterResourceQuotaStatus(in interface{}, out interface{}, c 
 		if err := pkg_api.DeepCopy_api_ResourceQuotaStatus(&in.Total, &out.Total, c); err != nil {
 			return err
 		}
-		if err := DeepCopy_api_ResourceQuotasStatusByNamespace(&in.Namespaces, &out.Namespaces, c); err != nil {
-			return err
-		}
+		out.Namespaces = in.Namespaces.DeepCopy()
 		return nil
 	}
 }
