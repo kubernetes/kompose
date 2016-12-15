@@ -1,0 +1,35 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Pod",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "foo"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "foo",
+            "image": "foobar",
+            "env": [
+              {
+                "name": "GITHUB",
+                "value": "surajssd"
+              }
+            ],
+            "resources": {}
+          }
+        ],
+        "restartPolicy": "OnFailure"
+      },
+      "status": {}
+    }
+  ]
+}
