@@ -1,5 +1,5 @@
 hash: 3caf221b3b3a35894b12799f8a5047107b1d5c9237bfea1706af24ea525f97e6
-updated: 2016-12-06T17:06:23.574663245+01:00
+updated: 2016-12-16T16:41:13.456006508+05:30
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -358,6 +358,8 @@ imports:
   - pkg/deploy/api
   - pkg/deploy/api/install
   - pkg/deploy/api/v1
+  - pkg/deploy/cmd
+  - pkg/deploy/util
   - pkg/image/api
   - pkg/image/api/docker10
   - pkg/image/api/dockerpre012
@@ -394,7 +396,7 @@ imports:
 - name: github.com/prometheus/procfs
   version: 454a56f35412459b5e684fd5ec0f9211b94f002a
 - name: github.com/Sirupsen/logrus
-  version: aaf92c95712104318fc35409745f1533aa5ff327
+  version: 881bee4e20a5d11a6a88a5667c6f292072ac1963
 - name: github.com/spf13/cobra
   version: 7c674d9e72017ed25f6d2b5e497a1368086b6a6f
 - name: github.com/spf13/pflag
@@ -410,7 +412,7 @@ imports:
 - name: github.com/xeipuuv/gojsonreference
   version: e02fc20de94c78484cd5ffb007f8af96be030a45
 - name: github.com/xeipuuv/gojsonschema
-  version: e18f0065e8c148fcf567ac43a3f8f5b66ac0720b
+  version: 59f99ebfe5f712a0055e321231fc3be94e4e00b2
 - name: golang.org/x/net
   version: e90d6d0afc4c315a0d87a568ae68577cc15149a0
   subpackages:
@@ -434,10 +436,9 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: 833a04a10549a95dc34458c195cbad61bbb6cb4d
+  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:
   - unix
-  - windows
 - name: google.golang.org/appengine
   version: 12d5545dc1cfa6047a286d5e853841b6471f4c19
   subpackages:
