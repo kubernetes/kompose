@@ -124,6 +124,10 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 	if len(args) != 0 {
 		logrus.Fatal("Unknown Argument(s): ", strings.Join(args, ","))
 	}
+
+	if opt.GenerateJson && opt.GenerateYaml {
+		logrus.Fatalf("YAML and JSON format cannot be provided at the same time")
+	}
 }
 
 func validateControllers(opt *kobject.ConvertOptions) {
