@@ -314,7 +314,14 @@ type DockerImageReference struct {
 	ID string `protobuf:"bytes,5,opt,name=iD"`
 }
 
-// ImageStreamImport imports an image from remote repositories into OpenShift.
+// The image stream import resource provides an easy way for a user to find and import Docker images
+// from other Docker registries into the server. Individual images or an entire image repository may
+// be imported, and users may choose to see the results of the import prior to tagging the resulting
+// images into the specified image stream.
+//
+// This API is intended for end-user tools that need to see the metadata of the image prior to import
+// (for instance, to generate an application from it). Clients that know the desired image can continue
+// to create spec.tags directly into their image streams.
 type ImageStreamImport struct {
 	unversioned.TypeMeta `json:",inline"`
 	// Standard object's metadata.

@@ -1,7 +1,6 @@
 package version
 
 import (
-	"regexp"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -54,33 +53,12 @@ func (info Info) String() string {
 	return version
 }
 
-var (
-	reCommitSegment   = regexp.MustCompile(`\+[0-9a-f]{6,14}$`)
-	reCommitIncrement = regexp.MustCompile(`^[0-9a-f]+$`)
-)
-
 // LastSemanticVersion attempts to return a semantic version from the GitVersion - which
 // is either <semver>+<commit> or <semver> on release boundaries.
 func (info Info) LastSemanticVersion() string {
 	version := info.GitVersion
-	parts := strings.Split(version, "-")
-	// strip the modifier
-	if len(parts) > 1 && parts[len(parts)-1] == "dirty" {
-		parts = parts[:len(parts)-1]
-	}
-	// strip the Git commit
-	if len(parts) > 0 && reCommitSegment.MatchString(parts[len(parts)-1]) {
-		parts[len(parts)-1] = reCommitSegment.ReplaceAllString(parts[len(parts)-1], "")
-		if len(parts[len(parts)-1]) == 0 {
-			parts = parts[:len(parts)-1]
-		}
-		// strip a version increment, but only if we found the commit
-		if len(parts) > 1 && reCommitIncrement.MatchString(parts[len(parts)-1]) {
-			parts = parts[:len(parts)-1]
-		}
-	}
-
-	return strings.Join(parts, "-")
+	parts := strings.Split(version, "+")
+	return parts[0]
 }
 
 func init() {

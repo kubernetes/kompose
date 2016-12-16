@@ -17,6 +17,7 @@ type OAuthClientInterface interface {
 	Get(name string) (*oauthapi.OAuthClient, error)
 	Delete(name string) error
 	Watch(opts kapi.ListOptions) (watch.Interface, error)
+	Update(client *oauthapi.OAuthClient) (*oauthapi.OAuthClient, error)
 }
 
 type oauthClients struct {
@@ -54,4 +55,10 @@ func (c *oauthClients) Delete(name string) (err error) {
 
 func (c *oauthClients) Watch(opts kapi.ListOptions) (watch.Interface, error) {
 	return c.r.Get().Prefix("watch").Resource("oAuthClients").VersionedParams(&opts, kapi.ParameterCodec).Watch()
+}
+
+func (c *oauthClients) Update(client *oauthapi.OAuthClient) (result *oauthapi.OAuthClient, err error) {
+	result = &oauthapi.OAuthClient{}
+	err = c.r.Put().Resource("oAuthClients").Name(client.Name).Body(client).Do().Into(result)
+	return
 }

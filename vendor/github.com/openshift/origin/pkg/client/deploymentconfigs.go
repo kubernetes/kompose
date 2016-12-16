@@ -30,6 +30,7 @@ type DeploymentConfigInterface interface {
 	GetScale(name string) (*extensions.Scale, error)
 	UpdateScale(scale *extensions.Scale) (*extensions.Scale, error)
 	UpdateStatus(config *deployapi.DeploymentConfig) (*deployapi.DeploymentConfig, error)
+	Instantiate(request *deployapi.DeploymentRequest) (*deployapi.DeploymentConfig, error)
 }
 
 // deploymentConfigs implements DeploymentConfigsNamespacer interface
@@ -153,6 +154,18 @@ func (c *deploymentConfigs) UpdateStatus(deploymentConfig *deployapi.DeploymentC
 	result = &deployapi.DeploymentConfig{}
 	err = c.r.Put().Namespace(c.ns).Resource("deploymentConfigs").Name(deploymentConfig.Name).SubResource("status").Body(deploymentConfig).Do().Into(result)
 	return
+}
+
+// Instantiate instantiates a new build from build config returning new object or an error
+func (c *deploymentConfigs) Instantiate(request *deployapi.DeploymentRequest) (*deployapi.DeploymentConfig, error) {
+	result := &deployapi.DeploymentConfig{}
+	resp := c.r.Post().Namespace(c.ns).Resource("deploymentConfigs").Name(request.Name).SubResource("instantiate").Body(request).Do()
+	var statusCode int
+	if resp.StatusCode(&statusCode); statusCode == 204 {
+		return nil, nil
+	}
+	err := resp.Into(result)
+	return result, err
 }
 
 type updateConfigFunc func(d *deployapi.DeploymentConfig)

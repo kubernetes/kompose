@@ -41,7 +41,7 @@ type UserIdentityMapper interface {
 
 type Client interface {
 	GetId() string
-	ValidateSecret(secret string) bool
+	GetSecret() string
 	GetRedirectUri() string
 	GetUserData() interface{}
 }

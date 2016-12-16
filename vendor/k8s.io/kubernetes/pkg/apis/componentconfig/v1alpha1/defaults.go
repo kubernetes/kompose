@@ -249,9 +249,6 @@ func SetDefaults_KubeletConfiguration(obj *KubeletConfiguration) {
 	if obj.MinimumGCAge == zeroDuration {
 		obj.MinimumGCAge = unversioned.Duration{Duration: 0}
 	}
-	if obj.NetworkPluginDir == "" {
-		obj.NetworkPluginDir = "/usr/libexec/kubernetes/kubelet-plugins/net/exec/"
-	}
 	if obj.NonMasqueradeCIDR == "" {
 		obj.NonMasqueradeCIDR = "10.0.0.0/8"
 	}
@@ -300,7 +297,7 @@ func SetDefaults_KubeletConfiguration(obj *KubeletConfiguration) {
 		obj.SerializeImagePulls = boolVar(true)
 	}
 	if obj.SeccompProfileRoot == "" {
-		filepath.Join(defaultRootDir, "seccomp")
+		obj.SeccompProfileRoot = filepath.Join(defaultRootDir, "seccomp")
 	}
 	if obj.StreamingConnectionIdleTimeout == zeroDuration {
 		obj.StreamingConnectionIdleTimeout = unversioned.Duration{Duration: 4 * time.Hour}

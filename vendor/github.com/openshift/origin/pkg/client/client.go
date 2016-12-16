@@ -48,6 +48,7 @@ type Interface interface {
 	SubjectAccessReviews
 	LocalSubjectAccessReviewsNamespacer
 	SelfSubjectRulesReviewsNamespacer
+	SubjectRulesReviewsNamespacer
 	TemplatesNamespacer
 	TemplateConfigsNamespacer
 	OAuthClientsInterface
@@ -243,6 +244,10 @@ func (c *Client) SubjectAccessReviews() SubjectAccessReviewInterface {
 
 func (c *Client) SelfSubjectRulesReviews(namespace string) SelfSubjectRulesReviewInterface {
 	return newSelfSubjectRulesReviews(c, namespace)
+}
+
+func (c *Client) SubjectRulesReviews(namespace string) SubjectRulesReviewInterface {
+	return newSubjectRulesReviews(c, namespace)
 }
 
 func (c *Client) OAuthClients() OAuthClientInterface {
