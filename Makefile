@@ -54,3 +54,6 @@ lint:
 	./script/make.sh validate-lint
 gofmt:
 	./script/make.sh validate-gofmt
+
+check-vendor:
+	./script/make.sh check-vendor

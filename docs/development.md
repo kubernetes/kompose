@@ -78,60 +78,66 @@ git push -f origin myfeature
 2. Click the "Compare and pull request" button next to your "myfeature" branch.
 3. Check out the pull request process for more details
 
-## Godep and dependency management
+## Glide, glide-vc and dependency management
 
-Kompose uses `godep` to manage dependencies. It is not strictly required for building Kompose but it is required when managing dependencies under the vendor/ tree, and is required by a number of the build and test scripts. Please make sure that godep is installed and in your `$PATH`, and that `godep version` says it is at least v63.
+Kompose uses `glide` to manage dependencies and `glide-vc` to clean vendor directory.
+They are not strictly required for building Kompose but they are required when managing dependencies under the vendor/ tree.
+If you want to make changes to dependencies please make sure that `glide` and `glide-vc` are installed and in your `$PATH`.
 
-### Installing godep
+### Installing glide
 
-There are many ways to build and host Go binaries. Here is an easy way to get utilities like `godep` installed:
+There are many ways to build and host Go binaries. Here is an easy way to get utilities like `glide` and  `glide-vc` installed:
 
-1) Ensure that mercurial is installed on your system. (some of godep's dependencies use the mercurial source control system). Use `apt-get install mercurial` or `yum install mercurial` on Linux, or brew.sh on OS X, or download directly from mercurial.
+1. Ensure that Mercurial and Git are installed on your system. (some of the dependencies use the mercurial source control system). 
+    Use `apt-get install mercurial git` or `yum install mercurial git` on Linux, or brew.sh on OS X, or download directly them directly.
 
-2) Create a new GOPATH for your tools and install godep:
+2. Create a new GOPATH for your tools and install `godep`:
 
 ```console
 export GOPATH=$HOME/go-tools
 mkdir -p $GOPATH
-go get -u github.com/tools/godep
+go get -u github.com/Masterminds/glide
+go get github.com/sgotti/glide-vc
 ```
 
-3) Add this $GOPATH/bin to your path. Typically you'd add this to your ~/.profile:
+3. Add this $GOPATH/bin to your path. Typically you'd add this to your ~/.profile:
 
 ```console
 export GOPATH=$HOME/go-tools
 export PATH=$PATH:$GOPATH/bin
 ```
 
-To check your version of godep:
+Check that `glide` and `glide-vc` commands are working.
 
 ```console
-godep version
-godep v74 (linux/amd64/go1.6.2)
+glide --version
+
+glide-vc -h
 ```
 
-Note: At this time, godep version >= v64 is known to work in the Kompose project.
+### Using glide
 
-If it is not a valid version try, make sure you have updated the godep repo with `go get -u github.com/tools/godep`.
+#### Adding new dependency
+1. Update `glide.yml` file.
+ Add new packages or subpackages to `glide.yml` depending if you added whole new package as dependency or 
+ just new subpackage.
 
-### Using godep
+2. Run `glide update --strip-vendor` to get new dependencies.
+   Than run `glide-vc --only-code --no-tests` to delete all unnecessary files from vendor.
 
-1. Populate dependencies for your Kompose.
-
-```console
-cd $GOPATH/src/github.com/kubernetes-incubator/kompose
-script/godep-restore.sh
-```
-
-Reason for calling `script/godep-restore.sh` instead of just `godep restore` is that Kompose is using `github.com/openshift/kubernetes` instead of `github.com/kubernetes/kubernetes`.
+3. Commit updated `glide.yml`, `glide.lock` and `vendor` to git.
 
 
-2. Add a new dependency.
+#### Updating dependencies
 
-To add a new package, do this:
+1. Set new package version in  `glide.yml` file.
 
-```console
-go get foo/bar
-# edit your code to import foo/bar
-godep save ./...
-```
+2. Run `glide update --strip-vendor` to update dependencies.
+   Than run `glide-vc --only-code --no-tests` to delete all unnecessary files from vendor.
+
+
+##### Updating Kubernetes and OpenShift
+Kubernetes version depends on what version is OpenShift using.
+OpenShift is using forked Kubernetes to carry some patches.
+Currently it is not possible to use different Kubernetes version from version that OpenShift uses.
+(for more see comments in `glide.yml`)

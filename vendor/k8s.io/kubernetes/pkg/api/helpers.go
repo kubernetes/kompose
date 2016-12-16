@@ -123,6 +123,7 @@ func IsStandardContainerResourceName(str string) bool {
 var standardLimitRangeTypes = sets.NewString(
 	string(LimitTypePod),
 	string(LimitTypeContainer),
+	string(LimitTypePersistentVolumeClaim),
 )
 
 // IsStandardLimitRangeType returns true if the type is Pod or Container
@@ -524,6 +525,20 @@ func TaintToleratedByTolerations(taint *Taint, tolerations []Toleration) bool {
 		}
 	}
 	return tolerated
+}
+
+// MatchTaint checks if the taint matches taintToMatch. Taints are unique by key:effect,
+// if the two taints have same key:effect, regard as they match.
+func (t *Taint) MatchTaint(taintToMatch Taint) bool {
+	return t.Key == taintToMatch.Key && t.Effect == taintToMatch.Effect
+}
+
+// taint.ToString() converts taint struct to string in format key=value:effect or key:effect.
+func (t *Taint) ToString() string {
+	if len(t.Value) == 0 {
+		return fmt.Sprintf("%v:%v", t.Key, t.Effect)
+	}
+	return fmt.Sprintf("%v=%v:%v", t.Key, t.Value, t.Effect)
 }
 
 func GetAvoidPodsFromNodeAnnotations(annotations map[string]string) (AvoidPods, error) {

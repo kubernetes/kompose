@@ -28,6 +28,7 @@ import (
 	"strings"
 	"time"
 
+	"k8s.io/kubernetes/pkg/api"
 	kerrors "k8s.io/kubernetes/pkg/api/errors"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/api/unversioned"
@@ -43,7 +44,7 @@ import (
 	"k8s.io/kubernetes/pkg/util/sets"
 	"k8s.io/kubernetes/pkg/util/strategicpatch"
 
-	"github.com/evanphx/json-patch"
+	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -60,7 +61,7 @@ type debugError interface {
 
 // AddSourceToErr adds handleResourcePrefix and source string to error message.
 // verb is the string like "creating", "deleting" etc.
-// souce is the filename or URL to the template file(*.json or *.yaml), or stdin to use to handle the resource.
+// source is the filename or URL to the template file(*.json or *.yaml), or stdin to use to handle the resource.
 func AddSourceToErr(verb string, source string, err error) error {
 	if source != "" {
 		if statusError, ok := err.(kerrors.APIStatus); ok {
@@ -247,6 +248,26 @@ func MultilineError(prefix string, err error) string {
 	return fmt.Sprintf("%s%s\n", prefix, err)
 }
 
+// PrintErrorWithCauses prints an error's kind, name, and each of the error's causes in a new line.
+// The returned string will end with a newline.
+// Returns true if the error type can be handled, or false otherwise.
+func PrintErrorWithCauses(err error, errOut io.Writer) bool {
+	switch t := err.(type) {
+	case *kerrors.StatusError:
+		errorDetails := t.Status().Details
+		if errorDetails != nil {
+			fmt.Fprintf(errOut, "error: %s %q is invalid\n\n", errorDetails.Kind, errorDetails.Name)
+			for _, cause := range errorDetails.Causes {
+				fmt.Fprintf(errOut, "* %s: %s\n", cause.Field, cause.Message)
+			}
+			return true
+		}
+	}
+
+	fmt.Fprintf(errOut, "error: %v\n", err)
+	return false
+}
+
 // MultipleErrors returns a newline delimited string containing
 // the prefix and referenced errors in standard form.
 func MultipleErrors(prefix string, errs []error) string {
@@ -295,7 +316,7 @@ func getFlag(cmd *cobra.Command, flag string) *pflag.Flag {
 func GetFlagString(cmd *cobra.Command, flag string) string {
 	s, err := cmd.Flags().GetString(flag)
 	if err != nil {
-		glog.Fatalf("err accessing flag %s for command %s: %v", flag, cmd.Name(), err)
+		glog.Fatalf("error accessing flag %s for command %s: %v", flag, cmd.Name(), err)
 	}
 	return s
 }
@@ -304,7 +325,7 @@ func GetFlagString(cmd *cobra.Command, flag string) string {
 func GetFlagStringSlice(cmd *cobra.Command, flag string) []string {
 	s, err := cmd.Flags().GetStringSlice(flag)
 	if err != nil {
-		glog.Fatalf("err accessing flag %s for command %s: %v", flag, cmd.Name(), err)
+		glog.Fatalf("error accessing flag %s for command %s: %v", flag, cmd.Name(), err)
 	}
 	return s
 }
@@ -321,7 +342,7 @@ func GetWideFlag(cmd *cobra.Command) bool {
 func GetFlagBool(cmd *cobra.Command, flag string) bool {
 	b, err := cmd.Flags().GetBool(flag)
 	if err != nil {
-		glog.Fatalf("err accessing flag %s for command %s: %v", flag, cmd.Name(), err)
+		glog.Fatalf("error accessing flag %s for command %s: %v", flag, cmd.Name(), err)
 	}
 	return b
 }
@@ -330,7 +351,7 @@ func GetFlagBool(cmd *cobra.Command, flag string) bool {
 func GetFlagInt(cmd *cobra.Command, flag string) int {
 	i, err := cmd.Flags().GetInt(flag)
 	if err != nil {
-		glog.Fatalf("err accessing flag %s for command %s: %v", flag, cmd.Name(), err)
+		glog.Fatalf("error accessing flag %s for command %s: %v", flag, cmd.Name(), err)
 	}
 	return i
 }
@@ -339,7 +360,7 @@ func GetFlagInt(cmd *cobra.Command, flag string) int {
 func GetFlagInt64(cmd *cobra.Command, flag string) int64 {
 	i, err := cmd.Flags().GetInt64(flag)
 	if err != nil {
-		glog.Fatalf("err accessing flag %s for command %s: %v", flag, cmd.Name(), err)
+		glog.Fatalf("error accessing flag %s for command %s: %v", flag, cmd.Name(), err)
 	}
 	return i
 }
@@ -347,7 +368,7 @@ func GetFlagInt64(cmd *cobra.Command, flag string) int64 {
 func GetFlagDuration(cmd *cobra.Command, flag string) time.Duration {
 	d, err := cmd.Flags().GetDuration(flag)
 	if err != nil {
-		glog.Fatalf("err accessing flag %s for command %s: %v", flag, cmd.Name(), err)
+		glog.Fatalf("error accessing flag %s for command %s: %v", flag, cmd.Name(), err)
 	}
 	return d
 }
@@ -600,7 +621,7 @@ func ParsePairs(pairArgs []string, pairType string, supportRemove bool) (newPair
 	for _, pairArg := range pairArgs {
 		if strings.Index(pairArg, "=") != -1 {
 			parts := strings.SplitN(pairArg, "=", 2)
-			if len(parts) != 2 || len(parts[1]) == 0 {
+			if len(parts) != 2 {
 				if invalidBuf.Len() > 0 {
 					invalidBuf.WriteString(", ")
 				}
@@ -634,5 +655,109 @@ func MaybeConvertObject(obj runtime.Object, gv unversioned.GroupVersion, convert
 		return obj, nil
 	default:
 		return converter.ConvertToVersion(obj, gv)
+	}
+}
+
+// MustPrintWithKinds determines if printer is dealing
+// with multiple resource kinds, in which case it will
+// return true, indicating resource kind will be
+// included as part of printer output
+func MustPrintWithKinds(objs []runtime.Object, infos []*resource.Info, sorter *kubectl.RuntimeSort, printAll bool) bool {
+	var lastMap *meta.RESTMapping
+
+	if len(infos) == 1 && printAll {
+		return true
+	}
+
+	for ix := range objs {
+		var mapping *meta.RESTMapping
+		if sorter != nil {
+			mapping = infos[sorter.OriginalPosition(ix)].Mapping
+		} else {
+			mapping = infos[ix].Mapping
+		}
+
+		// display "kind" only if we have mixed resources
+		if lastMap != nil && mapping.Resource != lastMap.Resource {
+			return true
+		}
+		lastMap = mapping
+	}
+
+	return false
+}
+
+// FilterResourceList receives a list of runtime objects.
+// If any objects are filtered, that number is returned along with a modified list.
+func FilterResourceList(obj runtime.Object, filterFuncs kubectl.Filters, filterOpts *kubectl.PrintOptions) (int, []runtime.Object, error) {
+	items, err := meta.ExtractList(obj)
+	if err != nil {
+		return 0, []runtime.Object{obj}, utilerrors.NewAggregate([]error{err})
+	}
+	if errs := runtime.DecodeList(items, api.Codecs.UniversalDecoder(), runtime.UnstructuredJSONScheme); len(errs) > 0 {
+		return 0, []runtime.Object{obj}, utilerrors.NewAggregate(errs)
+	}
+
+	filterCount := 0
+	list := make([]runtime.Object, 0, len(items))
+	for _, obj := range items {
+		if isFiltered, err := filterFuncs.Filter(obj, filterOpts); !isFiltered {
+			if err != nil {
+				glog.V(2).Infof("Unable to filter resource: %v", err)
+				continue
+			}
+			list = append(list, obj)
+		} else if isFiltered {
+			filterCount++
+		}
+	}
+	return filterCount, list, nil
+}
+
+func PrintFilterCount(hiddenObjNum int, resource string, out io.Writer, options *kubectl.PrintOptions) error {
+	if !options.NoHeaders && !options.ShowAll && hiddenObjNum > 0 {
+		_, err := fmt.Fprintf(out, "  info: %d completed object(s) was(were) not shown in %s list. Pass --show-all to see all objects.\n\n", hiddenObjNum, resource)
+		return err
+	}
+	return nil
+}
+
+// ObjectListToVersionedObject receives a list of api objects and a group version
+// and squashes the list's items into a single versioned runtime.Object.
+func ObjectListToVersionedObject(objects []runtime.Object, version unversioned.GroupVersion) (runtime.Object, error) {
+	objectList := &api.List{Items: objects}
+	converted, err := resource.TryConvert(api.Scheme, objectList, version, registered.GroupOrDie(api.GroupName).GroupVersion)
+	if err != nil {
+		return nil, err
+	}
+	return converted, nil
+}
+
+// IsSiblingCommandExists receives a pointer to a cobra command and a target string.
+// Returns true if the target string is found in the list of sibling commands.
+func IsSiblingCommandExists(cmd *cobra.Command, targetCmdName string) bool {
+	for _, c := range cmd.Parent().Commands() {
+		if c.Name() == targetCmdName {
+			return true
+		}
+	}
+
+	return false
+}
+
+// DefaultSubCommandRun prints a command's help string to the specified output if no
+// arguments (sub-commands) are provided, or a usage error otherwise.
+func DefaultSubCommandRun(out io.Writer) func(c *cobra.Command, args []string) {
+	return func(c *cobra.Command, args []string) {
+		c.SetOutput(out)
+		RequireNoArguments(c, args)
+		c.Help()
+	}
+}
+
+// RequireNoArguments exits with a usage error if extra arguments are provided.
+func RequireNoArguments(c *cobra.Command, args []string) {
+	if len(args) > 0 {
+		CheckErr(UsageError(c, fmt.Sprintf(`unknown command "%s"`, strings.Join(args, " "))))
 	}
 }
