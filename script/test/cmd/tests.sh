@@ -103,7 +103,6 @@ convert::expect_success "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bun
 # Test related to kompose --bundle convert to ensure that DSB bundles are converted properly
 convert::expect_success_and_warning "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/docker-voting-bundle.dsb convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/output-k8s.json" "Service cannot be created because of missing port."
 
-
 ######
 # Test related to restart options in docker-compose
 # kubernetes test
@@ -112,5 +111,11 @@ convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-o
 # openshift test
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml --provider openshift convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-no.json"
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml --provider openshift convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-onfail.json"
+
+######
+# Test key-only envrionment variable
+export $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs)
+convert::expect_success "kompose --file $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/env.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/output-k8s.json"
+unset $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs | cut -d'=' -f1)
 
 exit $EXIT_STATUS
