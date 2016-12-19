@@ -252,9 +252,14 @@ func CommonFlags() []cli.Flag {
 		// mention the end provider
 		cli.StringFlag{
 			Name:   "provider",
-			Usage:  "Generate artifacts for this provider",
+			Usage:  fmt.Sprintf("Generate artifacts for this provider (default: %s)", app.DefaultProvider),
 			Value:  app.DefaultProvider,
 			EnvVar: "PROVIDER",
+		},
+		cli.StringFlag{
+			Name:  "pref-file",
+			Usage: fmt.Sprintf("Specify an alternative preference file (default: %s)", app.DefaultPreferenceFile),
+			Value: app.DefaultPreferenceFile,
 		},
 	}
 }

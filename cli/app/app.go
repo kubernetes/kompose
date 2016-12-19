@@ -18,6 +18,7 @@ package app
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/Sirupsen/logrus"
@@ -31,6 +32,7 @@ import (
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
 	_ "github.com/openshift/origin/pkg/image/api/install"
 
+	"github.com/kubernetes-incubator/kompose/pkg/config"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/loader"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
@@ -39,8 +41,9 @@ import (
 )
 
 const (
-	DefaultComposeFile = "docker-compose.yml"
-	DefaultProvider    = "kubernetes"
+	DefaultComposeFile    = "docker-compose.yml"
+	DefaultProvider       = "kubernetes"
+	DefaultPreferenceFile = "kompose.yml"
 )
 
 var inputFormat = "compose"
@@ -127,20 +130,19 @@ func validateControllers(opt *kobject.ConvertOptions) {
 
 // Convert transforms docker compose or dab file to k8s objects
 func Convert(c *cli.Context) {
+
 	opt := kobject.ConvertOptions{
-		ToStdout:               c.BoolT("stdout"),
-		CreateChart:            c.BoolT("chart"),
-		GenerateYaml:           c.BoolT("yaml"),
-		Replicas:               c.Int("replicas"),
-		InputFile:              c.GlobalString("file"),
-		OutFile:                c.String("out"),
-		Provider:               strings.ToLower(c.GlobalString("provider")),
-		CreateD:                c.BoolT("deployment"),
-		CreateDS:               c.BoolT("daemonset"),
-		CreateRC:               c.BoolT("replicationcontroller"),
-		CreateDeploymentConfig: c.BoolT("deploymentconfig"),
-		EmptyVols:              c.BoolT("emptyvols"),
+		ToStdout:     c.BoolT("stdout"),
+		CreateChart:  c.BoolT("chart"),
+		GenerateYaml: c.BoolT("yaml"),
+		Replicas:     c.Int("replicas"),
+		InputFile:    c.GlobalString("file"),
+		OutFile:      c.String("out"),
+		EmptyVols:    c.BoolT("emptyvols"),
 	}
+
+	// merge flags from command line and preference file
+	unifiedOptions(c, &opt)
 
 	validateFlags(c, &opt)
 	validateControllers(&opt)
@@ -260,4 +262,58 @@ func askForConfirmation() bool {
 		fmt.Println("Please type yes or no and then press enter:")
 		return askForConfirmation()
 	}
+}
+
+func applyOnlyCmdFlags(c *cli.Context, opt *kobject.ConvertOptions) {
+	opt.CreateD = c.BoolT("deployment")
+	opt.CreateDS = c.BoolT("daemonset")
+	opt.CreateRC = c.BoolT("replicationcontroller")
+	opt.CreateDeploymentConfig = c.BoolT("deploymentconfig")
+
+	switch strings.ToLower(c.GlobalString("provider")) {
+	case "kubernetes":
+		opt.Provider = "kubernetes"
+	case "openshift":
+		opt.Provider = "openshift"
+	}
+}
+
+func unifiedOptions(c *cli.Context, opt *kobject.ConvertOptions) {
+
+	prefFile := c.GlobalString("pref-file")
+
+	_, err := os.Stat(prefFile)
+	if !c.GlobalIsSet("pref-file") && os.IsNotExist(err) {
+		// user has not provided preference file explicitly so using kompose.yml
+		// kompose.yml does not exist so keep going with data given from cmd
+		applyOnlyCmdFlags(c, opt)
+		return
+	} else if c.GlobalIsSet("pref-file") && os.IsNotExist(err) {
+		// user has provided a preference file explicitly and it does not exist
+		logrus.Fatalf("Preference file %q does not exist.", prefFile)
+	}
+
+	// validate preference file
+	optPrefFile, err := config.Validate(prefFile)
+	if err != nil {
+		// For any error in preference file
+		logrus.Fatalf("%v", err)
+	}
+
+	cmdProvider := strings.ToLower(c.GlobalString("provider"))
+	// if no provider given from commandline then read it from preference file
+	if !c.GlobalIsSet("provider") {
+		opt.Provider = optPrefFile.Provider
+	} else if cmdProvider != optPrefFile.Provider {
+		// now it can happen that user might have a config file with other controllers that are
+		// not supported in this provider which is different than on cmdline
+		// set controller flags from cmdline
+		applyOnlyCmdFlags(c, opt)
+		return
+	}
+	// set controller flags
+	opt.CreateD = c.BoolT("deployment") || optPrefFile.CreateD
+	opt.CreateDS = c.BoolT("daemonset") || optPrefFile.CreateDS
+	opt.CreateRC = c.BoolT("replicationcontroller") || optPrefFile.CreateRC
+	opt.CreateDeploymentConfig = c.BoolT("deploymentconfig") || optPrefFile.CreateDeploymentConfig
 }
