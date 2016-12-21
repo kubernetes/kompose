@@ -16,93 +16,15 @@ limitations under the License.
 
 package kobject
 
-import (
-	"github.com/Sirupsen/logrus"
-	"github.com/fatih/structs"
-	"k8s.io/kubernetes/pkg/api"
-)
-
-var unsupportedKey = map[string]int{
-	"Build":         0,
-	"CgroupParent":  0,
-	"Devices":       0,
-	"DependsOn":     0,
-	"DNS":           0,
-	"DNSSearch":     0,
-	"DomainName":    0,
-	"EnvFile":       0,
-	"Extends":       0,
-	"ExternalLinks": 0,
-	"ExtraHosts":    0,
-	"Hostname":      0,
-	"Ipc":           0,
-	"Logging":       0,
-	"MacAddress":    0,
-	"MemLimit":      0,
-	"MemSwapLimit":  0,
-	"NetworkMode":   0,
-	"Pid":           0,
-	"SecurityOpt":   0,
-	"ShmSize":       0,
-	"StopSignal":    0,
-	"VolumeDriver":  0,
-	"Uts":           0,
-	"ReadOnly":      0,
-	"StdinOpen":     0,
-	"Tty":           0,
-	"Ulimits":       0,
-	"Dockerfile":    0,
-	"Net":           0,
-	"Networks":      0,
-}
-
-var composeOptions = map[string]string{
-	"Build":         "build",
-	"CapAdd":        "cap_add",
-	"CapDrop":       "cap_drop",
-	"CPUSet":        "cpuset",
-	"CPUShares":     "cpu_shares",
-	"CPUQuota":      "cpu_quota",
-	"CgroupParent":  "cgroup_parent",
-	"Devices":       "devices",
-	"DependsOn":     "depends_on",
-	"DNS":           "dns",
-	"DNSSearch":     "dns_search",
-	"DomainName":    "domainname",
-	"Entrypoint":    "entrypoint",
-	"EnvFile":       "env_file",
-	"Expose":        "expose",
-	"Extends":       "extends",
-	"ExternalLinks": "external_links",
-	"ExtraHosts":    "extra_hosts",
-	"Hostname":      "hostname",
-	"Ipc":           "ipc",
-	"Logging":       "logging",
-	"MacAddress":    "mac_address",
-	"MemLimit":      "mem_limit",
-	"MemSwapLimit":  "memswap_limit",
-	"NetworkMode":   "network_mode",
-	"Networks":      "networks",
-	"Pid":           "pid",
-	"SecurityOpt":   "security_opt",
-	"ShmSize":       "shm_size",
-	"StopSignal":    "stop_signal",
-	"VolumeDriver":  "volume_driver",
-	"VolumesFrom":   "volumes_from",
-	"Uts":           "uts",
-	"ReadOnly":      "read_only",
-	"StdinOpen":     "stdin_open",
-	"Tty":           "tty",
-	"User":          "user",
-	"Ulimits":       "ulimits",
-	"Dockerfile":    "dockerfile",
-	"Net":           "net",
-	"Args":          "args",
-}
+import "k8s.io/kubernetes/pkg/api"
 
 // KomposeObject holds the generic struct of Kompose transformation
 type KomposeObject struct {
 	ServiceConfigs map[string]ServiceConfig
+	// LoadedFrom is name of the loader that created KomposeObject
+	// Transformer need to know origin format in order to tell user what tag is not supported in origin format
+	// as they can have different names. For example environment variables  are called environment in compose but Env in bundle.
+	LoadedFrom string
 }
 
 type ConvertOptions struct {
@@ -122,28 +44,30 @@ type ConvertOptions struct {
 
 // ServiceConfig holds the basic struct of a container
 type ServiceConfig struct {
+	// use tags to mark from what element this value comes
 	ContainerName string
-	Image         string
-	Environment   []EnvVar
-	Port          []Ports
-	Command       []string
-	WorkingDir    string
-	Args          []string
-	Volumes       []string
-	Network       []string
-	Labels        map[string]string
-	Annotations   map[string]string
-	CPUSet        string
-	CPUShares     int64
-	CPUQuota      int64
-	CapAdd        []string
-	CapDrop       []string
-	Expose        []string
-	Privileged    bool
-	Restart       string
-	User          string
-	VolumesFrom   []string
-	ServiceType   string
+	Image         string            `compose:"image",bundle:"Image"`
+	Environment   []EnvVar          `compose:"environment",bundle:"Env"`
+	Port          []Ports           `compose:"ports",bundle:"Ports"`
+	Command       []string          `compose:"command",bundle:"Command"`
+	WorkingDir    string            `compose:"",bundle:"WorkingDir"`
+	Args          []string          `compose:"args",bundle:"Args"`
+	Volumes       []string          `compose:"volumes",bundle:"Volumes"`
+	Network       []string          `compose:"network",bundle:"Networks"`
+	Labels        map[string]string `compose:"labels",bundle:"Labels"`
+	Annotations   map[string]string `compose:"",bundle:""`
+	CPUSet        string            `compose:"cpuset",bundle:""`
+	CPUShares     int64             `compose:"cpu_shares",bundle:""`
+	CPUQuota      int64             `compose:"cpu_quota",bundle:""`
+	CapAdd        []string          `compose:"cap_add",bundle:""`
+	CapDrop       []string          `compose:"cap_drop",bundle:""`
+	Expose        []string          `compose:"expose",bundle:""`
+	Privileged    bool              `compose:"privileged",bundle:""`
+	Restart       string            `compose:"restart",bundle:""`
+	User          string            `compose:"user",bundle:"User"`
+	VolumesFrom   []string          `compose:"volumes_from",bundle:""`
+	ServiceType   string            `compose:"kompose.service.type",bundle:""`
+	Build         string            `compose:"build",bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container
@@ -157,16 +81,4 @@ type Ports struct {
 	HostPort      int32
 	ContainerPort int32
 	Protocol      api.Protocol
-}
-
-func CheckUnsupportedKey(service interface{}) {
-	s := structs.New(service)
-	for _, f := range s.Fields() {
-		if f.IsExported() && !f.IsZero() && f.Name() != "Networks" {
-			if count, ok := unsupportedKey[f.Name()]; ok && count == 0 {
-				logrus.Warningf("Unsupported key %s - ignoring", composeOptions[f.Name()])
-				unsupportedKey[f.Name()]++
-			}
-		}
-	}
 }

@@ -18,11 +18,13 @@ package kubernetes
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
 	"strconv"
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/fatih/structs"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
@@ -51,6 +53,52 @@ type Kubernetes struct {
 // timeout is how long we'll wait for the termination of kubernetes resource to be successful
 // used when undeploying resources from kubernetes
 const TIMEOUT = 300
+
+// list of all unsupported keys for this transformer
+// Keys are names of variables in kobject struct.
+// this is map to make searching for keys easier
+// to make sure that unsupported key is not going to be reported twice
+// by keeping record if already saw this key in another service
+var unsupportedKey = map[string]bool{
+	"Build": false,
+}
+
+// checkUnsupportedKey checks if given komposeObject contains
+// keys that are not supported by this tranfomer.
+// list of all unsupported keys are stored in unsupportedKey variable
+// returns list of TODO: ....
+func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, unsupportedKey map[string]bool) []string {
+	// collect all keys found in project
+	var keysFound []string
+
+	for _, serviceConfig := range komposeObject.ServiceConfigs {
+		// this reflection is used in check for empty arrays
+		val := reflect.ValueOf(serviceConfig)
+		s := structs.New(serviceConfig)
+
+		for _, f := range s.Fields() {
+			// Check if given key is among unsupported keys, and skip it if we already saw this key
+			if alreadySaw, ok := unsupportedKey[f.Name()]; ok && !alreadySaw {
+
+				if f.IsExported() && !f.IsZero() {
+					// IsZero returns false for empty array/slice ([])
+					// this check if field is Slice, and then it checks its size
+					if field := val.FieldByName(f.Name()); field.Kind() == reflect.Slice {
+						if field.Len() == 0 {
+							// array is empty it doesn't matter if it is in unsupportedKey or not
+							continue
+						}
+					}
+					//get tag from kobject service configure
+					tag := f.Tag(komposeObject.LoadedFrom)
+					keysFound = append(keysFound, tag)
+					unsupportedKey[f.Name()] = true
+				}
+			}
+		}
+	}
+	return keysFound
+}
 
 // Init RC object
 func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
@@ -351,6 +399,12 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 // Transform maps komposeObject to k8s objects
 // returns object that are already sorted in the way that Services are first
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
+
+	noSupKeys := k.CheckUnsupportedKey(&komposeObject, unsupportedKey)
+	for _, keyName := range noSupKeys {
+		logrus.Warningf("Kubernetes provider doesn't support %s key - ignoring", keyName)
+	}
+
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 
