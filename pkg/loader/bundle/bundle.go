@@ -21,11 +21,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"reflect"
 	"strings"
 
 	"k8s.io/kubernetes/pkg/api"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/fatih/structs"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 )
 
@@ -55,6 +57,51 @@ type Service struct {
 type Port struct {
 	Protocol string
 	Port     uint32
+}
+
+// checkUnsupportedKey checks if dab contains
+// keys that are not supported by this loader.
+// list of all unsupported keys are stored in unsupportedKey variable
+// returns list of unsupported JSON/YAML keys
+func checkUnsupportedKey(bundleStruct *Bundlefile) []string {
+	// list of all unsupported keys for this loader
+	// this is map to make searching for keys easier
+	// to make sure that unsupported key is not going to be reported twice
+	// by keeping record if already saw this key in another service
+	var unsupportedKey = map[string]bool{
+		"Networks": false,
+	}
+
+	// collect all keys found in project
+	var keysFound []string
+	for _, service := range bundleStruct.Services {
+		// this reflection is used in check for empty arrays
+		val := reflect.ValueOf(service)
+		s := structs.New(service)
+
+		for _, f := range s.Fields() {
+			// Check if given key is among unsupported keys, and skip it if we already saw this key
+			if alreadySaw, ok := unsupportedKey[f.Name()]; ok && !alreadySaw {
+				if f.IsExported() && !f.IsZero() {
+					jsonTagName := strings.Split(f.Tag("json"), ",")[0]
+					if jsonTagName == "" {
+						jsonTagName = f.Name()
+					}
+					// IsZero returns false for empty array/slice ([])
+					// this check if field is Slice, and then it checks its size
+					if field := val.FieldByName(f.Name()); field.Kind() == reflect.Slice {
+						if field.Len() == 0 {
+							// array is empty it doesn't matter if it is in unsupportedKey or not
+							continue
+						}
+					}
+					keysFound = append(keysFound, jsonTagName)
+					unsupportedKey[f.Name()] = true
+				}
+			}
+		}
+	}
+	return keysFound
 }
 
 // load image from dab file
@@ -129,6 +176,7 @@ func loadPorts(service Service) ([]kobject.Ports, string) {
 func (b *Bundle) LoadFile(file string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
+		LoadedFrom:     "bundle",
 	}
 
 	buf, err := ioutil.ReadFile(file)
@@ -141,8 +189,12 @@ func (b *Bundle) LoadFile(file string) kobject.KomposeObject {
 		logrus.Fatalf("Failed to parse bundles file: %s", err)
 	}
 
+	noSupKeys := checkUnsupportedKey(bundle)
+	for _, keyName := range noSupKeys {
+		logrus.Warningf("Unsupported %s key - ignoring", keyName)
+	}
+
 	for name, service := range bundle.Services {
-		kobject.CheckUnsupportedKey(service)
 
 		serviceConfig := kobject.ServiceConfig{}
 		serviceConfig.Command = service.Command

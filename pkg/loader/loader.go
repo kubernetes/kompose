@@ -27,6 +27,7 @@ import (
 
 type Loader interface {
 	LoadFile(file string) kobject.KomposeObject
+	///Name() string
 }
 
 // GetLoader returns loader for given format
