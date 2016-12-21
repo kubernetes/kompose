@@ -14,12 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package version
+package cmd
+
+import (
+	"fmt"
+	"github.com/spf13/cobra"
+)
 
 var (
-	// VERSION should be updated by hand at each release
-	VERSION = "0.1.2"
-
-	// GITCOMMIT will be overwritten automatically by the build system
+	VERSION   = "0.1.2"
 	GITCOMMIT = "HEAD"
 )
+
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the version of Kompose",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(VERSION + " (" + GITCOMMIT + ")")
+	},
+}
+
+func init() {
+	RootCmd.AddCommand(versionCmd)
+}
