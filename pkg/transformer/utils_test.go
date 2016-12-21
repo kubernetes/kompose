@@ -14,13 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package app
+package transformer
 
 import (
 	"fmt"
 	"testing"
-
-	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 )
 
 func TestParseVolume(t *testing.T) {
@@ -101,7 +99,7 @@ func TestParseVolume(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		name, host, container, mode, err := transformer.ParseVolume(test.volume)
+		name, host, container, mode, err := ParseVolume(test.volume)
 		if err != nil {
 			t.Errorf("In test case %q, returned unexpected error %v", test.test, err)
 		}

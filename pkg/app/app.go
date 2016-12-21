@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/urfave/cli"
+	"github.com/spf13/cobra"
 
 	// install kubernetes api
 	_ "k8s.io/kubernetes/pkg/api/install"
@@ -46,13 +46,51 @@ const (
 
 var inputFormat = "compose"
 
-func validateFlags(c *cli.Context, opt *kobject.ConvertOptions) {
+func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobject.ConvertOptions) {
+
+	// Check to see if the "file" has changed from the default flag value
+	isFileSet := cmd.Flags().Lookup("file").Changed
 
 	if opt.OutFile == "-" {
 		opt.ToStdout = true
 		opt.OutFile = ""
 	}
 
+	// Get the provider
+	provider := cmd.Flags().Lookup("provider").Value.String()
+	logrus.Debug("Checking validation of provider %s", provider)
+
+	// OpenShift specific flags
+	deploymentConfig := cmd.Flags().Lookup("deployment-config").Changed
+
+	// Kubernetes specific flags
+	chart := cmd.Flags().Lookup("chart").Changed
+	daemonSet := cmd.Flags().Lookup("daemon-set").Changed
+	replicationController := cmd.Flags().Lookup("replication-controller").Changed
+	deployment := cmd.Flags().Lookup("deployment").Changed
+
+	// Check validations against provider flags
+	switch {
+	case provider == "openshift":
+		if chart {
+			logrus.Fatalf("--chart, -c is a Kubernetes only flag")
+		}
+		if daemonSet {
+			logrus.Fatalf("--daemon-set is a Kubernetes only flag")
+		}
+		if replicationController {
+			logrus.Fatalf("--replication-controller is a Kubernetes only flag")
+		}
+		if deployment {
+			logrus.Fatalf("--deployment, -d is a Kubernetes only flag")
+		}
+	case provider == "kubernetes":
+		if deploymentConfig {
+			logrus.Fatalf("--deployment-config is an OpenShift only flag")
+		}
+	}
+
+	// Standard checks regardless of provider
 	if len(opt.OutFile) != 0 && opt.ToStdout {
 		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
 	}
@@ -65,19 +103,17 @@ func validateFlags(c *cli.Context, opt *kobject.ConvertOptions) {
 		logrus.Fatalf("Error: --replicas cannot be negative")
 	}
 
-	dabFile := c.GlobalString("bundle")
-
-	if len(dabFile) > 0 {
+	if len(bundle) > 0 {
 		inputFormat = "bundle"
-		opt.InputFile = dabFile
+		opt.InputFile = bundle
 	}
 
-	if len(dabFile) > 0 && c.GlobalIsSet("file") {
+	if len(bundle) > 0 && isFileSet {
 		logrus.Fatalf("Error: 'compose' file and 'dab' file cannot be specified at the same time")
 	}
 
-	if len(c.Args()) != 0 {
-		logrus.Fatal("Unknown Argument(s): ", strings.Join(c.Args(), ","))
+	if len(args) != 0 {
+		logrus.Fatal("Unknown Argument(s): ", strings.Join(args, ","))
 	}
 }
 
@@ -127,23 +163,8 @@ func validateControllers(opt *kobject.ConvertOptions) {
 }
 
 // Convert transforms docker compose or dab file to k8s objects
-func Convert(c *cli.Context) {
-	opt := kobject.ConvertOptions{
-		ToStdout:               c.BoolT("stdout"),
-		CreateChart:            c.BoolT("chart"),
-		GenerateYaml:           c.BoolT("yaml"),
-		Replicas:               c.Int("replicas"),
-		InputFile:              c.GlobalString("file"),
-		OutFile:                c.String("out"),
-		Provider:               strings.ToLower(c.GlobalString("provider")),
-		CreateD:                c.BoolT("deployment"),
-		CreateDS:               c.BoolT("daemonset"),
-		CreateRC:               c.BoolT("replicationcontroller"),
-		CreateDeploymentConfig: c.BoolT("deploymentconfig"),
-		EmptyVols:              c.BoolT("emptyvols"),
-	}
+func Convert(opt kobject.ConvertOptions) {
 
-	validateFlags(c, &opt)
 	validateControllers(&opt)
 
 	// loader parses input from file into komposeObject.
@@ -168,14 +189,8 @@ func Convert(c *cli.Context) {
 }
 
 // Up brings up deployment, svc.
-func Up(c *cli.Context) {
-	opt := kobject.ConvertOptions{
-		InputFile: c.GlobalString("file"),
-		Replicas:  1,
-		Provider:  strings.ToLower(c.GlobalString("provider")),
-		EmptyVols: c.BoolT("emptyvols"),
-	}
-	validateFlags(c, &opt)
+func Up(opt kobject.ConvertOptions) {
+
 	validateControllers(&opt)
 
 	// loader parses input from file into komposeObject.
@@ -200,14 +215,8 @@ func Up(c *cli.Context) {
 }
 
 // Down deletes all deployment, svc.
-func Down(c *cli.Context) {
-	opt := kobject.ConvertOptions{
-		InputFile: c.GlobalString("file"),
-		Replicas:  1,
-		Provider:  strings.ToLower(c.GlobalString("provider")),
-		EmptyVols: c.BoolT("emptyvols"),
-	}
-	validateFlags(c, &opt)
+func Down(opt kobject.ConvertOptions) {
+
 	validateControllers(&opt)
 
 	// loader parses input from file into komposeObject.
