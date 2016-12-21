@@ -112,10 +112,26 @@ convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-o
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml --provider openshift convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-no.json"
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml --provider openshift convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-onfail.json"
 
+
 ######
 # Test key-only envrionment variable
 export $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs)
 convert::expect_success "kompose --file $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/env.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/output-k8s.json"
 unset $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs | cut -d'=' -f1)
+
+
+######
+# Test the output file behavior of kompose convert
+# Default behavior without -o
+convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert" "" "$TEMP_DIR/redis-deployment.json" "$TEMP_DIR/redis-service.json" "$TEMP_DIR/web-deployment.json" "$TEMP_DIR/web-service.json"
+# Behavior with -o <filename>
+convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_file" "" "$TEMP_DIR/output_file"
+# Behavior with -o <dirname>
+convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_dir" "$TEMP_DIR/output_dir/" "$TEMP_DIR/output_dir/redis-deployment.json" "$TEMP_DIR/output_dir/redis-service.json" "$TEMP_DIR/output_dir/web-deployment.json" "$TEMP_DIR/output_dir/web-service.json"
+# Behavior with -o <dirname>/<filename>
+convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_dir/output_file" "$TEMP_DIR/output_dir/" "$TEMP_DIR/output_dir/output_file"
+# Behavior with -o <dirname>/<dirname>/<filename>
+convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_dir/output_dir_nested/output_file" "$TEMP_DIR/output_dir/output_dir_nested" "$TEMP_DIR/output_dir/output_dir_nested/output_file"
+
 
 exit $EXIT_STATUS

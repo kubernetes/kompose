@@ -154,7 +154,7 @@ func commonConvertFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
 			Name:   "out,o",
-			Usage:  "Specify file name in order to save objects into",
+			Usage:  "Specify path to a file or a directory to save generated objects into. If path is a directory, the objects are stored in that directory. If path is a file, then objects are stored in that single file. File is created if it does not exist.",
 			EnvVar: "OUTPUT_FILE",
 		},
 		cli.IntFlag{

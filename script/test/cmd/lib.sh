@@ -166,3 +166,29 @@ function convert::expect_failure() {
     return $exit_status
 }
 readonly -f convert::expect_failure
+
+function convert::files_exist() {
+    local cmd=$1
+    local dir=$2
+
+    convert::start_test "convert::files_exist: Running: '${cmd}'"
+    mkdir -p $dir 2> /dev/null
+
+    cd $TEMP_DIR && convert::run_cmd $cmd
+    exit_status=$?
+
+    shift
+    shift
+
+    for var in "$@"
+    do
+        if [ ! -f $var ]
+        then
+            convert::print_fail "file $var does not exist\n"
+            return 1
+        fi
+    convert::print_pass "file $var exists\n"
+    done
+    convert::teardown
+    return 0
+}

@@ -124,10 +124,42 @@ func cpFileToChart(manifestDir, filename string) error {
 	return ioutil.WriteFile(manifestDir+string(os.PathSeparator)+filename, infile, 0644)
 }
 
+// Check if given path is a directory
+func isDir(name string) bool {
+
+	// Open file to get stat later
+	f, err := os.Open(name)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	// Get file attributes and information
+	fileStat, err := f.Stat()
+	if err != nil {
+		logrus.Fatalf("error retrieving file information: %v", err)
+	}
+
+	// Check if given path is a directory
+	if fileStat.IsDir() {
+		return true
+	}
+	return false
+}
+
 // PrintList will take the data converted and decide on the commandline attributes given
 func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
-	f := transformer.CreateOutFile(opt.OutFile)
-	defer f.Close()
+
+	var f *os.File
+	var dirName string
+
+	// Check if output file is a directory
+	if isDir(opt.OutFile) {
+		dirName = opt.OutFile
+	} else {
+		f = transformer.CreateOutFile(opt.OutFile)
+		defer f.Close()
+	}
 
 	var files []string
 
@@ -155,7 +187,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		if err != nil {
 			return fmt.Errorf("Error in marshalling the List: %v", err)
 		}
-		files = append(files, transformer.Print("", "", data, opt.ToStdout, opt.GenerateYaml, f))
+		files = append(files, transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateYaml, f))
 	} else {
 		var file string
 		// create a separate file for each provider
@@ -172,21 +204,21 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 
 			switch t := v.(type) {
 			case *api.ReplicationController:
-				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *extensions.Deployment:
-				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *extensions.DaemonSet:
-				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *deployapi.DeploymentConfig:
-				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *imageapi.ImageStream:
-				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *api.Service:
-				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *api.PersistentVolumeClaim:
-				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			case *api.Pod:
-				file = transformer.Print(t.Name, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
 			}
 			files = append(files, file)
 		}
