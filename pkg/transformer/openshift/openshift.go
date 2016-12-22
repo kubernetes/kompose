@@ -38,7 +38,9 @@ import (
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	deploymentconfigreaper "github.com/openshift/origin/pkg/deploy/cmd"
 	imageapi "github.com/openshift/origin/pkg/image/api"
+	routeapi "github.com/openshift/origin/pkg/route/api"
 	"k8s.io/kubernetes/pkg/kubectl"
+	"k8s.io/kubernetes/pkg/util/intstr"
 )
 
 type OpenShift struct {
@@ -156,6 +158,34 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 	return dc
 }
 
+func (o *OpenShift) initRoute(name string, service kobject.ServiceConfig, port int32) *routeapi.Route {
+	route := &routeapi.Route{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "Route",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+		Spec: routeapi.RouteSpec{
+			Port: &routeapi.RoutePort{
+				TargetPort: intstr.IntOrString{
+					IntVal: port,
+				},
+			},
+			To: routeapi.RouteTargetReference{
+				Kind: "Service",
+				Name: name,
+			},
+		},
+	}
+
+	if service.ExposeService != "true" {
+		route.Spec.Host = service.ExposeService
+	}
+	return route
+}
+
 // Transform maps komposeObject to openshift objects
 // returns objects that are already sorted in the way that Services are first
 func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
@@ -186,6 +216,10 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			if o.PortsExist(name, service) {
 				svc := o.CreateService(name, service, objects)
 				objects = append(objects, svc)
+
+				if service.ExposeService != "" {
+					objects = append(objects, o.initRoute(name, service, svc.Spec.Ports[0].Port))
+				}
 			}
 		}
 		o.UpdateKubernetesObjects(name, service, &objects)
@@ -257,6 +291,12 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 				return err
 			}
 			logrus.Infof("Successfully created PersistentVolumeClaim: %s", t.Name)
+		case *routeapi.Route:
+			_, err := oclient.Routes(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created Route: %s", t.Name)
 		}
 	}
 
@@ -322,6 +362,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 				return err
 			} else {
 				logrus.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+			}
+		case *routeapi.Route:
+			// delete route
+			err = oclient.Routes(namespace).Delete(t.Name)
+			if err != nil {
+				return err
+			} else {
+				logrus.Infof("Successfully deleted Route: %s", t.Name)
 			}
 		}
 	}

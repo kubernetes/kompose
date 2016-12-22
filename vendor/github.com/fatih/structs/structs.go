@@ -431,7 +431,7 @@ func strctVal(s interface{}) reflect.Value {
 	v := reflect.ValueOf(s)
 
 	// if pointer get the underlying element≤
-	for v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
 
@@ -558,10 +558,7 @@ func (s *Struct) nested(val reflect.Value) interface{} {
 		// TODO(arslan): should this be optional?
 		// do not iterate of non struct types, just pass the value. Ie: []int,
 		// []string, co... We only iterate further if it's a struct.
-		// i.e []foo or []*foo
-		if val.Type().Elem().Kind() != reflect.Struct &&
-			!(val.Type().Elem().Kind() == reflect.Ptr &&
-				val.Type().Elem().Elem().Kind() == reflect.Struct) {
+		if val.Type().Elem().Kind() != reflect.Struct {
 			finalVal = val.Interface()
 			break
 		}
