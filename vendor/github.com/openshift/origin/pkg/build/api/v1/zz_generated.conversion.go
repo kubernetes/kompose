@@ -81,12 +81,16 @@ func RegisterConversions(scheme *runtime.Scheme) error {
 		Convert_api_ImageChangeCause_To_v1_ImageChangeCause,
 		Convert_v1_ImageChangeTrigger_To_api_ImageChangeTrigger,
 		Convert_api_ImageChangeTrigger_To_v1_ImageChangeTrigger,
+		Convert_v1_ImageLabel_To_api_ImageLabel,
+		Convert_api_ImageLabel_To_v1_ImageLabel,
 		Convert_v1_ImageSource_To_api_ImageSource,
 		Convert_api_ImageSource_To_v1_ImageSource,
 		Convert_v1_ImageSourcePath_To_api_ImageSourcePath,
 		Convert_api_ImageSourcePath_To_v1_ImageSourcePath,
 		Convert_v1_JenkinsPipelineBuildStrategy_To_api_JenkinsPipelineBuildStrategy,
 		Convert_api_JenkinsPipelineBuildStrategy_To_v1_JenkinsPipelineBuildStrategy,
+		Convert_v1_ProxyConfig_To_api_ProxyConfig,
+		Convert_api_ProxyConfig_To_v1_ProxyConfig,
 		Convert_v1_SecretBuildSource_To_api_SecretBuildSource,
 		Convert_api_SecretBuildSource_To_v1_SecretBuildSource,
 		Convert_v1_SecretSpec_To_api_SecretSpec,
@@ -486,6 +490,17 @@ func autoConvert_v1_BuildOutput_To_api_BuildOutput(in *BuildOutput, out *api.Bui
 	} else {
 		out.PushSecret = nil
 	}
+	if in.ImageLabels != nil {
+		in, out := &in.ImageLabels, &out.ImageLabels
+		*out = make([]api.ImageLabel, len(*in))
+		for i := range *in {
+			if err := Convert_v1_ImageLabel_To_api_ImageLabel(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.ImageLabels = nil
+	}
 	return nil
 }
 
@@ -507,6 +522,17 @@ func autoConvert_api_BuildOutput_To_v1_BuildOutput(in *api.BuildOutput, out *Bui
 		}
 	} else {
 		out.PushSecret = nil
+	}
+	if in.ImageLabels != nil {
+		in, out := &in.ImageLabels, &out.ImageLabels
+		*out = make([]ImageLabel, len(*in))
+		for i := range *in {
+			if err := Convert_api_ImageLabel_To_v1_ImageLabel(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.ImageLabels = nil
 	}
 	return nil
 }
@@ -1145,6 +1171,15 @@ func autoConvert_v1_CommonSpec_To_api_CommonSpec(in *CommonSpec, out *api.Common
 		return err
 	}
 	out.CompletionDeadlineSeconds = in.CompletionDeadlineSeconds
+	if in.NodeSelector != nil {
+		in, out := &in.NodeSelector, &out.NodeSelector
+		*out = make(map[string]string, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
+	} else {
+		out.NodeSelector = nil
+	}
 	return nil
 }
 
@@ -1179,6 +1214,15 @@ func autoConvert_api_CommonSpec_To_v1_CommonSpec(in *api.CommonSpec, out *Common
 		return err
 	}
 	out.CompletionDeadlineSeconds = in.CompletionDeadlineSeconds
+	if in.NodeSelector != nil {
+		in, out := &in.NodeSelector, &out.NodeSelector
+		*out = make(OptionalNodeSelector, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
+	} else {
+		out.NodeSelector = nil
+	}
 	return nil
 }
 
@@ -1445,8 +1489,9 @@ func Convert_api_GenericWebHookEvent_To_v1_GenericWebHookEvent(in *api.GenericWe
 func autoConvert_v1_GitBuildSource_To_api_GitBuildSource(in *GitBuildSource, out *api.GitBuildSource, s conversion.Scope) error {
 	out.URI = in.URI
 	out.Ref = in.Ref
-	out.HTTPProxy = in.HTTPProxy
-	out.HTTPSProxy = in.HTTPSProxy
+	if err := Convert_v1_ProxyConfig_To_api_ProxyConfig(&in.ProxyConfig, &out.ProxyConfig, s); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -1457,8 +1502,9 @@ func Convert_v1_GitBuildSource_To_api_GitBuildSource(in *GitBuildSource, out *ap
 func autoConvert_api_GitBuildSource_To_v1_GitBuildSource(in *api.GitBuildSource, out *GitBuildSource, s conversion.Scope) error {
 	out.URI = in.URI
 	out.Ref = in.Ref
-	out.HTTPProxy = in.HTTPProxy
-	out.HTTPSProxy = in.HTTPSProxy
+	if err := Convert_api_ProxyConfig_To_v1_ProxyConfig(&in.ProxyConfig, &out.ProxyConfig, s); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -1634,6 +1680,26 @@ func Convert_api_ImageChangeTrigger_To_v1_ImageChangeTrigger(in *api.ImageChange
 	return autoConvert_api_ImageChangeTrigger_To_v1_ImageChangeTrigger(in, out, s)
 }
 
+func autoConvert_v1_ImageLabel_To_api_ImageLabel(in *ImageLabel, out *api.ImageLabel, s conversion.Scope) error {
+	out.Name = in.Name
+	out.Value = in.Value
+	return nil
+}
+
+func Convert_v1_ImageLabel_To_api_ImageLabel(in *ImageLabel, out *api.ImageLabel, s conversion.Scope) error {
+	return autoConvert_v1_ImageLabel_To_api_ImageLabel(in, out, s)
+}
+
+func autoConvert_api_ImageLabel_To_v1_ImageLabel(in *api.ImageLabel, out *ImageLabel, s conversion.Scope) error {
+	out.Name = in.Name
+	out.Value = in.Value
+	return nil
+}
+
+func Convert_api_ImageLabel_To_v1_ImageLabel(in *api.ImageLabel, out *ImageLabel, s conversion.Scope) error {
+	return autoConvert_api_ImageLabel_To_v1_ImageLabel(in, out, s)
+}
+
 func autoConvert_v1_ImageSource_To_api_ImageSource(in *ImageSource, out *api.ImageSource, s conversion.Scope) error {
 	if err := api_v1.Convert_v1_ObjectReference_To_api_ObjectReference(&in.From, &out.From, s); err != nil {
 		return err
@@ -1734,6 +1800,28 @@ func autoConvert_api_JenkinsPipelineBuildStrategy_To_v1_JenkinsPipelineBuildStra
 
 func Convert_api_JenkinsPipelineBuildStrategy_To_v1_JenkinsPipelineBuildStrategy(in *api.JenkinsPipelineBuildStrategy, out *JenkinsPipelineBuildStrategy, s conversion.Scope) error {
 	return autoConvert_api_JenkinsPipelineBuildStrategy_To_v1_JenkinsPipelineBuildStrategy(in, out, s)
+}
+
+func autoConvert_v1_ProxyConfig_To_api_ProxyConfig(in *ProxyConfig, out *api.ProxyConfig, s conversion.Scope) error {
+	out.HTTPProxy = in.HTTPProxy
+	out.HTTPSProxy = in.HTTPSProxy
+	out.NoProxy = in.NoProxy
+	return nil
+}
+
+func Convert_v1_ProxyConfig_To_api_ProxyConfig(in *ProxyConfig, out *api.ProxyConfig, s conversion.Scope) error {
+	return autoConvert_v1_ProxyConfig_To_api_ProxyConfig(in, out, s)
+}
+
+func autoConvert_api_ProxyConfig_To_v1_ProxyConfig(in *api.ProxyConfig, out *ProxyConfig, s conversion.Scope) error {
+	out.HTTPProxy = in.HTTPProxy
+	out.HTTPSProxy = in.HTTPSProxy
+	out.NoProxy = in.NoProxy
+	return nil
+}
+
+func Convert_api_ProxyConfig_To_v1_ProxyConfig(in *api.ProxyConfig, out *ProxyConfig, s conversion.Scope) error {
+	return autoConvert_api_ProxyConfig_To_v1_ProxyConfig(in, out, s)
 }
 
 func autoConvert_v1_SecretBuildSource_To_api_SecretBuildSource(in *SecretBuildSource, out *api.SecretBuildSource, s conversion.Scope) error {

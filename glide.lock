@@ -1,5 +1,5 @@
-hash: ce7cedb6d1c0e23f02afdd8bc7d1dabb047ca846cacd597e436cf93549c9ac79
-updated: 2016-12-22T09:07:17.203828556-05:00
+hash: c7cb14f4249738a47020f9dc1964832921c3f5b8bf5a1c50f5b2fa15eaebb6fe
+updated: 2016-12-26T10:22:49.439519344+05:30
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -369,6 +369,10 @@ imports:
   - pkg/auth/authenticator/request/x509request
   - pkg/authorization/api
   - pkg/build/api
+  - pkg/build/api/install
+  - pkg/build/api/v1
+  - pkg/build/client
+  - pkg/build/util
   - pkg/client
   - pkg/cmd/cli/config
   - pkg/cmd/util

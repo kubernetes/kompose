@@ -20,6 +20,8 @@ import:
 - package: github.com/openshift/origin
   version: v1.4.0-rc1
   subpackages:
+  - pkg/build/api/install
+  - pkg/build/api/v1
   - pkg/client
   - pkg/cmd/cli/config
   - pkg/deploy/api
