@@ -1,4 +1,4 @@
-// +build solaris,!appengine
+// +build solaris
 
 package logrus
 

@@ -197,6 +197,62 @@ func checkMeta(config kobject.ServiceConfig, meta api.ObjectMeta, expectedName s
 	return nil
 }
 
+func TestKomposeConvertIngress(t *testing.T) {
+
+	testCases := map[string]struct {
+		komposeObject kobject.KomposeObject
+		opt           kobject.ConvertOptions
+		labelValue    string
+	}{
+		"Convert to Ingress: label set to true":        {newKomposeObject(), kobject.ConvertOptions{CreateD: true}, "true"},
+		"Convert to Ingress: label set to example.com": {newKomposeObject(), kobject.ConvertOptions{CreateD: true}, "example.com"},
+	}
+
+	for name, test := range testCases {
+
+		var expectedHost string
+
+		t.Log("Test case:", name)
+		k := Kubernetes{}
+
+		appName := "app"
+
+		// Setting value for ExposeService in ServiceConfig
+		config := test.komposeObject.ServiceConfigs[appName]
+		config.ExposeService = test.labelValue
+		test.komposeObject.ServiceConfigs[appName] = config
+
+		switch test.labelValue {
+		case "true":
+			expectedHost = ""
+		default:
+			expectedHost = test.labelValue
+		}
+
+		// Run Transform
+		objs := k.Transform(test.komposeObject, test.opt)
+
+		// Check results
+		for _, obj := range objs {
+			if ing, ok := obj.(*extensions.Ingress); ok {
+				if ing.ObjectMeta.Name != appName {
+					t.Errorf("Expected ObjectMeta.Name to be %s, got %s instead", appName, ing.ObjectMeta.Name)
+				}
+				if ing.Spec.Rules[0].IngressRuleValue.HTTP.Paths[0].Backend.ServiceName != appName {
+					t.Errorf("Expected Backend.ServiceName to be %s, got %s instead", appName, ing.Spec.Rules[0].IngressRuleValue.HTTP.Paths[0].Backend.ServiceName)
+				}
+				if ing.Spec.Rules[0].IngressRuleValue.HTTP.Paths[0].Backend.ServicePort.IntVal != config.Port[0].HostPort {
+					t.Errorf("Expected Backend.ServicePort to be %d, got %v instead", config.Port[0].HostPort, ing.Spec.Rules[0].IngressRuleValue.HTTP.Paths[0].Backend.ServicePort.IntVal)
+				}
+				if ing.Spec.Rules[0].Host != expectedHost {
+					t.Errorf("Expected Rules[0].Host to be %s, got %s instead", expectedHost, ing.Spec.Rules[0].Host)
+
+				}
+			}
+		}
+	}
+}
+
 func TestKomposeConvert(t *testing.T) {
 	replicas := 3
 	testCases := map[string]struct {

@@ -30,6 +30,7 @@ import (
 	// install OpenShift api
 	_ "github.com/openshift/origin/pkg/deploy/api/install"
 	_ "github.com/openshift/origin/pkg/image/api/install"
+	_ "github.com/openshift/origin/pkg/route/api/install"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/loader"

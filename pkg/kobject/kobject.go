@@ -68,6 +68,7 @@ type ServiceConfig struct {
 	VolumesFrom   []string          `compose:"volumes_from",bundle:""`
 	ServiceType   string            `compose:"kompose.service.type",bundle:""`
 	Build         string            `compose:"build",bundle:""`
+	ExposeService string            `compose:"kompose.service.expose",bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container
