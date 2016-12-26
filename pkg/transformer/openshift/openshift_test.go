@@ -194,7 +194,7 @@ func TestGitGetCurrentBranch(t *testing.T) {
 
 		if test.expectError {
 			if err == nil {
-				t.Errorf("Expected error, got success instead!")
+				t.Error("Expected error, got success instead!")
 			}
 		} else {
 			if err != nil {

@@ -29,18 +29,18 @@ func CreateLocalGitDirectory(t *testing.T) string {
 	cmd.Dir = dir
 	_, err := cmd.Output()
 	if err != nil {
-		fmt.Println("create local git dir", err)
+		t.Logf("create local git dir: %v", err)
 		t.Fatal(err)
 	}
 	return dir
 }
 
 func SetGitRemote(t *testing.T, dir string, remote string, remoteUrl string) {
-	cmd := NewCommand("git remote add newremote https://git.test.com/somerepo")
+	cmd := NewCommand(fmt.Sprintf("git remote add %s %s", remote, remoteUrl))
 	cmd.Dir = dir
 	_, err := cmd.Output()
 	if err != nil {
-		fmt.Println("set git remote", err)
+		t.Logf("set git remote: %v", err)
 		t.Fatal(err)
 	}
 }
@@ -55,7 +55,7 @@ func CreateGitRemoteBranch(t *testing.T, dir string, branch string, remote strin
 
 	_, err := cmd.Output()
 	if err != nil {
-		fmt.Println("create git branch", err)
+		t.Logf("create git branch: %v", err)
 		t.Fatal(err)
 	}
 }
