@@ -16,37 +16,8 @@ limitations under the License.
 
 package main
 
-import (
-	"os"
-
-	"github.com/kubernetes-incubator/kompose/cli/command"
-	"github.com/kubernetes-incubator/kompose/version"
-	"github.com/urfave/cli"
-)
+import "github.com/kubernetes-incubator/kompose/cmd"
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "kompose"
-	app.Usage = "A tool helping Docker Compose users move to Kubernetes."
-	app.Version = version.VERSION + " (" + version.GITCOMMIT + ")"
-	app.Author = "Kompose Contributors"
-	app.Email = "https://github.com/kubernetes-incubator/kompose"
-	app.EnableBashCompletion = true
-	app.Before = command.BeforeApp
-	app.Flags = append(command.CommonFlags())
-	app.Commands = []cli.Command{
-		// NOTE: Always add this in first, because this dummy command will be removed later
-		// in  command.BeforeApp function and provider specific command will be added
-		command.ConvertCommandDummy(),
-		// command.ConvertKubernetesCommand or command.ConvertOpenShiftCommand
-		// is added depending on provider mentioned.
-
-		command.UpCommand(),
-		command.DownCommand(),
-		// TODO: enable these commands and update docs once we fix them
-		//command.PsCommand(),
-		//command.ScaleCommand(),
-	}
-
-	app.Run(os.Args)
+	cmd.Execute()
 }
