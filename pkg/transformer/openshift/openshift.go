@@ -170,7 +170,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 func initBuildConfig(name string, service kobject.ServiceConfig, composeFileDir string, repo string, branch string) *buildapi.BuildConfig {
 	contextDir, err := getAbsBuildContext(service.Build, composeFileDir)
 	if err != nil {
-		logrus.Fatalf("[%s] Buildconfig cannote be created due to error in creating build context.", name)
+		logrus.Fatalf("[%s] Buildconfig cannot be created due to error in creating build context.", name)
 	}
 
 	bc := &buildapi.BuildConfig{
@@ -356,7 +356,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 					}
 					hasBuild = true
 				}
-				objects = append(objects, initBuildConfig(name, service, opt.InputFile, buildRepo, opt.BuildBranch)) // Openshift BuildConfigs
+				objects = append(objects, initBuildConfig(name, service, composeFileDir, buildRepo, buildBranch)) // Openshift BuildConfigs
 			}
 
 			// If ports not provided in configuration we will not make service
@@ -375,7 +375,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	}
 
 	if hasBuild {
-		logrus.Infof("Buildconfig using %s::%s as source.", buildRepo, opt.BuildBranch)
+		logrus.Infof("Buildconfig using %s::%s as source.", buildRepo, buildBranch)
 	}
 	// If docker-compose has a volumes_from directive it will be handled here
 	o.VolumesFrom(&allobjects, komposeObject)
