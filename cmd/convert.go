@@ -17,11 +17,12 @@ limitations under the License.
 package cmd
 
 import (
+	"strings"
+
 	"github.com/kubernetes-incubator/kompose/pkg/app"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 var (
