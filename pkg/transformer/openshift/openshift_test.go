@@ -18,7 +18,9 @@ package openshift
 
 import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/runtime"
 	"testing"
 )
 
@@ -44,6 +46,32 @@ func newServiceConfig() kobject.ServiceConfig {
 		Privileged:    true,
 		Restart:       "always",
 		User:          "user", // not supported
+		Stdin:         true,
+		Tty:           true,
+	}
+}
+
+func TestOpenShiftUpdateKubernetesObjects(t *testing.T) {
+	t.Log("Test case: Testing o.UpdateKubernetesObjects()")
+	var object []runtime.Object
+	o := OpenShift{}
+	serviceConfig := newServiceConfig()
+
+	object = append(object, o.initDeploymentConfig("foobar", serviceConfig, 3))
+	o.UpdateKubernetesObjects("foobar", serviceConfig, &object)
+
+	for _, obj := range object {
+		switch tobj := obj.(type) {
+		case *deployapi.DeploymentConfig:
+			t.Log("> Testing if stdin is set correctly")
+			if tobj.Spec.Template.Spec.Containers[0].Stdin != serviceConfig.Stdin {
+				t.Errorf("Expected stdin to be %v, got %v instead", serviceConfig.Stdin, tobj.Spec.Template.Spec.Containers[0].Stdin)
+			}
+			t.Log("> Testing if TTY is set correctly")
+			if tobj.Spec.Template.Spec.Containers[0].TTY != serviceConfig.Tty {
+				t.Errorf("Expected TTY to be %v, got %v instead", serviceConfig.Tty, tobj.Spec.Template.Spec.Containers[0].TTY)
+			}
+		}
 	}
 }
 

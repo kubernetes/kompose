@@ -324,6 +324,8 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].Args = service.Args
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
 		template.Spec.Containers[0].VolumeMounts = volumesMount
+		template.Spec.Containers[0].Stdin = service.Stdin
+		template.Spec.Containers[0].TTY = service.Tty
 		template.Spec.Volumes = volumes
 
 		securityContext := &api.SecurityContext{}
