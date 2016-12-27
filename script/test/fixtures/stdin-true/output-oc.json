@@ -1,0 +1,124 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "client",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "client"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "1337",
+            "protocol": "TCP",
+            "port": 1337,
+            "targetPort": 1337
+          }
+        ],
+        "selector": {
+          "service": "client"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "client",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "client"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "client"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "client:7"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "service": "client"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "client"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "client",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 1337,
+                    "protocol": "TCP"
+                  }
+                ],
+                "resources": {},
+                "stdin": true
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "client",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "7",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "registry.centos.org/centos/centos:7"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    }
+  ]
+}

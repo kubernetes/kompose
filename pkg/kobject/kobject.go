@@ -69,6 +69,8 @@ type ServiceConfig struct {
 	ServiceType   string            `compose:"kompose.service.type",bundle:""`
 	Build         string            `compose:"build",bundle:""`
 	ExposeService string            `compose:"kompose.service.expose",bundle:""`
+	Stdin         bool              `compose:"stdin_open",bundle:""`
+	Tty           bool              `compose:"tty",bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container

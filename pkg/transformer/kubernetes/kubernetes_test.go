@@ -53,6 +53,8 @@ func newServiceConfig() kobject.ServiceConfig {
 		Privileged:    true,
 		Restart:       "always",
 		User:          "user", // not supported
+		Stdin:         true,
+		Tty:           true,
 	}
 }
 
@@ -167,6 +169,12 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 	}
 	if config.Privileged == privilegedNilOrFalse(template) {
 		return fmt.Errorf("Found different template privileged: %#v vs. %#v", config.Privileged, template.Spec.Containers[0].SecurityContext)
+	}
+	if config.Stdin != template.Spec.Containers[0].Stdin {
+		return fmt.Errorf("Found different values for stdin: %#v vs. %#v", config.Stdin, template.Spec.Containers[0].Stdin)
+	}
+	if config.Tty != template.Spec.Containers[0].TTY {
+		return fmt.Errorf("Found different values for TTY: %#v vs. %#v", config.Tty, template.Spec.Containers[0].TTY)
 	}
 	return nil
 }

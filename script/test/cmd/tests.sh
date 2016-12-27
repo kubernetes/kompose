@@ -119,6 +119,22 @@ convert::expect_success "kompose --file $KOMPOSE_ROOT/script/test/fixtures/keyon
 unset $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs | cut -d'=' -f1)
 
 
+######
+# Test related to "stdin_open: true" in docker-compose
+# kubernetes test
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/stdin-true/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/stdin-true/output-k8s.json"
+# openshift test
+convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/stdin-true/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/stdin-true/output-oc.json"
+
+
+######
+# Test related to "tty: true" in docker-compose
+# kubernetes test
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/tty-true/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/tty-true/output-k8s.json"
+# openshift test
+convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/tty-true/docker-compose.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/tty-true/output-oc.json"
+
+
 # Test related to kompose.expose.service label in docker compose file to ensure that services are exposed properly
 #kubernetes tests
 # when kompose.service.expose="True"

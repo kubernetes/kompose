@@ -72,8 +72,6 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		"VolumeDriver":  false,
 		"Uts":           false,
 		"ReadOnly":      false,
-		"StdinOpen":     false,
-		"Tty":           false,
 		"Ulimits":       false,
 		"Dockerfile":    false,
 		"Net":           false,
@@ -320,6 +318,8 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 			serviceConfig.Restart = composeServiceConfig.Restart
 			serviceConfig.User = composeServiceConfig.User
 			serviceConfig.VolumesFrom = composeServiceConfig.VolumesFrom
+			serviceConfig.Stdin = composeServiceConfig.StdinOpen
+			serviceConfig.Tty = composeServiceConfig.Tty
 
 			komposeObject.ServiceConfigs[name] = serviceConfig
 		}
