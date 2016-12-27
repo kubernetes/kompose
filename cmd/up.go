@@ -43,9 +43,6 @@ var upCmd = &cobra.Command{
 			Provider:  strings.ToLower(GlobalProvider),
 			EmptyVols: UpEmptyVols,
 		}
-
-		// Validate before doing anything else. Use "bundle" if passed in.
-		app.ValidateFlags(GlobalBundle, args, cmd, &UpOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		app.Up(UpOpt)

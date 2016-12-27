@@ -43,9 +43,6 @@ var downCmd = &cobra.Command{
 			Provider:  strings.ToLower(GlobalProvider),
 			EmptyVols: DownEmptyVols,
 		}
-
-		// Validate before doing anything else. Use "bundle" if passed in.
-		app.ValidateFlags(GlobalBundle, args, cmd, &DownOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		app.Down(DownOpt)
