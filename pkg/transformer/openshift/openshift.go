@@ -329,6 +329,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				objects = append(objects, o.initImageStream(name, service))
 			}
 
+			// buildconfig needs to be added to objects after imagestream because of this Openshift bug: https://github.com/openshift/origin/issues/4518
 			if service.Build != "" {
 				if !hasBuild {
 					composeFileDir, err = getComposeFileDir(opt.InputFile)
