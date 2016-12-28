@@ -270,6 +270,7 @@ func (c *Compose) LoadFile(file string) kobject.KomposeObject {
 		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
 			serviceConfig := kobject.ServiceConfig{}
 			serviceConfig.Image = composeServiceConfig.Image
+			serviceConfig.Build = composeServiceConfig.Build.Context
 			serviceConfig.ContainerName = composeServiceConfig.ContainerName
 			serviceConfig.Command = composeServiceConfig.Entrypoint
 			serviceConfig.Args = composeServiceConfig.Command
