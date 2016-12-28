@@ -26,12 +26,12 @@ import (
 )
 
 var (
-	ConvertSource, ConvertOut                                string
-	ConvertChart, ConvertDeployment, ConvertDaemonSet        bool
-	ConvertReplicationController, ConvertYaml, ConvertStdout bool
-	ConvertEmptyVols, ConvertDeploymentConfig                bool
-	ConvertReplicas                                          int
-	ConvertOpt                                               kobject.ConvertOptions
+	ConvertSource, ConvertOut, ConvertBuildRepo, ConvertBuildBranch string
+	ConvertChart, ConvertDeployment, ConvertDaemonSet               bool
+	ConvertReplicationController, ConvertYaml, ConvertStdout        bool
+	ConvertEmptyVols, ConvertDeploymentConfig, ConvertBuildConfig   bool
+	ConvertReplicas                                                 int
+	ConvertOpt                                                      kobject.ConvertOptions
 )
 
 var ConvertProvider string = GlobalProvider
@@ -53,6 +53,8 @@ var convertCmd = &cobra.Command{
 			CreateD:                ConvertDeployment,
 			CreateDS:               ConvertDaemonSet,
 			CreateRC:               ConvertReplicationController,
+			BuildRepo:              ConvertBuildRepo,
+			BuildBranch:            ConvertBuildBranch,
 			CreateDeploymentConfig: ConvertDeploymentConfig,
 			EmptyVols:              ConvertEmptyVols,
 		}
@@ -84,6 +86,10 @@ func init() {
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
 	convertCmd.Flags().MarkHidden("deployment-config")
+	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
+	convertCmd.Flags().MarkHidden("build-repo")
+	convertCmd.Flags().StringVar(&ConvertBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
+	convertCmd.Flags().MarkHidden("build-branch")
 
 	// Standard between the two
 	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into yaml format")
@@ -107,6 +113,8 @@ Available Commands:{{range .Commands}}{{if .IsAvailableCommand}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{ if .HasAvailableLocalFlags}}
 
 Resource Flags:
+      --build-branch             Specify repository branch to use for buildconfig (default is current branch name)
+      --build-repo               Specify source repository for buildconfig (default is current branch's remote url
   -c, --chart                    Create a Helm chart for converted objects
       --daemon-set               Generate a Kubernetes daemonset object
   -d, --deployment               Generate a Kubernetes deployment object

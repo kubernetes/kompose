@@ -18,6 +18,9 @@ package openshift
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
@@ -26,6 +29,7 @@ import (
 	"github.com/Sirupsen/logrus"
 
 	"k8s.io/kubernetes/pkg/api"
+	kapi "k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
 	"k8s.io/kubernetes/pkg/runtime"
@@ -35,6 +39,7 @@ import (
 
 	"time"
 
+	buildapi "github.com/openshift/origin/pkg/build/api"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	deploymentconfigreaper "github.com/openshift/origin/pkg/deploy/cmd"
 	imageapi "github.com/openshift/origin/pkg/image/api"
@@ -72,9 +77,79 @@ func getImageTag(image string) string {
 	}
 }
 
+// hasGitBinary checks if the 'git' binary is available on the system
+func hasGitBinary() bool {
+	_, err := exec.LookPath("git")
+	return err == nil
+}
+
+// getGitCurrentRemoteUrl gets current git remote URI for the current git repo
+func getGitCurrentRemoteUrl(composeFileDir string) (string, error) {
+	cmd := exec.Command("git", "ls-remote", "--get-url")
+	cmd.Dir = composeFileDir
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	url := strings.TrimRight(string(out), "\n")
+
+	if !strings.HasSuffix(url, ".git") {
+		url += ".git"
+	}
+
+	return url, nil
+}
+
+// getGitCurrentBranch gets current git branch name for the current git repo
+func getGitCurrentBranch(composeFileDir string) (string, error) {
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	cmd.Dir = composeFileDir
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimRight(string(out), "\n"), nil
+}
+
+// getComposeFileDir returns compose file directory
+func getComposeFileDir(inputFile string) (string, error) {
+	if strings.Index(inputFile, "/") != 0 {
+		workDir, err := os.Getwd()
+		if err != nil {
+			return "", err
+		}
+		inputFile = filepath.Join(workDir, inputFile)
+	}
+	return filepath.Dir(inputFile), nil
+}
+
+// getAbsBuildContext returns build context relative to project root dir
+func getAbsBuildContext(context string, composeFileDir string) (string, error) {
+	cmd := exec.Command("git", "rev-parse", "--show-prefix")
+	cmd.Dir = composeFileDir
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	prefix := strings.Trim(string(out), "\n")
+	return filepath.Join(prefix, context), nil
+}
+
 // initImageStream initialize ImageStream object
 func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) *imageapi.ImageStream {
 	tag := getImageTag(service.Image)
+
+	var tags map[string]imageapi.TagReference
+	if service.Build == "" {
+		tags = map[string]imageapi.TagReference{
+			tag: imageapi.TagReference{
+				From: &api.ObjectReference{
+					Kind: "DockerImage",
+					Name: service.Image,
+				},
+			},
+		}
+	}
 
 	is := &imageapi.ImageStream{
 		TypeMeta: unversioned.TypeMeta{
@@ -85,17 +160,54 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 			Name: name,
 		},
 		Spec: imageapi.ImageStreamSpec{
-			Tags: map[string]imageapi.TagReference{
-				tag: imageapi.TagReference{
-					From: &api.ObjectReference{
-						Kind: "DockerImage",
-						Name: service.Image,
+			Tags: tags,
+		},
+	}
+	return is
+}
+
+// initBuildConfig initialize Openshifts BuildConfig Object
+func initBuildConfig(name string, service kobject.ServiceConfig, composeFileDir string, repo string, branch string) *buildapi.BuildConfig {
+	contextDir, err := getAbsBuildContext(service.Build, composeFileDir)
+	if err != nil {
+		logrus.Fatalf("[%s] Buildconfig cannot be created due to error in creating build context.", name)
+	}
+
+	bc := &buildapi.BuildConfig{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "BuildConfig",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+		Spec: buildapi.BuildConfigSpec{
+			Triggers: []buildapi.BuildTriggerPolicy{
+				{Type: "ConfigChange"},
+				{Type: "ImageChange"},
+			},
+			RunPolicy: "Serial",
+			CommonSpec: buildapi.CommonSpec{
+				Source: buildapi.BuildSource{
+					Git: &buildapi.GitBuildSource{
+						Ref: branch,
+						URI: repo,
+					},
+					ContextDir: contextDir,
+				},
+				Strategy: buildapi.BuildStrategy{
+					DockerStrategy: &buildapi.DockerBuildStrategy{},
+				},
+				Output: buildapi.BuildOutput{
+					To: &kapi.ObjectReference{
+						Kind: "ImageStreamTag",
+						Name: name + ":latest",
 					},
 				},
 			},
 		},
 	}
-	return is
+	return bc
 }
 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
@@ -195,6 +307,11 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	}
 	// this will hold all the converted data
 	var allobjects []runtime.Object
+	var err error
+	var composeFileDir string
+	hasBuild := false
+	buildRepo := opt.BuildRepo
+	buildBranch := opt.BuildBranch
 
 	for name, service := range komposeObject.ServiceConfigs {
 		var objects []runtime.Object
@@ -212,6 +329,37 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				objects = append(objects, o.initImageStream(name, service))
 			}
 
+			// buildconfig needs to be added to objects after imagestream because of this Openshift bug: https://github.com/openshift/origin/issues/4518
+			if service.Build != "" {
+				if !hasBuild {
+					composeFileDir, err = getComposeFileDir(opt.InputFile)
+					if err != nil {
+						logrus.Warningf("Error in detecting compose file's directory.")
+						continue
+					}
+					if !hasGitBinary() && (buildRepo == "" || buildBranch == "") {
+						logrus.Fatalf("Git is not installed! Please install Git to create buildconfig, else supply source repository and branch to use for build using '--build-repo', '--build-branch' options respectively")
+					}
+					if buildBranch == "" {
+						buildBranch, err = getGitCurrentBranch(composeFileDir)
+						if err != nil {
+							logrus.Fatalf("Buildconfig cannot be created because current git branch couldn't be detected.")
+						}
+					}
+					if opt.BuildRepo == "" {
+						if err != nil {
+							logrus.Fatalf("Buildconfig cannot be created because remote for current git branch couldn't be detected.")
+						}
+						buildRepo, err = getGitCurrentRemoteUrl(composeFileDir)
+						if err != nil {
+							logrus.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
+						}
+					}
+					hasBuild = true
+				}
+				objects = append(objects, initBuildConfig(name, service, composeFileDir, buildRepo, buildBranch)) // Openshift BuildConfigs
+			}
+
 			// If ports not provided in configuration we will not make service
 			if o.PortsExist(name, service) {
 				svc := o.CreateService(name, service, objects)
@@ -225,6 +373,10 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		o.UpdateKubernetesObjects(name, service, &objects)
 
 		allobjects = append(allobjects, objects...)
+	}
+
+	if hasBuild {
+		logrus.Infof("Buildconfig using %s::%s as source.", buildRepo, buildBranch)
 	}
 	// If docker-compose has a volumes_from directive it will be handled here
 	o.VolumesFrom(&allobjects, komposeObject)
@@ -273,6 +425,12 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 				return err
 			}
 			logrus.Infof("Successfully created ImageStream: %s", t.Name)
+		case *buildapi.BuildConfig:
+			_, err := oclient.BuildConfigs(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created BuildConfig: %s", t.Name)
 		case *deployapi.DeploymentConfig:
 			_, err := oclient.DeploymentConfigs(namespace).Create(t)
 			if err != nil {

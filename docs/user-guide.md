@@ -95,7 +95,7 @@ INFO[0000] file "result-imagestream.json" created
 ```
 
 In similar way you can convert DAB files to OpenShift.
-```console$
+```console
 $ kompose --bundle docker-compose-bundle.dab --provider openshift convert
 WARN[0000]: Unsupported key networks - ignoring
 INFO[0000] file "redis-svc.json" created
@@ -105,6 +105,19 @@ INFO[0000] file "web-imagestream.json" created
 INFO[0000] file "redis-deploymentconfig.json" created
 INFO[0000] file "redis-imagestream.json" created
 ```
+
+It also supports creating buildconfig for build directive in a service. By default, it uses the remote repo for the current git branch as the source repo, and the current branch as the source branch for the build. You can specify a different source repo and branch using ``--build-repo`` and ``--build-branch`` options respectively.
+
+```console
+kompose --provider openshift --file buildconfig/docker-compose.yml convert
+WARN[0000] [foo] Service cannot be created because of missing port. 
+INFO[0000] Buildconfig using git@github.com:rtnpro/kompose.git::master as source. 
+INFO[0000] file "foo-deploymentconfig.json" created     
+INFO[0000] file "foo-imagestream.json" created          
+INFO[0000] file "foo-buildconfig.json" created 
+```
+
+**Note**: If you are manually pushing the Openshift artifacts using ``oc create -f``, you need to ensure that you push the imagestream artifact before the buildconfig artifact, to workaround this Openshift issue: https://github.com/openshift/origin/issues/4518 .
 
 ## Kompose up
 

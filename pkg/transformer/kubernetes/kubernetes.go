@@ -27,6 +27,7 @@ import (
 	"github.com/fatih/structs"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
+	buildapi "github.com/openshift/origin/pkg/build/api"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
 	// install kubernetes api
@@ -512,6 +513,8 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 		updateTemplate(&p)
 		t.Spec = p.Spec
 		t.ObjectMeta = p.ObjectMeta
+	case *buildapi.BuildConfig:
+		updateMeta(&t.ObjectMeta)
 	}
 }
 
