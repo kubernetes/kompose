@@ -1,0 +1,7 @@
+version: "2"
+services:
+  client:
+    image: registry.centos.org/centos/centos:7
+    ports:
+    - "1337"
+    stdin_open: true
