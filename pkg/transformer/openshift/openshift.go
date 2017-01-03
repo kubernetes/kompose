@@ -371,6 +371,9 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				if service.ExposeService != "" {
 					objects = append(objects, o.initRoute(name, service, svc.Spec.Ports[0].Port))
 				}
+			} else {
+				svc := o.CreateHeadlessService(name, service, objects)
+				objects = append(objects, svc)
 			}
 		}
 		o.UpdateKubernetesObjects(name, service, &objects)
