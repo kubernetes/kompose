@@ -46,11 +46,12 @@ import (
 /**
  * Generate Helm Chart configuration
  */
-func generateHelm(filename string, outFiles []string) error {
+func generateHelm(filenames []string, outFiles []string) error {
 	type ChartDetails struct {
 		Name string
 	}
-
+	// Let assume all the docker-compose files are in the same directory
+	filename := filenames[0]
 	extension := filepath.Ext(filename)
 	dirName := filename[0 : len(filename)-len(extension)]
 	details := ChartDetails{dirName}
@@ -231,7 +232,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		}
 	}
 	if opt.CreateChart {
-		generateHelm(opt.InputFile, files)
+		generateHelm(opt.InputFiles, files)
 	}
 	return nil
 }

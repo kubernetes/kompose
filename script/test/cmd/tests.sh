@@ -98,6 +98,11 @@ convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/bundles/f
 # Test related to kompose --bundle convert to ensure that docker bundles are converted properly
 convert::expect_success "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bundles/dab/docker-compose-bundle.dab convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/bundles/dab/output-k8s.json"
 
+# Test related to multiple-compose files
+# Kubernets test
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-k8s.yml -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-os.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/output-k8s.json" "Unsupported depends_on key - ignoring"
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-k8s.yml -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-os.yml convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/output-openshift.json" "Unsupported depends_on key - ignoring"
+
 ######
 # Test related to kompose --bundle convert to ensure that DSB bundles are converted properly
 convert::expect_success_and_warning "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/docker-voting-bundle.dsb convert --stdout" "$KOMPOSE_ROOT/script/test/fixtures/bundles/dsb/output-k8s.json" "Service cannot be created because of missing port."
@@ -169,6 +174,5 @@ convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml conve
 convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_dir/output_file" "$TEMP_DIR/output_dir/" "$TEMP_DIR/output_dir/output_file"
 # Behavior with -o <dirname>/<dirname>/<filename>
 convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_dir/output_dir_nested/output_file" "$TEMP_DIR/output_dir/output_dir_nested" "$TEMP_DIR/output_dir/output_dir_nested/output_file"
-
 
 exit $EXIT_STATUS

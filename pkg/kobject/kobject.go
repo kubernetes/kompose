@@ -39,7 +39,7 @@ type ConvertOptions struct {
 	GenerateYaml           bool
 	EmptyVols              bool
 	Replicas               int
-	InputFile              string
+	InputFiles             []string
 	OutFile                string
 	Provider               string
 }
