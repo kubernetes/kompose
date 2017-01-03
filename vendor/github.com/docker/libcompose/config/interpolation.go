@@ -102,7 +102,7 @@ func parseLine(line string, mapping func(string) string) (string, bool) {
 	return buffer.String(), true
 }
 
-func parseConfig(option, service string, data *interface{}, mapping func(string) string) error {
+func parseConfig(key string, data *interface{}, mapping func(string) string) error {
 	switch typedData := (*data).(type) {
 	case string:
 		var success bool
@@ -110,11 +110,11 @@ func parseConfig(option, service string, data *interface{}, mapping func(string)
 		*data, success = parseLine(typedData, mapping)
 
 		if !success {
-			return fmt.Errorf("Invalid interpolation format for \"%s\" option in service \"%s\": \"%s\"", option, service, typedData)
+			return fmt.Errorf("Invalid interpolation format for key \"%s\": \"%s\"", key, typedData)
 		}
 	case []interface{}:
 		for k, v := range typedData {
-			err := parseConfig(option, service, &v, mapping)
+			err := parseConfig(key, &v, mapping)
 
 			if err != nil {
 				return err
@@ -124,7 +124,7 @@ func parseConfig(option, service string, data *interface{}, mapping func(string)
 		}
 	case map[interface{}]interface{}:
 		for k, v := range typedData {
-			err := parseConfig(option, service, &v, mapping)
+			err := parseConfig(key, &v, mapping)
 
 			if err != nil {
 				return err
@@ -137,33 +137,21 @@ func parseConfig(option, service string, data *interface{}, mapping func(string)
 	return nil
 }
 
-// Interpolate replaces variables in the raw map representation of the project file
-func Interpolate(environmentLookup EnvironmentLookup, config *RawServiceMap) error {
-	for k, v := range *config {
-		for k2, v2 := range v {
-			err := parseConfig(k2, k, &v2, func(s string) string {
-				values := environmentLookup.Lookup(s, k, nil)
+// Interpolate replaces variables in a map entry
+func Interpolate(key string, data *interface{}, environmentLookup EnvironmentLookup) error {
+	return parseConfig(key, data, func(s string) string {
+		values := environmentLookup.Lookup(s, nil)
 
-				if len(values) == 0 {
-					logrus.Warnf("The %s variable is not set. Substituting a blank string.", s)
-					return ""
-				}
-
-				// Use first result if many are given
-				value := values[0]
-
-				// Environment variables come in key=value format
-				// Return everything past first '='
-				return strings.SplitN(value, "=", 2)[1]
-			})
-
-			if err != nil {
-				return err
-			}
-
-			(*config)[k][k2] = v2
+		if len(values) == 0 {
+			logrus.Warnf("The %s variable is not set. Substituting a blank string.", s)
+			return ""
 		}
-	}
 
-	return nil
+		// Use first result if many are given
+		value := values[0]
+
+		// Environment variables come in key=value format
+		// Return everything past first '='
+		return strings.SplitN(value, "=", 2)[1]
+	})
 }
