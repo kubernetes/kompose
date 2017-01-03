@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types/strslice"
+	"github.com/docker/go-units"
 )
 
 // StringorInt represents a string or an integer.
@@ -23,6 +24,7 @@ func (s *StringorInt) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var stringType string
 	if err := unmarshal(&stringType); err == nil {
 		intType, err := strconv.ParseInt(stringType, 10, 64)
+
 		if err != nil {
 			return err
 		}
@@ -31,6 +33,32 @@ func (s *StringorInt) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	return errors.New("Failed to unmarshal StringorInt")
+}
+
+// MemStringorInt represents a string or an integer
+// the String supports notations like 10m for then Megabyte of memory
+type MemStringorInt int64
+
+// UnmarshalYAML implements the Unmarshaller interface.
+func (s *MemStringorInt) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var intType int64
+	if err := unmarshal(&intType); err == nil {
+		*s = MemStringorInt(intType)
+		return nil
+	}
+
+	var stringType string
+	if err := unmarshal(&stringType); err == nil {
+		intType, err := units.RAMInBytes(stringType)
+
+		if err != nil {
+			return err
+		}
+		*s = MemStringorInt(intType)
+		return nil
+	}
+
+	return errors.New("Failed to unmarshal MemStringorInt")
 }
 
 // Stringorslice represents

@@ -8,7 +8,7 @@ import (
 
 // EnvironmentLookup defines methods to provides environment variable loading.
 type EnvironmentLookup interface {
-	Lookup(key, serviceName string, config *ServiceConfig) []string
+	Lookup(key string, config *ServiceConfig) []string
 }
 
 // ResourceLookup defines methods to provides file loading.
@@ -30,22 +30,27 @@ type ServiceConfigV1 struct {
 	ContainerName string               `yaml:"container_name,omitempty"`
 	Devices       []string             `yaml:"devices,omitempty"`
 	DNS           yaml.Stringorslice   `yaml:"dns,omitempty"`
+	DNSOpts       []string             `yaml:"dns_opt,omitempty"`
 	DNSSearch     yaml.Stringorslice   `yaml:"dns_search,omitempty"`
 	Dockerfile    string               `yaml:"dockerfile,omitempty"`
 	DomainName    string               `yaml:"domainname,omitempty"`
 	Entrypoint    yaml.Command         `yaml:"entrypoint,flow,omitempty"`
 	EnvFile       yaml.Stringorslice   `yaml:"env_file,omitempty"`
 	Environment   yaml.MaporEqualSlice `yaml:"environment,omitempty"`
+	GroupAdd      []string             `yaml:"group_add,omitempty"`
 	Hostname      string               `yaml:"hostname,omitempty"`
 	Image         string               `yaml:"image,omitempty"`
+	Isolation     string               `yaml:"isolation,omitempty"`
 	Labels        yaml.SliceorMap      `yaml:"labels,omitempty"`
 	Links         yaml.MaporColonSlice `yaml:"links,omitempty"`
 	LogDriver     string               `yaml:"log_driver,omitempty"`
 	MacAddress    string               `yaml:"mac_address,omitempty"`
-	MemLimit      yaml.StringorInt     `yaml:"mem_limit,omitempty"`
-	MemSwapLimit  yaml.StringorInt     `yaml:"memswap_limit,omitempty"`
+	MemLimit      yaml.MemStringorInt  `yaml:"mem_limit,omitempty"`
+	MemSwapLimit  yaml.MemStringorInt  `yaml:"memswap_limit,omitempty"`
+	MemSwappiness yaml.MemStringorInt  `yaml:"mem_swappiness,omitempty"`
 	Name          string               `yaml:"name,omitempty"`
 	Net           string               `yaml:"net,omitempty"`
+	OomScoreAdj   yaml.StringorInt     `yaml:"oom_score_adj,omitempty"`
 	Pid           string               `yaml:"pid,omitempty"`
 	Uts           string               `yaml:"uts,omitempty"`
 	Ipc           string               `yaml:"ipc,omitempty"`
@@ -53,9 +58,11 @@ type ServiceConfigV1 struct {
 	Privileged    bool                 `yaml:"privileged,omitempty"`
 	Restart       string               `yaml:"restart,omitempty"`
 	ReadOnly      bool                 `yaml:"read_only,omitempty"`
-	ShmSize       yaml.StringorInt     `yaml:"shm_size,omitempty"`
+	ShmSize       yaml.MemStringorInt  `yaml:"shm_size,omitempty"`
 	StdinOpen     bool                 `yaml:"stdin_open,omitempty"`
 	SecurityOpt   []string             `yaml:"security_opt,omitempty"`
+	StopSignal    string               `yaml:"stop_signal,omitempty"`
+	Tmpfs         yaml.Stringorslice   `yaml:"tmpfs,omitempty"`
 	Tty           bool                 `yaml:"tty,omitempty"`
 	User          string               `yaml:"user,omitempty"`
 	VolumeDriver  string               `yaml:"volume_driver,omitempty"`
@@ -89,6 +96,7 @@ type ServiceConfig struct {
 	Devices       []string             `yaml:"devices,omitempty"`
 	DependsOn     []string             `yaml:"depends_on,omitempty"`
 	DNS           yaml.Stringorslice   `yaml:"dns,omitempty"`
+	DNSOpts       []string             `yaml:"dns_opt,omitempty"`
 	DNSSearch     yaml.Stringorslice   `yaml:"dns_search,omitempty"`
 	DomainName    string               `yaml:"domainname,omitempty"`
 	Entrypoint    yaml.Command         `yaml:"entrypoint,flow,omitempty"`
@@ -98,23 +106,28 @@ type ServiceConfig struct {
 	Extends       yaml.MaporEqualSlice `yaml:"extends,omitempty"`
 	ExternalLinks []string             `yaml:"external_links,omitempty"`
 	ExtraHosts    []string             `yaml:"extra_hosts,omitempty"`
+	GroupAdd      []string             `yaml:"group_add,omitempty"`
 	Image         string               `yaml:"image,omitempty"`
+	Isolation     string               `yaml:"isolation,omitempty"`
 	Hostname      string               `yaml:"hostname,omitempty"`
 	Ipc           string               `yaml:"ipc,omitempty"`
 	Labels        yaml.SliceorMap      `yaml:"labels,omitempty"`
 	Links         yaml.MaporColonSlice `yaml:"links,omitempty"`
 	Logging       Log                  `yaml:"logging,omitempty"`
 	MacAddress    string               `yaml:"mac_address,omitempty"`
-	MemLimit      yaml.StringorInt     `yaml:"mem_limit,omitempty"`
-	MemSwapLimit  yaml.StringorInt     `yaml:"memswap_limit,omitempty"`
+	MemLimit      yaml.MemStringorInt  `yaml:"mem_limit,omitempty"`
+	MemSwapLimit  yaml.MemStringorInt  `yaml:"memswap_limit,omitempty"`
+	MemSwappiness yaml.MemStringorInt  `yaml:"mem_swappiness,omitempty"`
 	NetworkMode   string               `yaml:"network_mode,omitempty"`
 	Networks      *yaml.Networks       `yaml:"networks,omitempty"`
+	OomScoreAdj   yaml.StringorInt     `yaml:"oom_score_adj,omitempty"`
 	Pid           string               `yaml:"pid,omitempty"`
 	Ports         []string             `yaml:"ports,omitempty"`
 	Privileged    bool                 `yaml:"privileged,omitempty"`
 	SecurityOpt   []string             `yaml:"security_opt,omitempty"`
-	ShmSize       yaml.StringorInt     `yaml:"shm_size,omitempty"`
+	ShmSize       yaml.MemStringorInt  `yaml:"shm_size,omitempty"`
 	StopSignal    string               `yaml:"stop_signal,omitempty"`
+	Tmpfs         yaml.Stringorslice   `yaml:"tmpfs,omitempty"`
 	VolumeDriver  string               `yaml:"volume_driver,omitempty"`
 	Volumes       *yaml.Volumes        `yaml:"volumes,omitempty"`
 	VolumesFrom   []string             `yaml:"volumes_from,omitempty"`
@@ -159,10 +172,10 @@ type NetworkConfig struct {
 
 // Config holds libcompose top level configuration
 type Config struct {
-	Version  string                    `yaml:"version,omitempty"`
-	Services RawServiceMap             `yaml:"services,omitempty"`
-	Volumes  map[string]*VolumeConfig  `yaml:"volumes,omitempty"`
-	Networks map[string]*NetworkConfig `yaml:"networks,omitempty"`
+	Version  string                 `yaml:"version,omitempty"`
+	Services RawServiceMap          `yaml:"services,omitempty"`
+	Volumes  map[string]interface{} `yaml:"volumes,omitempty"`
+	Networks map[string]interface{} `yaml:"networks,omitempty"`
 }
 
 // NewServiceConfigs initializes a new Configs struct
