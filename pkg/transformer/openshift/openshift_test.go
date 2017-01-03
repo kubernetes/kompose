@@ -214,17 +214,17 @@ func TestGetComposeFileDir(t *testing.T) {
 	wd, _ := os.Getwd()
 
 	testCases := map[string]struct {
-		inputFile string
-		output    string
+		inputFiles []string
+		output     string
 	}{
-		"Get compose file dir for relative input file path": {"foo/bar.yaml", filepath.Join(wd, "foo")},
-		"Get compose file dir for abs input file path":      {"/abs/path/to/compose.yaml", "/abs/path/to"},
+		"Get compose file dir for relative input file path": {[]string{"foo/bar.yaml"}, filepath.Join(wd, "foo")},
+		"Get compose file dir for abs input file path":      {[]string{"/abs/path/to/compose.yaml"}, "/abs/path/to"},
 	}
 
 	for name, test := range testCases {
 		t.Log("Test case: ", name)
 
-		output, err = getComposeFileDir(test.inputFile)
+		output, err = getComposeFileDir(test.inputFiles)
 
 		if err != nil {
 			t.Errorf("Expected success, got error: %#v", err)

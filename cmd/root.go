@@ -40,8 +40,9 @@ func (errorOnWarningHook) Fire(entry *logrus.Entry) error {
 }
 
 var (
-	GlobalBundle, GlobalFile, GlobalProvider                    string
+	GlobalBundle, GlobalProvider                                string
 	GlobalVerbose, GlobalSuppressWarnings, GlobalErrorOnWarning bool
+	GlobalFiles                                                 []string
 )
 
 var RootCmd = &cobra.Command{
@@ -86,7 +87,7 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&GlobalVerbose, "verbose", "v", false, "verbose output")
 	RootCmd.PersistentFlags().BoolVar(&GlobalSuppressWarnings, "suppress-warnings", false, "Suppress all warnings")
 	RootCmd.PersistentFlags().BoolVar(&GlobalErrorOnWarning, "error-on-warning", false, "Treat any warning as an error")
-	RootCmd.PersistentFlags().StringVarP(&GlobalFile, "file", "f", "docker-compose.yml", "Specify an alternative compose file")
+	RootCmd.PersistentFlags().StringArrayVarP(&GlobalFiles, "file", "f", []string{}, "Specify an alternative compose file")
 	RootCmd.PersistentFlags().StringVarP(&GlobalBundle, "bundle", "b", "", "Specify a Distributed Application GlobalBundle (DAB) file")
 	RootCmd.PersistentFlags().StringVar(&GlobalProvider, "provider", "kubernetes", "Specify a provider. Kubernetes or OpenShift.")
 }
