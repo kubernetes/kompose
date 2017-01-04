@@ -186,11 +186,11 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		if err != nil {
 			return err
 		}
-		data, err := marshal(convertedList, opt.GenerateYaml)
+		data, err := marshal(convertedList, opt.GenerateJson)
 		if err != nil {
 			return fmt.Errorf("Error in marshalling the List: %v", err)
 		}
-		files = append(files, transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateYaml, f))
+		files = append(files, transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJson, f))
 	} else {
 		var file string
 		// create a separate file for each provider
@@ -199,34 +199,34 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			if err != nil {
 				return err
 			}
-
-			data, err := marshal(versionedObject, opt.GenerateYaml)
+			data, err := marshal(versionedObject, opt.GenerateJson)
 			if err != nil {
 				return err
 			}
 			switch t := v.(type) {
 			case *api.ReplicationController:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *extensions.Deployment:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *extensions.DaemonSet:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *deployapi.DeploymentConfig:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *buildapi.BuildConfig:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *imageapi.ImageStream:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *api.Service:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *api.PersistentVolumeClaim:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *api.Pod:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *routeapi.Route:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
 			case *extensions.Ingress:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateYaml, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+
 			}
 			files = append(files, file)
 		}
@@ -238,12 +238,12 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 }
 
 // marshal object runtime.Object and return byte array
-func marshal(obj runtime.Object, yamlFormat bool) (data []byte, err error) {
+func marshal(obj runtime.Object, jsonFormat bool) (data []byte, err error) {
 	// convert data to yaml or json
-	if yamlFormat {
-		data, err = yaml.Marshal(obj)
-	} else {
+	if jsonFormat {
 		data, err = json.MarshalIndent(obj, "", "  ")
+	} else {
+		data, err = yaml.Marshal(obj)
 	}
 	if err != nil {
 		data = nil

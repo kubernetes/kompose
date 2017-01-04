@@ -110,7 +110,7 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 }
 
 // Transform data to json/yaml
-func TransformData(obj runtime.Object, GenerateYaml bool) ([]byte, error) {
+func TransformData(obj runtime.Object, GenerateJson bool) ([]byte, error) {
 	//  Convert to versioned object
 	objectVersion := obj.GetObjectKind().GroupVersionKind()
 	version := unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
@@ -120,9 +120,9 @@ func TransformData(obj runtime.Object, GenerateYaml bool) ([]byte, error) {
 	}
 
 	// convert data to json / yaml
-	data, err := json.MarshalIndent(versionedObj, "", "  ")
-	if GenerateYaml == true {
-		data, err = yaml.Marshal(versionedObj)
+	data, err := yaml.Marshal(versionedObj)
+	if GenerateJson == true {
+		data, err = json.MarshalIndent(versionedObj, "", "  ")
 	}
 	if err != nil {
 		return nil, err
@@ -132,13 +132,13 @@ func TransformData(obj runtime.Object, GenerateYaml bool) ([]byte, error) {
 }
 
 // Either print to stdout or to file/s
-func Print(name, path string, trailing string, data []byte, toStdout, generateYaml bool, f *os.File) string {
+func Print(name, path string, trailing string, data []byte, toStdout, generateJson bool, f *os.File) string {
 
 	file := ""
-	if generateYaml {
-		file = fmt.Sprintf("%s-%s.yaml", name, trailing)
-	} else {
+	if generateJson {
 		file = fmt.Sprintf("%s-%s.json", name, trailing)
+	} else {
+		file = fmt.Sprintf("%s-%s.yaml", name, trailing)
 	}
 	if toStdout {
 		fmt.Fprintf(os.Stdout, "%s\n", string(data))

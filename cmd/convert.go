@@ -26,12 +26,12 @@ import (
 )
 
 var (
-	ConvertSource, ConvertOut, ConvertBuildRepo, ConvertBuildBranch string
-	ConvertChart, ConvertDeployment, ConvertDaemonSet               bool
-	ConvertReplicationController, ConvertYaml, ConvertStdout        bool
-	ConvertEmptyVols, ConvertDeploymentConfig, ConvertBuildConfig   bool
-	ConvertReplicas                                                 int
-	ConvertOpt                                                      kobject.ConvertOptions
+	ConvertSource, ConvertOut, ConvertBuildRepo, ConvertBuildBranch       string
+	ConvertChart, ConvertDeployment, ConvertDaemonSet                     bool
+	ConvertReplicationController, ConvertYaml, ConvertStdout, ConvertJson bool
+	ConvertEmptyVols, ConvertDeploymentConfig, ConvertBuildConfig         bool
+	ConvertReplicas                                                       int
+	ConvertOpt                                                            kobject.ConvertOptions
 )
 
 var ConvertProvider string = GlobalProvider
@@ -46,6 +46,7 @@ var convertCmd = &cobra.Command{
 			ToStdout:               ConvertStdout,
 			CreateChart:            ConvertChart,
 			GenerateYaml:           ConvertYaml,
+			GenerateJson:           ConvertJson,
 			Replicas:               ConvertReplicas,
 			InputFiles:             GlobalFiles,
 			OutFile:                ConvertOut,
@@ -92,7 +93,10 @@ func init() {
 	convertCmd.Flags().MarkHidden("build-branch")
 
 	// Standard between the two
-	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into yaml format")
+	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into YAML format")
+	convertCmd.Flags().MarkDeprecated("yaml", "YAML is the default format now.")
+	convertCmd.Flags().MarkShorthandDeprecated("y", "YAML is the default format now.")
+	convertCmd.Flags().BoolVarP(&ConvertJson, "json", "j", false, "Generate resource files into JSON format")
 	convertCmd.Flags().BoolVar(&ConvertStdout, "stdout", false, "Print converted objects to stdout")
 	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
 	convertCmd.Flags().StringVarP(&ConvertOut, "out", "o", "", "Specify a file name to save objects to")

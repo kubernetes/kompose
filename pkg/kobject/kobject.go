@@ -37,6 +37,7 @@ type ConvertOptions struct {
 	BuildBranch            string
 	CreateChart            bool
 	GenerateYaml           bool
+	GenerateJson           bool
 	EmptyVols              bool
 	Replicas               int
 	InputFiles             []string
