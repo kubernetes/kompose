@@ -34,6 +34,7 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 )
 
+// Compose is docker compose file loader, implements Loader interface
 type Compose struct {
 }
 
@@ -220,7 +221,7 @@ func loadPorts(composePorts []string) ([]kobject.Ports, error) {
 	return ports, nil
 }
 
-// load compose file into KomposeObject
+// LoadFile loads compose file into KomposeObject
 func (c *Compose) LoadFile(files []string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),

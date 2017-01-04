@@ -31,12 +31,14 @@ import (
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
 	// install kubernetes api
-	"k8s.io/kubernetes/pkg/api"
 	_ "k8s.io/kubernetes/pkg/api/install"
+	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
+
+	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/resource"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
+
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/kubectl"
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
@@ -46,12 +48,13 @@ import (
 	//"k8s.io/kubernetes/pkg/controller/daemon"
 )
 
+// Kubernetes implements Transformer interface and represents Kubernetes transformer
 type Kubernetes struct {
 	// the user provided options from the command line
 	Opt kobject.ConvertOptions
 }
 
-// timeout is how long we'll wait for the termination of kubernetes resource to be successful
+// TIMEOUT is how long we'll wait for the termination of kubernetes resource to be successful
 // used when undeploying resources from kubernetes
 const TIMEOUT = 300
 
@@ -64,7 +67,7 @@ var unsupportedKey = map[string]bool{
 	"Build": false,
 }
 
-// checkUnsupportedKey checks if given komposeObject contains
+// CheckUnsupportedKey checks if given komposeObject contains
 // keys that are not supported by this tranfomer.
 // list of all unsupported keys are stored in unsupportedKey variable
 // returns list of TODO: ....
@@ -101,7 +104,7 @@ func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, u
 	return keysFound
 }
 
-// Init RC object
+// InitRC initializes Kubernetes ReplicationController object
 func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
 	rc := &api.ReplicationController{
 		TypeMeta: unversioned.TypeMeta{
@@ -131,7 +134,7 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 	return rc
 }
 
-// Init Svc object
+// InitSvc initializes Kubernets Service object
 func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Service {
 	svc := &api.Service{
 		TypeMeta: unversioned.TypeMeta{
@@ -149,7 +152,7 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 	return svc
 }
 
-// Init Deployment
+// InitD initializes Kubernetes Deployment object
 func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
 	dc := &extensions.Deployment{
 		TypeMeta: unversioned.TypeMeta{
@@ -176,7 +179,7 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 	return dc
 }
 
-// Init DS object
+// InitDS initializes Kubernetes DaemonSet object
 func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
 	ds := &extensions.DaemonSet{
 		TypeMeta: unversioned.TypeMeta{
@@ -241,7 +244,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 	return ingress
 }
 
-// Initialize PersistentVolumeClaim
+// CreatePVC initializes PersistentVolumeClaim
 func (k *Kubernetes) CreatePVC(name string, mode string) *api.PersistentVolumeClaim {
 	size, err := resource.ParseQuantity("100Mi")
 	if err != nil {
@@ -273,7 +276,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string) *api.PersistentVolumeCl
 	return pvc
 }
 
-// Configure the container ports.
+// ConfigPorts configures the container ports.
 func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
 	for _, port := range service.Port {
@@ -286,7 +289,7 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 	return ports
 }
 
-// Configure the container service ports.
+// ConfigServicePorts configure the container service ports.
 func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
 	for _, port := range service.Port {
@@ -306,7 +309,7 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 	return servicePorts
 }
 
-// Configure the container volumes.
+// ConfigVolumes configure the container volumes.
 func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim) {
 	volumeMounts := []api.VolumeMount{}
 	volumes := []api.Volume{}
@@ -368,14 +371,14 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	return volumeMounts, volumes, PVCs
 }
 
-// helper function to create an EmptyDir api.VolumeSource
+// ConfigEmptyVolumeSource is helper function to create an EmptyDir api.VolumeSource
 func (k *Kubernetes) ConfigEmptyVolumeSource() *api.VolumeSource {
 	return &api.VolumeSource{
 		EmptyDir: &api.EmptyDirVolumeSource{},
 	}
 }
 
-// helper function to create an api.VolumeSource with a PVC
+// ConfigPVCVolumeSource is helper function to create an api.VolumeSource with a PVC
 func (k *Kubernetes) ConfigPVCVolumeSource(name string, readonly bool) *api.VolumeSource {
 	return &api.VolumeSource{
 		PersistentVolumeClaim: &api.PersistentVolumeClaimVolumeSource{
@@ -385,7 +388,7 @@ func (k *Kubernetes) ConfigPVCVolumeSource(name string, readonly bool) *api.Volu
 	}
 }
 
-// Configure the environment variables.
+// ConfigEnvs configures the environment variables.
 func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
 	envs := []api.EnvVar{}
 	for _, v := range service.Environment {
@@ -398,7 +401,7 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig) []ap
 	return envs
 }
 
-// Generate a Kubernetes artifact for each input type service
+// CreateKubernetesObjects generates a Kubernetes artifact for each input type service
 func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
 	var objects []runtime.Object
 
@@ -415,6 +418,7 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 	return objects
 }
 
+// InitPod initializes Kubernetes Pod object
 func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Pod {
 	pod := api.Pod{
 		TypeMeta: unversioned.TypeMeta{
@@ -450,7 +454,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 	// Need to ensure the kubernetes objects are in a consistent order
 	var sortedKeys []string
-	for name, _ := range komposeObject.ServiceConfigs {
+	for name := range komposeObject.ServiceConfigs {
 		sortedKeys = append(sortedKeys, name)
 	}
 	sort.Strings(sortedKeys)
@@ -487,7 +491,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	return allobjects
 }
 
-// Updates the given object with the given pod template update function and ObjectMeta update function
+// UpdateController updates the given object with the given pod template update function and ObjectMeta update function
 func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec), updateMeta func(meta *api.ObjectMeta)) {
 	switch t := obj.(type) {
 	case *api.ReplicationController:
@@ -518,8 +522,8 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 	}
 }
 
-// Creates the k8s Client, returns k8s client and namespace
-func (o *Kubernetes) GetKubernetesClient() (*client.Client, string, error) {
+// GetKubernetesClient creates the k8s Client, returns k8s client and namespace
+func (k *Kubernetes) GetKubernetesClient() (*client.Client, string, error) {
 	// initialize Kubernetes client
 	factory := cmdutil.NewFactory(nil)
 	clientConfig, err := factory.ClientConfig()
@@ -536,7 +540,7 @@ func (o *Kubernetes) GetKubernetesClient() (*client.Client, string, error) {
 	return client, namespace, nil
 }
 
-// Submit deployment and svc to k8s endpoint
+// Deploy submits deployment and svc to k8s endpoint
 func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
 	objects := k.Transform(komposeObject, opt)
@@ -592,6 +596,7 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 	return nil
 }
 
+// Undeploy deletes deployed objects from Kubernetes cluster
 func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
 	objects := k.Transform(komposeObject, opt)
@@ -613,9 +618,9 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			err = rpDeployment.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 			if err != nil {
 				return err
-			} else {
-				logrus.Infof("Successfully deleted Deployment: %s", t.Name)
 			}
+			logrus.Infof("Successfully deleted Deployment: %s", t.Name)
+
 		case *api.Service:
 			//delete svc
 			rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
@@ -626,17 +631,17 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 			if err != nil {
 				return err
-			} else {
-				logrus.Infof("Successfully deleted Service: %s", t.Name)
 			}
+			logrus.Infof("Successfully deleted Service: %s", t.Name)
+
 		case *api.PersistentVolumeClaim:
 			// delete pvc
 			err = client.PersistentVolumeClaims(namespace).Delete(t.Name)
 			if err != nil {
 				return err
-			} else {
-				logrus.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
 			}
+			logrus.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+
 		case *extensions.Ingress:
 			// delete ingress
 			ingDeleteOptions := &api.DeleteOptions{
@@ -648,9 +653,9 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			err = client.Ingress(namespace).Delete(t.Name, ingDeleteOptions)
 			if err != nil {
 				return err
-			} else {
-				logrus.Infof("Successfully deleted Ingress: %s", t.Name)
 			}
+			logrus.Infof("Successfully deleted Ingress: %s", t.Name)
+
 		}
 	}
 	return nil
