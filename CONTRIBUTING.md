@@ -23,4 +23,4 @@ Contact one of the [OWNERS](OWNERS) on Slack to access the appropriate CLA and i
 
 ### Adding dependencies
 
-If your patch depends on new packages, add that package with [`godep`](https://github.com/tools/godep). Follow the [instructions to add a dependency](https://github.com/kubernetes/kubernetes/blob/master/docs/devel/development.md#godep-and-dependency-management).
+If your patch depends on new packages, add that package with [`glide`](https://github.com/Masterminds/glide). Follow the [instructions to add a dependency](https://github.com/kubernetes-incubator/kompose/blob/master/docs/development.md#glide-glide-vc-and-dependency-management).
