@@ -186,11 +186,11 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		if err != nil {
 			return err
 		}
-		data, err := marshal(convertedList, opt.GenerateJson)
+		data, err := marshal(convertedList, opt.GenerateJSON)
 		if err != nil {
 			return fmt.Errorf("Error in marshalling the List: %v", err)
 		}
-		files = append(files, transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJson, f))
+		files = append(files, transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f))
 	} else {
 		var file string
 		// create a separate file for each provider
@@ -199,33 +199,33 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			if err != nil {
 				return err
 			}
-			data, err := marshal(versionedObject, opt.GenerateJson)
+			data, err := marshal(versionedObject, opt.GenerateJSON)
 			if err != nil {
 				return err
 			}
 			switch t := v.(type) {
 			case *api.ReplicationController:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *extensions.Deployment:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *extensions.DaemonSet:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *deployapi.DeploymentConfig:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *buildapi.BuildConfig:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *imageapi.ImageStream:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *api.Service:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *api.PersistentVolumeClaim:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *api.Pod:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *routeapi.Route:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 			case *extensions.Ingress:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJson, f)
+				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 
 			}
 			files = append(files, file)
@@ -270,16 +270,17 @@ func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion)
 	return convertedObject, nil
 }
 
+// PortsExist checks if service has ports defined
 func (k *Kubernetes) PortsExist(name string, service kobject.ServiceConfig) bool {
 	if len(service.Port) == 0 {
 		logrus.Warningf("[%s] Service cannot be created because of missing port.", name)
 		return false
-	} else {
-		return true
 	}
+	return true
+
 }
 
-// create a k8s service
+// CreateService creates a k8s service
 func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
 	svc := k.InitSvc(name, service)
 
@@ -296,7 +297,7 @@ func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, o
 	return svc
 }
 
-// load configurations to k8s objects
+// UpdateKubernetesObjects loads configurations to k8s objects
 func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects *[]runtime.Object) {
 	// Configure the environment variables.
 	envs := k.ConfigEnvs(name, service)
@@ -376,7 +377,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	}
 }
 
-// the objects that we get can be in any order this keeps services first
+// SortServicesFirst - the objects that we get can be in any order this keeps services first
 // according to best practice kubernetes services should be created first
 // http://kubernetes.io/docs/user-guide/config-best-practices/
 func (k *Kubernetes) SortServicesFirst(objs *[]runtime.Object) {
@@ -408,8 +409,8 @@ func (k *Kubernetes) findDependentVolumes(svcname string, komposeObject kobject.
 	return
 }
 
+// VolumesFrom creates volums and volumeMounts for volumes_from
 func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobject.KomposeObject) {
-
 	for _, obj := range *objects {
 		switch t := obj.(type) {
 		case *api.ReplicationController:

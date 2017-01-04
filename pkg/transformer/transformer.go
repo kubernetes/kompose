@@ -21,6 +21,7 @@ import (
 	"k8s.io/kubernetes/pkg/runtime"
 )
 
+// Transformer interface  defines transformer that is converting kobject to other resources
 type Transformer interface {
 	// Transform converts KomposeObject to transformer specific objects.
 	Transform(kobject.KomposeObject, kobject.ConvertOptions) []runtime.Object

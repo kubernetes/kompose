@@ -8,10 +8,12 @@ import (
 	"testing"
 )
 
+// NewCommand TODO: comment
 func NewCommand(cmd string) *exec.Cmd {
 	return exec.Command("sh", "-c", cmd)
 }
 
+// CreateLocalDirectory TODO: comment
 func CreateLocalDirectory(t *testing.T) string {
 	dir, err := ioutil.TempDir(os.TempDir(), "kompose-test-")
 	if err != nil {
@@ -20,6 +22,7 @@ func CreateLocalDirectory(t *testing.T) string {
 	return dir
 }
 
+// CreateLocalGitDirectory TODO: comment
 func CreateLocalGitDirectory(t *testing.T) string {
 	dir := CreateLocalDirectory(t)
 	cmd := NewCommand(
@@ -35,8 +38,9 @@ func CreateLocalGitDirectory(t *testing.T) string {
 	return dir
 }
 
-func SetGitRemote(t *testing.T, dir string, remote string, remoteUrl string) {
-	cmd := NewCommand(fmt.Sprintf("git remote add %s %s", remote, remoteUrl))
+// SetGitRemote TODO: comment
+func SetGitRemote(t *testing.T, dir string, remote string, remoteURL string) {
+	cmd := NewCommand(fmt.Sprintf("git remote add %s %s", remote, remoteURL))
 	cmd.Dir = dir
 	_, err := cmd.Output()
 	if err != nil {
@@ -45,6 +49,7 @@ func SetGitRemote(t *testing.T, dir string, remote string, remoteUrl string) {
 	}
 }
 
+// CreateGitRemoteBranch TODO: comment
 func CreateGitRemoteBranch(t *testing.T, dir string, branch string, remote string) {
 	cmd := NewCommand(
 		fmt.Sprintf(`git checkout -b %s &&
@@ -60,6 +65,7 @@ func CreateGitRemoteBranch(t *testing.T, dir string, branch string, remote strin
 	}
 }
 
+// CreateSubdir TODO: comment
 func CreateSubdir(t *testing.T, dir string, subdir string) {
 	cmd := NewCommand(fmt.Sprintf("mkdir -p %s", subdir))
 	cmd.Dir = dir

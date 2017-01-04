@@ -41,12 +41,15 @@ import (
 )
 
 const (
+	// DefaultComposeFile name of the file that kompose will use if no file is explicitly set
 	DefaultComposeFile = "docker-compose.yml"
-	DefaultProvider    = "kubernetes"
+	// DefaultProvider - provider that will be used if there is no provider was explicitly set
+	DefaultProvider = "kubernetes"
 )
 
 var inputFormat = "compose"
 
+// ValidateFlags validates all command line flags
 func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobject.ConvertOptions) {
 
 	// Check to see if the "file" has changed from the default flag value
@@ -125,7 +128,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 		logrus.Fatal("Unknown Argument(s): ", strings.Join(args, ","))
 	}
 
-	if opt.GenerateJson && opt.GenerateYaml {
+	if opt.GenerateJSON && opt.GenerateYaml {
 		logrus.Fatalf("YAML and JSON format cannot be provided at the same time")
 	}
 }
