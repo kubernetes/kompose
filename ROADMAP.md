@@ -5,15 +5,9 @@ This document is a general overview of all upcoming development for `kompose`. T
 We track each release by using GitHub [milestones](https://github.com/kubernetes-incubator/kompose/milestones).
 
 ## Upcoming releases
+Kompose is released every last week of the month.
 
-#### kompose 0.3.0
-
-[https://github.com/kubernetes-incubator/kompose/milestone/1](https://github.com/kubernetes-incubator/kompose/milestone/1)
-
-#### kompose 0.2.1
-
-[https://github.com/kubernetes-incubator/kompose/milestone/2](https://github.com/kubernetes-incubator/kompose/milestone/2)
-
+You can see all planned releases on the GitHub  [milestones](https://github.com/kubernetes-incubator/kompose/milestones) page.
 
 ## Past releases / road map
 
