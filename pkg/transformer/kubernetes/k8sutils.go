@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"text/template"
@@ -37,10 +38,7 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/runtime"
 
-	buildapi "github.com/openshift/origin/pkg/build/api"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
-	imageapi "github.com/openshift/origin/pkg/image/api"
-	routeapi "github.com/openshift/origin/pkg/route/api"
 )
 
 /**
@@ -203,31 +201,18 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			if err != nil {
 				return err
 			}
-			switch t := v.(type) {
-			case *api.ReplicationController:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *extensions.Deployment:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *extensions.DaemonSet:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *deployapi.DeploymentConfig:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *buildapi.BuildConfig:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *imageapi.ImageStream:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *api.Service:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *api.PersistentVolumeClaim:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *api.Pod:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *routeapi.Route:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
-			case *extensions.Ingress:
-				file = transformer.Print(t.Name, dirName, strings.ToLower(t.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
 
-			}
+			val := reflect.ValueOf(v).Elem()
+			// Use reflect to access TypeMeta struct inside runtime.Object.
+			// cast it to correct type - unversioned.TypeMeta
+			typeMeta := val.FieldByName("TypeMeta").Interface().(unversioned.TypeMeta)
+
+			// Use reflect to access ObjectMeta struct inside runtime.Object.
+			// cast it to correct type - api.ObjectMeta
+			objectMeta := val.FieldByName("ObjectMeta").Interface().(api.ObjectMeta)
+
+			file = transformer.Print(objectMeta.Name, dirName, strings.ToLower(typeMeta.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
+
 			files = append(files, file)
 		}
 	}
