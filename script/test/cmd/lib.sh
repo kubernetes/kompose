@@ -167,28 +167,36 @@ function convert::expect_failure() {
 }
 readonly -f convert::expect_failure
 
-function convert::files_exist() {
-    local cmd=$1
-    local dir=$2
-
-    convert::start_test "convert::files_exist: Running: '${cmd}'"
-    mkdir -p $dir 2> /dev/null
-
-    cd $TEMP_DIR && convert::run_cmd $cmd
-    exit_status=$?
-
-    shift
-    shift
-
-    for var in "$@"
+# see if the given files exists
+function utils::file_exists() {
+    for file in "$@"
     do
-        if [ ! -f $var ]
-        then
-            convert::print_fail "file $var does not exist\n"
-            return 1
-        fi
-    convert::print_pass "file $var exists\n"
+        exit_status=$([ -f $file ]; echo $?)
+        if [ $exit_status -ne 0 ]; then convert::print_fail "$file does not exist\n"; EXIT_STATUS=1;
+        else convert::print_pass "$file exists\n"; fi
     done
-    convert::teardown
-    return 0
 }
+readonly -f utils::file_exists
+
+# delete given files one by one
+function utils::remove_files() {
+    for file in "$@"
+    do
+        rm $file
+    done
+}
+readonly -f utils::remove_files
+
+function convert::check_artifacts_generated() {
+    local cmd=$1
+
+    convert::start_test "convert::check_artifacts_generated: Running: '${cmd}'"
+    convert::run_cmd $cmd
+    # passing all args except the first one
+    utils::file_exists "${@:2}"
+    utils::remove_files "${@:2}"
+
+    convert::teardown
+    return $exit_status
+}
+readonly -f convert::check_artifacts_generated
