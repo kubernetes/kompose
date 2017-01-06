@@ -76,14 +76,14 @@ func equalStringSlice(s1, s2 []string) bool {
 	return true
 }
 
-func equalEnv(kEnvs []kobject.EnvVar, k8sEnvs []api.EnvVar) bool {
-	if len(kEnvs) != len(k8sEnvs) {
+func equalEnv(kobjectEnvs []kobject.EnvVar, k8sEnvs []api.EnvVar) bool {
+	if len(kobjectEnvs) != len(k8sEnvs) {
 		return false
 	}
-	for _, kEnv := range kEnvs {
+	for _, env := range kobjectEnvs {
 		found := false
 		for _, k8sEnv := range k8sEnvs {
-			if kEnv.Name == k8sEnv.Name && kEnv.Value == k8sEnv.Value {
+			if env.Name == k8sEnv.Name && env.Value == k8sEnv.Value {
 				found = true
 			}
 		}
@@ -94,16 +94,16 @@ func equalEnv(kEnvs []kobject.EnvVar, k8sEnvs []api.EnvVar) bool {
 	return true
 }
 
-func equalPorts(kPorts []kobject.Ports, k8sPorts []api.ContainerPort) bool {
-	if len(kPorts) != len(k8sPorts) {
+func equalPorts(kobjectPorts []kobject.Ports, k8sPorts []api.ContainerPort) bool {
+	if len(kobjectPorts) != len(k8sPorts) {
 		return false
 	}
-	for _, kPort := range kPorts {
+	for _, port := range kobjectPorts {
 		found := false
 		for _, k8sPort := range k8sPorts {
 			// FIXME: HostPort should be copied to container port
-			//if kPort.HostPort == k8sPort.HostPort && kPort.Protocol == k8sPort.Protocol && kPort.ContainerPort == k8sPort.ContainerPort {
-			if kPort.Protocol == k8sPort.Protocol && kPort.ContainerPort == k8sPort.ContainerPort {
+			//if port.HostPort == k8sPort.HostPort && port.Protocol == k8sPort.Protocol && port.ContainerPort == k8sPort.ContainerPort {
+			if port.Protocol == k8sPort.Protocol && port.ContainerPort == k8sPort.ContainerPort {
 				found = true
 			}
 			// Name and HostIp shouldn't be set

@@ -20,11 +20,12 @@ import (
 	"strconv"
 	"testing"
 
+	"os"
+	"path/filepath"
+
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"os"
-	"path/filepath"
 )
 
 /*
@@ -57,11 +58,11 @@ func TestCreateService(t *testing.T) {
 	}
 
 	// An example object generated via k8s runtime.Objects()
-	kompose_object := kobject.KomposeObject{
+	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
 	}
 	k := Kubernetes{}
-	objects := k.Transform(kompose_object, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	objects := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
 
 	// Test the creation of the service
 	svc := k.CreateService("foo", service, objects)

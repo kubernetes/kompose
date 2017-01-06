@@ -27,6 +27,7 @@ type KomposeObject struct {
 	LoadedFrom string
 }
 
+// ConvertOptions holds all options that controls transformation process
 type ConvertOptions struct {
 	ToStdout               bool
 	CreateD                bool
@@ -37,7 +38,7 @@ type ConvertOptions struct {
 	BuildBranch            string
 	CreateChart            bool
 	GenerateYaml           bool
-	GenerateJson           bool
+	GenerateJSON           bool
 	EmptyVols              bool
 	Replicas               int
 	InputFiles             []string

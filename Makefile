@@ -46,7 +46,7 @@ test-cmd:
 test-unit-cover:
 	./script/make.sh test-unit-cover
 
-validate: gofmt vet
+validate: gofmt vet lint
 
 vet:
 	./script/make.sh validate-vet

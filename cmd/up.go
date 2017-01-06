@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// TODO: comment
 var (
 	UpReplicas  int
 	UpEmptyVols bool
