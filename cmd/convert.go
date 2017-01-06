@@ -19,6 +19,9 @@ package cmd
 import (
 	"strings"
 
+	"os"
+
+	"github.com/Sirupsen/logrus"
 	"github.com/kubernetes-incubator/kompose/pkg/app"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/spf13/cobra"
@@ -27,10 +30,10 @@ import (
 
 // TODO: comment
 var (
-	ConvertSource                string
 	ConvertOut                   string
 	ConvertBuildRepo             string
 	ConvertBuildBranch           string
+	GlobalProfile                string
 	ConvertChart                 bool
 	ConvertDeployment            bool
 	ConvertDaemonSet             bool
@@ -40,7 +43,6 @@ var (
 	ConvertStdout                bool
 	ConvertEmptyVols             bool
 	ConvertDeploymentConfig      bool
-	ConvertBuildConfig           bool
 	ConvertReplicas              int
 	ConvertOpt                   kobject.ConvertOptions
 )
@@ -52,6 +54,11 @@ var convertCmd = &cobra.Command{
 	Use:   "convert [file]",
 	Short: "Convert a Docker Compose file",
 	PreRun: func(cmd *cobra.Command, args []string) {
+
+		// if the profile flag is provided
+		if GlobalProfile != "" {
+			handlePreferenceFile(cmd)
+		}
 
 		// Create the Convert Options.
 		ConvertOpt = kobject.ConvertOptions{
@@ -97,7 +104,7 @@ func init() {
 	convertCmd.Flags().MarkHidden("deployment")
 
 	// OpenShift only
-	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
+	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", false, "Generate an OpenShift deploymentconfig object")
 	convertCmd.Flags().MarkHidden("deployment-config")
 	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 	convertCmd.Flags().MarkHidden("build-repo")
@@ -113,6 +120,7 @@ func init() {
 	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
 	convertCmd.Flags().StringVarP(&ConvertOut, "out", "o", "", "Specify a file name to save objects to")
 	convertCmd.Flags().IntVar(&ConvertReplicas, "replicas", 1, "Specify the number of repliaces in the generate resource spec")
+	convertCmd.Flags().StringVarP(&GlobalProfile, "profile", "p", "", "Specify a profile to read from kompose.yml")
 
 	// In order to 'separate' both OpenShift and Kubernetes only flags. A custom help page is created
 	customHelp := `Usage:{{if .Runnable}}
@@ -151,4 +159,62 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 	convertCmd.SetHelpTemplate(customHelp)
 
 	RootCmd.AddCommand(convertCmd)
+}
+
+func addPreferenceFileLocations() {
+	/* Preference file can be found in following three locations:
+	   - current directory
+	   - $HOME/.kompose/kompose.yml
+	   - Path set by env var $KOMPOSE_CONFIG
+	*/
+
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("$HOME/.kompose/")
+
+	customPrefFile := os.Getenv("KOMPOSE_CONFIG")
+	if customPrefFile != "" {
+		viper.SetConfigFile(customPrefFile)
+	}
+}
+
+func handlePreferenceFile(cmd *cobra.Command) {
+	// Preference file should be named as kompose.yml or kompose.yaml
+	viper.SetConfigType("yaml")
+	viper.SetConfigName("kompose")
+
+	addPreferenceFileLocations()
+
+	// fail if the config cannot be read in any of the locations mentioned
+	if err := viper.ReadInConfig(); err != nil {
+		logrus.Fatalf("Could not read config file: %v", err)
+	}
+
+	profile := "profiles." + GlobalProfile
+	// fail if profile asked for not found
+	if viper.Get(profile) == nil {
+		logrus.Fatalf("Given profile %q not found in any of config files.", GlobalProfile)
+	}
+
+	// find out what provider information is given in profile
+	provider := profile + ".provider"
+	viper.BindPFlag(provider, cmd.Flags().Lookup("provider"))
+	GlobalProvider = viper.GetString(provider)
+
+	// find what controllers are mentioned
+	controllers := profile + ".objects"
+
+	for _, controller := range viper.GetStringSlice(controllers) {
+		switch controller {
+		case "deployment":
+			ConvertDeployment = true
+		case "replicationcontroller":
+			ConvertReplicationController = true
+		case "deploymentconfig":
+			ConvertDeploymentConfig = true
+		case "daemonset":
+			ConvertDaemonSet = true
+		default:
+			logrus.Fatalf("Invalid controller %q mentioned in profile.", controller)
+		}
+	}
 }
