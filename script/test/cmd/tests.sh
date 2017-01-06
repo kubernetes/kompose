@@ -165,14 +165,12 @@ convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/te
 ######
 # Test the output file behavior of kompose convert
 # Default behavior without -o
-convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -j" "" "$TEMP_DIR/redis-deployment.json -j" "$TEMP_DIR/redis-service.json" "$TEMP_DIR/web-deployment.json" "$TEMP_DIR/web-service.json"
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -j" "redis-deployment.json" "redis-service.json" "web-deployment.json" "web-service.json"
 # Behavior with -o <filename>
-convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_file -j" "" "$TEMP_DIR/output_file"
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_file -j" "output_file"
 # Behavior with -o <dirname>
-convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_dir -j" "$TEMP_DIR/output_dir/" "$TEMP_DIR/output_dir/redis-deployment.json" "$TEMP_DIR/output_dir/redis-service.json" "$TEMP_DIR/output_dir/web-deployment.json" "$TEMP_DIR/output_dir/web-service.json"
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o $TEMP_DIR -j" "$TEMP_DIR/redis-deployment.json" "$TEMP_DIR/redis-service.json" "$TEMP_DIR/web-deployment.json" "$TEMP_DIR/web-service.json"
 # Behavior with -o <dirname>/<filename>
-convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_dir/output_file -j" "$TEMP_DIR/output_dir/" "$TEMP_DIR/output_dir/output_file"
-# Behavior with -o <dirname>/<dirname>/<filename>
-convert::files_exist "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_dir/output_dir_nested/output_file -j" "$TEMP_DIR/output_dir/output_dir_nested" "$TEMP_DIR/output_dir/output_dir_nested/output_file"
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o $TEMP_DIR/output_file -j" "$TEMP_DIR/output_file"
 
 exit $EXIT_STATUS
