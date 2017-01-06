@@ -150,7 +150,7 @@ func TestGetGitRemote(t *testing.T) {
 
 	for name, test := range testCases {
 		t.Log("Test case: ", name)
-		output, err = getGitCurrentRemoteUrl(test.dir)
+		output, err = getGitCurrentRemoteURL(test.dir)
 
 		if test.expectError {
 			if err == nil {

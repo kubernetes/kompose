@@ -39,12 +39,17 @@ func (errorOnWarningHook) Fire(entry *logrus.Entry) error {
 	return nil
 }
 
+// TODO: comment
 var (
-	GlobalBundle, GlobalProvider                                string
-	GlobalVerbose, GlobalSuppressWarnings, GlobalErrorOnWarning bool
-	GlobalFiles                                                 []string
+	GlobalBundle           string
+	GlobalProvider         string
+	GlobalVerbose          bool
+	GlobalSuppressWarnings bool
+	GlobalErrorOnWarning   bool
+	GlobalFiles            []string
 )
 
+// RootCmd root level flags and commands
 var RootCmd = &cobra.Command{
 	Use:   "kompose",
 	Short: "A tool helping Docker Compose users move to Kubernetes",
@@ -76,6 +81,7 @@ var RootCmd = &cobra.Command{
 	},
 }
 
+// Execute TODO: comment
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)

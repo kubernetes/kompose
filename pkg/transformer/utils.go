@@ -28,10 +28,11 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 
+	"path/filepath"
+
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/runtime"
-	"path/filepath"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -45,7 +46,7 @@ func RandStringBytes(n int) string {
 	return string(b)
 }
 
-// Create the file to write to if --out is specified
+// CreateOutFile creates the file to write to if --out is specified
 func CreateOutFile(out string) *os.File {
 	var f *os.File
 	var err error
@@ -58,7 +59,7 @@ func CreateOutFile(out string) *os.File {
 	return f
 }
 
-// parseVolume parse a given volume, which might be [name:][host:]container[:access_mode]
+// ParseVolume parses a given volume, which might be [name:][host:]container[:access_mode]
 func ParseVolume(volume string) (name, host, container, mode string, err error) {
 	separator := ":"
 	volumeStrings := strings.Split(volume, separator)
@@ -94,12 +95,12 @@ func isPath(substring string) bool {
 	return strings.Contains(substring, "/")
 }
 
-// Configure label
+// ConfigLabels configures label
 func ConfigLabels(name string) map[string]string {
 	return map[string]string{"service": name}
 }
 
-// Configure annotations
+// ConfigAnnotations configures annotations
 func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 	annotations := map[string]string{}
 	for key, value := range service.Annotations {
@@ -109,8 +110,8 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 	return annotations
 }
 
-// Transform data to json/yaml
-func TransformData(obj runtime.Object, GenerateJson bool) ([]byte, error) {
+// TransformData transforms data to json/yaml
+func TransformData(obj runtime.Object, GenerateJSON bool) ([]byte, error) {
 	//  Convert to versioned object
 	objectVersion := obj.GetObjectKind().GroupVersionKind()
 	version := unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
@@ -121,7 +122,7 @@ func TransformData(obj runtime.Object, GenerateJson bool) ([]byte, error) {
 
 	// convert data to json / yaml
 	data, err := yaml.Marshal(versionedObj)
-	if GenerateJson == true {
+	if GenerateJSON == true {
 		data, err = json.MarshalIndent(versionedObj, "", "  ")
 	}
 	if err != nil {
@@ -131,11 +132,10 @@ func TransformData(obj runtime.Object, GenerateJson bool) ([]byte, error) {
 	return data, nil
 }
 
-// Either print to stdout or to file/s
-func Print(name, path string, trailing string, data []byte, toStdout, generateJson bool, f *os.File) string {
-
+// Print either prints to stdout or to file/s
+func Print(name, path string, trailing string, data []byte, toStdout, generateJSON bool, f *os.File) string {
 	file := ""
-	if generateJson {
+	if generateJSON {
 		file = fmt.Sprintf("%s-%s.json", name, trailing)
 	} else {
 		file = fmt.Sprintf("%s-%s.yaml", name, trailing)

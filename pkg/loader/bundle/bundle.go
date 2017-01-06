@@ -31,6 +31,7 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 )
 
+// Bundle is docker bundle file loader, implements Loader interface
 type Bundle struct {
 }
 
@@ -172,7 +173,7 @@ func loadPorts(service Service) ([]kobject.Ports, string) {
 	return ports, ""
 }
 
-// load dab file into KomposeObject
+// LoadFile loads dab file into KomposeObject
 func (b *Bundle) LoadFile(files []string) kobject.KomposeObject {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
@@ -244,7 +245,7 @@ func loadFile(reader io.Reader) (*Bundlefile, error) {
 				jsonErr.Error())
 		case *json.UnmarshalTypeError:
 			return nil, fmt.Errorf(
-				"Unexpected type at byte %v. Expected %s but received %s.",
+				"unexpected type at byte %v. expected %s but received %s",
 				jsonErr.Offset,
 				jsonErr.Type,
 				jsonErr.Value)

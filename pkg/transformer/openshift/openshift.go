@@ -48,6 +48,7 @@ import (
 	"k8s.io/kubernetes/pkg/util/intstr"
 )
 
+// OpenShift implements Transformer interface and represents OpenShift transformer
 type OpenShift struct {
 	// Anonymous field allows for inheritance. We are basically inheriting
 	// all of kubernetes.Kubernetes Methods and variables here. We'll overwite
@@ -55,7 +56,7 @@ type OpenShift struct {
 	kubernetes.Kubernetes
 }
 
-// timeout is how long we'll wait for the termination of OpenShift resource to be successful
+// TIMEOUT is how long we'll wait for the termination of OpenShift resource to be successful
 // used when undeploying resources from OpenShift
 const TIMEOUT = 300
 
@@ -72,9 +73,9 @@ func getImageTag(image string) string {
 	p := strings.Split(image, ":")
 	if len(p) == 2 {
 		return p[1]
-	} else {
-		return "latest"
 	}
+	return "latest"
+
 }
 
 // hasGitBinary checks if the 'git' binary is available on the system
@@ -83,8 +84,8 @@ func hasGitBinary() bool {
 	return err == nil
 }
 
-// getGitCurrentRemoteUrl gets current git remote URI for the current git repo
-func getGitCurrentRemoteUrl(composeFileDir string) (string, error) {
+// getGitCurrentRemoteURL gets current git remote URI for the current git repo
+func getGitCurrentRemoteURL(composeFileDir string) (string, error) {
 	cmd := exec.Command("git", "ls-remote", "--get-url")
 	cmd.Dir = composeFileDir
 	out, err := cmd.Output()
@@ -352,7 +353,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 						if err != nil {
 							logrus.Fatalf("Buildconfig cannot be created because remote for current git branch couldn't be detected.")
 						}
-						buildRepo, err = getGitCurrentRemoteUrl(composeFileDir)
+						buildRepo, err = getGitCurrentRemoteURL(composeFileDir)
 						if err != nil {
 							logrus.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
 						}
@@ -400,6 +401,7 @@ func (o *OpenShift) getOpenShiftClient() (*oclient.Client, error) {
 	return oclient, nil
 }
 
+// Deploy transofrms and deploys kobject to OpenShift
 func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
 	objects := o.Transform(komposeObject, opt)
@@ -470,6 +472,7 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 	return nil
 }
 
+//Undeploy removes deployed artifacts from OpenShift cluster
 func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
 	objects := o.Transform(komposeObject, opt)
@@ -490,18 +493,18 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			err = oclient.ImageStreams(namespace).Delete(t.Name)
 			if err != nil {
 				return err
-			} else {
-				logrus.Infof("Successfully deleted ImageStream: %s", t.Name)
 			}
+			logrus.Infof("Successfully deleted ImageStream: %s", t.Name)
+
 		case *deployapi.DeploymentConfig:
 			// delete deploymentConfig
 			dcreaper := deploymentconfigreaper.NewDeploymentConfigReaper(oclient, kclient)
 			err := dcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 			if err != nil {
 				return err
-			} else {
-				logrus.Infof("Successfully deleted DeploymentConfig: %s", t.Name)
 			}
+			logrus.Infof("Successfully deleted DeploymentConfig: %s", t.Name)
+
 		case *api.Service:
 			//delete svc
 			rpService, err := kubectl.ReaperFor(api.Kind("Service"), kclient)
@@ -512,25 +515,25 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 			if err != nil {
 				return err
-			} else {
-				logrus.Infof("Successfully deleted service: %s", t.Name)
 			}
+			logrus.Infof("Successfully deleted service: %s", t.Name)
+
 		case *api.PersistentVolumeClaim:
 			// delete pvc
 			err = kclient.PersistentVolumeClaims(namespace).Delete(t.Name)
 			if err != nil {
 				return err
-			} else {
-				logrus.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
 			}
+			logrus.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+
 		case *routeapi.Route:
 			// delete route
 			err = oclient.Routes(namespace).Delete(t.Name)
 			if err != nil {
 				return err
-			} else {
-				logrus.Infof("Successfully deleted Route: %s", t.Name)
 			}
+			logrus.Infof("Successfully deleted Route: %s", t.Name)
+
 		}
 	}
 	return nil

@@ -17,7 +17,6 @@ limitations under the License.
 package loader
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
@@ -25,6 +24,7 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/loader/compose"
 )
 
+// Loader interface defines loader that loads files and converts it to kobject representation
 type Loader interface {
 	LoadFile(files []string) kobject.KomposeObject
 	///Name() string
@@ -40,7 +40,7 @@ func GetLoader(format string) (Loader, error) {
 	case "compose":
 		l = new(compose.Compose)
 	default:
-		return nil, errors.New(fmt.Sprintf("Input file format %s is not supported", format))
+		return nil, fmt.Errorf("Input file format %s is not supported", format)
 	}
 
 	return l, nil
