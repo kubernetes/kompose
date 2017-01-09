@@ -233,9 +233,6 @@ func (c *Compose) LoadFile(files []string) kobject.KomposeObject {
 		LoadedFrom:     "compose",
 	}
 	context := &project.Context{}
-	if len(files) == 0 {
-		files = append(files, "docker-compose.yml")
-	}
 	context.ComposeFiles = files
 
 	if context.ResourceLookup == nil {

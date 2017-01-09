@@ -44,6 +44,9 @@ var downCmd = &cobra.Command{
 			Provider:   strings.ToLower(GlobalProvider),
 			EmptyVols:  DownEmptyVols,
 		}
+
+		// Validate before doing anything else.
+		app.ValidateComposeFile(cmd, &DownOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		app.Down(DownOpt)
