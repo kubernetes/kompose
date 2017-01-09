@@ -44,6 +44,9 @@ var upCmd = &cobra.Command{
 			Provider:   strings.ToLower(GlobalProvider),
 			EmptyVols:  UpEmptyVols,
 		}
+
+		// Validate before doing anything else.
+		app.ValidateComposeFile(cmd, &UpOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		app.Up(UpOpt)

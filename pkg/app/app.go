@@ -38,6 +38,7 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer/openshift"
+	"os"
 )
 
 const (
@@ -130,6 +131,23 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	if opt.GenerateJSON && opt.GenerateYaml {
 		logrus.Fatalf("YAML and JSON format cannot be provided at the same time")
+	}
+}
+
+// ValidateComposeFile validated the compose file provided for conversion
+func ValidateComposeFile(cmd *cobra.Command, opt *kobject.ConvertOptions) {
+	if len(opt.InputFiles) == 0 {
+		// Here docker-compose is the input
+		opt.InputFiles = []string{"docker-compose.yml"}
+		_, err := os.Stat("docker-compose.yml")
+		if err != nil {
+			logrus.Debugf("'docker-compose.yml' not found: %v", err)
+			opt.InputFiles = []string{"docker-compose.yaml"}
+			_, err = os.Stat("docker-compose.yaml")
+			if err != nil {
+				logrus.Fatalf("No 'docker-compose' file found: %v", err)
+			}
+		}
 	}
 }
 
