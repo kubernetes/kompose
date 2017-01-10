@@ -418,6 +418,38 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 	return objects
 }
 
+func BuildImage(name string, service kobject.ServiceConfig, composeFileDir string) string {
+	image := name
+	if service.Image != "" {
+		image = service.Image
+	}
+
+	cmd := transformer.NewCommand(fmt.Sprintf("docker build -t %s %s", image, service.Build))
+	cmd.Dir = composeFileDir
+
+	out, err := cmd.Output()
+
+	logrus.Infof("Building image for service %s: %s", name, out)
+
+	if err != nil {
+		logrus.Errorf("Error during building image for servive %s: %s", name, err)
+	}
+
+	return image
+}
+
+func PushImage(name string, image string) {
+	cmd := transformer.NewCommand(fmt.Sprintf("docker push %s", image))
+
+	out, err := cmd.Output()
+
+	logrus.Infof("Image push logs for service %s: %s", name, out)
+
+	if err != nil {
+		logrus.Errorf("Error during pushing image '%s' for service '%s'", image, name)
+	}
+}
+
 // InitPod initializes Kubernetes Pod object
 func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Pod {
 	pod := api.Pod{
@@ -459,6 +491,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	}
 	sort.Strings(sortedKeys)
 
+	composeFileDir, _ := transformer.GetComposeFileDir(opt.InputFiles)
+
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
@@ -477,6 +511,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				if service.ExposeService != "" {
 					objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
 				}
+			}
+			if service.Build != "" {
+				image := BuildImage(name, service, composeFileDir)
+				PushImage(name, image)
 			}
 		}
 

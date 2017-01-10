@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/Sirupsen/logrus"
@@ -158,4 +159,23 @@ func Print(name, path string, trailing string, data []byte, toStdout, generateJS
 		logrus.Printf("file %q created", file)
 	}
 	return file
+}
+
+// getComposeFileDir returns compose file directory
+func GetComposeFileDir(inputFiles []string) (string, error) {
+	// Lets assume all the docker-compose files are in the same directory
+	inputFile := inputFiles[0]
+	if strings.Index(inputFile, "/") != 0 {
+		workDir, err := os.Getwd()
+		if err != nil {
+			return "", err
+		}
+		inputFile = filepath.Join(workDir, inputFile)
+	}
+	return filepath.Dir(inputFile), nil
+}
+
+// NewCommand TODO: comment
+func NewCommand(cmd string) *exec.Cmd {
+	return exec.Command("sh", "-c", cmd)
 }

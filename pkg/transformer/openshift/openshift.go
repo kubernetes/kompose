@@ -18,12 +18,12 @@ package openshift
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
 
 	"github.com/Sirupsen/logrus"
@@ -110,20 +110,6 @@ func getGitCurrentBranch(composeFileDir string) (string, error) {
 		return "", err
 	}
 	return strings.TrimRight(string(out), "\n"), nil
-}
-
-// getComposeFileDir returns compose file directory
-func getComposeFileDir(inputFiles []string) (string, error) {
-	// Lets assume all the docker-compose files are in the same directory
-	inputFile := inputFiles[0]
-	if strings.Index(inputFile, "/") != 0 {
-		workDir, err := os.Getwd()
-		if err != nil {
-			return "", err
-		}
-		inputFile = filepath.Join(workDir, inputFile)
-	}
-	return filepath.Dir(inputFile), nil
 }
 
 // getAbsBuildContext returns build context relative to project root dir
@@ -335,7 +321,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			// buildconfig needs to be added to objects after imagestream because of this Openshift bug: https://github.com/openshift/origin/issues/4518
 			if service.Build != "" {
 				if !hasBuild {
-					composeFileDir, err = getComposeFileDir(opt.InputFiles)
+					composeFileDir, err = transformer.GetComposeFileDir(opt.InputFiles)
 					if err != nil {
 						logrus.Warningf("Error in detecting compose file's directory.")
 						continue
