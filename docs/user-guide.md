@@ -383,13 +383,14 @@ If you want to create normal pods without controllers you can use `restart` cons
 
 **Note**: controller object could be `deployment` or `replicationcontroller`, etc.
 
-For e.g. `mariadb` service will become pod down here.
+For e.g. `pival` service will become pod down here. This container calculated value of `pi`.
 
 ```yaml
-version: "2"
+version: '2'
 
 services:
-  mariadb:
-    image: centos/mariadb
-    restart: "no"
+  pival:
+    image: perl
+    command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+    restart: "on-failure"
 ```
