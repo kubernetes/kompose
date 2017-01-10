@@ -459,6 +459,12 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 				return err
 			}
 			logrus.Infof("Successfully created Route: %s", t.Name)
+		case *api.Pod:
+			_, err := kclient.Pods(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created Pod: %s", t.Name)
 		}
 	}
 
@@ -534,6 +540,17 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			}
 			logrus.Infof("Successfully deleted Route: %s", t.Name)
 
+		case *api.Pod:
+			rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), kclient)
+			if err != nil {
+				return err
+			}
+			//FIXME: gracePeriod is nil
+			err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully deleted Pod: %s", t.Name)
 		}
 	}
 	return nil
