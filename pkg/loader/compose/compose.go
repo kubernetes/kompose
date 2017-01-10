@@ -81,11 +81,16 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 	// collect all keys found in project
 	var keysFound []string
 
-	// Root level keys
-	// volume config and network config are not supported
-	if len(composeProject.NetworkConfigs) > 0 {
+	// Root level keys are not yet supported
+	// Check to see if the default network is available and length is only equal to one.
+	// Else, warn the user that root level networks are not supported (yet)
+	if _, ok := composeProject.NetworkConfigs["default"]; ok && len(composeProject.NetworkConfigs) == 1 {
+		logrus.Debug("Default network found")
+	} else if len(composeProject.NetworkConfigs) > 0 {
 		keysFound = append(keysFound, "root level networks")
 	}
+
+	// Root level volumes are not yet supported
 	if len(composeProject.VolumeConfigs) > 0 {
 		keysFound = append(keysFound, "root level volumes")
 	}
