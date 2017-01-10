@@ -3,5 +3,6 @@ version: "2"
 services:
     foo:
         build: "./build"
+        image: "docker.io/rtnpro/foo:latest"
         command: "sleep 3600"
 

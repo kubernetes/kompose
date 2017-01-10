@@ -6,12 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"testing"
-)
 
-// NewCommand TODO: comment
-func NewCommand(cmd string) *exec.Cmd {
-	return exec.Command("sh", "-c", cmd)
-}
+	"github.com/kubernetes-incubator/kompose/pkg/utils"
+)
 
 // CreateLocalDirectory TODO: comment
 func CreateLocalDirectory(t *testing.T) string {
@@ -25,7 +22,7 @@ func CreateLocalDirectory(t *testing.T) string {
 // CreateLocalGitDirectory TODO: comment
 func CreateLocalGitDirectory(t *testing.T) string {
 	dir := CreateLocalDirectory(t)
-	cmd := NewCommand(
+	cmd := utils.NewCommand(
 		`git init &&
 		 git config  user.email "you@example.com" &&
 		 git config  user.name "Your Name" &&
@@ -43,7 +40,7 @@ func CreateLocalGitDirectory(t *testing.T) string {
 
 // SetGitRemote TODO: comment
 func SetGitRemote(t *testing.T, dir string, remote string, remoteURL string) {
-	cmd := NewCommand(fmt.Sprintf("git remote add %s %s", remote, remoteURL))
+	cmd := utils.NewCommand(fmt.Sprintf("git remote add %s %s", remote, remoteURL))
 	cmd.Dir = dir
 	_, err := cmd.Output()
 	if err != nil {
@@ -54,7 +51,7 @@ func SetGitRemote(t *testing.T, dir string, remote string, remoteURL string) {
 
 // CreateGitRemoteBranch TODO: comment
 func CreateGitRemoteBranch(t *testing.T, dir string, branch string, remote string) {
-	cmd := NewCommand(
+	cmd := utils.NewCommand(
 		fmt.Sprintf(`git checkout -b %s &&
 		    git config branch.%s.remote %s &&
 		 	git config branch.%s.merge refs/heads/%s`,
@@ -70,7 +67,7 @@ func CreateGitRemoteBranch(t *testing.T, dir string, branch string, remote strin
 
 // CreateSubdir TODO: comment
 func CreateSubdir(t *testing.T, dir string, subdir string) {
-	cmd := NewCommand(fmt.Sprintf("mkdir -p %s", subdir))
+	cmd := utils.NewCommand(fmt.Sprintf("mkdir -p %s", subdir))
 	cmd.Dir = dir
 
 	_, err := cmd.Output()

@@ -459,6 +459,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	}
 	sort.Strings(sortedKeys)
 
+	composeFileDir, _ := transformer.GetComposeFileDir(opt.InputFiles)
+
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
@@ -477,6 +479,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				if service.ExposeService != "" {
 					objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
 				}
+			}
+			if service.Build != "" {
+				transformer.LocalBuild(name, service, composeFileDir)
 			}
 		}
 
