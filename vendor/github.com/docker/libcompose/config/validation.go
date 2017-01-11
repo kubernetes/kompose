@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/docker/libcompose/utils"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -70,53 +71,20 @@ func getValue(val interface{}, context string) string {
 	return ""
 }
 
-// Converts map[interface{}]interface{} to map[string]interface{} recursively
-// gojsonschema only accepts map[string]interface{}
 func convertServiceMapKeysToStrings(serviceMap RawServiceMap) RawServiceMap {
 	newServiceMap := make(RawServiceMap)
-
 	for k, v := range serviceMap {
 		newServiceMap[k] = convertServiceKeysToStrings(v)
 	}
-
 	return newServiceMap
 }
 
 func convertServiceKeysToStrings(service RawService) RawService {
 	newService := make(RawService)
-
 	for k, v := range service {
-		newService[k] = convertKeysToStrings(v)
+		newService[k] = utils.ConvertKeysToStrings(v)
 	}
-
 	return newService
-}
-
-func convertKeysToStrings(item interface{}) interface{} {
-	switch typedDatas := item.(type) {
-
-	case map[interface{}]interface{}:
-		newMap := make(map[string]interface{})
-
-		for key, value := range typedDatas {
-			stringKey := key.(string)
-			newMap[stringKey] = convertKeysToStrings(value)
-		}
-		return newMap
-
-	case []interface{}:
-		// newArray := make([]interface{}, 0) will cause golint to complain
-		var newArray []interface{}
-		newArray = make([]interface{}, 0)
-
-		for _, value := range typedDatas {
-			newArray = append(newArray, convertKeysToStrings(value))
-		}
-		return newArray
-
-	default:
-		return item
-	}
 }
 
 var dockerConfigHints = map[string]string{
@@ -314,6 +282,39 @@ func validateServiceConstraints(service RawService, serviceName string) error {
 			}
 		}
 
+		return fmt.Errorf(strings.Join(validationErrors, "\n"))
+	}
+
+	return nil
+}
+
+func validateServiceConstraintsv2(service RawService, serviceName string) error {
+	if err := setupSchemaLoaders(servicesSchemaDataV2, &schemaV2, &schemaLoaderV2, &constraintSchemaLoaderV2); err != nil {
+		return err
+	}
+
+	service = convertServiceKeysToStrings(service)
+
+	var validationErrors []string
+
+	dataLoader := gojsonschema.NewGoLoader(service)
+
+	result, err := gojsonschema.Validate(constraintSchemaLoaderV2, dataLoader)
+	if err != nil {
+		return err
+	}
+
+	if !result.Valid() {
+		for _, err := range result.Errors() {
+			if err.Type() == "required" {
+				_, containsImage := service["image"]
+				_, containsBuild := service["build"]
+
+				if containsBuild || !containsImage && !containsBuild {
+					validationErrors = append(validationErrors, fmt.Sprintf("Service '%s' has neither an image nor a build context specified. At least one must be provided.", serviceName))
+				}
+			}
+		}
 		return fmt.Errorf(strings.Join(validationErrors, "\n"))
 	}
 

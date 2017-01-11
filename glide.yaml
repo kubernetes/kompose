@@ -11,7 +11,7 @@ import:
 - package: github.com/spf13/viper
 
 - package: github.com/docker/libcompose
-  version: fbdac0a6a80837c63eb6c8f43514f7bb3f32df6c
+  version: v0.4.0
   subpackages:
   - config
   - lookup
