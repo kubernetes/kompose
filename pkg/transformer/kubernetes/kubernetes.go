@@ -583,6 +583,12 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 				return err
 			}
 			logrus.Infof("Successfully created Ingress: %s", t.Name)
+		case *api.Pod:
+			_, err := client.Pods(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully created Pod: %s", t.Name)
 		}
 	}
 
@@ -656,6 +662,17 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 			logrus.Infof("Successfully deleted Ingress: %s", t.Name)
 
+		case *api.Pod:
+			rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), client)
+			if err != nil {
+				return err
+			}
+			//FIXME: gracePeriod is nil
+			err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully deleted Pod: %s", t.Name)
 		}
 	}
 	return nil
