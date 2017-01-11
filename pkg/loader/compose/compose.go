@@ -63,7 +63,6 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		"Ipc":           false,
 		"Logging":       false,
 		"MacAddress":    false,
-		"MemLimit":      false,
 		"MemSwapLimit":  false,
 		"NetworkMode":   false,
 		"Pid":           false,
@@ -322,6 +321,7 @@ func (c *Compose) LoadFile(files []string) kobject.KomposeObject {
 			serviceConfig.VolumesFrom = composeServiceConfig.VolumesFrom
 			serviceConfig.Stdin = composeServiceConfig.StdinOpen
 			serviceConfig.Tty = composeServiceConfig.Tty
+			serviceConfig.MemLimit = composeServiceConfig.MemLimit
 
 			komposeObject.ServiceConfigs[name] = serviceConfig
 		}

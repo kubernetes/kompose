@@ -39,6 +39,7 @@ import (
 	"k8s.io/kubernetes/pkg/runtime"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	"k8s.io/kubernetes/pkg/api/resource"
 )
 
 /**
@@ -317,6 +318,13 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].Stdin = service.Stdin
 		template.Spec.Containers[0].TTY = service.Tty
 		template.Spec.Volumes = volumes
+
+		memoryResourceList := api.ResourceList{
+			api.ResourceMemory: *resource.NewQuantity(
+				int64(service.MemLimit), "RandomStringForFormat")}
+
+		template.Spec.Containers[0].Resources.Limits = memoryResourceList
+		template.Spec.Containers[0].Resources.Requests = memoryResourceList
 
 		securityContext := &api.SecurityContext{}
 		if service.Privileged == true {
