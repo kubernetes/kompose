@@ -18,4 +18,4 @@ set -e
 
 source "$(dirname "$BASH_SOURCE")/.build"
 
-go test "${BUILD_FLAGS[@]}" -race -cover -v $( go list github.com/kubernetes-incubator/kompose/... | grep -v '/vendor/' )
+go test "${BUILD_FLAGS[@]}" -cover -v $( go list github.com/kubernetes-incubator/kompose/... | grep -v '/vendor/' )
