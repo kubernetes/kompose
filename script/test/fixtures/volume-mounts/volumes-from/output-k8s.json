@@ -106,7 +106,9 @@
             "restartPolicy": "Always"
           }
         },
-        "strategy": {}
+        "strategy": {
+					"type": "Recreate"
+				}
       },
       "status": {}
     },
@@ -185,7 +187,9 @@
             "restartPolicy": "Always"
           }
         },
-        "strategy": {}
+        "strategy": {
+					"type": "Recreate"
+				}
       },
       "status": {}
     },

@@ -380,3 +380,29 @@ func TestRestartOnFailure(t *testing.T) {
 	}
 	t.Fatalf("Process ran with err %v, want exit status 1", err)
 }
+
+// Tests if deployment strategy is being set to Recreate when volumes are
+// present
+func TestRecreateStrategyWithVolumesPresent(t *testing.T) {
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Volumes:       []string{"/tmp/volume"},
+	}
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+
+	o := OpenShift{Kubernetes: kubernetes.Kubernetes{}}
+
+	objects := o.Transform(komposeObject, kobject.ConvertOptions{CreateDeploymentConfig: true, Replicas: 1})
+	for _, obj := range objects {
+		if deploymentConfig, ok := obj.(*deployapi.DeploymentConfig); ok {
+			if deploymentConfig.Spec.Strategy.Type != deployapi.DeploymentStrategyTypeRecreate {
+				t.Errorf("Expected %v as Strategy Type, got %v",
+					deployapi.DeploymentStrategyTypeRecreate,
+					deploymentConfig.Spec.Strategy.Type)
+			}
+		}
+	}
+}

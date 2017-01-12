@@ -67,7 +67,8 @@
       },
       "spec": {
         "strategy": {
-          "resources": {}
+          "resources": {},
+					"type": "Recreate"
         },
         "triggers": [
           {
@@ -198,7 +199,8 @@
       },
       "spec": {
         "strategy": {
-          "resources": {}
+          "resources": {},
+					"type": "Recreate"
         },
         "triggers": [
           {
