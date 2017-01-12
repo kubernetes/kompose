@@ -10,20 +10,6 @@ import (
 
 // MergeServicesV1 merges a v1 compose file into an existing set of service configs
 func MergeServicesV1(existingServices *ServiceConfigs, environmentLookup EnvironmentLookup, resourceLookup ResourceLookup, file string, datas RawServiceMap, options *ParseOptions) (map[string]*ServiceConfigV1, error) {
-	if options.Interpolate {
-		if err := Interpolate(environmentLookup, &datas); err != nil {
-			return nil, err
-		}
-	}
-
-	if options.Preprocess != nil {
-		var err error
-		datas, err = options.Preprocess(datas)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	if options.Validate {
 		if err := validate(datas); err != nil {
 			return nil, err
@@ -117,8 +103,7 @@ func parseV1(resourceLookup ResourceLookup, environmentLookup EnvironmentLookup,
 		baseRawServices := config.Services
 
 		if options.Interpolate {
-			err = Interpolate(environmentLookup, &baseRawServices)
-			if err != nil {
+			if err = InterpolateRawServiceMap(&baseRawServices, environmentLookup); err != nil {
 				return nil, err
 			}
 		}

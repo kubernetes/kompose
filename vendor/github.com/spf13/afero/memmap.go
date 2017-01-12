@@ -128,14 +128,16 @@ func (m *MemMapFs) Mkdir(name string, perm os.FileMode) error {
 	m.mu.RUnlock()
 	if ok {
 		return &os.PathError{"mkdir", name, ErrFileExists}
-	} else {
-		m.mu.Lock()
-		item := mem.CreateDir(name)
-		m.getData()[name] = item
-		m.registerWithParent(item)
-		m.mu.Unlock()
-		m.Chmod(name, perm)
 	}
+
+	m.mu.Lock()
+	item := mem.CreateDir(name)
+	m.getData()[name] = item
+	m.registerWithParent(item)
+	m.mu.Unlock()
+
+	m.Chmod(name, perm)
+
 	return nil
 }
 
@@ -313,7 +315,10 @@ func (m *MemMapFs) Stat(name string) (os.FileInfo, error) {
 
 func (m *MemMapFs) Chmod(name string, mode os.FileMode) error {
 	name = normalizePath(name)
+
+	m.mu.RLock()
 	f, ok := m.getData()[name]
+	m.mu.RUnlock()
 	if !ok {
 		return &os.PathError{"chmod", name, ErrFileNotFound}
 	}
@@ -327,7 +332,10 @@ func (m *MemMapFs) Chmod(name string, mode os.FileMode) error {
 
 func (m *MemMapFs) Chtimes(name string, atime time.Time, mtime time.Time) error {
 	name = normalizePath(name)
+
+	m.mu.RLock()
 	f, ok := m.getData()[name]
+	m.mu.RUnlock()
 	if !ok {
 		return &os.PathError{"chtimes", name, ErrFileNotFound}
 	}

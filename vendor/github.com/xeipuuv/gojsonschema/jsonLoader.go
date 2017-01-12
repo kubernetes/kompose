@@ -101,7 +101,9 @@ func (l *jsonReferenceLoader) JsonReference() (gojsonreference.JsonReference, er
 }
 
 func (l *jsonReferenceLoader) LoaderFactory() JSONLoaderFactory {
-	return &DefaultJSONLoaderFactory{}
+	return &FileSystemJSONLoaderFactory{
+		fs: l.fs,
+	}
 }
 
 // NewReferenceLoader returns a JSON reference loader using the given source and the local OS file system.

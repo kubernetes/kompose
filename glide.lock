@@ -1,5 +1,5 @@
-hash: c7cb14f4249738a47020f9dc1964832921c3f5b8bf5a1c50f5b2fa15eaebb6fe
-updated: 2016-12-26T10:22:49.439519344+05:30
+hash: 88aef2926941901e180522117085c9a72141a988d1284778fc867f704e43dab0
+updated: 2017-01-03T14:38:14.561105912-05:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -190,7 +190,7 @@ imports:
 - name: github.com/docker/go-units
   version: 0bbddae09c5a5419a8c6dcdd7ff90da3d450393b
 - name: github.com/docker/libcompose
-  version: fbdac0a6a80837c63eb6c8f43514f7bb3f32df6c
+  version: 2e320f69cafc70683514ee6226d40e2fe868e6d3
   subpackages:
   - config
   - logger
@@ -210,7 +210,7 @@ imports:
 - name: github.com/evanphx/json-patch
   version: 465937c80b3c07a7c7ad20cc934898646a91c1de
 - name: github.com/fatih/structs
-  version: dc3312cb1a4513a366c4c9e622ad55c32df12ed3
+  version: a720dfa8df582c51dee1b36feabb906bde1588bd
 - name: github.com/flynn/go-shlex
   version: 3f9db97f856818214da2e1057f8ad84803971cff
 - name: github.com/fsnotify/fsnotify
@@ -405,7 +405,7 @@ imports:
 - name: github.com/pelletier/go-buffruneio
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
-  version: 017119f7a78a0b5fc0ea39ef6be09f03acf3345d
+  version: 439fbba1f887c286024370cb4f281ba815c4c7d7
 - name: github.com/prometheus/client_golang
   version: e51041b3fa41cece0dca035740ba6411905be473
   subpackages:
@@ -425,15 +425,15 @@ imports:
 - name: github.com/Sirupsen/logrus
   version: 881bee4e20a5d11a6a88a5667c6f292072ac1963
 - name: github.com/spf13/afero
-  version: 2f30b2a92c0e5700bcfe4715891adb1f2a7a406d
+  version: 90dd71edc4d0a8b3511dc12ea15d617d03be09e0
   subpackages:
   - mem
 - name: github.com/spf13/cast
-  version: 24b6558033ffe202bf42f0f3b870dcc798dd2ba8
+  version: 56a7ecbeb18dde53c6db4bd96b541fd9741b8d44
 - name: github.com/spf13/cobra
-  version: b62566898a99f2db9c68ed0026aa0a052e59678d
+  version: 1dd5ff2e11b6dca62fdcb275eb804b94607d8b06
 - name: github.com/spf13/jwalterweatherman
-  version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
+  version: c3ba57c1a2668b9484e43bf9932c88f71992f977
 - name: github.com/spf13/pflag
   version: 25f8b5b07aece3207895bf19f7ab517eb3b22a40
 - name: github.com/spf13/viper
@@ -447,7 +447,7 @@ imports:
 - name: github.com/xeipuuv/gojsonreference
   version: e02fc20de94c78484cd5ffb007f8af96be030a45
 - name: github.com/xeipuuv/gojsonschema
-  version: 59f99ebfe5f712a0055e321231fc3be94e4e00b2
+  version: f06f290571ce81ab347174c6f7ad2e1865af41a7
 - name: golang.org/x/net
   version: e90d6d0afc4c315a0d87a568ae68577cc15149a0
   subpackages:

@@ -22,7 +22,7 @@ source $KOMPOSE_ROOT/script/test/cmd/lib.sh
 convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose.yml convert --stdout"
 
 # commenting this test case out until image handling is fixed
-#convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose-no-image.yml convert --stdout"
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose-no-image.yml convert --stdout"
 convert::expect_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose-no-ports.yml convert --stdout" "Service cannot be created because of missing port."
 export $(cat $KOMPOSE_ROOT/script/test/fixtures/etherpad/envs)
 # kubernetes test

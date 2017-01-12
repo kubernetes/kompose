@@ -135,3 +135,28 @@ func Merge(coll1, coll2 []string) []string {
 	}
 	return r
 }
+
+// ConvertKeysToStrings converts map[interface{}] to map[string] recursively
+func ConvertKeysToStrings(item interface{}) interface{} {
+	switch typedDatas := item.(type) {
+	case map[string]interface{}:
+		for key, value := range typedDatas {
+			typedDatas[key] = ConvertKeysToStrings(value)
+		}
+		return typedDatas
+	case map[interface{}]interface{}:
+		newMap := make(map[string]interface{})
+		for key, value := range typedDatas {
+			stringKey := key.(string)
+			newMap[stringKey] = ConvertKeysToStrings(value)
+		}
+		return newMap
+	case []interface{}:
+		for i, value := range typedDatas {
+			typedDatas[i] = ConvertKeysToStrings(value)
+		}
+		return typedDatas
+	default:
+		return item
+	}
+}
