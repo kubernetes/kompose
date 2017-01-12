@@ -427,7 +427,7 @@ func BuildImage(name string, service kobject.ServiceConfig, composeFileDir strin
 	cmd := transformer.NewCommand(fmt.Sprintf("docker build -t %s %s", image, service.Build))
 	cmd.Dir = composeFileDir
 
-	out, err := cmd.Output()
+	out, err := transformer.Execute(cmd)
 
 	logrus.Infof("Building image for service %s: %s", name, out)
 
@@ -440,8 +440,7 @@ func BuildImage(name string, service kobject.ServiceConfig, composeFileDir strin
 
 func PushImage(name string, image string) {
 	cmd := transformer.NewCommand(fmt.Sprintf("docker push %s", image))
-
-	out, err := cmd.Output()
+	out, err := transformer.Execute(cmd)
 
 	logrus.Infof("Image push logs for service %s: %s", name, out)
 
