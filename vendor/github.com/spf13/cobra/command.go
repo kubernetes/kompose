@@ -109,11 +109,10 @@ type Command struct {
 
 	flagErrorBuf *bytes.Buffer
 
-	args          []string             // actual args parsed from flags
-	output        *io.Writer           // out writer if set in SetOutput(w)
-	usageFunc     func(*Command) error // Usage can be defined by application
-	usageTemplate string               // Can be defined by Application
-	flagErrorFunc func(*Command, error) error
+	args          []string                 // actual args parsed from flags
+	output        *io.Writer               // out writer if set in SetOutput(w)
+	usageFunc     func(*Command) error     // Usage can be defined by application
+	usageTemplate string                   // Can be defined by Application
 	helpTemplate  string                   // Can be defined by Application
 	helpFunc      func(*Command, []string) // Help can be defined by application
 	helpCommand   *Command                 // The help command
@@ -141,20 +140,14 @@ func (c *Command) SetOutput(output io.Writer) {
 	c.output = &output
 }
 
-// Usage can be defined by application.
+// Usage can be defined by application
 func (c *Command) SetUsageFunc(f func(*Command) error) {
 	c.usageFunc = f
 }
 
-// Can be defined by Application.
+// Can be defined by Application
 func (c *Command) SetUsageTemplate(s string) {
 	c.usageTemplate = s
-}
-
-// SetFlagErrorFunc sets a function to generate an error when flag parsing
-// fails
-func (c *Command) SetFlagErrorFunc(f func(*Command, error) error) {
-	c.flagErrorFunc = f
 }
 
 // Can be defined by Application
@@ -166,7 +159,7 @@ func (c *Command) SetHelpCommand(cmd *Command) {
 	c.helpCommand = cmd
 }
 
-// Can be defined by Application.
+// Can be defined by Application
 func (c *Command) SetHelpTemplate(s string) {
 	c.helpTemplate = s
 }
@@ -202,7 +195,7 @@ func (c *Command) getOut(def io.Writer) io.Writer {
 }
 
 // UsageFunc returns either the function set by SetUsageFunc for this command
-// or a parent, or it returns a default usage function.
+// or a parent, or it returns a default usage function
 func (c *Command) UsageFunc() (f func(*Command) error) {
 	if c.usageFunc != nil {
 		return c.usageFunc
@@ -221,18 +214,22 @@ func (c *Command) UsageFunc() (f func(*Command) error) {
 	}
 }
 
-// Usage puts out the usage for the command.
-// Used when a user provides invalid input.
-// Can be defined by user by overriding UsageFunc.
+// Output the usage for the command
+// Used when a user provides invalid input
+// Can be defined by user by overriding UsageFunc
 func (c *Command) Usage() error {
 	return c.UsageFunc()(c)
 }
 
 // HelpFunc returns either the function set by SetHelpFunc for this command
-// or a parent, or it returns a function with default help behavior.
+// or a parent, or it returns a function with default help behavior
 func (c *Command) HelpFunc() func(*Command, []string) {
-	if helpFunc := c.checkHelpFunc(); helpFunc != nil {
-		return helpFunc
+	cmd := c
+	for cmd != nil {
+		if cmd.helpFunc != nil {
+			return cmd.helpFunc
+		}
+		cmd = cmd.parent
 	}
 	return func(*Command, []string) {
 		c.mergePersistentFlags()
@@ -243,23 +240,9 @@ func (c *Command) HelpFunc() func(*Command, []string) {
 	}
 }
 
-// checkHelpFunc checks if there is helpFunc in ancestors of c.
-func (c *Command) checkHelpFunc() func(*Command, []string) {
-	if c == nil {
-		return nil
-	}
-	if c.helpFunc != nil {
-		return c.helpFunc
-	}
-	if c.HasParent() {
-		return c.parent.checkHelpFunc()
-	}
-	return nil
-}
-
-// Help puts out the help for the command.
-// Used when a user calls help [command].
-// Can be defined by user by overriding HelpFunc.
+// Output the help for the command
+// Used when a user calls help [command]
+// Can be defined by user by overriding HelpFunc
 func (c *Command) Help() error {
 	c.HelpFunc()(c, []string{})
 	return nil
@@ -272,22 +255,6 @@ func (c *Command) UsageString() string {
 	c.Usage()
 	c.output = tmpOutput
 	return bb.String()
-}
-
-// FlagErrorFunc returns either the function set by SetFlagErrorFunc for this
-// command or a parent, or it returns a function which returns the original
-// error.
-func (c *Command) FlagErrorFunc() (f func(*Command, error) error) {
-	if c.flagErrorFunc != nil {
-		return c.flagErrorFunc
-	}
-
-	if c.HasParent() {
-		return c.parent.FlagErrorFunc()
-	}
-	return func(c *Command, err error) error {
-		return err
-	}
 }
 
 var minUsagePadding = 25
@@ -366,7 +333,7 @@ func (c *Command) HelpTemplate() string {
 {{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`
 }
 
-// Really only used when casting a command to a commander.
+// Really only used when casting a command to a commander
 func (c *Command) resetChildrensParents() {
 	for _, x := range c.commands {
 		x.parent = c
@@ -586,7 +553,7 @@ func (c *Command) execute(a []string) (err error) {
 
 	err = c.ParseFlags(a)
 	if err != nil {
-		return c.FlagErrorFunc()(c, err)
+		return err
 	}
 	// If help is called, regardless of other flags, return we want help
 	// Also say we need help if the command isn't runnable.
@@ -745,7 +712,6 @@ func (c *Command) ExecuteC() (cmd *Command, err error) {
 }
 
 func (c *Command) initHelpFlag() {
-	c.mergePersistentFlags()
 	if c.Flags().Lookup("help") == nil {
 		c.Flags().BoolP("help", "h", false, "help for "+c.Name())
 	}
@@ -779,13 +745,13 @@ func (c *Command) initHelpCmd() {
 	c.AddCommand(c.helpCommand)
 }
 
-// Used for testing.
+// Used for testing
 func (c *Command) ResetCommands() {
 	c.commands = nil
 	c.helpCommand = nil
 }
 
-// Sorts commands by their names.
+// Sorts commands by their names
 type commandSorterByName []*Command
 
 func (c commandSorterByName) Len() int           { return len(c) }
@@ -865,18 +831,18 @@ main:
 	}
 }
 
-// Print is a convenience method to Print to the defined output, fallback to Stderr if not set.
+// Print is a convenience method to Print to the defined output, fallback to Stderr if not set
 func (c *Command) Print(i ...interface{}) {
 	fmt.Fprint(c.OutOrStderr(), i...)
 }
 
-// Println is a convenience method to Println to the defined output, fallback to Stderr if not set.
+// Println is a convenience method to Println to the defined output, fallback to Stderr if not set
 func (c *Command) Println(i ...interface{}) {
 	str := fmt.Sprintln(i...)
 	c.Print(str)
 }
 
-// Printf is a convenience method to Printf to the defined output, fallback to Stderr if not set.
+// Printf is a convenience method to Printf to the defined output, fallback to Stderr if not set
 func (c *Command) Printf(format string, i ...interface{}) {
 	str := fmt.Sprintf(format, i...)
 	c.Print(str)
@@ -893,7 +859,7 @@ func (c *Command) CommandPath() string {
 	return str
 }
 
-// UseLine puts out the full usage for a given command (including parents).
+//The full usage for a given command (including parents)
 func (c *Command) UseLine() string {
 	str := ""
 	if c.HasParent() {
@@ -903,7 +869,7 @@ func (c *Command) UseLine() string {
 }
 
 // For use in determining which flags have been assigned to which commands
-// and which persist.
+// and which persist
 func (c *Command) DebugFlags() {
 	c.Println("DebugFlags called on", c.Name())
 	var debugflags func(*Command)
@@ -978,18 +944,18 @@ func (c *Command) HasExample() bool {
 	return len(c.Example) > 0
 }
 
-// Runnable determines if the command is itself runnable.
+// Runnable determines if the command is itself runnable
 func (c *Command) Runnable() bool {
 	return c.Run != nil || c.RunE != nil
 }
 
-// HasSubCommands determines if the command has children commands.
+// HasSubCommands determines if the command has children commands
 func (c *Command) HasSubCommands() bool {
 	return len(c.commands) > 0
 }
 
 // IsAvailableCommand determines if a command is available as a non-help command
-// (this includes all non deprecated/hidden commands).
+// (this includes all non deprecated/hidden commands)
 func (c *Command) IsAvailableCommand() bool {
 	if len(c.Deprecated) != 0 || c.Hidden {
 		return false
@@ -1008,7 +974,7 @@ func (c *Command) IsAvailableCommand() bool {
 
 // IsHelpCommand determines if a command is a 'help' command; a help command is
 // determined by the fact that it is NOT runnable/hidden/deprecated, and has no
-// sub commands that are runnable/hidden/deprecated.
+// sub commands that are runnable/hidden/deprecated
 func (c *Command) IsHelpCommand() bool {
 
 	// if a command is runnable, deprecated, or hidden it is not a 'help' command
@@ -1027,9 +993,9 @@ func (c *Command) IsHelpCommand() bool {
 	return true
 }
 
-// HasHelpSubCommands determines if a command has any available 'help' sub commands
+// HasHelpSubCommands determines if a command has any avilable 'help' sub commands
 // that need to be shown in the usage/help default template under 'additional help
-// topics'.
+// topics'
 func (c *Command) HasHelpSubCommands() bool {
 
 	// return true on the first found available 'help' sub command
@@ -1044,7 +1010,7 @@ func (c *Command) HasHelpSubCommands() bool {
 }
 
 // HasAvailableSubCommands determines if a command has available sub commands that
-// need to be shown in the usage/help default template under 'available commands'.
+// need to be shown in the usage/help default template under 'available commands'
 func (c *Command) HasAvailableSubCommands() bool {
 
 	// return true on the first found available (non deprecated/help/hidden)
@@ -1060,18 +1026,17 @@ func (c *Command) HasAvailableSubCommands() bool {
 	return false
 }
 
-// HasParent determines if the command is a child command.
+// Determine if the command is a child command
 func (c *Command) HasParent() bool {
 	return c.parent != nil
 }
 
-// GlobalNormalizationFunc returns the global normalization function or nil if doesn't exists.
+// GlobalNormalizationFunc returns the global normalization function or nil if doesn't exists
 func (c *Command) GlobalNormalizationFunc() func(f *flag.FlagSet, name string) flag.NormalizedName {
 	return c.globNormFunc
 }
 
-// Flage returns the complete FlagSet that applies
-// to this command (local and persistent declared here and by all parents).
+// Get the complete FlagSet that applies to this command (local and persistent declared here and by all parents)
 func (c *Command) Flags() *flag.FlagSet {
 	if c.flags == nil {
 		c.flags = flag.NewFlagSet(c.Name(), flag.ContinueOnError)
@@ -1083,7 +1048,7 @@ func (c *Command) Flags() *flag.FlagSet {
 	return c.flags
 }
 
-// LocalNonPersistentFlags are flags specific to this command which will NOT persist to subcommands.
+// LocalNonPersistentFlags are flags specific to this command which will NOT persist to subcommands
 func (c *Command) LocalNonPersistentFlags() *flag.FlagSet {
 	persistentFlags := c.PersistentFlags()
 
@@ -1096,7 +1061,7 @@ func (c *Command) LocalNonPersistentFlags() *flag.FlagSet {
 	return out
 }
 
-// LocalFlags returns the local FlagSet specifically set in the current command.
+// Get the local FlagSet specifically set in the current command
 func (c *Command) LocalFlags() *flag.FlagSet {
 	c.mergePersistentFlags()
 
@@ -1114,7 +1079,7 @@ func (c *Command) LocalFlags() *flag.FlagSet {
 	return local
 }
 
-// InheritedFlags returns all flags which were inherited from parents commands.
+// All Flags which were inherited from parents commands
 func (c *Command) InheritedFlags() *flag.FlagSet {
 	c.mergePersistentFlags()
 
@@ -1143,12 +1108,12 @@ func (c *Command) InheritedFlags() *flag.FlagSet {
 	return inherited
 }
 
-// NonInheritedFlags returns all flags which were not inherited from parent commands.
+// All Flags which were not inherited from parent commands
 func (c *Command) NonInheritedFlags() *flag.FlagSet {
 	return c.LocalFlags()
 }
 
-// PersistentFlags returns the persistent FlagSet specifically set in the current command.
+// Get the Persistent FlagSet specifically set in the current command
 func (c *Command) PersistentFlags() *flag.FlagSet {
 	if c.pflags == nil {
 		c.pflags = flag.NewFlagSet(c.Name(), flag.ContinueOnError)
@@ -1160,7 +1125,7 @@ func (c *Command) PersistentFlags() *flag.FlagSet {
 	return c.pflags
 }
 
-// ResetFlags is used in testing.
+// For use in testing
 func (c *Command) ResetFlags() {
 	c.flagErrorBuf = new(bytes.Buffer)
 	c.flagErrorBuf.Reset()
@@ -1170,50 +1135,50 @@ func (c *Command) ResetFlags() {
 	c.pflags.SetOutput(c.flagErrorBuf)
 }
 
-// Does the command contain any flags (local plus persistent from the entire structure).
+// Does the command contain any flags (local plus persistent from the entire structure)
 func (c *Command) HasFlags() bool {
 	return c.Flags().HasFlags()
 }
 
-// Does the command contain persistent flags.
+// Does the command contain persistent flags
 func (c *Command) HasPersistentFlags() bool {
 	return c.PersistentFlags().HasFlags()
 }
 
-// Does the command has flags specifically declared locally.
+// Does the command has flags specifically declared locally
 func (c *Command) HasLocalFlags() bool {
 	return c.LocalFlags().HasFlags()
 }
 
-// Does the command have flags inherited from its parent command.
+// Does the command have flags inherited from its parent command
 func (c *Command) HasInheritedFlags() bool {
 	return c.InheritedFlags().HasFlags()
 }
 
 // Does the command contain any flags (local plus persistent from the entire
-// structure) which are not hidden or deprecated.
+// structure) which are not hidden or deprecated
 func (c *Command) HasAvailableFlags() bool {
 	return c.Flags().HasAvailableFlags()
 }
 
-// Does the command contain persistent flags which are not hidden or deprecated.
+// Does the command contain persistent flags which are not hidden or deprecated
 func (c *Command) HasAvailablePersistentFlags() bool {
 	return c.PersistentFlags().HasAvailableFlags()
 }
 
 // Does the command has flags specifically declared locally which are not hidden
-// or deprecated.
+// or deprecated
 func (c *Command) HasAvailableLocalFlags() bool {
 	return c.LocalFlags().HasAvailableFlags()
 }
 
 // Does the command have flags inherited from its parent command which are
-// not hidden or deprecated.
+// not hidden or deprecated
 func (c *Command) HasAvailableInheritedFlags() bool {
 	return c.InheritedFlags().HasAvailableFlags()
 }
 
-// Flag climbs up the command tree looking for matching flag.
+// Flag climbs up the command tree looking for matching flag
 func (c *Command) Flag(name string) (flag *flag.Flag) {
 	flag = c.Flags().Lookup(name)
 
@@ -1224,7 +1189,7 @@ func (c *Command) Flag(name string) (flag *flag.Flag) {
 	return
 }
 
-// Recursively find matching persistent flag.
+// recursively find matching persistent flag
 func (c *Command) persistentFlag(name string) (flag *flag.Flag) {
 	if c.HasPersistentFlags() {
 		flag = c.PersistentFlags().Lookup(name)
@@ -1236,7 +1201,7 @@ func (c *Command) persistentFlag(name string) (flag *flag.Flag) {
 	return
 }
 
-// ParseFlags parses persistent flag tree and local flags.
+// ParseFlags parses persistent flag tree & local flags
 func (c *Command) ParseFlags(args []string) (err error) {
 	if c.DisableFlagParsing {
 		return nil
@@ -1246,7 +1211,7 @@ func (c *Command) ParseFlags(args []string) (err error) {
 	return
 }
 
-// Parent returns a commands parent command.
+// Parent returns a commands parent command
 func (c *Command) Parent() *Command {
 	return c.parent
 }
