@@ -14,6 +14,10 @@ import (
 
 type Threshold int
 
+func (t Threshold) String() string {
+	return prefixes[t]
+}
+
 const (
 	LevelTrace Threshold = iota
 	LevelDebug
@@ -25,13 +29,17 @@ const (
 )
 
 var prefixes map[Threshold]string = map[Threshold]string{
-	LevelTrace:    "TRACE ",
-	LevelDebug:    "DEBUG ",
-	LevelInfo:     "INFO ",
-	LevelWarn:     "WARN ",
-	LevelError:    "ERROR ",
-	LevelCritical: "CRITICAL ",
-	LevelFatal:    "FATAL ",
+	LevelTrace:    "TRACE",
+	LevelDebug:    "DEBUG",
+	LevelInfo:     "INFO",
+	LevelWarn:     "WARN",
+	LevelError:    "ERROR",
+	LevelCritical: "CRITICAL",
+	LevelFatal:    "FATAL",
+}
+
+func prefix(t Threshold) string {
+	return t.String() + " "
 }
 
 // Notepad is where you leave a note !
@@ -106,16 +114,16 @@ func (n *Notepad) init() {
 
 		switch {
 		case threshold >= n.logThreshold && threshold >= n.stdoutThreshold:
-			*logger = log.New(io.MultiWriter(counter, bothHandle), n.prefix+prefixes[threshold], n.flags)
+			*logger = log.New(io.MultiWriter(counter, bothHandle), n.prefix+prefix(threshold), n.flags)
 
 		case threshold >= n.logThreshold:
-			*logger = log.New(io.MultiWriter(counter, n.logHandle), n.prefix+prefixes[threshold], n.flags)
+			*logger = log.New(io.MultiWriter(counter, n.logHandle), n.prefix+prefix(threshold), n.flags)
 
 		case threshold >= n.stdoutThreshold:
-			*logger = log.New(io.MultiWriter(counter, os.Stdout), n.prefix+prefixes[threshold], n.flags)
+			*logger = log.New(io.MultiWriter(counter, os.Stdout), n.prefix+prefix(threshold), n.flags)
 
 		default:
-			*logger = log.New(counter, n.prefix+prefixes[threshold], n.flags)
+			*logger = log.New(counter, n.prefix+prefix(threshold), n.flags)
 		}
 	}
 }
@@ -133,11 +141,21 @@ func (n *Notepad) SetLogOutput(handle io.Writer) {
 	n.init()
 }
 
+// GetStdoutThreshold returns the defined Treshold for the log logger.
+func (n *Notepad) GetLogThreshold() Threshold {
+	return n.logThreshold
+}
+
 // SetStdoutThreshold change the threshold above which messages are written to the
 // standard output
 func (n *Notepad) SetStdoutThreshold(threshold Threshold) {
 	n.stdoutThreshold = threshold
 	n.init()
+}
+
+// GetStdoutThreshold returns the Treshold for the stdout logger.
+func (n *Notepad) GetStdoutThreshold() Threshold {
+	return n.stdoutThreshold
 }
 
 // SetPrefix change the prefix used by the notepad. Prefixes are displayed between

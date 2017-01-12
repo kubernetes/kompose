@@ -186,7 +186,7 @@ func (f *File) Truncate(size int64) error {
 		return ErrFileClosed
 	}
 	if f.readOnly {
-		return &os.PathError{"truncate", f.fileData.name, errors.New("file handle is read only")}
+		return &os.PathError{Op: "truncate", Path: f.fileData.name, Err: errors.New("file handle is read only")}
 	}
 	if size < 0 {
 		return ErrOutOfRange
@@ -218,7 +218,7 @@ func (f *File) Seek(offset int64, whence int) (int64, error) {
 
 func (f *File) Write(b []byte) (n int, err error) {
 	if f.readOnly {
-		return 0, &os.PathError{"write", f.fileData.name, errors.New("file handle is read only")}
+		return 0, &os.PathError{Op: "write", Path: f.fileData.name, Err: errors.New("file handle is read only")}
 	}
 	n = len(b)
 	cur := atomic.LoadInt64(&f.at)

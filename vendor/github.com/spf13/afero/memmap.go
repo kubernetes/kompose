@@ -45,7 +45,7 @@ func (m *MemMapFs) getData() map[string]*mem.FileData {
 	return m.data
 }
 
-func (MemMapFs) Name() string { return "MemMapFS" }
+func (*MemMapFs) Name() string { return "MemMapFS" }
 
 func (m *MemMapFs) Create(name string) (File, error) {
 	name = normalizePath(name)
@@ -108,7 +108,7 @@ func (m *MemMapFs) lockfreeMkdir(name string, perm os.FileMode) error {
 	x, ok := m.getData()[name]
 	if ok {
 		// Only return ErrFileExists if it's a file, not a directory.
-		i := mem.FileInfo{x}
+		i := mem.FileInfo{FileData: x}
 		if !i.IsDir() {
 			return ErrFileExists
 		}
@@ -127,7 +127,7 @@ func (m *MemMapFs) Mkdir(name string, perm os.FileMode) error {
 	_, ok := m.getData()[name]
 	m.mu.RUnlock()
 	if ok {
-		return &os.PathError{"mkdir", name, ErrFileExists}
+		return &os.PathError{Op: "mkdir", Path: name, Err: ErrFileExists}
 	}
 
 	m.mu.Lock()
@@ -190,7 +190,7 @@ func (m *MemMapFs) open(name string) (*mem.FileData, error) {
 	f, ok := m.getData()[name]
 	m.mu.RUnlock()
 	if !ok {
-		return nil, &os.PathError{"open", name, ErrFileNotFound}
+		return nil, &os.PathError{Op: "open", Path: name, Err: ErrFileNotFound}
 	}
 	return f, nil
 }
@@ -247,11 +247,11 @@ func (m *MemMapFs) Remove(name string) error {
 	if _, ok := m.getData()[name]; ok {
 		err := m.unRegisterWithParent(name)
 		if err != nil {
-			return &os.PathError{"remove", name, err}
+			return &os.PathError{Op: "remove", Path: name, Err: err}
 		}
 		delete(m.getData(), name)
 	} else {
-		return &os.PathError{"remove", name, os.ErrNotExist}
+		return &os.PathError{Op: "remove", Path: name, Err: os.ErrNotExist}
 	}
 	return nil
 }
@@ -299,7 +299,7 @@ func (m *MemMapFs) Rename(oldname, newname string) error {
 		m.mu.Unlock()
 		m.mu.RLock()
 	} else {
-		return &os.PathError{"rename", oldname, ErrFileNotFound}
+		return &os.PathError{Op: "rename", Path: oldname, Err: ErrFileNotFound}
 	}
 	return nil
 }
@@ -320,7 +320,7 @@ func (m *MemMapFs) Chmod(name string, mode os.FileMode) error {
 	f, ok := m.getData()[name]
 	m.mu.RUnlock()
 	if !ok {
-		return &os.PathError{"chmod", name, ErrFileNotFound}
+		return &os.PathError{Op: "chmod", Path: name, Err: ErrFileNotFound}
 	}
 
 	m.mu.Lock()
@@ -337,7 +337,7 @@ func (m *MemMapFs) Chtimes(name string, atime time.Time, mtime time.Time) error 
 	f, ok := m.getData()[name]
 	m.mu.RUnlock()
 	if !ok {
-		return &os.PathError{"chtimes", name, ErrFileNotFound}
+		return &os.PathError{Op: "chtimes", Path: name, Err: ErrFileNotFound}
 	}
 
 	m.mu.Lock()
@@ -349,7 +349,7 @@ func (m *MemMapFs) Chtimes(name string, atime time.Time, mtime time.Time) error 
 
 func (m *MemMapFs) List() {
 	for _, x := range m.data {
-		y := mem.FileInfo{x}
+		y := mem.FileInfo{FileData: x}
 		fmt.Println(x.Name(), y.Size())
 	}
 }
