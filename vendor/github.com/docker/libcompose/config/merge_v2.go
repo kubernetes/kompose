@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"path"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/utils"
@@ -10,20 +11,6 @@ import (
 
 // MergeServicesV2 merges a v2 compose file into an existing set of service configs
 func MergeServicesV2(existingServices *ServiceConfigs, environmentLookup EnvironmentLookup, resourceLookup ResourceLookup, file string, datas RawServiceMap, options *ParseOptions) (map[string]*ServiceConfig, error) {
-	if options.Interpolate {
-		if err := Interpolate(environmentLookup, &datas); err != nil {
-			return nil, err
-		}
-	}
-
-	if options.Preprocess != nil {
-		var err error
-		datas, err = options.Preprocess(datas)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	if options.Validate {
 		if err := validateV2(datas); err != nil {
 			return nil, err
@@ -47,6 +34,19 @@ func MergeServicesV2(existingServices *ServiceConfigs, environmentLookup Environ
 		}
 
 		datas[name] = data
+	}
+
+	if options.Validate {
+		var errs []string
+		for name, data := range datas {
+			err := validateServiceConstraintsv2(data, name)
+			if err != nil {
+				errs = append(errs, err.Error())
+			}
+		}
+		if len(errs) != 0 {
+			return nil, fmt.Errorf(strings.Join(errs, "\n"))
+		}
 	}
 
 	serviceConfigs := make(map[string]*ServiceConfig)
@@ -108,8 +108,7 @@ func parseV2(resourceLookup ResourceLookup, environmentLookup EnvironmentLookup,
 		baseRawServices := config.Services
 
 		if options.Interpolate {
-			err = Interpolate(environmentLookup, &baseRawServices)
-			if err != nil {
+			if err = InterpolateRawServiceMap(&baseRawServices, environmentLookup); err != nil {
 				return nil, err
 			}
 		}
