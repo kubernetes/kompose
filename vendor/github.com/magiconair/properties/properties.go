@@ -624,7 +624,7 @@ func (p *Properties) Delete(key string) {
 	newKeys := []string{}
 	for _, k := range p.k {
 		if k != key {
-			newKeys = append(newKeys, key)
+			newKeys = append(newKeys, k)
 		}
 	}
 	p.k = newKeys
