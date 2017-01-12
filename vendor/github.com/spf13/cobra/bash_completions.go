@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	BashCompFilenameExt     = "cobra_annotation_bash_completion_filename_extensions"
+	BashCompFilenameExt     = "cobra_annotation_bash_completion_filename_extentions"
 	BashCompCustom          = "cobra_annotation_bash_completion_custom"
 	BashCompOneRequiredFlag = "cobra_annotation_bash_completion_one_required_flag"
 	BashCompSubdirsInDir    = "cobra_annotation_bash_completion_subdirs_in_dir"
@@ -401,8 +401,10 @@ func writeLocalNonPersistentFlag(flag *pflag.Flag, w io.Writer) error {
 		format += "="
 	}
 	format += "\")\n"
-	_, err := fmt.Fprintf(w, format, name)
-	return err
+	if _, err := fmt.Fprintf(w, format, name); err != nil {
+		return err
+	}
+	return nil
 }
 
 func writeFlags(cmd *Command, w io.Writer) error {

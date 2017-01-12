@@ -41,7 +41,7 @@ func reloadDefaultNotepad() {
 }
 
 func init() {
-	defaultNotepad = NewNotepad(LevelInfo, LevelTrace, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+	defaultNotepad = NewNotepad(LevelError, LevelWarn, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 	reloadDefaultNotepad()
 }
 
@@ -84,6 +84,16 @@ func LogThreshold() Threshold {
 // Level returns the current global output threshold.
 func StdoutThreshold() Threshold {
 	return defaultNotepad.stdoutThreshold
+}
+
+// GetStdoutThreshold returns the defined Treshold for the log logger.
+func GetLogThreshold() Threshold {
+	return defaultNotepad.GetLogThreshold()
+}
+
+// GetStdoutThreshold returns the Treshold for the stdout logger.
+func GetStdoutThreshold() Threshold {
+	return defaultNotepad.GetStdoutThreshold()
 }
 
 // LogCountForLevel returns the number of log invocations for a given threshold.
