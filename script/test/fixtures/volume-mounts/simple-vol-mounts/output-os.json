@@ -41,7 +41,8 @@
       },
       "spec": {
         "strategy": {
-          "resources": {}
+          "resources": {},
+					"type": "Recreate"
         },
         "triggers": [
           {

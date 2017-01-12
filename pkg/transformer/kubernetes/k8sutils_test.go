@@ -182,3 +182,29 @@ func TestServiceWithoutPort(t *testing.T) {
 	}
 
 }
+
+// Tests if deployment strategy is being set to Recreate when volumes are
+// present
+func TestRecreateStrategyWithVolumesPresent(t *testing.T) {
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Volumes:       []string{"/tmp/volume"},
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+
+	objects := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	for _, obj := range objects {
+		if deployment, ok := obj.(*extensions.Deployment); ok {
+			if deployment.Spec.Strategy.Type != extensions.RecreateDeploymentStrategyType {
+				t.Errorf("Expected %v as Strategy Type, got %v",
+					extensions.RecreateDeploymentStrategyType,
+					deployment.Spec.Strategy.Type)
+			}
+		}
+	}
+}

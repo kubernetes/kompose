@@ -384,6 +384,15 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	// update supported controller
 	for _, obj := range *objects {
 		k.UpdateController(obj, fillTemplate, fillObjectMeta)
+
+		if len(service.Volumes) > 0 {
+			switch objType := obj.(type) {
+			case *extensions.Deployment:
+				objType.Spec.Strategy.Type = extensions.RecreateDeploymentStrategyType
+			case *deployapi.DeploymentConfig:
+				objType.Spec.Strategy.Type = deployapi.DeploymentStrategyTypeRecreate
+			}
+		}
 	}
 }
 
