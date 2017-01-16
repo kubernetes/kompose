@@ -24,6 +24,8 @@ KOMPOSE_ENVS := \
 
 BIND_DIR := bundles
 
+TEST_IMAGE = "tomaskral/kompose-test:latest"
+
 default: bin
 
 all: validate
@@ -57,3 +59,11 @@ gofmt:
 
 check-vendor:
 	./script/make.sh check-vendor
+
+# build docker image that is used for running travis test localy
+build-test-image:
+	docker build -t $(TEST_IMAGE) -f script/tests_in_container/Dockerfile .
+
+# run travis test localy using docker image (build by build-test-image target)
+test-docker:
+	docker run -v `pwd`:/opt/tmp/kompose:ro -it $(TEST_IMAGE) 
