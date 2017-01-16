@@ -54,7 +54,6 @@ func TestCreateService(t *testing.T) {
 		Expose:        []string{"expose"},   // not supported
 		Privileged:    true,
 		Restart:       "always",
-		User:          "user",
 	}
 
 	// An example object generated via k8s runtime.Objects()
