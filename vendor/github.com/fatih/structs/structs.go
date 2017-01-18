@@ -431,7 +431,7 @@ func strctVal(s interface{}) reflect.Value {
 	v := reflect.ValueOf(s)
 
 	// if pointer get the underlying element≤
-	if v.Kind() == reflect.Ptr {
+	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
 
@@ -530,15 +530,22 @@ func (s *Struct) nested(val reflect.Value) interface{} {
 			finalVal = m
 		}
 	case reflect.Map:
-		v := val.Type().Elem()
-		if v.Kind() == reflect.Ptr {
-			v = v.Elem()
+		// get the element type of the map
+		mapElem := val.Type()
+		switch val.Type().Kind() {
+		case reflect.Ptr, reflect.Array, reflect.Map,
+			reflect.Slice, reflect.Chan:
+			mapElem = val.Type().Elem()
+			if mapElem.Kind() == reflect.Ptr {
+				mapElem = mapElem.Elem()
+			}
 		}
 
 		// only iterate over struct types, ie: map[string]StructType,
 		// map[string][]StructType,
-		if v.Kind() == reflect.Struct ||
-			(v.Kind() == reflect.Slice && v.Elem().Kind() == reflect.Struct) {
+		if mapElem.Kind() == reflect.Struct ||
+			(mapElem.Kind() == reflect.Slice &&
+				mapElem.Elem().Kind() == reflect.Struct) {
 			m := make(map[string]interface{}, val.Len())
 			for _, k := range val.MapKeys() {
 				m[k.String()] = s.nested(val.MapIndex(k))
@@ -558,7 +565,10 @@ func (s *Struct) nested(val reflect.Value) interface{} {
 		// TODO(arslan): should this be optional?
 		// do not iterate of non struct types, just pass the value. Ie: []int,
 		// []string, co... We only iterate further if it's a struct.
-		if val.Type().Elem().Kind() != reflect.Struct {
+		// i.e []foo or []*foo
+		if val.Type().Elem().Kind() != reflect.Struct &&
+			!(val.Type().Elem().Kind() == reflect.Ptr &&
+				val.Type().Elem().Elem().Kind() == reflect.Struct) {
 			finalVal = val.Interface()
 			break
 		}

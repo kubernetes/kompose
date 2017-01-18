@@ -48,6 +48,7 @@ type (
 		Value() interface{}
 		SetDetails(ErrorDetails)
 		Details() ErrorDetails
+		String() string
 	}
 
 	// ResultErrorFields holds the fields for each ResultError implementation.
@@ -126,7 +127,7 @@ func (v ResultErrorFields) String() string {
 	valueString := fmt.Sprintf("%v", v.value)
 
 	// marshal the go value value to json
-	if v.Value == nil {
+	if v.value == nil {
 		valueString = TYPE_NULL
 	} else {
 		if vs, err := marshalToJsonString(v.value); err == nil {
