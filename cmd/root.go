@@ -64,6 +64,12 @@ var RootCmd = &cobra.Command{
 			logrus.SetLevel(logrus.DebugLevel)
 		}
 
+		// Disable the timestamp (Kompose is too fast!)
+		formatter := new(logrus.TextFormatter)
+		formatter.DisableTimestamp = true
+		formatter.ForceColors = true
+		logrus.SetFormatter(formatter)
+
 		// Set the appropriate suppress warnings and error on warning flags
 		if GlobalSuppressWarnings {
 			logrus.SetLevel(logrus.ErrorLevel)
