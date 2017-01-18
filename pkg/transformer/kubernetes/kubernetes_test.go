@@ -52,7 +52,6 @@ func newServiceConfig() kobject.ServiceConfig {
 		Expose:        []string{"expose"},   // not supported
 		Privileged:    true,
 		Restart:       "always",
-		User:          "user", // not supported
 		Stdin:         true,
 		Tty:           true,
 	}
