@@ -1,0 +1,18 @@
+.menu {
+    text-align: center;
+    z-index: 1000;
+    margin-bottom: 10px;
+}
+
+.menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu ul li {
+    display: inline-block;
+    padding: 10px;
+    background: #fff;
+    margin: 2px;
+}

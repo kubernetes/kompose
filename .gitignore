@@ -1,0 +1,24 @@
+**/.DS_Store
+**/desktop.ini
+.jekyll-metadata
+_site/**
+.sass-cache/**
+CNAME
+.travis.yml
+.idea/
+
+# Vim ignore
+# source: https://github.com/github/gitignore/blob/master/Global/Vim.gitignore
+
+# swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+# session
+Session.vim
+# temporary
+.netrwhist
+*~
+# auto-generated tag files
+tags
