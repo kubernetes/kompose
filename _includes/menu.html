@@ -1,0 +1,8 @@
+<div class="menu">
+  <ul>
+    {% for item in site.data.menu.items %}
+    <li><a href="{{ item[1] | prepend: site.baseurl }}">{{ item[0] }}</a></li>
+    {% endfor %}
+  </ul>
+  <hr/>
+</div>
