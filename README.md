@@ -70,12 +70,20 @@ Kompose is in Fedora 24 and 25 repositories. You can install it just like any ot
 sudo dnf -y install kompose
 ```
 
-## Bash Completion
+## Shell autocompletion
 
-Running this below command in order to benefit from bash completion
+We support both `bash` and `zsh` for autocompletion.
+
+Bash:
 
 ```console
-$ PROG=kompose source script/bash_autocomplete
+source <(kompose completion bash)
+```
+
+Zsh:
+
+```console
+source <(kompose completion zsh)
 ```
 
 ## Building
