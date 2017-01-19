@@ -14,23 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
 
-source "$(dirname "$BASH_SOURCE")/.build"
+# This checks if all go source files in current directory are format using gofmt
 
-OUT_FILE="./kompose"
+GO_FILES=$(find . -path ./vendor -prune -o -name '*.go' -print )
 
-# Get rid of existing binary
-rm -f $OUT_FILE
+for file in $GO_FILES; do
+	gofmtOutput=$(gofmt -l "$file")
+	if [ "$gofmtOutput" ]; then
+		errors+=("$gofmtOutput")
+	fi
+done 
 
-# Build binary
-go build \
-    "${BUILD_FLAGS[@]}" \
-    -o $OUT_FILE \
-    main.go
 
-if [ $? -eq 0 ]; then
-  echo "Build successful. Program saved as ${OUT_FILE}"
+if [ ${#errors[@]} -eq 0 ]; then
+	echo "gofmt OK"
 else
-  echo "Build failed."
+	echo "gofmt ERROR - These files are not formated by gofmt:"
+	for err in "${errors[@]}"; do
+		echo "$err"
+	done
+	exit 1
 fi
