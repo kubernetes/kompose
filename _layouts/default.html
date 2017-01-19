@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+
+  {% include head.html %}
+
+  <body>
+    <div class="wrapper">
+
+      {% include header.html %}
+
+      <section>
+
+        {% unless page.no_menu %}
+          {% include menu.html %}
+        {% endunless %}
+
+        {{ content }}
+
+      </section>
+
+      {% include footer.html %}
+
+    </div>
+
+        {% include scripts.html %}
+
+  </body>
+</html>
