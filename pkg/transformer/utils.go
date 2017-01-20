@@ -17,13 +17,11 @@ limitations under the License.
 package transformer
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/Sirupsen/logrus"
@@ -174,38 +172,4 @@ func GetComposeFileDir(inputFiles []string) (string, error) {
 		inputFile = filepath.Join(workDir, inputFile)
 	}
 	return filepath.Dir(inputFile), nil
-}
-
-// NewCommand returns an instance of exec.Cmd for any random command (containing pipes, etc)
-func NewCommand(cmd string) *exec.Cmd {
-	return exec.Command("sh", "-c", cmd)
-}
-
-// Execute: Wrapper to execute shell commands
-func Execute(cmd *exec.Cmd) (output string, err error) {
-	cmdReader, err := cmd.StdoutPipe()
-	if err != nil {
-		return output, err
-	}
-
-	scanner := bufio.NewScanner(cmdReader)
-	text := ""
-	go func() {
-		for scanner.Scan() {
-			text = scanner.Text()
-			output = fmt.Sprintf("%s%s\n", output, text)
-			fmt.Printf("%s\n", text)
-		}
-	}()
-
-	err = cmd.Start()
-	if err != nil {
-		return output, err
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		return output, err
-	}
-	return output, err
 }

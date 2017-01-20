@@ -27,6 +27,7 @@ import (
 	"github.com/fatih/structs"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
+	"github.com/kubernetes-incubator/kompose/pkg/utils"
 	buildapi "github.com/openshift/origin/pkg/build/api"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
@@ -418,37 +419,6 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 	return objects
 }
 
-func BuildImage(name string, service kobject.ServiceConfig, composeFileDir string) string {
-	image := name
-	if service.Image != "" {
-		image = service.Image
-	}
-
-	cmd := transformer.NewCommand(fmt.Sprintf("docker build -t %s %s", image, service.Build))
-	cmd.Dir = composeFileDir
-
-	out, err := transformer.Execute(cmd)
-
-	logrus.Infof("Building image for service %s: %s", name, out)
-
-	if err != nil {
-		logrus.Errorf("Error during building image for servive %s: %s", name, err)
-	}
-
-	return image
-}
-
-func PushImage(name string, image string) {
-	cmd := transformer.NewCommand(fmt.Sprintf("docker push %s", image))
-	out, err := transformer.Execute(cmd)
-
-	logrus.Infof("Image push logs for service %s: %s", name, out)
-
-	if err != nil {
-		logrus.Errorf("Error during pushing image '%s' for service '%s'", image, name)
-	}
-}
-
 // InitPod initializes Kubernetes Pod object
 func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Pod {
 	pod := api.Pod{
@@ -512,8 +482,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 			}
 			if service.Build != "" {
-				image := BuildImage(name, service, composeFileDir)
-				PushImage(name, image)
+				image := utils.DockerBuildImage(name, service, composeFileDir)
+				utils.DockerPushImage(name, image)
 			}
 		}
 
