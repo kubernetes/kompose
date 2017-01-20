@@ -27,7 +27,6 @@ import (
 	"github.com/fatih/structs"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
-	"github.com/kubernetes-incubator/kompose/pkg/utils"
 	buildapi "github.com/openshift/origin/pkg/build/api"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
@@ -482,8 +481,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 			}
 			if service.Build != "" {
-				image := utils.DockerBuildImage(name, service, composeFileDir)
-				utils.DockerPushImage(name, image)
+				transformer.LocalBuild(name, service, composeFileDir)
 			}
 		}
 

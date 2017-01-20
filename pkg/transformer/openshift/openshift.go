@@ -129,7 +129,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 	tag := getImageTag(service.Image)
 
 	var tags map[string]imageapi.TagReference
-	if service.Build == "" {
+	if (service.Build == "") || (service.Build != "" && service.Image != "") {
 		tags = map[string]imageapi.TagReference{
 			tag: imageapi.TagReference{
 				From: &api.ObjectReference{
@@ -346,7 +346,11 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 					}
 					hasBuild = true
 				}
-				objects = append(objects, initBuildConfig(name, service, composeFileDir, buildRepo, buildBranch)) // Openshift BuildConfigs
+				if opt.CreateBuildConfig {
+					objects = append(objects, initBuildConfig(name, service, composeFileDir, buildRepo, buildBranch)) // Openshift BuildConfigs
+				} else {
+					transformer.LocalBuild(name, service, composeFileDir)
+				}
 			}
 
 			// If ports not provided in configuration we will not make service

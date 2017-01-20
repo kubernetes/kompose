@@ -3,6 +3,6 @@ version: "2"
 services:
     foo:
         build: "./build"
-        image: "localhost:5000/vagrant/foo:latest"
+        image: "docker.io/rtnpro/foo:latest"
         command: "sleep 3600"
 
