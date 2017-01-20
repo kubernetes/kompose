@@ -62,23 +62,41 @@ func CreateOutFile(out string) *os.File {
 // ParseVolume parses a given volume, which might be [name:][host:]container[:access_mode]
 func ParseVolume(volume string) (name, host, container, mode string, err error) {
 	separator := ":"
+
+	// Parse based on ":"
 	volumeStrings := strings.Split(volume, separator)
 	if len(volumeStrings) == 0 {
 		return
 	}
+
 	// Set name if existed
 	if !isPath(volumeStrings[0]) {
 		name = volumeStrings[0]
 		volumeStrings = volumeStrings[1:]
 	}
+
+	// Check if *anything* has been passed
 	if len(volumeStrings) == 0 {
 		err = fmt.Errorf("invalid volume format: %s", volume)
 		return
 	}
-	if volumeStrings[len(volumeStrings)-1] == "rw" || volumeStrings[len(volumeStrings)-1] == "ro" {
-		mode = volumeStrings[len(volumeStrings)-1]
+
+	// Get the last ":" passed which is presumingly the "access mode"
+	possibleAccessMode := volumeStrings[len(volumeStrings)-1]
+
+	// Check to see if :Z or :z exists. We do not support SELinux relabeling at the moment.
+	// See https://github.com/kubernetes-incubator/kompose/issues/176
+	// Otherwise, check to see if "rw" or "ro" has been passed
+	if possibleAccessMode == "z" || possibleAccessMode == "Z" {
+		logrus.Warnf("Volume mount \"%s\" will be mounted without labeling support. :z or :Z not supported", volume)
+		mode = ""
+		volumeStrings = volumeStrings[:len(volumeStrings)-1]
+	} else if possibleAccessMode == "rw" || possibleAccessMode == "ro" {
+		mode = possibleAccessMode
 		volumeStrings = volumeStrings[:len(volumeStrings)-1]
 	}
+
+	// Check the volume format as well as host
 	container = volumeStrings[len(volumeStrings)-1]
 	volumeStrings = volumeStrings[:len(volumeStrings)-1]
 	if len(volumeStrings) == 1 {
