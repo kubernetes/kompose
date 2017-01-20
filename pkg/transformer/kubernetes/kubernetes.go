@@ -321,11 +321,14 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 
 	var count int
 	for _, volume := range service.Volumes {
+
 		volumeName, host, container, mode, err := transformer.ParseVolume(volume)
 		if err != nil {
 			logrus.Warningf("Failed to configure container volume: %v", err)
 			continue
 		}
+
+		logrus.Debug("Volume name %s", volumeName)
 
 		// check if ro/rw mode is defined, default rw
 		readonly := len(mode) > 0 && mode == "ro"
