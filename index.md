@@ -44,10 +44,10 @@ __2. Run `kompose up` in the same directory__
 We are going to create Kubernetes Deployments, Services and PersistentVolumeClaims for your Dockerized application. 
 If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. 
 
-INFO[0000] Successfully created Service: redis          
-INFO[0000] Successfully created Service: web            
-INFO[0000] Successfully created Deployment: redis       
-INFO[0000] Successfully created Deployment: web         
+INFO Successfully created Service: redis          
+INFO Successfully created Service: web            
+INFO Successfully created Deployment: redis       
+INFO Successfully created Deployment: web         
 
 Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods,pvc' for details.
 ```
@@ -58,18 +58,18 @@ __2.1. Run `kompose convert` in the same directory__
 
 ```bash
 ▶ kompose convert                           
-INFO[0000] file "frontend-service.json" created         
-INFO[0000] file "redis-master-service.json" created     
-INFO[0000] file "redis-slave-service.json" created      
-INFO[0000] file "frontend-deployment.json" created      
-INFO[0000] file "redis-master-deployment.json" created  
-INFO[0000] file "redis-slave-deployment.json" created   
+INFO file "frontend-service.yaml" created         
+INFO file "redis-master-service.yaml" created     
+INFO file "redis-slave-service.yaml" created      
+INFO file "frontend-deployment.yaml" created      
+INFO file "redis-master-deployment.yaml" created  
+INFO file "redis-slave-deployment.yaml" created   
 ```
 
 __2.2. And start it on Kubernetes!__
 
 ```bash
-▶ kubectl create -f frontend-service.json,redis-master-service.json,redis-slave-service.json,frontend-deployment.json,redis-master-deployment.json,redis-slave-deployment.json
+▶ kubectl create -f frontend-service.yaml,redis-master-service.yaml,redis-slave-service.yaml,frontend-deployment.yaml,redis-master-deployment.yaml,redis-slave-deployment.yaml
 service "frontend" created
 service "redis-master" created
 service "redis-slave" created
