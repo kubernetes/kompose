@@ -22,4 +22,4 @@ set -e
 # We can be sure that this container won't modify any files on hosts disk.
 cp -r $KOMPOSE_TMP_SRC/ $(dirname $KOMPOSE_SRC)
 
-make test-all
+make test

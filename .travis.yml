@@ -20,7 +20,7 @@ install:
   - true
 
 script:
-  - make test-all
+  - make test
   # gover collects all .coverprofile files and saves it to one file gover.coverprofile
   - gover
   - goveralls -coverprofile=gover.coverprofile -service=travis-ci

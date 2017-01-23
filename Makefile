@@ -82,8 +82,8 @@ check-vendor:
 	./script/check-vendor.sh
 
 # Run all tests
-.PHONY: test-all
-test-all: check-vendor validate test-unit-cover install test-cmd
+.PHONY: test
+test: check-vendor validate test-unit-cover install test-cmd
 
 # build docker image that is used for running all test localy
 .PHONY: test-image
@@ -91,8 +91,8 @@ test-image:
 	docker build -t $(TEST_IMAGE) -f script/test_in_container/Dockerfile script/test_in_container/
 	
 # run all test localy in docker image (image can be build by by build-test-image target)
-.PHONY: test
-test:
+.PHONY: test-container
+test-container:
 	docker run -v `pwd`:/opt/tmp/kompose:ro -it $(TEST_IMAGE) 
 
 
