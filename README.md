@@ -15,14 +15,14 @@ If you have a Docker Compose [`docker-compose.yml`](./examples/docker-compose.ym
 
 ```console
 $ kompose --bundle docker-compose-bundle.dab convert
-WARN[0000]: Unsupported key networks - ignoring
+WARN Unsupported key networks - ignoring
 file "redis-svc.yaml" created
 file "web-svc.yaml" created
 file "web-deployment.yaml" created
 file "redis-deployment.yaml" created
 
 $ kompose -f docker-compose.yml convert
-WARN[0000]: Unsupported key networks - ignoring
+WARN Unsupported key networks - ignoring
 file "redis-svc.yaml" created
 file "web-svc.yaml" created
 file "web-deployment.yaml" created
