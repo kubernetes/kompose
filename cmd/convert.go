@@ -66,6 +66,7 @@ var convertCmd = &cobra.Command{
 			CreateD:                ConvertDeployment,
 			CreateDS:               ConvertDaemonSet,
 			CreateRC:               ConvertReplicationController,
+			CreateBuildConfig:      ConvertBuildConfig,
 			BuildRepo:              ConvertBuildRepo,
 			BuildBranch:            ConvertBuildBranch,
 			CreateDeploymentConfig: ConvertDeploymentConfig,
@@ -99,6 +100,8 @@ func init() {
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
 	convertCmd.Flags().MarkHidden("deployment-config")
+	convertCmd.Flags().BoolVar(&ConvertBuildConfig, "build-config", false, "Generate an Openshift buildconfig object")
+	convertCmd.Flags().MarkHidden("build-config")
 	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 	convertCmd.Flags().MarkHidden("build-repo")
 	convertCmd.Flags().StringVar(&ConvertBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
@@ -129,6 +132,7 @@ Available Commands:{{range .Commands}}{{if .IsAvailableCommand}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{ if .HasAvailableLocalFlags}}
 
 Resource Flags:
+      --build-config             Generate an OpenShift build config object
       --build-branch             Specify repository branch to use for buildconfig (default is current branch name)
       --build-repo               Specify source repository for buildconfig (default is current branch's remote url
   -c, --chart                    Create a Helm chart for converted objects
