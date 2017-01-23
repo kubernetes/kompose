@@ -44,8 +44,8 @@ You can try with a Docker Compose version 2 like this:
 
 ```console
 $ kompose --file docker-voting.yml convert
-WARN[0000]: Unsupported key networks - ignoring
-WARN[0000]: Unsupported key build - ignoring
+WARN Unsupported key networks - ignoring
+WARN Unsupported key build - ignoring
 file "worker-svc.yaml" created
 file "db-svc.yaml" created
 file "redis-svc.yaml" created
@@ -91,7 +91,7 @@ Using `--bundle, --dab` to specify a DAB file as below:
 
 ```console
 $ kompose --bundle docker-compose-bundle.dab convert
-WARN[0000]: Unsupported key networks - ignoring
+WARN: Unsupported key networks - ignoring
 file "redis-svc.yaml" created
 file "web-svc.yaml" created
 file "web-deployment.yaml" created
@@ -102,44 +102,44 @@ file "redis-deployment.yaml" created
 
 ```console
 $ kompose --provider openshift --file docker-voting.yml convert
-WARN[0000] [worker] Service cannot be created because of missing port.
-INFO[0000] file "vote-service.yaml" created             
-INFO[0000] file "db-service.yaml" created               
-INFO[0000] file "redis-service.yaml" created            
-INFO[0000] file "result-service.yaml" created           
-INFO[0000] file "vote-deploymentconfig.yaml" created    
-INFO[0000] file "vote-imagestream.yaml" created         
-INFO[0000] file "worker-deploymentconfig.yaml" created  
-INFO[0000] file "worker-imagestream.yaml" created       
-INFO[0000] file "db-deploymentconfig.yaml" created      
-INFO[0000] file "db-imagestream.yaml" created           
-INFO[0000] file "redis-deploymentconfig.yaml" created   
-INFO[0000] file "redis-imagestream.yaml" created        
-INFO[0000] file "result-deploymentconfig.yaml" created  
-INFO[0000] file "result-imagestream.yaml" created  
+WARN [worker] Service cannot be created because of missing port.
+INFO file "vote-service.yaml" created             
+INFO file "db-service.yaml" created               
+INFO file "redis-service.yaml" created            
+INFO file "result-service.yaml" created           
+INFO file "vote-deploymentconfig.yaml" created    
+INFO file "vote-imagestream.yaml" created         
+INFO file "worker-deploymentconfig.yaml" created  
+INFO file "worker-imagestream.yaml" created       
+INFO file "db-deploymentconfig.yaml" created      
+INFO file "db-imagestream.yaml" created           
+INFO file "redis-deploymentconfig.yaml" created   
+INFO file "redis-imagestream.yaml" created        
+INFO file "result-deploymentconfig.yaml" created  
+INFO file "result-imagestream.yaml" created  
 ```
 
 In similar way you can convert DAB files to OpenShift.
 ```console
 $ kompose --bundle docker-compose-bundle.dab --provider openshift convert
-WARN[0000]: Unsupported key networks - ignoring
-INFO[0000] file "redis-svc.yaml" created
-INFO[0000] file "web-svc.yaml" created
-INFO[0000] file "web-deploymentconfig.yaml" created
-INFO[0000] file "web-imagestream.yaml" created           
-INFO[0000] file "redis-deploymentconfig.yaml" created
-INFO[0000] file "redis-imagestream.yaml" created
+WARN: Unsupported key networks - ignoring
+INFO file "redis-svc.yaml" created
+INFO file "web-svc.yaml" created
+INFO file "web-deploymentconfig.yaml" created
+INFO file "web-imagestream.yaml" created           
+INFO file "redis-deploymentconfig.yaml" created
+INFO file "redis-imagestream.yaml" created
 ```
 
 It also supports creating buildconfig for build directive in a service. By default, it uses the remote repo for the current git branch as the source repo, and the current branch as the source branch for the build. You can specify a different source repo and branch using ``--build-repo`` and ``--build-branch`` options respectively.
 
 ```console
 kompose --provider openshift --file buildconfig/docker-compose.yml convert
-WARN[0000] [foo] Service cannot be created because of missing port. 
-INFO[0000] Buildconfig using git@github.com:rtnpro/kompose.git::master as source. 
-INFO[0000] file "foo-deploymentconfig.yaml" created     
-INFO[0000] file "foo-imagestream.yaml" created          
-INFO[0000] file "foo-buildconfig.yaml" created 
+WARN [foo] Service cannot be created because of missing port. 
+INFO Buildconfig using git@github.com:rtnpro/kompose.git::master as source. 
+INFO file "foo-deploymentconfig.yaml" created     
+INFO file "foo-imagestream.yaml" created          
+INFO file "foo-buildconfig.yaml" created 
 ```
 
 **Note**: If you are manually pushing the Openshift artifacts using ``oc create -f``, you need to ensure that you push the imagestream artifact before the buildconfig artifact, to workaround this Openshift issue: https://github.com/openshift/origin/issues/4518 .
@@ -155,12 +155,12 @@ $ kompose --file ./examples/docker-guestbook.yml up
 We are going to create Kubernetes deployments and services for your Dockerized application.
 If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead.
 
-INFO[0000] Successfully created service: redis-master   
-INFO[0000] Successfully created service: redis-slave    
-INFO[0000] Successfully created service: frontend       
-INFO[0001] Successfully created deployment: redis-master
-INFO[0001] Successfully created deployment: redis-slave
-INFO[0001] Successfully created deployment: frontend    
+INFO Successfully created service: redis-master   
+INFO Successfully created service: redis-slave    
+INFO Successfully created service: frontend       
+INFO Successfully created deployment: redis-master
+INFO Successfully created deployment: redis-slave
+INFO Successfully created deployment: frontend    
 
 Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.
 
@@ -189,15 +189,15 @@ $kompose --file ./examples/docker-guestbook.yml --provider openshift up
 We are going to create OpenShift DeploymentConfigs and Services for your Dockerized application.
 If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead.
 
-INFO[0000] Successfully created service: redis-slave    
-INFO[0000] Successfully created service: frontend       
-INFO[0000] Successfully created service: redis-master   
-INFO[0000] Successfully created deployment: redis-slave
-INFO[0000] Successfully created ImageStream: redis-slave
-INFO[0000] Successfully created deployment: frontend    
-INFO[0000] Successfully created ImageStream: frontend   
-INFO[0000] Successfully created deployment: redis-master
-INFO[0000] Successfully created ImageStream: redis-master
+INFO Successfully created service: redis-slave    
+INFO Successfully created service: frontend       
+INFO Successfully created service: redis-master   
+INFO Successfully created deployment: redis-slave
+INFO Successfully created ImageStream: redis-slave
+INFO Successfully created deployment: frontend    
+INFO Successfully created ImageStream: frontend   
+INFO Successfully created deployment: redis-master
+INFO Successfully created ImageStream: redis-master
 
 Your application has been deployed to OpenShift. You can run 'oc get dc,svc,is' for details.
 
@@ -225,12 +225,12 @@ Once you have deployed "composed" application to Kubernetes, `kompose down` will
 
 ```console
 $ kompose --file docker-guestbook.yml down
-INFO[0000] Successfully deleted service: redis-master   
-INFO[0004] Successfully deleted deployment: redis-master
-INFO[0004] Successfully deleted service: redis-slave    
-INFO[0008] Successfully deleted deployment: redis-slave
-INFO[0009] Successfully deleted service: frontend       
-INFO[0013] Successfully deleted deployment: frontend
+INFO Successfully deleted service: redis-master   
+INFO Successfully deleted deployment: redis-master
+INFO Successfully deleted service: redis-slave    
+INFO Successfully deleted deployment: redis-slave
+INFO Successfully deleted service: frontend       
+INFO Successfully deleted deployment: frontend
 ```
 Note:
 - You must have a running Kubernetes cluster with a pre-configured kubectl context.
@@ -312,9 +312,9 @@ nginx:
   container_name: foobar
 
 $ kompose -f nginx.yml convert
-WARN[0000] Unsupported key build - ignoring             
-WARN[0000] Unsupported key cap_add - ignoring           
-WARN[0000] Unsupported key dockerfile - ignoring
+WARN Unsupported key build - ignoring             
+WARN Unsupported key cap_add - ignoring           
+WARN Unsupported key dockerfile - ignoring
 ```
 
 ## Labels
