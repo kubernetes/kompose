@@ -24,6 +24,8 @@ import (
 	"path/filepath"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes-incubator/kompose/pkg/testutils"
+
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 )
@@ -160,4 +162,23 @@ func TestIsDir(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error removing the temporary directory during cleanup: %v", err)
 	}
+}
+
+// TestServiceWithoutPort this tests if Headless Service is created for services without Port.
+func TestServiceWithoutPort(t *testing.T) {
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+
+	objects := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err := testutils.CheckForHeadless(objects); err != nil {
+		t.Error(err)
+	}
+
 }
