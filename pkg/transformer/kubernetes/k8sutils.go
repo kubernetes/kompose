@@ -282,7 +282,11 @@ func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, o
 	return svc
 }
 
-// CreateHeadlessService creates a k8s headless service
+// CreateHeadlessService creates a k8s headless service.
+// Thi is used for docker-compose services without ports. For such services we can't create regular Kubernetes Service.
+// and without Service Pods can't find each other using DNS names.
+// Instead of regular Kubernetes Service we create Headless Service. DNS of such service points directly to Pod IP address.
+// You can find more about Headless Services in Kubernetes documentation https://kubernetes.io/docs/user-guide/services/#headless-services
 func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
 	svc := k.InitSvc(name, service)
 
