@@ -258,7 +258,7 @@ func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion)
 // PortsExist checks if service has ports defined
 func (k *Kubernetes) PortsExist(name string, service kobject.ServiceConfig) bool {
 	if len(service.Port) == 0 {
-		logrus.Warningf("[%s] No ports defined, we will create a Headless service.", name)
+		logrus.Debugf("[%s] No ports defined. Headless service will be created.", name)
 		return false
 	}
 	return true
