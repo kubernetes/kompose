@@ -15,7 +15,22 @@ set -e
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-source "$(dirname "$BASH_SOURCE")/.validate"
 
-go vet $PKGS;
- 
+for pkg in $(glide novendor); do
+	lintOutput=$(golint "$pkg")
+	# if lineOutput is not empty, save it to errros array
+	if [ "$lintOutput" ]; then
+		errors+=("$lintOutput")
+	fi
+done 
+
+
+if [ ${#errors[@]} -eq 0 ]; then
+	echo "golint OK"
+else
+	echo "golint ERRORS:"
+	for err in "${errors[@]}"; do
+		echo "$err"
+	done
+	exit 1
+fi

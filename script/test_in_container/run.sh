@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Copyright 2016 The Kubernetes Authors All rights reserved.
+set -e
+
+# Copyright 2017 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,23 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
 
-source "$(dirname "$BASH_SOURCE")/.build"
+# Container should be started with Kompose source mounted as read-only volume $KOMPOSE_TMP_SRC
+# Copy Kompose sources to another directory after container starts.
+# We can be sure that this container won't modify any files on hosts disk.
+cp -r $KOMPOSE_TMP_SRC/ $(dirname $KOMPOSE_SRC)
 
-OUT_FILE="./kompose"
-
-# Get rid of existing binary
-rm -f $OUT_FILE
-
-# Build binary
-go build \
-    "${BUILD_FLAGS[@]}" \
-    -o $OUT_FILE \
-    main.go
-
-if [ $? -eq 0 ]; then
-  echo "Build successful. Program saved as ${OUT_FILE}"
-else
-  echo "Build failed."
-fi
+make test

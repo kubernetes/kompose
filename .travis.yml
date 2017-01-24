@@ -20,18 +20,7 @@ install:
   - true
 
 script:
-  - make check-vendor
-  - make validate
-  - make test-unit-cover
+  - make test
   # gover collects all .coverprofile files and saves it to one file gover.coverprofile
   - gover
   - goveralls -coverprofile=gover.coverprofile -service=travis-ci
-  
-  # make test-cmd requires kompose binary
-  - make bin
-  
-  # $GOPATH/bin is in $PATH
-  - mkdir -p $GOPATH/bin
-  - cp kompose $GOPATH/bin/
-
-  - make test-cmd
