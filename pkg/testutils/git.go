@@ -26,9 +26,12 @@ func CreateLocalDirectory(t *testing.T) string {
 func CreateLocalGitDirectory(t *testing.T) string {
 	dir := CreateLocalDirectory(t)
 	cmd := NewCommand(
-		`git init && touch README &&
-		git add README &&
-		git commit -m 'testcommit'`)
+		`git init &&
+		 git config  user.email "you@example.com" &&
+		 git config  user.name "Your Name" &&
+		 touch README &&
+		 git add README &&
+		 git commit --no-gpg-sign -m 'testcommit'`)
 	cmd.Dir = dir
 	_, err := cmd.Output()
 	if err != nil {

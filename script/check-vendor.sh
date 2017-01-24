@@ -14,12 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-
 # Check if there are nested vendor dirs inside Kompose vendor.
 # All dependencies should be flattened and there shouldn't be vendor in inside vendor.  
+
 function check_nested_vendor() {
-    echo "Checking if there are nested vendor dirs"
+    echo "Checking for nested vendor dirs"
 
     # count all vendor directories inside Kompose vendor
     NO_NESTED_VENDORS=$(find vendor/ -type d | sed 's/^[^/]*.//g' | grep -E "vendor$" | grep -v _vendor | wc -l)
@@ -41,7 +40,7 @@ function check_glide-vc() {
     echo "Checking if vendor was cleaned using glide-vc."
 
     # dry run glide-vc and count how many could be deleted. 
-    NO_DELETED_FILES=$($GOPATH/bin/glide-vc --only-code --no-tests --dryrun | wc -l)
+    NO_DELETED_FILES=$(glide-vc --only-code --no-tests --dryrun | wc -l)
     
     if [ $NO_DELETED_FILES -ne 0 ]; then
         echo "ERROR"
