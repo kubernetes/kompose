@@ -477,6 +477,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				if service.ExposeService != "" {
 					objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
 				}
+			} else {
+				svc := k.CreateHeadlessService(name, service, objects)
+				objects = append(objects, svc)
 			}
 		}
 
