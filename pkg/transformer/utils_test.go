@@ -21,6 +21,18 @@ import (
 	"testing"
 )
 
+// When passing "z" or "Z" we expect "" back.
+func TestZParseVolumeLabeling(t *testing.T) {
+	testCase := "/foobar:/foobar:Z"
+	_, _, _, mode, err := ParseVolume(testCase)
+	if err != nil {
+		t.Errorf("In test case %q, returned unexpected error %v", testCase, err)
+	}
+	if mode != "" {
+		t.Errorf("In test case %q, returned mode %s, expected \"\"", testCase, mode)
+	}
+}
+
 func TestParseVolume(t *testing.T) {
 	name1 := "datavolume"
 	host1 := "./cache"
