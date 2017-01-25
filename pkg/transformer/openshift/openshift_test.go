@@ -28,6 +28,7 @@ import (
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/testutils"
+	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
@@ -308,4 +309,23 @@ func TestInitBuildConfig(t *testing.T) {
 			t.Errorf("Expected: %#v, got: %#v", test.value, test.field)
 		}
 	}
+}
+
+// TestServiceWithoutPort this tests if Headless Service is created for services without Port.
+func TestServiceWithoutPort(t *testing.T) {
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	o := OpenShift{Kubernetes: kubernetes.Kubernetes{}}
+
+	objects := o.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err := testutils.CheckForHeadless(objects); err != nil {
+		t.Error(err)
+	}
+
 }
