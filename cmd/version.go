@@ -24,9 +24,9 @@ import (
 
 var (
 	// VERSION  is version number that wil be displayed when running ./kompose version
-	VERSION = "0.1.2"
+	VERSION = "0.2.0"
 	// GITCOMMIT is hash of the commit that wil be displayed when running ./kompose version
-	GITCOMMIT = "HEAD"
+	GITCOMMIT = "64433fd"
 )
 
 // versionCmd represents the version command
