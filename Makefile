@@ -35,7 +35,7 @@ install:
 # kompile kompose for multiple platforms
 .PHONY: cross
 cross:
-	gox -os="darwin linux windows" -arch="386 amd64" -output="bundles/kompose_{{.OS}}-{{.Arch}}/kompose" $(BUILD_FLAGS)
+	gox -os="darwin linux windows" -arch="amd64" -output="bin/kompose-{{.OS}}-{{.Arch}}" $(BUILD_FLAGS)
 
 .PHONY: clean
 clean:
