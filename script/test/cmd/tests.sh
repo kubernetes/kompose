@@ -172,4 +172,39 @@ convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-com
 # Behavior with -o <dirname>/<filename>
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o $TEMP_DIR/output_file -j" "$TEMP_DIR/output_file"
 
+#####
+# Test the preference file behavior
+
+# valid preference file1
+# kompose convert --profile ...; reads from preference file set in KOMPOSE_CONFIG
+# should generate services, deployments, replicationcontrollers
+export KOMPOSE_CONFIG=$KOMPOSE_ROOT/script/test/fixtures/preference-file/kompose-valid1.yml
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/preference-file/docker-compose.yml convert --profile default -j" "etherpad-service.json" "mariadb-service.json" "etherpad-deployment.json" "etherpad-replicationcontroller.json" "mariadb-deployment.json" "mariadb-replicationcontroller.json"
+
+# valid preference file1
+# kompose --provider openshift convert --profile ...
+# should generate service, deploymentconfig, imagestreams
+export KOMPOSE_CONFIG=$KOMPOSE_ROOT/script/test/fixtures/preference-file/kompose-valid1.yml
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/preference-file/docker-compose.yml --provider openshift convert --profile test -j" "etherpad-service.json" "mariadb-service.json" "etherpad-deploymentconfig.json" "etherpad-imagestream.json" "mariadb-deploymentconfig.json" "mariadb-imagestream.json"
+# this has profile that has provider as kubernetes and commandline provider given is openshift
+export KOMPOSE_CONFIG=$KOMPOSE_ROOT/script/test/fixtures/preference-file/kompose-valid1.yml
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/preference-file/docker-compose.yml --provider openshift convert --profile default -j"
+
+# valid preference file1
+# kompose convert --daemon-set --deployment --profile ...; so commmand line flags and preference file get merged.
+# should generate services, deployments, replicationcontrollers, daemonsets
+export KOMPOSE_CONFIG=$KOMPOSE_ROOT/script/test/fixtures/preference-file/kompose-valid1.yml
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/preference-file/docker-compose.yml convert --profile default -j --daemon-set --deployment" "etherpad-service.json" "mariadb-service.json" "etherpad-deployment.json" "etherpad-replicationcontroller.json" "mariadb-deployment.json" "mariadb-replicationcontroller.json" "etherpad-daemonset.json" "mariadb-daemonset.json"
+
+# test invalid preference files
+export KOMPOSE_CONFIG=$KOMPOSE_ROOT/script/test/fixtures/preference-file/kompose-invalid-objects.yml
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/preference-file/docker-compose.yml convert --profile default --stdout"
+
+export KOMPOSE_CONFIG=$KOMPOSE_ROOT/script/test/fixtures/preference-file/kompose-invalid-provider.yml
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/preference-file/docker-compose.yml convert --profile default --stdout"
+
+export KOMPOSE_CONFIG=$KOMPOSE_ROOT/script/test/fixtures/preference-file/kompose-invalid-profile.yml
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/preference-file/docker-compose.yml convert --profile unknownprofile --stdout"
+unset KOMPOSE_CONFIG
+
 exit $EXIT_STATUS

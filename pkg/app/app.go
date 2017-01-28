@@ -65,15 +65,11 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 	logrus.Debug("Checking validation of provider %s", provider)
 
 	// OpenShift specific flags
-	deploymentConfig := cmd.Flags().Lookup("deployment-config").Changed
 	buildRepo := cmd.Flags().Lookup("build-repo").Changed
 	buildBranch := cmd.Flags().Lookup("build-branch").Changed
 
 	// Kubernetes specific flags
 	chart := cmd.Flags().Lookup("chart").Changed
-	daemonSet := cmd.Flags().Lookup("daemon-set").Changed
-	replicationController := cmd.Flags().Lookup("replication-controller").Changed
-	deployment := cmd.Flags().Lookup("deployment").Changed
 
 	// Check validations against provider flags
 	switch {
@@ -81,18 +77,18 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 		if chart {
 			logrus.Fatalf("--chart, -c is a Kubernetes only flag")
 		}
-		if daemonSet {
-			logrus.Fatalf("--daemon-set is a Kubernetes only flag")
+		if opt.CreateDS {
+			logrus.Fatalf("DaemonSet is a Kubernetes only controller")
 		}
-		if replicationController {
-			logrus.Fatalf("--replication-controller is a Kubernetes only flag")
+		if opt.CreateRC {
+			logrus.Fatalf("ReplicationController is a Kubernetes only controller")
 		}
-		if deployment {
-			logrus.Fatalf("--deployment, -d is a Kubernetes only flag")
+		if opt.CreateD {
+			logrus.Fatalf("Deployment is a Kubernetes only controller")
 		}
 	case provider == "kubernetes":
-		if deploymentConfig {
-			logrus.Fatalf("--deployment-config is an OpenShift only flag")
+		if opt.CreateDeploymentConfig {
+			logrus.Fatalf("DeploymentConfig is an OpenShift only controller")
 		}
 		if buildRepo {
 			logrus.Fatalf("--build-repo is an Openshift only flag")
@@ -100,6 +96,9 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 		if buildBranch {
 			logrus.Fatalf("--build-branch is an Openshift only flag")
 		}
+	default:
+		logrus.Fatalf("Only two providers are supported: 'kubernetes' and 'openshift'")
+
 	}
 
 	// Standard checks regardless of provider

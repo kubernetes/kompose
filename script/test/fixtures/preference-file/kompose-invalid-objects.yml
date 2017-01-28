@@ -1,0 +1,12 @@
+profiles:
+  default:
+    provider: kubernetes
+    objects:
+      - deployment
+      - rcs
+
+  test:
+    provider: openshift
+    objects:
+      - deploymentconfig
+

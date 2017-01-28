@@ -1,0 +1,12 @@
+profiles:
+  default:
+    provider: kubernetes
+    objects:
+      - deployment
+      - replicationcontroller
+
+  test:
+    provider: openshift
+    objects:
+      - deploymentconfig
+

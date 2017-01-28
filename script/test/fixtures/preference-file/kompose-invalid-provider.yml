@@ -1,0 +1,12 @@
+profiles:
+  default:
+    provider: k8s
+    objects:
+      - deployment
+      - replicationcontroller
+
+  test:
+    provider: openshift
+    objects:
+      - deploymentconfig
+
