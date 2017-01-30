@@ -29,21 +29,25 @@ type KomposeObject struct {
 
 // ConvertOptions holds all options that controls transformation process
 type ConvertOptions struct {
-	ToStdout               bool
-	CreateD                bool
-	CreateRC               bool
-	CreateDS               bool
-	CreateDeploymentConfig bool
-	BuildRepo              string
-	BuildBranch            string
-	CreateChart            bool
-	GenerateYaml           bool
-	GenerateJSON           bool
-	EmptyVols              bool
-	Replicas               int
-	InputFiles             []string
-	OutFile                string
-	Provider               string
+	ToStdout                    bool
+	CreateD                     bool
+	CreateRC                    bool
+	CreateDS                    bool
+	CreateDeploymentConfig      bool
+	BuildRepo                   string
+	BuildBranch                 string
+	CreateChart                 bool
+	GenerateYaml                bool
+	GenerateJSON                bool
+	EmptyVols                   bool
+	Replicas                    int
+	InputFiles                  []string
+	OutFile                     string
+	Provider                    string
+	IsDeploymentFlag            bool
+	IsDaemonSetFlag             bool
+	IsReplicationControllerFlag bool
+	IsDeploymentConfigFlag      bool
 }
 
 // ServiceConfig holds the basic struct of a container

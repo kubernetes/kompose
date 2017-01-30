@@ -321,6 +321,10 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 		// Generate pod only and nothing more
 		if service.Restart == "no" || service.Restart == "on-failure" {
+			// Error out if Controller Object is specified with restart: 'on-failure'
+			if opt.IsDeploymentConfigFlag {
+				logrus.Fatalf("Controller object cannot be specified with restart: 'on-failure'")
+			}
 			pod := o.InitPod(name, service)
 			objects = append(objects, pod)
 		} else {
