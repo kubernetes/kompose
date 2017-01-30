@@ -100,6 +100,7 @@ convert::expect_success "kompose --bundle $KOMPOSE_ROOT/script/test/fixtures/bun
 # Test related to multiple-compose files
 # Kubernets test
 convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-k8s.yml -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-os.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/output-k8s.json" "Unsupported depends_on key - ignoring"
+# OpenShift test
 convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-k8s.yml -f $KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/docker-os.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/multiple-compose-files/output-openshift.json" "Unsupported depends_on key - ignoring"
 
 ######
@@ -160,7 +161,6 @@ convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/te
 # when kompose.service.expose="<hostname>" and multiple ports in docker compose file (first port should be selected)
 convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-multiple-ports.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-hostname-multiple-ports.json"
 
-
 ######
 # Test the output file behavior of kompose convert
 # Default behavior without -o
@@ -171,5 +171,21 @@ convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-com
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o $TEMP_DIR -j" "$TEMP_DIR/redis-deployment.json" "$TEMP_DIR/redis-service.json" "$TEMP_DIR/web-deployment.json" "$TEMP_DIR/web-service.json"
 # Behavior with -o <dirname>/<filename>
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o $TEMP_DIR/output_file -j" "$TEMP_DIR/output_file"
+
+# Test related to support docker-compose.yaml beside docker-compose.yml
+# Store the original path
+CURRENT_DIR=$(pwd)
+# Kubernets test
+cd "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/"
+convert::expect_success "kompose convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/output-k8s.json"
+cd "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/yml"
+convert::expect_success "kompose convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/yml/output-k8s.json"
+# OpenShift test
+cd "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/"
+convert::expect_success "kompose --provider=openshift convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/output-os.json"
+cd "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/yml"
+convert::expect_success "kompose --provider=openshift convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/yml/output-os.json"
+# Return back to the original path
+cd $CURRENT_DIR
 
 exit $EXIT_STATUS
