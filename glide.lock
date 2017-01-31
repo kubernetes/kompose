@@ -1,5 +1,5 @@
-hash: fa2413eeb134e52459eccf2d588891d849a6cddc704cacd5e3e85fac9e6f5e28
-updated: 2017-01-18T09:16:57.103796411-05:00
+hash: fe386c1fddc5a0363c1f0d420218f88bc1808db9b47dcf6586f919aaa0091d93
+updated: 2017-01-31T12:00:47.595930292-05:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -160,6 +160,7 @@ imports:
   - api/types/strslice
   - api/types/swarm
   - api/types/versions
+  - client
   - opts
   - pkg/mount
   - pkg/signal
@@ -214,7 +215,7 @@ imports:
 - name: github.com/flynn/go-shlex
   version: 3f9db97f856818214da2e1057f8ad84803971cff
 - name: github.com/fsnotify/fsnotify
-  version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
+  version: a904159b9206978bb6d53fcc7a769e5cd726c737
 - name: github.com/fsouza/go-dockerclient
   version: bf97c77db7c945cbcdbf09d56c6f87a66f54537b
   subpackages:
@@ -332,7 +333,7 @@ imports:
   - runtime/internal
   - utilities
 - name: github.com/hashicorp/hcl
-  version: eb6f65b2d77ed5078887f960ff570fbddbbeb49d
+  version: 88e9565e9965f4054f86c72ff1ad1bb50e560d6f
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -357,7 +358,7 @@ imports:
   subpackages:
   - pbutil
 - name: github.com/mitchellh/mapstructure
-  version: ed105d635dfa9ea7133f7c79f1eb36203fc3a156
+  version: db1efb556f84b25a0a13a04aad883943538ad2e0
 - name: github.com/openshift/origin
   version: b4e0954faa4a0d11d9c1a536b76ad4a8c0206b7c
   subpackages:
@@ -429,13 +430,13 @@ imports:
   subpackages:
   - mem
 - name: github.com/spf13/cast
-  version: 56a7ecbeb18dde53c6db4bd96b541fd9741b8d44
+  version: d1139bab1c07d5ad390a65e7305876b3c1a8370b
 - name: github.com/spf13/cobra
-  version: 1dd5ff2e11b6dca62fdcb275eb804b94607d8b06
+  version: 35136c09d8da66b901337c6e86fd8e88a1a255bd
 - name: github.com/spf13/jwalterweatherman
   version: fa7ca7e836cf3a8bb4ebf799f472c12d7e903d66
 - name: github.com/spf13/pflag
-  version: 51268031d79952516489a9f8aa34e9709b98d946
+  version: 9ff6c6923cfffbcd502984b8e0c80539a94968b7
 - name: github.com/spf13/viper
   version: 5ed0fc31f7f453625df314d8e66b9791e8d13003
 - name: github.com/ugorji/go
@@ -453,16 +454,11 @@ imports:
   subpackages:
   - context
   - context/ctxhttp
-  - html
-  - html/atom
   - http2
   - http2/hpack
-  - idna
   - internal/timeseries
   - lex/httplex
-  - proxy
   - trace
-  - websocket
 - name: golang.org/x/oauth2
   version: 3c3a985cb79f52a3190fbc056984415ca6763d01
   subpackages:
@@ -513,7 +509,7 @@ imports:
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 - name: gopkg.in/yaml.v2
-  version: a5b47d31c556af34a302ce5d659e6fea44d90de0
+  version: 4c78c975fe7c825c6d1466c42be594d1d6f3aba6
 - name: k8s.io/client-go
   version: d72c0e162789e1bbb33c33cfa26858a1375efe01
   subpackages:
