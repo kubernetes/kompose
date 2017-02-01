@@ -17,7 +17,6 @@
         "ports": [
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 80
           }
@@ -44,7 +43,6 @@
         "ports": [
           {
             "name": "6379",
-            "protocol": "TCP",
             "port": 6379,
             "targetPort": 6379
           }
@@ -71,7 +69,6 @@
         "ports": [
           {
             "name": "6379",
-            "protocol": "TCP",
             "port": 6379,
             "targetPort": 6379
           }
@@ -107,8 +104,7 @@
                 "image": "gcr.io/google-samples/gb-frontend:v4",
                 "ports": [
                   {
-                    "containerPort": 80,
-                    "protocol": "TCP"
+                    "containerPort": 80
                   }
                 ],
                 "env": [
@@ -162,8 +158,7 @@
                 "image": "gcr.io/google_containers/redis:e2e",
                 "ports": [
                   {
-                    "containerPort": 6379,
-                    "protocol": "TCP"
+                    "containerPort": 6379
                   }
                 ],
                 "resources": {}
@@ -199,8 +194,7 @@
                 "image": "gcr.io/google_samples/gb-redisslave:v1",
                 "ports": [
                   {
-                    "containerPort": 6379,
-                    "protocol": "TCP"
+                    "containerPort": 6379
                   }
                 ],
                 "env": [

@@ -17,7 +17,6 @@
         "ports": [
           {
             "name": "6379",
-            "protocol": "TCP",
             "port": 6379,
             "targetPort": 6379
           }
@@ -47,13 +46,11 @@
         "ports": [
           {
             "name": "5000",
-            "protocol": "TCP",
             "port": 5000,
             "targetPort": 5000
           },
           {
             "name": "4000",
-            "protocol": "TCP",
             "port": 4000,
             "targetPort": 4000
           }
@@ -89,8 +86,7 @@
                 "image": "redis:3.0",
                 "ports": [
                   {
-                    "containerPort": 6379,
-                    "protocol": "TCP"
+                    "containerPort": 6379
                   }
                 ],
                 "resources": {}
@@ -129,12 +125,10 @@
                 "image": "tuna/docker-counter23",
                 "ports": [
                   {
-                    "containerPort": 5000,
-                    "protocol": "TCP"
+                    "containerPort": 5000
                   },
                   {
-                    "containerPort": 4000,
-                    "protocol": "TCP"
+                    "containerPort": 4000
                   }
                 ],
                 "resources": {}
