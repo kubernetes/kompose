@@ -1,5 +1,5 @@
-hash: fa2413eeb134e52459eccf2d588891d849a6cddc704cacd5e3e85fac9e6f5e28
-updated: 2017-01-18T09:16:57.103796411-05:00
+hash: fe386c1fddc5a0363c1f0d420218f88bc1808db9b47dcf6586f919aaa0091d93
+updated: 2017-02-01T06:24:03.520400811Z
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -153,16 +153,21 @@ imports:
   - api/types
   - api/types/blkiodev
   - api/types/container
+  - api/types/events
   - api/types/filters
   - api/types/mount
   - api/types/network
+  - api/types/reference
   - api/types/registry
   - api/types/strslice
   - api/types/swarm
+  - api/types/time
   - api/types/versions
+  - client
   - opts
   - pkg/mount
   - pkg/signal
+  - pkg/tlsconfig
   - pkg/urlutil
   - runconfig/opts
 - name: github.com/docker/engine-api
@@ -356,8 +361,29 @@ imports:
   version: fc2b8d3a73c4867e51861bbdd5ae3c1f0869dd6a
   subpackages:
   - pbutil
+- name: github.com/Microsoft/go-winio
+  version: 4f1a71750d95a5a8a46c40a67ffbed8129c2f138
 - name: github.com/mitchellh/mapstructure
   version: ed105d635dfa9ea7133f7c79f1eb36203fc3a156
+- name: github.com/opencontainers/runc
+  version: 74317eaa20cf37eb2c762dc98b01e3e0b4d5e598
+  subpackages:
+  - libcontainer
+  - libcontainer/apparmor
+  - libcontainer/cgroups
+  - libcontainer/cgroups/fs
+  - libcontainer/cgroups/systemd
+  - libcontainer/configs
+  - libcontainer/configs/validate
+  - libcontainer/criurpc
+  - libcontainer/keys
+  - libcontainer/label
+  - libcontainer/seccomp
+  - libcontainer/selinux
+  - libcontainer/stacktrace
+  - libcontainer/system
+  - libcontainer/user
+  - libcontainer/utils
 - name: github.com/openshift/origin
   version: b4e0954faa4a0d11d9c1a536b76ad4a8c0206b7c
   subpackages:
@@ -406,6 +432,8 @@ imports:
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
   version: a1f048ba24490f9b0674a67e1ce995d685cddf4a
+- name: github.com/pkg/errors
+  version: 248dadf4e9068a0b3e79f02ed0a610d935de5302
 - name: github.com/prometheus/client_golang
   version: e51041b3fa41cece0dca035740ba6411905be473
   subpackages:
@@ -453,16 +481,12 @@ imports:
   subpackages:
   - context
   - context/ctxhttp
-  - html
-  - html/atom
   - http2
   - http2/hpack
-  - idna
   - internal/timeseries
   - lex/httplex
   - proxy
   - trace
-  - websocket
 - name: golang.org/x/oauth2
   version: 3c3a985cb79f52a3190fbc056984415ca6763d01
   subpackages:
@@ -471,9 +495,10 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
+  version: 833a04a10549a95dc34458c195cbad61bbb6cb4d
   subpackages:
   - unix
+  - windows
 - name: golang.org/x/text
   version: ceefd2213ed29504fff30155163c8f59827734f3
   subpackages:

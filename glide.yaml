@@ -61,4 +61,10 @@ import:
 # Glide will show WARN about conflicting rev (it this case it is OK)
 - package: github.com/docker/docker
   version: 601004e1a714d77d3a43e957b8ae8adbc867b280
-  
+  subpackages:
+  - api/types
+  - api/types/container
+  - client
+- package: golang.org/x/net
+  subpackages:
+  - context
