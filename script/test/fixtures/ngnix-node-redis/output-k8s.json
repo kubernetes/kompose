@@ -25,8 +25,7 @@
                 "name": "node2",
                 "ports": [
                   {
-                    "containerPort": 8080,
-                    "protocol": "TCP"
+                    "containerPort": 8080
                   }
                 ],
                 "resources": {}
@@ -53,7 +52,6 @@
         "ports": [
           {
             "name": "8080",
-            "protocol": "TCP",
             "port": 8080,
             "targetPort": 8080
           }
@@ -88,8 +86,7 @@
                 "name": "node3",
                 "ports": [
                   {
-                    "containerPort": 8080,
-                    "protocol": "TCP"
+                    "containerPort": 8080
                   }
                 ],
                 "resources": {}
@@ -116,7 +113,6 @@
         "ports": [
           {
             "name": "8080",
-            "protocol": "TCP",
             "port": 8080,
             "targetPort": 8080
           }
@@ -152,8 +148,7 @@
                 "image": "redis",
                 "ports": [
                   {
-                    "containerPort": 6379,
-                    "protocol": "TCP"
+                    "containerPort": 6379
                   }
                 ],
                 "resources": {}
@@ -180,7 +175,6 @@
         "ports": [
           {
             "name": "6379",
-            "protocol": "TCP",
             "port": 6379,
             "targetPort": 6379
           }
@@ -215,8 +209,7 @@
                 "name": "nginx",
                 "ports": [
                   {
-                    "containerPort": 80,
-                    "protocol": "TCP"
+                    "containerPort": 80
                   }
                 ],
                 "resources": {}
@@ -243,7 +236,6 @@
         "ports": [
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 80
           }
@@ -278,8 +270,7 @@
                 "name": "node1",
                 "ports": [
                   {
-                    "containerPort": 8080,
-                    "protocol": "TCP"
+                    "containerPort": 8080
                   }
                 ],
                 "resources": {}
@@ -306,7 +297,6 @@
         "ports": [
           {
             "name": "8080",
-            "protocol": "TCP",
             "port": 8080,
             "targetPort": 8080
           }

@@ -17,13 +17,11 @@
         "ports": [
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 9001
           },
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 9001
           }
@@ -50,13 +48,11 @@
         "ports": [
           {
             "name": "3306",
-            "protocol": "TCP",
             "port": 3306,
             "targetPort": 3306
           },
           {
             "name": "3307",
-            "protocol": "TCP",
             "port": 3307,
             "targetPort": 3307
           }
@@ -120,12 +116,10 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 9001,
-                    "protocol": "TCP"
+                    "containerPort": 9001
                   },
                   {
-                    "containerPort": 9001,
-                    "protocol": "TCP"
+                    "containerPort": 9001
                   }
                 ],
                 "env": [
@@ -249,12 +243,10 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 3306,
-                    "protocol": "TCP"
+                    "containerPort": 3306
                   },
                   {
-                    "containerPort": 3307,
-                    "protocol": "TCP"
+                    "containerPort": 3307
                   }
                 ],
                 "env": [

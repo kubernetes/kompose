@@ -17,7 +17,6 @@
         "ports": [
           {
             "name": "27017",
-            "protocol": "TCP",
             "port": 27017,
             "targetPort": 27017
           }
@@ -260,7 +259,6 @@
         "ports": [
           {
             "name": "8080",
-            "protocol": "TCP",
             "port": 8080,
             "targetPort": 8080
           }
@@ -341,7 +339,6 @@
         "ports": [
           {
             "name": "8088",
-            "protocol": "TCP",
             "port": 8088,
             "targetPort": 80
           }
@@ -389,8 +386,7 @@
                 ],
                 "ports": [
                   {
-                    "containerPort": 27017,
-                    "protocol": "TCP"
+                    "containerPort": 27017
                   }
                 ],
                 "resources": {},
@@ -985,8 +981,7 @@
                 "image": "hygieia-api:latest",
                 "ports": [
                   {
-                    "containerPort": 8080,
-                    "protocol": "TCP"
+                    "containerPort": 8080
                   }
                 ],
                 "resources": {},
@@ -1185,8 +1180,7 @@
                 "image": "hygieia-ui:latest",
                 "ports": [
                   {
-                    "containerPort": 80,
-                    "protocol": "TCP"
+                    "containerPort": 80
                   }
                 ],
                 "resources": {}

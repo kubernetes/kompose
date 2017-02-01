@@ -47,7 +47,6 @@
         "ports": [
           {
             "name": "5432",
-            "protocol": "TCP",
             "port": 5432,
             "targetPort": 5432
           }
@@ -74,7 +73,6 @@
         "ports": [
           {
             "name": "6379",
-            "protocol": "TCP",
             "port": 6379,
             "targetPort": 6379
           }
@@ -101,7 +99,6 @@
         "ports": [
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 80
           }
@@ -131,7 +128,6 @@
         "ports": [
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 80
           }
@@ -201,8 +197,7 @@
                 "image": "postgres",
                 "ports": [
                   {
-                    "containerPort": 5432,
-                    "protocol": "TCP"
+                    "containerPort": 5432
                   }
                 ],
                 "resources": {}
@@ -238,8 +233,7 @@
                 "image": "redis",
                 "ports": [
                   {
-                    "containerPort": 6379,
-                    "protocol": "TCP"
+                    "containerPort": 6379
                   }
                 ],
                 "resources": {}
@@ -275,8 +269,7 @@
                 "image": "tmadams333/example-voting-app-result",
                 "ports": [
                   {
-                    "containerPort": 80,
-                    "protocol": "TCP"
+                    "containerPort": 80
                   }
                 ],
                 "resources": {}
@@ -315,8 +308,7 @@
                 "image": "docker/example-voting-app-vote",
                 "ports": [
                   {
-                    "containerPort": 80,
-                    "protocol": "TCP"
+                    "containerPort": 80
                   }
                 ],
                 "resources": {}

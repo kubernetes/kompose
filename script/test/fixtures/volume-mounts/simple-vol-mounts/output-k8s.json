@@ -17,7 +17,6 @@
         "ports": [
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 80
           }
@@ -61,8 +60,7 @@
                 "image": "docker.io/fedora/apache",
                 "ports": [
                   {
-                    "containerPort": 80,
-                    "protocol": "TCP"
+                    "containerPort": 80
                   }
                 ],
                 "resources": {},

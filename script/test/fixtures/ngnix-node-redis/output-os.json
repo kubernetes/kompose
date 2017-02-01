@@ -17,7 +17,6 @@
         "ports": [
           {
             "name": "8080",
-            "protocol": "TCP",
             "port": 8080,
             "targetPort": 8080
           }
@@ -44,7 +43,6 @@
         "ports": [
           {
             "name": "6379",
-            "protocol": "TCP",
             "port": 6379,
             "targetPort": 6379
           }
@@ -71,7 +69,6 @@
         "ports": [
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 80
           }
@@ -98,7 +95,6 @@
         "ports": [
           {
             "name": "8080",
-            "protocol": "TCP",
             "port": 8080,
             "targetPort": 8080
           }
@@ -125,7 +121,6 @@
         "ports": [
           {
             "name": "8080",
-            "protocol": "TCP",
             "port": 8080,
             "targetPort": 8080
           }
@@ -189,8 +184,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 8080,
-                    "protocol": "TCP"
+                    "containerPort": 8080
                   }
                 ],
                 "resources": {}
@@ -307,8 +301,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 6379,
-                    "protocol": "TCP"
+                    "containerPort": 6379
                   }
                 ],
                 "resources": {}
@@ -396,8 +389,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 80,
-                    "protocol": "TCP"
+                    "containerPort": 80
                   }
                 ],
                 "resources": {}
@@ -514,8 +506,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 8080,
-                    "protocol": "TCP"
+                    "containerPort": 8080
                   }
                 ],
                 "resources": {}
@@ -632,8 +623,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 8080,
-                    "protocol": "TCP"
+                    "containerPort": 8080
                   }
                 ],
                 "resources": {}
