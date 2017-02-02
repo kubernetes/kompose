@@ -15,14 +15,22 @@ go get github.com/kubernetes-incubator/kompose
 
 #### GitHub release
 
-Grab the latest [release](https://github.com/kubernetes-incubator/kompose/releases) for your OS, untar and extract the binary.
-
-Linux example:
+Grabbing the latest release from the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases) for your OS.
 
 ```sh
-wget https://github.com/kubernetes-incubator/kompose/releases/download/v0.1.2/kompose_linux-amd64.tar.gz
-tar -xvf kompose_linux-amd64.tar.gz --strip 1
-sudo mv kompose /usr/local/bin
+# Linux 
+curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.2.0/kompose-linux-amd64 -o kompose
+
+# macOS
+curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.2.0/kompose-darwin-amd64 -o kompose
+
+# Windows
+curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.2.0/kompose-windows-amd64.exe -o kompose.exe
+```
+
+```sh
+chmod +x kompose
+sudo mv ./kompose /usr/local/bin/kompose
 ```
 
 #### CentOS
