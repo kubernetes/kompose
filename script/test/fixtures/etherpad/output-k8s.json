@@ -17,7 +17,6 @@
         "ports": [
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 9001
           }
@@ -44,7 +43,6 @@
         "ports": [
           {
             "name": "3306",
-            "protocol": "TCP",
             "port": 3306,
             "targetPort": 3306
           }
@@ -80,8 +78,7 @@
                 "image": "centos/etherpad",
                 "ports": [
                   {
-                    "containerPort": 9001,
-                    "protocol": "TCP"
+                    "containerPort": 9001
                   }
                 ],
                 "env": [
@@ -147,8 +144,7 @@
                 "image": "centos/mariadb",
                 "ports": [
                   {
-                    "containerPort": 3306,
-                    "protocol": "TCP"
+                    "containerPort": 3306
                   }
                 ],
                 "env": [

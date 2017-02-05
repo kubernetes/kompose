@@ -17,19 +17,16 @@
         "ports": [
           {
             "name": "30000",
-            "protocol": "TCP",
             "port": 30000,
             "targetPort": 80
           },
           {
             "name": "30001",
-            "protocol": "TCP",
             "port": 30001,
             "targetPort": 443
           },
           {
             "name": "30002",
-            "protocol": "TCP",
             "port": 30002,
             "targetPort": 22
           }
@@ -56,7 +53,6 @@
         "ports": [
           {
             "name": "5432",
-            "protocol": "TCP",
             "port": 5432,
             "targetPort": 5432
           }
@@ -83,7 +79,6 @@
         "ports": [
           {
             "name": "6379",
-            "protocol": "TCP",
             "port": 6379,
             "targetPort": 6379
           }
@@ -147,16 +142,13 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 80,
-                    "protocol": "TCP"
+                    "containerPort": 80
                   },
                   {
-                    "containerPort": 443,
-                    "protocol": "TCP"
+                    "containerPort": 443
                   },
                   {
-                    "containerPort": 22,
-                    "protocol": "TCP"
+                    "containerPort": 22
                   }
                 ],
                 "env": [
@@ -278,8 +270,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 5432,
-                    "protocol": "TCP"
+                    "containerPort": 5432
                   }
                 ],
                 "env": [
@@ -381,8 +372,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 6379,
-                    "protocol": "TCP"
+                    "containerPort": 6379
                   }
                 ],
                 "resources": {}

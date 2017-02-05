@@ -280,10 +280,18 @@ func (k *Kubernetes) CreatePVC(name string, mode string) *api.PersistentVolumeCl
 func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
 	for _, port := range service.Port {
-		ports = append(ports, api.ContainerPort{
-			ContainerPort: port.ContainerPort,
-			Protocol:      port.Protocol,
-		})
+
+		// If the default is already TCP, no need to include it.
+		if port.Protocol == api.ProtocolTCP {
+			ports = append(ports, api.ContainerPort{
+				ContainerPort: port.ContainerPort,
+			})
+		} else {
+			ports = append(ports, api.ContainerPort{
+				ContainerPort: port.ContainerPort,
+				Protocol:      port.Protocol,
+			})
+		}
 	}
 
 	return ports
@@ -299,12 +307,22 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 		var targetPort intstr.IntOrString
 		targetPort.IntVal = port.ContainerPort
 		targetPort.StrVal = strconv.Itoa(int(port.ContainerPort))
-		servicePorts = append(servicePorts, api.ServicePort{
-			Name:       strconv.Itoa(int(port.HostPort)),
-			Protocol:   port.Protocol,
-			Port:       port.HostPort,
-			TargetPort: targetPort,
-		})
+
+		// If the default is already TCP, no need to include it.
+		if port.Protocol == api.ProtocolTCP {
+			servicePorts = append(servicePorts, api.ServicePort{
+				Name:       strconv.Itoa(int(port.HostPort)),
+				Port:       port.HostPort,
+				TargetPort: targetPort,
+			})
+		} else {
+			servicePorts = append(servicePorts, api.ServicePort{
+				Name:       strconv.Itoa(int(port.HostPort)),
+				Protocol:   port.Protocol,
+				Port:       port.HostPort,
+				TargetPort: targetPort,
+			})
+		}
 	}
 	return servicePorts
 }
