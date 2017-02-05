@@ -23,9 +23,9 @@ usage() {
   echo ""
   echo "Requirements:"
   echo " git"
-  echo " tar - you should already have this on your system"
   echo " hub"
   echo " github-release"
+  echo " github_changelog_generator"
   echo " GITHUB_TOKEN in your env variable"
   echo " "
   echo "Not only that, but you must have permission for:"
@@ -41,6 +41,11 @@ requirements() {
 
   if [ ! -f $GOPATH/bin/github-release ]; then
     echo "No $GOPATH/bin/github-release. Please run 'go get -v github.com/aktau/github-release'"
+    return 1
+  fi
+
+  if [ ! -f /usr/local/bin/github_changelog_generator ]; then
+    echo "github_changelog_generator required to generate the change log. Please run 'gem install github_changelog_generator"
     return 1
   fi
 
@@ -74,9 +79,13 @@ replaceversion() {
   cd $CLI
 
   echo "1. Replaced version in version.go"
-  find . -name 'version.go' -maxdepth 3 -type f -exec sed -i "s/$1/$2/g" {} \;
+  sed -i "s/$1/$2/g" cmd/version.go
 
-  echo "2. Replaced README.md versioning"
+  echo "2. Replace GITCOMMIT value in version.go"
+  VERSION=`git log -1 --pretty=format:%h`
+  sed -i "s|.*GITCOMMIT = .*|\tGITCOMMIT = \"$VERSION\"|" cmd/version.go
+
+  echo "3. Replaced README.md versioning"
   sed -i "s/$1/$2/g" README.md
   
   cd ..
@@ -84,25 +93,20 @@ replaceversion() {
 
 changelog() {
   cd $CLI
-  echo "Getting commit changes. Writing to ../changes.txt"
-  LOG=`git shortlog --email --no-merges --pretty=%s v${1}..`
-  echo -e "\`\`\`\n$LOG\n\`\`\`" > ../changes.txt
-  echo "Changelog has been written to changes.txt"
-  echo "!!PLEASE REVIEW BEFORE CONTINUING!!"
-  echo "Open changes.txt and add the release information"
-  echo "to the beginning of the file before the git shortlog"
+  echo "Generating changelog using github-changelog-generator"
+  github_changelog_generator $UPSTREAM_REPO/$CLI -t $GITHUB_TOKEN --future-release v$1
   cd ..
 }
 
-changelog_md() {
-  echo "Generating CHANGELOG.md"
-  CHANGES=$(cat changes.txt)
+changelog_github() {
+  touch changes.txt
+  echo "Write your GitHub changelog here" >> changes.txt
+  $EDITOR changes.txt
+}
+
+build_binaries() {
   cd $CLI
-  DATE=$(date +"%m-%d-%Y")
-  CHANGELOG=$(cat CHANGELOG.md)
-  HEADER="## $CLI $1 ($DATE)"
-  echo -e "$HEADER\n\n$CHANGES\n\n$CHANGELOG" >CHANGELOG.md
-  echo "Changes have been written to CHANGELOG.md"
+  make cross
   cd ..
 }
 
@@ -137,6 +141,8 @@ git_pull() {
 push() {
   CHANGES=$(cat changes.txt)
   # Release it!
+
+  echo "Creating GitHub tag"
   github-release release \
       --user $UPSTREAM_REPO \
       --repo $CLI \
@@ -144,24 +150,30 @@ push() {
       --name "v$1" \
       --description "$CHANGES"
   if [ $? -eq 0 ]; then
-        echo RELEASE UPLOAD OK 
+        echo UPLOAD OK 
   else 
-        echo RELEASE UPLOAD FAIL
+        echo UPLOAD FAIL
         exit
   fi
 
-  github-release upload \
-      --user $UPSTREAM_REPO \
-      --repo $CLI \
-      --tag $1 \
-      --name "$CLI-$1.tar.gz" \
-      --file $CLI-$1.tar.gz
-  if [ $? -eq 0 ]; then
-        echo TARBALL UPLOAD OK 
-  else 
-        echo TARBALL UPLOAD FAIL
-        exit
-  fi
+  # Upload all the binaries generated in bin/
+  for f in $CLI/bin/*
+  do
+    echo "Uploading $f binary"
+    NAME=`echo $f | sed "s,$CLI/bin/,,g"`
+    github-release upload \
+        --user $UPSTREAM_REPO \
+        --repo $CLI \
+        --tag v$1 \
+        --file $f \
+        --name $NAME
+    if [ $? -eq 0 ]; then
+          echo UPLOAD OK 
+    else 
+          echo UPLOAD FAIL
+          exit
+    fi
+  done
 
   echo "DONE"
   echo "DOUBLE CHECK IT:"
@@ -207,10 +219,10 @@ main() {
   "Git clone master"
   "Replace version number"
   "Generate changelog"
-  "Generate changelog for release"
+  "Generate GitHub changelog"
   "Create PR"
-  "Git pull most recent changes"
-  "Upload the tarball and push to Github release page"
+  "Build binaries"
+  "Upload the binaries and push to GitHub release page"
   "Clean"
   "Quit")
   select opt in "${options[@]}"
@@ -224,18 +236,18 @@ main() {
               replaceversion $PREV_VERSION $VERSION
               ;;
           "Generate changelog")
-              changelog $PREV_VERSION
+              changelog $VERSION
               ;;
-          "Generate changelog for release")
-              changelog_md $VERSION
+          "Generate GitHub changelog")
+              changelog_github $VERSION
               ;;
           "Create PR")
               git_commit $VERSION
               ;;
-          "Git pull most recent changes")
-              git_pull
+          "Build binaries")
+              build_binaries
               ;;
-          "Upload the tarball and push to Github release page")
+          "Upload the binaries and push to GitHub release page")
               push $VERSION
               ;;
           "Clean")
