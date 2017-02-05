@@ -17,7 +17,6 @@
         "ports": [
           {
             "name": "80",
-            "protocol": "TCP",
             "port": 80,
             "targetPort": 80
           }
@@ -44,7 +43,6 @@
         "ports": [
           {
             "name": "3030",
-            "protocol": "TCP",
             "port": 3030,
             "targetPort": 3000
           }
@@ -122,8 +120,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 80,
-                    "protocol": "TCP"
+                    "containerPort": 80
                   }
                 ],
                 "resources": {},
@@ -253,8 +250,7 @@
                 ],
                 "ports": [
                   {
-                    "containerPort": 3000,
-                    "protocol": "TCP"
+                    "containerPort": 3000
                   }
                 ],
                 "resources": {},

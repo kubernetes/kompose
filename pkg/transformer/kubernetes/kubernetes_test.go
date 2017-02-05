@@ -36,7 +36,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		ContainerName: "name",
 		Image:         "image",
 		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolTCP}},
+		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},

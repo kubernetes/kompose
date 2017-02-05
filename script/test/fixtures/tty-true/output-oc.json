@@ -17,7 +17,6 @@
         "ports": [
           {
             "name": "1337",
-            "protocol": "TCP",
             "port": 1337,
             "targetPort": 1337
           }
@@ -81,8 +80,7 @@
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 1337,
-                    "protocol": "TCP"
+                    "containerPort": 1337
                   }
                 ],
                 "resources": {},
