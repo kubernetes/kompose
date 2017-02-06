@@ -509,6 +509,13 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			}
 			logrus.Infof("Successfully deleted ImageStream: %s", t.Name)
 
+		case *buildapi.BuildConfig:
+			err := oclient.BuildConfigs(namespace).Delete(t.Name)
+			if err != nil {
+				return err
+			}
+			logrus.Infof("Successfully deleted BuildConfig: %s", t.Name)
+
 		case *deployapi.DeploymentConfig:
 			// delete deploymentConfig
 			dcreaper := deploymentconfigreaper.NewDeploymentConfigReaper(oclient, kclient)
