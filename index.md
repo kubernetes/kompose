@@ -8,7 +8,7 @@ What's Kompose? It's a conversion tool for all things compose (namely Docker Com
 
 Whether you have a `docker-compose.yaml` or a `docker-compose.dab`, it doesn't matter. Kompose will get you up-and-running on Kubernetes.
 
-In two simple steps, we'll take you from Docker Compose to Kubernetes.
+In three simple steps, we'll take you from Docker Compose to Kubernetes.
 
 __1. Take a sample docker-compose.yaml file__
 
@@ -35,6 +35,8 @@ services:
       - "80:80"
     environment:
       - GET_HOSTS_FROM=dns
+    labels:
+      kompose.service.type: nodeport
 ```
 
 __2. Run `kompose up` in the same directory__ 
@@ -76,4 +78,33 @@ service "redis-slave" created
 deployment "frontend" created
 deployment "redis-master" created
 deployment "redis-slave" created
+```
+
+__3. View the newly deployed service__
+
+Now that your service has been deployed, let's access it.
+
+If you're already using `minikube` for your development process:
+
+```bash
+minikube service frontend
+```
+
+Otherwise, let's look up what Node Port your service is using!
+
+```sh
+▶ kubectl describe svc frontend
+Name:                   frontend
+Namespace:              default
+Labels:                 service=frontend
+Selector:               service=frontend
+Type:                   NodePort
+IP:                     10.0.0.222
+Port:                   80      80/TCP
+NodePort:               80      30893/TCP
+Endpoints:              172.17.0.5:80
+Session Affinity:       None
+No events.
+
+▶ curl http://<public-node-ip>:30893
 ```
