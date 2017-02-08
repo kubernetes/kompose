@@ -529,7 +529,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully deleted service: %s", t.Name)
+			logrus.Infof("Successfully deleted Service: %s", t.Name)
 
 		case *api.PersistentVolumeClaim:
 			// delete pvc
