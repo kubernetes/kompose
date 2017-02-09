@@ -91,5 +91,6 @@ type EnvVar struct {
 type Ports struct {
 	HostPort      int32
 	ContainerPort int32
+	HostIP        string
 	Protocol      api.Protocol
 }
