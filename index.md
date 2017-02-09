@@ -36,7 +36,7 @@ services:
     environment:
       - GET_HOSTS_FROM=dns
     labels:
-      kompose.service.type: nodeport
+      kompose.service.type: LoadBalancer
 ```
 
 __2. Run `kompose up` in the same directory__ 
@@ -90,7 +90,7 @@ If you're already using `minikube` for your development process:
 minikube service frontend
 ```
 
-Otherwise, let's look up what Node Port your service is using!
+Otherwise, let's look up what IP your service is using!
 
 ```sh
 ▶ kubectl describe svc frontend
@@ -98,13 +98,19 @@ Name:                   frontend
 Namespace:              default
 Labels:                 service=frontend
 Selector:               service=frontend
-Type:                   NodePort
-IP:                     10.0.0.222
+Type:                   LoadBalancer
+IP:                     10.0.0.183
+LoadBalancer Ingress:   123.45.678.9
 Port:                   80      80/TCP
-NodePort:               80      30893/TCP
-Endpoints:              172.17.0.5:80
+NodePort:               80      31144/TCP
+Endpoints:              172.17.0.4:80
 Session Affinity:       None
 No events.
 
-▶ curl http://<public-node-ip>:30893
+```
+
+If you're using a cloud provider, your IP will be listed next to `LoadBalancer Ingress`.
+
+```sh
+▶ curl http://123.45.678.9
 ```
