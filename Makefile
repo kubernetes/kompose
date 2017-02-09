@@ -16,7 +16,7 @@
 
 GITCOMMIT := $(shell git rev-parse --short HEAD)
 BUILD_FLAGS := -ldflags="-w -X github.com/kubernetes-incubator/kompose/cmd.GITCOMMIT=$(GITCOMMIT)"
-PKGS := $(shell glide novendor)
+PKGS = $(shell glide novendor)
 TEST_IMAGE := kompose/tests:latest
 
 default: bin
