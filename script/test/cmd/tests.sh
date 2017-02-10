@@ -123,6 +123,11 @@ export $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs)
 convert::expect_success "kompose --file $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/env.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/output-k8s.json"
 unset $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs | cut -d'=' -f1)
 
+#####
+# Test related to host:port:container in docker-compose
+# kubernetes test
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/ports-with-ip/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ports-with-ip/output-k8s.json"
+
 
 ######
 # Test related to "stdin_open: true" in docker-compose
