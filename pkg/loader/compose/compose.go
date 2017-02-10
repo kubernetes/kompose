@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package compose
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -180,41 +181,86 @@ func loadEnvVars(envars []string) []kobject.EnvVar {
 func loadPorts(composePorts []string) ([]kobject.Ports, error) {
 	ports := []kobject.Ports{}
 	character := ":"
+
+	// For each port listed
 	for _, port := range composePorts {
+
+		// Get the TCP / UDP protocol. Checks to see if it splits in 2 with '/' character.
+		// ex. 15000:15000/tcp
+		// else, set a default protocol of using TCP
 		proto := api.ProtocolTCP
-		// get protocol
-		p := strings.Split(port, "/")
-		if len(p) == 2 {
-			if strings.EqualFold("tcp", p[1]) {
+		protocolCheck := strings.Split(port, "/")
+		if len(protocolCheck) == 2 {
+			if strings.EqualFold("tcp", protocolCheck[1]) {
 				proto = api.ProtocolTCP
-			} else if strings.EqualFold("udp", p[1]) {
+			} else if strings.EqualFold("udp", protocolCheck[1]) {
 				proto = api.ProtocolUDP
+			} else {
+				return nil, fmt.Errorf("invalid protocol %q", protocolCheck[1])
 			}
 		}
-		// port mappings without protocol part
-		portNoProto := p[0]
-		if strings.Contains(portNoProto, character) {
-			hostPort := portNoProto[0:strings.Index(portNoProto, character)]
-			hostPort = strings.TrimSpace(hostPort)
-			hostPortInt, err := strconv.Atoi(hostPort)
-			if err != nil {
-				return nil, fmt.Errorf("invalid host port %q", port)
+
+		// Split up the ports / IP without the "/tcp" or "/udp" appended to it
+		justPorts := strings.Split(protocolCheck[0], character)
+
+		if len(justPorts) == 3 {
+			// ex. 127.0.0.1:80:80
+
+			// Get the IP address
+			hostIP := justPorts[0]
+			ip := net.ParseIP(hostIP)
+			if ip.To4() == nil && ip.To16() == nil {
+				return nil, fmt.Errorf("%q contains an invalid IPv4 or IPv6 IP address", port)
 			}
-			containerPort := portNoProto[strings.Index(portNoProto, character)+1:]
-			containerPort = strings.TrimSpace(containerPort)
-			containerPortInt, err := strconv.Atoi(containerPort)
+
+			// Get the host port
+			hostPortInt, err := strconv.Atoi(justPorts[1])
 			if err != nil {
-				return nil, fmt.Errorf("invalid container port %q", port)
+				return nil, fmt.Errorf("invalid host port %q valid example: 127.0.0.1:80:80", port)
 			}
+
+			// Get the container port
+			containerPortInt, err := strconv.Atoi(justPorts[2])
+			if err != nil {
+				return nil, fmt.Errorf("invalid container port %q valid example: 127.0.0.1:80:80", port)
+			}
+
+			// Convert to a kobject struct with ports as well as IP
+			ports = append(ports, kobject.Ports{
+				HostPort:      int32(hostPortInt),
+				ContainerPort: int32(containerPortInt),
+				HostIP:        hostIP,
+				Protocol:      proto,
+			})
+
+		} else if len(justPorts) == 2 {
+			// ex. 80:80
+
+			// Get the host port
+			hostPortInt, err := strconv.Atoi(justPorts[0])
+			if err != nil {
+				return nil, fmt.Errorf("invalid host port %q valid example: 80:80", port)
+			}
+
+			// Get the container port
+			containerPortInt, err := strconv.Atoi(justPorts[1])
+			if err != nil {
+				return nil, fmt.Errorf("invalid container port %q valid example: 80:80", port)
+			}
+
+			// Convert to a kobject struct and add to the list of ports
 			ports = append(ports, kobject.Ports{
 				HostPort:      int32(hostPortInt),
 				ContainerPort: int32(containerPortInt),
 				Protocol:      proto,
 			})
+
 		} else {
-			containerPortInt, err := strconv.Atoi(portNoProto)
+			// ex. 80
+
+			containerPortInt, err := strconv.Atoi(justPorts[0])
 			if err != nil {
-				return nil, fmt.Errorf("invalid container port %q", port)
+				return nil, fmt.Errorf("invalid container port %q valid example: 80", port)
 			}
 			ports = append(ports, kobject.Ports{
 				ContainerPort: int32(containerPortInt),

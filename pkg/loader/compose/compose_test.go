@@ -23,6 +23,7 @@ import (
 	"testing"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"k8s.io/kubernetes/pkg/api"
 
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
@@ -49,6 +50,55 @@ func TestHandleServiceType(t *testing.T) {
 		result := handleServiceType(tt.labelValue)
 		if result != tt.serviceType {
 			t.Errorf("Expected %q, got %q", tt.serviceType, result)
+		}
+	}
+}
+
+// Test loading of ports
+func TestLoadPorts(t *testing.T) {
+	port1 := []string{"127.0.0.1:80:80/tcp"}
+	result1 := kobject.Ports{
+		HostIP:        "127.0.0.1",
+		HostPort:      80,
+		ContainerPort: 80,
+		Protocol:      api.ProtocolTCP,
+	}
+	port2 := []string{"80:80/tcp"}
+	result2 := kobject.Ports{
+		HostPort:      80,
+		ContainerPort: 80,
+		Protocol:      api.ProtocolTCP,
+	}
+	port3 := []string{"80:80"}
+	result3 := kobject.Ports{
+		HostPort:      80,
+		ContainerPort: 80,
+		Protocol:      api.ProtocolTCP,
+	}
+	port4 := []string{"80"}
+	result4 := kobject.Ports{
+		HostPort:      0,
+		ContainerPort: 80,
+		Protocol:      api.ProtocolTCP,
+	}
+
+	tests := []struct {
+		ports  []string
+		result kobject.Ports
+	}{
+		{port1, result1},
+		{port2, result2},
+		{port3, result3},
+		{port4, result4},
+	}
+
+	for _, tt := range tests {
+		result, err := loadPorts(tt.ports)
+		if err != nil {
+			t.Errorf("Unexpected error with loading ports %v", err)
+		}
+		if result[0] != tt.result {
+			t.Errorf("Expected %q, got %q", tt.result, result[0])
 		}
 	}
 }

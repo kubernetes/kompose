@@ -285,13 +285,16 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 		if port.Protocol == api.ProtocolTCP {
 			ports = append(ports, api.ContainerPort{
 				ContainerPort: port.ContainerPort,
+				HostIP:        port.HostIP,
 			})
 		} else {
 			ports = append(ports, api.ContainerPort{
 				ContainerPort: port.ContainerPort,
 				Protocol:      port.Protocol,
+				HostIP:        port.HostIP,
 			})
 		}
+
 	}
 
 	return ports
@@ -304,6 +307,7 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 		if port.HostPort == 0 {
 			port.HostPort = port.ContainerPort
 		}
+
 		var targetPort intstr.IntOrString
 		targetPort.IntVal = port.ContainerPort
 		targetPort.StrVal = strconv.Itoa(int(port.ContainerPort))
