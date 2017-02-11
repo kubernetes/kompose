@@ -26,7 +26,9 @@ var (
 	// VERSION  is version number that wil be displayed when running ./kompose version
 	VERSION = "0.2.0"
 	// GITCOMMIT is hash of the commit that wil be displayed when running ./kompose version
-	GITCOMMIT = "64433fd"
+	// this will be overwritten when running  build like this: go build -ldflags="-X github.com/kubernetes-incubator/kompose/cmd.GITCOMMIT=$(GITCOMMIT)"
+	// HEAD is default indicating that this was not set during build
+	GITCOMMIT = "HEAD"
 )
 
 // versionCmd represents the version command
