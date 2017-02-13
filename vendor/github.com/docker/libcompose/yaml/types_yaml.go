@@ -217,6 +217,8 @@ func toSepMapParts(value map[interface{}]interface{}, sep string) ([]string, err
 				parts = append(parts, sk+sep+strconv.Itoa(sv))
 			} else if sv, ok := v.(int64); ok {
 				parts = append(parts, sk+sep+strconv.FormatInt(sv, 10))
+			} else if sv, ok := v.(float64); ok {
+				parts = append(parts, sk+sep+strconv.FormatFloat(sv, 'f', -1, 64))
 			} else if v == nil {
 				parts = append(parts, sk)
 			} else {

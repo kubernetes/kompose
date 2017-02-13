@@ -510,16 +510,21 @@ func StringToDate(s string) (time.Time, error) {
 		time.RFC1123,
 		time.RFC822Z,
 		time.RFC822,
+		time.RFC850,
 		time.ANSIC,
 		time.UnixDate,
 		time.RubyDate,
-		"2006-01-02 15:04:05Z07:00",
-		"02 Jan 06 15:04 MST",
+		"2006-01-02 15:04:05.999999999 -0700 MST", // Time.String()
 		"2006-01-02",
 		"02 Jan 2006",
 		"2006-01-02 15:04:05 -07:00",
 		"2006-01-02 15:04:05 -0700",
 		"2006-01-02 15:04:05",
+		time.Kitchen,
+		time.Stamp,
+		time.StampMilli,
+		time.StampMicro,
+		time.StampNano,
 	})
 }
 
