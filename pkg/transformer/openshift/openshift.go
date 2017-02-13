@@ -200,6 +200,13 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 // initBuildConfig initialize Openshifts BuildConfig Object
 func initBuildConfig(name string, service kobject.ServiceConfig, repo string, branch string) (*buildapi.BuildConfig, error) {
 	contextDir, err := getAbsBuildContext(service.Build)
+	envList := []kapi.EnvVar{}
+	for envName, envValue := range service.BuildArgs {
+		if *envValue == "\x00" {
+			*envValue = os.Getenv(envName)
+		}
+		envList = append(envList, kapi.EnvVar{Name: envName, Value: *envValue})
+	}
 	if err != nil {
 		return nil, errors.Wrap(err, name+"buildconfig cannot be created due to error in creating build context, getAbsBuildContext failed")
 	}
@@ -229,6 +236,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 				Strategy: buildapi.BuildStrategy{
 					DockerStrategy: &buildapi.DockerBuildStrategy{
 						DockerfilePath: service.Dockerfile,
+						Env:            envList,
 					},
 				},
 				Output: buildapi.BuildOutput{
