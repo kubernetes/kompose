@@ -16,7 +16,10 @@ limitations under the License.
 
 package kobject
 
-import "k8s.io/kubernetes/pkg/api"
+import (
+	"k8s.io/kubernetes/pkg/api"
+	"github.com/docker/libcompose/yaml"
+)
 
 // KomposeObject holds the generic struct of Kompose transformation
 type KomposeObject struct {
@@ -79,6 +82,7 @@ type ServiceConfig struct {
 	ExposeService string            `compose:"kompose.service.expose",bundle:""`
 	Stdin         bool              `compose:"stdin_open",bundle:""`
 	Tty           bool              `compose:"tty",bundle:""`
+	MemLimit      yaml.StringorInt  `compose:"mem_limit",bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container
