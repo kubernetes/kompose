@@ -487,9 +487,76 @@ func UnquoteUsage(flag *Flag) (name string, usage string) {
 	return
 }
 
-// FlagUsages Returns a string containing the usage information for all flags in
-// the FlagSet
-func (f *FlagSet) FlagUsages() string {
+// Splits the string `s` on whitespace into an initial substring up to
+// `i` runes in length and the remainder. Will go `slop` over `i` if
+// that encompasses the entire string (which allows the caller to
+// avoid short orphan words on the final line).
+func wrapN(i, slop int, s string) (string, string) {
+	if i+slop > len(s) {
+		return s, ""
+	}
+
+	w := strings.LastIndexAny(s[:i], " \t")
+	if w <= 0 {
+		return s, ""
+	}
+
+	return s[:w], s[w+1:]
+}
+
+// Wraps the string `s` to a maximum width `w` with leading indent
+// `i`. The first line is not indented (this is assumed to be done by
+// caller). Pass `w` == 0 to do no wrapping
+func wrap(i, w int, s string) string {
+	if w == 0 {
+		return s
+	}
+
+	// space between indent i and end of line width w into which
+	// we should wrap the text.
+	wrap := w - i
+
+	var r, l string
+
+	// Not enough space for sensible wrapping. Wrap as a block on
+	// the next line instead.
+	if wrap < 24 {
+		i = 16
+		wrap = w - i
+		r += "\n" + strings.Repeat(" ", i)
+	}
+	// If still not enough space then don't even try to wrap.
+	if wrap < 24 {
+		return s
+	}
+
+	// Try to avoid short orphan words on the final line, by
+	// allowing wrapN to go a bit over if that would fit in the
+	// remainder of the line.
+	slop := 5
+	wrap = wrap - slop
+
+	// Handle first line, which is indented by the caller (or the
+	// special case above)
+	l, s = wrapN(wrap, slop, s)
+	r = r + l
+
+	// Now wrap the rest
+	for s != "" {
+		var t string
+
+		t, s = wrapN(wrap, slop, s)
+		r = r + "\n" + strings.Repeat(" ", i) + t
+	}
+
+	return r
+
+}
+
+// FlagUsagesWrapped returns a string containing the usage information
+// for all flags in the FlagSet. Wrapped to `cols` columns (0 for no
+// wrapping)
+func (f *FlagSet) FlagUsagesWrapped(cols int) string {
 	x := new(bytes.Buffer)
 
 	lines := make([]string, 0, len(f.formal))
@@ -546,10 +613,17 @@ func (f *FlagSet) FlagUsages() string {
 	for _, line := range lines {
 		sidx := strings.Index(line, "\x00")
 		spacing := strings.Repeat(" ", maxlen-sidx)
-		fmt.Fprintln(x, line[:sidx], spacing, line[sidx+1:])
+		// maxlen + 2 comes from + 1 for the \x00 and + 1 for the (deliberate) off-by-one in maxlen-sidx
+		fmt.Fprintln(x, line[:sidx], spacing, wrap(maxlen+2, cols, line[sidx+1:]))
 	}
 
 	return x.String()
+}
+
+// FlagUsages returns a string containing the usage information for all flags in
+// the FlagSet
+func (f *FlagSet) FlagUsages() string {
+	return f.FlagUsagesWrapped(0)
 }
 
 // PrintDefaults prints to standard error the default values of all defined command-line flags.
@@ -635,7 +709,7 @@ func (f *FlagSet) VarPF(value Value, name, shorthand, usage string) *Flag {
 
 // VarP is like Var, but accepts a shorthand letter that can be used after a single dash.
 func (f *FlagSet) VarP(value Value, name, shorthand, usage string) {
-	_ = f.VarPF(value, name, shorthand, usage)
+	f.VarPF(value, name, shorthand, usage)
 }
 
 // AddFlag will add the flag to the FlagSet
