@@ -33,12 +33,13 @@ import (
 	_ "github.com/openshift/origin/pkg/image/api/install"
 	_ "github.com/openshift/origin/pkg/route/api/install"
 
+	"os"
+
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/loader"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer/openshift"
-	"os"
 )
 
 const (
