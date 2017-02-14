@@ -29,6 +29,8 @@ import (
 
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	"os"
+	"os/exec"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
@@ -450,4 +452,53 @@ func TestUnsupportedKeys(t *testing.T) {
 		}
 	}
 
+}
+
+// Here we are testing a function which results in `logus.Fatalf()` when a condition is met, which further call `os.Exit()` and exits the process.
+// If we write a test in the usual way that will call the function,
+// it will exit the process and the running process is actually the test process and our test would fail.
+// So to test the function resulting in `os.Exit()` we need invoke go test again in a separate process through `exec.Command`,
+// limiting execution to the TestRestartOnFailure test using `-test.run=TestRestartOnFailure` flag set.
+// The `TestRestartOnFailure` doing is two things simultaneously,
+// it is going to the be the test itself and second it will a be `subprocess` that the test runs.
+func TestRestartOnFailure(t *testing.T) {
+
+	kobjectWithRestartOnFailure := newKomposeObject()
+	serviceConfig := kobjectWithRestartOnFailure.ServiceConfigs["app"]
+	serviceConfig.Restart = "on-failure"
+	kobjectWithRestartOnFailure.ServiceConfigs = map[string]kobject.ServiceConfig{"app": serviceConfig}
+
+	// define all test cases for RestartOnFailure function
+	replicas := 2
+	testCase := map[string]struct {
+		komposeObject kobject.KomposeObject
+		opt           kobject.ConvertOptions
+	}{
+		// objects generated are deployment, service and replication controller
+		"Do not Create Deployment (D) with restart:'on-failure'":             {kobjectWithRestartOnFailure, kobject.ConvertOptions{IsDeploymentFlag: true, Replicas: replicas}},
+		"Do not Create DaemonSet (DS) with restart:'on-failure'":             {kobjectWithRestartOnFailure, kobject.ConvertOptions{IsDaemonSetFlag: true, Replicas: replicas}},
+		"Do not Create ReplicationController (RC) with restart:'on-failure'": {kobjectWithRestartOnFailure, kobject.ConvertOptions{IsReplicationControllerFlag: true, Replicas: replicas}},
+	}
+
+	for name, test := range testCase {
+		t.Log("Test case:", name)
+		k := Kubernetes{}
+		if os.Getenv("BE_CRASHER") == "1" {
+			k.Transform(test.komposeObject, test.opt)
+		}
+	}
+
+	// cmd := exec.Command(os.Args[0], "-test.run=TestRestartOnFailure") will execute the test binary
+	// with the flag -test.run=TestRestartOnFailure and set the environment variable BE_CRASHER=1.
+	cmd := exec.Command(os.Args[0], "-test.run=TestRestartOnFailure")
+	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
+
+	// err := cmd.Run() will re-execute the test binary and this time os.Getenv("BE_CRASHER") == "1"
+	// will return true and we can call o.Transform(test.komposeObject, test.opt).
+	// so that the test binary that calls itself and execute the code on behalf of the parent process.
+	err := cmd.Run()
+	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+		return
+	}
+	t.Fatalf("Process ran with err %v, want exit status 1", err)
 }

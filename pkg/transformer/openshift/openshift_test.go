@@ -29,6 +29,7 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/testutils"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
+	"os/exec"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
@@ -328,4 +329,54 @@ func TestServiceWithoutPort(t *testing.T) {
 		t.Error(err)
 	}
 
+}
+
+// Here we are testing a function which results in `logus.Fatalf()` when a condition is met, which further call `os.Exit()` and exits the process.
+// If we write a test in the usual way that will call the function,
+// it will exit the process and the running process is actually the test process and our test would fail.
+// So to test the function resulting in `os.Exit()` we need invoke go test again in a separate process through `exec.Command`,
+// limiting execution to the TestRestartOnFailure test using `-test.run=TestRestartOnFailure` flag set.
+// The `TestRestartOnFailure` doing is two things simultaneously,
+// it is going to the be the test itself and second it will a be `subprocess` that the test runs.
+func TestRestartOnFailure(t *testing.T) {
+
+	service := kobject.ServiceConfig{
+		Restart: "on-failure",
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+
+	// define all test cases for RestartOnFailure function
+	replicas := 2
+	testCase := map[string]struct {
+		komposeObject kobject.KomposeObject
+		opt           kobject.ConvertOptions
+	}{
+		// objects generated are deployment, service and replication controller
+		"Do not Create DeploymentConfig (DC) with restart:'on-failure'": {komposeObject, kobject.ConvertOptions{IsDeploymentConfigFlag: true, Replicas: replicas}},
+	}
+
+	for name, test := range testCase {
+		t.Log("Test case:", name)
+		o := OpenShift{}
+		if os.Getenv("BE_CRASHER") == "1" {
+			o.Transform(test.komposeObject, test.opt)
+		}
+	}
+
+	// cmd := exec.Command(os.Args[0], "-test.run=TestRestartOnFailure") will execute the test binary
+	// with the flag -test.run=TestRestartOnFailure and set the environment variable BE_CRASHER=1
+	cmd := exec.Command(os.Args[0], "-test.run=TestRestartOnFailure")
+	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
+
+	// err := cmd.Run() will re-execute the test binary and this time os.Getenv("BE_CRASHER") == "1".
+	// will return true and we can call o.Transform(test.komposeObject, test.opt).
+	// so that the test binary that calls itself and execute the code on behalf of the parent process.
+	err := cmd.Run()
+	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+		return
+	}
+	t.Fatalf("Process ran with err %v, want exit status 1", err)
 }
