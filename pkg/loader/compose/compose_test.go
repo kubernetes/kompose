@@ -263,3 +263,22 @@ func TestUnsupportedKeys(t *testing.T) {
 	}
 
 }
+
+func TestNormalizeServiceNames(t *testing.T) {
+	testCases := []struct {
+		composeServiceName    string
+		normalizedServiceName string
+	}{
+		{"foo_bar", "foo-bar"},
+		{"foo", "foo"},
+		{"foo.bar", "foo.bar"},
+		//{"", ""},
+	}
+
+	for _, testCase := range testCases {
+		returnValue := normalizeServiceNames(testCase.composeServiceName)
+		if returnValue != testCase.normalizedServiceName {
+			t.Logf("Expected %q, got %q", testCase.normalizedServiceName, returnValue)
+		}
+	}
+}
