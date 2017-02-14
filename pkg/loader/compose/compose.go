@@ -391,3 +391,7 @@ func handleServiceType(ServiceType string) string {
 		return ""
 	}
 }
+
+func normalizeServiceNames(svcName string) string {
+	return strings.Replace(svcName, "_", "-", -1)
+}
