@@ -307,72 +307,67 @@ func (c *Compose) LoadFile(files []string) kobject.KomposeObject {
 		logrus.Fatalf("Failed to load compose file: %v", err)
 	}
 
-	// transform composeObject into komposeObject
-	composeServiceNames := composeObject.ServiceConfigs.Keys()
-
 	noSupKeys := checkUnsupportedKey(composeObject)
 	for _, keyName := range noSupKeys {
 		logrus.Warningf("Unsupported %s key - ignoring", keyName)
 	}
 
-	for _, name := range composeServiceNames {
-		if composeServiceConfig, ok := composeObject.ServiceConfigs.Get(name); ok {
-			serviceConfig := kobject.ServiceConfig{}
-			serviceConfig.Image = composeServiceConfig.Image
-			serviceConfig.Build = composeServiceConfig.Build.Context
-			serviceConfig.ContainerName = composeServiceConfig.ContainerName
-			serviceConfig.Command = composeServiceConfig.Entrypoint
-			serviceConfig.Args = composeServiceConfig.Command
-			serviceConfig.Build = composeServiceConfig.Build.Context
+	for name, composeServiceConfig := range composeObject.ServiceConfigs.All() {
+		serviceConfig := kobject.ServiceConfig{}
+		serviceConfig.Image = composeServiceConfig.Image
+		serviceConfig.Build = composeServiceConfig.Build.Context
+		serviceConfig.ContainerName = composeServiceConfig.ContainerName
+		serviceConfig.Command = composeServiceConfig.Entrypoint
+		serviceConfig.Args = composeServiceConfig.Command
+		serviceConfig.Build = composeServiceConfig.Build.Context
 
-			envs := loadEnvVars(composeServiceConfig.Environment)
-			serviceConfig.Environment = envs
+		envs := loadEnvVars(composeServiceConfig.Environment)
+		serviceConfig.Environment = envs
 
-			// load ports
-			ports, err := loadPorts(composeServiceConfig.Ports)
-			if err != nil {
-				logrus.Fatalf("%q failed to load ports from compose file: %v", name, err)
-			}
-			serviceConfig.Port = ports
-
-			serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
-
-			if composeServiceConfig.Volumes != nil {
-				for _, volume := range composeServiceConfig.Volumes.Volumes {
-					serviceConfig.Volumes = append(serviceConfig.Volumes, volume.String())
-				}
-			}
-
-			// canonical "Custom Labels" handler
-			// Labels used to influence conversion of kompose will be handled
-			// from here for docker-compose. Each loader will have such handler.
-			for key, value := range composeServiceConfig.Labels {
-				switch key {
-				case "kompose.service.type":
-					serviceConfig.ServiceType = handleServiceType(value)
-				case "kompose.service.expose":
-					serviceConfig.ExposeService = strings.ToLower(value)
-				}
-			}
-
-			// convert compose labels to annotations
-			serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
-
-			serviceConfig.CPUSet = composeServiceConfig.CPUSet
-			serviceConfig.CPUShares = int64(composeServiceConfig.CPUShares)
-			serviceConfig.CPUQuota = int64(composeServiceConfig.CPUQuota)
-			serviceConfig.CapAdd = composeServiceConfig.CapAdd
-			serviceConfig.CapDrop = composeServiceConfig.CapDrop
-			serviceConfig.Expose = composeServiceConfig.Expose
-			serviceConfig.Privileged = composeServiceConfig.Privileged
-			serviceConfig.Restart = composeServiceConfig.Restart
-			serviceConfig.User = composeServiceConfig.User
-			serviceConfig.VolumesFrom = composeServiceConfig.VolumesFrom
-			serviceConfig.Stdin = composeServiceConfig.StdinOpen
-			serviceConfig.Tty = composeServiceConfig.Tty
-
-			komposeObject.ServiceConfigs[name] = serviceConfig
+		// load ports
+		ports, err := loadPorts(composeServiceConfig.Ports)
+		if err != nil {
+			logrus.Fatalf("%q failed to load ports from compose file: %v", name, err)
 		}
+		serviceConfig.Port = ports
+
+		serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
+
+		if composeServiceConfig.Volumes != nil {
+			for _, volume := range composeServiceConfig.Volumes.Volumes {
+				serviceConfig.Volumes = append(serviceConfig.Volumes, volume.String())
+			}
+		}
+
+		// canonical "Custom Labels" handler
+		// Labels used to influence conversion of kompose will be handled
+		// from here for docker-compose. Each loader will have such handler.
+		for key, value := range composeServiceConfig.Labels {
+			switch key {
+			case "kompose.service.type":
+				serviceConfig.ServiceType = handleServiceType(value)
+			case "kompose.service.expose":
+				serviceConfig.ExposeService = strings.ToLower(value)
+			}
+		}
+
+		// convert compose labels to annotations
+		serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
+
+		serviceConfig.CPUSet = composeServiceConfig.CPUSet
+		serviceConfig.CPUShares = int64(composeServiceConfig.CPUShares)
+		serviceConfig.CPUQuota = int64(composeServiceConfig.CPUQuota)
+		serviceConfig.CapAdd = composeServiceConfig.CapAdd
+		serviceConfig.CapDrop = composeServiceConfig.CapDrop
+		serviceConfig.Expose = composeServiceConfig.Expose
+		serviceConfig.Privileged = composeServiceConfig.Privileged
+		serviceConfig.Restart = composeServiceConfig.Restart
+		serviceConfig.User = composeServiceConfig.User
+		serviceConfig.VolumesFrom = composeServiceConfig.VolumesFrom
+		serviceConfig.Stdin = composeServiceConfig.StdinOpen
+		serviceConfig.Tty = composeServiceConfig.Tty
+
+		komposeObject.ServiceConfigs[name] = serviceConfig
 	}
 
 	return komposeObject
