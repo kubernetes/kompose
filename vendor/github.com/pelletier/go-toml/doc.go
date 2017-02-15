@@ -22,8 +22,8 @@
 // After parsing TOML data with Load() or LoadFile(), use the Has() and Get()
 // methods on the returned TomlTree, to find your way through the document data.
 //
-//   if tree.Has('foo') {
-//     fmt.Prinln("foo is: %v", tree.Get('foo'))
+//   if tree.Has("foo") {
+//     fmt.Println("foo is:", tree.Get("foo"))
 //   }
 //
 // Working with Paths
@@ -44,10 +44,10 @@
 // it avoids having to parse the passed key for '.' delimiters.
 //
 //   // looks for a key named 'baz', within struct 'bar', within struct 'foo'
-//   tree.HasPath(string{}{"foo","bar","baz"})
+//   tree.HasPath([]string{"foo","bar","baz"})
 //
 //   // returns the key at this path, if it is there
-//   tree.GetPath(string{}{"foo","bar","baz"})
+//   tree.GetPath([]string{"foo","bar","baz"})
 //
 // Note that this is distinct from the heavyweight query syntax supported by
 // TomlTree.Query() and the Query() struct (see below).
