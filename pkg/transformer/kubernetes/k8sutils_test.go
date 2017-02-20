@@ -26,6 +26,7 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/testutils"
 
+	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 )
@@ -63,7 +64,10 @@ func TestCreateService(t *testing.T) {
 		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
 	}
 	k := Kubernetes{}
-	objects := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
 
 	// Test the creation of the service
 	svc := k.CreateService("foo", service, objects)
@@ -107,7 +111,10 @@ func TestCreateServiceWithMemLimit(t *testing.T) {
 		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
 	}
 	k := Kubernetes{}
-	objects := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
 
 	// Retrieve the deployment object and test that it matches the MemLimit value
 	for _, obj := range objects {
@@ -155,7 +162,10 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 	}
 	k := Kubernetes{}
 
-	objects := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
 
 	for _, obj := range objects {
 		if deploy, ok := obj.(*extensions.Deployment); ok {
@@ -188,19 +198,28 @@ func TestIsDir(t *testing.T) {
 	f.Close()
 
 	// Check output if directory exists
-	output := isDir(tempDir)
+	output, err := isDir(tempDir)
+	if err != nil {
+		t.Error(errors.Wrap(err, "isDir failed"))
+	}
 	if output != true {
 		t.Errorf("directory %v exists but isDir() returned %v", tempDir, output)
 	}
 
 	// Check output if file is provided
-	output = isDir(tempFile)
+	output, err = isDir(tempFile)
+	if err != nil {
+		t.Error(errors.Wrap(err, "isDir failed"))
+	}
 	if output != false {
 		t.Errorf("%v is a file but isDir() returned %v", tempDir, output)
 	}
 
 	// Check output if path does not exist
-	output = isDir(tempAbsentDirPath)
+	output, err = isDir(tempAbsentDirPath)
+	if err != nil {
+		t.Error(errors.Wrap(err, "isDir failed"))
+	}
 	if output != false {
 		t.Errorf("Directory %v does not exist, but isDir() returned %v", tempAbsentDirPath, output)
 	}
@@ -224,7 +243,10 @@ func TestServiceWithoutPort(t *testing.T) {
 	}
 	k := Kubernetes{}
 
-	objects := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
 	if err := testutils.CheckForHeadless(objects); err != nil {
 		t.Error(err)
 	}
@@ -245,7 +267,10 @@ func TestRecreateStrategyWithVolumesPresent(t *testing.T) {
 	}
 	k := Kubernetes{}
 
-	objects := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
 	for _, obj := range objects {
 		if deployment, ok := obj.(*extensions.Deployment); ok {
 			if deployment.Spec.Strategy.Type != extensions.RecreateDeploymentStrategyType {
