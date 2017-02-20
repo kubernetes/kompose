@@ -30,6 +30,7 @@ import (
 
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/runtime"
@@ -47,16 +48,16 @@ func RandStringBytes(n int) string {
 }
 
 // CreateOutFile creates the file to write to if --out is specified
-func CreateOutFile(out string) *os.File {
+func CreateOutFile(out string) (*os.File, error) {
 	var f *os.File
 	var err error
 	if len(out) != 0 {
 		f, err = os.Create(out)
 		if err != nil {
-			log.Fatalf("error creating file: %v", err)
+			return nil, errors.Wrap(err, "error creating file, os.Create failed")
 		}
 	}
-	return f
+	return f, nil
 }
 
 // ParseVolume parses a given volume, which might be [name:][host:]container[:access_mode]
@@ -151,7 +152,7 @@ func TransformData(obj runtime.Object, GenerateJSON bool) ([]byte, error) {
 }
 
 // Print either prints to stdout or to file/s
-func Print(name, path string, trailing string, data []byte, toStdout, generateJSON bool, f *os.File) string {
+func Print(name, path string, trailing string, data []byte, toStdout, generateJSON bool, f *os.File) (string, error) {
 	file := ""
 	if generateJSON {
 		file = fmt.Sprintf("%s-%s.json", name, trailing)
@@ -160,20 +161,20 @@ func Print(name, path string, trailing string, data []byte, toStdout, generateJS
 	}
 	if toStdout {
 		fmt.Fprintf(os.Stdout, "%s\n", string(data))
-		return ""
+		return "", nil
 	} else if f != nil {
 		// Write all content to a single file f
 		if _, err := f.WriteString(fmt.Sprintf("%s\n", string(data))); err != nil {
-			log.Fatalf("Failed to write %s to file: %v", trailing, err)
+			return "", errors.Wrap(err, "f.WriteString failed, Failed to write %s to file: "+trailing)
 		}
 		f.Sync()
 	} else {
 		// Write content separately to each file
 		file = filepath.Join(path, file)
 		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
-			log.Fatalf("Failed to write %s: %v", trailing, err)
+			return "", errors.Wrap(err, "Failed to write %s: "+trailing)
 		}
 		log.Printf("file %q created", file)
 	}
-	return file
+	return file, nil
 }

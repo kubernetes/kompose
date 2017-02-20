@@ -29,6 +29,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/fatih/structs"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/pkg/errors"
 )
 
 // Bundle is docker bundle file loader, implements Loader interface
@@ -106,16 +107,16 @@ func checkUnsupportedKey(bundleStruct *Bundlefile) []string {
 }
 
 // load image from dab file
-func loadImage(service Service) (string, string) {
+func loadImage(service Service) (string, error) {
 	character := "@"
 	if strings.Contains(service.Image, character) {
-		return service.Image[0:strings.Index(service.Image, character)], ""
+		return service.Image[0:strings.Index(service.Image, character)], nil
 	}
-	return "", "Invalid image format"
+	return "", errors.New("Invalid image format")
 }
 
 // load environment variables from dab file
-func loadEnvVars(service Service) ([]kobject.EnvVar, string) {
+func loadEnvVars(service Service) ([]kobject.EnvVar, error) {
 	envs := []kobject.EnvVar{}
 	for _, env := range service.Env {
 		character := "="
@@ -144,15 +145,15 @@ func loadEnvVars(service Service) ([]kobject.EnvVar, string) {
 					Value: value,
 				})
 			} else {
-				return envs, "Invalid container env " + env
+				return envs, errors.New("Invalid container env")
 			}
 		}
 	}
-	return envs, ""
+	return envs, nil
 }
 
 // load ports from dab file
-func loadPorts(service Service) ([]kobject.Ports, string) {
+func loadPorts(service Service) ([]kobject.Ports, error) {
 	ports := []kobject.Ports{}
 	for _, port := range service.Ports {
 		var p api.Protocol
@@ -170,11 +171,11 @@ func loadPorts(service Service) ([]kobject.Ports, string) {
 			Protocol:      p,
 		})
 	}
-	return ports, ""
+	return ports, nil
 }
 
 // LoadFile loads dab file into KomposeObject
-func (b *Bundle) LoadFile(files []string) kobject.KomposeObject {
+func (b *Bundle) LoadFile(files []string) (kobject.KomposeObject, error) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 		LoadedFrom:     "bundle",
@@ -182,12 +183,12 @@ func (b *Bundle) LoadFile(files []string) kobject.KomposeObject {
 	file := files[0]
 	buf, err := ioutil.ReadFile(file)
 	if err != nil {
-		log.Fatalf("Failed to read bundles file: %s ", err)
+		return kobject.KomposeObject{}, errors.Wrap(err, "ioutil.ReadFile failed, Failed to read bundles file")
 	}
 	reader := strings.NewReader(string(buf))
 	bundle, err := loadFile(reader)
 	if err != nil {
-		log.Fatalf("Failed to parse bundles file: %s", err)
+		return kobject.KomposeObject{}, errors.Wrap(err, "loadFile failed, Failed to parse bundles file")
 	}
 
 	noSupKeys := checkUnsupportedKey(bundle)
@@ -204,20 +205,20 @@ func (b *Bundle) LoadFile(files []string) kobject.KomposeObject {
 		serviceConfig.Annotations = service.Labels
 
 		image, err := loadImage(service)
-		if err != "" {
-			log.Fatalf("Failed to load image from bundles file: " + err)
+		if err != nil {
+			return kobject.KomposeObject{}, errors.Wrap(err, "loadImage failed, Failed to load image from bundles file")
 		}
 		serviceConfig.Image = image
 
 		envs, err := loadEnvVars(service)
-		if err != "" {
-			log.Fatalf("Failed to load envvar from bundles file: " + err)
+		if err != nil {
+			return kobject.KomposeObject{}, errors.Wrap(err, "loadEnvVars failed, Failed to load envvar from bundles file")
 		}
 		serviceConfig.Environment = envs
 
 		ports, err := loadPorts(service)
-		if err != "" {
-			log.Fatalf("Failed to load ports from bundles file: " + err)
+		if err != nil {
+			return kobject.KomposeObject{}, errors.Wrap(err, "loadPorts failed, Failed to load ports from bundles file")
 		}
 		serviceConfig.Port = ports
 
@@ -228,7 +229,7 @@ func (b *Bundle) LoadFile(files []string) kobject.KomposeObject {
 		komposeObject.ServiceConfigs[name] = serviceConfig
 	}
 
-	return komposeObject
+	return komposeObject, nil
 }
 
 // LoadFile loads a bundlefile from a path to the file

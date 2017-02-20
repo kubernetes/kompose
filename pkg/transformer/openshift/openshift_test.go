@@ -29,7 +29,7 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/testutils"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
-	"os/exec"
+	"github.com/pkg/errors"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
@@ -292,7 +292,10 @@ func TestInitBuildConfig(t *testing.T) {
 	sc := kobject.ServiceConfig{
 		Build: "./build",
 	}
-	bc := initBuildConfig(serviceName, sc, composeFileDir, repo, branch)
+	bc, err := initBuildConfig(serviceName, sc, composeFileDir, repo, branch)
+	if err != nil {
+		t.Error(errors.Wrap(err, "initBuildConfig failed"))
+	}
 
 	testCases := map[string]struct {
 		field string
@@ -324,20 +327,16 @@ func TestServiceWithoutPort(t *testing.T) {
 	}
 	o := OpenShift{Kubernetes: kubernetes.Kubernetes{}}
 
-	objects := o.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	objects, err := o.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "o.Transform failed"))
+	}
 	if err := testutils.CheckForHeadless(objects); err != nil {
 		t.Error(err)
 	}
 
 }
 
-// Here we are testing a function which results in `logus.Fatalf()` when a condition is met, which further call `os.Exit()` and exits the process.
-// If we write a test in the usual way that will call the function,
-// it will exit the process and the running process is actually the test process and our test would fail.
-// So to test the function resulting in `os.Exit()` we need invoke go test again in a separate process through `exec.Command`,
-// limiting execution to the TestRestartOnFailure test using `-test.run=TestRestartOnFailure` flag set.
-// The `TestRestartOnFailure` doing is two things simultaneously,
-// it is going to the be the test itself and second it will a be `subprocess` that the test runs.
 func TestRestartOnFailure(t *testing.T) {
 
 	service := kobject.ServiceConfig{
@@ -361,24 +360,13 @@ func TestRestartOnFailure(t *testing.T) {
 	for name, test := range testCase {
 		t.Log("Test case:", name)
 		o := OpenShift{}
-		if os.Getenv("BE_CRASHER") == "1" {
-			o.Transform(test.komposeObject, test.opt)
+
+		_, err := o.Transform(test.komposeObject, test.opt)
+		if err == nil {
+			t.Errorf("Expected an error, got %v instead", err)
 		}
 	}
 
-	// cmd := exec.Command(os.Args[0], "-test.run=TestRestartOnFailure") will execute the test binary
-	// with the flag -test.run=TestRestartOnFailure and set the environment variable BE_CRASHER=1
-	cmd := exec.Command(os.Args[0], "-test.run=TestRestartOnFailure")
-	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
-
-	// err := cmd.Run() will re-execute the test binary and this time os.Getenv("BE_CRASHER") == "1".
-	// will return true and we can call o.Transform(test.komposeObject, test.opt).
-	// so that the test binary that calls itself and execute the code on behalf of the parent process.
-	err := cmd.Run()
-	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
-		return
-	}
-	t.Fatalf("Process ran with err %v, want exit status 1", err)
 }
 
 // Tests if deployment strategy is being set to Recreate when volumes are
@@ -395,7 +383,10 @@ func TestRecreateStrategyWithVolumesPresent(t *testing.T) {
 
 	o := OpenShift{Kubernetes: kubernetes.Kubernetes{}}
 
-	objects := o.Transform(komposeObject, kobject.ConvertOptions{CreateDeploymentConfig: true, Replicas: 1})
+	objects, err := o.Transform(komposeObject, kobject.ConvertOptions{CreateDeploymentConfig: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "o.Transform failed"))
+	}
 	for _, obj := range objects {
 		if deploymentConfig, ok := obj.(*deployapi.DeploymentConfig); ok {
 			if deploymentConfig.Spec.Strategy.Type != deployapi.DeploymentStrategyTypeRecreate {

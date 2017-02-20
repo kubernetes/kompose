@@ -27,10 +27,9 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 
+	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"os"
-	"os/exec"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
@@ -239,7 +238,10 @@ func TestKomposeConvertIngress(t *testing.T) {
 		}
 
 		// Run Transform
-		objs := k.Transform(test.komposeObject, test.opt)
+		objs, err := k.Transform(test.komposeObject, test.opt)
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
 
 		// Check results
 		for _, obj := range objs {
@@ -282,7 +284,10 @@ func TestKomposeConvert(t *testing.T) {
 		t.Log("Test case:", name)
 		k := Kubernetes{}
 		// Run Transform
-		objs := k.Transform(test.komposeObject, test.opt)
+		objs, err := k.Transform(test.komposeObject, test.opt)
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
 		if len(objs) != test.expectedNumObjs {
 			t.Errorf("Expected %d objects returned, got %d", test.expectedNumObjs, len(objs))
 		}
@@ -402,7 +407,10 @@ func TestConvertRestartOptions(t *testing.T) {
 	for name, test := range testCases {
 		t.Log("Test Case:", name)
 
-		objs := k.Transform(test.svc, opt)
+		objs, err := k.Transform(test.svc, opt)
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
 
 		if len(objs) != 1 {
 			t.Errorf("Expected only one pod, more elements generated.")
@@ -454,13 +462,6 @@ func TestUnsupportedKeys(t *testing.T) {
 
 }
 
-// Here we are testing a function which results in `logus.Fatalf()` when a condition is met, which further call `os.Exit()` and exits the process.
-// If we write a test in the usual way that will call the function,
-// it will exit the process and the running process is actually the test process and our test would fail.
-// So to test the function resulting in `os.Exit()` we need invoke go test again in a separate process through `exec.Command`,
-// limiting execution to the TestRestartOnFailure test using `-test.run=TestRestartOnFailure` flag set.
-// The `TestRestartOnFailure` doing is two things simultaneously,
-// it is going to the be the test itself and second it will a be `subprocess` that the test runs.
 func TestRestartOnFailure(t *testing.T) {
 
 	kobjectWithRestartOnFailure := newKomposeObject()
@@ -483,24 +484,11 @@ func TestRestartOnFailure(t *testing.T) {
 	for name, test := range testCase {
 		t.Log("Test case:", name)
 		k := Kubernetes{}
-		if os.Getenv("BE_CRASHER") == "1" {
-			k.Transform(test.komposeObject, test.opt)
+		_, err := k.Transform(test.komposeObject, test.opt)
+		if err == nil {
+			t.Errorf("Expected an error, got %v instead", err)
 		}
 	}
-
-	// cmd := exec.Command(os.Args[0], "-test.run=TestRestartOnFailure") will execute the test binary
-	// with the flag -test.run=TestRestartOnFailure and set the environment variable BE_CRASHER=1.
-	cmd := exec.Command(os.Args[0], "-test.run=TestRestartOnFailure")
-	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
-
-	// err := cmd.Run() will re-execute the test binary and this time os.Getenv("BE_CRASHER") == "1"
-	// will return true and we can call o.Transform(test.komposeObject, test.opt).
-	// so that the test binary that calls itself and execute the code on behalf of the parent process.
-	err := cmd.Run()
-	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
-		return
-	}
-	t.Fatalf("Process ran with err %v, want exit status 1", err)
 }
 
 func TestInitPodSpec(t *testing.T) {

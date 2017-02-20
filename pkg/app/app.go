@@ -35,6 +35,7 @@ import (
 
 	"os"
 
+	"github.com/fsouza/go-dockerclient/external/github.com/Sirupsen/logrus"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/loader"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
@@ -211,16 +212,26 @@ func Convert(opt kobject.ConvertOptions) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject = l.LoadFile(opt.InputFiles)
+	komposeObject, err = l.LoadFile(opt.InputFiles)
+	if err != nil {
+		logrus.Fatalf(err.Error())
+	}
 
 	// Get a transformer that maps komposeObject to provider's primitives
 	t := getTransformer(opt)
 
 	// Do the transformation
-	objects := t.Transform(komposeObject, opt)
+	objects, err := t.Transform(komposeObject, opt)
+
+	if err != nil {
+		logrus.Fatalf(err.Error())
+	}
 
 	// Print output
-	kubernetes.PrintList(objects, opt)
+	err = kubernetes.PrintList(objects, opt)
+	if err != nil {
+		logrus.Fatalf(err.Error())
+	}
 }
 
 // Up brings up deployment, svc.
@@ -237,7 +248,10 @@ func Up(opt kobject.ConvertOptions) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject = l.LoadFile(opt.InputFiles)
+	komposeObject, err = l.LoadFile(opt.InputFiles)
+	if err != nil {
+		logrus.Fatalf(err.Error())
+	}
 
 	// Get the transformer
 	t := getTransformer(opt)
@@ -263,7 +277,10 @@ func Down(opt kobject.ConvertOptions) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject = l.LoadFile(opt.InputFiles)
+	komposeObject, err = l.LoadFile(opt.InputFiles)
+	if err != nil {
+		logrus.Fatalf(err.Error())
+	}
 
 	// Get the transformer
 	t := getTransformer(opt)
