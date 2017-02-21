@@ -394,3 +394,6 @@ services:
     command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
     restart: "on-failure"
 ```
+
+#### Notes:
+- If the Docker Compose file has a volume specified for a service, the Deployment (Kubernetes) or DeploymentConfig (OpenShift) strategy is changed to "Recreate" instead of "RollingUpdate" (default). This is done to avoid multiple instances of a service from accessing a volume at the same time.

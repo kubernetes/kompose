@@ -177,7 +177,9 @@
             "restartPolicy": "Always"
           }
         },
-        "strategy": {}
+        "strategy": {
+					"type": "Recreate"
+				}
       },
       "status": {}
     },
