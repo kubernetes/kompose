@@ -104,6 +104,19 @@ func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, u
 	return keysFound
 }
 
+// InitPodSpec creates the pod specification
+func (k *Kubernetes) InitPodSpec(name string, image string) api.PodSpec {
+	pod := api.PodSpec{
+		Containers: []api.Container{
+			{
+				Name:  name,
+				Image: image,
+			},
+		},
+	}
+	return pod
+}
+
 // InitRC initializes Kubernetes ReplicationController object
 func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
 	rc := &api.ReplicationController{
@@ -120,14 +133,7 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 				ObjectMeta: api.ObjectMeta{
 					Labels: transformer.ConfigLabels(name),
 				},
-				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
-				},
+				Spec: k.InitPodSpec(name, service.Image),
 			},
 		},
 	}
@@ -165,14 +171,7 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
 			Template: api.PodTemplateSpec{
-				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
-				},
+				Spec: k.InitPodSpec(name, service.Image),
 			},
 		},
 	}
@@ -191,14 +190,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
-				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name:  name,
-							Image: service.Image,
-						},
-					},
-				},
+				Spec: k.InitPodSpec(name, service.Image),
 			},
 		},
 	}
@@ -453,14 +445,7 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 		ObjectMeta: api.ObjectMeta{
 			Name: name,
 		},
-		Spec: api.PodSpec{
-			Containers: []api.Container{
-				{
-					Name:  name,
-					Image: service.Image,
-				},
-			},
-		},
+		Spec: k.InitPodSpec(name, service.Image),
 	}
 	return &pod
 }

@@ -502,3 +502,12 @@ func TestRestartOnFailure(t *testing.T) {
 	}
 	t.Fatalf("Process ran with err %v, want exit status 1", err)
 }
+
+func TestInitPodSpec(t *testing.T) {
+	name := "foo"
+	k := Kubernetes{}
+	result := k.InitPodSpec(name, newServiceConfig().Image)
+	if result.Containers[0].Name != "foo" && result.Containers[0].Image != "image" {
+		t.Fatalf("Pod object not found")
+	}
+}
