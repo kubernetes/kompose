@@ -7,22 +7,22 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "mongodb",
+        "name": "hygieia-api",
         "creationTimestamp": null,
         "labels": {
-          "service": "mongodb"
+          "service": "hygieia-api"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "27017",
-            "port": 27017,
-            "targetPort": 27017
+            "name": "8080",
+            "port": 8080,
+            "targetPort": 8080
           }
         ],
         "selector": {
-          "service": "mongodb"
+          "service": "hygieia-api"
         }
       },
       "status": {
@@ -33,10 +33,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "hygieia-udeploy-collector",
+        "name": "hygieia-bitbucket-scm-collector",
         "creationTimestamp": null,
         "labels": {
-          "service": "hygieia-udeploy-collector"
+          "service": "hygieia-bitbucket-scm-collector"
         }
       },
       "spec": {
@@ -48,7 +48,7 @@
           }
         ],
         "selector": {
-          "service": "hygieia-udeploy-collector"
+          "service": "hygieia-bitbucket-scm-collector"
         },
         "clusterIP": "None"
       },
@@ -76,60 +76,6 @@
         ],
         "selector": {
           "service": "hygieia-chat-ops-collector"
-        },
-        "clusterIP": "None"
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-subversion-scm-collector",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "hygieia-subversion-scm-collector"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
-          }
-        ],
-        "selector": {
-          "service": "hygieia-subversion-scm-collector"
-        },
-        "clusterIP": "None"
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-versionone-collector",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "hygieia-versionone-collector"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
-          }
-        ],
-        "selector": {
-          "service": "hygieia-versionone-collector"
         },
         "clusterIP": "None"
       },
@@ -195,33 +141,6 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "hygieia-sonar-codequality-collector",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "hygieia-sonar-codequality-collector"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
-          }
-        ],
-        "selector": {
-          "service": "hygieia-sonar-codequality-collector"
-        },
-        "clusterIP": "None"
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
         "name": "hygieia-jenkins-cucumber-test-collector",
         "creationTimestamp": null,
         "labels": {
@@ -238,59 +157,6 @@
         ],
         "selector": {
           "service": "hygieia-jenkins-cucumber-test-collector"
-        },
-        "clusterIP": "None"
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-api",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "hygieia-api"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "8080",
-            "port": 8080,
-            "targetPort": 8080
-          }
-        ],
-        "selector": {
-          "service": "hygieia-api"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-bitbucket-scm-collector",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "hygieia-bitbucket-scm-collector"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
-          }
-        ],
-        "selector": {
-          "service": "hygieia-bitbucket-scm-collector"
         },
         "clusterIP": "None"
       },
@@ -329,6 +195,87 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
+        "name": "hygieia-sonar-codequality-collector",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "hygieia-sonar-codequality-collector"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "service": "hygieia-sonar-codequality-collector"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-subversion-scm-collector",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "hygieia-subversion-scm-collector"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "service": "hygieia-subversion-scm-collector"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-udeploy-collector",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "hygieia-udeploy-collector"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "service": "hygieia-udeploy-collector"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
         "name": "hygieia-ui",
         "creationTimestamp": null,
         "labels": {
@@ -352,10 +299,63 @@
       }
     },
     {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-versionone-collector",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "hygieia-versionone-collector"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "service": "hygieia-versionone-collector"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mongodb",
+        "creationTimestamp": null,
+        "labels": {
+          "service": "mongodb"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "27017",
+            "port": 27017,
+            "targetPort": 27017
+          }
+        ],
+        "selector": {
+          "service": "mongodb"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "mongodb",
+        "name": "hygieia-api",
         "creationTimestamp": null
       },
       "spec": {
@@ -364,36 +364,32 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "mongodb"
+              "service": "hygieia-api"
             }
           },
           "spec": {
             "volumes": [
               {
-                "name": "mongodb-claim0",
+                "name": "hygieia-api-claim0",
                 "persistentVolumeClaim": {
-                  "claimName": "mongodb-claim0"
+                  "claimName": "hygieia-api-claim0"
                 }
               }
             ],
             "containers": [
               {
-                "name": "mongodb",
-                "image": "mongo:latest",
-                "args": [
-                  "mongod",
-                  "--smallfiles"
-                ],
+                "name": "hygieia-api",
+                "image": "hygieia-api:latest",
                 "ports": [
                   {
-                    "containerPort": 27017
+                    "containerPort": 8080
                   }
                 ],
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "name": "mongodb-claim0",
-                    "mountPath": "/data/db"
+                    "name": "hygieia-api-claim0",
+                    "mountPath": "/hygieia/logs"
                   }
                 ]
               }
@@ -401,7 +397,9 @@
             "restartPolicy": "Always"
           }
         },
-        "strategy": {}
+        "strategy": {
+          "type": "Recreate"
+        }
       },
       "status": {}
     },
@@ -409,7 +407,545 @@
       "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "mongodb-claim0",
+        "name": "hygieia-api-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "hygieia-bitbucket-scm-collector",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "hygieia-bitbucket-scm-collector"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hygieia-bitbucket-scm-collector-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "hygieia-bitbucket-scm-collector-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hygieia-bitbucket",
+                "image": "hygieia-bitbucket-scm-collector:latest",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "hygieia-bitbucket-scm-collector-claim0",
+                    "mountPath": "/hygieia/logs"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-bitbucket-scm-collector-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "hygieia-chat-ops-collector",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "hygieia-chat-ops-collector"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hygieia-chat-ops-collector-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "hygieia-chat-ops-collector-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hygieia-chat-ops",
+                "image": "hygieia-chat-ops-collector:latest",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "hygieia-chat-ops-collector-claim0",
+                    "mountPath": "/hygieia/logs"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-chat-ops-collector-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "hygieia-github-scm-collector",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "hygieia-github-scm-collector"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hygieia-github-scm-collector-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "hygieia-github-scm-collector-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hygieia-github",
+                "image": "hygieia-github-scm-collector:latest",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "hygieia-github-scm-collector-claim0",
+                    "mountPath": "/hygieia/logs"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-github-scm-collector-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "hygieia-jenkins-build-collector",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "hygieia-jenkins-build-collector"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hygieia-jenkins-build-collector-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "hygieia-jenkins-build-collector-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hygieia-jenkins-build",
+                "image": "hygieia-jenkins-build-collector:latest",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "hygieia-jenkins-build-collector-claim0",
+                    "mountPath": "/hygieia/logs"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-jenkins-build-collector-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "hygieia-jenkins-cucumber-test-collector",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "hygieia-jenkins-cucumber-test-collector"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hygieia-jenkins-cucumber-test-collector-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "hygieia-jenkins-cucumber-test-collector-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hygieia-jenkins-cucumber",
+                "image": "hygieia-jenkins-cucumber-test-collector:latest",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "hygieia-jenkins-cucumber-test-collector-claim0",
+                    "mountPath": "/hygieia/logs"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-jenkins-cucumber-test-collector-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "hygieia-jira-feature-collector",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "hygieia-jira-feature-collector"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hygieia-jira-feature-collector-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "hygieia-jira-feature-collector-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hygieia-jira",
+                "image": "hygieia-jira-feature-collector:latest",
+                "env": [
+                  {
+                    "name": "JIRA_BASE_URL",
+                    "value": "https://jira.atlassian.com"
+                  },
+                  {
+                    "name": "JIRA_CREDENTIALS",
+                    "value": "username:password"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "hygieia-jira-feature-collector-claim0",
+                    "mountPath": "/hygieia/logs"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-jira-feature-collector-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "hygieia-sonar-codequality-collector",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "hygieia-sonar-codequality-collector"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hygieia-sonar-codequality-collector-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "hygieia-sonar-codequality-collector-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hygieia-sonar-codequality",
+                "image": "hygieia-sonar-codequality-collector:latest",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "hygieia-sonar-codequality-collector-claim0",
+                    "mountPath": "/hygieia/logs"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-sonar-codequality-collector-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "hygieia-subversion-scm-collector",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "hygieia-subversion-scm-collector"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hygieia-subversion-scm-collector-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "hygieia-subversion-scm-collector-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hygieia-subversion",
+                "image": "hygieia-subversion-scm-collector:latest",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "hygieia-subversion-scm-collector-claim0",
+                    "mountPath": "/hygieia/logs"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-subversion-scm-collector-claim0",
         "creationTimestamp": null
       },
       "spec": {
@@ -479,7 +1015,9 @@
             "restartPolicy": "Always"
           }
         },
-        "strategy": {}
+        "strategy": {
+          "type": "Recreate"
+        }
       },
       "status": {}
     },
@@ -488,661 +1026,6 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "hygieia-udeploy-collector-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-chat-ops-collector",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-chat-ops-collector"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-chat-ops-collector-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-chat-ops-collector-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-chat-ops",
-                "image": "hygieia-chat-ops-collector:latest",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-chat-ops-collector-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-chat-ops-collector-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-subversion-scm-collector",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-subversion-scm-collector"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-subversion-scm-collector-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-subversion-scm-collector-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-subversion",
-                "image": "hygieia-subversion-scm-collector:latest",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-subversion-scm-collector-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-subversion-scm-collector-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-versionone-collector",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-versionone-collector"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-versionone-collector-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-versionone-collector-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-versionone",
-                "image": "hygieia-versionone-collector:latest",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-versionone-collector-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-versionone-collector-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-github-scm-collector",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-github-scm-collector"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-github-scm-collector-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-github-scm-collector-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-github",
-                "image": "hygieia-github-scm-collector:latest",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-github-scm-collector-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-github-scm-collector-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-jenkins-build-collector",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-jenkins-build-collector"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-jenkins-build-collector-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-jenkins-build-collector-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-jenkins-build",
-                "image": "hygieia-jenkins-build-collector:latest",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-jenkins-build-collector-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-jenkins-build-collector-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-sonar-codequality-collector",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-sonar-codequality-collector"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-sonar-codequality-collector-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-sonar-codequality-collector-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-sonar-codequality",
-                "image": "hygieia-sonar-codequality-collector:latest",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-sonar-codequality-collector-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-sonar-codequality-collector-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-jenkins-cucumber-test-collector",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-jenkins-cucumber-test-collector"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-jenkins-cucumber-test-collector-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-jenkins-cucumber-test-collector-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-jenkins-cucumber",
-                "image": "hygieia-jenkins-cucumber-test-collector:latest",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-jenkins-cucumber-test-collector-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-jenkins-cucumber-test-collector-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-api",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-api"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-api-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-api-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-api",
-                "image": "hygieia-api:latest",
-                "ports": [
-                  {
-                    "containerPort": 8080
-                  }
-                ],
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-api-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-api-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-bitbucket-scm-collector",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-bitbucket-scm-collector"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-bitbucket-scm-collector-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-bitbucket-scm-collector-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-bitbucket",
-                "image": "hygieia-bitbucket-scm-collector:latest",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-bitbucket-scm-collector-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-bitbucket-scm-collector-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "hygieia-jira-feature-collector",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "hygieia-jira-feature-collector"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "hygieia-jira-feature-collector-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "hygieia-jira-feature-collector-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "hygieia-jira",
-                "image": "hygieia-jira-feature-collector:latest",
-                "env": [
-                  {
-                    "name": "JIRA_BASE_URL",
-                    "value": "https://jira.atlassian.com"
-                  },
-                  {
-                    "name": "JIRA_CREDENTIALS",
-                    "value": "username:password"
-                  }
-                ],
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "hygieia-jira-feature-collector-claim0",
-                    "mountPath": "/hygieia/logs"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "hygieia-jira-feature-collector-claim0",
         "creationTimestamp": null
       },
       "spec": {
@@ -1190,6 +1073,147 @@
           }
         },
         "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "hygieia-versionone-collector",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "hygieia-versionone-collector"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hygieia-versionone-collector-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "hygieia-versionone-collector-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hygieia-versionone",
+                "image": "hygieia-versionone-collector:latest",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "hygieia-versionone-collector-claim0",
+                    "mountPath": "/hygieia/logs"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hygieia-versionone-collector-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "mongodb",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "service": "mongodb"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "mongodb-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "mongodb-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "mongodb",
+                "image": "mongo:latest",
+                "args": [
+                  "mongod",
+                  "--smallfiles"
+                ],
+                "ports": [
+                  {
+                    "containerPort": 27017
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "mongodb-claim0",
+                    "mountPath": "/data/db"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mongodb-claim0",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
       },
       "status": {}
     }
