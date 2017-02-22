@@ -16,7 +16,10 @@ limitations under the License.
 
 package kobject
 
-import "k8s.io/kubernetes/pkg/api"
+import (
+	"github.com/docker/libcompose/yaml"
+	"k8s.io/kubernetes/pkg/api"
+)
 
 // KomposeObject holds the generic struct of Kompose transformation
 type KomposeObject struct {
@@ -54,31 +57,32 @@ type ConvertOptions struct {
 type ServiceConfig struct {
 	// use tags to mark from what element this value comes
 	ContainerName string
-	Image         string            `compose:"image",bundle:"Image"`
-	Environment   []EnvVar          `compose:"environment",bundle:"Env"`
-	Port          []Ports           `compose:"ports",bundle:"Ports"`
-	Command       []string          `compose:"command",bundle:"Command"`
-	WorkingDir    string            `compose:"",bundle:"WorkingDir"`
-	Args          []string          `compose:"args",bundle:"Args"`
-	Volumes       []string          `compose:"volumes",bundle:"Volumes"`
-	Network       []string          `compose:"network",bundle:"Networks"`
-	Labels        map[string]string `compose:"labels",bundle:"Labels"`
-	Annotations   map[string]string `compose:"",bundle:""`
-	CPUSet        string            `compose:"cpuset",bundle:""`
-	CPUShares     int64             `compose:"cpu_shares",bundle:""`
-	CPUQuota      int64             `compose:"cpu_quota",bundle:""`
-	CapAdd        []string          `compose:"cap_add",bundle:""`
-	CapDrop       []string          `compose:"cap_drop",bundle:""`
-	Expose        []string          `compose:"expose",bundle:""`
-	Privileged    bool              `compose:"privileged",bundle:""`
-	Restart       string            `compose:"restart",bundle:""`
-	User          string            `compose:"user",bundle:"User"`
-	VolumesFrom   []string          `compose:"volumes_from",bundle:""`
-	ServiceType   string            `compose:"kompose.service.type",bundle:""`
-	Build         string            `compose:"build",bundle:""`
-	ExposeService string            `compose:"kompose.service.expose",bundle:""`
-	Stdin         bool              `compose:"stdin_open",bundle:""`
-	Tty           bool              `compose:"tty",bundle:""`
+	Image         string              `compose:"image",bundle:"Image"`
+	Environment   []EnvVar            `compose:"environment",bundle:"Env"`
+	Port          []Ports             `compose:"ports",bundle:"Ports"`
+	Command       []string            `compose:"command",bundle:"Command"`
+	WorkingDir    string              `compose:"",bundle:"WorkingDir"`
+	Args          []string            `compose:"args",bundle:"Args"`
+	Volumes       []string            `compose:"volumes",bundle:"Volumes"`
+	Network       []string            `compose:"network",bundle:"Networks"`
+	Labels        map[string]string   `compose:"labels",bundle:"Labels"`
+	Annotations   map[string]string   `compose:"",bundle:""`
+	CPUSet        string              `compose:"cpuset",bundle:""`
+	CPUShares     int64               `compose:"cpu_shares",bundle:""`
+	CPUQuota      int64               `compose:"cpu_quota",bundle:""`
+	CapAdd        []string            `compose:"cap_add",bundle:""`
+	CapDrop       []string            `compose:"cap_drop",bundle:""`
+	Expose        []string            `compose:"expose",bundle:""`
+	Privileged    bool                `compose:"privileged",bundle:""`
+	Restart       string              `compose:"restart",bundle:""`
+	User          string              `compose:"user",bundle:"User"`
+	VolumesFrom   []string            `compose:"volumes_from",bundle:""`
+	ServiceType   string              `compose:"kompose.service.type",bundle:""`
+	Build         string              `compose:"build",bundle:""`
+	ExposeService string              `compose:"kompose.service.expose",bundle:""`
+	Stdin         bool                `compose:"stdin_open",bundle:""`
+	Tty           bool                `compose:"tty",bundle:""`
+	MemLimit      yaml.MemStringorInt `compose:"mem_limit",bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container

@@ -56,6 +56,16 @@ convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/te
 
 
 ######
+# Tests related to docker-compose file in /script/test/fixtures/mem-limit
+# kubernetes test
+
+# Test the "memory limit" conversion
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/mem-limit/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/mem-limit/output-k8s.json"
+
+# Test the "memory limit" conversion with "Mb" tagged on
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/mem-limit/docker-compose-mb.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/mem-limit/output-mb-k8s.json"
+
+######
 # Tests related to docker-compose file in /script/test/fixtures/ports-with-proto
 # kubernetes test
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/ports-with-proto/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ports-with-proto/output-k8s.json"

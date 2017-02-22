@@ -39,6 +39,7 @@ import (
 	"k8s.io/kubernetes/pkg/runtime"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	"k8s.io/kubernetes/pkg/api/resource"
 )
 
 /**
@@ -343,6 +344,15 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].TTY = service.Tty
 		template.Spec.Volumes = volumes
 
+		// Configure the resource limits
+		if service.MemLimit != 0 {
+			memoryResourceList := api.ResourceList{
+				api.ResourceMemory: *resource.NewQuantity(
+					int64(service.MemLimit), "RandomStringForFormat")}
+			template.Spec.Containers[0].Resources.Limits = memoryResourceList
+		}
+
+		// Setup security context
 		securityContext := &api.SecurityContext{}
 		if service.Privileged == true {
 			securityContext.Privileged = &service.Privileged
@@ -356,6 +366,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			}
 
 		}
+
 		// update template only if securityContext is not empty
 		if *securityContext != (api.SecurityContext{}) {
 			template.Spec.Containers[0].SecurityContext = securityContext
@@ -363,6 +374,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 
 		template.Spec.Containers[0].Ports = ports
 		template.ObjectMeta.Labels = transformer.ConfigLabels(name)
+
 		// Configure the container restart policy.
 		switch service.Restart {
 		case "", "always":

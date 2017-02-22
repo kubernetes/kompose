@@ -67,8 +67,56 @@ func TestCreateService(t *testing.T) {
 
 	// Test the creation of the service
 	svc := k.CreateService("foo", service, objects)
+
 	if svc.Spec.Ports[0].Port != 123 {
 		t.Errorf("Expected port 123 upon conversion, actual %d", svc.Spec.Ports[0].Port)
+	}
+}
+
+/*
+	Test the creation of a service with a memory limit
+*/
+func TestCreateServiceWithMemLimit(t *testing.T) {
+
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolTCP}},
+		Command:       []string{"cmd"},
+		WorkingDir:    "dir",
+		Args:          []string{"arg1", "arg2"},
+		Volumes:       []string{"/tmp/volume"},
+		Network:       []string{"network1", "network2"}, // not supported
+		Labels:        nil,
+		Annotations:   map[string]string{"abc": "def"},
+		CPUSet:        "cpu_set",            // not supported
+		CPUShares:     1,                    // not supported
+		CPUQuota:      1,                    // not supported
+		CapAdd:        []string{"cap_add"},  // not supported
+		CapDrop:       []string{"cap_drop"}, // not supported
+		Expose:        []string{"expose"},   // not supported
+		Privileged:    true,
+		Restart:       "always",
+		MemLimit:      1337,
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+
+	// Retrieve the deployment object and test that it matches the MemLimit value
+	for _, obj := range objects {
+		if deploy, ok := obj.(*extensions.Deployment); ok {
+			memTest, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Memory().AsInt64()
+			if memTest != 1337 {
+				t.Errorf("Expected 1337 for mem_limit check, got %v", memTest)
+			}
+		}
 	}
 }
 
