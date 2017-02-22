@@ -240,15 +240,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 				ObjectMeta: api.ObjectMeta{
 					Labels: map[string]string{"service": name},
 				},
-				Spec: api.PodSpec{
-					Containers: []api.Container{
-						{
-							Name: name,
-							// Image will be set to ImageStream image by ImageChange trigger.
-							Image: " ",
-						},
-					},
-				},
+				Spec: o.InitPodSpec(name, " "),
 			},
 			Triggers: []deployapi.DeploymentTriggerPolicy{
 				// Trigger new deploy when DeploymentConfig is created (config change)
