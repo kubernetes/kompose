@@ -81,11 +81,7 @@ replaceversion() {
   echo "1. Replaced version in version.go"
   sed -i "s/$1/$2/g" cmd/version.go
 
-  echo "2. Replace GITCOMMIT value in version.go"
-  VERSION=`git log -1 --pretty=format:%h`
-  sed -i "s|.*GITCOMMIT = .*|\tGITCOMMIT = \"$VERSION\"|" cmd/version.go
-
-  echo "3. Replaced README.md versioning"
+  echo "2. Replaced README.md versioning"
   sed -i "s/$1/$2/g" README.md
   
   cd ..
