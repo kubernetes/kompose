@@ -1,13 +1,56 @@
 # Change Log
 
+## [v.0.3.0](https://github.com/kubernetes-incubator/kompose/tree/v0.3.0) (2017-02-24)
+[Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.2.0...v0.3.0)
+
+**Closed issues:**
+
+- `make test-unit` does not run on uncomitted changes [\#427](https://github.com/kubernetes-incubator/kompose/issues/427)
+- underscores get propagated into invalid names [\#420](https://github.com/kubernetes-incubator/kompose/issues/420)
+- Wrong version \(0.1.2\) in "kompose versione" \(instead of 0.2.0\) [\#411](https://github.com/kubernetes-incubator/kompose/issues/411)
+- Cannot unmarshal float environment values. [\#410](https://github.com/kubernetes-incubator/kompose/issues/410)
+- unit tests for error out if controller object is specified with restart: on-failure. [\#404](https://github.com/kubernetes-incubator/kompose/issues/404)
+- By default, remove protocol: TCP in conversion to artifacts [\#392](https://github.com/kubernetes-incubator/kompose/issues/392)
+- Container Port and Node Port mapping default to open [\#391](https://github.com/kubernetes-incubator/kompose/issues/391)
+- kompose down with openshift doesn't delete  BuildConfig [\#382](https://github.com/kubernetes-incubator/kompose/issues/382)
+- panic on using --build-branch and default docker-compose file given [\#369](https://github.com/kubernetes-incubator/kompose/issues/369)
+- error should be displayed If controller object is specified  and `restart: on-failure`  [\#354](https://github.com/kubernetes-incubator/kompose/issues/354)
+- add support for docker-compose.yaml besides docker-compose.yml [\#352](https://github.com/kubernetes-incubator/kompose/issues/352)
+- Abstract out api.PodSpec in kubernetes.go [\#348](https://github.com/kubernetes-incubator/kompose/issues/348)
+- Support for host:container:protocol [\#335](https://github.com/kubernetes-incubator/kompose/issues/335)
+- Detecting exposed ports in images [\#146](https://github.com/kubernetes-incubator/kompose/issues/146)
+- bash completion for kompose  [\#37](https://github.com/kubernetes-incubator/kompose/issues/37)
+
+**Merged pull requests:**
+
+- Test with multiple go versions [\#449](https://github.com/kubernetes-incubator/kompose/pull/449) ([kadel](https://github.com/kadel))
+- Abstract out api.pod spec [\#434](https://github.com/kubernetes-incubator/kompose/pull/434) ([procrypt](https://github.com/procrypt))
+- normalize docker-compose service that has name with underscore [\#429](https://github.com/kubernetes-incubator/kompose/pull/429) ([surajssd](https://github.com/surajssd))
+- removed unnecessary objects in compose.go [\#428](https://github.com/kubernetes-incubator/kompose/pull/428) ([surajssd](https://github.com/surajssd))
+- Update vendoring [\#425](https://github.com/kubernetes-incubator/kompose/pull/425) ([cdrage](https://github.com/cdrage))
+- fix passing gitcommit in version output [\#423](https://github.com/kubernetes-incubator/kompose/pull/423) ([kadel](https://github.com/kadel))
+- Update Makefile - lazy set for PKGS variable [\#418](https://github.com/kubernetes-incubator/kompose/pull/418) ([kadel](https://github.com/kadel))
+- Update the documentation to use LoadBalancer instead of NodePort [\#417](https://github.com/kubernetes-incubator/kompose/pull/417) ([cdrage](https://github.com/cdrage))
+- Fix a small spelling error [\#415](https://github.com/kubernetes-incubator/kompose/pull/415) ([cdrage](https://github.com/cdrage))
+- Adds mem\_limit support for conversion [\#414](https://github.com/kubernetes-incubator/kompose/pull/414) ([cdrage](https://github.com/cdrage))
+- add BuildConfig support to kompose down [\#413](https://github.com/kubernetes-incubator/kompose/pull/413) ([procrypt](https://github.com/procrypt))
+- Update the example to include NodePort and accessability [\#409](https://github.com/kubernetes-incubator/kompose/pull/409) ([cdrage](https://github.com/cdrage))
+- Add kompose to .gitignore, remove binary [\#408](https://github.com/kubernetes-incubator/kompose/pull/408) ([cdrage](https://github.com/cdrage))
+- Update the setup page for Linux/MacOS/Windows on Kompose.io [\#407](https://github.com/kubernetes-incubator/kompose/pull/407) ([cdrage](https://github.com/cdrage))
+- Unit tests for error out if controller object is specified with restart: on-failure [\#405](https://github.com/kubernetes-incubator/kompose/pull/405) ([procrypt](https://github.com/procrypt))
+- Adds favicons to the website [\#403](https://github.com/kubernetes-incubator/kompose/pull/403) ([cdrage](https://github.com/cdrage))
+- Update website with user guide + updated setup [\#402](https://github.com/kubernetes-incubator/kompose/pull/402) ([cdrage](https://github.com/cdrage))
+- Update the README.md with new installation instructions [\#399](https://github.com/kubernetes-incubator/kompose/pull/399) ([cdrage](https://github.com/cdrage))
+- Updates the cross compiling commands [\#397](https://github.com/kubernetes-incubator/kompose/pull/397) ([cdrage](https://github.com/cdrage))
+- Update the release script [\#396](https://github.com/kubernetes-incubator/kompose/pull/396) ([cdrage](https://github.com/cdrage))
+- Removes the TCP output on the Kubernetes / OpenShift artifacts [\#394](https://github.com/kubernetes-incubator/kompose/pull/394) ([cdrage](https://github.com/cdrage))
+- Add support for host:port:port [\#393](https://github.com/kubernetes-incubator/kompose/pull/393) ([cdrage](https://github.com/cdrage))
+- change strategy to recreate if volumes present, fix \#264 [\#378](https://github.com/kubernetes-incubator/kompose/pull/378) ([containscafeine](https://github.com/containscafeine))
+- error out if controller object is specified with "restart: on-failure" [\#373](https://github.com/kubernetes-incubator/kompose/pull/373) ([procrypt](https://github.com/procrypt))
+- added support for docker-compose.yaml besides docker-compose.yml [\#368](https://github.com/kubernetes-incubator/kompose/pull/368) ([procrypt](https://github.com/procrypt))
+
 ## [v0.2.0](https://github.com/kubernetes-incubator/kompose/tree/v0.2.0) (2017-01-27)
 [Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.1.2...v0.2.0)
-
-**Implemented enhancements:**
-
-- fix unit tests that cause warnings [\#343](https://github.com/kubernetes-incubator/kompose/issues/343)
-- being able to store artifacts separately in a specific directory [\#209](https://github.com/kubernetes-incubator/kompose/issues/209)
-- Validate input args  [\#87](https://github.com/kubernetes-incubator/kompose/issues/87)
 
 **Closed issues:**
 
@@ -16,6 +59,7 @@
 - cmd tests written after `convert::files\_exist` does not pass [\#361](https://github.com/kubernetes-incubator/kompose/issues/361)
 - disable coveralls.io comments [\#358](https://github.com/kubernetes-incubator/kompose/issues/358)
 - support for stdin\_open and tty keys [\#344](https://github.com/kubernetes-incubator/kompose/issues/344)
+- fix unit tests that cause warnings [\#343](https://github.com/kubernetes-incubator/kompose/issues/343)
 - kompose up/down not creating/deleting POD object generated with convert [\#342](https://github.com/kubernetes-incubator/kompose/issues/342)
 - yml support [\#336](https://github.com/kubernetes-incubator/kompose/issues/336)
 - Removing unconventional two letter flags + adding dashes in-between two letter words. [\#331](https://github.com/kubernetes-incubator/kompose/issues/331)
@@ -39,6 +83,7 @@
 - specifying service type right now is very docker-compose specific [\#273](https://github.com/kubernetes-incubator/kompose/issues/273)
 - Tiny issue on kompose up --emptyvols displaying [\#268](https://github.com/kubernetes-incubator/kompose/issues/268)
 - Update README  [\#265](https://github.com/kubernetes-incubator/kompose/issues/265)
+- Change strategy for Deployments/DeployementConfigs [\#264](https://github.com/kubernetes-incubator/kompose/issues/264)
 - Issues regarding CLI. Perhaps switching to Cobra? [\#253](https://github.com/kubernetes-incubator/kompose/issues/253)
 - Track release goals with GitHub milestones [\#250](https://github.com/kubernetes-incubator/kompose/issues/250)
 - Why do tests take so long to run? [\#247](https://github.com/kubernetes-incubator/kompose/issues/247)
@@ -50,6 +95,7 @@
 - Invoking kompose --bundle X.dab convert --stdout will produce two differently ordered results [\#231](https://github.com/kubernetes-incubator/kompose/issues/231)
 - Switch Copyright [\#223](https://github.com/kubernetes-incubator/kompose/issues/223)
 - Add `go vet` [\#215](https://github.com/kubernetes-incubator/kompose/issues/215)
+- being able to store artifacts separately in a specific directory [\#209](https://github.com/kubernetes-incubator/kompose/issues/209)
 - kompose down for OpenShift [\#208](https://github.com/kubernetes-incubator/kompose/issues/208)
 - establish release process - protect master branch [\#192](https://github.com/kubernetes-incubator/kompose/issues/192)
 - Fixtures directory has README.md that are incomplete or inconsistent [\#177](https://github.com/kubernetes-incubator/kompose/issues/177)
@@ -60,10 +106,12 @@
 - Creating Routes for Services  [\#140](https://github.com/kubernetes-incubator/kompose/issues/140)
 - Support BuildConfigs for openshift provider [\#96](https://github.com/kubernetes-incubator/kompose/issues/96)
 - Image name not given still kompose does not errors out [\#92](https://github.com/kubernetes-incubator/kompose/issues/92)
+- Validate input args  [\#87](https://github.com/kubernetes-incubator/kompose/issues/87)
 - specify Deployment policy [\#17](https://github.com/kubernetes-incubator/kompose/issues/17)
 
 **Merged pull requests:**
 
+- 0.2.0 Release [\#395](https://github.com/kubernetes-incubator/kompose/pull/395) ([cdrage](https://github.com/cdrage))
 - Update documentation removing \[0000\] timestamp outputs [\#389](https://github.com/kubernetes-incubator/kompose/pull/389) ([cdrage](https://github.com/cdrage))
 - Ignores :z or :Z when passed in as a volume string [\#387](https://github.com/kubernetes-incubator/kompose/pull/387) ([cdrage](https://github.com/cdrage))
 - Update to use YAML instead of json [\#386](https://github.com/kubernetes-incubator/kompose/pull/386) ([cdrage](https://github.com/cdrage))
@@ -129,16 +177,11 @@
 ## [v0.1.2](https://github.com/kubernetes-incubator/kompose/tree/v0.1.2) (2016-10-31)
 [Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.1.1...v0.1.2)
 
-**Implemented enhancements:**
-
-- Remove experimental tag [\#228](https://github.com/kubernetes-incubator/kompose/issues/228)
-- RFE: choosing Service type [\#154](https://github.com/kubernetes-incubator/kompose/issues/154)
-- Add warnings/error for image not specified  [\#80](https://github.com/kubernetes-incubator/kompose/issues/80)
-
 **Closed issues:**
 
 - can't `make binary-cross` at HEAD [\#256](https://github.com/kubernetes-incubator/kompose/issues/256)
 - reporting deployment when it should be deploymentConfig [\#251](https://github.com/kubernetes-incubator/kompose/issues/251)
+- Remove experimental tag [\#228](https://github.com/kubernetes-incubator/kompose/issues/228)
 - provide easy option for users in setup without PVs [\#226](https://github.com/kubernetes-incubator/kompose/issues/226)
 - Switch slack channel to official kubernetes slack [\#222](https://github.com/kubernetes-incubator/kompose/issues/222)
 - PVCs are not created when calling `kompose up` [\#218](https://github.com/kubernetes-incubator/kompose/issues/218)
@@ -153,7 +196,9 @@
 - upgrade libcompose revision [\#174](https://github.com/kubernetes-incubator/kompose/issues/174)
 - go panic when converting hygieia docker-compose [\#173](https://github.com/kubernetes-incubator/kompose/issues/173)
 - time-out errors while deleting deployments on openshift [\#165](https://github.com/kubernetes-incubator/kompose/issues/165)
+- RFE: choosing Service type [\#154](https://github.com/kubernetes-incubator/kompose/issues/154)
 - Ignoring network definitions [\#149](https://github.com/kubernetes-incubator/kompose/issues/149)
+- Add warnings/error for image not specified  [\#80](https://github.com/kubernetes-incubator/kompose/issues/80)
 - \[Discuss\] Find a good way to vendoring dependencies [\#43](https://github.com/kubernetes-incubator/kompose/issues/43)
 - new behavior of `kompose up` [\#40](https://github.com/kubernetes-incubator/kompose/issues/40)
 
@@ -189,12 +234,6 @@
 ## [v0.1.1](https://github.com/kubernetes-incubator/kompose/tree/v0.1.1) (2016-10-06)
 [Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.1.0...v0.1.1)
 
-**Implemented enhancements:**
-
-- --file for all kinds of input [\#153](https://github.com/kubernetes-incubator/kompose/issues/153)
-- Persistent Volumes [\#150](https://github.com/kubernetes-incubator/kompose/issues/150)
-- Add flags for sliencing warning and for treating warnings as error [\#100](https://github.com/kubernetes-incubator/kompose/issues/100)
-
 **Closed issues:**
 
 - come up with a release schedule [\#187](https://github.com/kubernetes-incubator/kompose/issues/187)
@@ -205,9 +244,12 @@
 - kompose up always deploys to default namespace [\#162](https://github.com/kubernetes-incubator/kompose/issues/162)
 - Proposal: make --dab/--bundle global flag [\#161](https://github.com/kubernetes-incubator/kompose/issues/161)
 - Support for "9995:9995/tcp" [\#158](https://github.com/kubernetes-incubator/kompose/issues/158)
+- --file for all kinds of input [\#153](https://github.com/kubernetes-incubator/kompose/issues/153)
 - `kompose up`  for OpenShift [\#152](https://github.com/kubernetes-incubator/kompose/issues/152)
+- Persistent Volumes [\#150](https://github.com/kubernetes-incubator/kompose/issues/150)
 - Generate ImageStream for every image in DeploymentConfig [\#145](https://github.com/kubernetes-incubator/kompose/issues/145)
 - godep save ./... : cannot find package "k8s.io/kubernetes/pkg/apis/authentication.k8s.io" [\#117](https://github.com/kubernetes-incubator/kompose/issues/117)
+- Add flags for sliencing warning and for treating warnings as error [\#100](https://github.com/kubernetes-incubator/kompose/issues/100)
 
 **Merged pull requests:**
 
@@ -229,10 +271,6 @@
 ## [v0.1.0](https://github.com/kubernetes-incubator/kompose/tree/v0.1.0) (2016-09-09)
 [Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.0.1-beta.2...v0.1.0)
 
-**Implemented enhancements:**
-
-- hostPath volumes? [\#109](https://github.com/kubernetes-incubator/kompose/issues/109)
-
 **Closed issues:**
 
 - \[PROPOSAL\] Use -f as a global flag [\#138](https://github.com/kubernetes-incubator/kompose/issues/138)
@@ -242,6 +280,7 @@
 - OpenShift conversoin - invalid DeploymentConfig [\#124](https://github.com/kubernetes-incubator/kompose/issues/124)
 - Wrong output when port is missing [\#121](https://github.com/kubernetes-incubator/kompose/issues/121)
 - Create a pod of containers sharing volume [\#116](https://github.com/kubernetes-incubator/kompose/issues/116)
+- hostPath volumes? [\#109](https://github.com/kubernetes-incubator/kompose/issues/109)
 - kompose convert panic on v1 compose file [\#102](https://github.com/kubernetes-incubator/kompose/issues/102)
 - Release: kompose binary should be statically linked  [\#98](https://github.com/kubernetes-incubator/kompose/issues/98)
 - Update libcompose to v0.3.0 [\#95](https://github.com/kubernetes-incubator/kompose/issues/95)
