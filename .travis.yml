@@ -5,8 +5,14 @@ sudo: required
 
 language: go
 
+# make this also work for forks
+go_import_path: github.com/kubernetes-incubator/kompose
+
+
 go:
   - 1.6
+  - 1.7
+  - 1.8
 
 before_install:
   - go get github.com/mattn/goveralls
