@@ -47,13 +47,13 @@ Grabbing the latest release from the [GitHub release page](https://github.com/ku
 
 ```sh
 # Linux 
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.2.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.3.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.2.0/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.3.0/kompose-darwin-amd64 -o kompose
 
 # Windows
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.2.0/kompose-windows-amd64.exe -o kompose.exe
+curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.3.0/kompose-windows-amd64.exe -o kompose.exe
 ```
 
 ```sh
