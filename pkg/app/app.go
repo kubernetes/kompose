@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	// install kubernetes api
@@ -64,7 +64,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	// Get the provider
 	provider := cmd.Flags().Lookup("provider").Value.String()
-	logrus.Debug("Checking validation of provider %s", provider)
+	log.Debug("Checking validation of provider %s", provider)
 
 	// OpenShift specific flags
 	deploymentConfig := cmd.Flags().Lookup("deployment-config").Changed
@@ -81,40 +81,40 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 	switch {
 	case provider == "openshift":
 		if chart {
-			logrus.Fatalf("--chart, -c is a Kubernetes only flag")
+			log.Fatalf("--chart, -c is a Kubernetes only flag")
 		}
 		if daemonSet {
-			logrus.Fatalf("--daemon-set is a Kubernetes only flag")
+			log.Fatalf("--daemon-set is a Kubernetes only flag")
 		}
 		if replicationController {
-			logrus.Fatalf("--replication-controller is a Kubernetes only flag")
+			log.Fatalf("--replication-controller is a Kubernetes only flag")
 		}
 		if deployment {
-			logrus.Fatalf("--deployment, -d is a Kubernetes only flag")
+			log.Fatalf("--deployment, -d is a Kubernetes only flag")
 		}
 	case provider == "kubernetes":
 		if deploymentConfig {
-			logrus.Fatalf("--deployment-config is an OpenShift only flag")
+			log.Fatalf("--deployment-config is an OpenShift only flag")
 		}
 		if buildRepo {
-			logrus.Fatalf("--build-repo is an Openshift only flag")
+			log.Fatalf("--build-repo is an Openshift only flag")
 		}
 		if buildBranch {
-			logrus.Fatalf("--build-branch is an Openshift only flag")
+			log.Fatalf("--build-branch is an Openshift only flag")
 		}
 	}
 
 	// Standard checks regardless of provider
 	if len(opt.OutFile) != 0 && opt.ToStdout {
-		logrus.Fatalf("Error: --out and --stdout can't be set at the same time")
+		log.Fatalf("Error: --out and --stdout can't be set at the same time")
 	}
 
 	if opt.CreateChart && opt.ToStdout {
-		logrus.Fatalf("Error: chart cannot be generated when --stdout is specified")
+		log.Fatalf("Error: chart cannot be generated when --stdout is specified")
 	}
 
 	if opt.Replicas < 0 {
-		logrus.Fatalf("Error: --replicas cannot be negative")
+		log.Fatalf("Error: --replicas cannot be negative")
 	}
 
 	if len(bundle) > 0 {
@@ -123,15 +123,15 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 	}
 
 	if len(bundle) > 0 && isFileSet {
-		logrus.Fatalf("Error: 'compose' file and 'dab' file cannot be specified at the same time")
+		log.Fatalf("Error: 'compose' file and 'dab' file cannot be specified at the same time")
 	}
 
 	if len(args) != 0 {
-		logrus.Fatal("Unknown Argument(s): ", strings.Join(args, ","))
+		log.Fatal("Unknown Argument(s): ", strings.Join(args, ","))
 	}
 
 	if opt.GenerateJSON && opt.GenerateYaml {
-		logrus.Fatalf("YAML and JSON format cannot be provided at the same time")
+		log.Fatalf("YAML and JSON format cannot be provided at the same time")
 	}
 }
 
@@ -142,11 +142,11 @@ func ValidateComposeFile(cmd *cobra.Command, opt *kobject.ConvertOptions) {
 		opt.InputFiles = []string{"docker-compose.yml"}
 		_, err := os.Stat("docker-compose.yml")
 		if err != nil {
-			logrus.Debugf("'docker-compose.yml' not found: %v", err)
+			log.Debugf("'docker-compose.yml' not found: %v", err)
 			opt.InputFiles = []string{"docker-compose.yaml"}
 			_, err = os.Stat("docker-compose.yaml")
 			if err != nil {
-				logrus.Fatalf("No 'docker-compose' file found: %v", err)
+				log.Fatalf("No 'docker-compose' file found: %v", err)
 			}
 		}
 	}
@@ -173,7 +173,7 @@ func validateControllers(opt *kobject.ConvertOptions) {
 				count++
 			}
 			if count > 1 {
-				logrus.Fatalf("Error: only one kind of Kubernetes resource can be generated when --out or --stdout is specified")
+				log.Fatalf("Error: only one kind of Kubernetes resource can be generated when --out or --stdout is specified")
 			}
 		}
 
@@ -191,7 +191,7 @@ func validateControllers(opt *kobject.ConvertOptions) {
 			// if opt.foo {count++}
 
 			if count > 1 {
-				logrus.Fatalf("Error: only one kind of OpenShift resource can be generated when --out or --stdout is specified")
+				log.Fatalf("Error: only one kind of OpenShift resource can be generated when --out or --stdout is specified")
 			}
 		}
 	}
@@ -205,7 +205,7 @@ func Convert(opt kobject.ConvertOptions) {
 	// loader parses input from file into komposeObject.
 	l, err := loader.GetLoader(inputFormat)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 
 	komposeObject := kobject.KomposeObject{
@@ -231,7 +231,7 @@ func Up(opt kobject.ConvertOptions) {
 	// loader parses input from file into komposeObject.
 	l, err := loader.GetLoader(inputFormat)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 
 	komposeObject := kobject.KomposeObject{
@@ -245,7 +245,7 @@ func Up(opt kobject.ConvertOptions) {
 	//Submit objects to provider
 	errDeploy := t.Deploy(komposeObject, opt)
 	if errDeploy != nil {
-		logrus.Fatalf("Error while deploying application: %s", errDeploy)
+		log.Fatalf("Error while deploying application: %s", errDeploy)
 	}
 }
 
@@ -257,7 +257,7 @@ func Down(opt kobject.ConvertOptions) {
 	// loader parses input from file into komposeObject.
 	l, err := loader.GetLoader(inputFormat)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 
 	komposeObject := kobject.KomposeObject{
@@ -271,7 +271,7 @@ func Down(opt kobject.ConvertOptions) {
 	//Remove deployed application
 	errUndeploy := t.Undeploy(komposeObject, opt)
 	if errUndeploy != nil {
-		logrus.Fatalf("Error while deleting application: %s", errUndeploy)
+		log.Fatalf("Error while deleting application: %s", errUndeploy)
 	}
 
 }
@@ -295,7 +295,7 @@ func askForConfirmation() bool {
 	var response string
 	_, err := fmt.Scanln(&response)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal(err)
 	}
 	if response == "yes" {
 		return true

@@ -24,7 +24,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/ghodss/yaml"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 
@@ -53,7 +53,7 @@ func CreateOutFile(out string) *os.File {
 	if len(out) != 0 {
 		f, err = os.Create(out)
 		if err != nil {
-			logrus.Fatalf("error creating file: %v", err)
+			log.Fatalf("error creating file: %v", err)
 		}
 	}
 	return f
@@ -88,7 +88,7 @@ func ParseVolume(volume string) (name, host, container, mode string, err error) 
 	// See https://github.com/kubernetes-incubator/kompose/issues/176
 	// Otherwise, check to see if "rw" or "ro" has been passed
 	if possibleAccessMode == "z" || possibleAccessMode == "Z" {
-		logrus.Warnf("Volume mount \"%s\" will be mounted without labeling support. :z or :Z not supported", volume)
+		log.Warnf("Volume mount \"%s\" will be mounted without labeling support. :z or :Z not supported", volume)
 		mode = ""
 		volumeStrings = volumeStrings[:len(volumeStrings)-1]
 	} else if possibleAccessMode == "rw" || possibleAccessMode == "ro" {
@@ -146,7 +146,7 @@ func TransformData(obj runtime.Object, GenerateJSON bool) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	logrus.Debugf("%s\n", data)
+	log.Debugf("%s\n", data)
 	return data, nil
 }
 
@@ -164,16 +164,16 @@ func Print(name, path string, trailing string, data []byte, toStdout, generateJS
 	} else if f != nil {
 		// Write all content to a single file f
 		if _, err := f.WriteString(fmt.Sprintf("%s\n", string(data))); err != nil {
-			logrus.Fatalf("Failed to write %s to file: %v", trailing, err)
+			log.Fatalf("Failed to write %s to file: %v", trailing, err)
 		}
 		f.Sync()
 	} else {
 		// Write content separately to each file
 		file = filepath.Join(path, file)
 		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
-			logrus.Fatalf("Failed to write %s: %v", trailing, err)
+			log.Fatalf("Failed to write %s: %v", trailing, err)
 		}
-		logrus.Printf("file %q created", file)
+		log.Printf("file %q created", file)
 	}
 	return file
 }

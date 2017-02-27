@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ var completion = &cobra.Command{
 
 		err := Generate(cmd, args)
 		if err != nil {
-			logrus.Fatalf("Error: %s", err)
+			log.Fatalf("Error: %s", err)
 		}
 
 		return nil

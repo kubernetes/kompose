@@ -28,7 +28,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/ghodss/yaml"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
@@ -92,7 +92,7 @@ home:
 
 		t, err := template.New("ChartTmpl").Parse(chart)
 		if err != nil {
-			logrus.Fatalf("Failed to generate Chart.yaml template: %s\n", err)
+			log.Fatalf("Failed to generate Chart.yaml template: %s\n", err)
 		}
 		var chartData bytes.Buffer
 		_ = t.Execute(&chartData, details)
@@ -106,20 +106,20 @@ home:
 	/* Copy all related json/yaml files into the newly created manifests directory */
 	for _, filename := range outFiles {
 		if err = cpFileToChart(manifestDir, filename); err != nil {
-			logrus.Warningln(err)
+			log.Warningln(err)
 		}
 		if err = os.Remove(filename); err != nil {
-			logrus.Warningln(err)
+			log.Warningln(err)
 		}
 	}
-	logrus.Infof("chart created in %q\n", "."+string(os.PathSeparator)+dirName+string(os.PathSeparator))
+	log.Infof("chart created in %q\n", "."+string(os.PathSeparator)+dirName+string(os.PathSeparator))
 	return nil
 }
 
 func cpFileToChart(manifestDir, filename string) error {
 	infile, err := ioutil.ReadFile(filename)
 	if err != nil {
-		logrus.Warningf("Error reading %s: %s\n", filename, err)
+		log.Warningf("Error reading %s: %s\n", filename, err)
 		return err
 	}
 
@@ -139,7 +139,7 @@ func isDir(name string) bool {
 	// Get file attributes and information
 	fileStat, err := f.Stat()
 	if err != nil {
-		logrus.Fatalf("error retrieving file information: %v", err)
+		log.Fatalf("error retrieving file information: %v", err)
 	}
 
 	// Check if given path is a directory
@@ -259,7 +259,7 @@ func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion)
 // PortsExist checks if service has ports defined
 func (k *Kubernetes) PortsExist(name string, service kobject.ServiceConfig) bool {
 	if len(service.Port) == 0 {
-		logrus.Debugf("[%s] No ports defined. Headless service will be created.", name)
+		log.Debugf("[%s] No ports defined. Headless service will be created.", name)
 		return false
 	}
 	return true
@@ -360,7 +360,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		if service.User != "" {
 			uid, err := strconv.ParseInt(service.User, 10, 64)
 			if err != nil {
-				logrus.Warn("Ignoring user directive. User to be specified as a UID (numeric).")
+				log.Warn("Ignoring user directive. User to be specified as a UID (numeric).")
 			} else {
 				securityContext.RunAsUser = &uid
 			}
@@ -384,7 +384,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		case "on-failure":
 			template.Spec.RestartPolicy = api.RestartPolicyOnFailure
 		default:
-			logrus.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
+			log.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
 		}
 	}
 
