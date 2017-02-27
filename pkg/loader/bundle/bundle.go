@@ -26,7 +26,7 @@ import (
 
 	"k8s.io/kubernetes/pkg/api"
 
-	"github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/fatih/structs"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 )
@@ -182,17 +182,17 @@ func (b *Bundle) LoadFile(files []string) kobject.KomposeObject {
 	file := files[0]
 	buf, err := ioutil.ReadFile(file)
 	if err != nil {
-		logrus.Fatalf("Failed to read bundles file: %s ", err)
+		log.Fatalf("Failed to read bundles file: %s ", err)
 	}
 	reader := strings.NewReader(string(buf))
 	bundle, err := loadFile(reader)
 	if err != nil {
-		logrus.Fatalf("Failed to parse bundles file: %s", err)
+		log.Fatalf("Failed to parse bundles file: %s", err)
 	}
 
 	noSupKeys := checkUnsupportedKey(bundle)
 	for _, keyName := range noSupKeys {
-		logrus.Warningf("Unsupported %s key - ignoring", keyName)
+		log.Warningf("Unsupported %s key - ignoring", keyName)
 	}
 
 	for name, service := range bundle.Services {
@@ -205,19 +205,19 @@ func (b *Bundle) LoadFile(files []string) kobject.KomposeObject {
 
 		image, err := loadImage(service)
 		if err != "" {
-			logrus.Fatalf("Failed to load image from bundles file: " + err)
+			log.Fatalf("Failed to load image from bundles file: " + err)
 		}
 		serviceConfig.Image = image
 
 		envs, err := loadEnvVars(service)
 		if err != "" {
-			logrus.Fatalf("Failed to load envvar from bundles file: " + err)
+			log.Fatalf("Failed to load envvar from bundles file: " + err)
 		}
 		serviceConfig.Environment = envs
 
 		ports, err := loadPorts(service)
 		if err != "" {
-			logrus.Fatalf("Failed to load ports from bundles file: " + err)
+			log.Fatalf("Failed to load ports from bundles file: " + err)
 		}
 		serviceConfig.Port = ports
 
