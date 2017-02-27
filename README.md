@@ -38,7 +38,7 @@ To install `kompose`, you can either `go get` or install the binary from a new r
 #### Go
 
 ```sh
-go get github.com/kubernetes-incubator/kompose
+go get -u github.com/kubernetes-incubator/kompose
 ```
 
 #### GitHub release
