@@ -23,7 +23,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/fatih/structs"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
@@ -240,7 +240,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 func (k *Kubernetes) CreatePVC(name string, mode string) *api.PersistentVolumeClaim {
 	size, err := resource.ParseQuantity("100Mi")
 	if err != nil {
-		logrus.Fatalf("Error parsing size")
+		log.Fatalf("Error parsing size")
 	}
 
 	pvc := &api.PersistentVolumeClaim{
@@ -338,11 +338,11 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 
 		volumeName, host, container, mode, err := transformer.ParseVolume(volume)
 		if err != nil {
-			logrus.Warningf("Failed to configure container volume: %v", err)
+			log.Warningf("Failed to configure container volume: %v", err)
 			continue
 		}
 
-		logrus.Debug("Volume name %s", volumeName)
+		log.Debug("Volume name %s", volumeName)
 
 		// check if ro/rw mode is defined, default rw
 		readonly := len(mode) > 0 && mode == "ro"
@@ -382,7 +382,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		volumes = append(volumes, vol)
 
 		if len(host) > 0 {
-			logrus.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
+			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
 		}
 	}
 	return volumeMounts, volumes, PVCs
@@ -456,7 +456,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 	noSupKeys := k.CheckUnsupportedKey(&komposeObject, unsupportedKey)
 	for _, keyName := range noSupKeys {
-		logrus.Warningf("Kubernetes provider doesn't support %s key - ignoring", keyName)
+		log.Warningf("Kubernetes provider doesn't support %s key - ignoring", keyName)
 	}
 
 	// this will hold all the converted data
@@ -477,7 +477,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		if service.Restart == "no" || service.Restart == "on-failure" {
 			// Error out if Controller Object is specified with restart: 'on-failure'
 			if opt.IsDeploymentFlag || opt.IsDaemonSetFlag || opt.IsReplicationControllerFlag {
-				logrus.Fatalf("Controller object cannot be specified with restart: 'on-failure'")
+				log.Fatalf("Controller object cannot be specified with restart: 'on-failure'")
 			}
 			pod := k.InitPod(name, service)
 			objects = append(objects, pod)
@@ -581,31 +581,31 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created Deployment: %s", t.Name)
+			log.Infof("Successfully created Deployment: %s", t.Name)
 		case *api.Service:
 			_, err := client.Services(namespace).Create(t)
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created Service: %s", t.Name)
+			log.Infof("Successfully created Service: %s", t.Name)
 		case *api.PersistentVolumeClaim:
 			_, err := client.PersistentVolumeClaims(namespace).Create(t)
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created PersistentVolumeClaim: %s", t.Name)
+			log.Infof("Successfully created PersistentVolumeClaim: %s", t.Name)
 		case *extensions.Ingress:
 			_, err := client.Ingress(namespace).Create(t)
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created Ingress: %s", t.Name)
+			log.Infof("Successfully created Ingress: %s", t.Name)
 		case *api.Pod:
 			_, err := client.Pods(namespace).Create(t)
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created Pod: %s", t.Name)
+			log.Infof("Successfully created Pod: %s", t.Name)
 		}
 	}
 
@@ -642,7 +642,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully deleted Deployment: %s", t.Name)
+			log.Infof("Successfully deleted Deployment: %s", t.Name)
 
 		case *api.Service:
 			//delete svc
@@ -655,7 +655,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully deleted Service: %s", t.Name)
+			log.Infof("Successfully deleted Service: %s", t.Name)
 
 		case *api.PersistentVolumeClaim:
 			// delete pvc
@@ -663,7 +663,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+			log.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
 
 		case *extensions.Ingress:
 			// delete ingress
@@ -677,7 +677,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully deleted Ingress: %s", t.Name)
+			log.Infof("Successfully deleted Ingress: %s", t.Name)
 
 		case *api.Pod:
 			rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), client)
@@ -689,7 +689,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully deleted Pod: %s", t.Name)
+			log.Infof("Successfully deleted Pod: %s", t.Name)
 		}
 	}
 	return nil
