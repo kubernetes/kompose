@@ -55,6 +55,12 @@ test-unit-cover:
 	# generate go test commands using go list and run go test for every package separately 
 	go list -f '"go test -race -cover -v -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}}"' github.com/kubernetes-incubator/kompose/...  | grep -v "vendor" | xargs -L 1 -P4 sh -c 
 
+
+# run openshift up/down tests
+.PHONY: test-openshift
+test-openshift:
+	./script/test_in_openshift/run.sh
+
 # run commandline tests
 .PHONY: test-cmd
 test-cmd:
@@ -89,7 +95,7 @@ test: check-vendor validate test-unit-cover install test-cmd
 .PHONY: test-image
 test-image:
 	docker build -t $(TEST_IMAGE) -f script/test_in_container/Dockerfile script/test_in_container/
-	
+
 # run all test localy in docker image (image can be build by by build-test-image target)
 .PHONY: test-container
 test-container:
