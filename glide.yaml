@@ -9,6 +9,7 @@ import:
 - package: github.com/ghodss/yaml
 - package: github.com/spf13/cobra
 - package: github.com/spf13/viper
+- package: github.com/pkg/errors
 
 - package: github.com/docker/libcompose
   version: 8e4221d0435d29e6239adf9ccb4de1f0c0ab0935

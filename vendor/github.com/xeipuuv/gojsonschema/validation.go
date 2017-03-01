@@ -55,7 +55,7 @@ func (v *Schema) Validate(l JSONLoader) (*Result, error) {
 
 	// load document
 
-	root, err := l.LoadJSON()
+	root, err := l.loadJSON()
 	if err != nil {
 		return nil, err
 	}
@@ -412,7 +412,7 @@ func (v *subSchema) validateArray(currentSubSchema *subSchema, value []interface
 		internalLog(" %v", value)
 	}
 
-	nbValues := len(value)
+	nbItems := len(value)
 
 	// TODO explain
 	if currentSubSchema.itemsChildrenIsSingleSchema {
@@ -425,18 +425,15 @@ func (v *subSchema) validateArray(currentSubSchema *subSchema, value []interface
 		if currentSubSchema.itemsChildren != nil && len(currentSubSchema.itemsChildren) > 0 {
 
 			nbItems := len(currentSubSchema.itemsChildren)
+			nbValues := len(value)
 
-			// while we have both schemas and values, check them against each other
-			for i := 0; i != nbItems && i != nbValues; i++ {
-				subContext := newJsonContext(strconv.Itoa(i), context)
-				validationResult := currentSubSchema.itemsChildren[i].subValidateWithContext(value[i], subContext)
-				result.mergeErrors(validationResult)
-			}
-
-			if nbItems < nbValues {
-				// we have less schemas than elements in the instance array,
-				// but that might be ok if "additionalItems" is specified.
-
+			if nbItems == nbValues {
+				for i := 0; i != nbItems; i++ {
+					subContext := newJsonContext(strconv.Itoa(i), context)
+					validationResult := currentSubSchema.itemsChildren[i].subValidateWithContext(value[i], subContext)
+					result.mergeErrors(validationResult)
+				}
+			} else if nbItems < nbValues {
 				switch currentSubSchema.additionalItems.(type) {
 				case bool:
 					if !currentSubSchema.additionalItems.(bool) {
@@ -456,7 +453,7 @@ func (v *subSchema) validateArray(currentSubSchema *subSchema, value []interface
 
 	// minItems & maxItems
 	if currentSubSchema.minItems != nil {
-		if nbValues < int(*currentSubSchema.minItems) {
+		if nbItems < int(*currentSubSchema.minItems) {
 			result.addError(
 				new(ArrayMinItemsError),
 				context,
@@ -466,7 +463,7 @@ func (v *subSchema) validateArray(currentSubSchema *subSchema, value []interface
 		}
 	}
 	if currentSubSchema.maxItems != nil {
-		if nbValues > int(*currentSubSchema.maxItems) {
+		if nbItems > int(*currentSubSchema.maxItems) {
 			result.addError(
 				new(ArrayMaxItemsError),
 				context,
@@ -779,22 +776,22 @@ func (v *subSchema) validateNumber(currentSubSchema *subSchema, value interface{
 		if currentSubSchema.exclusiveMaximum {
 			if float64Value >= *currentSubSchema.maximum {
 				result.addError(
-					new(NumberLTError),
+					new(NumberLTEError),
 					context,
 					resultErrorFormatJsonNumber(number),
 					ErrorDetails{
-						"max": resultErrorFormatNumber(*currentSubSchema.maximum),
+						"min": resultErrorFormatNumber(*currentSubSchema.maximum),
 					},
 				)
 			}
 		} else {
 			if float64Value > *currentSubSchema.maximum {
 				result.addError(
-					new(NumberLTEError),
+					new(NumberLTError),
 					context,
 					resultErrorFormatJsonNumber(number),
 					ErrorDetails{
-						"max": resultErrorFormatNumber(*currentSubSchema.maximum),
+						"min": resultErrorFormatNumber(*currentSubSchema.maximum),
 					},
 				)
 			}
@@ -806,22 +803,22 @@ func (v *subSchema) validateNumber(currentSubSchema *subSchema, value interface{
 		if currentSubSchema.exclusiveMinimum {
 			if float64Value <= *currentSubSchema.minimum {
 				result.addError(
-					new(NumberGTError),
+					new(NumberGTEError),
 					context,
 					resultErrorFormatJsonNumber(number),
 					ErrorDetails{
-						"min": resultErrorFormatNumber(*currentSubSchema.minimum),
+						"max": resultErrorFormatNumber(*currentSubSchema.minimum),
 					},
 				)
 			}
 		} else {
 			if float64Value < *currentSubSchema.minimum {
 				result.addError(
-					new(NumberGTEError),
+					new(NumberGTError),
 					context,
 					resultErrorFormatJsonNumber(number),
 					ErrorDetails{
-						"min": resultErrorFormatNumber(*currentSubSchema.minimum),
+						"max": resultErrorFormatNumber(*currentSubSchema.minimum),
 					},
 				)
 			}

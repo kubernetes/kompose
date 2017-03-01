@@ -35,7 +35,6 @@ import (
 
 	"os"
 
-	"github.com/fsouza/go-dockerclient/external/github.com/Sirupsen/logrus"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/loader"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
@@ -214,7 +213,7 @@ func Convert(opt kobject.ConvertOptions) {
 	}
 	komposeObject, err = l.LoadFile(opt.InputFiles)
 	if err != nil {
-		logrus.Fatalf(err.Error())
+		log.Fatalf(err.Error())
 	}
 
 	// Get a transformer that maps komposeObject to provider's primitives
@@ -224,13 +223,13 @@ func Convert(opt kobject.ConvertOptions) {
 	objects, err := t.Transform(komposeObject, opt)
 
 	if err != nil {
-		logrus.Fatalf(err.Error())
+		log.Fatalf(err.Error())
 	}
 
 	// Print output
 	err = kubernetes.PrintList(objects, opt)
 	if err != nil {
-		logrus.Fatalf(err.Error())
+		log.Fatalf(err.Error())
 	}
 }
 
@@ -250,7 +249,7 @@ func Up(opt kobject.ConvertOptions) {
 	}
 	komposeObject, err = l.LoadFile(opt.InputFiles)
 	if err != nil {
-		logrus.Fatalf(err.Error())
+		log.Fatalf(err.Error())
 	}
 
 	// Get the transformer
@@ -279,7 +278,7 @@ func Down(opt kobject.ConvertOptions) {
 	}
 	komposeObject, err = l.LoadFile(opt.InputFiles)
 	if err != nil {
-		logrus.Fatalf(err.Error())
+		log.Fatalf(err.Error())
 	}
 
 	// Get the transformer
