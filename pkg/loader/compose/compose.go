@@ -27,7 +27,7 @@ import (
 
 	"k8s.io/kubernetes/pkg/api"
 
-	"github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
@@ -86,7 +86,7 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 	// Check to see if the default network is available and length is only equal to one.
 	// Else, warn the user that root level networks are not supported (yet)
 	if _, ok := composeProject.NetworkConfigs["default"]; ok && len(composeProject.NetworkConfigs) == 1 {
-		logrus.Debug("Default network found")
+		log.Debug("Default network found")
 	} else if len(composeProject.NetworkConfigs) > 0 {
 		keysFound = append(keysFound, "root level networks")
 	}
@@ -303,12 +303,12 @@ func (c *Compose) LoadFile(files []string) kobject.KomposeObject {
 	composeObject := project.NewProject(context, nil, nil)
 	err := composeObject.Parse()
 	if err != nil {
-		logrus.Fatalf("Failed to load compose file: %v", err)
+		log.Fatalf("Failed to load compose file: %v", err)
 	}
 
 	noSupKeys := checkUnsupportedKey(composeObject)
 	for _, keyName := range noSupKeys {
-		logrus.Warningf("Unsupported %s key - ignoring", keyName)
+		log.Warningf("Unsupported %s key - ignoring", keyName)
 	}
 
 	for name, composeServiceConfig := range composeObject.ServiceConfigs.All() {
@@ -326,7 +326,7 @@ func (c *Compose) LoadFile(files []string) kobject.KomposeObject {
 		// load ports
 		ports, err := loadPorts(composeServiceConfig.Ports)
 		if err != nil {
-			logrus.Fatalf("%q failed to load ports from compose file: %v", name, err)
+			log.Fatalf("%q failed to load ports from compose file: %v", name, err)
 		}
 		serviceConfig.Port = ports
 
@@ -382,7 +382,7 @@ func handleServiceType(ServiceType string) string {
 	case "loadbalancer":
 		return string(api.ServiceTypeLoadBalancer)
 	default:
-		logrus.Fatalf("Unknown value '%s', supported values are 'NodePort, ClusterIP or LoadBalancer'", ServiceType)
+		log.Fatalf("Unknown value '%s', supported values are 'NodePort, ClusterIP or LoadBalancer'", ServiceType)
 		return ""
 	}
 }
