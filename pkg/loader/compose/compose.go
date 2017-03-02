@@ -76,6 +76,7 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		"Ulimits":       false,
 		"Dockerfile":    false,
 		"Net":           false,
+		"Sysctls":       false,
 		"Networks":      false, // there are special checks for Network in checkUnsupportedKey function
 	}
 
