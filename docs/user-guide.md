@@ -134,7 +134,7 @@ INFO file "redis-imagestream.yaml" created
 It also supports creating buildconfig for build directive in a service. By default, it uses the remote repo for the current git branch as the source repo, and the current branch as the source branch for the build. You can specify a different source repo and branch using ``--build-repo`` and ``--build-branch`` options respectively.
 
 ```console
-kompose --provider openshift --file buildconfig/docker-compose.yml convert
+$ kompose --provider openshift --file buildconfig/docker-compose.yml convert
 WARN [foo] Service cannot be created because of missing port. 
 INFO Buildconfig using git@github.com:rtnpro/kompose.git::master as source. 
 INFO file "foo-deploymentconfig.yaml" created     
@@ -396,4 +396,4 @@ services:
 ```
 
 #### Notes:
-- If the Docker Compose file has a volume specified for a service, the Deployment (Kubernetes) or DeploymentConfig (OpenShift) strategy is changed to "Recreate" instead of "RollingUpdate" (default). This is done to avoid multiple instances of a service from accessing a volume at the same time.
+-- If the Docker Compose file has a volume specified for a service, the Deployment (Kubernetes) or DeploymentConfig (OpenShift) strategy is changed to "Recreate" instead of "RollingUpdate" (default). This is done to avoid multiple instances of a service from accessing a volume at the same time.
