@@ -100,7 +100,7 @@ Labels:                 service=frontend
 Selector:               service=frontend
 Type:                   LoadBalancer
 IP:                     10.0.0.183
-LoadBalancer Ingress:   123.45.678.9
+LoadBalancer Ingress:   123.45.67.89
 Port:                   80      80/TCP
 NodePort:               80      31144/TCP
 Endpoints:              172.17.0.4:80
@@ -112,5 +112,5 @@ No events.
 If you're using a cloud provider, your IP will be listed next to `LoadBalancer Ingress`.
 
 ```sh
-▶ curl http://123.45.678.9
+▶ curl http://123.45.67.89
 ```
