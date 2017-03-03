@@ -71,6 +71,7 @@ clone() {
   cd $CLI
   git remote remove origin
   git remote add origin git@github.com:$ORIGIN_REPO/$CLI.git
+  git remote add upstream http://github.com/$UPSTREAM_REPO/$CLI
   git checkout -b release-$1
   cd ..
 }
@@ -132,6 +133,13 @@ git_pull() {
   cd $CLI
   git pull
   cd ..
+}
+
+
+git_sync() {
+  cd $CLI
+  git fetch upstream master
+  git rebase upstream/master
 }
 
 push() {
@@ -217,6 +225,7 @@ main() {
   "Generate changelog"
   "Generate GitHub changelog"
   "Create PR"
+  "Sync with master"
   "Build binaries"
   "Upload the binaries and push to GitHub release page"
   "Clean"
@@ -239,6 +248,9 @@ main() {
               ;;
           "Create PR")
               git_commit $VERSION
+              ;;
+          "Sync with master")
+              git_sync
               ;;
           "Build binaries")
               build_binaries
