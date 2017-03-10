@@ -10,7 +10,7 @@
         "name": "nginx",
         "creationTimestamp": null,
         "labels": {
-          "service": "nginx"
+          "io.kompose.service": "nginx"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "nginx"
+          "io.kompose.service": "nginx"
         }
       },
       "status": {
@@ -36,7 +36,7 @@
         "name": "web",
         "creationTimestamp": null,
         "labels": {
-          "service": "web"
+          "io.kompose.service": "web"
         }
       },
       "spec": {
@@ -48,7 +48,7 @@
           }
         ],
         "selector": {
-          "service": "web"
+          "io.kompose.service": "web"
         }
       },
       "status": {
@@ -62,13 +62,13 @@
         "name": "nginx",
         "creationTimestamp": null,
         "labels": {
-          "service": "nginx"
+          "io.kompose.service": "nginx"
         }
       },
       "spec": {
         "strategy": {
-          "resources": {},
-					"type": "Recreate"
+          "type": "Recreate",
+          "resources": {}
         },
         "triggers": [
           {
@@ -91,13 +91,13 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "service": "nginx"
+          "io.kompose.service": "nginx"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "nginx"
+              "io.kompose.service": "nginx"
             }
           },
           "spec": {
@@ -148,7 +148,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "nginx",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx"
+        }
       },
       "spec": {
         "tags": [
@@ -173,7 +176,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "nginx-claim0",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx-claim0"
+        }
       },
       "spec": {
         "accessModes": [
@@ -194,13 +200,13 @@
         "name": "web",
         "creationTimestamp": null,
         "labels": {
-          "service": "web"
+          "io.kompose.service": "web"
         }
       },
       "spec": {
         "strategy": {
-          "resources": {},
-					"type": "Recreate"
+          "type": "Recreate",
+          "resources": {}
         },
         "triggers": [
           {
@@ -223,13 +229,13 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "service": "web"
+          "io.kompose.service": "web"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "web"
+              "io.kompose.service": "web"
             }
           },
           "spec": {
@@ -275,7 +281,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "web",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        }
       },
       "spec": {
         "tags": [
@@ -300,7 +309,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "web-claim0",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web-claim0"
+        }
       },
       "spec": {
         "accessModes": [

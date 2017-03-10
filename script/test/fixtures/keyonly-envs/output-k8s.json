@@ -10,7 +10,7 @@
         "name": "frontend",
         "creationTimestamp": null,
         "labels": {
-          "service": "frontend"
+          "io.kompose.service": "frontend"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "frontend"
+          "io.kompose.service": "frontend"
         }
       },
       "status": {
@@ -36,7 +36,7 @@
         "name": "redis-master",
         "creationTimestamp": null,
         "labels": {
-          "service": "redis-master"
+          "io.kompose.service": "redis-master"
         }
       },
       "spec": {
@@ -48,7 +48,7 @@
           }
         ],
         "selector": {
-          "service": "redis-master"
+          "io.kompose.service": "redis-master"
         }
       },
       "status": {
@@ -62,7 +62,7 @@
         "name": "redis-slave",
         "creationTimestamp": null,
         "labels": {
-          "service": "redis-slave"
+          "io.kompose.service": "redis-slave"
         }
       },
       "spec": {
@@ -74,7 +74,7 @@
           }
         ],
         "selector": {
-          "service": "redis-slave"
+          "io.kompose.service": "redis-slave"
         }
       },
       "status": {
@@ -94,7 +94,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "frontend"
+              "io.kompose.service": "frontend"
             }
           },
           "spec": {
@@ -109,20 +109,20 @@
                 ],
                 "env": [
                   {
-                    "name": "GET_HOSTS_FROM",
-                    "value": "dns"
-                  },
-                  {
-                    "name": "RACK_ENV",
-                    "value": "development"
-                  },
-                  {
                     "name": "SESSION_SECRET",
                     "value": "session"
                   },
                   {
                     "name": "SHOW",
                     "value": "true"
+                  },
+                  {
+                    "name": "GET_HOSTS_FROM",
+                    "value": "dns"
+                  },
+                  {
+                    "name": "RACK_ENV",
+                    "value": "development"
                   }
                 ],
                 "resources": {}
@@ -148,7 +148,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "redis-master"
+              "io.kompose.service": "redis-master"
             }
           },
           "spec": {
@@ -184,7 +184,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "redis-slave"
+              "io.kompose.service": "redis-slave"
             }
           },
           "spec": {

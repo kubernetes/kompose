@@ -39,14 +39,18 @@ import (
 
 	"time"
 
+	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 	buildapi "github.com/openshift/origin/pkg/build/api"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	deploymentconfigreaper "github.com/openshift/origin/pkg/deploy/cmd"
 	imageapi "github.com/openshift/origin/pkg/image/api"
 	routeapi "github.com/openshift/origin/pkg/route/api"
 	"github.com/pkg/errors"
+	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/kubectl"
+	"k8s.io/kubernetes/pkg/labels"
 	"k8s.io/kubernetes/pkg/util/intstr"
+	"reflect"
 )
 
 // OpenShift implements Transformer interface and represents OpenShift transformer
@@ -161,7 +165,8 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: imageapi.ImageStreamSpec{
 			Tags: tags,
@@ -231,15 +236,15 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: map[string]string{"service": name},
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: deployapi.DeploymentConfigSpec{
 			Replicas: int32(replicas),
-			Selector: map[string]string{"service": name},
+			Selector: transformer.ConfigLabels(name),
 			//UniqueLabelKey: p.Name,
 			Template: &api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
-					Labels: map[string]string{"service": name},
+					Labels: transformer.ConfigLabels(name),
 				},
 				Spec: o.InitPodSpec(name, " "),
 			},
@@ -495,7 +500,6 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 	if err != nil {
 		return errors.Wrap(err, "o.Transform failed")
 	}
-
 	oclient, err := o.getOpenShiftClient()
 	if err != nil {
 		return err
@@ -506,71 +510,132 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 	}
 
 	for _, v := range objects {
+		label := labels.SelectorFromSet(labels.Set(map[string]string{transformer.Selector: v.(meta.Object).GetName()}))
+		options := api.ListOptions{LabelSelector: label}
+		komposeLabel := map[string]string{transformer.Selector: v.(meta.Object).GetName()}
 		switch t := v.(type) {
 		case *imageapi.ImageStream:
 			//delete imageStream
-			err = oclient.ImageStreams(namespace).Delete(t.Name)
+			imageStream, err := oclient.ImageStreams(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			log.Infof("Successfully deleted ImageStream: %s", t.Name)
+			for _, l := range imageStream.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					err = oclient.ImageStreams(namespace).Delete(t.Name)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted ImageStream: %s", t.Name)
+				}
+			}
 
 		case *buildapi.BuildConfig:
-			err := oclient.BuildConfigs(namespace).Delete(t.Name)
+			//options := api.ListOptions{LabelSelector: label}
+			buildConfig, err := oclient.BuildConfigs(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			log.Infof("Successfully deleted BuildConfig: %s", t.Name)
+			for _, l := range buildConfig.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					err := oclient.BuildConfigs(namespace).Delete(t.Name)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted BuildConfig: %s", t.Name)
+				}
+			}
 
 		case *deployapi.DeploymentConfig:
 			// delete deploymentConfig
-			dcreaper := deploymentconfigreaper.NewDeploymentConfigReaper(oclient, kclient)
-			err := dcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+			deploymentConfig, err := oclient.DeploymentConfigs(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			log.Infof("Successfully deleted DeploymentConfig: %s", t.Name)
+			for _, l := range deploymentConfig.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					dcreaper := deploymentconfigreaper.NewDeploymentConfigReaper(oclient, kclient)
+					err := dcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted DeploymentConfig: %s", t.Name)
+				}
+			}
 
 		case *api.Service:
 			//delete svc
-			rpService, err := kubectl.ReaperFor(api.Kind("Service"), kclient)
+			svc, err := kclient.Services(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			//FIXME: gracePeriod is nil
-			err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
-			if err != nil {
-				return err
+			for _, l := range svc.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					rpService, err := kubectl.ReaperFor(api.Kind("Service"), kclient)
+					if err != nil {
+						return err
+					}
+					//FIXME: gracePeriod is nil
+					err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted Service: %s", t.Name)
+				}
 			}
-			log.Infof("Successfully deleted Service: %s", t.Name)
 
 		case *api.PersistentVolumeClaim:
 			// delete pvc
-			err = kclient.PersistentVolumeClaims(namespace).Delete(t.Name)
+			pvc, err := kclient.PersistentVolumeClaims(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			log.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+			for _, l := range pvc.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					err = kclient.PersistentVolumeClaims(namespace).Delete(t.Name)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+				}
+			}
 
 		case *routeapi.Route:
 			// delete route
-			err = oclient.Routes(namespace).Delete(t.Name)
+			route, err := oclient.Routes(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			log.Infof("Successfully deleted Route: %s", t.Name)
+			for _, l := range route.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					err = oclient.Routes(namespace).Delete(t.Name)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted Route: %s", t.Name)
+				}
+			}
 
 		case *api.Pod:
-			rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), kclient)
+			//delete pods
+			pod, err := kclient.Pods(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			//FIXME: gracePeriod is nil
-			err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
-			if err != nil {
-				return err
+			for _, l := range pod.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), kclient)
+					if err != nil {
+						return err
+					}
+					//FIXME: gracePeriod is nil
+					err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted Pod: %s", t.Name)
+				}
 			}
-			log.Infof("Successfully deleted Pod: %s", t.Name)
 		}
 	}
 	return nil

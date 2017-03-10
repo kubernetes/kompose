@@ -7,36 +7,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "web"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "3030",
-            "port": 3030,
-            "targetPort": 3000
-          }
-        ],
-        "selector": {
-          "service": "web"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
         "name": "nginx",
         "creationTimestamp": null,
         "labels": {
-          "service": "nginx"
+          "io.kompose.service": "nginx"
         }
       },
       "spec": {
@@ -48,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "nginx"
+          "io.kompose.service": "nginx"
         }
       },
       "status": {
@@ -56,80 +30,30 @@
       }
     },
     {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "web",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "web"
-            }
-          },
-          "spec": {
-            "volumes": [
-              {
-                "name": "web-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "web-claim0"
-                }
-              }
-            ],
-            "containers": [
-              {
-                "name": "web",
-                "image": "centos/httpd",
-                "args": [
-                  "nodemon",
-                  "-L",
-                  "app/bin/www"
-                ],
-                "ports": [
-                  {
-                    "containerPort": 3000
-                  }
-                ],
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "web-claim0",
-                    "mountPath": "/src/app"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {
-					"type": "Recreate"
-				}
-      },
-      "status": {}
-    },
-    {
-      "kind": "PersistentVolumeClaim",
+      "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web-claim0",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "100Mi"
-          }
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
         }
       },
-      "status": {}
+      "spec": {
+        "ports": [
+          {
+            "name": "3030",
+            "port": 3030,
+            "targetPort": 3000
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "web"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
     },
     {
       "kind": "Deployment",
@@ -144,7 +68,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "nginx"
+              "io.kompose.service": "nginx"
             }
           },
           "spec": {
@@ -188,8 +112,8 @@
           }
         },
         "strategy": {
-					"type": "Recreate"
-				}
+          "type": "Recreate"
+        }
       },
       "status": {}
     },
@@ -198,7 +122,89 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "nginx-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "web",
         "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "web"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "web-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "web-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "web",
+                "image": "centos/httpd",
+                "args": [
+                  "nodemon",
+                  "-L",
+                  "app/bin/www"
+                ],
+                "ports": [
+                  {
+                    "containerPort": 3000
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "web-claim0",
+                    "mountPath": "/src/app"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web-claim0"
+        }
       },
       "spec": {
         "accessModes": [

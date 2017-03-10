@@ -10,7 +10,7 @@
         "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "service": "etherpad"
+          "io.kompose.service": "etherpad"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "etherpad"
+          "io.kompose.service": "etherpad"
         }
       },
       "status": {
@@ -36,7 +36,7 @@
         "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "service": "mariadb"
+          "io.kompose.service": "mariadb"
         }
       },
       "spec": {
@@ -48,7 +48,7 @@
           }
         ],
         "selector": {
-          "service": "mariadb"
+          "io.kompose.service": "mariadb"
         }
       },
       "status": {
@@ -62,7 +62,7 @@
         "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "service": "etherpad"
+          "io.kompose.service": "etherpad"
         }
       },
       "spec": {
@@ -90,13 +90,13 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "service": "etherpad"
+          "io.kompose.service": "etherpad"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "etherpad"
+              "io.kompose.service": "etherpad"
             }
           },
           "spec": {
@@ -111,14 +111,6 @@
                 ],
                 "env": [
                   {
-                    "name": "DB_PORT",
-                    "value": "3306"
-                  },
-                  {
-                    "name": "DB_USER",
-                    "value": "etherpad"
-                  },
-                  {
                     "name": "DB_DBID",
                     "value": "etherpad"
                   },
@@ -128,6 +120,14 @@
                   },
                   {
                     "name": "DB_PASS",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "3306"
+                  },
+                  {
+                    "name": "DB_USER",
                     "value": "etherpad"
                   }
                 ],
@@ -145,7 +145,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "etherpad",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "etherpad"
+        }
       },
       "spec": {
         "tags": [
@@ -172,13 +175,13 @@
         "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "service": "mariadb"
+          "io.kompose.service": "mariadb"
         }
       },
       "spec": {
         "strategy": {
-          "resources": {},
-					"type": "Recreate"
+          "type": "Recreate",
+          "resources": {}
         },
         "triggers": [
           {
@@ -201,13 +204,13 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "service": "mariadb"
+          "io.kompose.service": "mariadb"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "mariadb"
+              "io.kompose.service": "mariadb"
             }
           },
           "spec": {
@@ -230,19 +233,19 @@
                 ],
                 "env": [
                   {
-                    "name": "MYSQL_ROOT_PASSWORD",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "MYSQL_USER",
-                    "value": "etherpad"
-                  },
-                  {
                     "name": "MYSQL_DATABASE",
                     "value": "etherpad"
                   },
                   {
                     "name": "MYSQL_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_USER",
                     "value": "etherpad"
                   }
                 ],
@@ -266,7 +269,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "mariadb",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb"
+        }
       },
       "spec": {
         "tags": [
@@ -291,7 +297,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "mariadb-claim0",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb-claim0"
+        }
       },
       "spec": {
         "accessModes": [

@@ -10,7 +10,7 @@
         "name": "redis",
         "creationTimestamp": null,
         "labels": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         }
       },
       "status": {
@@ -36,7 +36,7 @@
         "name": "web",
         "creationTimestamp": null,
         "labels": {
-          "service": "web"
+          "io.kompose.service": "web"
         },
         "annotations": {
           "kompose.service.expose": "True"
@@ -56,7 +56,7 @@
           }
         ],
         "selector": {
-          "service": "web"
+          "io.kompose.service": "web"
         }
       },
       "status": {
@@ -76,7 +76,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "redis"
+              "io.kompose.service": "redis"
             }
           },
           "spec": {
@@ -115,7 +115,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "web"
+              "io.kompose.service": "web"
             }
           },
           "spec": {
