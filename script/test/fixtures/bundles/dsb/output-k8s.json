@@ -7,37 +7,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "worker",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "worker"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
-          }
-        ],
-        "selector": {
-          "service": "worker"
-        },
-        "clusterIP": "None"
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
         "name": "db",
         "creationTimestamp": null,
         "labels": {
-          "service": "db"
+          "io.kompose.service": "db"
         },
         "annotations": {
           "com.example.description": "Postgres Database"
@@ -52,7 +25,7 @@
           }
         ],
         "selector": {
-          "service": "db"
+          "io.kompose.service": "db"
         }
       },
       "status": {
@@ -66,7 +39,7 @@
         "name": "redis",
         "creationTimestamp": null,
         "labels": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         }
       },
       "spec": {
@@ -78,7 +51,7 @@
           }
         ],
         "selector": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         }
       },
       "status": {
@@ -92,7 +65,7 @@
         "name": "result",
         "creationTimestamp": null,
         "labels": {
-          "service": "result"
+          "io.kompose.service": "result"
         }
       },
       "spec": {
@@ -104,7 +77,7 @@
           }
         ],
         "selector": {
-          "service": "result"
+          "io.kompose.service": "result"
         }
       },
       "status": {
@@ -118,7 +91,7 @@
         "name": "vote",
         "creationTimestamp": null,
         "labels": {
-          "service": "vote"
+          "io.kompose.service": "vote"
         },
         "annotations": {
           "com.example.description": "Vote"
@@ -133,7 +106,7 @@
           }
         ],
         "selector": {
-          "service": "vote"
+          "io.kompose.service": "vote"
         }
       },
       "status": {
@@ -141,35 +114,31 @@
       }
     },
     {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "kind": "Service",
+      "apiVersion": "v1",
       "metadata": {
         "name": "worker",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "worker"
+        }
       },
       "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "worker"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "worker",
-                "image": "docker/example-voting-app-worker",
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
           }
+        ],
+        "selector": {
+          "io.kompose.service": "worker"
         },
-        "strategy": {}
+        "clusterIP": "None"
       },
-      "status": {}
+      "status": {
+        "loadBalancer": {}
+      }
     },
     {
       "kind": "Deployment",
@@ -187,7 +156,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "db"
+              "io.kompose.service": "db"
             }
           },
           "spec": {
@@ -223,7 +192,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "redis"
+              "io.kompose.service": "redis"
             }
           },
           "spec": {
@@ -259,7 +228,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "result"
+              "io.kompose.service": "result"
             }
           },
           "spec": {
@@ -298,7 +267,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "vote"
+              "io.kompose.service": "vote"
             }
           },
           "spec": {
@@ -311,6 +280,37 @@
                     "containerPort": 80
                   }
                 ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "worker",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "worker"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "worker",
+                "image": "docker/example-voting-app-worker",
                 "resources": {}
               }
             ],

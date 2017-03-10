@@ -4,48 +4,39 @@
   "metadata": {},
   "items": [
     {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "kind": "Service",
+      "apiVersion": "v1",
       "metadata": {
-        "name": "node2",
-        "creationTimestamp": null
+        "name": "nginx",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx"
+        }
       },
       "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "node2"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "node2",
-                "ports": [
-                  {
-                    "containerPort": 8080
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
+        "ports": [
+          {
+            "name": "80",
+            "port": 80,
+            "targetPort": 80
           }
-        },
-        "strategy": {}
+        ],
+        "selector": {
+          "io.kompose.service": "nginx"
+        }
       },
-      "status": {}
+      "status": {
+        "loadBalancer": {}
+      }
     },
     {
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "node2",
+        "name": "node1",
         "creationTimestamp": null,
         "labels": {
-          "service": "node2"
+          "io.kompose.service": "node1"
         }
       },
       "spec": {
@@ -57,7 +48,7 @@
           }
         ],
         "selector": {
-          "service": "node2"
+          "io.kompose.service": "node1"
         }
       },
       "status": {
@@ -65,48 +56,13 @@
       }
     },
     {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "node3",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "node3"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "node3",
-                "ports": [
-                  {
-                    "containerPort": 8080
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        },
-        "strategy": {}
-      },
-      "status": {}
-    },
-    {
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "node3",
+        "name": "node2",
         "creationTimestamp": null,
         "labels": {
-          "service": "node3"
+          "io.kompose.service": "node2"
         }
       },
       "spec": {
@@ -118,7 +74,7 @@
           }
         ],
         "selector": {
-          "service": "node3"
+          "io.kompose.service": "node2"
         }
       },
       "status": {
@@ -126,40 +82,30 @@
       }
     },
     {
-      "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "kind": "Service",
+      "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
-        "creationTimestamp": null
+        "name": "node3",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "node3"
+        }
       },
       "spec": {
-        "replicas": 1,
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "service": "redis"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "redis",
-                "image": "redis",
-                "ports": [
-                  {
-                    "containerPort": 6379
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
+        "ports": [
+          {
+            "name": "8080",
+            "port": 8080,
+            "targetPort": 8080
           }
-        },
-        "strategy": {}
+        ],
+        "selector": {
+          "io.kompose.service": "node3"
+        }
       },
-      "status": {}
+      "status": {
+        "loadBalancer": {}
+      }
     },
     {
       "kind": "Service",
@@ -168,7 +114,7 @@
         "name": "redis",
         "creationTimestamp": null,
         "labels": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         }
       },
       "spec": {
@@ -180,7 +126,7 @@
           }
         ],
         "selector": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         }
       },
       "status": {
@@ -200,7 +146,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "nginx"
+              "io.kompose.service": "nginx"
             }
           },
           "spec": {
@@ -223,32 +169,6 @@
       "status": {}
     },
     {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "nginx",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "nginx"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "80",
-            "port": 80,
-            "targetPort": 80
-          }
-        ],
-        "selector": {
-          "service": "nginx"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
@@ -261,7 +181,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "node1"
+              "io.kompose.service": "node1"
             }
           },
           "spec": {
@@ -284,30 +204,110 @@
       "status": {}
     },
     {
-      "kind": "Service",
-      "apiVersion": "v1",
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "node1",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "node1"
-        }
+        "name": "node2",
+        "creationTimestamp": null
       },
       "spec": {
-        "ports": [
-          {
-            "name": "8080",
-            "port": 8080,
-            "targetPort": 8080
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "node2"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "node2",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
           }
-        ],
-        "selector": {
-          "service": "node1"
-        }
+        },
+        "strategy": {}
       },
-      "status": {
-        "loadBalancer": {}
-      }
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "node3",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "node3"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "node3",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis",
+                "image": "redis",
+                "ports": [
+                  {
+                    "containerPort": 6379
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
     }
   ]
 }

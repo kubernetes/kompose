@@ -10,7 +10,7 @@
         "name": "base",
         "creationTimestamp": null,
         "labels": {
-          "service": "base"
+          "io.kompose.service": "base"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "base"
+          "io.kompose.service": "base"
         },
         "clusterIP": "None"
       },
@@ -37,7 +37,7 @@
         "name": "base",
         "creationTimestamp": null,
         "labels": {
-          "service": "base"
+          "io.kompose.service": "base"
         }
       },
       "spec": {
@@ -65,13 +65,13 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "service": "base"
+          "io.kompose.service": "base"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "base"
+              "io.kompose.service": "base"
             }
           },
           "spec": {
@@ -99,7 +99,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "base",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "base"
+        }
       },
       "spec": {
         "tags": [

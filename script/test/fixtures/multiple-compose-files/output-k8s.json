@@ -10,7 +10,7 @@
         "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "service": "etherpad"
+          "io.kompose.service": "etherpad"
         }
       },
       "spec": {
@@ -27,7 +27,7 @@
           }
         ],
         "selector": {
-          "service": "etherpad"
+          "io.kompose.service": "etherpad"
         }
       },
       "status": {
@@ -41,7 +41,7 @@
         "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "service": "mariadb"
+          "io.kompose.service": "mariadb"
         }
       },
       "spec": {
@@ -58,7 +58,7 @@
           }
         ],
         "selector": {
-          "service": "mariadb"
+          "io.kompose.service": "mariadb"
         }
       },
       "status": {
@@ -78,7 +78,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "etherpad"
+              "io.kompose.service": "etherpad"
             }
           },
           "spec": {
@@ -96,10 +96,6 @@
                 ],
                 "env": [
                   {
-                    "name": "DB_USER",
-                    "value": "openshift"
-                  },
-                  {
                     "name": "DB_DBID",
                     "value": "openshift"
                   },
@@ -113,6 +109,10 @@
                   },
                   {
                     "name": "DB_PORT",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "DB_USER",
                     "value": "openshift"
                   }
                 ],
@@ -139,7 +139,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "mariadb"
+              "io.kompose.service": "mariadb"
             }
           },
           "spec": {
@@ -171,10 +171,6 @@
                 ],
                 "env": [
                   {
-                    "name": "MYSQL_PASSWORD",
-                    "value": "openshift"
-                  },
-                  {
                     "name": "MYSQL_ROOT_PASSWORD",
                     "value": "openshift"
                   },
@@ -184,6 +180,10 @@
                   },
                   {
                     "name": "MYSQL_DATABASE",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_PASSWORD",
                     "value": "openshift"
                   }
                 ],
@@ -204,8 +204,8 @@
           }
         },
         "strategy": {
-					"type": "Recreate"
-				}
+          "type": "Recreate"
+        }
       },
       "status": {}
     },
@@ -214,7 +214,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "mariadb-claim0",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb-claim0"
+        }
       },
       "spec": {
         "accessModes": [
@@ -233,7 +236,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "mariadb-claim1",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb-claim1"
+        }
       },
       "spec": {
         "accessModes": [
