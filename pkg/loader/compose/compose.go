@@ -375,7 +375,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		serviceConfig.Stdin = composeServiceConfig.StdinOpen
 		serviceConfig.Tty = composeServiceConfig.Tty
 		serviceConfig.MemLimit = composeServiceConfig.MemLimit
-
+		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
 		komposeObject.ServiceConfigs[name] = serviceConfig
 	}
 

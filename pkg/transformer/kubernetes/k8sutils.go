@@ -336,6 +336,18 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	if err != nil {
 		return errors.Wrap(err, "k.ConfigVolumes failed")
 	}
+	// Configure Tmpfs
+	if len(service.TmpFs) > 0 {
+		TmpVolumesMount, TmpVolumes := k.ConfigTmpfs(name, service)
+
+		for _, volume := range TmpVolumes {
+			volumes = append(volumes, volume)
+		}
+		for _, vMount := range TmpVolumesMount {
+			volumesMount = append(volumesMount, vMount)
+		}
+
+	}
 
 	if pvc != nil {
 		// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`

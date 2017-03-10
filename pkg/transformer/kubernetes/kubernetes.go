@@ -324,6 +324,36 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 	return servicePorts
 }
 
+// ConfigTmpfs configure the tmpfs.
+func (k *Kubernetes) ConfigTmpfs(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume) {
+	//initializing volumemounts and volumes
+	volumeMounts := []api.VolumeMount{}
+	volumes := []api.Volume{}
+
+	for index, volume := range service.TmpFs {
+		//naming volumes if multiple tmpfs are provided
+		volumeName := fmt.Sprintf("%s-tmpfs%d", name, index)
+
+		// create a new volume mount object and append to list
+		volMount := api.VolumeMount{
+			Name:      volumeName,
+			MountPath: volume,
+		}
+		volumeMounts = append(volumeMounts, volMount)
+
+		//create tmpfs specific empty volumes
+		volSource := k.ConfigEmptyVolumeSource("tmpfs")
+
+		// create a new volume object using the volsource and add to list
+		vol := api.Volume{
+			Name:         volumeName,
+			VolumeSource: *volSource,
+		}
+		volumes = append(volumes, vol)
+	}
+	return volumeMounts, volumes
+}
+
 // ConfigVolumes configure the container volumes.
 func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim, error) {
 	volumeMounts := []api.VolumeMount{}
@@ -369,7 +399,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		// For PVC we will also create a PVC object and add to list
 		var volsource *api.VolumeSource
 		if useEmptyVolumes {
-			volsource = k.ConfigEmptyVolumeSource()
+			volsource = k.ConfigEmptyVolumeSource("volume")
 		} else {
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
 
@@ -396,10 +426,21 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 }
 
 // ConfigEmptyVolumeSource is helper function to create an EmptyDir api.VolumeSource
-func (k *Kubernetes) ConfigEmptyVolumeSource() *api.VolumeSource {
+//either for Tmpfs or for emptyvolumes
+func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
+	//if key is tmpfs
+	if key == "tmpfs" {
+		return &api.VolumeSource{
+			EmptyDir: &api.EmptyDirVolumeSource{Medium: api.StorageMediumMemory},
+		}
+
+	}
+
+	//if key is volume
 	return &api.VolumeSource{
 		EmptyDir: &api.EmptyDirVolumeSource{},
 	}
+
 }
 
 // ConfigPVCVolumeSource is helper function to create an api.VolumeSource with a PVC
