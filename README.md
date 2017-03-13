@@ -43,7 +43,7 @@ go get -u github.com/kubernetes-incubator/kompose
 
 #### GitHub release
 
-Grabbing the latest release from the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases) for your OS.
+Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases).
 
 ```sh
 # Linux 
