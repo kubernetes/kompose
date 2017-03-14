@@ -36,7 +36,7 @@ type tomlLexer struct {
 // Basic read operations on input
 
 func (l *tomlLexer) read() rune {
-	r, err := l.input.ReadRune()
+	r, _, err := l.input.ReadRune()
 	if err != nil {
 		panic(err)
 	}
@@ -89,7 +89,7 @@ func (l *tomlLexer) emit(t tokenType) {
 }
 
 func (l *tomlLexer) peek() rune {
-	r, err := l.input.ReadRune()
+	r, _, err := l.input.ReadRune()
 	if err != nil {
 		panic(err)
 	}
@@ -99,7 +99,7 @@ func (l *tomlLexer) peek() rune {
 
 func (l *tomlLexer) follow(next string) bool {
 	for _, expectedRune := range next {
-		r, err := l.input.ReadRune()
+		r, _, err := l.input.ReadRune()
 		defer l.input.UnreadRune()
 		if err != nil {
 			panic(err)
@@ -219,7 +219,7 @@ func (l *tomlLexer) lexRvalue() tomlLexStateFn {
 			break
 		}
 
-		possibleDate := string(l.input.Peek(35))
+		possibleDate := string(l.input.PeekRunes(35))
 		dateMatch := dateRegexp.FindString(possibleDate)
 		if dateMatch != "" {
 			l.fastForward(len(dateMatch))
