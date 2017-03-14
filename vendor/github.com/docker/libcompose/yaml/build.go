@@ -12,7 +12,7 @@ import (
 type Build struct {
 	Context    string
 	Dockerfile string
-	Args       map[string]string
+	Args       map[string]*string
 }
 
 // MarshalYAML implements the Marshaller interface.
@@ -63,8 +63,8 @@ func (b *Build) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return errors.New("Failed to unmarshal Build")
 }
 
-func handleBuildArgs(value interface{}) (map[string]string, error) {
-	var args map[string]string
+func handleBuildArgs(value interface{}) (map[string]*string, error) {
+	var args map[string]*string
 	switch v := value.(type) {
 	case map[interface{}]interface{}:
 		return handleBuildArgMap(v)
@@ -75,25 +75,26 @@ func handleBuildArgs(value interface{}) (map[string]string, error) {
 	}
 }
 
-func handleBuildArgSlice(s []interface{}) (map[string]string, error) {
-	var args = map[string]string{}
+func handleBuildArgSlice(s []interface{}) (map[string]*string, error) {
+	var args = map[string]*string{}
 	for _, arg := range s {
 		// check if a value is provided
 		switch v := strings.SplitN(arg.(string), "=", 2); len(v) {
 		case 1:
 			// if we have not specified a a value for this build arg, we assign it an ascii null value and query the environment
 			// later when we build the service
-			args[v[0]] = "\x00"
+			str := "\x00"
+			args[v[0]] = &str
 		case 2:
 			// if we do have a value provided, we use it
-			args[v[0]] = v[1]
+			args[v[0]] = &v[1]
 		}
 	}
 	return args, nil
 }
 
-func handleBuildArgMap(m map[interface{}]interface{}) (map[string]string, error) {
-	args := map[string]string{}
+func handleBuildArgMap(m map[interface{}]interface{}) (map[string]*string, error) {
+	args := map[string]*string{}
 	for mapKey, mapValue := range m {
 		var argValue string
 		name, ok := mapKey.(string)
@@ -110,7 +111,7 @@ func handleBuildArgMap(m map[interface{}]interface{}) (map[string]string, error)
 		default:
 			return args, fmt.Errorf("Cannot unmarshal '%v' to type %T into a string value", mapValue, mapValue)
 		}
-		args[name] = argValue
+		args[name] = &argValue
 	}
 	return args, nil
 }
