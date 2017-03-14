@@ -78,6 +78,14 @@ Kompose is in Fedora 24 and 25 repositories. You can install it just like any ot
 sudo dnf -y install kompose
 ```
 
+#### Mac OS X
+On Mac OS X you can install latest release via [Homebrew](https://brew.sh):
+
+```bash
+brew install kompose
+
+```
+
 ## Shell autocompletion
 
 We support both `bash` and `zsh` for autocompletion.
