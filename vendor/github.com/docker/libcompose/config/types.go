@@ -117,6 +117,7 @@ type ServiceConfig struct {
 	Logging        Log                  `yaml:"logging,omitempty"`
 	MacAddress     string               `yaml:"mac_address,omitempty"`
 	MemLimit       yaml.MemStringorInt  `yaml:"mem_limit,omitempty"`
+	MemReservation yaml.MemStringorInt  `yaml:"mem_reservation,omitempty"`
 	MemSwapLimit   yaml.MemStringorInt  `yaml:"memswap_limit,omitempty"`
 	MemSwappiness  yaml.MemStringorInt  `yaml:"mem_swappiness,omitempty"`
 	NetworkMode    string               `yaml:"network_mode,omitempty"`
