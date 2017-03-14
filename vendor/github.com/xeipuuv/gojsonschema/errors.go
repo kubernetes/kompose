@@ -6,7 +6,7 @@ import (
 	"text/template"
 )
 
-var errorTemplates errorTemplate = errorTemplate{template.New("errors-new"),sync.RWMutex{}}
+var errorTemplates errorTemplate = errorTemplate{template.New("errors-new"), sync.RWMutex{}}
 
 // template.Template is not thread-safe for writing, so some locking is done
 // sync.RWMutex is used for efficiently locking when new templates are created

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -65,7 +66,17 @@ func NewProject(context *Context, runtime RuntimeProject, parseOptions *config.P
 	}
 
 	if context.EnvironmentLookup == nil {
-		cwd, err := os.Getwd()
+		var envPath, absPath, cwd string
+		var err error
+		if len(context.ComposeFiles) > 0 {
+			absPath, err = filepath.Abs(context.ComposeFiles[0])
+			dir, _ := path.Split(absPath)
+			envPath = filepath.Join(dir, ".env")
+		} else {
+			cwd, err = os.Getwd()
+			envPath = filepath.Join(cwd, ".env")
+		}
+
 		if err != nil {
 			log.Errorf("Could not get the rooted path name to the current directory: %v", err)
 			return nil
@@ -73,7 +84,7 @@ func NewProject(context *Context, runtime RuntimeProject, parseOptions *config.P
 		context.EnvironmentLookup = &lookup.ComposableEnvLookup{
 			Lookups: []config.EnvironmentLookup{
 				&lookup.EnvfileLookup{
-					Path: filepath.Join(cwd, ".env"),
+					Path: envPath,
 				},
 				&lookup.OsEnvLookup{},
 			},
@@ -150,7 +161,7 @@ func (p *Project) CreateService(name string) (Service, error) {
 
 		// check the environment for extra build Args that are set but not given a value in the compose file
 		for arg, value := range config.Build.Args {
-			if value == "\x00" {
+			if *value == "\x00" {
 				envValue := p.context.EnvironmentLookup.Lookup(arg, &config)
 				// depending on what we get back we do different things
 				switch l := len(envValue); l {
@@ -158,7 +169,7 @@ func (p *Project) CreateService(name string) (Service, error) {
 					delete(config.Build.Args, arg)
 				case 1:
 					parts := strings.SplitN(envValue[0], "=", 2)
-					config.Build.Args[parts[0]] = parts[1]
+					config.Build.Args[parts[0]] = &parts[1]
 				default:
 					return nil, fmt.Errorf("tried to set Build Arg %#v to multi-value %#v", arg, envValue)
 				}
@@ -312,7 +323,7 @@ func (p *Project) handleVolumeConfig() {
 				}
 
 				vol, ok := p.VolumeConfigs[volume.Source]
-				if !ok {
+				if !ok || vol == nil {
 					continue
 				}
 
