@@ -293,11 +293,7 @@ The chart structure is aimed at providing a skeleton for building your Helm char
 
 ## Unsupported docker-compose configuration options
 
-Currently `kompose` does not support the following Docker Compose options.
-
-```
-"build", "cgroup_parent", "devices", "depends_on", "dns", "dns_search", "domainname", "env_file", "extends", "external_links", "extra_hosts", "hostname", "ipc", "logging", "mac_address", "mem_limit", "memswap_limit", "network_mode", "networks", "pid", "security_opt", "shm_size", "stop_signal", "volume_driver", "uts", "read_only", "stdin_open", "tty", "user", "ulimits", "dockerfile", "net"
-```
+Currently `kompose` does not support some Docker Compose options, which are listed on the [conversion](/docs/conversion.md) document.
 
 For example:
 
