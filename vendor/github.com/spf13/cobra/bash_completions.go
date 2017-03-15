@@ -10,9 +10,8 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// Annotations for Bash completion.
 const (
-	BashCompFilenameExt     = "cobra_annotation_bash_completion_filename_extensions"
+	BashCompFilenameExt     = "cobra_annotation_bash_completion_filename_extentions"
 	BashCompCustom          = "cobra_annotation_bash_completion_custom"
 	BashCompOneRequiredFlag = "cobra_annotation_bash_completion_one_required_flag"
 	BashCompSubdirsInDir    = "cobra_annotation_bash_completion_subdirs_in_dir"
@@ -23,7 +22,7 @@ func preamble(out io.Writer, name string) error {
 	if err != nil {
 		return err
 	}
-	preamStr := `
+	_, err = fmt.Fprint(out, `
 __debug()
 {
     if [[ -n ${BASH_COMP_DEBUG_FILE} ]]; then
@@ -247,8 +246,7 @@ __handle_word()
     __handle_word
 }
 
-`
-	_, err = fmt.Fprint(out, preamStr)
+`)
 	return err
 }
 
@@ -403,8 +401,10 @@ func writeLocalNonPersistentFlag(flag *pflag.Flag, w io.Writer) error {
 		format += "="
 	}
 	format += "\")\n"
-	_, err := fmt.Fprintf(w, format, name)
-	return err
+	if _, err := fmt.Fprintf(w, format, name); err != nil {
+		return err
+	}
+	return nil
 }
 
 func writeFlags(cmd *Command, w io.Writer) error {
@@ -568,7 +568,6 @@ func gen(cmd *Command, w io.Writer) error {
 	return nil
 }
 
-// GenBashCompletion generates bash completion file and writes to the passed writer.
 func (cmd *Command) GenBashCompletion(w io.Writer) error {
 	if err := preamble(w, cmd.Name()); err != nil {
 		return err
@@ -588,7 +587,6 @@ func nonCompletableFlag(flag *pflag.Flag) bool {
 	return flag.Hidden || len(flag.Deprecated) > 0
 }
 
-// GenBashCompletionFile generates bash completion file.
 func (cmd *Command) GenBashCompletionFile(filename string) error {
 	outFile, err := os.Create(filename)
 	if err != nil {

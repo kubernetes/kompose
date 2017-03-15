@@ -46,6 +46,7 @@ import (
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 	//"k8s.io/kubernetes/pkg/controller/daemon"
+	"github.com/pkg/errors"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -237,10 +238,10 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 }
 
 // CreatePVC initializes PersistentVolumeClaim
-func (k *Kubernetes) CreatePVC(name string, mode string) *api.PersistentVolumeClaim {
+func (k *Kubernetes) CreatePVC(name string, mode string) (*api.PersistentVolumeClaim, error) {
 	size, err := resource.ParseQuantity("100Mi")
 	if err != nil {
-		log.Fatalf("Error parsing size")
+		return nil, errors.Wrap(err, "resource.ParseQuantity failed, Error parsing size")
 	}
 
 	pvc := &api.PersistentVolumeClaim{
@@ -265,7 +266,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string) *api.PersistentVolumeCl
 	} else {
 		pvc.Spec.AccessModes = []api.PersistentVolumeAccessMode{api.ReadWriteOnce}
 	}
-	return pvc
+	return pvc, nil
 }
 
 // ConfigPorts configures the container ports.
@@ -324,7 +325,7 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 }
 
 // ConfigVolumes configure the container volumes.
-func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim) {
+func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim, error) {
 	volumeMounts := []api.VolumeMount{}
 	volumes := []api.Volume{}
 	var PVCs []*api.PersistentVolumeClaim
@@ -371,7 +372,13 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			volsource = k.ConfigEmptyVolumeSource()
 		} else {
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
-			PVCs = append(PVCs, k.CreatePVC(volumeName, mode))
+
+			createdPVC, err := k.CreatePVC(volumeName, mode)
+			if err != nil {
+				return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
+			}
+
+			PVCs = append(PVCs, createdPVC)
 		}
 
 		// create a new volume object using the volsource and add to list
@@ -385,7 +392,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
 		}
 	}
-	return volumeMounts, volumes, PVCs
+	return volumeMounts, volumes, PVCs, nil
 }
 
 // ConfigEmptyVolumeSource is helper function to create an EmptyDir api.VolumeSource
@@ -452,7 +459,7 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 
 // Transform maps komposeObject to k8s objects
 // returns object that are already sorted in the way that Services are first
-func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
+func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) ([]runtime.Object, error) {
 
 	noSupKeys := k.CheckUnsupportedKey(&komposeObject, unsupportedKey)
 	for _, keyName := range noSupKeys {
@@ -477,7 +484,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		if service.Restart == "no" || service.Restart == "on-failure" {
 			// Error out if Controller Object is specified with restart: 'on-failure'
 			if opt.IsDeploymentFlag || opt.IsDaemonSetFlag || opt.IsReplicationControllerFlag {
-				log.Fatalf("Controller object cannot be specified with restart: 'on-failure'")
+				return nil, errors.New("Controller object cannot be specified with restart: 'on-failure'")
 			}
 			pod := k.InitPod(name, service)
 			objects = append(objects, pod)
@@ -505,38 +512,54 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	k.VolumesFrom(&allobjects, komposeObject)
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
-	return allobjects
+	return allobjects, nil
 }
 
 // UpdateController updates the given object with the given pod template update function and ObjectMeta update function
-func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec), updateMeta func(meta *api.ObjectMeta)) {
+func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec) error, updateMeta func(meta *api.ObjectMeta)) (err error) {
 	switch t := obj.(type) {
 	case *api.ReplicationController:
 		if t.Spec.Template == nil {
 			t.Spec.Template = &api.PodTemplateSpec{}
 		}
-		updateTemplate(t.Spec.Template)
+		err = updateTemplate(t.Spec.Template)
+		if err != nil {
+			return errors.Wrap(err, "updateTemplate failed")
+		}
 		updateMeta(&t.ObjectMeta)
 	case *extensions.Deployment:
-		updateTemplate(&t.Spec.Template)
+		err = updateTemplate(&t.Spec.Template)
+		if err != nil {
+			return errors.Wrap(err, "updateTemplate failed")
+		}
 		updateMeta(&t.ObjectMeta)
 	case *extensions.DaemonSet:
-		updateTemplate(&t.Spec.Template)
+		err = updateTemplate(&t.Spec.Template)
+		if err != nil {
+			return errors.Wrap(err, "updateTemplate failed")
+		}
 		updateMeta(&t.ObjectMeta)
 	case *deployapi.DeploymentConfig:
-		updateTemplate(t.Spec.Template)
+		err = updateTemplate(t.Spec.Template)
+		if err != nil {
+			return errors.Wrap(err, "updateTemplate failed")
+		}
 		updateMeta(&t.ObjectMeta)
 	case *api.Pod:
 		p := api.PodTemplateSpec{
 			ObjectMeta: t.ObjectMeta,
 			Spec:       t.Spec,
 		}
-		updateTemplate(&p)
+		err = updateTemplate(&p)
+		if err != nil {
+			return errors.Wrap(err, "updateTemplate failed")
+		}
 		t.Spec = p.Spec
 		t.ObjectMeta = p.ObjectMeta
 	case *buildapi.BuildConfig:
 		updateMeta(&t.ObjectMeta)
 	}
+	return nil
 }
 
 // GetKubernetesClient creates the k8s Client, returns k8s client and namespace
@@ -560,7 +583,11 @@ func (k *Kubernetes) GetKubernetesClient() (*client.Client, string, error) {
 // Deploy submits deployment and svc to k8s endpoint
 func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
-	objects := k.Transform(komposeObject, opt)
+	objects, err := k.Transform(komposeObject, opt)
+
+	if err != nil {
+		return errors.Wrap(err, "k.Transform failed")
+	}
 
 	pvcStr := " "
 	if !opt.EmptyVols {
@@ -622,7 +649,11 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 // Undeploy deletes deployed objects from Kubernetes cluster
 func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
-	objects := k.Transform(komposeObject, opt)
+	objects, err := k.Transform(komposeObject, opt)
+
+	if err != nil {
+		return errors.Wrap(err, "k.Transform failed")
+	}
 
 	client, namespace, err := k.GetKubernetesClient()
 	if err != nil {

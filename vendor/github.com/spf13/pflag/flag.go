@@ -487,76 +487,9 @@ func UnquoteUsage(flag *Flag) (name string, usage string) {
 	return
 }
 
-// Splits the string `s` on whitespace into an initial substring up to
-// `i` runes in length and the remainder. Will go `slop` over `i` if
-// that encompasses the entire string (which allows the caller to
-// avoid short orphan words on the final line).
-func wrapN(i, slop int, s string) (string, string) {
-	if i+slop > len(s) {
-		return s, ""
-	}
-
-	w := strings.LastIndexAny(s[:i], " \t")
-	if w <= 0 {
-		return s, ""
-	}
-
-	return s[:w], s[w+1:]
-}
-
-// Wraps the string `s` to a maximum width `w` with leading indent
-// `i`. The first line is not indented (this is assumed to be done by
-// caller). Pass `w` == 0 to do no wrapping
-func wrap(i, w int, s string) string {
-	if w == 0 {
-		return s
-	}
-
-	// space between indent i and end of line width w into which
-	// we should wrap the text.
-	wrap := w - i
-
-	var r, l string
-
-	// Not enough space for sensible wrapping. Wrap as a block on
-	// the next line instead.
-	if wrap < 24 {
-		i = 16
-		wrap = w - i
-		r += "\n" + strings.Repeat(" ", i)
-	}
-	// If still not enough space then don't even try to wrap.
-	if wrap < 24 {
-		return s
-	}
-
-	// Try to avoid short orphan words on the final line, by
-	// allowing wrapN to go a bit over if that would fit in the
-	// remainder of the line.
-	slop := 5
-	wrap = wrap - slop
-
-	// Handle first line, which is indented by the caller (or the
-	// special case above)
-	l, s = wrapN(wrap, slop, s)
-	r = r + l
-
-	// Now wrap the rest
-	for s != "" {
-		var t string
-
-		t, s = wrapN(wrap, slop, s)
-		r = r + "\n" + strings.Repeat(" ", i) + t
-	}
-
-	return r
-
-}
-
-// FlagUsagesWrapped returns a string containing the usage information
-// for all flags in the FlagSet. Wrapped to `cols` columns (0 for no
-// wrapping)
-func (f *FlagSet) FlagUsagesWrapped(cols int) string {
+// FlagUsages Returns a string containing the usage information for all flags in
+// the FlagSet
+func (f *FlagSet) FlagUsages() string {
 	x := new(bytes.Buffer)
 
 	lines := make([]string, 0, len(f.formal))
@@ -613,17 +546,10 @@ func (f *FlagSet) FlagUsagesWrapped(cols int) string {
 	for _, line := range lines {
 		sidx := strings.Index(line, "\x00")
 		spacing := strings.Repeat(" ", maxlen-sidx)
-		// maxlen + 2 comes from + 1 for the \x00 and + 1 for the (deliberate) off-by-one in maxlen-sidx
-		fmt.Fprintln(x, line[:sidx], spacing, wrap(maxlen+2, cols, line[sidx+1:]))
+		fmt.Fprintln(x, line[:sidx], spacing, line[sidx+1:])
 	}
 
 	return x.String()
-}
-
-// FlagUsages returns a string containing the usage information for all flags in
-// the FlagSet
-func (f *FlagSet) FlagUsages() string {
-	return f.FlagUsagesWrapped(0)
 }
 
 // PrintDefaults prints to standard error the default values of all defined command-line flags.
@@ -709,7 +635,7 @@ func (f *FlagSet) VarPF(value Value, name, shorthand, usage string) *Flag {
 
 // VarP is like Var, but accepts a shorthand letter that can be used after a single dash.
 func (f *FlagSet) VarP(value Value, name, shorthand, usage string) {
-	f.VarPF(value, name, shorthand, usage)
+	_ = f.VarPF(value, name, shorthand, usage)
 }
 
 // AddFlag will add the flag to the FlagSet
@@ -826,7 +752,7 @@ func containsShorthand(arg, shorthand string) bool {
 	return strings.Contains(arg, shorthand)
 }
 
-func (f *FlagSet) parseLongArg(s string, args []string, fn parseFunc) (a []string, err error) {
+func (f *FlagSet) parseLongArg(s string, args []string) (a []string, err error) {
 	a = args
 	name := s[2:]
 	if len(name) == 0 || name[0] == '-' || name[0] == '=' {
@@ -860,11 +786,11 @@ func (f *FlagSet) parseLongArg(s string, args []string, fn parseFunc) (a []strin
 		err = f.failf("flag needs an argument: %s", s)
 		return
 	}
-	err = fn(flag, value, s)
+	err = f.setFlag(flag, value, s)
 	return
 }
 
-func (f *FlagSet) parseSingleShortArg(shorthands string, args []string, fn parseFunc) (outShorts string, outArgs []string, err error) {
+func (f *FlagSet) parseSingleShortArg(shorthands string, args []string) (outShorts string, outArgs []string, err error) {
 	if strings.HasPrefix(shorthands, "test.") {
 		return
 	}
@@ -899,16 +825,16 @@ func (f *FlagSet) parseSingleShortArg(shorthands string, args []string, fn parse
 		err = f.failf("flag needs an argument: %q in -%s", c, shorthands)
 		return
 	}
-	err = fn(flag, value, shorthands)
+	err = f.setFlag(flag, value, shorthands)
 	return
 }
 
-func (f *FlagSet) parseShortArg(s string, args []string, fn parseFunc) (a []string, err error) {
+func (f *FlagSet) parseShortArg(s string, args []string) (a []string, err error) {
 	a = args
 	shorthands := s[1:]
 
 	for len(shorthands) > 0 {
-		shorthands, a, err = f.parseSingleShortArg(shorthands, args, fn)
+		shorthands, a, err = f.parseSingleShortArg(shorthands, args)
 		if err != nil {
 			return
 		}
@@ -917,7 +843,7 @@ func (f *FlagSet) parseShortArg(s string, args []string, fn parseFunc) (a []stri
 	return
 }
 
-func (f *FlagSet) parseArgs(args []string, fn parseFunc) (err error) {
+func (f *FlagSet) parseArgs(args []string) (err error) {
 	for len(args) > 0 {
 		s := args[0]
 		args = args[1:]
@@ -937,9 +863,9 @@ func (f *FlagSet) parseArgs(args []string, fn parseFunc) (err error) {
 				f.args = append(f.args, args...)
 				break
 			}
-			args, err = f.parseLongArg(s, args, fn)
+			args, err = f.parseLongArg(s, args)
 		} else {
-			args, err = f.parseShortArg(s, args, fn)
+			args, err = f.parseShortArg(s, args)
 		}
 		if err != nil {
 			return
@@ -955,41 +881,7 @@ func (f *FlagSet) parseArgs(args []string, fn parseFunc) (err error) {
 func (f *FlagSet) Parse(arguments []string) error {
 	f.parsed = true
 	f.args = make([]string, 0, len(arguments))
-
-	assign := func(flag *Flag, value, origArg string) error {
-		return f.setFlag(flag, value, origArg)
-	}
-
-	err := f.parseArgs(arguments, assign)
-	if err != nil {
-		switch f.errorHandling {
-		case ContinueOnError:
-			return err
-		case ExitOnError:
-			os.Exit(2)
-		case PanicOnError:
-			panic(err)
-		}
-	}
-	return nil
-}
-
-type parseFunc func(flag *Flag, value, origArg string) error
-
-// ParseAll parses flag definitions from the argument list, which should not
-// include the command name. The arguments for fn are flag and value. Must be
-// called after all flags in the FlagSet are defined and before flags are
-// accessed by the program. The return value will be ErrHelp if -help was set
-// but not defined.
-func (f *FlagSet) ParseAll(arguments []string, fn func(flag *Flag, value string) error) error {
-	f.parsed = true
-	f.args = make([]string, 0, len(arguments))
-
-	assign := func(flag *Flag, value, origArg string) error {
-		return fn(flag, value)
-	}
-
-	err := f.parseArgs(arguments, assign)
+	err := f.parseArgs(arguments)
 	if err != nil {
 		switch f.errorHandling {
 		case ContinueOnError:
@@ -1013,14 +905,6 @@ func (f *FlagSet) Parsed() bool {
 func Parse() {
 	// Ignore errors; CommandLine is set for ExitOnError.
 	CommandLine.Parse(os.Args[1:])
-}
-
-// ParseAll parses the command-line flags from os.Args[1:] and called fn for each.
-// The arguments for fn are flag and value. Must be called after all flags are
-// defined and before flags are accessed by the program.
-func ParseAll(fn func(flag *Flag, value string) error) {
-	// Ignore errors; CommandLine is set for ExitOnError.
-	CommandLine.ParseAll(os.Args[1:], fn)
 }
 
 // SetInterspersed sets whether to support interspersed option/non-option arguments.

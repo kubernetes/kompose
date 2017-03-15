@@ -28,6 +28,7 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/pkg/errors"
 )
 
 // Test if service types are parsed properly on user input
@@ -47,7 +48,10 @@ func TestHandleServiceType(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		result := handleServiceType(tt.labelValue)
+		result, err := handleServiceType(tt.labelValue)
+		if err != nil {
+			t.Error(errors.Wrap(err, "handleServiceType failed"))
+		}
 		if result != tt.serviceType {
 			t.Errorf("Expected %q, got %q", tt.serviceType, result)
 		}

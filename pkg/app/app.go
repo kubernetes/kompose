@@ -211,16 +211,26 @@ func Convert(opt kobject.ConvertOptions) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject = l.LoadFile(opt.InputFiles)
+	komposeObject, err = l.LoadFile(opt.InputFiles)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
 	// Get a transformer that maps komposeObject to provider's primitives
 	t := getTransformer(opt)
 
 	// Do the transformation
-	objects := t.Transform(komposeObject, opt)
+	objects, err := t.Transform(komposeObject, opt)
+
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
 	// Print output
-	kubernetes.PrintList(objects, opt)
+	err = kubernetes.PrintList(objects, opt)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 }
 
 // Up brings up deployment, svc.
@@ -237,7 +247,10 @@ func Up(opt kobject.ConvertOptions) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject = l.LoadFile(opt.InputFiles)
+	komposeObject, err = l.LoadFile(opt.InputFiles)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
 	// Get the transformer
 	t := getTransformer(opt)
@@ -263,7 +276,10 @@ func Down(opt kobject.ConvertOptions) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject = l.LoadFile(opt.InputFiles)
+	komposeObject, err = l.LoadFile(opt.InputFiles)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
 	// Get the transformer
 	t := getTransformer(opt)
