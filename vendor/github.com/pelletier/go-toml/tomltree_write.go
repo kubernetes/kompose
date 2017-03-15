@@ -95,7 +95,7 @@ func (t *TomlTree) writeTo(w io.Writer, indent, keyspace string, bytesCount int6
 	for _, k := range simpleValuesKeys {
 		v, ok := t.values[k].(*tomlValue)
 		if !ok {
-			return bytesCount, fmt.Errorf("invalid key type at %s: %T", k, t.values[k])
+			return bytesCount, fmt.Errorf("invalid value type at %s: %T", k, t.values[k])
 		}
 
 		repr, err := tomlValueStringRepresentation(v.value)
@@ -201,9 +201,6 @@ func (t *TomlTree) ToMap() map[string]interface{} {
 			result[k] = array
 		case *TomlTree:
 			result[k] = node.ToMap()
-		case map[string]interface{}:
-			sub := TreeFromMap(node)
-			result[k] = sub.ToMap()
 		case *tomlValue:
 			result[k] = node.value
 		}

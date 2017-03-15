@@ -39,6 +39,7 @@ import (
 	"k8s.io/kubernetes/pkg/runtime"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/resource"
 )
 
@@ -92,7 +93,7 @@ home:
 
 		t, err := template.New("ChartTmpl").Parse(chart)
 		if err != nil {
-			log.Fatalf("Failed to generate Chart.yaml template: %s\n", err)
+			return errors.Wrap(err, "Failed to generate Chart.yaml template, template.New failed")
 		}
 		var chartData bytes.Buffer
 		_ = t.Execute(&chartData, details)
@@ -127,26 +128,26 @@ func cpFileToChart(manifestDir, filename string) error {
 }
 
 // Check if given path is a directory
-func isDir(name string) bool {
+func isDir(name string) (bool, error) {
 
 	// Open file to get stat later
 	f, err := os.Open(name)
 	if err != nil {
-		return false
+		return false, nil
 	}
 	defer f.Close()
 
 	// Get file attributes and information
 	fileStat, err := f.Stat()
 	if err != nil {
-		log.Fatalf("error retrieving file information: %v", err)
+		return false, errors.Wrap(err, "error retrieving file information, f.Stat failed")
 	}
 
 	// Check if given path is a directory
 	if fileStat.IsDir() {
-		return true
+		return true, nil
 	}
-	return false
+	return false, nil
 }
 
 // PrintList will take the data converted and decide on the commandline attributes given
@@ -156,10 +157,17 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 	var dirName string
 
 	// Check if output file is a directory
-	if isDir(opt.OutFile) {
+	isDirVal, err := isDir(opt.OutFile)
+	if err != nil {
+		return errors.Wrap(err, "isDir failed")
+	}
+	if isDirVal {
 		dirName = opt.OutFile
 	} else {
-		f = transformer.CreateOutFile(opt.OutFile)
+		f, err = transformer.CreateOutFile(opt.OutFile)
+		if err != nil {
+			return errors.Wrap(err, "transformer.CreateOutFile failed")
+		}
 		defer f.Close()
 	}
 
@@ -189,7 +197,11 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		if err != nil {
 			return fmt.Errorf("Error in marshalling the List: %v", err)
 		}
-		files = append(files, transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f))
+		printVal, err := transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f)
+		if err != nil {
+			return errors.Wrap(err, "transformer.Print failed")
+		}
+		files = append(files, printVal)
 	} else {
 		var file string
 		// create a separate file for each provider
@@ -212,13 +224,19 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			// cast it to correct type - api.ObjectMeta
 			objectMeta := val.FieldByName("ObjectMeta").Interface().(api.ObjectMeta)
 
-			file = transformer.Print(objectMeta.Name, dirName, strings.ToLower(typeMeta.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
+			file, err = transformer.Print(objectMeta.Name, dirName, strings.ToLower(typeMeta.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
+			if err != nil {
+				return errors.Wrap(err, "transformer.Print failed")
+			}
 
 			files = append(files, file)
 		}
 	}
 	if opt.CreateChart {
-		generateHelm(opt.InputFiles, files)
+		err = generateHelm(opt.InputFiles, files)
+		if err != nil {
+			return errors.Wrap(err, "generateHelm failed")
+		}
 	}
 	return nil
 }
@@ -309,12 +327,16 @@ func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceC
 }
 
 // UpdateKubernetesObjects loads configurations to k8s objects
-func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects *[]runtime.Object) {
+func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.ServiceConfig, objects *[]runtime.Object) error {
 	// Configure the environment variables.
 	envs := k.ConfigEnvs(name, service)
 
 	// Configure the container volumes.
-	volumesMount, volumes, pvc := k.ConfigVolumes(name, service)
+	volumesMount, volumes, pvc, err := k.ConfigVolumes(name, service)
+	if err != nil {
+		return errors.Wrap(err, "k.ConfigVolumes failed")
+	}
+
 	if pvc != nil {
 		// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`
 		// because the type of objects and pvc is different, but when doing append
@@ -331,7 +353,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	annotations := transformer.ConfigAnnotations(service)
 
 	// fillTemplate fills the pod template with the value calculated from config
-	fillTemplate := func(template *api.PodTemplateSpec) {
+	fillTemplate := func(template *api.PodTemplateSpec) error {
 		if len(service.ContainerName) > 0 {
 			template.Spec.Containers[0].Name = service.ContainerName
 		}
@@ -384,8 +406,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		case "on-failure":
 			template.Spec.RestartPolicy = api.RestartPolicyOnFailure
 		default:
-			log.Fatalf("Unknown restart policy %s for service %s", service.Restart, name)
+			return errors.New("Unknown restart policy " + service.Restart + " for service" + name)
 		}
+		return nil
 	}
 
 	// fillObjectMeta fills the metadata with the value calculated from config
@@ -395,8 +418,10 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 
 	// update supported controller
 	for _, obj := range *objects {
-		k.UpdateController(obj, fillTemplate, fillObjectMeta)
-
+		err = k.UpdateController(obj, fillTemplate, fillObjectMeta)
+		if err != nil {
+			return errors.Wrap(err, "k.UpdateController failed")
+		}
 		if len(service.Volumes) > 0 {
 			switch objType := obj.(type) {
 			case *extensions.Deployment:
@@ -406,6 +431,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			}
 		}
 	}
+	return nil
 }
 
 // SortServicesFirst - the objects that we get can be in any order this keeps services first
@@ -426,52 +452,73 @@ func (k *Kubernetes) SortServicesFirst(objs *[]runtime.Object) {
 	*objs = ret
 }
 
-func (k *Kubernetes) findDependentVolumes(svcname string, komposeObject kobject.KomposeObject) (volumes []api.Volume, volumeMounts []api.VolumeMount) {
+func (k *Kubernetes) findDependentVolumes(svcname string, komposeObject kobject.KomposeObject) (volumes []api.Volume, volumeMounts []api.VolumeMount, err error) {
 	// Get all the volumes and volumemounts this particular service is dependent on
 	for _, dependentSvc := range komposeObject.ServiceConfigs[svcname].VolumesFrom {
-		vols, volMounts := k.findDependentVolumes(dependentSvc, komposeObject)
+		vols, volMounts, err := k.findDependentVolumes(dependentSvc, komposeObject)
+		if err != nil {
+			err = errors.Wrap(err, "k.findDependentVolumes failed")
+			return nil, nil, err
+		}
 		volumes = append(volumes, vols...)
 		volumeMounts = append(volumeMounts, volMounts...)
 	}
 	// add the volumes info of this service
-	volMounts, vols, _ := k.ConfigVolumes(svcname, komposeObject.ServiceConfigs[svcname])
+	volMounts, vols, _, err := k.ConfigVolumes(svcname, komposeObject.ServiceConfigs[svcname])
+	if err != nil {
+		err = errors.Wrap(err, "k.ConfigVolumes failed")
+		return nil, nil, err
+	}
 	volumes = append(volumes, vols...)
 	volumeMounts = append(volumeMounts, volMounts...)
-	return
+	return volumes, volumeMounts, nil
 }
 
 // VolumesFrom creates volums and volumeMounts for volumes_from
-func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobject.KomposeObject) {
+func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobject.KomposeObject) error {
 	for _, obj := range *objects {
 		switch t := obj.(type) {
 		case *api.ReplicationController:
 			svcName := t.ObjectMeta.Name
 			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
-				volumes, volumeMounts := k.findDependentVolumes(dependentSvc, komposeObject)
+				volumes, volumeMounts, err := k.findDependentVolumes(dependentSvc, komposeObject)
+				if err != nil {
+					return errors.Wrap(err, "k.findDependentVolumes")
+				}
 				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
 				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
 			}
 		case *extensions.Deployment:
 			svcName := t.ObjectMeta.Name
 			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
-				volumes, volumeMounts := k.findDependentVolumes(dependentSvc, komposeObject)
+				volumes, volumeMounts, err := k.findDependentVolumes(dependentSvc, komposeObject)
+				if err != nil {
+					return errors.Wrap(err, "k.findDependentVolumes")
+				}
 				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
 				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
 			}
 		case *extensions.DaemonSet:
 			svcName := t.ObjectMeta.Name
 			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
-				volumes, volumeMounts := k.findDependentVolumes(dependentSvc, komposeObject)
+				volumes, volumeMounts, err := k.findDependentVolumes(dependentSvc, komposeObject)
+				if err != nil {
+					return errors.Wrap(err, "k.findDependentVolumes")
+				}
 				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
 				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
 			}
 		case *deployapi.DeploymentConfig:
 			svcName := t.ObjectMeta.Name
 			for _, dependentSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
-				volumes, volumeMounts := k.findDependentVolumes(dependentSvc, komposeObject)
+				volumes, volumeMounts, err := k.findDependentVolumes(dependentSvc, komposeObject)
+				if err != nil {
+					return errors.Wrap(err, "k.findDependentVolumes")
+				}
 				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
 				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
 			}
 		}
 	}
+	return nil
 }

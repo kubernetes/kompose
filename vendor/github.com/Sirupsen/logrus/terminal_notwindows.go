@@ -4,25 +4,18 @@
 // license that can be found in the LICENSE file.
 
 // +build linux darwin freebsd openbsd netbsd dragonfly
-// +build !appengine
 
 package logrus
 
 import (
-	"io"
-	"os"
 	"syscall"
 	"unsafe"
 )
 
 // IsTerminal returns true if stderr's file descriptor is a terminal.
-func IsTerminal(f io.Writer) bool {
+func IsTerminal() bool {
+	fd := syscall.Stderr
 	var termios Termios
-	switch v := f.(type) {
-	case *os.File:
-		_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(v.Fd()), ioctlReadTermios, uintptr(unsafe.Pointer(&termios)), 0, 0, 0)
-		return err == 0
-	default:
-		return false
-	}
+	_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&termios)), 0, 0, 0)
+	return err == 0
 }

@@ -44,6 +44,7 @@ import (
 	deploymentconfigreaper "github.com/openshift/origin/pkg/deploy/cmd"
 	imageapi "github.com/openshift/origin/pkg/image/api"
 	routeapi "github.com/openshift/origin/pkg/route/api"
+	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/kubectl"
 	"k8s.io/kubernetes/pkg/util/intstr"
 )
@@ -170,10 +171,10 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 }
 
 // initBuildConfig initialize Openshifts BuildConfig Object
-func initBuildConfig(name string, service kobject.ServiceConfig, composeFileDir string, repo string, branch string) *buildapi.BuildConfig {
+func initBuildConfig(name string, service kobject.ServiceConfig, composeFileDir string, repo string, branch string) (*buildapi.BuildConfig, error) {
 	contextDir, err := getAbsBuildContext(service.Build, composeFileDir)
 	if err != nil {
-		log.Fatalf("[%s] Buildconfig cannot be created due to error in creating build context.", name)
+		return nil, errors.Wrap(err, name+"buildconfig cannot be created due to error in creating build context, getAbsBuildContext failed")
 	}
 
 	bc := &buildapi.BuildConfig{
@@ -210,7 +211,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, composeFileDir 
 			},
 		},
 	}
-	return bc
+	return bc, nil
 }
 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
@@ -295,7 +296,7 @@ func (o *OpenShift) initRoute(name string, service kobject.ServiceConfig, port i
 
 // Transform maps komposeObject to openshift objects
 // returns objects that are already sorted in the way that Services are first
-func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []runtime.Object {
+func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) ([]runtime.Object, error) {
 	noSupKeys := o.Kubernetes.CheckUnsupportedKey(&komposeObject, unsupportedKey)
 	for _, keyName := range noSupKeys {
 		log.Warningf("OpenShift provider doesn't support %s key - ignoring", keyName)
@@ -315,7 +316,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		if service.Restart == "no" || service.Restart == "on-failure" {
 			// Error out if Controller Object is specified with restart: 'on-failure'
 			if opt.IsDeploymentConfigFlag {
-				log.Fatalf("Controller object cannot be specified with restart: 'on-failure'")
+				return nil, errors.New("Controller object cannot be specified with restart: 'on-failure'")
 			}
 			pod := o.InitPod(name, service)
 			objects = append(objects, pod)
@@ -337,26 +338,30 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 						continue
 					}
 					if !hasGitBinary() && (buildRepo == "" || buildBranch == "") {
-						log.Fatalf("Git is not installed! Please install Git to create buildconfig, else supply source repository and branch to use for build using '--build-repo', '--build-branch' options respectively")
+						return nil, errors.New("Git is not installed! Please install Git to create buildconfig, else supply source repository and branch to use for build using '--build-repo', '--build-branch' options respectively")
 					}
 					if buildBranch == "" {
 						buildBranch, err = getGitCurrentBranch(composeFileDir)
 						if err != nil {
-							log.Fatalf("Buildconfig cannot be created because current git branch couldn't be detected.")
+							return nil, errors.Wrap(err, "Buildconfig cannot be created because current git branch couldn't be detected.")
 						}
 					}
 					if opt.BuildRepo == "" {
 						if err != nil {
-							log.Fatalf("Buildconfig cannot be created because remote for current git branch couldn't be detected.")
+							return nil, errors.Wrap(err, "Buildconfig cannot be created because remote for current git branch couldn't be detected.")
 						}
 						buildRepo, err = getGitCurrentRemoteURL(composeFileDir)
 						if err != nil {
-							log.Fatalf("Buildconfig cannot be created because git remote origin repo couldn't be detected.")
+							return nil, errors.Wrap(err, "Buildconfig cannot be created because git remote origin repo couldn't be detected.")
 						}
 					}
 					hasBuild = true
 				}
-				objects = append(objects, initBuildConfig(name, service, composeFileDir, buildRepo, buildBranch)) // Openshift BuildConfigs
+				bc, err := initBuildConfig(name, service, composeFileDir, buildRepo, buildBranch)
+				if err != nil {
+					return nil, errors.Wrap(err, "initBuildConfig failed")
+				}
+				objects = append(objects, bc) // Openshift BuildConfigs
 			}
 
 			// If ports not provided in configuration we will not make service
@@ -384,7 +389,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	o.VolumesFrom(&allobjects, komposeObject)
 	// sort all object so Services are first
 	o.SortServicesFirst(&allobjects)
-	return allobjects
+	return allobjects, nil
 }
 
 // Create OpenShift client, returns OpenShift client
@@ -403,7 +408,12 @@ func (o *OpenShift) getOpenShiftClient() (*oclient.Client, error) {
 // Deploy transofrms and deploys kobject to OpenShift
 func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
-	objects := o.Transform(komposeObject, opt)
+	objects, err := o.Transform(komposeObject, opt)
+
+	if err != nil {
+		return errors.Wrap(err, "o.Transform failed")
+	}
+
 	pvcStr := " "
 	if !opt.EmptyVols {
 		pvcStr = " and PersistentVolumeClaims "
@@ -480,7 +490,11 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 //Undeploy removes deployed artifacts from OpenShift cluster
 func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
-	objects := o.Transform(komposeObject, opt)
+	objects, err := o.Transform(komposeObject, opt)
+
+	if err != nil {
+		return errors.Wrap(err, "o.Transform failed")
+	}
 
 	oclient, err := o.getOpenShiftClient()
 	if err != nil {
