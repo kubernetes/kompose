@@ -1,4 +1,4 @@
-// Copyright 2017 Frank Schroeder. All rights reserved.
+// Copyright 2016 Frank Schroeder. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -158,16 +158,16 @@ func dec(p *Properties, key string, def *string, opts map[string]string, v refle
 	// keydef returns the property key and the default value based on the
 	// name of the struct field and the options in the tag.
 	keydef := func(f reflect.StructField) (string, *string, map[string]string) {
-		_key, _opts := parseTag(f.Tag.Get("properties"))
+		key, opts := parseTag(f.Tag.Get("properties"))
 
-		var _def *string
-		if d, ok := _opts["default"]; ok {
-			_def = &d
+		var def *string
+		if d, ok := opts["default"]; ok {
+			def = &d
 		}
-		if _key != "" {
-			return _key, _def, _opts
+		if key != "" {
+			return key, def, opts
 		}
-		return f.Name, _def, _opts
+		return f.Name, def, opts
 	}
 
 	switch {
@@ -190,7 +190,7 @@ func dec(p *Properties, key string, def *string, opts map[string]string, v refle
 			fv := v.Field(i)
 			fk, def, opts := keydef(t.Field(i))
 			if !fv.CanSet() {
-				return fmt.Errorf("cannot set %s", t.Field(i).Name)
+				return fmt.Errorf("cannot set ", t.Field(i).Name)
 			}
 			if fk == "-" {
 				continue
@@ -223,7 +223,7 @@ func dec(p *Properties, key string, def *string, opts map[string]string, v refle
 	case isMap(t):
 		valT := t.Elem()
 		m := reflect.MakeMap(t)
-		for postfix := range p.FilterStripPrefix(key + ".").m {
+		for postfix, _ := range p.FilterStripPrefix(key + ".").m {
 			pp := strings.SplitN(postfix, ".", 2)
 			mk, mv := pp[0], reflect.New(valT)
 			if err := dec(p, key+"."+mk, nil, nil, mv); err != nil {
@@ -274,6 +274,7 @@ func isArray(t reflect.Type) bool    { return t.Kind() == reflect.Array || t.Kin
 func isBool(t reflect.Type) bool     { return t.Kind() == reflect.Bool }
 func isDuration(t reflect.Type) bool { return t == reflect.TypeOf(time.Second) }
 func isMap(t reflect.Type) bool      { return t.Kind() == reflect.Map }
+func isNumeric(t reflect.Type) bool  { return isInt(t) || isUint(t) || isFloat(t) }
 func isPtr(t reflect.Type) bool      { return t.Kind() == reflect.Ptr }
 func isString(t reflect.Type) bool   { return t.Kind() == reflect.String }
 func isStruct(t reflect.Type) bool   { return t.Kind() == reflect.Struct }
