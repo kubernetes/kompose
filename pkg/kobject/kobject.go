@@ -83,6 +83,7 @@ type ServiceConfig struct {
 	Stdin         bool                `compose:"stdin_open" bundle:""`
 	Tty           bool                `compose:"tty" bundle:""`
 	MemLimit      yaml.MemStringorInt `compose:"mem_limit" bundle:""`
+	TmpFs         []string            `compose:"tmpfs" bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container
