@@ -55,6 +55,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		Restart:       "always",
 		Stdin:         true,
 		Tty:           true,
+		TmpFs:         []string{"/tmp"},
 	}
 }
 
@@ -498,4 +499,15 @@ func TestInitPodSpec(t *testing.T) {
 	if result.Containers[0].Name != "foo" && result.Containers[0].Image != "image" {
 		t.Fatalf("Pod object not found")
 	}
+}
+
+func TestConfigTmpfs(t *testing.T) {
+	name := "foo"
+	k := Kubernetes{}
+	resultVolumeMount, resultVolume := k.ConfigTmpfs(name, newServiceConfig())
+
+	if resultVolumeMount[0].Name != "foo-tmpfs0" || resultVolume[0].EmptyDir.Medium != "Memory" {
+		t.Fatalf("Tmpfs not found")
+	}
+
 }
