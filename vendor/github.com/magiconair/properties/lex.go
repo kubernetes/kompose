@@ -1,4 +1,4 @@
-// Copyright 2017 Frank Schroeder. All rights reserved.
+// Copyright 2016 Frank Schroeder. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 //
@@ -72,7 +72,7 @@ type lexer struct {
 
 // next returns the next rune in the input.
 func (l *lexer) next() rune {
-	if l.pos >= len(l.input) {
+	if int(l.pos) >= len(l.input) {
 		l.width = 0
 		return eof
 	}
@@ -96,8 +96,8 @@ func (l *lexer) backup() {
 
 // emit passes an item back to the client.
 func (l *lexer) emit(t itemType) {
-	i := item{t, l.start, string(l.runes)}
-	l.items <- i
+	item := item{t, l.start, string(l.runes)}
+	l.items <- item
 	l.start = l.pos
 	l.runes = l.runes[:0]
 }
@@ -114,7 +114,7 @@ func (l *lexer) appendRune(r rune) {
 
 // accept consumes the next rune if it's from the valid set.
 func (l *lexer) accept(valid string) bool {
-	if strings.ContainsRune(valid, l.next()) {
+	if strings.IndexRune(valid, l.next()) >= 0 {
 		return true
 	}
 	l.backup()
@@ -123,7 +123,7 @@ func (l *lexer) accept(valid string) bool {
 
 // acceptRun consumes a run of runes from the valid set.
 func (l *lexer) acceptRun(valid string) {
-	for strings.ContainsRune(valid, l.next()) {
+	for strings.IndexRune(valid, l.next()) >= 0 {
 	}
 	l.backup()
 }
@@ -156,9 +156,9 @@ func (l *lexer) errorf(format string, args ...interface{}) stateFn {
 
 // nextItem returns the next item from the input.
 func (l *lexer) nextItem() item {
-	i := <-l.items
-	l.lastPos = i.pos
-	return i
+	item := <-l.items
+	l.lastPos = item.pos
+	return item
 }
 
 // lex creates a new scanner for the input string.
@@ -279,7 +279,8 @@ func lexValue(l *lexer) stateFn {
 	for {
 		switch r := l.next(); {
 		case isEscape(r):
-			if isEOL(l.peek()) {
+			r := l.peek()
+			if isEOL(r) {
 				l.next()
 				l.acceptRun(whitespace)
 			} else {
