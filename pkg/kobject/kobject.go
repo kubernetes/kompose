@@ -84,6 +84,7 @@ type ServiceConfig struct {
 	Tty           bool                `compose:"tty" bundle:""`
 	MemLimit      yaml.MemStringorInt `compose:"mem_limit" bundle:""`
 	TmpFs         []string            `compose:"tmpfs" bundle:""`
+	Dockerfile    string              `compose:"dockerfile" bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container
