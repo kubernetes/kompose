@@ -290,7 +290,8 @@ func TestInitBuildConfig(t *testing.T) {
 	repo := "https://git.test.com/org/repo"
 	branch := "somebranch"
 	sc := kobject.ServiceConfig{
-		Build: "./build",
+		Build:      "./build",
+		Dockerfile: "Dockerfile-alternate",
 	}
 	bc, err := initBuildConfig(serviceName, sc, composeFileDir, repo, branch)
 	if err != nil {
@@ -305,6 +306,7 @@ func TestInitBuildConfig(t *testing.T) {
 		"Assert buildconfig source git Ref":     {bc.Spec.CommonSpec.Source.Git.Ref, branch},
 		"Assert buildconfig source context dir": {bc.Spec.CommonSpec.Source.ContextDir, "a/build"},
 		"Assert buildconfig output name":        {bc.Spec.CommonSpec.Output.To.Name, serviceName + ":latest"},
+		"Assert buildconfig dockerfilepath":     {bc.Spec.CommonSpec.Strategy.DockerStrategy.DockerfilePath, "Dockerfile-alternate"},
 	}
 
 	for name, test := range testCases {
