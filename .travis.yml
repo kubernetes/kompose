@@ -2,12 +2,10 @@
 dist : trusty
 sudo: required
 
-
 language: go
 
 # make this also work for forks
 go_import_path: github.com/kubernetes-incubator/kompose
-
 
 go:
   - 1.6
@@ -21,12 +19,13 @@ before_install:
   - go get github.com/sgotti/glide-vc
   - go get github.com/golang/lint/golint
 
-
 install:
   - true
 
 script:
   - make test
+
+after_success:
   # gover collects all .coverprofile files and saves it to one file gover.coverprofile
   - gover
   - goveralls -coverprofile=gover.coverprofile -service=travis-ci
