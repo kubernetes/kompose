@@ -70,7 +70,7 @@ vet:
 
 .PHONY: lint
 lint:
-	./script/check-lint.sh
+	golint $(PKGS)
 
 .PHONY: gofmt
 gofmt:
