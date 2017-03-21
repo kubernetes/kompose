@@ -4,6 +4,7 @@
 
 # Ignore compiled Kompose files
 kompose
+bin
 
 #
 # GO SPECIFIC
