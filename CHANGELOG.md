@@ -1,18 +1,62 @@
 # Change Log
 
-## [v.0.3.0](https://github.com/kubernetes-incubator/kompose/tree/v0.3.0) (2017-02-24)
+## [v0.4.0](https://github.com/kubernetes-incubator/kompose/tree/v0.4.0) (2017-03-21)
+[Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.3.0...v0.4.0)
+
+**Closed issues:**
+
+- Update unsupported keys in kompose.io user guide [\#479](https://github.com/kubernetes-incubator/kompose/issues/479)
+- Adding `networks:` results in a panic [\#478](https://github.com/kubernetes-incubator/kompose/issues/478)
+- `volumes\_from` is supported construct but conversion doc says opposite [\#476](https://github.com/kubernetes-incubator/kompose/issues/476)
+- Panics parsing volume config [\#471](https://github.com/kubernetes-incubator/kompose/issues/471)
+- Error with unsupported keys not showing up in warnings [\#456](https://github.com/kubernetes-incubator/kompose/issues/456)
+- Separate key:"value" pairs in kobject.go [\#452](https://github.com/kubernetes-incubator/kompose/issues/452)
+- Support for: volumes\_from [\#444](https://github.com/kubernetes-incubator/kompose/issues/444)
+- Support for: ulimits [\#442](https://github.com/kubernetes-incubator/kompose/issues/442)
+- Error / Support for: links [\#439](https://github.com/kubernetes-incubator/kompose/issues/439)
+- Support for: tmpfs [\#436](https://github.com/kubernetes-incubator/kompose/issues/436)
+- Add documentation for mem\_limit [\#435](https://github.com/kubernetes-incubator/kompose/issues/435)
+- .env file is checked at current directory instead of target directory [\#426](https://github.com/kubernetes-incubator/kompose/issues/426)
+- Unable to build from source [\#421](https://github.com/kubernetes-incubator/kompose/issues/421)
+- Tagging for 0.2.1 release [\#400](https://github.com/kubernetes-incubator/kompose/issues/400)
+
+**Merged pull requests:**
+
+- do not fail if there is a golint violation [\#498](https://github.com/kubernetes-incubator/kompose/pull/498) ([kadel](https://github.com/kadel))
+- travis-ci: send report to coveralls in after\_success section [\#497](https://github.com/kubernetes-incubator/kompose/pull/497) ([kadel](https://github.com/kadel))
+- Add install instruction for MacOS X \(using brew\) [\#492](https://github.com/kubernetes-incubator/kompose/pull/492) ([kadel](https://github.com/kadel))
+- Add that we support volumes\_from [\#491](https://github.com/kubernetes-incubator/kompose/pull/491) ([cdrage](https://github.com/cdrage))
+- Update vendoring [\#490](https://github.com/kubernetes-incubator/kompose/pull/490) ([cdrage](https://github.com/cdrage))
+- Add three-week cycle comment to README [\#488](https://github.com/kubernetes-incubator/kompose/pull/488) ([cdrage](https://github.com/cdrage))
+- Update the link to the conversion doc [\#485](https://github.com/kubernetes-incubator/kompose/pull/485) ([cdrage](https://github.com/cdrage))
+- Added support for tmpfs [\#484](https://github.com/kubernetes-incubator/kompose/pull/484) ([surajnarwade](https://github.com/surajnarwade))
+- Modified user-guide on kompose.io [\#480](https://github.com/kubernetes-incubator/kompose/pull/480) ([surajnarwade](https://github.com/surajnarwade))
+- index.md: made LoadBalancer Ingress a valid IPv4 [\#472](https://github.com/kubernetes-incubator/kompose/pull/472) ([ceocoder](https://github.com/ceocoder))
+- Update headers to better reflect each page on Kompose.io [\#470](https://github.com/kubernetes-incubator/kompose/pull/470) ([cdrage](https://github.com/cdrage))
+- Adds conversion doc + updates css [\#469](https://github.com/kubernetes-incubator/kompose/pull/469) ([cdrage](https://github.com/cdrage))
+- Add cap\_add and cap\_drop to unsupported keys [\#468](https://github.com/kubernetes-incubator/kompose/pull/468) ([kadel](https://github.com/kadel))
+- Add architecture guide to Kompose site [\#467](https://github.com/kubernetes-incubator/kompose/pull/467) ([cdrage](https://github.com/cdrage))
+- Minor fix on user guide [\#466](https://github.com/kubernetes-incubator/kompose/pull/466) ([cdrage](https://github.com/cdrage))
+- Update release script [\#465](https://github.com/kubernetes-incubator/kompose/pull/465) ([cdrage](https://github.com/cdrage))
+- Improve error handling, fix \#416 [\#462](https://github.com/kubernetes-incubator/kompose/pull/462) ([containscafeine](https://github.com/containscafeine))
+- unsupported keys [\#459](https://github.com/kubernetes-incubator/kompose/pull/459) ([procrypt](https://github.com/procrypt))
+- Clean up logrus [\#455](https://github.com/kubernetes-incubator/kompose/pull/455) ([cdrage](https://github.com/cdrage))
+- Update the README with -u in go get [\#453](https://github.com/kubernetes-incubator/kompose/pull/453) ([cdrage](https://github.com/cdrage))
+- Update the release script again :\) [\#451](https://github.com/kubernetes-incubator/kompose/pull/451) ([cdrage](https://github.com/cdrage))
+- Add conversion documentation [\#448](https://github.com/kubernetes-incubator/kompose/pull/448) ([cdrage](https://github.com/cdrage))
+
+## [v0.3.0](https://github.com/kubernetes-incubator/kompose/tree/v0.3.0) (2017-02-24)
 [Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.2.0...v0.3.0)
 
 **Closed issues:**
 
 - `make test-unit` does not run on uncomitted changes [\#427](https://github.com/kubernetes-incubator/kompose/issues/427)
-- underscores get propagated into invalid names [\#420](https://github.com/kubernetes-incubator/kompose/issues/420)
+- Improve error handling [\#416](https://github.com/kubernetes-incubator/kompose/issues/416)
 - Wrong version \(0.1.2\) in "kompose versione" \(instead of 0.2.0\) [\#411](https://github.com/kubernetes-incubator/kompose/issues/411)
 - Cannot unmarshal float environment values. [\#410](https://github.com/kubernetes-incubator/kompose/issues/410)
 - unit tests for error out if controller object is specified with restart: on-failure. [\#404](https://github.com/kubernetes-incubator/kompose/issues/404)
 - By default, remove protocol: TCP in conversion to artifacts [\#392](https://github.com/kubernetes-incubator/kompose/issues/392)
 - Container Port and Node Port mapping default to open [\#391](https://github.com/kubernetes-incubator/kompose/issues/391)
-- kompose down with openshift doesn't delete  BuildConfig [\#382](https://github.com/kubernetes-incubator/kompose/issues/382)
 - panic on using --build-branch and default docker-compose file given [\#369](https://github.com/kubernetes-incubator/kompose/issues/369)
 - error should be displayed If controller object is specified  and `restart: on-failure`  [\#354](https://github.com/kubernetes-incubator/kompose/issues/354)
 - add support for docker-compose.yaml besides docker-compose.yml [\#352](https://github.com/kubernetes-incubator/kompose/issues/352)
@@ -23,6 +67,7 @@
 
 **Merged pull requests:**
 
+- 0.3.0 Release [\#450](https://github.com/kubernetes-incubator/kompose/pull/450) ([cdrage](https://github.com/cdrage))
 - Test with multiple go versions [\#449](https://github.com/kubernetes-incubator/kompose/pull/449) ([kadel](https://github.com/kadel))
 - Abstract out api.pod spec [\#434](https://github.com/kubernetes-incubator/kompose/pull/434) ([procrypt](https://github.com/procrypt))
 - normalize docker-compose service that has name with underscore [\#429](https://github.com/kubernetes-incubator/kompose/pull/429) ([surajssd](https://github.com/surajssd))
