@@ -322,7 +322,6 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		serviceConfig.ContainerName = composeServiceConfig.ContainerName
 		serviceConfig.Command = composeServiceConfig.Entrypoint
 		serviceConfig.Args = composeServiceConfig.Command
-		serviceConfig.Build = composeServiceConfig.Build.Context
 
 		envs := loadEnvVars(composeServiceConfig.Environment)
 		serviceConfig.Environment = envs
