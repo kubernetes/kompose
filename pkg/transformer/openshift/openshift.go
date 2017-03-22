@@ -200,7 +200,9 @@ func initBuildConfig(name string, service kobject.ServiceConfig, composeFileDir 
 					ContextDir: contextDir,
 				},
 				Strategy: buildapi.BuildStrategy{
-					DockerStrategy: &buildapi.DockerBuildStrategy{},
+					DockerStrategy: &buildapi.DockerBuildStrategy{
+						DockerfilePath: service.Dockerfile,
+					},
 				},
 				Output: buildapi.BuildOutput{
 					To: &kapi.ObjectReference{
