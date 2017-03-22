@@ -60,7 +60,6 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		"DNSSearch":     false,
 		"DomainName":    false,
 		"EnvFile":       false,
-		"Extends":       false,
 		"ExternalLinks": false,
 		"ExtraHosts":    false,
 		"Hostname":      false,

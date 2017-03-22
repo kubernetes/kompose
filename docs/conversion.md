@@ -18,7 +18,7 @@ This document outlines all the conversion details regarding `docker-compose.yaml
 | env_file |  | N |  |  |
 | environment |  | Y | [Pod.Spec.Container.Env](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_envvar) |  |
 | expose |  | Y | [Service.Spec.Ports](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_containerport) |  |
-| extends | v2 | N |  |  |
+| extends | v2 | Y |  | Extends by utilizing the same image supplied |
 | external_links |  | N |  |  |
 | extra_hosts |  | N |  |  |
 | group_add |  | N |  |  |
