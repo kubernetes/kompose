@@ -39,6 +39,7 @@ var (
 	ConvertJSON                  bool
 	ConvertStdout                bool
 	ConvertEmptyVols             bool
+	ConvertInsecureRepo          bool
 	ConvertDeploymentConfig      bool
 	ConvertBuildConfig           bool
 	ConvertReplicas              int
@@ -70,6 +71,7 @@ var convertCmd = &cobra.Command{
 			BuildBranch:                 ConvertBuildBranch,
 			CreateDeploymentConfig:      ConvertDeploymentConfig,
 			EmptyVols:                   ConvertEmptyVols,
+			InsecureRepository:          ConvertInsecureRepo,
 			IsDeploymentFlag:            cmd.Flags().Lookup("deployment").Changed,
 			IsDaemonSetFlag:             cmd.Flags().Lookup("daemon-set").Changed,
 			IsReplicationControllerFlag: cmd.Flags().Lookup("replication-controller").Changed,
@@ -103,6 +105,7 @@ func init() {
 
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
+	convertCmd.Flags().BoolVar(&ConvertInsecureRepo, "insecure-repository", false, "Use Insecure Repository")
 	convertCmd.Flags().MarkHidden("deployment-config")
 	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 	convertCmd.Flags().MarkHidden("build-repo")

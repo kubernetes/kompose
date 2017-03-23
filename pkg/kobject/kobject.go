@@ -43,6 +43,7 @@ type ConvertOptions struct {
 	GenerateYaml                bool
 	GenerateJSON                bool
 	EmptyVols                   bool
+	InsecureRepository          bool
 	Replicas                    int
 	InputFiles                  []string
 	OutFile                     string
