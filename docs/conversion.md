@@ -1,6 +1,6 @@
 ---
 layout: default
-permalink: /conversion.md/
+permalink: /conversion/
 ---
 
 This document outlines all the conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts.

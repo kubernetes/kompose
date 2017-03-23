@@ -1,6 +1,6 @@
 ---
 layout: default
-permalink: /development.md/
+permalink: /development/
 ---
 
 # Development Guide

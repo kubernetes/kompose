@@ -1,6 +1,6 @@
 ---
 layout: default
-permalink: /architecture.md/
+permalink: /architecture/
 ---
 
 # Kompose - Internal Design

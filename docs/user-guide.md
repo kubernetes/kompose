@@ -1,6 +1,6 @@
 ---
 layout: default
-permalink: /user-guide.md/
+permalink: /user-guide/
 ---
 
 # User Guide
