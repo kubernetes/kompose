@@ -7,10 +7,13 @@ language: go
 # make this also work for forks
 go_import_path: github.com/kubernetes-incubator/kompose
 
-go:
-  - 1.6
-  - 1.7
-  - 1.8
+matrix:
+  include:
+    - go: 1.6
+      # Only build docs once
+      env: BUILD_DOCS=yes
+    - go: 1.7
+    - go: 1.8
 
 before_install:
   - go get github.com/mattn/goveralls
@@ -29,3 +32,5 @@ after_success:
   # gover collects all .coverprofile files and saves it to one file gover.coverprofile
   - gover
   - goveralls -coverprofile=gover.coverprofile -service=travis-ci
+  # sync the docs only if everything else was successful
+  - ./script/sync-docs.sh
