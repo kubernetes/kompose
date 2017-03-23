@@ -1,9 +1,7 @@
 ---
 layout: default
-permalink: /conversion/
+permalink: /conversion.md/
 ---
-
-# Conversion
 
 This document outlines all the conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts.
 
@@ -25,7 +23,7 @@ This document outlines all the conversion details regarding `docker-compose.yaml
 | env_file |  | N |  |  |
 | environment |  | Y | [Pod.Spec.Container.Env](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_envvar) |  |
 | expose |  | Y | [Service.Spec.Ports](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_containerport) |  |
-| extends | v2 | N |  |  |
+| extends | v2 | Y |  | Extends by utilizing the same image supplied |
 | external_links |  | N |  |  |
 | extra_hosts |  | N |  |  |
 | group_add |  | N |  |  |
@@ -47,7 +45,7 @@ This document outlines all the conversion details regarding `docker-compose.yaml
 | userns_mode |  | N |  |  |
 | volumes |  | Y | [PersistentVolumeClaim](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_PersistentVolumeClaim) | Creates a PersistentVolumeClaim. Can only be created if there is already a PersistentVolume within the cluster |
 | volume_driver | v2 | N |  |  |
-| volumes_from | v2 | N |  |  |
+| volumes_from | v2 | Y | [PersistentVolumeClaim](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_PersistentVolumeClaim) | Creates a PersistentVolumeClaim that is both shared by deployment and deployment config (OpenShift) |
 | cpu_shares | v2 | N |  |  |
 | cpu_quota | v2 | N |  |  |
 | cpuset | v2 | N |  |  |

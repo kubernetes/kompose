@@ -1,13 +1,13 @@
 ---
 layout: default
-permalink: /architecture/
+permalink: /architecture.md/
 ---
 
-# Internal design
+# Kompose - Internal Design
 
 `kompose` has 3 stages: Loader, Transformer and Outputter. Each Stage should have well defined interface so it is easy to write new Loader, Transformer or Outputters and plug it in. Currently only Loader and Transformer interfaces are defined.
 
-![Design Diagram](/images/design_diagram.png)
+![Design Diagram](images/design_diagram.png)
 
 ## Loader
 
