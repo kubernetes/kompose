@@ -38,6 +38,7 @@ var (
 	ConvertJSON                  bool
 	ConvertStdout                bool
 	ConvertEmptyVols             bool
+	ConvertInsecureRepo          bool
 	ConvertDeploymentConfig      bool
 	ConvertReplicas              int
 	ConvertOpt                   kobject.ConvertOptions
@@ -68,6 +69,7 @@ var convertCmd = &cobra.Command{
 			BuildBranch:                 ConvertBuildBranch,
 			CreateDeploymentConfig:      ConvertDeploymentConfig,
 			EmptyVols:                   ConvertEmptyVols,
+			InsecureRepository:          ConvertInsecureRepo,
 			IsDeploymentFlag:            cmd.Flags().Lookup("deployment").Changed,
 			IsDaemonSetFlag:             cmd.Flags().Lookup("daemon-set").Changed,
 			IsReplicationControllerFlag: cmd.Flags().Lookup("replication-controller").Changed,
@@ -101,6 +103,8 @@ func init() {
 
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
+	convertCmd.Flags().BoolVar(&ConvertInsecureRepo, "insecure-repository", false, "Specify to use insecure docker repository while generating Openshift image stream object")
+	convertCmd.Flags().MarkHidden("deployment-config")
 	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 	convertCmd.Flags().StringVar(&ConvertBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
 	convertCmd.Flags().MarkHidden("deployment-config")
@@ -138,6 +142,7 @@ Resource Flags:
       --daemon-set               Generate a Kubernetes daemonset object
   -d, --deployment               Generate a Kubernetes deployment object
       --deployment-config        Generate an OpenShift deployment config object
+      --insecure-repository      Specify to use insecure docker repository while generating Openshift image stream object
       --replication-controller   Generate a Kubernetes replication controller object
 
 Flags:
