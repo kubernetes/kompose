@@ -37,10 +37,12 @@ for filename in *.md; do
     then
     echo "$filename already contains Jekyll format"
     else
+    # Remove ".md" from the name
+    name=${filename::-3}
     echo "Adding Jekyll file format to $filename"
     jekyll="---
 layout: default
-permalink: /$filename/
+permalink: /$name/
 ---
 "
     echo -e "$jekyll\n$(cat $filename)" > $filename
