@@ -10,7 +10,7 @@
         "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "service": "etherpad"
+          "io.kompose.service": "etherpad"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "etherpad"
+          "io.kompose.service": "etherpad"
         }
       },
       "status": {
@@ -36,7 +36,7 @@
         "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "service": "mariadb"
+          "io.kompose.service": "mariadb"
         }
       },
       "spec": {
@@ -48,7 +48,7 @@
           }
         ],
         "selector": {
-          "service": "mariadb"
+          "io.kompose.service": "mariadb"
         }
       },
       "status": {
@@ -68,7 +68,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "etherpad"
+              "io.kompose.service": "etherpad"
             }
           },
           "spec": {
@@ -82,6 +82,10 @@
                   }
                 ],
                 "env": [
+                  {
+                    "name": "DB_USER",
+                    "value": "etherpad"
+                  },
                   {
                     "name": "DB_DBID",
                     "value": "etherpad"
@@ -97,10 +101,6 @@
                   {
                     "name": "DB_PORT",
                     "value": "3306"
-                  },
-                  {
-                    "name": "DB_USER",
-                    "value": "etherpad"
                   }
                 ],
                 "resources": {}
@@ -126,7 +126,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "mariadb"
+              "io.kompose.service": "mariadb"
             }
           },
           "spec": {
@@ -178,8 +178,8 @@
           }
         },
         "strategy": {
-					"type": "Recreate"
-				}
+          "type": "Recreate"
+        }
       },
       "status": {}
     },
@@ -188,7 +188,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "mariadb-claim0",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb-claim0"
+        }
       },
       "spec": {
         "accessModes": [

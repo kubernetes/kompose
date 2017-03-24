@@ -10,7 +10,7 @@
         "name": "redis",
         "creationTimestamp": null,
         "labels": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         }
       },
       "status": {
@@ -36,7 +36,7 @@
         "name": "web",
         "creationTimestamp": null,
         "labels": {
-          "service": "web"
+          "io.kompose.service": "web"
         }
       },
       "spec": {
@@ -48,7 +48,7 @@
           }
         ],
         "selector": {
-          "service": "web"
+          "io.kompose.service": "web"
         }
       },
       "status": {
@@ -62,7 +62,7 @@
         "name": "redis",
         "creationTimestamp": null,
         "labels": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         }
       },
       "spec": {
@@ -90,13 +90,13 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "service": "redis"
+          "io.kompose.service": "redis"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "redis"
+              "io.kompose.service": "redis"
             }
           },
           "spec": {
@@ -123,7 +123,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "redis",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
       },
       "spec": {
         "tags": [
@@ -150,7 +153,7 @@
         "name": "web",
         "creationTimestamp": null,
         "labels": {
-          "service": "web"
+          "io.kompose.service": "web"
         }
       },
       "spec": {
@@ -178,13 +181,13 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "service": "web"
+          "io.kompose.service": "web"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "web"
+              "io.kompose.service": "web"
             }
           },
           "spec": {
@@ -211,7 +214,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "web",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        }
       },
       "spec": {
         "tags": [

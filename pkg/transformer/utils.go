@@ -37,6 +37,7 @@ import (
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
+const Selector = "io.kompose.service"
 
 // RandStringBytes generates randomly n-character string
 func RandStringBytes(n int) string {
@@ -116,7 +117,7 @@ func isPath(substring string) bool {
 
 // ConfigLabels configures label
 func ConfigLabels(name string) map[string]string {
-	return map[string]string{"service": name}
+	return map[string]string{Selector: name}
 }
 
 // ConfigAnnotations configures annotations

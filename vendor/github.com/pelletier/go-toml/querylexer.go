@@ -272,23 +272,6 @@ func (l *queryLexer) lexString() queryLexStateFn {
 				return l.errorf("invalid unicode escape: \\u" + code)
 			}
 			growingString += string(rune(intcode))
-		} else if l.follow("\\U") {
-			l.pos += 2
-			code := ""
-			for i := 0; i < 8; i++ {
-				c := l.peek()
-				l.pos++
-				if !isHexDigit(c) {
-					return l.errorf("unfinished unicode escape")
-				}
-				code = code + string(c)
-			}
-			l.pos--
-			intcode, err := strconv.ParseInt(code, 16, 32)
-			if err != nil {
-				return l.errorf("invalid unicode escape: \\u" + code)
-			}
-			growingString += string(rune(intcode))
 		} else if l.follow("\\") {
 			l.pos++
 			return l.errorf("invalid escape sequence: \\" + string(l.peek()))

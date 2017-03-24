@@ -4,6 +4,33 @@
   "metadata": {},
   "items": [
     {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "base",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "base"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "base"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
@@ -16,7 +43,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "base"
+              "io.kompose.service": "base"
             }
           },
           "spec": {
@@ -39,33 +66,6 @@
         "strategy": {}
       },
       "status": {}
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "base",
-        "creationTimestamp": null,
-        "labels": {
-          "service": "base"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
-          }
-        ],
-        "selector": {
-          "service": "base"
-        },
-        "clusterIP": "None"
-      },
-      "status": {
-        "loadBalancer": {}
-      }
     }
   ]
 }

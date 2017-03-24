@@ -10,7 +10,7 @@
         "name": "foo",
         "creationTimestamp": null,
         "labels": {
-          "service": "foo"
+          "io.kompose.service": "foo"
         }
       },
       "spec": {
