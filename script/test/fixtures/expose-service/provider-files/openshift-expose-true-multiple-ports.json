@@ -256,7 +256,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "web",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        }
       },
       "spec": {
         "host": "",
