@@ -280,7 +280,8 @@ func (o *OpenShift) initRoute(name string, service kobject.ServiceConfig, port i
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: routeapi.RouteSpec{
 			Port: &routeapi.RoutePort{
