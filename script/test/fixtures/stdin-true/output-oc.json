@@ -10,7 +10,7 @@
         "name": "client",
         "creationTimestamp": null,
         "labels": {
-          "service": "client"
+          "io.kompose.service": "client"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "client"
+          "io.kompose.service": "client"
         }
       },
       "status": {
@@ -36,7 +36,7 @@
         "name": "client",
         "creationTimestamp": null,
         "labels": {
-          "service": "client"
+          "io.kompose.service": "client"
         }
       },
       "spec": {
@@ -64,13 +64,13 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "service": "client"
+          "io.kompose.service": "client"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "client"
+              "io.kompose.service": "client"
             }
           },
           "spec": {
@@ -98,7 +98,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "client",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "client"
+        }
       },
       "spec": {
         "tags": [

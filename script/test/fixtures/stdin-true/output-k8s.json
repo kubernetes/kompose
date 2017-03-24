@@ -10,7 +10,7 @@
         "name": "client",
         "creationTimestamp": null,
         "labels": {
-          "service": "client"
+          "io.kompose.service": "client"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "client"
+          "io.kompose.service": "client"
         }
       },
       "status": {
@@ -42,7 +42,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "client"
+              "io.kompose.service": "client"
             }
           },
           "spec": {

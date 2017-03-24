@@ -10,7 +10,7 @@
         "name": "httpd",
         "creationTimestamp": null,
         "labels": {
-          "service": "httpd"
+          "io.kompose.service": "httpd"
         }
       },
       "spec": {
@@ -22,7 +22,7 @@
           }
         ],
         "selector": {
-          "service": "httpd"
+          "io.kompose.service": "httpd"
         }
       },
       "status": {
@@ -42,7 +42,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "service": "httpd"
+              "io.kompose.service": "httpd"
             }
           },
           "spec": {
@@ -76,8 +76,8 @@
           }
         },
         "strategy": {
-					"type": "Recreate"
-				}
+          "type": "Recreate"
+        }
       },
       "status": {}
     },
@@ -86,7 +86,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "httpd-claim0",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "httpd-claim0"
+        }
       },
       "spec": {
         "accessModes": [

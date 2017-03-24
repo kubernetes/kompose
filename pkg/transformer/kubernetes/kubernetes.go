@@ -47,6 +47,8 @@ import (
 	"k8s.io/kubernetes/pkg/util/intstr"
 	//"k8s.io/kubernetes/pkg/controller/daemon"
 	"github.com/pkg/errors"
+	"k8s.io/kubernetes/pkg/api/meta"
+	"k8s.io/kubernetes/pkg/labels"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -250,7 +252,8 @@ func (k *Kubernetes) CreatePVC(name string, mode string) (*api.PersistentVolumeC
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: api.PersistentVolumeClaimSpec{
 			Resources: api.ResourceRequirements{
@@ -702,40 +705,67 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 	}
 
 	for _, v := range objects {
+		label := labels.SelectorFromSet(labels.Set(map[string]string{transformer.Selector: v.(meta.Object).GetName()}))
+		options := api.ListOptions{LabelSelector: label}
+		komposeLabel := map[string]string{transformer.Selector: v.(meta.Object).GetName()}
 		switch t := v.(type) {
 		case *extensions.Deployment:
 			//delete deployment
-			rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
+			deployment, err := client.Deployments(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			//FIXME: gracePeriod is nil
-			err = rpDeployment.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
-			if err != nil {
-				return err
+			for _, l := range deployment.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
+					if err != nil {
+						return err
+					}
+					//FIXME: gracePeriod is nil
+					err = rpDeployment.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted Deployment: %s", t.Name)
+				}
 			}
-			log.Infof("Successfully deleted Deployment: %s", t.Name)
 
 		case *api.Service:
 			//delete svc
-			rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
+			svc, err := client.Services(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			//FIXME: gracePeriod is nil
-			err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
-			if err != nil {
-				return err
+			for _, l := range svc.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
+					if err != nil {
+						return err
+					}
+					//FIXME: gracePeriod is nil
+					err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted Service: %s", t.Name)
+				}
 			}
-			log.Infof("Successfully deleted Service: %s", t.Name)
 
 		case *api.PersistentVolumeClaim:
 			// delete pvc
-			err = client.PersistentVolumeClaims(namespace).Delete(t.Name)
+			pvc, err := client.PersistentVolumeClaims(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			log.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+			for _, l := range pvc.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					err = client.PersistentVolumeClaims(namespace).Delete(t.Name)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
+				}
+			}
 
 		case *extensions.Ingress:
 			// delete ingress
@@ -745,23 +775,41 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 					APIVersion: "extensions/v1beta1",
 				},
 			}
-			err = client.Ingress(namespace).Delete(t.Name, ingDeleteOptions)
+			ingress, err := client.Ingress(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			log.Infof("Successfully deleted Ingress: %s", t.Name)
+			for _, l := range ingress.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+
+					err = client.Ingress(namespace).Delete(t.Name, ingDeleteOptions)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted Ingress: %s", t.Name)
+				}
+			}
 
 		case *api.Pod:
-			rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), client)
+			//delete pod
+			pod, err := client.Pods(namespace).List(options)
 			if err != nil {
 				return err
 			}
-			//FIXME: gracePeriod is nil
-			err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
-			if err != nil {
-				return err
+			for _, l := range pod.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), client)
+					if err != nil {
+						return err
+					}
+					//FIXME: gracePeriod is nil
+					err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					if err != nil {
+						return err
+					}
+					log.Infof("Successfully deleted Pod: %s", t.Name)
+				}
 			}
-			log.Infof("Successfully deleted Pod: %s", t.Name)
 		}
 	}
 	return nil
