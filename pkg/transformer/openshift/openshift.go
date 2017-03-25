@@ -71,7 +71,7 @@ var unsupportedKey = map[string]bool{}
 // getImageTag get tag name from image name
 // if no tag is specified return 'latest'
 func getImageTag(image string) string {
-	// format:      reg_host:reg_port/repo_name/image_name:image_tag
+	// format:      registry_host:registry_port/repo_name/image_name:image_tag
 	// example:
 	// 1)     myregistryhost:5000/fedora/httpd:version1.0
 	// 2)     myregistryhost:5000/fedora/httpd
