@@ -5,6 +5,8 @@
 # Ignore compiled Kompose files
 kompose
 bin
+docker-compose.yaml
+docker-compose.yml
 
 #
 # GO SPECIFIC
