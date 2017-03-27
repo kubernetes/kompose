@@ -640,10 +640,16 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 	log.Info("We are going to create Kubernetes Deployments, Services" + pvcStr + "for your Dockerized application. " +
 		"If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. \n")
 
-	client, namespace, err := k.GetKubernetesClient()
+	client, ns, err := k.GetKubernetesClient()
+	namespace := ns
+	if opt.IsNamespaceFlag {
+		namespace = opt.Namespace
+	}
 	if err != nil {
 		return err
 	}
+
+	log.Infof("Deploying application in %q namespace", namespace)
 
 	for _, v := range objects {
 		switch t := v.(type) {
@@ -700,11 +706,18 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 		return errorList
 	}
 
-	client, namespace, err := k.GetKubernetesClient()
+	client, ns, err := k.GetKubernetesClient()
+	namespace := ns
+	if opt.IsNamespaceFlag {
+		namespace = opt.Namespace
+	}
+
 	if err != nil {
 		errorList = append(errorList, err)
 		return errorList
 	}
+
+	log.Infof("Deleting application in %q namespace", namespace)
 
 	for _, v := range objects {
 		label := labels.SelectorFromSet(labels.Set(map[string]string{transformer.Selector: v.(meta.Object).GetName()}))
