@@ -27,7 +27,6 @@ import (
 
 // TODO: comment
 var (
-	ConvertSource                string
 	ConvertOut                   string
 	ConvertBuildRepo             string
 	ConvertBuildBranch           string
@@ -40,7 +39,6 @@ var (
 	ConvertStdout                bool
 	ConvertEmptyVols             bool
 	ConvertDeploymentConfig      bool
-	ConvertBuildConfig           bool
 	ConvertReplicas              int
 	ConvertOpt                   kobject.ConvertOptions
 )
