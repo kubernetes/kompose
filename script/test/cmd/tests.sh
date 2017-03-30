@@ -45,7 +45,7 @@ unset $(cat $KOMPOSE_ROOT/script/test/fixtures/gitlab/envs | cut -d'=' -f1)
 # kubernetes test
 convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/output-k8s.json" "Kubernetes provider doesn't support build key - ignoring"
 # openshift test
-convert::expect_success_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::master as source."
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/entrypoint-command
@@ -92,7 +92,7 @@ convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_RO
 ######
 # Tests related to docker-compose file in /script/test/fixtures/envvars-separators
 # kubernetes test
-convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/envvars-separators/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/envvars-separators/output-k8s.json"
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/envvars-separators/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/envvars-separators/output-k8s.json" "Unsupported volume_driver key - ignoring"
 
 ######
 # Tests related to unknown arguments with cli commands
@@ -121,10 +121,10 @@ convert::expect_success_and_warning "kompose --bundle $KOMPOSE_ROOT/script/test/
 # Test related to restart options in docker-compose
 # kubernetes test
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-no.json"
-convert::failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml convert --stdout -j" "Controller object cannot be specified with restart: 'on-failure'"
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-onfail.json"
 # openshift test
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml --provider openshift convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-no.json"
-convert::failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml --provider openshift convert --stdout -j" "Controller object cannot be specified with restart: 'on-failure'"
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml --provider openshift convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-onfail.json"
 
 
 ######
