@@ -30,7 +30,7 @@ func (r *QueryResult) appendResult(node interface{}, pos Position) {
 // Values is a set of values within a QueryResult.  The order of values is not
 // guaranteed to be in document order, and may be different each time a query is
 // executed.
-func (r *QueryResult) Values() []interface{} {
+func (r QueryResult) Values() []interface{} {
 	values := make([]interface{}, len(r.items))
 	for i, v := range r.items {
 		o, ok := v.(*tomlValue)
@@ -45,7 +45,7 @@ func (r *QueryResult) Values() []interface{} {
 
 // Positions is a set of positions for values within a QueryResult.  Each index
 // in Positions() corresponds to the entry in Value() of the same index.
-func (r *QueryResult) Positions() []Position {
+func (r QueryResult) Positions() []Position {
 	return r.positions
 }
 
