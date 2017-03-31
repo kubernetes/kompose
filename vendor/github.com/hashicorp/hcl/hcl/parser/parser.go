@@ -256,7 +256,10 @@ func (p *Parser) objectKey() ([]*ast.ObjectKey, error) {
 			keyCount++
 			keys = append(keys, &ast.ObjectKey{Token: p.tok})
 		case token.ILLEGAL:
-			fmt.Println("illegal")
+			return keys, &PosError{
+				Pos: p.tok.Pos,
+				Err: fmt.Errorf("illegal character"),
+			}
 		default:
 			return keys, &PosError{
 				Pos: p.tok.Pos,
@@ -343,7 +346,7 @@ func (p *Parser) listType() (*ast.ListType, error) {
 			}
 		}
 		switch tok.Type {
-		case token.NUMBER, token.FLOAT, token.STRING, token.HEREDOC:
+		case token.BOOL, token.NUMBER, token.FLOAT, token.STRING, token.HEREDOC:
 			node, err := p.literalType()
 			if err != nil {
 				return nil, err
@@ -385,12 +388,16 @@ func (p *Parser) listType() (*ast.ListType, error) {
 			}
 			l.Add(node)
 			needComma = true
-		case token.BOOL:
-			// TODO(arslan) should we support? not supported by HCL yet
 		case token.LBRACK:
-			// TODO(arslan) should we support nested lists? Even though it's
-			// written in README of HCL, it's not a part of the grammar
-			// (not defined in parse.y)
+			node, err := p.listType()
+			if err != nil {
+				return nil, &PosError{
+					Pos: tok.Pos,
+					Err: fmt.Errorf(
+						"error while trying to parse list within list: %s", err),
+				}
+			}
+			l.Add(node)
 		case token.RBRACK:
 			// finished
 			l.Rbrack = p.tok.Pos
