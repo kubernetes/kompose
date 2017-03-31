@@ -5,6 +5,8 @@ licence: Apache-2.0
 import:
 
 - package: github.com/Sirupsen/logrus
+  version: v0.11.5
+
 - package: github.com/fatih/structs
 - package: github.com/ghodss/yaml
 - package: github.com/spf13/cobra
