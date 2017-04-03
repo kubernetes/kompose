@@ -101,10 +101,10 @@ func init() {
 
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
-	convertCmd.Flags().MarkHidden("deployment-config")
 	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
-	convertCmd.Flags().MarkHidden("build-repo")
 	convertCmd.Flags().StringVar(&ConvertBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
+	convertCmd.Flags().MarkHidden("deployment-config")
+	convertCmd.Flags().MarkHidden("build-repo")
 	convertCmd.Flags().MarkHidden("build-branch")
 
 	// Standard between the two
