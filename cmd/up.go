@@ -54,7 +54,7 @@ var upCmd = &cobra.Command{
 }
 
 func init() {
-	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
-	upCmd.Flags().IntVar(&UpReplicas, "replicas", 1, "Specify the number of repliaces in the generate resource spec")
+	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use empty volumes. Do not generate PersistentVolumeClaim")
+	upCmd.Flags().IntVar(&UpReplicas, "replicas", 1, "Specify the number of replicas generated")
 	RootCmd.AddCommand(upCmd)
 }
