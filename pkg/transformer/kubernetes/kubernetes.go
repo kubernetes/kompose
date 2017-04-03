@@ -691,17 +691,18 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 }
 
 // Undeploy deletes deployed objects from Kubernetes cluster
-func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
+func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []error {
+	var errorList []error
 	//Convert komposeObject
 	objects, err := k.Transform(komposeObject, opt)
 
 	if err != nil {
-		return errors.Wrap(err, "k.Transform failed")
+		errorList = append(errorList, err)
 	}
 
 	client, namespace, err := k.GetKubernetesClient()
 	if err != nil {
-		return err
+		errorList = append(errorList, err)
 	}
 
 	for _, v := range objects {
@@ -713,20 +714,22 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			//delete deployment
 			deployment, err := client.Deployments(namespace).List(options)
 			if err != nil {
-				return err
+				errorList = append(errorList, err)
 			}
 			for _, l := range deployment.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					rpDeployment, err := kubectl.ReaperFor(extensions.Kind("Deployment"), client)
 					if err != nil {
-						return err
+						errorList = append(errorList, err)
 					}
 					//FIXME: gracePeriod is nil
 					err = rpDeployment.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
-						return err
+						errorList = append(errorList, err)
+
 					}
 					log.Infof("Successfully deleted Deployment: %s", t.Name)
+
 				}
 			}
 
@@ -734,20 +737,21 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			//delete svc
 			svc, err := client.Services(namespace).List(options)
 			if err != nil {
-				return err
+				errorList = append(errorList, err)
 			}
 			for _, l := range svc.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					rpService, err := kubectl.ReaperFor(api.Kind("Service"), client)
 					if err != nil {
-						return err
+						errorList = append(errorList, err)
 					}
 					//FIXME: gracePeriod is nil
 					err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
-						return err
+						errorList = append(errorList, err)
 					}
 					log.Infof("Successfully deleted Service: %s", t.Name)
+
 				}
 			}
 
@@ -755,13 +759,13 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			// delete pvc
 			pvc, err := client.PersistentVolumeClaims(namespace).List(options)
 			if err != nil {
-				return err
+				errorList = append(errorList, err)
 			}
 			for _, l := range pvc.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					err = client.PersistentVolumeClaims(namespace).Delete(t.Name)
 					if err != nil {
-						return err
+						errorList = append(errorList, err)
 					}
 					log.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
 				}
@@ -777,14 +781,14 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 			ingress, err := client.Ingress(namespace).List(options)
 			if err != nil {
-				return err
+				errorList = append(errorList, err)
 			}
 			for _, l := range ingress.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 
 					err = client.Ingress(namespace).Delete(t.Name, ingDeleteOptions)
 					if err != nil {
-						return err
+						errorList = append(errorList, err)
 					}
 					log.Infof("Successfully deleted Ingress: %s", t.Name)
 				}
@@ -794,23 +798,24 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			//delete pod
 			pod, err := client.Pods(namespace).List(options)
 			if err != nil {
-				return err
+				errorList = append(errorList, err)
 			}
 			for _, l := range pod.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), client)
 					if err != nil {
-						return err
+						errorList = append(errorList, err)
 					}
 					//FIXME: gracePeriod is nil
 					err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
-						return err
+						errorList = append(errorList, err)
 					}
 					log.Infof("Successfully deleted Pod: %s", t.Name)
 				}
 			}
 		}
 	}
-	return nil
+
+	return errorList
 }
