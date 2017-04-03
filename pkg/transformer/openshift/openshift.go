@@ -502,14 +502,17 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 
 	if err != nil {
 		errorList = append(errorList, err)
+		return errorList
 	}
 	oclient, err := o.getOpenShiftClient()
 	if err != nil {
 		errorList = append(errorList, err)
+		return errorList
 	}
 	kclient, namespace, err := o.GetKubernetesClient()
 	if err != nil {
 		errorList = append(errorList, err)
+		return errorList
 	}
 
 	for _, v := range objects {
@@ -522,12 +525,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			imageStream, err := oclient.ImageStreams(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
+				break
 			}
 			for _, l := range imageStream.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					err = oclient.ImageStreams(namespace).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
+						break
 					}
 					log.Infof("Successfully deleted ImageStream: %s", t.Name)
 				}
@@ -538,12 +543,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			buildConfig, err := oclient.BuildConfigs(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
+				break
 			}
 			for _, l := range buildConfig.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					err := oclient.BuildConfigs(namespace).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
+						break
 					}
 					log.Infof("Successfully deleted BuildConfig: %s", t.Name)
 				}
@@ -554,6 +561,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			deploymentConfig, err := oclient.DeploymentConfigs(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
+				break
 			}
 			for _, l := range deploymentConfig.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
@@ -561,6 +569,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 					err := dcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
+						break
 					}
 					log.Infof("Successfully deleted DeploymentConfig: %s", t.Name)
 				}
@@ -571,17 +580,20 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			svc, err := kclient.Services(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
+				break
 			}
 			for _, l := range svc.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					rpService, err := kubectl.ReaperFor(api.Kind("Service"), kclient)
 					if err != nil {
 						errorList = append(errorList, err)
+						break
 					}
 					//FIXME: gracePeriod is nil
 					err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
+						break
 					}
 					log.Infof("Successfully deleted Service: %s", t.Name)
 				}
@@ -592,12 +604,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			pvc, err := kclient.PersistentVolumeClaims(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
+				break
 			}
 			for _, l := range pvc.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					err = kclient.PersistentVolumeClaims(namespace).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
+						break
 					}
 					log.Infof("Successfully deleted PersistentVolumeClaim: %s", t.Name)
 				}
@@ -608,12 +622,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			route, err := oclient.Routes(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
+				break
 			}
 			for _, l := range route.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					err = oclient.Routes(namespace).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
+						break
 					}
 					log.Infof("Successfully deleted Route: %s", t.Name)
 				}
@@ -624,18 +640,21 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			pod, err := kclient.Pods(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
+				break
 			}
 			for _, l := range pod.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), kclient)
 					if err != nil {
 						errorList = append(errorList, err)
+						break
 					}
 
 					//FIXME: gracePeriod is nil
 					err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
+						break
 					}
 					log.Infof("Successfully deleted Pod: %s", t.Name)
 
