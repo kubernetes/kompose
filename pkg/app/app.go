@@ -287,9 +287,7 @@ func Down(opt kobject.ConvertOptions) {
 	//Remove deployed application
 	errUndeploy := t.Undeploy(komposeObject, opt)
 	if errUndeploy != nil {
-		for _, err = range errUndeploy {
-			log.Fatalf("Error while deleting application: %s", err)
-		}
+		log.Fatalf("Error while deleting application: %s", errUndeploy)
 	}
 
 }
