@@ -1,5 +1,51 @@
 # Change Log
 
+## [v0.5.0](https://github.com/kubernetes-incubator/kompose/tree/v0.5.0) (2017-04-04)
+[Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.4.0...v0.5.0)
+
+**Closed issues:**
+
+- kompose fails to build on ppc64 and ppc64le arches due to old sys/unix vendor package [\#532](https://github.com/kubernetes-incubator/kompose/issues/532)
+- unused global constants in convert.go [\#513](https://github.com/kubernetes-incubator/kompose/issues/513)
+- `kompose up` fails with restart options on openshift [\#505](https://github.com/kubernetes-incubator/kompose/issues/505)
+- 0.4.0 release [\#501](https://github.com/kubernetes-incubator/kompose/issues/501)
+- remove extends from unsupported keys [\#493](https://github.com/kubernetes-incubator/kompose/issues/493)
+- kompose should respect the dockerfile key in docker-compose.yml [\#486](https://github.com/kubernetes-incubator/kompose/issues/486)
+- Add Fedora packaging data to Kompose repo [\#481](https://github.com/kubernetes-incubator/kompose/issues/481)
+- extends is supported construct but conversion doc says opposite [\#475](https://github.com/kubernetes-incubator/kompose/issues/475)
+- stripping kompose binary? [\#463](https://github.com/kubernetes-incubator/kompose/issues/463)
+- test showing PASS, even if command not found [\#431](https://github.com/kubernetes-incubator/kompose/issues/431)
+- underscores get propagated into invalid names [\#420](https://github.com/kubernetes-incubator/kompose/issues/420)
+- Unsupported root level networks key despite no networks [\#365](https://github.com/kubernetes-incubator/kompose/issues/365)
+- Make kompose keep trying its job [\#270](https://github.com/kubernetes-incubator/kompose/issues/270)
+- Improving `down` to handle Volumes [\#255](https://github.com/kubernetes-incubator/kompose/issues/255)
+- Add tests based on current issues [\#205](https://github.com/kubernetes-incubator/kompose/issues/205)
+- We should have a table / document for docker-compose to k8s / openshift conversion   [\#82](https://github.com/kubernetes-incubator/kompose/issues/82)
+
+**Merged pull requests:**
+
+- Add ARM to make cross. [\#540](https://github.com/kubernetes-incubator/kompose/pull/540) ([cdrage](https://github.com/cdrage))
+- Revert "Kompose will keep trying its job" [\#535](https://github.com/kubernetes-incubator/kompose/pull/535) ([cdrage](https://github.com/cdrage))
+- Update vendoring + fix issue with timestamps being added to log [\#529](https://github.com/kubernetes-incubator/kompose/pull/529) ([cdrage](https://github.com/cdrage))
+- Fixed functional tests [\#526](https://github.com/kubernetes-incubator/kompose/pull/526) ([surajnarwade](https://github.com/surajnarwade))
+- Fix typo in tarball link in readme [\#525](https://github.com/kubernetes-incubator/kompose/pull/525) ([cdrage](https://github.com/cdrage))
+- Fix typo in replicas and organize flags [\#524](https://github.com/kubernetes-incubator/kompose/pull/524) ([cdrage](https://github.com/cdrage))
+- Removing unused variable from convert.go [\#520](https://github.com/kubernetes-incubator/kompose/pull/520) ([surajnarwade](https://github.com/surajnarwade))
+- Ignore Docker Compose files in the root directory [\#516](https://github.com/kubernetes-incubator/kompose/pull/516) ([cdrage](https://github.com/cdrage))
+- Fix the DAB spelling error [\#515](https://github.com/kubernetes-incubator/kompose/pull/515) ([cdrage](https://github.com/cdrage))
+- Fixes image \(uses / to get the root dir\) [\#512](https://github.com/kubernetes-incubator/kompose/pull/512) ([cdrage](https://github.com/cdrage))
+- Propagate underscore into valid name [\#509](https://github.com/kubernetes-incubator/kompose/pull/509) ([procrypt](https://github.com/procrypt))
+- Update minor bug in syncing files [\#508](https://github.com/kubernetes-incubator/kompose/pull/508) ([cdrage](https://github.com/cdrage))
+- Update the readme with tarball and installation instructions [\#507](https://github.com/kubernetes-incubator/kompose/pull/507) ([cdrage](https://github.com/cdrage))
+- Removed Duplicate line\(build\) from compose.go [\#504](https://github.com/kubernetes-incubator/kompose/pull/504) ([surajnarwade](https://github.com/surajnarwade))
+- Ignore the /bin folder [\#503](https://github.com/kubernetes-incubator/kompose/pull/503) ([cdrage](https://github.com/cdrage))
+- Sync changes from master to gh-pages on each merge request [\#500](https://github.com/kubernetes-incubator/kompose/pull/500) ([cdrage](https://github.com/cdrage))
+- Added dockerfile key support [\#499](https://github.com/kubernetes-incubator/kompose/pull/499) ([surajnarwade](https://github.com/surajnarwade))
+- Add rpm packaging [\#495](https://github.com/kubernetes-incubator/kompose/pull/495) ([cdrage](https://github.com/cdrage))
+- Remove extend from unused keys, add to conversion doc [\#494](https://github.com/kubernetes-incubator/kompose/pull/494) ([cdrage](https://github.com/cdrage))
+- delete objects based on label [\#483](https://github.com/kubernetes-incubator/kompose/pull/483) ([procrypt](https://github.com/procrypt))
+- Kompose will keep trying its job [\#477](https://github.com/kubernetes-incubator/kompose/pull/477) ([surajnarwade](https://github.com/surajnarwade))
+
 ## [v0.4.0](https://github.com/kubernetes-incubator/kompose/tree/v0.4.0) (2017-03-21)
 [Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.3.0...v0.4.0)
 
@@ -22,6 +68,7 @@
 
 **Merged pull requests:**
 
+- 0.4.0 release [\#502](https://github.com/kubernetes-incubator/kompose/pull/502) ([cdrage](https://github.com/cdrage))
 - do not fail if there is a golint violation [\#498](https://github.com/kubernetes-incubator/kompose/pull/498) ([kadel](https://github.com/kadel))
 - travis-ci: send report to coveralls in after\_success section [\#497](https://github.com/kubernetes-incubator/kompose/pull/497) ([kadel](https://github.com/kadel))
 - Add install instruction for MacOS X \(using brew\) [\#492](https://github.com/kubernetes-incubator/kompose/pull/492) ([kadel](https://github.com/kadel))
