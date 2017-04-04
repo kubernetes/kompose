@@ -17,7 +17,6 @@ limitations under the License.
 package app
 
 import (
-	"fmt"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -305,20 +304,4 @@ func getTransformer(opt kobject.ConvertOptions) transformer.Transformer {
 		t = &openshift.OpenShift{Kubernetes: kubernetes.Kubernetes{Opt: opt}}
 	}
 	return t
-}
-
-func askForConfirmation() bool {
-	var response string
-	_, err := fmt.Scanln(&response)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if response == "yes" {
-		return true
-	} else if response == "no" {
-		return false
-	} else {
-		fmt.Println("Please type yes or no and then press enter:")
-		return askForConfirmation()
-	}
 }

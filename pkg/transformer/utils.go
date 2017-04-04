@@ -17,36 +17,20 @@ limitations under the License.
 package transformer
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"os"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/ghodss/yaml"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/api/unversioned"
-	"k8s.io/kubernetes/pkg/runtime"
 )
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyz0123456789"
 const Selector = "io.kompose.service"
-
-// RandStringBytes generates randomly n-character string
-func RandStringBytes(n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(b)
-}
 
 // CreateOutFile creates the file to write to if --out is specified
 func CreateOutFile(out string) (*os.File, error) {
@@ -128,28 +112,6 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 	}
 
 	return annotations
-}
-
-// TransformData transforms data to json/yaml
-func TransformData(obj runtime.Object, GenerateJSON bool) ([]byte, error) {
-	//  Convert to versioned object
-	objectVersion := obj.GetObjectKind().GroupVersionKind()
-	version := unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
-	versionedObj, err := api.Scheme.ConvertToVersion(obj, version)
-	if err != nil {
-		return nil, err
-	}
-
-	// convert data to json / yaml
-	data, err := yaml.Marshal(versionedObj)
-	if GenerateJSON == true {
-		data, err = json.MarshalIndent(versionedObj, "", "  ")
-	}
-	if err != nil {
-		return nil, err
-	}
-	log.Debugf("%s\n", data)
-	return data, nil
 }
 
 // Print either prints to stdout or to file/s
