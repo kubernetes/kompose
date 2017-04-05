@@ -54,6 +54,8 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		"CapAdd":        false,
 		"CapDrop":       false,
 		"CgroupParent":  false,
+		"CPUSet":        false,
+		"CPUShares":     false,
 		"Devices":       false,
 		"DependsOn":     false,
 		"DNS":           false,
@@ -359,9 +361,6 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 
 		// convert compose labels to annotations
 		serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
-
-		serviceConfig.CPUSet = composeServiceConfig.CPUSet
-		serviceConfig.CPUShares = int64(composeServiceConfig.CPUShares)
 		serviceConfig.CPUQuota = int64(composeServiceConfig.CPUQuota)
 		serviceConfig.CapAdd = composeServiceConfig.CapAdd
 		serviceConfig.CapDrop = composeServiceConfig.CapDrop
