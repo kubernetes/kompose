@@ -105,7 +105,7 @@ func init() {
 
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
-	convertCmd.Flags().BoolVar(&ConvertInsecureRepo, "insecure-repository", false, "Use Insecure Repository")
+	convertCmd.Flags().BoolVar(&ConvertInsecureRepo, "insecure-repository", false, "Specify to use insecure docker repository while generating Openshift image stream object")
 	convertCmd.Flags().MarkHidden("deployment-config")
 	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 	convertCmd.Flags().MarkHidden("build-repo")
@@ -143,6 +143,7 @@ Resource Flags:
       --daemon-set               Generate a Kubernetes daemonset object
   -d, --deployment               Generate a Kubernetes deployment object
       --deployment-config        Generate an OpenShift deployment config object
+      --insecure-repository      Specify to use insecure docker repository while generating Openshift image stream object
       --replication-controller   Generate a Kubernetes replication controller object
 
 Flags:

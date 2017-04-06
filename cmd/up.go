@@ -56,7 +56,7 @@ var upCmd = &cobra.Command{
 }
 
 func init() {
-	upCmd.Flags().BoolVar(&UpInsecureRepo, "insecure-repository", false, "Use Insecure Repository")
+	upCmd.Flags().BoolVar(&UpInsecureRepo, "insecure-repository", false, "Specify to use insecure docker repository while generating Openshift image stream object")
 	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
 	upCmd.Flags().IntVar(&UpReplicas, "replicas", 1, "Specify the number of repliaces in the generate resource spec")
 	RootCmd.AddCommand(upCmd)
