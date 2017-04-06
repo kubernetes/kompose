@@ -104,10 +104,10 @@ func init() {
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
 	convertCmd.Flags().BoolVar(&ConvertInsecureRepo, "insecure-repository", false, "Specify to use insecure docker repository while generating Openshift image stream object")
-	convertCmd.Flags().MarkHidden("deployment-config")
 	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 	convertCmd.Flags().StringVar(&ConvertBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
 	convertCmd.Flags().MarkHidden("deployment-config")
+	convertCmd.Flags().MarkHidden("insecure-repository")
 	convertCmd.Flags().MarkHidden("build-repo")
 	convertCmd.Flags().MarkHidden("build-branch")
 
