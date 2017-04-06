@@ -1,9 +1,20 @@
 # See the OWNERS file documentation:
-#  https://github.com/kubernetes/kubernetes/blob/master/docs/devel/owners.md
+# https://github.com/kubernetes/community/blob/master/contributors/devel/owners.md
 
-assignees:
-  - runseb
-  - ngtuna
+reviewers:
+  - cdrage
+  - containscafeine
   - janetkuo
   - kadel 
+  - ngtuna
+  - runseb
+  - surajssd
+
+approvers:
+  - cdrage
+  - containscafeine
+  - janetkuo
+  - kadel 
+  - ngtuna
+  - runseb
   - surajssd
