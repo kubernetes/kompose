@@ -179,13 +179,13 @@ convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/te
 ######
 # Test the output file behavior of kompose convert
 # Default behavior without -o
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -j" "redis-deployment.json" "redis-service.json" "web-deployment.json" "web-service.json"
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -j" "redis-deployment.json" "redis-service.json" "web-deployment.json" "web-service.json"
 # Behavior with -o <filename>
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o output_file -j" "output_file"
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o output_file -j" "output_file"
 # Behavior with -o <dirname>
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o $TEMP_DIR -j" "$TEMP_DIR/redis-deployment.json" "$TEMP_DIR/redis-service.json" "$TEMP_DIR/web-deployment.json" "$TEMP_DIR/web-service.json"
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR -j" "$TEMP_DIR/redis-deployment.json" "$TEMP_DIR/redis-service.json" "$TEMP_DIR/web-deployment.json" "$TEMP_DIR/web-service.json"
 # Behavior with -o <dirname>/<filename>
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/examples/docker-compose.yml convert -o $TEMP_DIR/output_file -j" "$TEMP_DIR/output_file"
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR/output_file -j" "$TEMP_DIR/output_file"
 
 # Test related to support docker-compose.yaml beside docker-compose.yml
 # Store the original path
