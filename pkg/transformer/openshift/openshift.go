@@ -75,7 +75,22 @@ var unsupportedKey = map[string]bool{}
 // getImageTag get tag name from image name
 // if no tag is specified return 'latest'
 func getImageTag(image string) string {
-	p := strings.Split(image, ":")
+	// format:      registry_host:registry_port/repo_name/image_name:image_tag
+	// example:
+	// 1)     myregistryhost:5000/fedora/httpd:version1.0
+	// 2)     myregistryhost:5000/fedora/httpd
+	// 3)     myregistryhost/fedora/httpd:version1.0
+	// 4)     myregistryhost/fedora/httpd
+	// 5)     fedora/httpd
+	// 6)     httpd
+	imageAndTag := image
+
+	i := strings.Split(image, "/")
+	if len(i) >= 2 {
+		imageAndTag = i[len(i)-1]
+	}
+
+	p := strings.Split(imageAndTag, ":")
 	if len(p) == 2 {
 		return p[1]
 	}
@@ -144,8 +159,13 @@ func getAbsBuildContext(context string, composeFileDir string) (string, error) {
 }
 
 // initImageStream initialize ImageStream object
-func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) *imageapi.ImageStream {
+func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) *imageapi.ImageStream {
 	tag := getImageTag(service.Image)
+
+	var importPolicy imageapi.TagImportPolicy
+	if opt.InsecureRepository {
+		importPolicy = imageapi.TagImportPolicy{Insecure: true}
+	}
 
 	var tags map[string]imageapi.TagReference
 	if service.Build == "" {
@@ -155,6 +175,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig) 
 					Kind: "DockerImage",
 					Name: service.Image,
 				},
+				ImportPolicy: importPolicy,
 			},
 		}
 	}
@@ -333,7 +354,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			if opt.CreateDeploymentConfig {
 				objects = append(objects, o.initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
 				// create ImageStream after deployment (creating IS will trigger new deployment)
-				objects = append(objects, o.initImageStream(name, service))
+				objects = append(objects, o.initImageStream(name, service, opt))
 			}
 
 			// buildconfig needs to be added to objects after imagestream because of this Openshift bug: https://github.com/openshift/origin/issues/4518
