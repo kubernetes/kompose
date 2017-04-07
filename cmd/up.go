@@ -26,9 +26,10 @@ import (
 
 // TODO: comment
 var (
-	UpReplicas  int
-	UpEmptyVols bool
-	UpOpt       kobject.ConvertOptions
+	UpReplicas     int
+	UpEmptyVols    bool
+	UpInsecureRepo bool
+	UpOpt          kobject.ConvertOptions
 )
 
 var upCmd = &cobra.Command{
@@ -39,10 +40,11 @@ var upCmd = &cobra.Command{
 
 		// Create the Convert options.
 		UpOpt = kobject.ConvertOptions{
-			Replicas:   UpReplicas,
-			InputFiles: GlobalFiles,
-			Provider:   strings.ToLower(GlobalProvider),
-			EmptyVols:  UpEmptyVols,
+			Replicas:           UpReplicas,
+			InputFiles:         GlobalFiles,
+			Provider:           strings.ToLower(GlobalProvider),
+			EmptyVols:          UpEmptyVols,
+			InsecureRepository: UpInsecureRepo,
 		}
 
 		// Validate before doing anything else.
@@ -54,7 +56,8 @@ var upCmd = &cobra.Command{
 }
 
 func init() {
-	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use empty volumes. Do not generate PersistentVolumeClaim")
-	upCmd.Flags().IntVar(&UpReplicas, "replicas", 1, "Specify the number of replicas generated")
+	upCmd.Flags().BoolVar(&UpInsecureRepo, "insecure-repository", false, "Specify to use insecure docker repository while generating Openshift image stream object")
+	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
+	upCmd.Flags().IntVar(&UpReplicas, "replicas", 1, "Specify the number of repliaces in the generate resource spec")
 	RootCmd.AddCommand(upCmd)
 }
