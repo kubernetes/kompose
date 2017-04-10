@@ -3,34 +3,36 @@ layout: default
 permalink: /setup/
 ---
 
-# Installation
+## Installation
 
-To install `kompose`, the best way would be to simply run a `go get`. This will automatically download the source code and build the binary.
-
-#### Go
-
-```bash
-go get github.com/kubernetes-incubator/kompose
-```
+We have multiple ways to install Kompose. Our prefered method is downloading the binary from the latest GitHub release.
 
 #### GitHub release
 
-Grabbing the latest release from the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases) for your OS.
+Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases).
 
 ```sh
 # Linux 
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.2.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.5.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.2.0/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.5.0/kompose-darwin-amd64 -o kompose
 
 # Windows
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.2.0/kompose-windows-amd64.exe -o kompose.exe
-```
+curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.5.0/kompose-windows-amd64.exe -o kompose.exe
 
-```sh
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
+```
+
+Alternatively, you can download the [tarball](https://github.com/kubernetes-incubator/kompose/releases).
+
+#### Go
+
+Installing using `go get` pulls from the master branch with the latest development changes.
+
+```sh
+go get -u github.com/kubernetes-incubator/kompose
 ```
 
 #### CentOS
@@ -48,4 +50,12 @@ Kompose is in Fedora 24 and 25 repositories. You can install it just like any ot
 
 ```bash
 sudo dnf -y install kompose
+```
+
+#### macOS
+On macOS you can install latest release via [Homebrew](https://brew.sh):
+
+```bash
+brew install kompose
+
 ```
