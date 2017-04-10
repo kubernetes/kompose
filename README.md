@@ -35,7 +35,16 @@ Other examples are provided in the _examples_ [directory](./examples).
 
 We have multiple ways to install Kompose. Our prefered method is downloading the binary from the latest GitHub release.
 
-#### GitHub release
+Our entire list of installation methods are located in our [setup.md](/docs/setup.md) document.
+
+Installation methods:
+  - [Binary (Prefered method)](README.md)
+  - [Go](/docs/setup.md#go)
+  - [CentOS](/docs/setup.md#centos)
+  - [Fedora](/docs/setup.mdfedora)
+  - [macOS (Homebrew)](/docs/setup.md#macos)
+
+#### Binary installation
 
 Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases).
 
@@ -54,39 +63,6 @@ sudo mv ./kompose /usr/local/bin/kompose
 ```
 
 Alternatively, you can download the [tarball](https://github.com/kubernetes-incubator/kompose/releases).
-
-#### Go
-
-Installing using `go get` pulls from the master branch with the latest development changes.
-
-```sh
-go get -u github.com/kubernetes-incubator/kompose
-```
-
-#### CentOS
-
-Kompose is in [EPEL](https://fedoraproject.org/wiki/EPEL) CentOS repository.
-If you don't have [EPEL](https://fedoraproject.org/wiki/EPEL) repository already installed and enabled you can do it by running  `sudo yum install epel-release`
-
-If you have [EPEL](https://fedoraproject.org/wiki/EPEL) enabled in your system, you can install Kompose like any other package.
-```bash
-sudo yum -y install kompose
-```
-
-#### Fedora
-Kompose is in Fedora 24 and 25 repositories. You can install it just like any other package.
-
-```bash
-sudo dnf -y install kompose
-```
-
-#### Mac OS X
-On Mac OS X you can install latest release via [Homebrew](https://brew.sh):
-
-```bash
-brew install kompose
-
-```
 
 ## Shell autocompletion
 
