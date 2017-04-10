@@ -1,4 +1,4 @@
-## Installation
+# Installation
 
 We have multiple ways to install Kompose. Our prefered method is downloading the binary from the latest GitHub release.
 
