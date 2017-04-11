@@ -26,9 +26,7 @@ import (
 
 // TODO: comment
 var (
-	DownReplicas  int
-	DownEmptyVols bool
-	DownOpt       kobject.ConvertOptions
+	DownOpt kobject.ConvertOptions
 )
 
 var downCmd = &cobra.Command{
@@ -39,10 +37,8 @@ var downCmd = &cobra.Command{
 
 		// Create the Convert options.
 		DownOpt = kobject.ConvertOptions{
-			Replicas:   DownReplicas,
 			InputFiles: GlobalFiles,
 			Provider:   strings.ToLower(GlobalProvider),
-			EmptyVols:  DownEmptyVols,
 		}
 
 		// Validate before doing anything else.
@@ -54,7 +50,5 @@ var downCmd = &cobra.Command{
 }
 
 func init() {
-	downCmd.Flags().BoolVar(&DownEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
-	downCmd.Flags().IntVar(&DownReplicas, "replicas", 1, "Specify the number of repliaces in the generate resource spec")
 	RootCmd.AddCommand(downCmd)
 }
