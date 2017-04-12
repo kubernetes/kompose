@@ -48,10 +48,12 @@ type ConvertOptions struct {
 	InputFiles                  []string
 	OutFile                     string
 	Provider                    string
+	Namespace                   string
 	IsDeploymentFlag            bool
 	IsDaemonSetFlag             bool
 	IsReplicationControllerFlag bool
 	IsDeploymentConfigFlag      bool
+	IsNamespaceFlag             bool
 }
 
 // ServiceConfig holds the basic struct of a container
