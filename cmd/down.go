@@ -26,7 +26,8 @@ import (
 
 // TODO: comment
 var (
-	DownOpt kobject.ConvertOptions
+	DownNamespace string
+	DownOpt       kobject.ConvertOptions
 )
 
 var downCmd = &cobra.Command{
@@ -37,8 +38,10 @@ var downCmd = &cobra.Command{
 
 		// Create the Convert options.
 		DownOpt = kobject.ConvertOptions{
-			InputFiles: GlobalFiles,
-			Provider:   strings.ToLower(GlobalProvider),
+			InputFiles:      GlobalFiles,
+			Provider:        strings.ToLower(GlobalProvider),
+			Namespace:       DownNamespace,
+			IsNamespaceFlag: cmd.Flags().Lookup("namespace").Changed,
 		}
 
 		// Validate before doing anything else.
@@ -50,5 +53,6 @@ var downCmd = &cobra.Command{
 }
 
 func init() {
+	downCmd.Flags().StringVar(&DownNamespace, "namespace", "default", " Specify Namespace to deploy your application")
 	RootCmd.AddCommand(downCmd)
 }

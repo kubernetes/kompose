@@ -446,17 +446,23 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 	if !opt.EmptyVols {
 		pvcStr = " and PersistentVolumeClaims "
 	}
-	fmt.Println("We are going to create OpenShift DeploymentConfigs, Services" + pvcStr + "for your Dockerized application. \n" +
+	log.Info("We are going to create OpenShift DeploymentConfigs, Services" + pvcStr + "for your Dockerized application. \n" +
 		"If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. \n")
 
 	oclient, err := o.getOpenShiftClient()
 	if err != nil {
 		return err
 	}
-	kclient, namespace, err := o.GetKubernetesClient()
+	kclient, ns, err := o.GetKubernetesClient()
 	if err != nil {
 		return err
 	}
+	namespace := ns
+	if opt.IsNamespaceFlag {
+		namespace = opt.Namespace
+	}
+
+	log.Infof("Deploying application in %q namespace", namespace)
 
 	for _, v := range objects {
 		switch t := v.(type) {
@@ -530,11 +536,17 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 		errorList = append(errorList, err)
 		return errorList
 	}
-	kclient, namespace, err := o.GetKubernetesClient()
+	kclient, ns, err := o.GetKubernetesClient()
 	if err != nil {
 		errorList = append(errorList, err)
 		return errorList
 	}
+	namespace := ns
+	if opt.IsNamespaceFlag {
+		namespace = opt.Namespace
+	}
+
+	log.Infof("Deleting application in %q namespace", namespace)
 
 	for _, v := range objects {
 		label := labels.SelectorFromSet(labels.Set(map[string]string{transformer.Selector: v.(meta.Object).GetName()}))
