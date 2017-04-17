@@ -256,7 +256,7 @@ file "redis-replicationcontroller.yaml" created
 file "web-replicationcontroller.yaml" created
 ```
 
-The `*-rc.yaml` files contain the Replication Controller objects. If you want to specify replicas (default is 1), use `--replicas` flag: `$ kompose convert --replication-controller --replicas 3`
+The `*-replicationcontroller.yaml` files contain the Replication Controller objects. If you want to specify replicas (default is 1), use `--replicas` flag: `$ kompose convert --replication-controller --replicas 3`
 
 ```console
 $ kompose convert --daemon-set 
