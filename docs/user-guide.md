@@ -252,8 +252,8 @@ The `*-deployment.json` files contain the Deployment objects.
 $ kompose convert --replication-controller
 file "redis-svc.yaml" created
 file "web-svc.yaml" created
-file "redis-rc.yaml" created
-file "web-rc.yaml" created
+file "redis-replicationcontroller.yaml" created
+file "web-replicationcontroller.yaml" created
 ```
 
 The `*-rc.yaml` files contain the Replication Controller objects. If you want to specify replicas (default is 1), use `--replicas` flag: `$ kompose convert --replication-controller --replicas 3`
