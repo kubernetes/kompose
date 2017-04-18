@@ -176,6 +176,14 @@ convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/te
 # when kompose.service.expose="<hostname>" and multiple ports in docker compose file (first port should be selected)
 convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-multiple-ports.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-hostname-multiple-ports.json"
 
+
+# Test the change in the service name
+# Kubernetes Test
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/service-name-change/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/service-name-change/output-k8s.json" "Unsupported root level volumes key - ignoring"
+# Openshift Test
+convert::expect_success_and_warning "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/service-name-change/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/service-name-change/output-os.json" "Unsupported root level volumes key - ignoring"
+
+
 ######
 # Test the output file behavior of kompose convert
 # Default behavior without -o
