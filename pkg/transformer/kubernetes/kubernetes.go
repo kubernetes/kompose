@@ -61,6 +61,9 @@ type Kubernetes struct {
 // used when undeploying resources from kubernetes
 const TIMEOUT = 300
 
+//default size of Persistent Volume Claim
+const PVCRequestSize = "100Mi"
+
 // list of all unsupported keys for this transformer
 // Keys are names of variables in kobject struct.
 // this is map to make searching for keys easier
@@ -242,7 +245,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 
 // CreatePVC initializes PersistentVolumeClaim
 func (k *Kubernetes) CreatePVC(name string, mode string) (*api.PersistentVolumeClaim, error) {
-	size, err := resource.ParseQuantity("100Mi")
+	size, err := resource.ParseQuantity(PVCRequestSize)
 	if err != nil {
 		return nil, errors.Wrap(err, "resource.ParseQuantity failed, Error parsing size")
 	}
@@ -671,7 +674,7 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 			if err != nil {
 				return err
 			}
-			log.Infof("Successfully created PersistentVolumeClaim: %s", t.Name)
+			log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, PVCRequestSize)
 		case *extensions.Ingress:
 			_, err := client.Ingress(namespace).Create(t)
 			if err != nil {
