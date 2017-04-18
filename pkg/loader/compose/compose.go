@@ -338,7 +338,8 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 
 		if composeServiceConfig.Volumes != nil {
 			for _, volume := range composeServiceConfig.Volumes.Volumes {
-				serviceConfig.Volumes = append(serviceConfig.Volumes, volume.String())
+				v := normalizeServiceNames(volume.String())
+				serviceConfig.Volumes = append(serviceConfig.Volumes, v)
 			}
 		}
 
