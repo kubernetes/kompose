@@ -83,7 +83,16 @@ check-vendor:
 
 # Run all tests
 .PHONY: test
-test: check-vendor validate test-unit-cover install test-cmd
+test: test-dep check-vendor validate test-unit-cover install test-cmd
+
+# Install all the required test-dependencies before executing tests (only valid when running `make test`)
+.PHONY: test-dep
+test-dep:
+	go get github.com/mattn/goveralls
+	go get github.com/modocache/gover
+	go get github.com/Masterminds/glide
+	go get github.com/sgotti/glide-vc
+	go get github.com/golang/lint/golint
 
 # build docker image that is used for running all test localy
 .PHONY: test-image
