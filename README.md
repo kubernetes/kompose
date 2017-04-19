@@ -62,7 +62,7 @@ chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-Alternatively, you can download the [tarball](https://github.com/kubernetes-incubator/kompose/releases).
+Alternatively, you can download the less-bandwidth intense [tarball](https://github.com/kubernetes-incubator/kompose/releases).
 
 ## Shell autocompletion
 
