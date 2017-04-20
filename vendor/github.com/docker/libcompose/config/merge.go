@@ -10,6 +10,7 @@ import (
 	"github.com/docker/libcompose/utils"
 	composeYaml "github.com/docker/libcompose/yaml"
 	"gopkg.in/yaml.v2"
+	"reflect"
 )
 
 var (
@@ -59,6 +60,18 @@ func Merge(existingServices *ServiceConfigs, environmentLookup EnvironmentLookup
 		return "", nil, nil, nil, err
 	}
 	baseRawServices := config.Services
+
+	for service, data := range baseRawServices {
+		for key, value := range data {
+			//check for "extends" key and check whether it is string or not
+			if key == "extends" && reflect.TypeOf(value).Kind() == reflect.String {
+				//converting string to map
+				extendMap := make(map[interface{}]interface{})
+				extendMap["service"] = value
+				baseRawServices[service][key] = extendMap
+			}
+		}
+	}
 
 	if options.Interpolate {
 		if err := InterpolateRawServiceMap(&baseRawServices, environmentLookup); err != nil {

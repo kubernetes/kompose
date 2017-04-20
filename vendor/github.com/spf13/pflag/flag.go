@@ -16,9 +16,9 @@ pflag is a drop-in replacement of Go's native flag package. If you import
 pflag under the name "flag" then all code should continue to function
 with no changes.
 
-	import flag "github.com/ogier/pflag"
+	import flag "github.com/spf13/pflag"
 
-	There is one exception to this: if you directly instantiate the Flag struct
+There is one exception to this: if you directly instantiate the Flag struct
 there is one more field "Shorthand" that you will need to set.
 Most code never instantiates this struct directly, and instead uses
 functions such as String(), BoolVar(), and Var(), and is therefore
@@ -142,12 +142,13 @@ type FlagSet struct {
 	parsed            bool
 	actual            map[NormalizedName]*Flag
 	orderedActual     []*Flag
+	sortedActual      []*Flag
 	formal            map[NormalizedName]*Flag
 	orderedFormal     []*Flag
+	sortedFormal      []*Flag
 	shorthands        map[byte]*Flag
 	args              []string // arguments after flags
 	argsLenAtDash     int      // len(args) when a '--' was located when parsing, or -1 if no --
-	exitOnError       bool     // does the program exit if there's an error?
 	errorHandling     ErrorHandling
 	output            io.Writer // nil means stderr; use out() accessor
 	interspersed      bool      // allow interspersed option/non-option args
@@ -200,13 +201,13 @@ func sortFlags(flags map[NormalizedName]*Flag) []*Flag {
 // "--getUrl" which may also be translated to "geturl" and everything will work.
 func (f *FlagSet) SetNormalizeFunc(n func(f *FlagSet, name string) NormalizedName) {
 	f.normalizeNameFunc = n
-	f.orderedFormal = f.orderedFormal[:0]
-	for k, v := range f.formal {
-		delete(f.formal, k)
-		nname := f.normalizeFlagName(string(k))
-		f.formal[nname] = v
-		f.orderedFormal = append(f.orderedFormal, v)
+	f.sortedFormal = f.sortedFormal[:0]
+	for k, v := range f.orderedFormal {
+		delete(f.formal, NormalizedName(v.Name))
+		nname := f.normalizeFlagName(v.Name)
 		v.Name = string(nname)
+		f.formal[nname] = v
+		f.orderedFormal[k] = v
 	}
 }
 
@@ -241,9 +242,16 @@ func (f *FlagSet) SetOutput(output io.Writer) {
 // in primordial order if f.SortFlags is false, calling fn for each.
 // It visits all flags, even those not set.
 func (f *FlagSet) VisitAll(fn func(*Flag)) {
+	if len(f.formal) == 0 {
+		return
+	}
+
 	var flags []*Flag
 	if f.SortFlags {
-		flags = sortFlags(f.formal)
+		if len(f.formal) != len(f.sortedFormal) {
+			f.sortedFormal = sortFlags(f.formal)
+		}
+		flags = f.sortedFormal
 	} else {
 		flags = f.orderedFormal
 	}
@@ -280,9 +288,16 @@ func VisitAll(fn func(*Flag)) {
 // in primordial order if f.SortFlags is false, calling fn for each.
 // It visits only those flags that have been set.
 func (f *FlagSet) Visit(fn func(*Flag)) {
+	if len(f.actual) == 0 {
+		return
+	}
+
 	var flags []*Flag
 	if f.SortFlags {
-		flags = sortFlags(f.actual)
+		if len(f.actual) != len(f.sortedActual) {
+			f.sortedActual = sortFlags(f.actual)
+		}
+		flags = f.sortedActual
 	} else {
 		flags = f.orderedActual
 	}
