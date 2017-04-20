@@ -165,19 +165,21 @@ INFO Successfully created deployment: frontend
 Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.
 
 $ kubectl get deployment,svc,pods
-NAME                            DESIRED       CURRENT       UP-TO-DATE   AVAILABLE   AGE
-frontend                        1             1             1            1           4m
-redis-master                    1             1             1            1           4m
-redis-slave                     1             1             1            1           4m
-NAME                            CLUSTER-IP    EXTERNAL-IP   PORT(S)      AGE
-frontend                        10.0.174.12   <none>        80/TCP       4m
-kubernetes                      10.0.0.1      <none>        443/TCP      13d
-redis-master                    10.0.202.43   <none>        6379/TCP     4m
-redis-slave                     10.0.1.85     <none>        6379/TCP     4m
-NAME                            READY         STATUS        RESTARTS     AGE
-frontend-2768218532-cs5t5       1/1           Running       0            4m
-redis-master-1432129712-63jn8   1/1           Running       0            4m
-redis-slave-2504961300-nve7b    1/1           Running       0            4m
+NAME                               DESIRED       CURRENT       UP-TO-DATE   AVAILABLE   AGE
+deploy/frontend                    1             1             1            1           4m
+deploy/redis-master                1             1             1            1           4m
+deploy/redis-slave                 1             1             1            1           4m
+
+NAME                               CLUSTER-IP    EXTERNAL-IP   PORT(S)      AGE
+svc/frontend                       10.0.174.12   <none>        80/TCP       4m
+svc/kubernetes                     10.0.0.1      <none>        443/TCP      13d
+svc/redis-master                   10.0.202.43   <none>        6379/TCP     4m
+svc/redis-slave                    10.0.1.85     <none>        6379/TCP     4m
+
+NAME                               READY         STATUS        RESTARTS     AGE
+po/frontend-2768218532-cs5t5       1/1           Running       0            4m
+po/redis-master-1432129712-63jn8   1/1           Running       0            4m
+po/redis-slave-2504961300-nve7b    1/1           Running       0            4m
 ```
 Note:
 - You must have a running Kubernetes cluster with a pre-configured kubectl context.
@@ -391,5 +393,6 @@ services:
     restart: "on-failure"
 ```
 
-#### Notes:
--- If the Docker Compose file has a volume specified for a service, the Deployment (Kubernetes) or DeploymentConfig (OpenShift) strategy is changed to "Recreate" instead of "RollingUpdate" (default). This is done to avoid multiple instances of a service from accessing a volume at the same time.
+
+#### Warning about Deployment Config
+If the Docker Compose file has a volume specified for a service, the Deployment (Kubernetes) or DeploymentConfig (OpenShift) strategy is changed to "Recreate" instead of "RollingUpdate" (default). This is done to avoid multiple instances of a service from accessing a volume at the same time.
