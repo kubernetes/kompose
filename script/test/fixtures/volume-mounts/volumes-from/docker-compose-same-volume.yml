@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  foo:
+    image: busybox
+    command: sleep 3600
+    volumes:
+       - /asdf
+
+  bar:
+    image: busybox
+    command: sleep 3600
+    volumes:
+       - /asdf
+    volumes_from:
+       - foo

@@ -100,6 +100,12 @@ convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtur
 # openshift test
 convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-os.json" "ignoring path on the host"
 
+# if same volumes are mentioned
+# kubernetes test
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose-same-volume.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/same-volume-k8s.json"
+# openshift test
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose-same-volume.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/same-volume-os.json"
+
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/envvars-separators
