@@ -339,7 +339,9 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	buildRepo := opt.BuildRepo
 	buildBranch := opt.BuildBranch
 
-	for name, service := range komposeObject.ServiceConfigs {
+	sortedKeys := kubernetes.SortedKeys(komposeObject)
+	for _, name := range sortedKeys {
+		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
 
 		// Generate pod only and nothing more
