@@ -15,6 +15,7 @@
 # limitations under the License.
 
 KOMPOSE_ROOT=$(readlink -f $(dirname "${BASH_SOURCE}")/../../..)
+BRANCH=`git branch | grep \* | cut -d ' ' -f2`
 source $KOMPOSE_ROOT/script/test/cmd/lib.sh
 
 #######
@@ -45,7 +46,7 @@ unset $(cat $KOMPOSE_ROOT/script/test/fixtures/gitlab/envs | cut -d'=' -f1)
 # kubernetes test
 convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/output-k8s.json" "Kubernetes provider doesn't support build key - ignoring"
 # openshift test
-convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::$BRANCH as source."
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/entrypoint-command
