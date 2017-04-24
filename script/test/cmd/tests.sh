@@ -195,6 +195,17 @@ convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixture
 # Behavior with -o <dirname>/<filename>
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR/output_file -j" "$TEMP_DIR/output_file"
 
+####
+# Test regarding build context (running kompose from various directories)
+CURRENT_DIR=$(pwd)
+cd "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/"
+convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
+cd "$KOMPOSE_ROOT/script/test/fixtures/"
+convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j -f nginx-node-redis/docker-compose.yml" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
+cd "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/node"
+convert::expect_success_and_warning "kompose convert  --provider openshift --stdout -j -f ../docker-compose.yml" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
+cd $CURRENT_DIR
+
 # Test related to support docker-compose.yaml beside docker-compose.yml
 # Store the original path
 CURRENT_DIR=$(pwd)
