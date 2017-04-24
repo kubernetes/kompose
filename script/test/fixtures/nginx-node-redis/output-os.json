@@ -234,7 +234,7 @@
             "uri": "https://github.com/kubernetes-incubator/kompose.git",
             "ref": "HEAD"
           },
-          "contextDir": "script/test/fixtures/ngnix-node-redis/node"
+          "contextDir": "script/test/fixtures/nginx-node-redis/node"
         },
         "strategy": {
           "type": "Docker",
@@ -355,7 +355,7 @@
             "uri": "https://github.com/kubernetes-incubator/kompose.git",
             "ref": "HEAD"
           },
-          "contextDir": "script/test/fixtures/ngnix-node-redis/node"
+          "contextDir": "script/test/fixtures/nginx-node-redis/node"
         },
         "strategy": {
           "type": "Docker",
@@ -476,7 +476,7 @@
             "uri": "https://github.com/kubernetes-incubator/kompose.git",
             "ref": "HEAD"
           },
-          "contextDir": "script/test/fixtures/ngnix-node-redis/node"
+          "contextDir": "script/test/fixtures/nginx-node-redis/node"
         },
         "strategy": {
           "type": "Docker",
@@ -688,7 +688,7 @@
             "uri": "https://github.com/kubernetes-incubator/kompose.git",
             "ref": "HEAD"
           },
-          "contextDir": "script/test/fixtures/ngnix-node-redis/nginx"
+          "contextDir": "script/test/fixtures/nginx-node-redis/nginx"
         },
         "strategy": {
           "type": "Docker",

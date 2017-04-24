@@ -41,11 +41,11 @@ convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/te
 unset $(cat $KOMPOSE_ROOT/script/test/fixtures/gitlab/envs | cut -d'=' -f1)
 
 ######
-# Tests related to docker-compose file in /script/test/fixtures/ngnix-node-redis
+# Tests related to docker-compose file in /script/test/fixtures/nginx-node-redis
 # kubernetes test
-convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/output-k8s.json" "Kubernetes provider doesn't support build key - ignoring"
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-k8s.json" "Kubernetes provider doesn't support build key - ignoring"
 # openshift test
-convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/ngnix-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/entrypoint-command
