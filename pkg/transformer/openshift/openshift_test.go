@@ -256,7 +256,8 @@ func TestGetAbsBuildContext(t *testing.T) {
 	}{
 		"Get abs build context success case-1": {false, filepath.Join(gitDir, "a/b/build"), "a/b/build/"},
 		"Get abs build context success case-2": {false, filepath.Join(gitDir, "build"), "build/"},
-		"Get abs build context error":          {true, "example/build", "example/build/"},
+		"Get abs build context error case-1":   {true, "example/build", "example/build/"},
+		"Get abs build context error case-2":   {true, "/tmp", ""},
 	}
 
 	for name, test := range testCases {

@@ -249,8 +249,9 @@ func toStrings(s []interface{}) ([]string, error) {
 func toMap(s []string, sep string) map[string]string {
 	m := map[string]string{}
 	for _, v := range s {
+		// Return everything past first sep
 		values := strings.Split(v, sep)
-		m[values[0]] = values[1]
+		m[values[0]] = strings.SplitN(v, sep, 2)[1]
 	}
 	return m
 }
