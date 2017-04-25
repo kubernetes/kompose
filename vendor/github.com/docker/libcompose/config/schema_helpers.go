@@ -17,6 +17,16 @@ var (
 	schemaV2                 map[string]interface{}
 )
 
+func init() {
+	if err := setupSchemaLoaders(schemaDataV1, &schemaV1, &schemaLoaderV1, &constraintSchemaLoaderV1); err != nil {
+		panic(err)
+	}
+
+	if err := setupSchemaLoaders(servicesSchemaDataV2, &schemaV2, &schemaLoaderV2, &constraintSchemaLoaderV2); err != nil {
+		panic(err)
+	}
+}
+
 type (
 	environmentFormatChecker struct{}
 	portsFormatChecker       struct{}
