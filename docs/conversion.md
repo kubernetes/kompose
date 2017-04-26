@@ -20,7 +20,7 @@ This document outlines all the conversion details regarding `docker-compose.yaml
 | depends_on |  | N |  |  |
 | dns |  | N |  |  |
 | dns_search |  | N |  |  |
-| tmpfs |  | N |  |  |
+| tmpfs |  | Y | [Pod.Spec.Containers.Volumes.EmptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir) | Creates `emptyDir` volume with `medium` set to `Memory` & mounts given directory inside container | 
 | entrypoint |  | Y | [Pod.Spec.Container.Command](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_container) | Same as `command` |
 | env_file |  | N |  |  |
 | environment |  | Y | [Pod.Spec.Container.Env](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_envvar) |  |
