@@ -181,6 +181,9 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 			},
 		},
 	}
+	if service.Image == "" && service.Build != "" {
+		log.Fatalf("Error while converting, image required for service %s", name)
+	}
 	return dc
 }
 
