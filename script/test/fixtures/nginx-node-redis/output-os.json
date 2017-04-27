@@ -7,32 +7,6 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "node1",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "node1"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "8080",
-            "port": 8080,
-            "targetPort": 8080
-          }
-        ],
-        "selector": {
-          "io.kompose.service": "node1"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
         "name": "node2",
         "creationTimestamp": null,
         "labels": {
@@ -134,7 +108,7 @@
       }
     },
     {
-      "kind": "DeploymentConfig",
+      "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
         "name": "node1",
@@ -144,114 +118,19 @@
         }
       },
       "spec": {
-        "strategy": {
-          "resources": {}
-        },
-        "triggers": [
+        "ports": [
           {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange",
-            "imageChangeParams": {
-              "automatic": true,
-              "containerNames": [
-                "node1"
-              ],
-              "from": {
-                "kind": "ImageStreamTag",
-                "name": "node1:latest"
-              }
-            }
+            "name": "8080",
+            "port": 8080,
+            "targetPort": 8080
           }
         ],
-        "replicas": 1,
-        "test": false,
         "selector": {
           "io.kompose.service": "node1"
-        },
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "node1"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "node1",
-                "image": " ",
-                "ports": [
-                  {
-                    "containerPort": 8080
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
         }
       },
-      "status": {}
-    },
-    {
-      "kind": "ImageStream",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "node1",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "node1"
-        }
-      },
-      "spec": {},
       "status": {
-        "dockerImageRepository": ""
-      }
-    },
-    {
-      "kind": "BuildConfig",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "node1",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "triggers": [
-          {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange"
-          }
-        ],
-        "runPolicy": "Serial",
-        "source": {
-          "type": "Git",
-          "git": {
-            "uri": "https://github.com/kubernetes-incubator/kompose.git",
-            "ref": "HEAD"
-          },
-          "contextDir": "script/test/fixtures/nginx-node-redis/node"
-        },
-        "strategy": {
-          "type": "Docker",
-          "dockerStrategy": {}
-        },
-        "output": {
-          "to": {
-            "kind": "ImageStreamTag",
-            "name": "node1:latest"
-          }
-        },
-        "resources": {},
-        "postCommit": {},
-        "nodeSelector": null
-      },
-      "status": {
-        "lastVersion": 0
+        "loadBalancer": {}
       }
     },
     {
@@ -355,7 +234,7 @@
             "uri": "https://github.com/kubernetes-incubator/kompose.git",
             "ref": "HEAD"
           },
-          "contextDir": "script/test/fixtures/nginx-node-redis/node"
+          "contextDir": "script/test/fixtures/nginx-node-redis/node/"
         },
         "strategy": {
           "type": "Docker",
@@ -476,7 +355,7 @@
             "uri": "https://github.com/kubernetes-incubator/kompose.git",
             "ref": "HEAD"
           },
-          "contextDir": "script/test/fixtures/nginx-node-redis/node"
+          "contextDir": "script/test/fixtures/nginx-node-redis/node/"
         },
         "strategy": {
           "type": "Docker",
@@ -688,7 +567,7 @@
             "uri": "https://github.com/kubernetes-incubator/kompose.git",
             "ref": "HEAD"
           },
-          "contextDir": "script/test/fixtures/nginx-node-redis/nginx"
+          "contextDir": "script/test/fixtures/nginx-node-redis/nginx/"
         },
         "strategy": {
           "type": "Docker",
@@ -698,6 +577,127 @@
           "to": {
             "kind": "ImageStreamTag",
             "name": "nginx:latest"
+          }
+        },
+        "resources": {},
+        "postCommit": {},
+        "nodeSelector": null
+      },
+      "status": {
+        "lastVersion": 0
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "node1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "node1"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "node1"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "node1:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "node1"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "node1"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "node1",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "node1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "node1"
+        }
+      },
+      "spec": {},
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "node1",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange"
+          }
+        ],
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "https://github.com/kubernetes-incubator/kompose.git",
+            "ref": "HEAD"
+          },
+          "contextDir": "script/test/fixtures/nginx-node-redis/node/"
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {}
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "node1:latest"
           }
         },
         "resources": {},
