@@ -356,7 +356,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-api",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-api"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -430,7 +433,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-bitbucket-scm-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-bitbucket-scm-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -499,7 +505,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-chat-ops-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-chat-ops-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -568,7 +577,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-github-scm-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-github-scm-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -637,7 +649,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-jenkins-build-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-jenkins-build-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -706,7 +721,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-jenkins-cucumber-test-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-jenkins-cucumber-test-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -775,7 +793,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-jira-feature-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-jira-feature-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -854,7 +875,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-sonar-codequality-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-sonar-codequality-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -923,7 +947,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-subversion-scm-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-subversion-scm-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -992,7 +1019,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-udeploy-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-udeploy-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -1075,7 +1105,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-ui",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-ui"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -1111,7 +1144,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "hygieia-versionone-collector",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "hygieia-versionone-collector"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -1180,7 +1216,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "mongodb",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mongodb"
+        }
       },
       "spec": {
         "replicas": 1,

@@ -86,7 +86,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "frontend",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "frontend"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -140,7 +143,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "redis-master",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis-master"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -176,7 +182,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "redis-slave",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis-slave"
+        }
       },
       "spec": {
         "replicas": 1,
