@@ -216,8 +216,10 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 			Kind:       "BuildConfig",
 			APIVersion: "v1",
 		},
+
 		ObjectMeta: kapi.ObjectMeta{
-			Name: name,
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: buildapi.BuildConfigSpec{
 			Triggers: []buildapi.BuildTriggerPolicy{

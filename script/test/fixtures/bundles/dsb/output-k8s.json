@@ -146,6 +146,9 @@
       "metadata": {
         "name": "db",
         "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        },
         "annotations": {
           "com.example.description": "Postgres Database"
         }
@@ -184,7 +187,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "redis",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -220,7 +226,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "result",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "result"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -257,6 +266,9 @@
       "metadata": {
         "name": "vote",
         "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "vote"
+        },
         "annotations": {
           "com.example.description": "Vote"
         }
@@ -295,7 +307,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "worker",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "worker"
+        }
       },
       "spec": {
         "replicas": 1,

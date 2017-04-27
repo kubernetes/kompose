@@ -139,7 +139,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "foo1",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo1"
+        }
       },
       "spec": {
         "triggers": [
@@ -270,7 +273,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "foo",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        }
       },
       "spec": {
         "triggers": [

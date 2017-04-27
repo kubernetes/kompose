@@ -35,7 +35,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "base",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "base"
+        }
       },
       "spec": {
         "replicas": 1,

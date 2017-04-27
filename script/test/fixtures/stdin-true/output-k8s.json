@@ -34,7 +34,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "client",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "client"
+        }
       },
       "spec": {
         "replicas": 1,
