@@ -147,15 +147,16 @@ func getComposeFileDir(inputFiles []string) (string, error) {
 }
 
 // getAbsBuildContext returns build context relative to project root dir
-func getAbsBuildContext(context string, composeFileDir string) (string, error) {
+func getAbsBuildContext(context string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-prefix")
-	cmd.Dir = composeFileDir
+	cmd.Dir = context
 	out, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
-	prefix := strings.Trim(string(out), "\n")
-	return filepath.Join(prefix, context), nil
+	//convert output of command to string
+	contextDir := strings.Trim(string(out), "\n")
+	return contextDir, nil
 }
 
 // initImageStream initialize ImageStream object
@@ -197,8 +198,8 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 }
 
 // initBuildConfig initialize Openshifts BuildConfig Object
-func initBuildConfig(name string, service kobject.ServiceConfig, composeFileDir string, repo string, branch string) (*buildapi.BuildConfig, error) {
-	contextDir, err := getAbsBuildContext(service.Build, composeFileDir)
+func initBuildConfig(name string, service kobject.ServiceConfig, repo string, branch string) (*buildapi.BuildConfig, error) {
+	contextDir, err := getAbsBuildContext(service.Build)
 	if err != nil {
 		return nil, errors.Wrap(err, name+"buildconfig cannot be created due to error in creating build context, getAbsBuildContext failed")
 	}
@@ -386,7 +387,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 					}
 					hasBuild = true
 				}
-				bc, err := initBuildConfig(name, service, composeFileDir, buildRepo, buildBranch)
+				bc, err := initBuildConfig(name, service, buildRepo, buildBranch)
 				if err != nil {
 					return nil, errors.Wrap(err, "initBuildConfig failed")
 				}

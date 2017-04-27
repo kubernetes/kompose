@@ -243,24 +243,26 @@ func TestGetAbsBuildContext(t *testing.T) {
 	gitDir := testutils.CreateLocalGitDirectory(t)
 	testutils.SetGitRemote(t, gitDir, "newremote", "https://git.test.com/somerepo")
 	testutils.CreateGitRemoteBranch(t, gitDir, "newbranch", "newremote")
-	testutils.CreateSubdir(t, gitDir, "a/b")
+	testutils.CreateSubdir(t, gitDir, "a/b/build")
+	testutils.CreateSubdir(t, gitDir, "build")
 	dir := testutils.CreateLocalDirectory(t)
 	defer os.RemoveAll(gitDir)
 	defer os.RemoveAll(dir)
 
 	testCases := map[string]struct {
-		expectError    bool
-		context        string
-		composeFileDir string
-		output         string
+		expectError bool
+		context     string
+		output      string
 	}{
-		"Get abs build context success": {false, "./b/build", filepath.Join(gitDir, "a"), "a/b/build"},
-		"Get abs build context error":   {true, "", dir, ""},
+		"Get abs build context success case-1": {false, filepath.Join(gitDir, "a/b/build"), "a/b/build/"},
+		"Get abs build context success case-2": {false, filepath.Join(gitDir, "build"), "build/"},
+		"Get abs build context error case-1":   {true, "example/build", "example/build/"},
+		"Get abs build context error case-2":   {true, "/tmp", ""},
 	}
 
 	for name, test := range testCases {
 		t.Log("Test case: ", name)
-		output, err = getAbsBuildContext(test.context, test.composeFileDir)
+		output, err = getAbsBuildContext(test.context)
 
 		if test.expectError {
 			if err == nil {
@@ -284,14 +286,13 @@ func TestInitBuildConfig(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	serviceName := "serviceA"
-	composeFileDir := filepath.Join(dir, "a")
 	repo := "https://git.test.com/org/repo"
 	branch := "somebranch"
 	sc := kobject.ServiceConfig{
-		Build:      "./build",
+		Build:      filepath.Join(dir, "a/build"),
 		Dockerfile: "Dockerfile-alternate",
 	}
-	bc, err := initBuildConfig(serviceName, sc, composeFileDir, repo, branch)
+	bc, err := initBuildConfig(serviceName, sc, repo, branch)
 	if err != nil {
 		t.Error(errors.Wrap(err, "initBuildConfig failed"))
 	}
@@ -302,7 +303,7 @@ func TestInitBuildConfig(t *testing.T) {
 	}{
 		"Assert buildconfig source git URI":     {bc.Spec.CommonSpec.Source.Git.URI, repo},
 		"Assert buildconfig source git Ref":     {bc.Spec.CommonSpec.Source.Git.Ref, branch},
-		"Assert buildconfig source context dir": {bc.Spec.CommonSpec.Source.ContextDir, "a/build"},
+		"Assert buildconfig source context dir": {bc.Spec.CommonSpec.Source.ContextDir, "a/build/"},
 		"Assert buildconfig output name":        {bc.Spec.CommonSpec.Output.To.Name, serviceName + ":latest"},
 		"Assert buildconfig dockerfilepath":     {bc.Spec.CommonSpec.Strategy.DockerStrategy.DockerfilePath, "Dockerfile-alternate"},
 	}
