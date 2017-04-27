@@ -157,10 +157,6 @@ func invalidTypeMessage(service, key string, err gojsonschema.ResultError) strin
 }
 
 func validate(serviceMap RawServiceMap) error {
-	if err := setupSchemaLoaders(schemaDataV1, &schemaV1, &schemaLoaderV1, &constraintSchemaLoaderV1); err != nil {
-		return err
-	}
-
 	serviceMap = convertServiceMapKeysToStrings(serviceMap)
 
 	dataLoader := gojsonschema.NewGoLoader(serviceMap)
@@ -174,10 +170,6 @@ func validate(serviceMap RawServiceMap) error {
 }
 
 func validateV2(serviceMap RawServiceMap) error {
-	if err := setupSchemaLoaders(servicesSchemaDataV2, &schemaV2, &schemaLoaderV2, &constraintSchemaLoaderV2); err != nil {
-		return err
-	}
-
 	serviceMap = convertServiceMapKeysToStrings(serviceMap)
 
 	dataLoader := gojsonschema.NewGoLoader(serviceMap)
@@ -250,10 +242,6 @@ func generateErrorMessages(serviceMap RawServiceMap, schema map[string]interface
 }
 
 func validateServiceConstraints(service RawService, serviceName string) error {
-	if err := setupSchemaLoaders(schemaDataV1, &schemaV1, &schemaLoaderV1, &constraintSchemaLoaderV1); err != nil {
-		return err
-	}
-
 	service = convertServiceKeysToStrings(service)
 
 	var validationErrors []string
@@ -289,10 +277,6 @@ func validateServiceConstraints(service RawService, serviceName string) error {
 }
 
 func validateServiceConstraintsv2(service RawService, serviceName string) error {
-	if err := setupSchemaLoaders(servicesSchemaDataV2, &schemaV2, &schemaLoaderV2, &constraintSchemaLoaderV2); err != nil {
-		return err
-	}
-
 	service = convertServiceKeysToStrings(service)
 
 	var validationErrors []string
