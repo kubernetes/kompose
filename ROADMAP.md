@@ -10,11 +10,10 @@ Current target is release every last week of the month.
 
 ### 0.6.0 (end of April)
  - Adding support for more currently unsupported docker-compose keys.
- - Initial support for building containers locally.
 
 ### 0.7.0 (end of May)
  - Basic support for docker-compose v3 format.
- - Improved support for building containers locally.
+ - Initial support for building and pushing containers locally.
 
 ### 0.8.0 (end of June)
  - Improved support for docker-compose v3 format.
