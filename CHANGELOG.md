@@ -1,5 +1,63 @@
 # Change Log
 
+## [v0.6.0](https://github.com/kubernetes-incubator/kompose/tree/v0.6.0) (2017-04-28)
+[Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.5.0...v0.6.0)
+
+**Closed issues:**
+
+- Support for cap\_add,cap\_drop [\#575](https://github.com/kubernetes-incubator/kompose/issues/575)
+- commenting test case temporarily  [\#564](https://github.com/kubernetes-incubator/kompose/issues/564)
+- driver:local in prefixing volumes with current dir name [\#550](https://github.com/kubernetes-incubator/kompose/issues/550)
+- update docs/conversion.md [\#548](https://github.com/kubernetes-incubator/kompose/issues/548)
+- Kompose binary for ARM [\#541](https://github.com/kubernetes-incubator/kompose/issues/541)
+- add documentation about renaming service [\#538](https://github.com/kubernetes-incubator/kompose/issues/538)
+- Update roadmap wrt to k8s 1.7 release [\#537](https://github.com/kubernetes-incubator/kompose/issues/537)
+- Unused functions in app.go and utils.go [\#534](https://github.com/kubernetes-incubator/kompose/issues/534)
+- Timestamps are added again to compose. [\#530](https://github.com/kubernetes-incubator/kompose/issues/530)
+- kompose down is not deleting ingress and route [\#510](https://github.com/kubernetes-incubator/kompose/issues/510)
+- mongodb startup problem with simple dockerfile [\#489](https://github.com/kubernetes-incubator/kompose/issues/489)
+- RFE: kompose up support specified namespace to deploy [\#473](https://github.com/kubernetes-incubator/kompose/issues/473)
+- Wrong version, again [\#461](https://github.com/kubernetes-incubator/kompose/issues/461)
+- Inconsistency in build context [\#445](https://github.com/kubernetes-incubator/kompose/issues/445)
+- Normalizing service name might break application [\#433](https://github.com/kubernetes-incubator/kompose/issues/433)
+- Converting docker-compose file on mac: `panic: runtime error` [\#379](https://github.com/kubernetes-incubator/kompose/issues/379)
+- Should we not generate PVC's by default? [\#376](https://github.com/kubernetes-incubator/kompose/issues/376)
+- "Failed to unmarshal MaporSlice" attempt to convert Sentry quick start [\#357](https://github.com/kubernetes-incubator/kompose/issues/357)
+- CPUSet is read and but do not map to k8s [\#272](https://github.com/kubernetes-incubator/kompose/issues/272)
+- Support for cpu\_shares [\#267](https://github.com/kubernetes-incubator/kompose/issues/267)
+
+**Merged pull requests:**
+
+- Update the release script again [\#581](https://github.com/kubernetes-incubator/kompose/pull/581) ([cdrage](https://github.com/cdrage))
+- Add Support for cap\_add & cap\_drop [\#580](https://github.com/kubernetes-incubator/kompose/pull/580) ([gitlawr](https://github.com/gitlawr))
+- Update PR for ROADMAP [\#579](https://github.com/kubernetes-incubator/kompose/pull/579) ([cdrage](https://github.com/cdrage))
+- typo in nginx name. [\#570](https://github.com/kubernetes-incubator/kompose/pull/570) ([procrypt](https://github.com/procrypt))
+- Add warning about change in the service name. [\#569](https://github.com/kubernetes-incubator/kompose/pull/569) ([procrypt](https://github.com/procrypt))
+- fix output replication-controller and daemon-set [\#568](https://github.com/kubernetes-incubator/kompose/pull/568) ([nkysg](https://github.com/nkysg))
+- Adds spacing to table [\#567](https://github.com/kubernetes-incubator/kompose/pull/567) ([cdrage](https://github.com/cdrage))
+- Clarify tarball [\#559](https://github.com/kubernetes-incubator/kompose/pull/559) ([cdrage](https://github.com/cdrage))
+- Add test dependencies [\#558](https://github.com/kubernetes-incubator/kompose/pull/558) ([cdrage](https://github.com/cdrage))
+- fix driver:local in prefixing volumes with current dir name [\#557](https://github.com/kubernetes-incubator/kompose/pull/557) ([procrypt](https://github.com/procrypt))
+- Update doc with better console output and add note on deployment config [\#556](https://github.com/kubernetes-incubator/kompose/pull/556) ([cdrage](https://github.com/cdrage))
+- Updated conversion doc [\#553](https://github.com/kubernetes-incubator/kompose/pull/553) ([surajnarwade](https://github.com/surajnarwade))
+- Fixes the headers of the docs [\#552](https://github.com/kubernetes-incubator/kompose/pull/552) ([cdrage](https://github.com/cdrage))
+- Update document describing release process [\#551](https://github.com/kubernetes-incubator/kompose/pull/551) ([kadel](https://github.com/kadel))
+- Update ROADMAP [\#549](https://github.com/kubernetes-incubator/kompose/pull/549) ([kadel](https://github.com/kadel))
+- Support insecure registry and enhance parsing of image stream tag [\#547](https://github.com/kubernetes-incubator/kompose/pull/547) ([qujinping](https://github.com/qujinping))
+- Add setup.md [\#546](https://github.com/kubernetes-incubator/kompose/pull/546) ([cdrage](https://github.com/cdrage))
+- Moved cpu\_shares and cpuset to unsupported keys [\#543](https://github.com/kubernetes-incubator/kompose/pull/543) ([surajnarwade](https://github.com/surajnarwade))
+- Removed unused functions [\#539](https://github.com/kubernetes-incubator/kompose/pull/539) ([surajnarwade](https://github.com/surajnarwade))
+- new take on "Kompose will keep trying its job \#477" [\#536](https://github.com/kubernetes-incubator/kompose/pull/536) ([kadel](https://github.com/kadel))
+- Only ignore the docker-compose yaml file in the root directory [\#533](https://github.com/kubernetes-incubator/kompose/pull/533) ([cdrage](https://github.com/cdrage))
+- Move docker-compose.yml test file to tests [\#531](https://github.com/kubernetes-incubator/kompose/pull/531) ([cdrage](https://github.com/cdrage))
+- Fix the examples [\#528](https://github.com/kubernetes-incubator/kompose/pull/528) ([cdrage](https://github.com/cdrage))
+- Update contributing doc for reviewing, update owners file [\#527](https://github.com/kubernetes-incubator/kompose/pull/527) ([cdrage](https://github.com/cdrage))
+- Remove unused parameters from Kompose down [\#523](https://github.com/kubernetes-incubator/kompose/pull/523) ([cdrage](https://github.com/cdrage))
+- Added warning after PVC creation [\#519](https://github.com/kubernetes-incubator/kompose/pull/519) ([surajnarwade](https://github.com/surajnarwade))
+- Added support for different namespaces [\#517](https://github.com/kubernetes-incubator/kompose/pull/517) ([procrypt](https://github.com/procrypt))
+- add missing 'io.kompose.service' label to Route and Ingress [\#511](https://github.com/kubernetes-incubator/kompose/pull/511) ([kadel](https://github.com/kadel))
+- Added consistency in build context [\#454](https://github.com/kubernetes-incubator/kompose/pull/454) ([surajnarwade](https://github.com/surajnarwade))
+
 ## [v0.5.0](https://github.com/kubernetes-incubator/kompose/tree/v0.5.0) (2017-04-04)
 [Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.4.0...v0.5.0)
 
@@ -24,6 +82,7 @@
 
 **Merged pull requests:**
 
+- 0.5.0 release [\#542](https://github.com/kubernetes-incubator/kompose/pull/542) ([cdrage](https://github.com/cdrage))
 - Add ARM to make cross. [\#540](https://github.com/kubernetes-incubator/kompose/pull/540) ([cdrage](https://github.com/cdrage))
 - Revert "Kompose will keep trying its job" [\#535](https://github.com/kubernetes-incubator/kompose/pull/535) ([cdrage](https://github.com/cdrage))
 - Update vendoring + fix issue with timestamps being added to log [\#529](https://github.com/kubernetes-incubator/kompose/pull/529) ([cdrage](https://github.com/cdrage))
