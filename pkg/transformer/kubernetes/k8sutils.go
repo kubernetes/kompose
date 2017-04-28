@@ -361,6 +361,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	// Configure the container ports.
 	ports := k.ConfigPorts(name, service)
 
+	// Configure capabilities
+	capabilities := k.ConfigCapabilities(service)
+
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
 
@@ -399,6 +402,11 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 				securityContext.RunAsUser = &uid
 			}
 
+		}
+
+		//set capabilities if it is not empty
+		if len(capabilities.Add) > 0 || len(capabilities.Drop) > 0 {
+			securityContext.Capabilities = capabilities
 		}
 
 		// update template only if securityContext is not empty
