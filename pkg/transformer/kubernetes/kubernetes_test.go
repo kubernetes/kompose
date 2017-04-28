@@ -45,10 +45,10 @@ func newServiceConfig() kobject.ServiceConfig {
 		Network:       []string{"network1", "network2"}, // not supported
 		Labels:        nil,
 		Annotations:   map[string]string{"abc": "def"},
-		CPUQuota:      1,                    // not supported
-		CapAdd:        []string{"cap_add"},  // not supported
-		CapDrop:       []string{"cap_drop"}, // not supported
-		Expose:        []string{"expose"},   // not supported
+		CPUQuota:      1, // not supported
+		CapAdd:        []string{"cap_add"},
+		CapDrop:       []string{"cap_drop"},
+		Expose:        []string{"expose"}, // not supported
 		Privileged:    true,
 		Restart:       "always",
 		Stdin:         true,
@@ -508,4 +508,23 @@ func TestConfigTmpfs(t *testing.T) {
 		t.Fatalf("Tmpfs not found")
 	}
 
+}
+
+func TestConfigCapabilities(t *testing.T) {
+	testCases := map[string]struct {
+		service kobject.ServiceConfig
+		result  api.Capabilities
+	}{
+		"ConfigCapsWithAddDrop": {kobject.ServiceConfig{CapAdd: []string{"CHOWN", "SETUID"}, CapDrop: []string{"KILL"}}, api.Capabilities{Add: []api.Capability{api.Capability("CHOWN"), api.Capability("SETUID")}, Drop: []api.Capability{api.Capability("KILL")}}},
+		"ConfigCapsNoAddDrop":   {kobject.ServiceConfig{CapAdd: nil, CapDrop: nil}, api.Capabilities{Add: []api.Capability{}, Drop: []api.Capability{}}},
+	}
+
+	k := Kubernetes{}
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		result := k.ConfigCapabilities(test.service)
+		if !reflect.DeepEqual(result.Add, test.result.Add) || !reflect.DeepEqual(result.Drop, test.result.Drop) {
+			t.Errorf("Not expected result for ConfigCapabilities")
+		}
+	}
 }
