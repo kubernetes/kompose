@@ -7,7 +7,7 @@ permalink: /conversion/
 
 This document outlines all the conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts.
 
-| Value | Version | Supported | K8s / OpenShift | Notes |
+| Value | Ver. | Support | K8s / OpenShift | Notes |
 |-------------------|---------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | __SERVICE__ |  |  |  |  |
 | build |  | Y | OpenShift: [BuildConfig](https://docs.openshift.com/enterprise/3.1/dev_guide/builds.html#defining-a-buildconfig) | Converts, but local builds are not yet supported. See issue [97](https://github.com/kubernetes-incubator/kompose/issues/97) |
@@ -53,11 +53,13 @@ This document outlines all the conversion details regarding `docker-compose.yaml
 | cpuset | v2 | N |  |  |
 | mem_limit | v2 | Y | [...Containers.Resources.Limits.Memory](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_resourcefieldselector) |  |
 | memswap_limit | v2 | N |  | Use `mem_limit` |
+|  |  |  |  |  |
 | __VOLUME__ |  |  |  |  |
 | driver |  | N |  |  |
 | driver_opts |  | N |  |  |
 | external |  | N |  |  |
 | labels |  | N |  |  |
+|  |  |  |  |  |
 | __NETWORK__ |  |  |  |  |
 | driver |  | N |  |  |
 | driver_opts |  | N |  |  |
