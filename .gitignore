@@ -7,6 +7,7 @@ kompose
 bin
 /docker-compose.yaml
 /docker-compose.yml
+changes.txt
 
 #
 # GO SPECIFIC
