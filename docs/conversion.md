@@ -11,7 +11,7 @@ This document outlines all the conversion details regarding `docker-compose.yaml
 |-------------------|---------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | __SERVICE__ |  |  |  |  |
 | build |  | Y | OpenShift: [BuildConfig](https://docs.openshift.com/enterprise/3.1/dev_guide/builds.html#defining-a-buildconfig) | Converts, but local builds are not yet supported. See issue [97](https://github.com/kubernetes-incubator/kompose/issues/97) |
-| cap_add, cap_drop |  | N |  |  |
+| cap_add, cap_drop |  | Y | [Pod.Spec.Container.SecurityContext.Capabilities.Add/Drop](https://kubernetes.io/docs/api-reference/v1.6/#capabilities-v1-core) |  |
 | command |  | Y | [Pod.Spec.Container.Command](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_container) |  |
 | cgroup_parent |  | N |  | No compatibility with Kubernetes / OpenShift. Limited use-cases with Docker. |
 | container_name |  | Y | Mapped to both [Metadata.Name](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/identifiers.md) and [Deployment.Spec.Containers.Name](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/identifiers.md) |  |
