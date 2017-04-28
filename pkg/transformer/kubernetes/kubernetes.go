@@ -331,6 +331,22 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 	return servicePorts
 }
 
+//ConfigCapabilities configure POSIX capabilities that can be added or removed to a container
+func (k *Kubernetes) ConfigCapabilities(service kobject.ServiceConfig) *api.Capabilities {
+	capsAdd := []api.Capability{}
+	capsDrop := []api.Capability{}
+	for _, capAdd := range service.CapAdd {
+		capsAdd = append(capsAdd, api.Capability(capAdd))
+	}
+	for _, capDrop := range service.CapDrop {
+		capsDrop = append(capsDrop, api.Capability(capDrop))
+	}
+	return &api.Capabilities{
+		Add:  capsAdd,
+		Drop: capsDrop,
+	}
+}
+
 // ConfigTmpfs configure the tmpfs.
 func (k *Kubernetes) ConfigTmpfs(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 	//initializing volumemounts and volumes
