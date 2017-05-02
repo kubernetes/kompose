@@ -114,10 +114,13 @@ build_binaries() {
 }
 
 create_tarballs() {
-  for f in $CLI/bin/*
+  # cd into the bin directory so we don't have '/bin' inside the tarball
+  cd bin
+  for f in *
   do
     tar cvzf $f.tar.gz $f
   done
+  cd ..
 }
 
 git_commit() {
@@ -172,10 +175,10 @@ push() {
   fi
 
   # Upload all the binaries and tarballs generated in bin/
-  for f in $CLI/bin/*
+  for f in bin/*
   do
     echo "Uploading file $f"
-    NAME=`echo $f | sed "s,$CLI/bin/,,g"`
+    NAME=`echo $f | sed "s,bin/,,g"`
     github-release upload \
         --user $UPSTREAM_REPO \
         --repo $CLI \
@@ -198,7 +201,7 @@ push() {
 }
 
 clean() {
-  rm -r $CLI changes.txt
+  rm changes.txt
 }
 
 main() {
