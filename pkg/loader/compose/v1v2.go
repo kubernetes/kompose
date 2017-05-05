@@ -242,6 +242,10 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 				serviceConfig.ExposeService = strings.ToLower(value)
 			}
 		}
+		err = checkLabelsPorts(len(serviceConfig.Port), composeServiceConfig.Labels["kompose.service.type"], name)
+		if err != nil {
+			return kobject.KomposeObject{}, errors.Wrap(err, "kompose.service.type can't be set if service doesn't expose any ports.")
+		}
 
 		// convert compose labels to annotations
 		serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
@@ -265,4 +269,11 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		}
 	}
 	return komposeObject, nil
+}
+
+func checkLabelsPorts(noOfPort int, labels string, svcName string) error {
+	if noOfPort == 0 && labels == "NodePort" || labels == "LoadBalancer" {
+		return errors.Errorf("%s defined in service %s with no ports present. Issues may occur when bringing up artifacts.", labels, svcName)
+	}
+	return nil
 }

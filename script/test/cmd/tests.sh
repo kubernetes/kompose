@@ -200,6 +200,10 @@ convert::expect_success_and_warning "kompose --provider openshift -f $KOMPOSE_RO
 # Test regarding validating dockerfilepath
 convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/dockerfilepath/docker-compose.yml convert --stdout"
 
+# Test regarding while label (nodeport or loadbalancer ) is provided but not ports
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/label-port/docker-compose.yml convert --stdout"
+
+
 ######
 # Test the output file behavior of kompose convert
 # Default behavior without -o
