@@ -1,0 +1,8 @@
+version: "2"
+
+services:
+ foo:
+  build:
+   context: "../../../examples/buildconfig/build"
+   dockerfile: "Dockerfile"
+  command: "sleep 3600"
