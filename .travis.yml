@@ -17,6 +17,8 @@ matrix:
 
 install:
   - true
+    # This is required because sometimes Travis ends up in a detached HEAD state after git clone
+  - script/test/cmd/fix_detached_head.sh
 
 script:
   - make test
