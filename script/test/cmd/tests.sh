@@ -20,7 +20,7 @@ source $KOMPOSE_ROOT/script/test/cmd/lib.sh
 # Get current branch and remote url of git repository
 branch=$(git branch | grep \* | cut -d ' ' -f2-)
 
-uri=$(git remote get-url origin)
+uri=$(git config --get remote.origin.url)
 if [[ $uri != *".git"* ]]; then
     uri="${uri}.git"
 fi
