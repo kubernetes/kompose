@@ -19,7 +19,6 @@ package kubernetes
 import (
 	"fmt"
 	"reflect"
-	"sort"
 	"strconv"
 	"time"
 
@@ -533,13 +532,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 
-	// Need to ensure the kubernetes objects are in a consistent order
-	var sortedKeys []string
-	for name := range komposeObject.ServiceConfigs {
-		sortedKeys = append(sortedKeys, name)
-	}
-	sort.Strings(sortedKeys)
-
+	sortedKeys := SortedKeys(komposeObject)
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
