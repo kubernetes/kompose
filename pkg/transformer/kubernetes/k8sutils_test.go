@@ -29,6 +29,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	"reflect"
 )
 
 /*
@@ -273,5 +274,25 @@ func TestRecreateStrategyWithVolumesPresent(t *testing.T) {
 					deployment.Spec.Strategy.Type)
 			}
 		}
+	}
+}
+
+func TestSortedKeys(t *testing.T) {
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+	}
+	service1 := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+	}
+	c := []string{"a", "b"}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"b": service, "a": service1},
+	}
+	a := SortedKeys(komposeObject)
+	if !reflect.DeepEqual(a, c) {
+		t.Logf("Test Fail output should be %s", c)
 	}
 }
