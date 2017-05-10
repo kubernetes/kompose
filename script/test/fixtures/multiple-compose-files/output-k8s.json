@@ -177,19 +177,19 @@
                 ],
                 "env": [
                   {
-                    "name": "MYSQL_ROOT_PASSWORD",
-                    "value": "openshift"
-                  },
-                  {
-                    "name": "MYSQL_USER",
-                    "value": "openshift"
-                  },
-                  {
                     "name": "MYSQL_DATABASE",
                     "value": "openshift"
                   },
                   {
                     "name": "MYSQL_PASSWORD",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_USER",
                     "value": "openshift"
                   }
                 ],
