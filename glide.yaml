@@ -14,7 +14,7 @@ import:
 - package: github.com/pkg/errors
 
 - package: github.com/docker/libcompose
-  version: c6a7d4679d065a4f50e08d4d1fe13776062cf1ec
+  version: 01ff8920a57835fda41607e0f27252408e99cf08
   subpackages:
   - config
   - lookup
