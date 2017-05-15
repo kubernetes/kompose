@@ -28,7 +28,6 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	"k8s.io/kubernetes/pkg/api"
 	kapi "k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
@@ -38,6 +37,8 @@ import (
 	ocliconfig "github.com/openshift/origin/pkg/cmd/cli/config"
 
 	"time"
+
+	"reflect"
 
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 	buildapi "github.com/openshift/origin/pkg/build/api"
@@ -50,7 +51,6 @@ import (
 	"k8s.io/kubernetes/pkg/kubectl"
 	"k8s.io/kubernetes/pkg/labels"
 	"k8s.io/kubernetes/pkg/util/intstr"
-	"reflect"
 )
 
 // OpenShift implements Transformer interface and represents OpenShift transformer
@@ -172,7 +172,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 	if service.Build == "" {
 		tags = map[string]imageapi.TagReference{
 			tag: imageapi.TagReference{
-				From: &api.ObjectReference{
+				From: &kapi.ObjectReference{
 					Kind: "DockerImage",
 					Name: service.Image,
 				},
@@ -186,7 +186,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 			Kind:       "ImageStream",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: kapi.ObjectMeta{
 			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
@@ -209,7 +209,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 			Kind:       "BuildConfig",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: kapi.ObjectMeta{
 			Name: name,
 		},
 		Spec: buildapi.BuildConfigSpec{
@@ -258,7 +258,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 			Kind:       "DeploymentConfig",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: kapi.ObjectMeta{
 			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
@@ -266,8 +266,8 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 			Replicas: int32(replicas),
 			Selector: transformer.ConfigLabels(name),
 			//UniqueLabelKey: p.Name,
-			Template: &api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
+			Template: &kapi.PodTemplateSpec{
+				ObjectMeta: kapi.ObjectMeta{
 					Labels: transformer.ConfigLabels(name),
 				},
 				Spec: o.InitPodSpec(name, " "),
@@ -283,7 +283,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 						//Automatic - if new tag is detected - update image update inside the pod template
 						Automatic:      true,
 						ContainerNames: containerName,
-						From: api.ObjectReference{
+						From: kapi.ObjectReference{
 							Name: name + ":" + tag,
 							Kind: "ImageStreamTag",
 						},
@@ -301,7 +301,7 @@ func (o *OpenShift) initRoute(name string, service kobject.ServiceConfig, port i
 			Kind:       "Route",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: kapi.ObjectMeta{
 			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
@@ -488,13 +488,13 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 				return err
 			}
 			log.Infof("Successfully created DeploymentConfig: %s", t.Name)
-		case *api.Service:
+		case *kapi.Service:
 			_, err := kclient.Services(namespace).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created Service: %s", t.Name)
-		case *api.PersistentVolumeClaim:
+		case *kapi.PersistentVolumeClaim:
 			_, err := kclient.PersistentVolumeClaims(namespace).Create(t)
 			if err != nil {
 				return err
@@ -506,7 +506,7 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 				return err
 			}
 			log.Infof("Successfully created Route: %s", t.Name)
-		case *api.Pod:
+		case *kapi.Pod:
 			_, err := kclient.Pods(namespace).Create(t)
 			if err != nil {
 				return err
@@ -554,7 +554,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 
 	for _, v := range objects {
 		label := labels.SelectorFromSet(labels.Set(map[string]string{transformer.Selector: v.(meta.Object).GetName()}))
-		options := api.ListOptions{LabelSelector: label}
+		options := kapi.ListOptions{LabelSelector: label}
 		komposeLabel := map[string]string{transformer.Selector: v.(meta.Object).GetName()}
 		switch t := v.(type) {
 		case *imageapi.ImageStream:
@@ -576,7 +576,6 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			}
 
 		case *buildapi.BuildConfig:
-			//options := api.ListOptions{LabelSelector: label}
 			buildConfig, err := oclient.BuildConfigs(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
@@ -612,7 +611,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 				}
 			}
 
-		case *api.Service:
+		case *kapi.Service:
 			//delete svc
 			svc, err := kclient.Services(namespace).List(options)
 			if err != nil {
@@ -621,7 +620,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			}
 			for _, l := range svc.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					rpService, err := kubectl.ReaperFor(api.Kind("Service"), kclient)
+					rpService, err := kubectl.ReaperFor(kapi.Kind("Service"), kclient)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -636,7 +635,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 				}
 			}
 
-		case *api.PersistentVolumeClaim:
+		case *kapi.PersistentVolumeClaim:
 			// delete pvc
 			pvc, err := kclient.PersistentVolumeClaims(namespace).List(options)
 			if err != nil {
@@ -672,7 +671,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 				}
 			}
 
-		case *api.Pod:
+		case *kapi.Pod:
 			//delete pods
 			pod, err := kclient.Pods(namespace).List(options)
 			if err != nil {
@@ -681,7 +680,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			}
 			for _, l := range pod.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					rpPod, err := kubectl.ReaperFor(api.Kind("Pod"), kclient)
+					rpPod, err := kubectl.ReaperFor(kapi.Kind("Pod"), kclient)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
