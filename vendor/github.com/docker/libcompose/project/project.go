@@ -288,7 +288,8 @@ func (p *Project) handleNetworkConfig() {
 			// Consolidate the name of the network
 			// FIXME(vdemeester) probably shouldn't be there, maybe move that to interface/factory
 			for _, network := range serviceConfig.Networks.Networks {
-				if net, ok := p.NetworkConfigs[network.Name]; ok {
+				net, ok := p.NetworkConfigs[network.Name]
+				if ok && net != nil {
 					if net.External.External {
 						network.RealName = network.Name
 						if net.External.Name != "" {
@@ -296,6 +297,12 @@ func (p *Project) handleNetworkConfig() {
 						}
 					} else {
 						network.RealName = p.Name + "_" + network.Name
+					}
+				} else {
+					network.RealName = p.Name + "_" + network.Name
+
+					p.NetworkConfigs[network.Name] = &config.NetworkConfig{
+						External: yaml.External{External: false},
 					}
 				}
 				// Ignoring if we don't find the network, it will be catched later
