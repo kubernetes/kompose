@@ -17,12 +17,12 @@ limitations under the License.
 package openshift
 
 import (
+	kapi "k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/runtime"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
-
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/runtime"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
@@ -37,7 +37,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		ContainerName: "myfoobarname",
 		Image:         "image",
 		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolTCP}},
+		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: kapi.ProtocolTCP}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
@@ -288,9 +288,12 @@ func TestInitBuildConfig(t *testing.T) {
 	serviceName := "serviceA"
 	repo := "https://git.test.com/org/repo"
 	branch := "somebranch"
+	buildArgs := []kapi.EnvVar{{Name: "name", Value: "value"}}
+	value := "value"
 	sc := kobject.ServiceConfig{
 		Build:      filepath.Join(dir, "a/build"),
 		Dockerfile: "Dockerfile-alternate",
+		BuildArgs:  map[string]*string{"name": &value},
 	}
 	bc, err := initBuildConfig(serviceName, sc, repo, branch)
 	if err != nil {
@@ -307,12 +310,14 @@ func TestInitBuildConfig(t *testing.T) {
 		"Assert buildconfig output name":        {bc.Spec.CommonSpec.Output.To.Name, serviceName + ":latest"},
 		"Assert buildconfig dockerfilepath":     {bc.Spec.CommonSpec.Strategy.DockerStrategy.DockerfilePath, "Dockerfile-alternate"},
 	}
-
 	for name, test := range testCases {
 		t.Log("Test case: ", name)
 		if test.field != test.value {
 			t.Errorf("Expected: %#v, got: %#v", test.value, test.field)
 		}
+	}
+	if !reflect.DeepEqual(bc.Spec.CommonSpec.Strategy.DockerStrategy.Env, buildArgs) {
+		t.Errorf("Expected: %#v, got: %#v", bc.Spec.CommonSpec.Strategy.DockerStrategy.Env, buildArgs)
 	}
 }
 
