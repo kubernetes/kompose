@@ -317,7 +317,11 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		serviceConfig := kobject.ServiceConfig{}
 		serviceConfig.Image = composeServiceConfig.Image
 		serviceConfig.Build = composeServiceConfig.Build.Context
-		serviceConfig.ContainerName = composeServiceConfig.ContainerName
+		newName := normalizeServiceNames(composeServiceConfig.ContainerName)
+		serviceConfig.ContainerName = newName
+		if newName != composeServiceConfig.ContainerName {
+			log.Infof("Container name in service %q has been changed from %q to %q", name, composeServiceConfig.ContainerName, newName)
+		}
 		serviceConfig.Command = composeServiceConfig.Entrypoint
 		serviceConfig.Args = composeServiceConfig.Command
 		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
