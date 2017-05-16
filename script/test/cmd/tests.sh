@@ -197,6 +197,8 @@ convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtur
 # Openshift Test
 convert::expect_success_and_warning "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/service-name-change/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/service-name-change/output-os.json" "Unsupported root level volumes key - ignoring"
 
+# Test regarding validating dockerfilepath
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/dockerfilepath/docker-compose.yml convert --stdout"
 
 ######
 # Test the output file behavior of kompose convert
