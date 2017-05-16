@@ -82,6 +82,7 @@ type ServiceConfig struct {
 	VolumesFrom   []string            `compose:"volumes_from" bundle:""`
 	ServiceType   string              `compose:"kompose.service.type" bundle:""`
 	Build         string              `compose:"build" bundle:""`
+	BuildArgs     map[string]*string  `compose:"build-args" bundle:""`
 	ExposeService string              `compose:"kompose.service.expose" bundle:""`
 	Stdin         bool                `compose:"stdin_open" bundle:""`
 	Tty           bool                `compose:"tty" bundle:""`
