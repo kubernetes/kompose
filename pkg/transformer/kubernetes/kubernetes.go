@@ -130,7 +130,8 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: api.ReplicationControllerSpec{
 			Replicas: int32(replicas),
@@ -171,7 +172,8 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
@@ -191,7 +193,8 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
@@ -513,7 +516,8 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name,
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: k.InitPodSpec(name, service.Image),
 	}

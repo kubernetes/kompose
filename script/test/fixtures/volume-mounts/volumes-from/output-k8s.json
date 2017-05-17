@@ -60,7 +60,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "nginx",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -144,7 +147,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "web",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        }
       },
       "spec": {
         "replicas": 1,

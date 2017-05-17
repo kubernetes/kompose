@@ -42,6 +42,7 @@ import (
 
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 	buildapi "github.com/openshift/origin/pkg/build/api"
+	buildconfigreaper "github.com/openshift/origin/pkg/build/cmd"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	deploymentconfigreaper "github.com/openshift/origin/pkg/deploy/cmd"
 	imageapi "github.com/openshift/origin/pkg/image/api"
@@ -216,8 +217,10 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 			Kind:       "BuildConfig",
 			APIVersion: "v1",
 		},
+
 		ObjectMeta: kapi.ObjectMeta{
-			Name: name,
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: buildapi.BuildConfigSpec{
 			Triggers: []buildapi.BuildTriggerPolicy{
@@ -591,7 +594,8 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			}
 			for _, l := range buildConfig.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					err := oclient.BuildConfigs(namespace).Delete(t.Name)
+					bcreaper := buildconfigreaper.NewBuildConfigReaper(oclient)
+					err := bcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
