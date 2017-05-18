@@ -26,10 +26,11 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/testutils"
 
+	"reflect"
+
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	"reflect"
 )
 
 /*
@@ -294,5 +295,32 @@ func TestSortedKeys(t *testing.T) {
 	a := SortedKeys(komposeObject)
 	if !reflect.DeepEqual(a, c) {
 		t.Logf("Test Fail output should be %s", c)
+	}
+}
+
+//test conversion from duration string to seconds *int64
+func TestDurationStrToSecondsInt(t *testing.T) {
+	testCases := map[string]struct {
+		in  string
+		out *int64
+	}{
+		"5s":         {in: "5s", out: &[]int64{5}[0]},
+		"1m30s":      {in: "1m30s", out: &[]int64{90}[0]},
+		"empty":      {in: "", out: nil},
+		"onlynumber": {in: "2", out: nil},
+		"illegal":    {in: "abc", out: nil},
+	}
+
+	for name, test := range testCases {
+		result, _ := DurationStrToSecondsInt(test.in)
+		if test.out == nil && result != nil {
+			t.Errorf("Case '%v' for TestDurationStrToSecondsInt fail, Expected 'nil' , got '%v'", name, *result)
+		}
+		if test.out != nil && result == nil {
+			t.Errorf("Case '%v' for TestDurationStrToSecondsInt fail, Expected '%v' , got 'nil'", name, *test.out)
+		}
+		if test.out != nil && result != nil && *test.out != *result {
+			t.Errorf("Case '%v' for TestDurationStrToSecondsInt fail, Expected '%v' , got '%v'", name, *test.out, *result)
+		}
 	}
 }

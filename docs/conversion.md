@@ -35,7 +35,7 @@ This document outlines all the conversion details regarding `docker-compose.yaml
 | pid |  | N |  |  |
 | ports |  | Y | [Service.Spec.Ports](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_containerport) |  |
 | security_opt |  | N |  |  |
-| stop_grace_period |  | N |  |  |
+| stop_grace_period |  | Y | [Pod.Spec.TerminationGracePeriodSeconds](https://kubernetes.io/docs/resources-reference/v1.6/#podspec-v1-core) |  |
 | stop_signal |  | N |  |  |
 | sysctls |  | N |  |  |
 | ulimits |  | N |  | See this [issue](https://github.com/kubernetes/kubernetes/issues/3595) on the k8s repo |
