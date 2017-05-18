@@ -373,6 +373,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		serviceConfig.Tty = composeServiceConfig.Tty
 		serviceConfig.MemLimit = composeServiceConfig.MemLimit
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
+		serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 		if normalizeServiceNames(name) != name {
 			log.Infof("Service name in docker-compose has been changed from %q to %q", name, normalizeServiceNames(name))
