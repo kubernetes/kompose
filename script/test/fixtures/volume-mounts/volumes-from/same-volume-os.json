@@ -7,23 +7,24 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "nginx",
+        "name": "bar",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "nginx"
+          "io.kompose.service": "bar"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "80",
-            "port": 80,
-            "targetPort": 80
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
           }
         ],
         "selector": {
-          "io.kompose.service": "nginx"
-        }
+          "io.kompose.service": "bar"
+        },
+        "clusterIP": "None"
       },
       "status": {
         "loadBalancer": {}
@@ -33,23 +34,24 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "foo",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "foo"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "3030",
-            "port": 3030,
-            "targetPort": 3000
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
           }
         ],
         "selector": {
-          "io.kompose.service": "web"
-        }
+          "io.kompose.service": "foo"
+        },
+        "clusterIP": "None"
       },
       "status": {
         "loadBalancer": {}
@@ -59,10 +61,10 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "nginx",
+        "name": "bar",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "nginx"
+          "io.kompose.service": "bar"
         }
       },
       "spec": {
@@ -79,11 +81,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "nginx"
+                "bar"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "nginx:latest"
+                "name": "bar:latest"
               }
             }
           }
@@ -91,58 +93,47 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "nginx"
+          "io.kompose.service": "bar"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "nginx"
+              "io.kompose.service": "bar"
             }
           },
           "spec": {
             "volumes": [
               {
-                "name": "nginx-claim0",
+                "name": "bar-claim0",
                 "persistentVolumeClaim": {
-                  "claimName": "nginx-claim0"
+                  "claimName": "bar-claim0"
                 }
               },
               {
-                "name": "web-claim0",
+                "name": "foo-claim0",
                 "persistentVolumeClaim": {
-                  "claimName": "web-claim0"
-                }
-              },
-              {
-                "name": "nginx-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "nginx-claim0"
+                  "claimName": "foo-claim0"
                 }
               }
             ],
             "containers": [
               {
-                "name": "nginx",
+                "name": "bar",
                 "image": " ",
-                "ports": [
-                  {
-                    "containerPort": 80
-                  }
+                "args": [
+                  "sleep",
+                  "3600"
                 ],
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "name": "nginx-claim0",
-                    "mountPath": "/www/public"
+                    "name": "bar-claim0",
+                    "mountPath": "/asdf"
                   },
                   {
-                    "name": "web-claim0",
-                    "mountPath": "/src/app"
-                  },
-                  {
-                    "name": "nginx-claim0",
-                    "mountPath": "/www/public"
+                    "name": "foo-claim0",
+                    "mountPath": "/asdf"
                   }
                 ]
               }
@@ -157,10 +148,10 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "nginx",
+        "name": "bar",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "nginx"
+          "io.kompose.service": "bar"
         }
       },
       "spec": {
@@ -170,7 +161,7 @@
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "nginx"
+              "name": "busybox"
             },
             "generation": null,
             "importPolicy": {}
@@ -185,10 +176,10 @@
       "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "nginx-claim0",
+        "name": "bar-claim0",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "nginx-claim0"
+          "io.kompose.service": "bar-claim0"
         }
       },
       "spec": {
@@ -207,10 +198,10 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "foo",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "foo"
         }
       },
       "spec": {
@@ -227,11 +218,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "web"
+                "foo"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "web:latest"
+                "name": "foo:latest"
               }
             }
           }
@@ -239,43 +230,37 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "foo"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "web"
+              "io.kompose.service": "foo"
             }
           },
           "spec": {
             "volumes": [
               {
-                "name": "web-claim0",
+                "name": "foo-claim0",
                 "persistentVolumeClaim": {
-                  "claimName": "web-claim0"
+                  "claimName": "foo-claim0"
                 }
               }
             ],
             "containers": [
               {
-                "name": "web",
+                "name": "foo",
                 "image": " ",
                 "args": [
-                  "nodemon",
-                  "-L",
-                  "app/bin/www"
-                ],
-                "ports": [
-                  {
-                    "containerPort": 3000
-                  }
+                  "sleep",
+                  "3600"
                 ],
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "name": "web-claim0",
-                    "mountPath": "/src/app"
+                    "name": "foo-claim0",
+                    "mountPath": "/asdf"
                   }
                 ]
               }
@@ -290,10 +275,10 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "foo",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "foo"
         }
       },
       "spec": {
@@ -303,7 +288,7 @@
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "centos/httpd"
+              "name": "busybox"
             },
             "generation": null,
             "importPolicy": {}
@@ -318,10 +303,10 @@
       "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web-claim0",
+        "name": "foo-claim0",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web-claim0"
+          "io.kompose.service": "foo-claim0"
         }
       },
       "spec": {

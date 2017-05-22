@@ -506,8 +506,9 @@ func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobjec
 				if err != nil {
 					return errors.Wrap(err, "k.findDependentVolumes")
 				}
-				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
-				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
+				depVolumeMounts, depVolumes := CheckSimilarMount(volumeMounts, t.Spec.Template.Spec.Containers[0].VolumeMounts, volumes, t.Spec.Template.Spec.Volumes)
+				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, depVolumes...)
+				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, depVolumeMounts...)
 			}
 		case *extensions.Deployment:
 			svcName := t.ObjectMeta.Name
@@ -516,8 +517,9 @@ func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobjec
 				if err != nil {
 					return errors.Wrap(err, "k.findDependentVolumes")
 				}
-				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
-				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
+				depVolumeMounts, depVolumes := CheckSimilarMount(volumeMounts, t.Spec.Template.Spec.Containers[0].VolumeMounts, volumes, t.Spec.Template.Spec.Volumes)
+				t.Spec.Template.Spec.Volumes = append(depVolumes)
+				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(depVolumeMounts)
 			}
 		case *extensions.DaemonSet:
 			svcName := t.ObjectMeta.Name
@@ -526,8 +528,9 @@ func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobjec
 				if err != nil {
 					return errors.Wrap(err, "k.findDependentVolumes")
 				}
-				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
-				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
+				depVolumeMounts, depVolumes := CheckSimilarMount(volumeMounts, t.Spec.Template.Spec.Containers[0].VolumeMounts, volumes, t.Spec.Template.Spec.Volumes)
+				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, depVolumes...)
+				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, depVolumeMounts...)
 			}
 		case *deployapi.DeploymentConfig:
 			svcName := t.ObjectMeta.Name
@@ -536,8 +539,9 @@ func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobjec
 				if err != nil {
 					return errors.Wrap(err, "k.findDependentVolumes")
 				}
-				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, volumes...)
-				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, volumeMounts...)
+				depVolumeMounts, depVolumes := CheckSimilarMount(volumeMounts, t.Spec.Template.Spec.Containers[0].VolumeMounts, volumes, t.Spec.Template.Spec.Volumes)
+				t.Spec.Template.Spec.Volumes = append(t.Spec.Template.Spec.Volumes, depVolumes...)
+				t.Spec.Template.Spec.Containers[0].VolumeMounts = append(t.Spec.Template.Spec.Containers[0].VolumeMounts, depVolumeMounts...)
 			}
 		}
 	}
@@ -552,4 +556,57 @@ func SortedKeys(komposeObject kobject.KomposeObject) []string {
 	}
 	sort.Strings(sortedKeys)
 	return sortedKeys
+}
+
+//It will check for similar mounts if 'volumes_from' key is used, if found, it will give ignore the volume
+func CheckSimilarMount(depVolumeMounts []api.VolumeMount, volumeMounts []api.VolumeMount, volumes []api.Volume, volume1 []api.Volume) (depVmount []api.VolumeMount, depVolume []api.Volume) {
+	done := []string{}
+
+Loop:
+	for _, depVolumeMount := range depVolumeMounts {
+
+		for _, volumeMount := range volumeMounts {
+			done = append(done, volumeMount.MountPath)
+			if depVolumeMount.MountPath == volumeMount.MountPath {
+				volumeMount.Name = depVolumeMount.Name
+
+				depVmount = append(depVmount, volumeMount)
+				continue Loop
+			}
+
+		}
+		depVmount = append(depVmount, depVolumeMount)
+	}
+
+Loop1:
+	for _, volumeMount := range volumeMounts {
+		for _, depVol := range depVmount {
+
+			if volumeMount.MountPath == depVol.MountPath {
+				continue Loop1
+			}
+
+		}
+		depVmount = append(depVmount, volumeMount)
+	}
+
+	for _, volume := range volumes {
+		for _, depVol := range depVmount {
+			if volume.Name == depVol.Name {
+				depVolume = append(depVolume, volume)
+			}
+		}
+
+	}
+	for _, vol := range volume1 {
+		for _, depVol := range depVmount {
+			if vol.Name == depVol.Name {
+				depVolume = append(depVolume, vol)
+
+			}
+
+		}
+	}
+
+	return depVmount, depVolume
 }
