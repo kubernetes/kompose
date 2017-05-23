@@ -198,7 +198,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		if err != nil {
 			return fmt.Errorf("Error in marshalling the List: %v", err)
 		}
-		printVal, err := transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f)
+		printVal, err := transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
 		if err != nil {
 			return errors.Wrap(err, "transformer.Print failed")
 		}
@@ -225,7 +225,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			// cast it to correct type - api.ObjectMeta
 			objectMeta := val.FieldByName("ObjectMeta").Interface().(api.ObjectMeta)
 
-			file, err = transformer.Print(objectMeta.Name, dirName, strings.ToLower(typeMeta.Kind), data, opt.ToStdout, opt.GenerateJSON, f)
+			file, err = transformer.Print(objectMeta.Name, dirName, strings.ToLower(typeMeta.Kind), data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
 			if err != nil {
 				return errors.Wrap(err, "transformer.Print failed")
 			}

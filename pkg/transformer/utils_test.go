@@ -21,6 +21,15 @@ import (
 	"testing"
 )
 
+func TestFormatProviderName(t *testing.T) {
+	if formatProviderName("openshift") != "OpenShift" {
+		t.Errorf("Got %s, expected OpenShift", formatProviderName("openshift"))
+	}
+	if formatProviderName("kubernetes") != "Kubernetes" {
+		t.Errorf("Got %s, expected Kubernetes", formatProviderName("kubernetes"))
+	}
+}
+
 // When passing "z" or "Z" we expect "" back.
 func TestZParseVolumeLabeling(t *testing.T) {
 	testCase := "/foobar:/foobar:Z"
