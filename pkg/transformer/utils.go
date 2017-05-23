@@ -115,7 +115,7 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 }
 
 // Print either prints to stdout or to file/s
-func Print(name, path string, trailing string, data []byte, toStdout, generateJSON bool, f *os.File) (string, error) {
+func Print(name, path string, trailing string, data []byte, toStdout, generateJSON bool, f *os.File, provider string) (string, error) {
 	file := ""
 	if generateJSON {
 		file = fmt.Sprintf("%s-%s.json", name, trailing)
@@ -137,7 +137,17 @@ func Print(name, path string, trailing string, data []byte, toStdout, generateJS
 		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
 			return "", errors.Wrap(err, "Failed to write %s: "+trailing)
 		}
-		log.Printf("file %q created", file)
+		log.Printf("%s file %q created", formatProviderName(provider), file)
 	}
 	return file, nil
+}
+
+// If Openshift, change to OpenShift!
+func formatProviderName(provider string) string {
+	if strings.EqualFold(provider, "openshift") {
+		return "OpenShift"
+	} else if strings.EqualFold(provider, "kubernetes") {
+		return "Kubernetes"
+	}
+	return provider
 }
