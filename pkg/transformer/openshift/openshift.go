@@ -245,7 +245,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 				Output: buildapi.BuildOutput{
 					To: &kapi.ObjectReference{
 						Kind: "ImageStreamTag",
-						Name: name + ":latest",
+						Name: name + ":" + getImageTag(service.Image),
 					},
 				},
 			},
