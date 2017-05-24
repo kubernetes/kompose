@@ -13,12 +13,17 @@ import:
 - package: github.com/spf13/viper
 - package: github.com/pkg/errors
 
+# We use libcompose to parse v1 and v2 of Docker Compose
 - package: github.com/docker/libcompose
   version: 01ff8920a57835fda41607e0f27252408e99cf08
   subpackages:
   - config
   - lookup
   - project
+
+# We use docker/cli to parse v3 of Docker Compose
+- package: github.com/docker/cli
+  version: 1fc7eb5d644599f30d0c6cc350a4d84ff528c864
 
 - package: github.com/openshift/origin
   version: v1.4.0-rc1
@@ -63,5 +68,4 @@ import:
 # this makes sure that we are using version that is compatible with both.
 # Glide will show WARN about conflicting rev (it this case it is OK)
 - package: github.com/docker/docker
-  version: 601004e1a714d77d3a43e957b8ae8adbc867b280
-  
+  version: 58b1788c81f937bb2aaf1b0077c6b3b23a8397ff
