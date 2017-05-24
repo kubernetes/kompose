@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+
+  foo:
+    image: busybox
+    command: sleep 3600
+    volumes:
+       - /foo1
+       - /foo2
+    volumes_from:
+       - cat
+
+
+  bar:
+    image: busybox
+    command: sleep 3600
+    volumes:
+       - /foo1
+       - /bar
+    volumes_from:
+       - foo
+
+  cat:
+    image: busybox
+    command: sleep 3600
+    volumes:
+      - /cat
+

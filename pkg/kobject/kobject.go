@@ -61,14 +61,15 @@ type ConvertOptions struct {
 // ServiceConfig holds the basic struct of a container
 type ServiceConfig struct {
 	// use tags to mark from what element this value comes
-	ContainerName   string
-	Image           string              `compose:"image" bundle:"Image"`
-	Environment     []EnvVar            `compose:"environment" bundle:"Env"`
-	Port            []Ports             `compose:"ports" bundle:"Ports"`
-	Command         []string            `compose:"command" bundle:"Command"`
-	WorkingDir      string              `compose:"" bundle:"WorkingDir"`
-	Args            []string            `compose:"args" bundle:"Args"`
-	Volumes         []string            `compose:"volumes" bundle:"Volumes"`
+	ContainerName string
+	Image         string   `compose:"image" bundle:"Image"`
+	Environment   []EnvVar `compose:"environment" bundle:"Env"`
+	Port          []Ports  `compose:"ports" bundle:"Ports"`
+	Command       []string `compose:"command" bundle:"Command"`
+	WorkingDir    string   `compose:"" bundle:"WorkingDir"`
+	Args          []string `compose:"args" bundle:"Args"`
+	// VolList is list of volumes extracted from docker-compose file
+	VolList         []string            `compose:"volumes" bundle:"Volumes"`
 	Network         []string            `compose:"network" bundle:"Networks"`
 	Labels          map[string]string   `compose:"labels" bundle:"Labels"`
 	Annotations     map[string]string   `compose:"" bundle:""`
@@ -94,6 +95,8 @@ type ServiceConfig struct {
 	TmpFs           []string            `compose:"tmpfs" bundle:""`
 	Dockerfile      string              `compose:"dockerfile" bundle:""`
 	Replicas        int                 `compose:"replicas" bundle:""`
+	// Volumes is a struct which contains all information about each volume
+	Volumes []Volumes `compose:"" bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container
@@ -108,4 +111,16 @@ type Ports struct {
 	ContainerPort int32
 	HostIP        string
 	Protocol      api.Protocol
+}
+
+// Volumes holds the volume struct of container
+type Volumes struct {
+	SvcName    string // Service name to which volume is linked
+	MountPath  string // Mountpath extracted from docker-compose file
+	VFrom      string // denotes service name from which volume is coming
+	VolumeName string // name of volume if provided explicitly
+	Host       string // host machine address
+	Container  string // Mountpath
+	Mode       string // access mode for volume
+	PVCName    string // name of PVC
 }

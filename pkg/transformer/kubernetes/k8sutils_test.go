@@ -47,7 +47,7 @@ func TestCreateService(t *testing.T) {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"}, // not supported
 		Labels:        nil,
 		Annotations:   map[string]string{"abc": "def"},
@@ -91,7 +91,7 @@ func TestCreateServiceWithMemLimit(t *testing.T) {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"}, // not supported
 		Labels:        nil,
 		Annotations:   map[string]string{"abc": "def"},
@@ -140,7 +140,7 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"}, // not supported
 		Labels:        nil,
 		Annotations:   map[string]string{"kompose.service.type": "nodeport"},
@@ -184,7 +184,7 @@ func TestTransformWithPid(t *testing.T) {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"},
 		Restart:       "always",
 		Pid:           "host",
@@ -220,7 +220,7 @@ func TestTransformWithInvaildPid(t *testing.T) {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"},
 		Restart:       "always",
 		Pid:           "badvalue",
@@ -329,7 +329,8 @@ func TestRecreateStrategyWithVolumesPresent(t *testing.T) {
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
 		Image:         "image",
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
+		Volumes:       []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
 	}
 
 	komposeObject := kobject.KomposeObject{
