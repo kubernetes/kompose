@@ -5,7 +5,7 @@ services:
         build: 
           context: "./build"
           args:
-            NAME: web
+            - NAME=web
         command: "sleep 3600"
     foo1:
         build:

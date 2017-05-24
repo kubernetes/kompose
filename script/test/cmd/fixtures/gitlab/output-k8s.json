@@ -128,12 +128,16 @@
                 ],
                 "env": [
                   {
-                    "name": "REDIS_PORT",
-                    "value": "6379"
+                    "name": "DB_TYPE",
+                    "value": "postgres"
                   },
                   {
                     "name": "DB_HOST",
                     "value": "postgresql"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "5432"
                   },
                   {
                     "name": "DB_NAME",
@@ -144,20 +148,16 @@
                     "value": "gitlab"
                   },
                   {
-                    "name": "DB_PORT",
-                    "value": "5432"
-                  },
-                  {
-                    "name": "DB_TYPE",
-                    "value": "postgres"
-                  },
-                  {
                     "name": "DB_USER",
                     "value": "gitlab"
                   },
                   {
                     "name": "REDIS_HOST",
                     "value": "redis"
+                  },
+                  {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
                   }
                 ],
                 "resources": {}
@@ -201,15 +201,15 @@
                 ],
                 "env": [
                   {
-                    "name": "DB_USER",
-                    "value": "gitlab"
-                  },
-                  {
                     "name": "DB_NAME",
                     "value": "gitlab"
                   },
                   {
                     "name": "DB_PASS",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_USER",
                     "value": "gitlab"
                   }
                 ],

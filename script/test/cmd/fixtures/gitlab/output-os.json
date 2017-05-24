@@ -7,6 +7,42 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
+        "name": "gitlab",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "gitlab"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "30000",
+            "port": 30000,
+            "targetPort": 80
+          },
+          {
+            "name": "30001",
+            "port": 30001,
+            "targetPort": 443
+          },
+          {
+            "name": "30002",
+            "port": 30002,
+            "targetPort": 22
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "gitlab"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
         "name": "postgresql",
         "creationTimestamp": null,
         "labels": {
@@ -56,7 +92,7 @@
       }
     },
     {
-      "kind": "Service",
+      "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
         "name": "gitlab",
@@ -66,29 +102,124 @@
         }
       },
       "spec": {
-        "ports": [
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
           {
-            "name": "30000",
-            "port": 30000,
-            "targetPort": 80
+            "type": "ConfigChange"
           },
           {
-            "name": "30001",
-            "port": 30001,
-            "targetPort": 443
-          },
-          {
-            "name": "30002",
-            "port": 30002,
-            "targetPort": 22
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "gitlab"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "gitlab:latest"
+              }
+            }
           }
         ],
+        "replicas": 1,
+        "test": false,
         "selector": {
+          "io.kompose.service": "gitlab"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "gitlab"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "gitlab",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  },
+                  {
+                    "containerPort": 443
+                  },
+                  {
+                    "containerPort": 22
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_TYPE",
+                    "value": "postgres"
+                  },
+                  {
+                    "name": "DB_HOST",
+                    "value": "postgresql"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "5432"
+                  },
+                  {
+                    "name": "DB_NAME",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "REDIS_HOST",
+                    "value": "redis"
+                  },
+                  {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "gitlab",
+        "creationTimestamp": null,
+        "labels": {
           "io.kompose.service": "gitlab"
         }
       },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "swordphilic/gitlab"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
       "status": {
-        "loadBalancer": {}
+        "dockerImageRepository": ""
       }
     },
     {
@@ -277,137 +408,6 @@
             "from": {
               "kind": "DockerImage",
               "name": "swordphilic/redis"
-            },
-            "generation": null,
-            "importPolicy": {}
-          }
-        ]
-      },
-      "status": {
-        "dockerImageRepository": ""
-      }
-    },
-    {
-      "kind": "DeploymentConfig",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "gitlab",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "gitlab"
-        }
-      },
-      "spec": {
-        "strategy": {
-          "resources": {}
-        },
-        "triggers": [
-          {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange",
-            "imageChangeParams": {
-              "automatic": true,
-              "containerNames": [
-                "gitlab"
-              ],
-              "from": {
-                "kind": "ImageStreamTag",
-                "name": "gitlab:latest"
-              }
-            }
-          }
-        ],
-        "replicas": 1,
-        "test": false,
-        "selector": {
-          "io.kompose.service": "gitlab"
-        },
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "gitlab"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "gitlab",
-                "image": " ",
-                "ports": [
-                  {
-                    "containerPort": 80
-                  },
-                  {
-                    "containerPort": 443
-                  },
-                  {
-                    "containerPort": 22
-                  }
-                ],
-                "env": [
-                  {
-                    "name": "DB_TYPE",
-                    "value": "postgres"
-                  },
-                  {
-                    "name": "DB_USER",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "REDIS_HOST",
-                    "value": "redis"
-                  },
-                  {
-                    "name": "REDIS_PORT",
-                    "value": "6379"
-                  },
-                  {
-                    "name": "DB_HOST",
-                    "value": "postgresql"
-                  },
-                  {
-                    "name": "DB_NAME",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "DB_PASS",
-                    "value": "gitlab"
-                  },
-                  {
-                    "name": "DB_PORT",
-                    "value": "5432"
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "ImageStream",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "gitlab",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "gitlab"
-        }
-      },
-      "spec": {
-        "tags": [
-          {
-            "name": "latest",
-            "annotations": null,
-            "from": {
-              "kind": "DockerImage",
-              "name": "swordphilic/gitlab"
             },
             "generation": null,
             "importPolicy": {}

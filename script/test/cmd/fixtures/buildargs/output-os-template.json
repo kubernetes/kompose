@@ -7,33 +7,6 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "foo1",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "foo1"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
-          }
-        ],
-        "selector": {
-          "io.kompose.service": "foo1"
-        },
-        "clusterIP": "None"
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
         "name": "foo",
         "creationTimestamp": null,
         "labels": {
@@ -58,7 +31,7 @@
       }
     },
     {
-      "kind": "DeploymentConfig",
+      "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
         "name": "foo1",
@@ -68,127 +41,20 @@
         }
       },
       "spec": {
-        "strategy": {
-          "resources": {}
-        },
-        "triggers": [
+        "ports": [
           {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange",
-            "imageChangeParams": {
-              "automatic": true,
-              "containerNames": [
-                "foo1"
-              ],
-              "from": {
-                "kind": "ImageStreamTag",
-                "name": "foo1:latest"
-              }
-            }
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
           }
         ],
-        "replicas": 1,
-        "test": false,
         "selector": {
           "io.kompose.service": "foo1"
         },
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "foo1"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "foo1",
-                "image": " ",
-                "args": [
-                  "sleep",
-                  "3600"
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
-        }
-      },
-      "status": {}
-    },
-    {
-      "kind": "ImageStream",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "foo1",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "foo1"
-        }
-      },
-      "spec": {},
-      "status": {
-        "dockerImageRepository": ""
-      }
-    },
-    {
-      "kind": "BuildConfig",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "foo1",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "foo1"
-        }
-      },
-      "spec": {
-        "triggers": [
-          {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange"
-          }
-        ],
-        "runPolicy": "Serial",
-        "source": {
-          "type": "Git",
-          "git": {
-            "uri": "%URI%",
-            "ref": "%REF%"
-          },
-          "contextDir": "script/test/fixtures/buildargs/build/"
-        },
-        "strategy": {
-          "type": "Docker",
-          "dockerStrategy": {
-            "env": [
-              {
-                "name": "NAME",
-                "value": "web"
-              },
-              {
-                "name": "foo",
-                "value": "bar"
-              }
-            ]
-          }
-        },
-        "output": {
-          "to": {
-            "kind": "ImageStreamTag",
-            "name": "foo1:latest"
-          }
-        },
-        "resources": {},
-        "postCommit": {},
-        "nodeSelector": null
+        "clusterIP": "None"
       },
       "status": {
-        "lastVersion": 0
+        "loadBalancer": {}
       }
     },
     {
@@ -294,7 +160,7 @@
             "uri": "%URI%",
             "ref": "%REF%"
           },
-          "contextDir": "script/test/fixtures/buildargs/build/"
+          "contextDir": "script/test/cmd/fixtures/buildargs/build/"
         },
         "strategy": {
           "type": "Docker",
@@ -311,6 +177,140 @@
           "to": {
             "kind": "ImageStreamTag",
             "name": "foo:latest"
+          }
+        },
+        "resources": {},
+        "postCommit": {},
+        "nodeSelector": null
+      },
+      "status": {
+        "lastVersion": 0
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo1"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "foo1"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "foo1:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "foo1"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "foo1"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "foo1",
+                "image": " ",
+                "args": [
+                  "sleep",
+                  "3600"
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo1"
+        }
+      },
+      "spec": {},
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo1"
+        }
+      },
+      "spec": {
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange"
+          }
+        ],
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "%URI%",
+            "ref": "%REF%"
+          },
+          "contextDir": "script/test/cmd/fixtures/buildargs/build/"
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+            "env": [
+              {
+                "name": "NAME",
+                "value": "web"
+              },
+              {
+                "name": "foo",
+                "value": "bar"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "foo1:latest"
           }
         },
         "resources": {},

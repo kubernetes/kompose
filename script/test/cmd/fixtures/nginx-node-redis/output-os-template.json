@@ -237,7 +237,7 @@
             "uri": "%URI%",
             "ref": "%REF%"
           },
-          "contextDir": "script/test/fixtures/nginx-node-redis/nginx/"
+          "contextDir": "script/test/cmd/fixtures/nginx-node-redis/nginx/"
         },
         "strategy": {
           "type": "Docker",
@@ -361,7 +361,7 @@
             "uri": "%URI%",
             "ref": "%REF%"
           },
-          "contextDir": "script/test/fixtures/nginx-node-redis/node/"
+          "contextDir": "script/test/cmd/fixtures/nginx-node-redis/node/"
         },
         "strategy": {
           "type": "Docker",
@@ -485,7 +485,7 @@
             "uri": "%URI%",
             "ref": "%REF%"
           },
-          "contextDir": "script/test/fixtures/nginx-node-redis/node/"
+          "contextDir": "script/test/cmd/fixtures/nginx-node-redis/node/"
         },
         "strategy": {
           "type": "Docker",
@@ -609,7 +609,7 @@
             "uri": "%URI%",
             "ref": "%REF%"
           },
-          "contextDir": "script/test/fixtures/nginx-node-redis/node/"
+          "contextDir": "script/test/cmd/fixtures/nginx-node-redis/node/"
         },
         "strategy": {
           "type": "Docker",

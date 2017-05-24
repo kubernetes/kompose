@@ -52,9 +52,9 @@
             "targetPort": 3306
           },
           {
-            "name": "3307",
-            "port": 3307,
-            "targetPort": 3307
+            "name": "3306",
+            "port": 3306,
+            "targetPort": 3306
           }
         ],
         "selector": {
@@ -99,24 +99,24 @@
                 ],
                 "env": [
                   {
+                    "name": "DB_USER",
+                    "value": "kubernetes"
+                  },
+                  {
                     "name": "DB_DBID",
-                    "value": "openshift"
+                    "value": "kubernetes"
                   },
                   {
                     "name": "DB_HOST",
-                    "value": "openshift"
+                    "value": "kubernetes"
                   },
                   {
                     "name": "DB_PASS",
-                    "value": "openshift"
+                    "value": "kubernetes"
                   },
                   {
                     "name": "DB_PORT",
-                    "value": "openshift"
-                  },
-                  {
-                    "name": "DB_USER",
-                    "value": "openshift"
+                    "value": "kubernetes"
                   }
                 ],
                 "resources": {}
@@ -172,25 +172,25 @@
                     "containerPort": 3306
                   },
                   {
-                    "containerPort": 3307
+                    "containerPort": 3306
                   }
                 ],
                 "env": [
                   {
-                    "name": "MYSQL_ROOT_PASSWORD",
-                    "value": "openshift"
-                  },
-                  {
-                    "name": "MYSQL_USER",
-                    "value": "openshift"
-                  },
-                  {
                     "name": "MYSQL_DATABASE",
-                    "value": "openshift"
+                    "value": "kubernetes"
                   },
                   {
                     "name": "MYSQL_PASSWORD",
-                    "value": "openshift"
+                    "value": "kubernetes"
+                  },
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "kubernetes"
+                  },
+                  {
+                    "name": "MYSQL_USER",
+                    "value": "kubernetes"
                   }
                 ],
                 "resources": {},

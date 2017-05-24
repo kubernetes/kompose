@@ -5,5 +5,5 @@ services:
     image: "foobar"
     restart: "no"
     environment:
-      GITHUB: surajssd
+      - GITHUB=surajssd
 
