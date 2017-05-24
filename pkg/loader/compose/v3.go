@@ -233,7 +233,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// Parse the volumes
 		// Again, in v3, we use the "long syntax" for volumes in terms of parsing
 		// https://docs.docker.com/compose/compose-file/#long-syntax-2
-		serviceConfig.Volumes = loadV3Volumes(composeServiceConfig.Volumes)
+		serviceConfig.VolList = loadV3Volumes(composeServiceConfig.Volumes)
 
 		// Label handler
 		// Labels used to influence conversion of kompose will be handled
@@ -260,6 +260,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// Final step, add to the array!
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 	}
+	handleVolume(&komposeObject)
 
 	return komposeObject, nil
 }
