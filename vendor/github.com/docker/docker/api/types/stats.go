@@ -47,6 +47,9 @@ type CPUStats struct {
 	// System Usage. Linux only.
 	SystemUsage uint64 `json:"system_cpu_usage,omitempty"`
 
+	// Online CPUs. Linux only.
+	OnlineCPUs uint32 `json:"online_cpus,omitempty"`
+
 	// Throttling Data. Linux only.
 	ThrottlingData ThrottlingData `json:"throttling_data,omitempty"`
 }
@@ -169,6 +172,9 @@ type Stats struct {
 // StatsJSON is newly used Networks
 type StatsJSON struct {
 	Stats
+
+	Name string `json:"name,omitempty"`
+	ID   string `json:"id,omitempty"`
 
 	// Networks request version >=1.21
 	Networks map[string]NetworkStats `json:"networks,omitempty"`

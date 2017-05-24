@@ -189,13 +189,15 @@ func (t *Tree) String() string {
 
 // ToMap recursively generates a representation of the tree using Go built-in structures.
 // The following types are used:
-// * uint64
-// * int64
-// * bool
-// * string
-// * time.Time
-// * map[string]interface{} (where interface{} is any of this list)
-// * []interface{} (where interface{} is any of this list)
+//
+//	* bool
+//	* float64
+//	* int64
+//	* string
+//	* uint64
+//	* time.Time
+//	* map[string]interface{} (where interface{} is any of this list)
+//	* []interface{} (where interface{} is any of this list)
 func (t *Tree) ToMap() map[string]interface{} {
 	result := map[string]interface{}{}
 
