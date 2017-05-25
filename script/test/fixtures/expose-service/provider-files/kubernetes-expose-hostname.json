@@ -63,7 +63,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "redis",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -100,6 +103,9 @@
       "metadata": {
         "name": "web",
         "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        },
         "annotations": {
           "kompose.service.expose": "batman.example.com"
         }

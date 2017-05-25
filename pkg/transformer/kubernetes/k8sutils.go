@@ -27,6 +27,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/ghodss/yaml"
@@ -38,10 +39,11 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/runtime"
 
+	"sort"
+
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/resource"
-	"sort"
 )
 
 /**
@@ -382,6 +384,13 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].TTY = service.Tty
 		template.Spec.Volumes = volumes
 
+		if service.StopGracePeriod != "" {
+			template.Spec.TerminationGracePeriodSeconds, err = DurationStrToSecondsInt(service.StopGracePeriod)
+			if err != nil {
+				log.Warningf("Failed to parse duration \"%v\" for service \"%v\"", service.StopGracePeriod, name)
+			}
+		}
+
 		// Configure the resource limits
 		if service.MemLimit != 0 {
 			memoryResourceList := api.ResourceList{
@@ -552,4 +561,17 @@ func SortedKeys(komposeObject kobject.KomposeObject) []string {
 	}
 	sort.Strings(sortedKeys)
 	return sortedKeys
+}
+
+//converts duration string to *int64 in seconds
+func DurationStrToSecondsInt(s string) (*int64, error) {
+	if s == "" {
+		return nil, nil
+	}
+	duration, err := time.ParseDuration(s)
+	if err != nil {
+		return nil, err
+	}
+	r := (int64)(duration.Seconds())
+	return &r, nil
 }

@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+    foo:
+        build: 
+          context: "./build"
+          args:
+            NAME: web
+        command: "sleep 3600"
+    foo1:
+        build:
+          context: "./build"
+          args:
+            - NAME=web
+            - foo
+        command: "sleep 3600"
