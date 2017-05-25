@@ -17,6 +17,19 @@
 KOMPOSE_ROOT=$(readlink -f $(dirname "${BASH_SOURCE}")/../../..)
 source $KOMPOSE_ROOT/script/test/cmd/lib.sh
 
+# Get current branch and remote url of git repository
+branch=$(git branch | grep \* | cut -d ' ' -f2-)
+
+uri=$(git remote get-url origin)
+if [[ $uri != *".git"* ]]; then
+    uri="${uri}.git"
+fi
+
+# Warning Template
+warning="Buildconfig using $uri::$branch as source."
+# Replacing variables with current branch and uri
+sed -e "s;%URI%;$uri;g" -e "s;%REF%;$branch;g" $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os-template.json > /tmp/output-os.json
+
 #######
 # Tests related to docker-compose file in /script/test/fixtures/etherpad
 convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose.yml convert --stdout"
@@ -45,8 +58,7 @@ unset $(cat $KOMPOSE_ROOT/script/test/fixtures/gitlab/envs | cut -d'=' -f1)
 # kubernetes test
 convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-k8s.json" "Kubernetes provider doesn't support build key - ignoring"
 # openshift test
-convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
-
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j" "/tmp/output-os.json" "$warning"
 ######
 # Tests related to docker-compose file in /script/test/fixtures/entrypoint-command
 # kubernetes test
@@ -199,11 +211,11 @@ convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixture
 # Test regarding build context (running kompose from various directories)
 CURRENT_DIR=$(pwd)
 cd "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/"
-convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
+convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j" "/tmp/output-os.json" "$warning"
 cd "$KOMPOSE_ROOT/script/test/fixtures/"
-convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j -f nginx-node-redis/docker-compose.yml" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
+convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j -f nginx-node-redis/docker-compose.yml" "/tmp/output-os.json" "$warning"
 cd "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/node"
-convert::expect_success_and_warning "kompose convert  --provider openshift --stdout -j -f ../docker-compose.yml" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os.json" "Buildconfig using https://github.com/kubernetes-incubator/kompose.git::HEAD as source."
+convert::expect_success_and_warning "kompose convert  --provider openshift --stdout -j -f ../docker-compose.yml" "/tmp/output-os.json" "$warning"
 cd $CURRENT_DIR
 
 # Test related to support docker-compose.yaml beside docker-compose.yml
@@ -221,5 +233,8 @@ cd "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/yml"
 convert::expect_success "kompose --provider=openshift convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/yml/output-os.json"
 # Return back to the original path
 cd $CURRENT_DIR
+
+# Removes generated output
+rm -rf /tmp/output-os.json
 
 exit $EXIT_STATUS

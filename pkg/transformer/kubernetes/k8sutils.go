@@ -41,6 +41,7 @@ import (
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/resource"
+	"sort"
 )
 
 /**
@@ -541,4 +542,14 @@ func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobjec
 		}
 	}
 	return nil
+}
+
+//Ensure the kubernetes objects are in a consistent order
+func SortedKeys(komposeObject kobject.KomposeObject) []string {
+	var sortedKeys []string
+	for name := range komposeObject.ServiceConfigs {
+		sortedKeys = append(sortedKeys, name)
+	}
+	sort.Strings(sortedKeys)
+	return sortedKeys
 }
