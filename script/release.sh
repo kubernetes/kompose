@@ -91,11 +91,14 @@ init_sync() {
 }
 
 replaceversion() {
-  echo "1. Replaced version in version.go"
+  echo "Replaced version in version.go"
   sed -i "s/$1/$2/g" cmd/version.go
 
-  echo "2. Replaced README.md versioning"
+  echo "Replaced version in README.md"
   sed -i "s/$1/$2/g" README.md
+
+  echo "Replaced version in docs/setup.md"
+  sed -i "s/$1/$2/g" docs/setup.md
 }
 
 changelog() {
