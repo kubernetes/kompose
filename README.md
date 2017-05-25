@@ -41,7 +41,7 @@ Installation methods:
   - [Binary (Prefered method)](README.md)
   - [Go](/docs/setup.md#go)
   - [CentOS](/docs/setup.md#centos)
-  - [Fedora](/docs/setup.mdfedora)
+  - [Fedora](/docs/setup.md#fedora)
   - [macOS (Homebrew)](/docs/setup.md#macos)
 
 #### Binary installation
@@ -49,7 +49,7 @@ Installation methods:
 Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases).
 
 ```sh
-# Linux 
+# Linux
 curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.6.0/kompose-linux-amd64 -o kompose
 
 # macOS
