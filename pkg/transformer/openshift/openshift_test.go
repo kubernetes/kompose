@@ -17,12 +17,12 @@ limitations under the License.
 package openshift
 
 import (
+	kapi "k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/runtime"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
-
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/runtime"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
@@ -37,7 +37,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		ContainerName: "myfoobarname",
 		Image:         "image",
 		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolTCP}},
+		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: kapi.ProtocolTCP}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
@@ -281,37 +281,66 @@ func TestGetAbsBuildContext(t *testing.T) {
 
 // Test initializing buildconfig for a service
 func TestInitBuildConfig(t *testing.T) {
+	serviceName := "serviceA"
+	repo := "https://git.test.com/org/repo1"
+	branch := "somebranch"
+	buildArgs := []kapi.EnvVar{{Name: "name", Value: "value"}}
+	value := "value"
+	testDir := "a/build"
+
 	dir := testutils.CreateLocalGitDirectory(t)
-	testutils.CreateSubdir(t, dir, "a/build")
+	testutils.CreateSubdir(t, dir, testDir)
 	defer os.RemoveAll(dir)
 
-	serviceName := "serviceA"
-	repo := "https://git.test.com/org/repo"
-	branch := "somebranch"
-	sc := kobject.ServiceConfig{
-		Build:      filepath.Join(dir, "a/build"),
-		Dockerfile: "Dockerfile-alternate",
-	}
-	bc, err := initBuildConfig(serviceName, sc, repo, branch)
-	if err != nil {
-		t.Error(errors.Wrap(err, "initBuildConfig failed"))
-	}
-
-	testCases := map[string]struct {
-		field string
-		value string
+	testCases := []struct {
+		Name          string
+		ServiceConfig kobject.ServiceConfig
 	}{
-		"Assert buildconfig source git URI":     {bc.Spec.CommonSpec.Source.Git.URI, repo},
-		"Assert buildconfig source git Ref":     {bc.Spec.CommonSpec.Source.Git.Ref, branch},
-		"Assert buildconfig source context dir": {bc.Spec.CommonSpec.Source.ContextDir, "a/build/"},
-		"Assert buildconfig output name":        {bc.Spec.CommonSpec.Output.To.Name, serviceName + ":latest"},
-		"Assert buildconfig dockerfilepath":     {bc.Spec.CommonSpec.Strategy.DockerStrategy.DockerfilePath, "Dockerfile-alternate"},
+		{
+			Name: "Service config without image key",
+			ServiceConfig: kobject.ServiceConfig{
+				Build:      filepath.Join(dir, testDir),
+				Dockerfile: "Dockerfile-alternate",
+				BuildArgs:  map[string]*string{"name": &value},
+			},
+		},
+		{
+			Name: "Service config with image key",
+			ServiceConfig: kobject.ServiceConfig{
+				Build:      filepath.Join(dir, testDir),
+				Dockerfile: "Dockerfile-alternate",
+				BuildArgs:  map[string]*string{"name": &value},
+				Image:      "foo:bar",
+			},
+		},
 	}
 
-	for name, test := range testCases {
-		t.Log("Test case: ", name)
-		if test.field != test.value {
-			t.Errorf("Expected: %#v, got: %#v", test.value, test.field)
+	for _, test := range testCases {
+
+		bc, err := initBuildConfig(serviceName, test.ServiceConfig, repo, branch)
+		if err != nil {
+			t.Error(errors.Wrap(err, "initBuildConfig failed"))
+		}
+
+		assertions := map[string]struct {
+			field string
+			value string
+		}{
+			"Assert buildconfig source git URI":     {bc.Spec.CommonSpec.Source.Git.URI, repo},
+			"Assert buildconfig source git Ref":     {bc.Spec.CommonSpec.Source.Git.Ref, branch},
+			"Assert buildconfig source context dir": {bc.Spec.CommonSpec.Source.ContextDir, testDir + "/"},
+			// BuildConfig output image is named after service name. If image key is set than tag from that is used.
+			"Assert buildconfig output name":    {bc.Spec.CommonSpec.Output.To.Name, serviceName + ":" + getImageTag(test.ServiceConfig.Image)},
+			"Assert buildconfig dockerfilepath": {bc.Spec.CommonSpec.Strategy.DockerStrategy.DockerfilePath, test.ServiceConfig.Dockerfile},
+		}
+
+		for name, assertionTest := range assertions {
+			if assertionTest.field != assertionTest.value {
+				t.Errorf("%s Expected: %#v, got: %#v", name, assertionTest.value, assertionTest.field)
+			}
+		}
+		if !reflect.DeepEqual(bc.Spec.CommonSpec.Strategy.DockerStrategy.Env, buildArgs) {
+			t.Errorf("Expected: %#v, got: %#v", bc.Spec.CommonSpec.Strategy.DockerStrategy.Env, buildArgs)
 		}
 	}
 }

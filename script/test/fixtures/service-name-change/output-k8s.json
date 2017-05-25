@@ -66,7 +66,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "mariadb",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -149,7 +152,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "wordpress",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "wordpress"
+        }
       },
       "spec": {
         "replicas": 1,

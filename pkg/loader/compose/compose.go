@@ -317,10 +317,15 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		serviceConfig := kobject.ServiceConfig{}
 		serviceConfig.Image = composeServiceConfig.Image
 		serviceConfig.Build = composeServiceConfig.Build.Context
-		serviceConfig.ContainerName = composeServiceConfig.ContainerName
+		newName := normalizeServiceNames(composeServiceConfig.ContainerName)
+		serviceConfig.ContainerName = newName
+		if newName != composeServiceConfig.ContainerName {
+			log.Infof("Container name in service %q has been changed from %q to %q", name, composeServiceConfig.ContainerName, newName)
+		}
 		serviceConfig.Command = composeServiceConfig.Entrypoint
 		serviceConfig.Args = composeServiceConfig.Command
 		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
+		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
 
 		envs := loadEnvVars(composeServiceConfig.Environment)
 		serviceConfig.Environment = envs
@@ -372,6 +377,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		serviceConfig.Tty = composeServiceConfig.Tty
 		serviceConfig.MemLimit = composeServiceConfig.MemLimit
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
+		serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 		if normalizeServiceNames(name) != name {
 			log.Infof("Service name in docker-compose has been changed from %q to %q", name, normalizeServiceNames(name))

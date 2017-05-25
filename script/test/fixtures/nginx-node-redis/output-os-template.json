@@ -216,7 +216,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "nginx",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx"
+        }
       },
       "spec": {
         "triggers": [
@@ -337,7 +340,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "node1",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "node1"
+        }
       },
       "spec": {
         "triggers": [
@@ -458,7 +464,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "node2",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "node2"
+        }
       },
       "spec": {
         "triggers": [
@@ -579,7 +588,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "node3",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "node3"
+        }
       },
       "spec": {
         "triggers": [

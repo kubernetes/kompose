@@ -96,7 +96,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "gitlab",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "gitlab"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -172,7 +175,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "postgresql",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "postgresql"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -222,7 +228,10 @@
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "redis",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
       },
       "spec": {
         "replicas": 1,

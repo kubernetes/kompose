@@ -311,7 +311,7 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkPodTemplate(config, d.Spec.Template, labels); err != nil {
 						t.Errorf("%v", err)
 					}
-					if err := checkMeta(config, d.ObjectMeta, name, false); err != nil {
+					if err := checkMeta(config, d.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
 					if (int)(d.Spec.Replicas) != replicas {
@@ -328,7 +328,7 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkPodTemplate(config, ds.Spec.Template, labels); err != nil {
 						t.Errorf("%v", err)
 					}
-					if err := checkMeta(config, ds.ObjectMeta, name, false); err != nil {
+					if err := checkMeta(config, ds.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
 					if ds.Spec.Selector != nil && len(ds.Spec.Selector.MatchLabels) > 0 {
@@ -342,7 +342,7 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkPodTemplate(config, *rc.Spec.Template, labels); err != nil {
 						t.Errorf("%v", err)
 					}
-					if err := checkMeta(config, rc.ObjectMeta, name, false); err != nil {
+					if err := checkMeta(config, rc.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
 					if (int)(rc.Spec.Replicas) != replicas {
@@ -360,7 +360,7 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkPodTemplate(config, *dc.Spec.Template, labels); err != nil {
 						t.Errorf("%v", err)
 					}
-					if err := checkMeta(config, dc.ObjectMeta, name, false); err != nil {
+					if err := checkMeta(config, dc.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
 					if (int)(dc.Spec.Replicas) != replicas {
