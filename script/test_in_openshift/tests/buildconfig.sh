@@ -30,6 +30,6 @@ convert::kompose_up $docker_compose_file
 convert::kompose_up_check -p foo
 
 # Kompose down for buildconfig fails being tracked at #382
-# convert::kompose_down $docker_compose_file
+convert::kompose_down $docker_compose_file
 
-# convert::kompose_down_check 2
+convert::kompose_down_check 2
