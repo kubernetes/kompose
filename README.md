@@ -11,22 +11,16 @@
 
 ## Use Case
 
-If you have a Docker Compose [`docker-compose.yml`](./examples/docker-compose.yml) or a Docker Distributed Application Bundle [`docker-compose-bundle.dab`](./examples/docker-compose-bundle.dab) file, you can convert it into Kubernetes deployments and services like this:
+Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes-incubator/kompose/master/examples/docker-compose.yaml) into Kubernetes deployments and services with one simple command:
 
-```console
-$ kompose --bundle docker-compose-bundle.dab convert
-WARN Unsupported key networks - ignoring
-file "redis-svc.yaml" created
-file "web-svc.yaml" created
-file "web-deployment.yaml" created
-file "redis-deployment.yaml" created
-
-$ kompose -f docker-compose.yml convert
-WARN Unsupported key networks - ignoring
-file "redis-svc.yaml" created
-file "web-svc.yaml" created
-file "web-deployment.yaml" created
-file "redis-deployment.yaml" created
+```sh
+kompose convert -f docker-compose.yaml
+INFO file "frontend-service.yaml" created         
+INFO file "redis-master-service.yaml" created     
+INFO file "redis-slave-service.yaml" created      
+INFO file "frontend-deployment.yaml" created      
+INFO file "redis-master-deployment.yaml" created  
+INFO file "redis-slave-deployment.yaml" created 
 ```
 
 Other examples are provided in the _examples_ [directory](./examples).
