@@ -1,5 +1,44 @@
 # Change Log
 
+## [v0.7.0](https://github.com/kubernetes-incubator/kompose/tree/v0.7.0) (2017-05-25)
+[Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.6.0...v0.7.0)
+
+**Closed issues:**
+
+- image tag name absent from generated imagestream config [\#611](https://github.com/kubernetes-incubator/kompose/issues/611)
+- Volume mount on the host isn't supported  [\#599](https://github.com/kubernetes-incubator/kompose/issues/599)
+- Is this a case of buildconfig contextDir being incorrectly set? [\#593](https://github.com/kubernetes-incubator/kompose/issues/593)
+- Problems running tests with latest master? [\#591](https://github.com/kubernetes-incubator/kompose/issues/591)
+- crashes on launch [\#589](https://github.com/kubernetes-incubator/kompose/issues/589)
+- Unable to run tests [\#587](https://github.com/kubernetes-incubator/kompose/issues/587)
+- Latest kompose fails on many build-config tests locally [\#585](https://github.com/kubernetes-incubator/kompose/issues/585)
+- Fixture regarding build context fails each time [\#576](https://github.com/kubernetes-incubator/kompose/issues/576)
+- 0.6.0 Release [\#574](https://github.com/kubernetes-incubator/kompose/issues/574)
+- \[UX\] Sort output when doing kind: list and --stdout [\#554](https://github.com/kubernetes-incubator/kompose/issues/554)
+- no commit hash in kompose 0.3.0 version information [\#487](https://github.com/kubernetes-incubator/kompose/issues/487)
+- Inconsistency in build context [\#445](https://github.com/kubernetes-incubator/kompose/issues/445)
+- environment variables not being set in buildConfig [\#406](https://github.com/kubernetes-incubator/kompose/issues/406)
+- kompose down with openshift doesn't delete  BuildConfig [\#382](https://github.com/kubernetes-incubator/kompose/issues/382)
+
+**Merged pull requests:**
+
+- Update version number in setup.md file in release script [\#618](https://github.com/kubernetes-incubator/kompose/pull/618) ([cdrage](https://github.com/cdrage))
+- Fix incorrect tag in BuildConfig. [\#613](https://github.com/kubernetes-incubator/kompose/pull/613) ([kadel](https://github.com/kadel))
+- Update `kompose completion` [\#612](https://github.com/kubernetes-incubator/kompose/pull/612) ([cdrage](https://github.com/cdrage))
+- Add support for stop\_grace\_period [\#608](https://github.com/kubernetes-incubator/kompose/pull/608) ([gitlawr](https://github.com/gitlawr))
+- Replace underscores with dashes while rendering container names [\#606](https://github.com/kubernetes-incubator/kompose/pull/606) ([achanda](https://github.com/achanda))
+- remove duplicate import with different name [\#602](https://github.com/kubernetes-incubator/kompose/pull/602) ([surajssd](https://github.com/surajssd))
+- Updated Vendoring [\#601](https://github.com/kubernetes-incubator/kompose/pull/601) ([surajnarwade](https://github.com/surajnarwade))
+- \<docs\> Update version number [\#597](https://github.com/kubernetes-incubator/kompose/pull/597) ([cdrage](https://github.com/cdrage))
+- Use old git command [\#592](https://github.com/kubernetes-incubator/kompose/pull/592) ([cdrage](https://github.com/cdrage))
+- Fix link to fedora setup in docs [\#586](https://github.com/kubernetes-incubator/kompose/pull/586) ([surajssd](https://github.com/surajssd))
+- Release script binary upload bug [\#583](https://github.com/kubernetes-incubator/kompose/pull/583) ([cdrage](https://github.com/cdrage))
+- Add io.kompose.service label to every object & use reaper to delete BuildConfig [\#578](https://github.com/kubernetes-incubator/kompose/pull/578) ([kadel](https://github.com/kadel))
+- Fixes fixture test for build context [\#577](https://github.com/kubernetes-incubator/kompose/pull/577) ([surajnarwade](https://github.com/surajnarwade))
+- sort output when creating kubernetes/openshift objects [\#565](https://github.com/kubernetes-incubator/kompose/pull/565) ([procrypt](https://github.com/procrypt))
+- Adding kompose up/down tests for openshift [\#460](https://github.com/kubernetes-incubator/kompose/pull/460) ([ashetty1](https://github.com/ashetty1))
+- Add build\_args support in buildconfig [\#424](https://github.com/kubernetes-incubator/kompose/pull/424) ([surajnarwade](https://github.com/surajnarwade))
+
 ## [v0.6.0](https://github.com/kubernetes-incubator/kompose/tree/v0.6.0) (2017-04-28)
 [Full Changelog](https://github.com/kubernetes-incubator/kompose/compare/v0.5.0...v0.6.0)
 
@@ -18,7 +57,6 @@
 - mongodb startup problem with simple dockerfile [\#489](https://github.com/kubernetes-incubator/kompose/issues/489)
 - RFE: kompose up support specified namespace to deploy [\#473](https://github.com/kubernetes-incubator/kompose/issues/473)
 - Wrong version, again [\#461](https://github.com/kubernetes-incubator/kompose/issues/461)
-- Inconsistency in build context [\#445](https://github.com/kubernetes-incubator/kompose/issues/445)
 - Normalizing service name might break application [\#433](https://github.com/kubernetes-incubator/kompose/issues/433)
 - Converting docker-compose file on mac: `panic: runtime error` [\#379](https://github.com/kubernetes-incubator/kompose/issues/379)
 - Should we not generate PVC's by default? [\#376](https://github.com/kubernetes-incubator/kompose/issues/376)
@@ -28,6 +66,7 @@
 
 **Merged pull requests:**
 
+- 0.6.0 Release [\#582](https://github.com/kubernetes-incubator/kompose/pull/582) ([cdrage](https://github.com/cdrage))
 - Update the release script again [\#581](https://github.com/kubernetes-incubator/kompose/pull/581) ([cdrage](https://github.com/cdrage))
 - Add Support for cap\_add & cap\_drop [\#580](https://github.com/kubernetes-incubator/kompose/pull/580) ([gitlawr](https://github.com/gitlawr))
 - Update PR for ROADMAP [\#579](https://github.com/kubernetes-incubator/kompose/pull/579) ([cdrage](https://github.com/cdrage))
