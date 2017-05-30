@@ -5,66 +5,66 @@ permalink: /conversion/
 
 # Conversion reference
 
-This document outlines all the conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts.
+This document outlines all possible conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts. This includes version 1, 2 and 3 of Docker Compose.
 
-| Value | Ver. | Support | K8s / OpenShift | Notes |
-|-------------------|---------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| __SERVICE__ |  |  |  |  |
-| build |  | Y | OpenShift: [BuildConfig](https://docs.openshift.com/enterprise/3.1/dev_guide/builds.html#defining-a-buildconfig) | Converts, but local builds are not yet supported. See issue [97](https://github.com/kubernetes-incubator/kompose/issues/97) |
-| cap_add, cap_drop |  | Y | [Pod.Spec.Container.SecurityContext.Capabilities.Add/Drop](https://kubernetes.io/docs/api-reference/v1.6/#capabilities-v1-core) |  |
-| command |  | Y | [Pod.Spec.Container.Command](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_container) |  |
-| cgroup_parent |  | N |  | No compatibility with Kubernetes / OpenShift. Limited use-cases with Docker. |
-| container_name |  | Y | Mapped to both [Metadata.Name](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/identifiers.md) and [Deployment.Spec.Containers.Name](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/identifiers.md) |  |
-| deploy | v3 | N |  | Upcoming support started |
-| devices |  | N |  | Not supported within Kubernetes, see this [issue](https://github.com/kubernetes/kubernetes/issues/5607) |
-| depends_on |  | N |  |  |
-| dns |  | N |  |  |
-| dns_search |  | N |  |  |
-| tmpfs |  | Y | [Pod.Spec.Containers.Volumes.EmptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir) | Creates `emptyDir` volume with `medium` set to `Memory` & mounts given directory inside container | 
-| entrypoint |  | Y | [Pod.Spec.Container.Command](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_container) | Same as `command` |
-| env_file |  | N |  |  |
-| environment |  | Y | [Pod.Spec.Container.Env](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_envvar) |  |
-| expose |  | Y | [Service.Spec.Ports](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_containerport) |  |
-| extends | v2 | Y |  | Extends by utilizing the same image supplied |
-| external_links |  | N |  |  |
-| extra_hosts |  | N |  |  |
-| group_add |  | N |  |  |
-| healthcheck | v2.1/v3 | N |  |  |
-| image |  | Y | [Deployment.Spec.Containers.Image](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_container) |  |
-| isolation |  | N |  |  |
-| labels |  | Y | [Metadata.Annotations](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_objectmeta) |  |
-| links |  | N |  |  |
-| logging |  | N |  |  |
-| network_mode |  | N |  |  |
-| networks |  | N |  |  |
-| pid |  | N |  |  |
-| ports |  | Y | [Service.Spec.Ports](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_containerport) |  |
-| security_opt |  | N |  |  |
-| stop_grace_period |  | Y | [Pod.Spec.TerminationGracePeriodSeconds](https://kubernetes.io/docs/resources-reference/v1.6/#podspec-v1-core) |  |
-| stop_signal |  | N |  |  |
-| sysctls |  | N |  |  |
-| ulimits |  | N |  | See this [issue](https://github.com/kubernetes/kubernetes/issues/3595) on the k8s repo |
-| userns_mode |  | N |  |  |
-| volumes |  | Y | [PersistentVolumeClaim](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_PersistentVolumeClaim) | Creates a PersistentVolumeClaim. Can only be created if there is already a PersistentVolume within the cluster |
-| volume_driver | v2 | N |  |  |
-| volumes_from | v2 | Y | [PersistentVolumeClaim](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_PersistentVolumeClaim) | Creates a PersistentVolumeClaim that is both shared by deployment and deployment config (OpenShift) |
-| cpu_shares | v2 | N |  |  |
-| cpu_quota | v2 | N |  |  |
-| cpuset | v2 | N |  |  |
-| mem_limit | v2 | Y | [...Containers.Resources.Limits.Memory](https://kubernetes.io/docs/api-reference/v1/definitions/#_v1_resourcefieldselector) |  |
-| memswap_limit | v2 | N |  | Use `mem_limit` |
-|  |  |  |  |  |
-| __VOLUME__ |  |  |  |  |
-| driver |  | N |  |  |
-| driver_opts |  | N |  |  |
-| external |  | N |  |  |
-| labels |  | N |  |  |
-|  |  |  |  |  |
-| __NETWORK__ |  |  |  |  |
-| driver |  | N |  |  |
-| driver_opts |  | N |  |  |
-| enable_ipv6 |  | N |  |  |
-| ipam |  | N |  |  |
-| internal |  | N |  |  |
-| labels |  | N |  |  |
-| external |  | N |  |  |
+| Value             | Support | K8s / OpenShift                                                  | Notes                                                                                                          |
+|-------------------|---------|------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| SERVICE           |         |                                                                  |                                                                                                                |
+| build             | Y       | OpenShift: BuildConfig                                           | Converts, but local builds are not yet supported. See issue 97                                                 |
+| cap_add, cap_drop | Y       | Pod.Spec.Container.SecurityContext.Capabilities.Add/Drop         |                                                                                                                |
+| command           | Y       | Pod.Spec.Container.Command                                       |                                                                                                                |
+| cgroup_parent     | N       |                                                                  | No compatibility with Kubernetes / OpenShift. Limited use-cases with Docker.                                   |
+| container_name    | Y       | Mapped to both Metadata.Name and Deployment.Spec.Containers.Name |                                                                                                                |
+| deploy            | N       |                                                                  | Upcoming support started                                                                                       |
+| devices           | N       |                                                                  | Not supported within Kubernetes, see this issue                                                                |
+| depends_on        | N       |                                                                  |                                                                                                                |
+| dns               | N       |                                                                  |                                                                                                                |
+| dns_search        | N       |                                                                  |                                                                                                                |
+| tmpfs             | Y       | Pod.Spec.Containers.Volumes.EmptyDir                             | Creates emptyDirvolume with medium set to Memory & mounts given directory inside container                     |
+| entrypoint        | Y       | Pod.Spec.Container.Command                                       | Same as command                                                                                                |
+| env_file          | N       |                                                                  |                                                                                                                |
+| environment       | Y       | Pod.Spec.Container.Env                                           |                                                                                                                |
+| expose            | Y       | Service.Spec.Ports                                               |                                                                                                                |
+| extends           | Y       |                                                                  | Extends by utilizing the same image supplied                                                                   |
+| external_links    | N       |                                                                  |                                                                                                                |
+| extra_hosts       | N       |                                                                  |                                                                                                                |
+| group_add         | N       |                                                                  |                                                                                                                |
+| healthcheck       | N       |                                                                  |                                                                                                                |
+| image             | Y       | Deployment.Spec.Containers.Image                                 |                                                                                                                |
+| isolation         | N       |                                                                  |                                                                                                                |
+| labels            | Y       | Metadata.Annotations                                             |                                                                                                                |
+| links             | N       |                                                                  |                                                                                                                |
+| logging           | N       |                                                                  |                                                                                                                |
+| network_mode      | N       |                                                                  |                                                                                                                |
+| networks          | N       |                                                                  |                                                                                                                |
+| pid               | N       |                                                                  |                                                                                                                |
+| ports             | Y       | Service.Spec.Ports                                               |                                                                                                                |
+| security_opt      | N       |                                                                  |                                                                                                                |
+| stop_grace_period | Y       | Pod.Spec.TerminationGracePeriodSeconds                           |                                                                                                                |
+| stop_signal       | N       |                                                                  |                                                                                                                |
+| sysctls           | N       |                                                                  |                                                                                                                |
+| ulimits           | N       |                                                                  | See this issue on the k8s repo                                                                                 |
+| userns_mode       | N       |                                                                  |                                                                                                                |
+| volumes           | Y       | PersistentVolumeClaim                                            | Creates a PersistentVolumeClaim. Can only be created if there is already a PersistentVolume within the cluster |
+| volume_driver     | N       |                                                                  |                                                                                                                |
+| volumes_from      | Y       | PersistentVolumeClaim                                            | Creates a PersistentVolumeClaim that is both shared by deployment and deployment config (OpenShift)            |
+| cpu_shares        | N       |                                                                  |                                                                                                                |
+| cpu_quota         | N       |                                                                  |                                                                                                                |
+| cpuset            | N       |                                                                  |                                                                                                                |
+| mem_limit         | Y       | …Containers.Resources.Limits.Memory                              |                                                                                                                |
+| memswap_limit     | N       |                                                                  | Use mem_limit                                                                                                  |
+|                   |         |                                                                  |                                                                                                                |
+| VOLUME            |         |                                                                  |                                                                                                                |
+| driver            | N       |                                                                  |                                                                                                                |
+| driver_opts       | N       |                                                                  |                                                                                                                |
+| external          | N       |                                                                  |                                                                                                                |
+| labels            | N       |                                                                  |                                                                                                                |
+|                   |         |                                                                  |                                                                                                                |
+| NETWORK           |         |                                                                  |                                                                                                                |
+| driver            | N       |                                                                  |                                                                                                                |
+| driver_opts       | N       |                                                                  |                                                                                                                |
+| enable_ipv6       | N       |                                                                  |                                                                                                                |
+| ipam              | N       |                                                                  |                                                                                                                |
+| internal          | N       |                                                                  |                                                                                                                |
+| labels            | N       |                                                                  |                                                                                                                |
+| external          | N       |                                                                  |                                                                                                                |
