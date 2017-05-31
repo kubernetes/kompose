@@ -48,6 +48,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
+	"sort"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -480,14 +481,17 @@ func (k *Kubernetes) ConfigPVCVolumeSource(name string, readonly bool) *api.Volu
 
 // ConfigEnvs configures the environment variables.
 func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
-	envs := []api.EnvVar{}
+	envs := transformer.EnvSort{}
 	for _, v := range service.Environment {
 		envs = append(envs, api.EnvVar{
 			Name:  v.Name,
 			Value: v.Value,
 		})
 	}
-
+	// Stable sorts data while keeping the original order of equal elements
+	// we need this because envs are not populated in any random order
+	// this sorting ensures they are populated in a particular order
+	sort.Stable(envs)
 	return envs
 }
 
