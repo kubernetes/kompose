@@ -68,7 +68,6 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		"MacAddress":    false,
 		"MemSwapLimit":  false,
 		"NetworkMode":   false,
-		"Pid":           false,
 		"SecurityOpt":   false,
 		"ShmSize":       false,
 		"StopSignal":    false,
@@ -368,6 +367,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		serviceConfig.CPUQuota = int64(composeServiceConfig.CPUQuota)
 		serviceConfig.CapAdd = composeServiceConfig.CapAdd
 		serviceConfig.CapDrop = composeServiceConfig.CapDrop
+		serviceConfig.Pid = composeServiceConfig.Pid
 		serviceConfig.Expose = composeServiceConfig.Expose
 		serviceConfig.Privileged = composeServiceConfig.Privileged
 		serviceConfig.Restart = composeServiceConfig.Restart

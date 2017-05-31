@@ -174,6 +174,80 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 
 }
 
+func TestTransformWithPid(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolTCP}},
+		Command:       []string{"cmd"},
+		WorkingDir:    "dir",
+		Args:          []string{"arg1", "arg2"},
+		Volumes:       []string{"/tmp/volume"},
+		Network:       []string{"network1", "network2"},
+		Restart:       "always",
+		Pid:           "host",
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	for _, obj := range objects {
+		if deploy, ok := obj.(*extensions.Deployment); ok {
+			hostPid := deploy.Spec.Template.Spec.SecurityContext.HostPID
+			if hostPid != true {
+				t.Errorf("Pid in ServiceConfig is not matching HostPID in PodSpec")
+			}
+		}
+	}
+}
+
+func TestTransformWithInvaildPid(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolTCP}},
+		Command:       []string{"cmd"},
+		WorkingDir:    "dir",
+		Args:          []string{"arg1", "arg2"},
+		Volumes:       []string{"/tmp/volume"},
+		Network:       []string{"network1", "network2"},
+		Restart:       "always",
+		Pid:           "badvalue",
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	for _, obj := range objects {
+		if deploy, ok := obj.(*extensions.Deployment); ok {
+			if deploy.Spec.Template.Spec.SecurityContext != nil {
+				hostPid := deploy.Spec.Template.Spec.SecurityContext.HostPID
+				if hostPid != false {
+					t.Errorf("Pid in ServiceConfig is not matching HostPID in PodSpec")
+				}
+			}
+		}
+	}
+}
+
 func TestIsDir(t *testing.T) {
 	tempPath := "/tmp/kompose_unit"
 	tempDir := filepath.Join(tempPath, "i_am_dir")
