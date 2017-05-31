@@ -329,6 +329,11 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		envs := loadEnvVars(composeServiceConfig.Environment)
 		serviceConfig.Environment = envs
 
+		//Validate dockerfile path
+		if filepath.IsAbs(serviceConfig.Dockerfile) {
+			log.Fatalf("%q defined in service %q is an absolute path, it must be a relative path.", serviceConfig.Dockerfile, name)
+		}
+
 		// load ports
 		ports, err := loadPorts(composeServiceConfig.Ports)
 		if err != nil {
