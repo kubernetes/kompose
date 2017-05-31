@@ -399,6 +399,16 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			template.Spec.Containers[0].Resources.Limits = memoryResourceList
 		}
 
+		podSecurityContext := &api.PodSecurityContext{}
+		//set pid namespace mode
+		if service.Pid != "" {
+			if service.Pid == "host" {
+				podSecurityContext.HostPID = true
+			} else {
+				log.Warningf("Ignoring PID key for service \"%v\". Invalid value \"%v\".", name, service.Pid)
+			}
+		}
+
 		// Setup security context
 		securityContext := &api.SecurityContext{}
 		if service.Privileged == true {
@@ -423,7 +433,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		if *securityContext != (api.SecurityContext{}) {
 			template.Spec.Containers[0].SecurityContext = securityContext
 		}
-
+		if !reflect.DeepEqual(*podSecurityContext, api.PodSecurityContext{}) {
+			template.Spec.SecurityContext = podSecurityContext
+		}
 		template.Spec.Containers[0].Ports = ports
 		template.ObjectMeta.Labels = transformer.ConfigLabels(name)
 

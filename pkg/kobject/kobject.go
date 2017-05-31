@@ -76,6 +76,7 @@ type ServiceConfig struct {
 	CapAdd          []string            `compose:"cap_add" bundle:""`
 	CapDrop         []string            `compose:"cap_drop" bundle:""`
 	Expose          []string            `compose:"expose" bundle:""`
+	Pid             string              `compose:"pid" bundle:""`
 	Privileged      bool                `compose:"privileged" bundle:""`
 	Restart         string              `compose:"restart" bundle:""`
 	User            string              `compose:"user" bundle:"User"`
