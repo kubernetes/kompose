@@ -28,6 +28,7 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
+	"k8s.io/kubernetes/pkg/api"
 )
 
 const Selector = "io.kompose.service"
@@ -150,4 +151,23 @@ func formatProviderName(provider string) string {
 		return "Kubernetes"
 	}
 	return provider
+}
+
+// Sort struct
+type EnvSort []api.EnvVar
+
+// returns the number of elements in the collection.
+func (env EnvSort) Len() int {
+	return len(env)
+}
+
+// returns whether the element with index i should sort before
+// the element with index j.
+func (env EnvSort) Less(i, j int) bool {
+	return env[i].Name < env[j].Name
+}
+
+// swaps the elements with indexes i and j.
+func (env EnvSort) Swap(i, j int) {
+	env[i], env[j] = env[j], env[i]
 }
