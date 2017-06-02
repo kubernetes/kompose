@@ -30,6 +30,28 @@ cd "$DOCS_REPO_NAME"
 git checkout gh-pages
 git checkout master docs
 
+# Remove README.md from docs folder as it isn't relevant
+rm docs/README.md
+
+# Use quickstart.md instead as the main index page
+mv docs/quickstart.md index.md
+
+# Check that index.md has the appropriate Jekyll format
+index="index.md"
+if cat $index | head -n 1 | grep "\-\-\-";
+then
+echo "index.md already contains Jekyll format"
+else
+# Remove ".md" from the name
+name=${index::-3}
+echo "Adding Jekyll file format to $index"
+jekyll="---
+layout: default
+---
+"
+echo -e "$jekyll\n$(cat $index)" > $index
+fi
+
 # clean-up the docs and convert to jekyll-friendly docs
 cd docs
 for filename in *.md; do
@@ -49,12 +71,6 @@ permalink: /$name/
     fi
 done
 cd ..
-
-# Remove README.md from docs folder as it isn't relevant
-rm docs/README.md
-
-# Use quickstart.md instead as the main index page
-mv docs/quickstart.md index.md
 
 # add relevant user information
 git config user.name "$DOCS_USER"
