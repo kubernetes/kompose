@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # Kubernetes + Compose = Kompose
 
 What's Kompose? It's a conversion tool for all things compose (namely Docker Compose) to container orchestrators (Kubernetes or OpenShift).
