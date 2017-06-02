@@ -50,8 +50,11 @@ permalink: /$name/
 done
 cd ..
 
-# remove README.md from docs folder as it isn't relevant
+# Remove README.md from docs folder as it isn't relevant
 rm docs/README.md
+
+# Use quickstart.md instead as the main index page
+mv docs/quickstart.md index.md
 
 # add relevant user information
 git config user.name "$DOCS_USER"
