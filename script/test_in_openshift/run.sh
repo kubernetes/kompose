@@ -34,13 +34,23 @@ fi
 
 convert::oc_cluster_up
 
-for test_case in $KOMPOSE_ROOT/script/test_in_openshift/tests/*; do
-    $test_case; exit_status=$?
+
+if [ -z $1 ]; then
+    for test_case in $KOMPOSE_ROOT/script/test_in_openshift/tests/*; do
+	$test_case; exit_status=$?
+	if [ $exit_status -ne 0 ]; then
+	    openshift_exit_status=1
+	fi
+	convert::oc_cleanup
+    done
+else
+    # Run individual test scripts
+    test_to_run=$1
+    $test_to_run; exit_status=$?
     if [ $exit_status -ne 0 ]; then
 	openshift_exit_status=1
     fi
-    convert::oc_cleanup
-done
+fi
 
 convert::oc_cluster_down
 

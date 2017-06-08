@@ -130,7 +130,7 @@ function convert::kompose_up_check () {
 	   [ $(oc get pods | eval ${query_2} | awk '{ print $3 }' | \
 		      grep ${query_2_status} | wc -l) -eq $replica_2 ]; then
 	oc get pods
-	convert::print_pass "All pods are Running now. kompose up is successful."
+	convert::print_pass "All pods are Running now. kompose up is successful.\n"
     fi
 }
 
@@ -178,7 +178,7 @@ function convert::oc_check_route () {
     fi
 
     if [ $(oc get route | grep ${route_key} | wc -l ) -gt 0 ]; then
-	convert::print_pass "Route *.${route_key} has been exposed"
+	convert::print_pass "Route *.${route_key} has been exposed\n"
     else
 	convert::print_fail "Route *.${route_key} has not been exposed\n"
     fi
@@ -192,7 +192,7 @@ function convert::kompose_up () {
     # Usage: convert::kompose_up <docker_compose_file>
     local compose_file=$1
     convert::print_msg "Running kompose up ..."
-    kompose --provider=openshift --emptyvols -f $compose_file up
+    kompose up --provider=openshift --emptyvols -f $compose_file
     exit_status=$?
 
     if [ $exit_status -ne 0 ]; then
