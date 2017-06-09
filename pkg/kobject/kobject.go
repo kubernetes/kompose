@@ -39,6 +39,7 @@ type ConvertOptions struct {
 	CreateDeploymentConfig      bool
 	BuildRepo                   string
 	BuildBranch                 string
+	Build                       string
 	CreateChart                 bool
 	GenerateYaml                bool
 	GenerateJSON                bool

@@ -27,6 +27,8 @@ fi
 
 # Warning Template
 warning="Buildconfig using $uri::$branch as source."
+# Replacing variables with current branch and uri
+sed -e "s;%URI%;$uri;g" -e "s;%REF%;$branch;g" $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os-template.json > /tmp/output-os.json
 
 #######
 # Tests related to docker-compose file in /script/test/fixtures/etherpad
@@ -54,11 +56,13 @@ unset $(cat $KOMPOSE_ROOT/script/test/fixtures/gitlab/envs | cut -d'=' -f1)
 ######
 # Tests related to docker-compose file in /script/test/fixtures/nginx-node-redis
 # kubernetes test
-convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-k8s.json" "Kubernetes provider doesn't support build key - ignoring"
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-k8s.json"
 # openshift test
+
 # Replacing variables with current branch and uri
+# Test BuildConfig
 sed -e "s;%URI%;$uri;g" -e "s;%REF%;$branch;g" $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os-template.json > /tmp/output-os.json
-convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j" "/tmp/output-os.json" "$warning"
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j --build build-config" "/tmp/output-os.json" "$warning"
 rm /tmp/output-os.json
 
 ######
@@ -214,23 +218,25 @@ convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixture
 ####
 # Test regarding build context (running kompose from various directories)
 # Replacing variables with current branch and uri
+# Test BuildConfig
 sed -e "s;%URI%;$uri;g" -e "s;%REF%;$branch;g" $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os-template.json > /tmp/output-os.json
 CURRENT_DIR=$(pwd)
 cd "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/"
-convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j" "/tmp/output-os.json" "$warning"
+convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j --build build-config" "/tmp/output-os.json" "$warning"
 cd "$KOMPOSE_ROOT/script/test/fixtures/"
-convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j -f nginx-node-redis/docker-compose.yml" "/tmp/output-os.json" "$warning"
+convert::expect_success_and_warning "kompose convert --provider openshift --stdout -j -f nginx-node-redis/docker-compose.yml --build build-config" "/tmp/output-os.json" "$warning"
 cd "$KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/node"
-convert::expect_success_and_warning "kompose convert  --provider openshift --stdout -j -f ../docker-compose.yml" "/tmp/output-os.json" "$warning"
+convert::expect_success_and_warning "kompose convert  --provider openshift --stdout -j -f ../docker-compose.yml --build build-config" "/tmp/output-os.json" "$warning"
 cd $CURRENT_DIR
 rm /tmp/output-os.json
 
 
 # Test the presence of build args in buildconfig
 # Replacing variables with current branch and uri
+# Test BuildConfig
 sed -e "s;%URI%;$uri;g" -e "s;%REF%;$branch;g" $KOMPOSE_ROOT/script/test/fixtures/buildargs/output-os-template.json > /tmp/output-buildarg-os.json
 export $(cat $KOMPOSE_ROOT/script/test/fixtures/buildargs/envs)
-convert::expect_success_and_warning "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/buildargs/docker-compose.yml convert --stdout -j" "/tmp/output-buildarg-os.json" "$warning"
+convert::expect_success_and_warning "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/buildargs/docker-compose.yml convert --stdout -j --build build-config" "/tmp/output-buildarg-os.json" "$warning"
 rm /tmp/output-buildarg-os.json
 
 # Test related to support docker-compose.yaml beside docker-compose.yml

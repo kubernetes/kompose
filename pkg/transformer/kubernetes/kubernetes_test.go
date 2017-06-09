@@ -19,7 +19,6 @@ package kubernetes
 import (
 	"fmt"
 	"reflect"
-	"strings"
 	"testing"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
@@ -426,39 +425,6 @@ func TestConvertRestartOptions(t *testing.T) {
 			}
 		}
 	}
-}
-
-// TestUnsupportedKeys test checkUnsupportedKey function
-func TestUnsupportedKeys(t *testing.T) {
-
-	kobjectWithBuild := newKomposeObject()
-	kobjectWithBuild.LoadedFrom = "compose"
-	serviceConfig := kobjectWithBuild.ServiceConfigs["app"]
-	serviceConfig.Build = "./asdf"
-	serviceConfig.Network = []string{}
-	kobjectWithBuild.ServiceConfigs = map[string]kobject.ServiceConfig{"app": serviceConfig}
-
-	// define all test cases for checkUnsupportedKey function
-	testCases := map[string]struct {
-		bundleFile              kobject.KomposeObject
-		expectedUnsupportedKeys []string
-	}{
-		"Full Bundle": {
-			kobjectWithBuild,
-			[]string{"build"},
-		},
-	}
-
-	k := Kubernetes{}
-
-	for name, test := range testCases {
-		t.Log("Test case:", name)
-		keys := k.CheckUnsupportedKey(&test.bundleFile, unsupportedKey)
-		if !reflect.DeepEqual(keys, test.expectedUnsupportedKeys) {
-			t.Errorf("ERROR: Expecting unsupported keys: ['%s']. Got: ['%s']", strings.Join(test.expectedUnsupportedKeys, "', '"), strings.Join(keys, "', '"))
-		}
-	}
-
 }
 
 func TestRestartOnFailure(t *testing.T) {
