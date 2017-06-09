@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
@@ -100,6 +99,27 @@ func getImageTag(image string) string {
 
 }
 
+// Inputs name of the service + provided image
+// Outputs name is image is blank, but still provide a tag.
+func taggedImage(name string, serviceImage string) string {
+	var image string
+	tag := getImageTag(serviceImage)
+
+	// Use the image name if not blank
+	if serviceImage != "" {
+		image = serviceImage
+	} else {
+		image = name
+	}
+
+	// Add a tag if not present
+	if !strings.Contains(image, ":") {
+		image = image + ":" + tag
+	}
+
+	return image
+}
+
 // hasGitBinary checks if the 'git' binary is available on the system
 func hasGitBinary() bool {
 	_, err := exec.LookPath("git")
@@ -134,20 +154,6 @@ func getGitCurrentBranch(composeFileDir string) (string, error) {
 	return strings.TrimRight(string(out), "\n"), nil
 }
 
-// getComposeFileDir returns compose file directory
-func getComposeFileDir(inputFiles []string) (string, error) {
-	// Lets assume all the docker-compose files are in the same directory
-	inputFile := inputFiles[0]
-	if strings.Index(inputFile, "/") != 0 {
-		workDir, err := os.Getwd()
-		if err != nil {
-			return "", err
-		}
-		inputFile = filepath.Join(workDir, inputFile)
-	}
-	return filepath.Dir(inputFile), nil
-}
-
 // getAbsBuildContext returns build context relative to project root dir
 func getAbsBuildContext(context string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-prefix")
@@ -163,6 +169,8 @@ func getAbsBuildContext(context string) (string, error) {
 
 // initImageStream initialize ImageStream object
 func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) *imageapi.ImageStream {
+
+	// Retrieve tags and image name for mapping
 	tag := getImageTag(service.Image)
 
 	var importPolicy imageapi.TagImportPolicy
@@ -171,7 +179,8 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 	}
 
 	var tags map[string]imageapi.TagReference
-	if service.Build == "" {
+
+	if service.Build != "" || opt.Build != "build-config" {
 		tags = map[string]imageapi.TagReference{
 			tag: imageapi.TagReference{
 				From: &kapi.ObjectReference{
@@ -199,7 +208,6 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 	return is
 }
 
-// initBuildConfig initialize Openshifts BuildConfig Object
 func initBuildConfig(name string, service kobject.ServiceConfig, repo string, branch string) (*buildapi.BuildConfig, error) {
 	contextDir, err := getAbsBuildContext(service.Build)
 	envList := transformer.EnvSort{}
@@ -230,7 +238,6 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 		Spec: buildapi.BuildConfigSpec{
 			Triggers: []buildapi.BuildTriggerPolicy{
 				{Type: "ConfigChange"},
-				{Type: "ImageChange"},
 			},
 			RunPolicy: "Serial",
 			CommonSpec: buildapi.CommonSpec{
@@ -261,8 +268,10 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 
 // initDeploymentConfig initialize OpenShifts DeploymentConfig object
 func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
-	tag := getImageTag(service.Image)
 	containerName := []string{name}
+
+	// Properly add tags to the image name
+	tag := getImageTag(service.Image)
 
 	// Use ContainerName if it was set
 	if service.ContainerName != "" {
@@ -351,7 +360,6 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	var allobjects []runtime.Object
 	var err error
 	var composeFileDir string
-	hasBuild := false
 	buildRepo := opt.BuildRepo
 	buildBranch := opt.BuildBranch
 
@@ -359,6 +367,41 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
+
+		// Must build the images before conversion (got to add service.Image in case 'image' key isn't provided
+		// Check to see if there is an InputFile (required!) before we build the container
+		// Check that there's actually a Build key
+		// Lastly, we must have an Image name to continue
+		if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
+
+			if service.Image == "" {
+				return nil, fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
+			}
+
+			// Get the directory where the compose file is
+			composeFileDir, err := transformer.GetComposeFileDir(opt.InputFiles)
+			if err != nil {
+				return nil, err
+			}
+
+			// Build the container!
+			err = transformer.BuildDockerImage(service, name, composeFileDir)
+			if err != nil {
+				log.Fatalf("Unable to build Docker container for service %v: %v", name, err)
+			}
+
+			// Push the built container to the repo!
+			err = transformer.PushDockerImage(service, name)
+			if err != nil {
+				log.Fatalf("Unable to push Docker image for service %v: %v", name, err)
+			}
+
+		}
+
+		// If there's no "image" key, use the name of the container that's built
+		if service.Image == "" {
+			service.Image = name
+		}
 
 		// Generate pod only and nothing more
 		if service.Restart == "no" || service.Restart == "on-failure" {
@@ -378,38 +421,49 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 
 			// buildconfig needs to be added to objects after imagestream because of this Openshift bug: https://github.com/openshift/origin/issues/4518
-			if service.Build != "" {
-				if !hasBuild {
-					composeFileDir, err = getComposeFileDir(opt.InputFiles)
-					if err != nil {
-						log.Warningf("Error in detecting compose file's directory.")
-						continue
-					}
-					if !hasGitBinary() && (buildRepo == "" || buildBranch == "") {
-						return nil, errors.New("Git is not installed! Please install Git to create buildconfig, else supply source repository and branch to use for build using '--build-repo', '--build-branch' options respectively")
-					}
-					if buildBranch == "" {
-						buildBranch, err = getGitCurrentBranch(composeFileDir)
-						if err != nil {
-							return nil, errors.Wrap(err, "Buildconfig cannot be created because current git branch couldn't be detected.")
-						}
-					}
-					if opt.BuildRepo == "" {
-						if err != nil {
-							return nil, errors.Wrap(err, "Buildconfig cannot be created because remote for current git branch couldn't be detected.")
-						}
-						buildRepo, err = getGitCurrentRemoteURL(composeFileDir)
-						if err != nil {
-							return nil, errors.Wrap(err, "Buildconfig cannot be created because git remote origin repo couldn't be detected.")
-						}
-					}
-					hasBuild = true
+			// Generate BuildConfig if the parameter has been passed
+			if service.Build != "" && opt.Build == "build-config" {
+
+				// Get the compose file directory
+				composeFileDir, err = transformer.GetComposeFileDir(opt.InputFiles)
+				if err != nil {
+					log.Warningf("Error in detecting compose file's directory.")
+					continue
 				}
+
+				// Check for Git
+				if !hasGitBinary() && (buildRepo == "" || buildBranch == "") {
+					return nil, errors.New("Git is not installed! Please install Git to create buildconfig, else supply source repository and branch to use for build using '--build-repo', '--build-branch' options respectively")
+				}
+
+				// Check the Git branch
+				if buildBranch == "" {
+					buildBranch, err = getGitCurrentBranch(composeFileDir)
+					if err != nil {
+						return nil, errors.Wrap(err, "Buildconfig cannot be created because current git branch couldn't be detected.")
+					}
+				}
+
+				// Detect the remote branches
+				if opt.BuildRepo == "" {
+					if err != nil {
+						return nil, errors.Wrap(err, "Buildconfig cannot be created because remote for current git branch couldn't be detected.")
+					}
+					buildRepo, err = getGitCurrentRemoteURL(composeFileDir)
+					if err != nil {
+						return nil, errors.Wrap(err, "Buildconfig cannot be created because git remote origin repo couldn't be detected.")
+					}
+				}
+
+				// Initialize and build BuildConfig
 				bc, err := initBuildConfig(name, service, buildRepo, buildBranch)
 				if err != nil {
 					return nil, errors.Wrap(err, "initBuildConfig failed")
 				}
 				objects = append(objects, bc) // Openshift BuildConfigs
+
+				// Log what we're doing
+				log.Infof("Buildconfig using %s::%s as source.", buildRepo, buildBranch)
 			}
 
 			// If ports not provided in configuration we will not make service
@@ -425,18 +479,18 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				objects = append(objects, svc)
 			}
 		}
-		o.UpdateKubernetesObjects(name, service, &objects)
 
+		// Update and then append the objects (we're done generating)
+		o.UpdateKubernetesObjects(name, service, &objects)
 		allobjects = append(allobjects, objects...)
 	}
 
-	if hasBuild {
-		log.Infof("Buildconfig using %s::%s as source.", buildRepo, buildBranch)
-	}
 	// If docker-compose has a volumes_from directive it will be handled here
 	o.VolumesFrom(&allobjects, komposeObject)
-	// sort all object so Services are first
+
+	// sort all object so all services are first
 	o.SortServicesFirst(&allobjects)
+
 	return allobjects, nil
 }
 

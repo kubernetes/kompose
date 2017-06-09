@@ -20,11 +20,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 
+	"github.com/kubernetes-incubator/kompose/pkg/utils/docker"
 	"path/filepath"
 
 	"github.com/pkg/errors"
@@ -170,4 +172,81 @@ func (env EnvSort) Less(i, j int) bool {
 // swaps the elements with indexes i and j.
 func (env EnvSort) Swap(i, j int) {
 	env[i], env[j] = env[j], env[i]
+}
+
+// GetComposeFileDir returns compose file directory
+func GetComposeFileDir(inputFiles []string) (string, error) {
+	// Lets assume all the docker-compose files are in the same directory
+	inputFile := inputFiles[0]
+	if strings.Index(inputFile, "/") != 0 {
+		workDir, err := os.Getwd()
+		if err != nil {
+			return "", err
+		}
+		inputFile = filepath.Join(workDir, inputFile)
+	}
+	log.Debugf("Compose file dir: %s", filepath.Dir(inputFile))
+	return filepath.Dir(inputFile), nil
+}
+
+func BuildDockerImage(service kobject.ServiceConfig, name string, relativePath string) error {
+
+	// First, let's figure out the relative path of the Dockerfile!
+	// else, we error out.
+	if _, err := os.Stat(service.Build); err != nil {
+		return errors.Wrapf(err, "%s is not a valid path for building image %s. Check if this dir exists.", service.Build, name)
+	}
+
+	// Get the appropriate image source and name
+	// use path.Base to get the last element of the relative build path
+	imagePath := path.Join(relativePath, path.Base(service.Build))
+	imageName := name
+	if service.Image != "" {
+		imageName = service.Image
+	}
+
+	// Connect to the Docker client
+	client, err := docker.DockerClient()
+	if err != nil {
+		return err
+	}
+
+	// Use the build struct function to build the image
+	// Build the image!
+	build := docker.Build{*client}
+	err = build.BuildImage(imagePath, imageName)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func PushDockerImage(service kobject.ServiceConfig, serviceName string) error {
+
+	log.Debugf("Pushing Docker image '%s'", service.Image)
+
+	// Don't do anything if service.Image is blank, but at least WARN about it
+	// lse, let's push the image
+	if service.Image == "" {
+		log.Warnf("No image name has been passed for service %s, skipping pushing to repository", serviceName)
+		return nil
+	} else {
+
+		// Connect to the Docker client
+		client, err := docker.DockerClient()
+		if err != nil {
+			return err
+		}
+
+		push := docker.Push{*client}
+		err = push.PushImage(service.Image)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -18,6 +18,7 @@ package transformer
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -136,5 +137,15 @@ func TestParseVolume(t *testing.T) {
 		if mode != test.mode {
 			t.Errorf("In test case %q, returned access mode %s, expected %s", test.test, mode, test.mode)
 		}
+	}
+}
+
+func TestGetComposeFileDir(t *testing.T) {
+	output, err := GetComposeFileDir([]string{"foobar/docker-compose.yaml"})
+	if err != nil {
+		t.Errorf("Error with GetComposeFileDir %v", err)
+	}
+	if !strings.Contains(output, "foobar") {
+		t.Errorf("Expected $PWD/foobar, got %v", output)
 	}
 }

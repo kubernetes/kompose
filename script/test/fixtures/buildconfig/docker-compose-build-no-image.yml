@@ -3,4 +3,3 @@ version: "2"
 services:
     foo:
         build: "./build"
-        image: docker.io/cdrage/foobar

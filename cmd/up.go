@@ -17,6 +17,7 @@ limitations under the License.
 package cmd
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"strings"
 
 	"github.com/kubernetes-incubator/kompose/pkg/app"
@@ -31,6 +32,7 @@ var (
 	UpInsecureRepo bool
 	UpNamespace    string
 	UpOpt          kobject.ConvertOptions
+	UpBuild        string
 )
 
 var upCmd = &cobra.Command{
@@ -39,8 +41,15 @@ var upCmd = &cobra.Command{
 	Long:  `Deploy your Dockerized application to a container orchestrator. (default "kubernetes")`,
 	PreRun: func(cmd *cobra.Command, args []string) {
 
+		// Check that build-config wasn't passed in with --provider=kubernetes
+		provider := strings.ToLower(GlobalProvider)
+		if provider == "kubernetes" && UpBuild == "build-config" {
+			log.Fatalf("build-config is not a valid --build parameter with provider Kubernetes")
+		}
+
 		// Create the Convert options.
 		UpOpt = kobject.ConvertOptions{
+			Build:              UpBuild,
 			Replicas:           UpReplicas,
 			InputFiles:         GlobalFiles,
 			Provider:           strings.ToLower(GlobalProvider),
@@ -63,5 +72,6 @@ func init() {
 	upCmd.Flags().IntVar(&UpReplicas, "replicas", 1, "Specify the number of replicas generated")
 	upCmd.Flags().BoolVar(&UpInsecureRepo, "insecure-repository", false, "Use an insecure Docker repository for OpenShift ImageStream")
 	upCmd.Flags().StringVar(&UpNamespace, "namespace", "default", "Specify Namespace to deploy your application")
+	upCmd.Flags().StringVar(&UpBuild, "build", "local", `Set the type of build ("local"|"build-config" (OpenShift only)|"none")`)
 	RootCmd.AddCommand(upCmd)
 }

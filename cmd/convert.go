@@ -19,6 +19,7 @@ package cmd
 import (
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/kubernetes-incubator/kompose/pkg/app"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/spf13/cobra"
@@ -30,6 +31,7 @@ var (
 	ConvertOut                   string
 	ConvertBuildRepo             string
 	ConvertBuildBranch           string
+	ConvertBuild                 string
 	ConvertChart                 bool
 	ConvertDeployment            bool
 	ConvertDaemonSet             bool
@@ -52,6 +54,12 @@ var convertCmd = &cobra.Command{
 	Short: "Convert a Docker Compose file",
 	PreRun: func(cmd *cobra.Command, args []string) {
 
+		// Check that build-config wasn't passed in with --provider=kubernetes
+		provider := strings.ToLower(GlobalProvider)
+		if provider == "kubernetes" && UpBuild == "build-config" {
+			log.Fatalf("build-config is not a valid --build parameter with provider Kubernetes")
+		}
+
 		// Create the Convert Options.
 		ConvertOpt = kobject.ConvertOptions{
 			ToStdout:                    ConvertStdout,
@@ -65,6 +73,7 @@ var convertCmd = &cobra.Command{
 			CreateD:                     ConvertDeployment,
 			CreateDS:                    ConvertDaemonSet,
 			CreateRC:                    ConvertReplicationController,
+			Build:                       ConvertBuild,
 			BuildRepo:                   ConvertBuildRepo,
 			BuildBranch:                 ConvertBuildBranch,
 			CreateDeploymentConfig:      ConvertDeploymentConfig,
@@ -112,6 +121,7 @@ func init() {
 	convertCmd.Flags().MarkHidden("build-branch")
 
 	// Standard between the two
+	convertCmd.Flags().StringVar(&ConvertBuild, "build", "none", `Set the type of build ("local"|"build-config" (OpenShift only)|"none")`)
 	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into YAML format")
 	convertCmd.Flags().MarkDeprecated("yaml", "YAML is the default format now.")
 	convertCmd.Flags().MarkShorthandDeprecated("y", "YAML is the default format now.")
@@ -135,15 +145,17 @@ Examples:
 Available Commands:{{range .Commands}}{{if .IsAvailableCommand}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{ if .HasAvailableLocalFlags}}
 
-Resource Flags:
-      --build-branch             Specify repository branch to use for buildconfig (default is current branch name)
-      --build-repo               Specify source repository for buildconfig (default is current branch's remote url
-  -c, --chart                    Create a Helm chart for converted objects
+Kubernetes Flags:
       --daemon-set               Generate a Kubernetes daemonset object
   -d, --deployment               Generate a Kubernetes deployment object
+  -c, --chart                    Create a Helm chart for converted objects
+      --replication-controller   Generate a Kubernetes replication controller object
+
+OpenShift Flags:
+      --build-branch             Specify repository branch to use for buildconfig (default is current branch name)
+      --build-repo               Specify source repository for buildconfig (default is current branch's remote url
       --deployment-config        Generate an OpenShift deployment config object
       --insecure-repository      Specify to use insecure docker repository while generating Openshift image stream object
-      --replication-controller   Generate a Kubernetes replication controller object
 
 Flags:
 {{.LocalFlags.FlagUsages | trimRightSpace}}{{end}}{{ if .HasAvailableInheritedFlags}}
