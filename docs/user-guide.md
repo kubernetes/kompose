@@ -28,12 +28,12 @@ $ ls
 docker-compose.yml  docker-compose-bundle.dab  docker-gitlab.yml  docker-voting.yml
 
 $ kompose -f docker-gitlab.yml convert
-file "redisio-svc.yaml" created
-file "gitlab-svc.yaml" created
-file "postgresql-svc.yaml" created
-file "gitlab-deployment.yaml" created
-file "postgresql-deployment.yaml" created
-file "redisio-deployment.yaml" created
+INFO Kubernetes file "redisio-svc.yaml" created
+INFO Kubernetes file "gitlab-svc.yaml" created
+INFO Kubernetes file "postgresql-svc.yaml" created
+INFO Kubernetes file "gitlab-deployment.yaml" created
+INFO Kubernetes file "postgresql-deployment.yaml" created
+INFO Kubernetes file "redisio-deployment.yaml" created
 
 $ ls *.yaml
 gitlab-deployment.yaml  postgresql-deployment.yaml  redis-deployment.yaml    redisio-svc.yaml  web-deployment.yaml
@@ -46,16 +46,16 @@ You can try with a Docker Compose version 2 like this:
 $ kompose --file docker-voting.yml convert
 WARN Unsupported key networks - ignoring
 WARN Unsupported key build - ignoring
-file "worker-svc.yaml" created
-file "db-svc.yaml" created
-file "redis-svc.yaml" created
-file "result-svc.yaml" created
-file "vote-svc.yaml" created
-file "redis-deployment.yaml" created
-file "result-deployment.yaml" created
-file "vote-deployment.yaml" created
-file "worker-deployment.yaml" created
-file "db-deployment.yaml" created
+INFO Kubernetes file "worker-svc.yaml" created
+INFO Kubernetes file "db-svc.yaml" created
+INFO Kubernetes file "redis-svc.yaml" created
+INFO Kubernetes file "result-svc.yaml" created
+INFO Kubernetes file "vote-svc.yaml" created
+INFO Kubernetes file "redis-deployment.yaml" created
+INFO Kubernetes file "result-deployment.yaml" created
+INFO Kubernetes file "vote-deployment.yaml" created
+INFO Kubernetes file "worker-deployment.yaml" created
+INFO Kubernetes file "db-deployment.yaml" created
 
 $ ls
 db-deployment.yaml  docker-compose.yml         docker-gitlab.yml  redis-deployment.yaml  result-deployment.yaml  vote-deployment.yaml  worker-deployment.yaml
@@ -66,17 +66,17 @@ You can also provide multiple docker-compose files at the same time:
 
 ```console
 $ kompose -f docker-compose.yml -f docker-guestbook.yml convert
-file "frontend-service.yaml" created         
-file "mlbparks-service.yaml" created         
-file "mongodb-service.yaml" created          
-file "redis-master-service.yaml" created     
-file "redis-slave-service.yaml" created      
-file "frontend-deployment.yaml" created      
-file "mlbparks-deployment.yaml" created      
-file "mongodb-deployment.yaml" created       
-file "mongodb-claim0-persistentvolumeclaim.yaml" created 
-file "redis-master-deployment.yaml" created  
-file "redis-slave-deployment.yaml" created   
+INFO Kubernetes file "frontend-service.yaml" created         
+INFO Kubernetes file "mlbparks-service.yaml" created         
+INFO Kubernetes file "mongodb-service.yaml" created          
+INFO Kubernetes file "redis-master-service.yaml" created     
+INFO Kubernetes file "redis-slave-service.yaml" created      
+INFO Kubernetes file "frontend-deployment.yaml" created      
+INFO Kubernetes file "mlbparks-deployment.yaml" created      
+INFO Kubernetes file "mongodb-deployment.yaml" created       
+INFO Kubernetes file "mongodb-claim0-persistentvolumeclaim.yaml" created 
+INFO Kubernetes file "redis-master-deployment.yaml" created  
+INFO Kubernetes file "redis-slave-deployment.yaml" created   
 
 $ ls
 mlbparks-deployment.yaml  mongodb-service.yaml                       redis-slave-service.jsonmlbparks-service.yaml  
@@ -92,10 +92,10 @@ Using `--bundle, --dab` to specify a DAB file as below:
 ```console
 $ kompose --bundle docker-compose-bundle.dab convert
 WARN: Unsupported key networks - ignoring
-file "redis-svc.yaml" created
-file "web-svc.yaml" created
-file "web-deployment.yaml" created
-file "redis-deployment.yaml" created
+INFO Kubernetes file "redis-svc.yaml" created
+INFO Kubernetes file "web-svc.yaml" created
+INFO Kubernetes file "web-deployment.yaml" created
+INFO Kubernetes file "redis-deployment.yaml" created
 ```
 
 ### OpenShift
@@ -103,32 +103,32 @@ file "redis-deployment.yaml" created
 ```console
 $ kompose --provider openshift --file docker-voting.yml convert
 WARN [worker] Service cannot be created because of missing port.
-INFO file "vote-service.yaml" created             
-INFO file "db-service.yaml" created               
-INFO file "redis-service.yaml" created            
-INFO file "result-service.yaml" created           
-INFO file "vote-deploymentconfig.yaml" created    
-INFO file "vote-imagestream.yaml" created         
-INFO file "worker-deploymentconfig.yaml" created  
-INFO file "worker-imagestream.yaml" created       
-INFO file "db-deploymentconfig.yaml" created      
-INFO file "db-imagestream.yaml" created           
-INFO file "redis-deploymentconfig.yaml" created   
-INFO file "redis-imagestream.yaml" created        
-INFO file "result-deploymentconfig.yaml" created  
-INFO file "result-imagestream.yaml" created  
+INFO OpenShift file "vote-service.yaml" created             
+INFO OpenShift file "db-service.yaml" created               
+INFO OpenShift file "redis-service.yaml" created            
+INFO OpenShift file "result-service.yaml" created           
+INFO OpenShift file "vote-deploymentconfig.yaml" created    
+INFO OpenShift file "vote-imagestream.yaml" created         
+INFO OpenShift file "worker-deploymentconfig.yaml" created  
+INFO OpenShift file "worker-imagestream.yaml" created       
+INFO OpenShift file "db-deploymentconfig.yaml" created      
+INFO OpenShift file "db-imagestream.yaml" created           
+INFO OpenShift file "redis-deploymentconfig.yaml" created   
+INFO OpenShift file "redis-imagestream.yaml" created        
+INFO OpenShift file "result-deploymentconfig.yaml" created  
+INFO OpenShift file "result-imagestream.yaml" created  
 ```
 
 In similar way you can convert DAB files to OpenShift.
 ```console
 $ kompose --bundle docker-compose-bundle.dab --provider openshift convert
 WARN: Unsupported key networks - ignoring
-INFO file "redis-svc.yaml" created
-INFO file "web-svc.yaml" created
-INFO file "web-deploymentconfig.yaml" created
-INFO file "web-imagestream.yaml" created           
-INFO file "redis-deploymentconfig.yaml" created
-INFO file "redis-imagestream.yaml" created
+INFO OpenShift file "redis-svc.yaml" created
+INFO OpenShift file "web-svc.yaml" created
+INFO OpenShift file "web-deploymentconfig.yaml" created
+INFO OpenShift file "web-imagestream.yaml" created           
+INFO OpenShift file "redis-deploymentconfig.yaml" created
+INFO OpenShift file "redis-imagestream.yaml" created
 ```
 
 It also supports creating buildconfig for build directive in a service. By default, it uses the remote repo for the current git branch as the source repo, and the current branch as the source branch for the build. You can specify a different source repo and branch using ``--build-repo`` and ``--build-branch`` options respectively.
@@ -136,10 +136,10 @@ It also supports creating buildconfig for build directive in a service. By defau
 ```console
 $ kompose --provider openshift --file buildconfig/docker-compose.yml convert
 WARN [foo] Service cannot be created because of missing port. 
-INFO Buildconfig using git@github.com:rtnpro/kompose.git::master as source. 
-INFO file "foo-deploymentconfig.yaml" created     
-INFO file "foo-imagestream.yaml" created          
-INFO file "foo-buildconfig.yaml" created 
+INFO OpenShift Buildconfig using git@github.com:rtnpro/kompose.git::master as source. 
+INFO OpenShift file "foo-deploymentconfig.yaml" created     
+INFO OpenShift file "foo-imagestream.yaml" created          
+INFO OpenShift file "foo-buildconfig.yaml" created 
 ```
 
 **Note**: If you are manually pushing the Openshift artifacts using ``oc create -f``, you need to ensure that you push the imagestream artifact before the buildconfig artifact, to workaround this Openshift issue: https://github.com/openshift/origin/issues/4518 .
@@ -243,29 +243,29 @@ The default `kompose` transformation will generate Kubernetes [Deployments](http
 
 ```console
 $ kompose convert -j
-file "redis-svc.json" created
-file "web-svc.json" created
-file "redis-deployment.json" created
-file "web-deployment.json" created
+INFO Kubernetes file "redis-svc.json" created
+INFO Kubernetes file "web-svc.json" created
+INFO Kubernetes file "redis-deployment.json" created
+INFO Kubernetes file "web-deployment.json" created
 ```
 The `*-deployment.json` files contain the Deployment objects.
 
 ```console
 $ kompose convert --replication-controller
-file "redis-svc.yaml" created
-file "web-svc.yaml" created
-file "redis-replicationcontroller.yaml" created
-file "web-replicationcontroller.yaml" created
+INFO Kubernetes file "redis-svc.yaml" created
+INFO Kubernetes file "web-svc.yaml" created
+INFO Kubernetes file "redis-replicationcontroller.yaml" created
+INFO Kubernetes file "web-replicationcontroller.yaml" created
 ```
 
 The `*-replicationcontroller.yaml` files contain the Replication Controller objects. If you want to specify replicas (default is 1), use `--replicas` flag: `$ kompose convert --replication-controller --replicas 3`
 
 ```console
 $ kompose convert --daemon-set
-file "redis-svc.yaml" created
-file "web-svc.yaml" created
-file "redis-daemonset.yaml" created
-file "web-daemonset.yaml" created
+INFO Kubernetes file "redis-svc.yaml" created
+INFO Kubernetes file "web-svc.yaml" created
+INFO Kubernetes file "redis-daemonset.yaml" created
+INFO Kubernetes file "web-daemonset.yaml" created
 ```
 
 The `*-daemonset.yaml` files contain the Daemon Set objects
@@ -274,10 +274,10 @@ If you want to generate a Chart to be used with [Helm](https://github.com/kubern
 
 ```console
 $ kompose convert -c 
-file "web-svc.yaml" created
-file "redis-svc.yaml" created
-file "web-deployment.yaml" created
-file "redis-deployment.yaml" created
+INFO Kubernetes file "web-svc.yaml" created
+INFO Kubernetes file "redis-svc.yaml" created
+INFO Kubernetes file "web-deployment.yaml" created
+INFO Kubernetes file "redis-deployment.yaml" created
 chart created in "./docker-compose/"
 
 $ tree docker-compose/
