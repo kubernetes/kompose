@@ -106,6 +106,19 @@ To create a multi-platform binary, use the `cross` command via `make`:
 $ make cross
 ```
 
+## Documentation
+
+Documentation can be found at our [kompose.io](http://kompose.io) website or our [docs](https://github.com/kubernetes-incubator/kompose/tree/master/docs) folder.
+
+Here is a list of all available docs:
+
+- [Quick start](docs/quickstart.md)
+- [Setup](docs/setup.md)
+- [User guide](docs/user-guide.md)
+- [Conversion](docs/conversion.md)
+- [Architecture](docs/architecture.md)
+- [Development](docs/development.md)
+
 ## Contributing and Issues
 
 `kompose` is a work in progress, we will see how far it takes us. We welcome any pull request to make it even better.
