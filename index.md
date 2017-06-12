@@ -60,12 +60,12 @@ __2.1. Run `kompose convert` in the same directory__
 
 ```bash
 ▶ kompose convert                           
-INFO file "frontend-service.yaml" created         
-INFO file "redis-master-service.yaml" created     
-INFO file "redis-slave-service.yaml" created      
-INFO file "frontend-deployment.yaml" created      
-INFO file "redis-master-deployment.yaml" created  
-INFO file "redis-slave-deployment.yaml" created   
+INFO Kubernetes file "frontend-service.yaml" created         
+INFO Kubernetes file "redis-master-service.yaml" created     
+INFO Kubernetes file "redis-slave-service.yaml" created      
+INFO Kubernetes file "frontend-deployment.yaml" created      
+INFO Kubernetes file "redis-master-deployment.yaml" created  
+INFO Kubernetes file "redis-slave-deployment.yaml" created   
 ```
 
 __2.2. And start it on Kubernetes!__
