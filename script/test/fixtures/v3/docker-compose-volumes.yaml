@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+
+  foobar:
+    image: foo/bar:latest
+    volumes:
+      - /tmp/foo/bar
