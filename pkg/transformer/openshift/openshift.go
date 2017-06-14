@@ -52,6 +52,7 @@ import (
 	"k8s.io/kubernetes/pkg/kubectl"
 	"k8s.io/kubernetes/pkg/labels"
 	"k8s.io/kubernetes/pkg/util/intstr"
+	"sort"
 )
 
 // OpenShift implements Transformer interface and represents OpenShift transformer
@@ -201,13 +202,17 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 // initBuildConfig initialize Openshifts BuildConfig Object
 func initBuildConfig(name string, service kobject.ServiceConfig, repo string, branch string) (*buildapi.BuildConfig, error) {
 	contextDir, err := getAbsBuildContext(service.Build)
-	envList := []kapi.EnvVar{}
+	envList := transformer.EnvSort{}
 	for envName, envValue := range service.BuildArgs {
 		if *envValue == "\x00" {
 			*envValue = os.Getenv(envName)
 		}
 		envList = append(envList, kapi.EnvVar{Name: envName, Value: *envValue})
 	}
+	// Stable sorts data while keeping the original order of equal elements
+	// we need this because envs are not populated in any random order
+	// this sorting ensures they are populated in a particular order
+	sort.Stable(envList)
 	if err != nil {
 		return nil, errors.Wrap(err, name+"buildconfig cannot be created due to error in creating build context, getAbsBuildContext failed")
 	}
