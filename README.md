@@ -1,9 +1,6 @@
 # Kompose (Kubernetes + Compose)
 
-[![Build Status](https://travis-ci.org/kubernetes-incubator/kompose.svg?branch=master)](https://travis-ci.org/kubernetes-incubator/kompose)
-[![Coverage Status](https://coveralls.io/repos/github/kubernetes-incubator/kompose/badge.svg?branch=master)](https://coveralls.io/github/kubernetes-incubator/kompose?branch=master)
-
-[![Join us in #kompose on k8s Slack](https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png)](http://slack.kubernetes.io) in #kompose channel
+[![Build Status Widget]][Build Status] [![Coverage Status Widget]][Coverage Status] [![GoDoc Widget]][GoDoc] [![Slack Widget]][Slack]
 
 `kompose` is a tool to help users who are familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). `kompose` takes a Docker Compose file and translates it into Kubernetes resources.
 
@@ -60,17 +57,13 @@ Alternatively, you can download the less-bandwidth intense [tarball](https://git
 
 ## Shell autocompletion
 
-We support both `bash` and `zsh` for autocompletion.
+We support both Bash and Zsh autocompletion.
 
-Bash:
-
-```console
+```sh
+# Bash (add to .bashrc for persistence)
 source <(kompose completion bash)
-```
 
-Zsh:
-
-```console
+# Zsh (add to .zshrc for persistence)
 source <(kompose completion zsh)
 ```
 
@@ -119,12 +112,10 @@ Here is a list of all available docs:
 - [Architecture](docs/architecture.md)
 - [Development](docs/development.md)
 
-## Contributing and Issues
+## Community, Discussion, Contribution, and Support
 
 `kompose` is a work in progress, we will see how far it takes us. We welcome any pull request to make it even better.
 If you find any issues, please [file it](https://github.com/kubernetes-incubator/kompose/issues).
-
-## Community, Discussion, Contribution, and Support
 
 As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
 
@@ -143,3 +134,12 @@ An up-to-date roadmap of upcoming releases is located at [ROADMAP.md](/ROADMAP.m
 ### Code of Conduct
 
 Participation in the Kubernetes community is governed by the [Kubernetes Code of Conduct](code-of-conduct.md).
+
+[Build Status]: https://travis-ci.org/kubernetes-incubator/kompose
+[Build Status Widget]: https://travis-ci.org/kubernetes-incubator/kompose.svg?branch=master
+[GoDoc]: https://godoc.org/github.com/kubernetes-incubator/kompose
+[GoDoc Widget]: https://godoc.org/github.com/kubernetes-incubator/kompose?status.svg
+[Slack]: http://slack.kubernetes.io#kompose
+[Slack Widget]: https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png
+[Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes-incubator/kompose/badge.svg?branch=master
+[Coverage Status]: https://coveralls.io/github/kubernetes-incubator/kompose?branch=master
