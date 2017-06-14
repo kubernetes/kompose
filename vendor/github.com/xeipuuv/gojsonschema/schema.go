@@ -107,10 +107,9 @@ func (d *Schema) parseSchema(documentNode interface{}, currentSchema *subSchema)
 
 	if !isKind(documentNode, reflect.Map) {
 		return errors.New(formatErrorDescription(
-			Locale.InvalidType(),
+			Locale.ParseError(),
 			ErrorDetails{
-				"expected": TYPE_OBJECT,
-				"given":    STRING_SCHEMA,
+				"expected": STRING_SCHEMA,
 			},
 		))
 	}
