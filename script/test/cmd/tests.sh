@@ -233,6 +233,13 @@ export $(cat $KOMPOSE_ROOT/script/test/fixtures/buildargs/envs)
 convert::expect_success_and_warning "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/buildargs/docker-compose.yml convert --stdout -j" "/tmp/output-buildarg-os.json" "$warning"
 rm /tmp/output-buildarg-os.json
 
+####
+# Test related to change in pvc name if volume used is in the current directory
+# kubernetes test
+convert::expect_success_and_warning "kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s.json" "Volume mount on the host "\"."\" isn't supported - ignoring path on the host"
+# openshift test
+convert::expect_success_and_warning "kompose convert --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-os.json" "Volume mount on the host "\"."\" isn't supported - ignoring path on the host"
+
 # Test related to support docker-compose.yaml beside docker-compose.yml
 # Store the original path
 CURRENT_DIR=$(pwd)
