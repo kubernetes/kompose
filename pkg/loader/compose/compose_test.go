@@ -25,11 +25,48 @@ import (
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"k8s.io/kubernetes/pkg/api"
 
+	"github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
 	"github.com/pkg/errors"
 )
+
+func TestLoadV3Volumes(t *testing.T) {
+	vol := types.ServiceVolumeConfig{
+		Type:     "volume",
+		Source:   "/tmp/foobar",
+		Target:   "/tmp/foobar",
+		ReadOnly: true,
+	}
+	volumes := []types.ServiceVolumeConfig{vol}
+	output := loadV3Volumes(volumes)
+	expected := "/tmp/foobar:/tmp/foobar:ro"
+
+	if output[0] != expected {
+		t.Errorf("Expected %s, got %s", expected, output[0])
+	}
+
+}
+
+func TestLoadV3Ports(t *testing.T) {
+	port := types.ServicePortConfig{
+		Target:    80,
+		Published: 80,
+		Protocol:  "TCP",
+	}
+	ports := []types.ServicePortConfig{port}
+	output := loadV3Ports(ports)
+	expected := kobject.Ports{
+		HostPort:      80,
+		ContainerPort: 80,
+		Protocol:      api.Protocol("TCP"),
+	}
+
+	if output[0] != expected {
+		t.Errorf("Expected %s, got %s", expected, output[0])
+	}
+}
 
 // Test if service types are parsed properly on user input
 // give a service type and expect correct input
