@@ -1,5 +1,5 @@
-hash: 41c9e4c113b17cb5362f516e8d14147e7b312099985b55df8c71c3b0b4e13fb4
-updated: 2017-05-24T11:02:01.662886713-04:00
+hash: 2f710a085c1e5b50dc1cde03ab2ead96ad21d5342c743a52daf89d364249ea17
+updated: 2017-06-14T10:23:03.995920576-04:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -216,7 +216,7 @@ imports:
 - name: github.com/evanphx/json-patch
   version: 465937c80b3c07a7c7ad20cc934898646a91c1de
 - name: github.com/fatih/structs
-  version: 74a29b9fac7397d933f47e33eba94d2d83a464a2
+  version: 7e5a8eef611ee84dd359503f3969f80df4c50723
 - name: github.com/flynn/go-shlex
   version: 3f9db97f856818214da2e1057f8ad84803971cff
 - name: github.com/fsnotify/fsnotify
@@ -366,10 +366,16 @@ imports:
   - pbutil
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
+- name: github.com/novln/docker-parser
+  version: 6030251119d652af8ead44ac7907444227b64d56
+  subpackages:
+  - distribution/digest
+  - distribution/reference
+  - docker
 - name: github.com/opencontainers/go-digest
-  version: eaa60544f31ccf3b0653b1a118b76d33418ff41b
+  version: 279bed98673dd5bef374d3b6e4b09e2af76183bf
 - name: github.com/opencontainers/image-spec
-  version: 1a6593ab6c3ab5902072b4694a22ff19425396ae
+  version: df6f3c57dafbbf39d98c24fa6ab509183cfa3efc
   subpackages:
   - specs-go
   - specs-go/v1
@@ -422,7 +428,7 @@ imports:
 - name: github.com/pelletier/go-buffruneio
   version: c37440a7cf42ac63b919c752ca73a85067e05992
 - name: github.com/pelletier/go-toml
-  version: 5c26a6ff6fd178719e15decac1c8196da0d7d6d1
+  version: fe7536c3dee2596cdd23ee9976a17c22bdaae286
 - name: github.com/pkg/errors
   version: c605e284fe17294bda444b34710735b29d1a9d90
 - name: github.com/prometheus/client_golang
@@ -450,13 +456,13 @@ imports:
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: ca57f0f5dba473a8a58765d16d7e811fb8027add
+  version: b4dbd37a01839e0653eec12aa4bbb2a2ce7b2a37
 - name: github.com/spf13/jwalterweatherman
   version: 0efa5202c04663c757d84f90f5219c1250baf94f
 - name: github.com/spf13/pflag
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
 - name: github.com/spf13/viper
-  version: 0967fc9aceab2ce9da34061253ac10fb99bba5b2
+  version: a1ecfa6a20bd4ef9e9caded262ee1b1b26847675
 - name: github.com/ugorji/go
   version: f4485b318aadd133842532f841dc205a8e339d74
   subpackages:
@@ -466,7 +472,7 @@ imports:
 - name: github.com/xeipuuv/gojsonreference
   version: e02fc20de94c78484cd5ffb007f8af96be030a45
 - name: github.com/xeipuuv/gojsonschema
-  version: a55c211c418162597a32c74c7230f81adb5ad616
+  version: 0c8571ac0ce161a5feb57375a9cdf148c98c0f70
 - name: golang.org/x/net
   version: e90d6d0afc4c315a0d87a568ae68577cc15149a0
   subpackages:
@@ -490,7 +496,7 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: dbc2be9168a660ef302e04b6ff6406de6f967473
+  version: 0b25a408a50076fbbcae6b7ac0ea5fbb0b085e79
   subpackages:
   - unix
 - name: golang.org/x/text

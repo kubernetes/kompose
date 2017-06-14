@@ -74,6 +74,7 @@ type (
 		NotAValidType() string
 		Duplicated() string
 		HttpBadStatus() string
+		ParseError() string
 
 		// ErrorFormat
 		ErrorFormat() string
@@ -249,7 +250,7 @@ func (l DefaultLocale) ReferenceMustBeCanonical() string {
 }
 
 func (l DefaultLocale) NotAValidType() string {
-	return `{{.type}} is not a valid type -- `
+	return `has a primitive type that is NOT VALID -- given: {{.given}} Expected valid values are:{{.expected}}`
 }
 
 func (l DefaultLocale) Duplicated() string {
@@ -263,6 +264,11 @@ func (l DefaultLocale) HttpBadStatus() string {
 // Replacement options: field, description, context, value
 func (l DefaultLocale) ErrorFormat() string {
 	return `{{.field}}: {{.description}}`
+}
+
+//Parse error
+func (l DefaultLocale) ParseError() string {
+	return `Expected: %expected%, given: Invalid JSON`
 }
 
 const (
