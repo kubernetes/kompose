@@ -7,22 +7,22 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "etherpad"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "5000",
-            "port": 5000,
-            "targetPort": 5000
+            "name": "80",
+            "port": 80,
+            "targetPort": 9001
           }
         ],
         "selector": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "etherpad"
         }
       },
       "status": {
@@ -33,22 +33,22 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "mariadb"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "6379",
-            "port": 6379,
-            "targetPort": 6379
+            "name": "3306",
+            "port": 3306,
+            "targetPort": 3306
           }
         ],
         "selector": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "mariadb"
         }
       },
       "status": {
@@ -59,10 +59,10 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "etherpad"
         }
       },
       "spec": {
@@ -78,11 +78,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "web"
+                "etherpad"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "web:latest"
+                "name": "etherpad:latest"
               }
             }
           }
@@ -90,23 +90,45 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "etherpad"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "web"
+              "io.kompose.service": "etherpad"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "web",
+                "name": "etherpad",
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 5000
+                    "containerPort": 9001
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_HOST",
+                    "value": "mariadb"
+                  },
+                  {
+                    "name": "DB_DBID",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "3306"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "etherpad"
                   }
                 ],
                 "resources": {}
@@ -122,10 +144,10 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "etherpad"
         }
       },
       "spec": {
@@ -135,7 +157,7 @@
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "tuna/docker-counter23"
+              "name": "centos/etherpad"
             },
             "generation": null,
             "importPolicy": {}
@@ -150,14 +172,15 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "mariadb"
         }
       },
       "spec": {
         "strategy": {
+          "type": "Recreate",
           "resources": {}
         },
         "triggers": [
@@ -169,11 +192,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "redis"
+                "mariadb"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "redis:3.0"
+                "name": "mariadb:latest"
               }
             }
           }
@@ -181,26 +204,58 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "mariadb"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "redis"
+              "io.kompose.service": "mariadb"
             }
           },
           "spec": {
+            "volumes": [
+              {
+                "name": "mariadb-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "mariadb-claim0"
+                }
+              }
+            ],
             "containers": [
               {
-                "name": "redis",
+                "name": "mariadb",
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 6379
+                    "containerPort": 3306
                   }
                 ],
-                "resources": {}
+                "env": [
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_DATABASE",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "MYSQL_USER",
+                    "value": "etherpad"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "mariadb-claim0",
+                    "mountPath": "/var/lib/mysql"
+                  }
+                ]
               }
             ],
             "restartPolicy": "Always"
@@ -213,20 +268,20 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "mariadb"
         }
       },
       "spec": {
         "tags": [
           {
-            "name": "3.0",
+            "name": "latest",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "redis:3.0"
+              "name": "centos/mariadb"
             },
             "generation": null,
             "importPolicy": {}
@@ -236,6 +291,28 @@
       "status": {
         "dockerImageRepository": ""
       }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
     }
   ]
 }

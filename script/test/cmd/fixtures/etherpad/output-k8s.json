@@ -86,16 +86,12 @@
                 ],
                 "env": [
                   {
-                    "name": "DB_USER",
-                    "value": "etherpad"
+                    "name": "DB_HOST",
+                    "value": "mariadb"
                   },
                   {
                     "name": "DB_DBID",
                     "value": "etherpad"
-                  },
-                  {
-                    "name": "DB_HOST",
-                    "value": "mariadb"
                   },
                   {
                     "name": "DB_PASS",
@@ -104,6 +100,10 @@
                   {
                     "name": "DB_PORT",
                     "value": "3306"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "etherpad"
                   }
                 ],
                 "resources": {}
@@ -155,15 +155,15 @@
                 ],
                 "env": [
                   {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "etherpad"
+                  },
+                  {
                     "name": "MYSQL_DATABASE",
                     "value": "etherpad"
                   },
                   {
                     "name": "MYSQL_PASSWORD",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "MYSQL_ROOT_PASSWORD",
                     "value": "etherpad"
                   },
                   {

@@ -112,20 +112,20 @@
                 ],
                 "env": [
                   {
-                    "name": "SESSION_SECRET",
-                    "value": "session"
-                  },
-                  {
-                    "name": "SHOW",
-                    "value": "true"
-                  },
-                  {
                     "name": "GET_HOSTS_FROM",
                     "value": "dns"
                   },
                   {
                     "name": "RACK_ENV",
                     "value": "development"
+                  },
+                  {
+                    "name": "SHOW",
+                    "value": "true"
+                  },
+                  {
+                    "name": "SESSION_SECRET",
+                    "value": "session"
                   }
                 ],
                 "resources": {}

@@ -64,7 +64,7 @@ test-openshift:
 # run commandline tests
 .PHONY: test-cmd
 test-cmd:
-	./script/test/cmd/tests.sh
+	go test -v github.com/kubernetes-incubator/kompose/script/test/cmd/
 
 # run all validation tests
 .PHONY: validate
@@ -99,6 +99,7 @@ test-dep:
 	go get github.com/Masterminds/glide
 	go get github.com/sgotti/glide-vc
 	go get github.com/golang/lint/golint
+	go get github.com/joho/godotenv
 
 # build docker image that is used for running all test localy
 .PHONY: test-image
