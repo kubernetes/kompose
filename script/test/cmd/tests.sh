@@ -249,4 +249,29 @@ convert::expect_success "kompose --provider=openshift convert --stdout -j" "$KOM
 # Return back to the original path
 cd $CURRENT_DIR
 
+# Test V3 Support of Docker Compose
+
+# Test volumes are passed correctly
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-volumes.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-volumes-k8s.json"
+
+# Test environment variables are passed correctly
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-env.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-env-k8s.json"
+
+# Test that two files that are different versions fail
+convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose.yml"
+
+# Kubernetes
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-k8s.json"
+
+# OpenShift
+convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-os.json"
+
+# Test the "full example" from https://raw.githubusercontent.com/aanand/compose-file/master/loader/example1.env
+
+# Kubernetes
+convert::expect_success_and_warning "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-k8s-full-example.json"
+
+# Openshift
+convert::expect_success_and_warning "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-os-full-example.json"
+
 exit $EXIT_STATUS
