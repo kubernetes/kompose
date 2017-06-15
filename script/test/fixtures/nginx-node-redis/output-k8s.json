@@ -156,6 +156,7 @@
             "containers": [
               {
                 "name": "nginx",
+                "image": "nginx",
                 "ports": [
                   {
                     "containerPort": 80
@@ -194,6 +195,7 @@
             "containers": [
               {
                 "name": "node1",
+                "image": "node1",
                 "ports": [
                   {
                     "containerPort": 8080
@@ -232,6 +234,7 @@
             "containers": [
               {
                 "name": "node2",
+                "image": "node2",
                 "ports": [
                   {
                     "containerPort": 8080
@@ -270,6 +273,7 @@
             "containers": [
               {
                 "name": "node3",
+                "image": "node3",
                 "ports": [
                   {
                     "containerPort": 8080

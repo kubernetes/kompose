@@ -7,32 +7,6 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "web"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "5000",
-            "port": 5000,
-            "targetPort": 5000
-          }
-        ],
-        "selector": {
-          "io.kompose.service": "web"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
         "name": "redis",
         "creationTimestamp": null,
         "labels": {
@@ -56,7 +30,7 @@
       }
     },
     {
-      "kind": "DeploymentConfig",
+      "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
         "name": "web",
@@ -66,84 +40,19 @@
         }
       },
       "spec": {
-        "strategy": {
-          "resources": {}
-        },
-        "triggers": [
+        "ports": [
           {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange",
-            "imageChangeParams": {
-              "automatic": true,
-              "containerNames": [
-                "web"
-              ],
-              "from": {
-                "kind": "ImageStreamTag",
-                "name": "web:latest"
-              }
-            }
+            "name": "5000",
+            "port": 5000,
+            "targetPort": 5000
           }
         ],
-        "replicas": 1,
-        "test": false,
         "selector": {
           "io.kompose.service": "web"
-        },
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "web"
-            }
-          },
-          "spec": {
-            "containers": [
-              {
-                "name": "web",
-                "image": " ",
-                "ports": [
-                  {
-                    "containerPort": 5000
-                  }
-                ],
-                "resources": {}
-              }
-            ],
-            "restartPolicy": "Always"
-          }
         }
-      },
-      "status": {}
-    },
-    {
-      "kind": "ImageStream",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "web",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "web"
-        }
-      },
-      "spec": {
-        "tags": [
-          {
-            "name": "latest",
-            "annotations": null,
-            "from": {
-              "kind": "DockerImage",
-              "name": "tuna/docker-counter23"
-            },
-            "generation": null,
-            "importPolicy": {}
-          }
-        ]
       },
       "status": {
-        "dockerImageRepository": ""
+        "loadBalancer": {}
       }
     },
     {
@@ -227,6 +136,97 @@
             "from": {
               "kind": "DockerImage",
               "name": "redis:3.0"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "web"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "web:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "web"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "web"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "web",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 5000
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "tuna/docker-counter23"
             },
             "generation": null,
             "importPolicy": {}

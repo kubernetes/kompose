@@ -64,15 +64,6 @@ const TIMEOUT = 300
 //default size of Persistent Volume Claim
 const PVCRequestSize = "100Mi"
 
-// list of all unsupported keys for this transformer
-// Keys are names of variables in kobject struct.
-// this is map to make searching for keys easier
-// to make sure that unsupported key is not going to be reported twice
-// by keeping record if already saw this key in another service
-var unsupportedKey = map[string]bool{
-	"Build": false,
-}
-
 // CheckUnsupportedKey checks if given komposeObject contains
 // keys that are not supported by this tranfomer.
 // list of all unsupported keys are stored in unsupportedKey variable
@@ -532,11 +523,6 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 // returns object that are already sorted in the way that Services are first
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) ([]runtime.Object, error) {
 
-	noSupKeys := k.CheckUnsupportedKey(&komposeObject, unsupportedKey)
-	for _, keyName := range noSupKeys {
-		log.Warningf("Kubernetes provider doesn't support %s key - ignoring", keyName)
-	}
-
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 
@@ -544,6 +530,44 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
+
+		// Must build the images before conversion (got to add service.Image in case 'image' key isn't provided
+		// Check that --build is set to true
+		// Check to see if there is an InputFile (required!) before we build the container
+		// Check that there's actually a Build key
+		// Lastly, we must have an Image name to continue
+		if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
+
+			if service.Image == "" {
+				return nil, fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
+			}
+
+			log.Infof("Build key detected. Attempting to build and push image '%s'", service.Image)
+
+			// Get the directory where the compose file is
+			composeFileDir, err := transformer.GetComposeFileDir(opt.InputFiles)
+			if err != nil {
+				return nil, err
+			}
+
+			// Build the container!
+			err = transformer.BuildDockerImage(service, name, composeFileDir)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Unable to build Docker image for service %v", name)
+			}
+
+			// Push the built container to the repo!
+			err = transformer.PushDockerImage(service, name)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
+			}
+
+		}
+
+		// If there's no "image" key, use the name of the container that's built
+		if service.Image == "" {
+			service.Image = name
+		}
 
 		// Generate pod only and nothing more
 		if service.Restart == "no" || service.Restart == "on-failure" {

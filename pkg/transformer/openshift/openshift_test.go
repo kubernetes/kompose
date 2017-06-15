@@ -28,6 +28,7 @@ import (
 
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/kubernetes-incubator/kompose/pkg/testutils"
+	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
 	"github.com/pkg/errors"
 )
@@ -223,7 +224,7 @@ func TestGetComposeFileDir(t *testing.T) {
 	for name, test := range testCases {
 		t.Log("Test case: ", name)
 
-		output, err = getComposeFileDir(test.inputFiles)
+		output, err = transformer.GetComposeFileDir(test.inputFiles)
 
 		if err != nil {
 			t.Errorf("Expected success, got error: %#v", err)

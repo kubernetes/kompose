@@ -38,6 +38,7 @@ import (
 	"runtime"
 	"strings"
 
+
 	"github.com/xeipuuv/gojsonreference"
 )
 
@@ -334,7 +335,7 @@ func decodeJsonUsingNumber(r io.Reader) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return document, nil
 
 }
