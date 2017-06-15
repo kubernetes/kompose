@@ -367,6 +367,7 @@ The currently supported options are:
 | kompose.service.type | nodeport / clusterip / loadbalancer |
 | kompose.service.expose| true / hostname |
 
+**Note**: `kompose.service.type` label should be defined with `ports` only, otherwise `kompose` will fail.
 
 ## Restart
 

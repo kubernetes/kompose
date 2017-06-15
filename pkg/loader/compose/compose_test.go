@@ -323,3 +323,27 @@ func TestNormalizeServiceNames(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckLabelsPorts(t *testing.T) {
+	testCases := []struct {
+		name        string
+		noOfPort    int
+		labels      string
+		svcName     string
+		expectError bool
+	}{
+		{"ports is defined", 1, "NodePort", "foo", false},
+		{"ports is not defined", 0, "NodePort", "foo", true},
+	}
+
+	var err error
+	for _, testcase := range testCases {
+		t.Log(testcase.name)
+		err = checkLabelsPorts(testcase.noOfPort, testcase.labels, testcase.svcName)
+		if testcase.expectError && err == nil {
+			t.Log("Expected error, got ", err)
+
+		}
+
+	}
+}
