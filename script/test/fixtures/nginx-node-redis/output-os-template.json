@@ -206,7 +206,20 @@
           "io.kompose.service": "nginx"
         }
       },
-      "spec": {},
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "nginx"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
       "status": {
         "dockerImageRepository": ""
       }
@@ -225,9 +238,6 @@
         "triggers": [
           {
             "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange"
           }
         ],
         "runPolicy": "Serial",
@@ -330,7 +340,20 @@
           "io.kompose.service": "node1"
         }
       },
-      "spec": {},
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "node1"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
       "status": {
         "dockerImageRepository": ""
       }
@@ -349,9 +372,6 @@
         "triggers": [
           {
             "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange"
           }
         ],
         "runPolicy": "Serial",
@@ -454,7 +474,20 @@
           "io.kompose.service": "node2"
         }
       },
-      "spec": {},
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "node2"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
       "status": {
         "dockerImageRepository": ""
       }
@@ -473,9 +506,6 @@
         "triggers": [
           {
             "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange"
           }
         ],
         "runPolicy": "Serial",
@@ -578,7 +608,20 @@
           "io.kompose.service": "node3"
         }
       },
-      "spec": {},
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "node3"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
       "status": {
         "dockerImageRepository": ""
       }
@@ -597,9 +640,6 @@
         "triggers": [
           {
             "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange"
           }
         ],
         "runPolicy": "Serial",
@@ -702,20 +742,7 @@
           "io.kompose.service": "redis"
         }
       },
-      "spec": {
-        "tags": [
-          {
-            "name": "latest",
-            "annotations": null,
-            "from": {
-              "kind": "DockerImage",
-              "name": "redis"
-            },
-            "generation": null,
-            "importPolicy": {}
-          }
-        ]
-      },
+      "spec": {},
       "status": {
         "dockerImageRepository": ""
       }
