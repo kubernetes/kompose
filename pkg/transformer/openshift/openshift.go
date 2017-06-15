@@ -19,8 +19,6 @@ package openshift
 import (
 	"fmt"
 	"os"
-	"os/exec"
-	"strings"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
@@ -39,6 +37,8 @@ import (
 
 	"reflect"
 
+	"sort"
+
 	"github.com/kubernetes/kompose/pkg/transformer"
 	buildapi "github.com/openshift/origin/pkg/build/api"
 	buildconfigreaper "github.com/openshift/origin/pkg/build/cmd"
@@ -51,7 +51,6 @@ import (
 	"k8s.io/kubernetes/pkg/kubectl"
 	"k8s.io/kubernetes/pkg/labels"
 	"k8s.io/kubernetes/pkg/util/intstr"
-	"sort"
 )
 
 // OpenShift implements Transformer interface and represents OpenShift transformer
@@ -73,84 +72,11 @@ const TIMEOUT = 300
 // by keeping record if already saw this key in another service
 var unsupportedKey = map[string]bool{}
 
-// getImageTag get tag name from image name
-// if no tag is specified return 'latest'
-func getImageTag(image string) string {
-	// format:      registry_host:registry_port/repo_name/image_name:image_tag
-	// example:
-	// 1)     myregistryhost:5000/fedora/httpd:version1.0
-	// 2)     myregistryhost:5000/fedora/httpd
-	// 3)     myregistryhost/fedora/httpd:version1.0
-	// 4)     myregistryhost/fedora/httpd
-	// 5)     fedora/httpd
-	// 6)     httpd
-	imageAndTag := image
-
-	i := strings.Split(image, "/")
-	if len(i) >= 2 {
-		imageAndTag = i[len(i)-1]
-	}
-
-	p := strings.Split(imageAndTag, ":")
-	if len(p) == 2 {
-		return p[1]
-	}
-	return "latest"
-
-}
-
-// hasGitBinary checks if the 'git' binary is available on the system
-func hasGitBinary() bool {
-	_, err := exec.LookPath("git")
-	return err == nil
-}
-
-// getGitCurrentRemoteURL gets current git remote URI for the current git repo
-func getGitCurrentRemoteURL(composeFileDir string) (string, error) {
-	cmd := exec.Command("git", "ls-remote", "--get-url")
-	cmd.Dir = composeFileDir
-	out, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	url := strings.TrimRight(string(out), "\n")
-
-	if !strings.HasSuffix(url, ".git") {
-		url += ".git"
-	}
-
-	return url, nil
-}
-
-// getGitCurrentBranch gets current git branch name for the current git repo
-func getGitCurrentBranch(composeFileDir string) (string, error) {
-	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
-	cmd.Dir = composeFileDir
-	out, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimRight(string(out), "\n"), nil
-}
-
-// getAbsBuildContext returns build context relative to project root dir
-func getAbsBuildContext(context string) (string, error) {
-	cmd := exec.Command("git", "rev-parse", "--show-prefix")
-	cmd.Dir = context
-	out, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
-	//convert output of command to string
-	contextDir := strings.Trim(string(out), "\n")
-	return contextDir, nil
-}
-
 // initImageStream initialize ImageStream object
 func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) *imageapi.ImageStream {
 
 	// Retrieve tags and image name for mapping
-	tag := getImageTag(service.Image)
+	tag := GetImageTag(service.Image)
 
 	var importPolicy imageapi.TagImportPolicy
 	if opt.InsecureRepository {
@@ -188,7 +114,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 }
 
 func initBuildConfig(name string, service kobject.ServiceConfig, repo string, branch string) (*buildapi.BuildConfig, error) {
-	contextDir, err := getAbsBuildContext(service.Build)
+	contextDir, err := GetAbsBuildContext(service.Build)
 	envList := transformer.EnvSort{}
 	for envName, envValue := range service.BuildArgs {
 		if *envValue == "\x00" {
@@ -236,7 +162,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 				Output: buildapi.BuildOutput{
 					To: &kapi.ObjectReference{
 						Kind: "ImageStreamTag",
-						Name: name + ":" + getImageTag(service.Image),
+						Name: name + ":" + GetImageTag(service.Image),
 					},
 				},
 			},
@@ -250,7 +176,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 	containerName := []string{name}
 
 	// Properly add tags to the image name
-	tag := getImageTag(service.Image)
+	tag := GetImageTag(service.Image)
 
 	// Use ContainerName if it was set
 	if service.ContainerName != "" {
@@ -417,13 +343,13 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				}
 
 				// Check for Git
-				if !hasGitBinary() && (buildRepo == "" || buildBranch == "") {
+				if !HasGitBinary() && (buildRepo == "" || buildBranch == "") {
 					return nil, errors.New("Git is not installed! Please install Git to create buildconfig, else supply source repository and branch to use for build using '--build-repo', '--build-branch' options respectively")
 				}
 
 				// Check the Git branch
 				if buildBranch == "" {
-					buildBranch, err = getGitCurrentBranch(composeFileDir)
+					buildBranch, err = GetGitCurrentBranch(composeFileDir)
 					if err != nil {
 						return nil, errors.Wrap(err, "Buildconfig cannot be created because current git branch couldn't be detected.")
 					}
@@ -434,7 +360,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 					if err != nil {
 						return nil, errors.Wrap(err, "Buildconfig cannot be created because remote for current git branch couldn't be detected.")
 					}
-					buildRepo, err = getGitCurrentRemoteURL(composeFileDir)
+					buildRepo, err = GetGitCurrentRemoteURL(composeFileDir)
 					if err != nil {
 						return nil, errors.Wrap(err, "Buildconfig cannot be created because git remote origin repo couldn't be detected.")
 					}
