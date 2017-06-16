@@ -160,7 +160,7 @@
         }
       },
       "spec": {
-        "replicas": 1,
+        "replicas": 6,
         "template": {
           "metadata": {
             "creationTimestamp": null,
