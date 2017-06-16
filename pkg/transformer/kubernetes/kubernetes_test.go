@@ -53,6 +53,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		Stdin:         true,
 		Tty:           true,
 		TmpFs:         []string{"/tmp"},
+		Replicas:      2,
 	}
 }
 
@@ -270,11 +271,14 @@ func TestKomposeConvert(t *testing.T) {
 		expectedNumObjs int
 	}{
 		// objects generated are deployment, service and pvc
-		"Convert to Deployments (D)":            {newKomposeObject(), kobject.ConvertOptions{CreateD: true, Replicas: replicas}, 3},
-		"Convert to DaemonSets (DS)":            {newKomposeObject(), kobject.ConvertOptions{CreateDS: true}, 3},
-		"Convert to ReplicationController (RC)": {newKomposeObject(), kobject.ConvertOptions{CreateRC: true, Replicas: replicas}, 3},
+		"Convert to Deployments (D)":                             {newKomposeObject(), kobject.ConvertOptions{CreateD: true, Replicas: replicas, IsReplicaSetFlag: true}, 3},
+		"Convert to Deployments (D) with v3 replicas":            {newKomposeObject(), kobject.ConvertOptions{CreateD: true}, 3},
+		"Convert to DaemonSets (DS)":                             {newKomposeObject(), kobject.ConvertOptions{CreateDS: true}, 3},
+		"Convert to ReplicationController(RC)":                   {newKomposeObject(), kobject.ConvertOptions{CreateRC: true, Replicas: replicas, IsReplicaSetFlag: true}, 3},
+		"Convert to ReplicationController(RC) with v3 replicas ": {newKomposeObject(), kobject.ConvertOptions{CreateRC: true}, 3},
 		// objects generated are deployment, daemonset, ReplicationController, service and pvc
-		"Convert to D, DS, and RC": {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true, Replicas: replicas}, 5},
+		"Convert to D, DS, and RC":                  {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true, Replicas: replicas, IsReplicaSetFlag: true}, 5},
+		"Convert to D, DS, and RC with v3 replicas": {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true}, 5},
 		// TODO: add more tests
 	}
 
@@ -313,9 +317,18 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkMeta(config, d.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
-					if (int)(d.Spec.Replicas) != replicas {
-						t.Errorf("Expected %d replicas, got %d", replicas, d.Spec.Replicas)
+					if test.opt.IsReplicaSetFlag {
+						if (int)(d.Spec.Replicas) != replicas {
+							t.Errorf("Expected %d replicas, got %d", replicas, d.Spec.Replicas)
+						}
+					} else {
+
+						if (int)(d.Spec.Replicas) != newServiceConfig().Replicas {
+							t.Errorf("Expected %d replicas, got %d", newServiceConfig().Replicas, d.Spec.Replicas)
+
+						}
 					}
+
 					if d.Spec.Selector != nil && len(d.Spec.Selector.MatchLabels) > 0 {
 						t.Errorf("Expect selector be unset, got: %#v", d.Spec.Selector)
 					}
@@ -344,9 +357,18 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkMeta(config, rc.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
-					if (int)(rc.Spec.Replicas) != replicas {
-						t.Errorf("Expected %d replicas, got %d", replicas, rc.Spec.Replicas)
+					if test.opt.IsReplicaSetFlag {
+						if (int)(rc.Spec.Replicas) != replicas {
+							t.Errorf("Expected %d replicas, got %d", replicas, rc.Spec.Replicas)
+						}
+					} else {
+
+						if (int)(rc.Spec.Replicas) != newServiceConfig().Replicas {
+							t.Errorf("Expected %d replicas, got %d", newServiceConfig().Replicas, rc.Spec.Replicas)
+
+						}
 					}
+
 					if len(rc.Spec.Selector) > 0 {
 						t.Errorf("Expect selector be unset, got: %#v", rc.Spec.Selector)
 					}
