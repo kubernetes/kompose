@@ -124,6 +124,10 @@
                 ],
                 "env": [
                   {
+                    "name": "DB_DBID",
+                    "value": "openshift"
+                  },
+                  {
                     "name": "DB_HOST",
                     "value": "openshift"
                   },
@@ -137,10 +141,6 @@
                   },
                   {
                     "name": "DB_USER",
-                    "value": "openshift"
-                  },
-                  {
-                    "name": "DB_DBID",
                     "value": "openshift"
                   }
                 ],
@@ -255,10 +255,6 @@
                 ],
                 "env": [
                   {
-                    "name": "MYSQL_USER",
-                    "value": "openshift"
-                  },
-                  {
                     "name": "MYSQL_DATABASE",
                     "value": "openshift"
                   },
@@ -268,6 +264,10 @@
                   },
                   {
                     "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_USER",
                     "value": "openshift"
                   }
                 ],
