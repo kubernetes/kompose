@@ -86,10 +86,6 @@
                 ],
                 "env": [
                   {
-                    "name": "DB_USER",
-                    "value": "etherpad"
-                  },
-                  {
                     "name": "DB_DBID",
                     "value": "etherpad"
                   },
@@ -104,6 +100,10 @@
                   {
                     "name": "DB_PORT",
                     "value": "3306"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "etherpad"
                   }
                 ],
                 "resources": {}

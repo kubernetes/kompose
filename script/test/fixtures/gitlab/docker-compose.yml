@@ -30,4 +30,4 @@ services:
   redis:
     image: swordphilic/redis
     ports:
-      - "$REDIS_PORT"
+      - $REDIS_PORT
