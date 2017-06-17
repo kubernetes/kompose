@@ -15,7 +15,7 @@ import:
 
 # We use libcompose to parse v1 and v2 of Docker Compose
 - package: github.com/docker/libcompose
-  version: 01ff8920a57835fda41607e0f27252408e99cf08
+  version: 4a647d664afbe05c41455c9d534d8239671eb46a
   subpackages:
   - config
   - lookup

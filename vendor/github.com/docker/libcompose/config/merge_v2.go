@@ -114,7 +114,7 @@ func parseV2(resourceLookup ResourceLookup, environmentLookup EnvironmentLookup,
 		}
 
 		if options.Validate {
-			if err := validate(baseRawServices); err != nil {
+			if err := validateV2(baseRawServices); err != nil {
 				return nil, err
 			}
 		}
