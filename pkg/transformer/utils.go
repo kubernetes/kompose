@@ -99,7 +99,7 @@ func ParseVolume(volume string) (name, host, container, mode string, err error) 
 }
 
 func isPath(substring string) bool {
-	return strings.Contains(substring, "/")
+	return strings.Contains(substring, "/") || substring == "."
 }
 
 // ConfigLabels configures label
