@@ -1,0 +1,74 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "foo"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "foo"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "foo",
+                "image": "foo/bar:latest",
+                "env": [
+                  {
+                    "name": "FOO",
+                    "value": "bar"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}

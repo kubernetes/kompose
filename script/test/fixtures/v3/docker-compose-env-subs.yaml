@@ -1,0 +1,6 @@
+version: '3'
+services:
+  foo:
+    image: foo/bar:latest
+    environment:
+      FOO: $foo
