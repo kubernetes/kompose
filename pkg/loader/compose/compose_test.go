@@ -64,7 +64,7 @@ func TestLoadV3Ports(t *testing.T) {
 	}
 
 	if output[0] != expected {
-		t.Errorf("Expected %s, got %s", expected, output[0])
+		t.Errorf("Expected %v, got %v", expected, output[0])
 	}
 }
 
