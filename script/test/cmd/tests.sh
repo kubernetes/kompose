@@ -274,6 +274,9 @@ convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/tes
 # Test environment variables are passed correctly
 convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-env.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-env-k8s.json"
 
+# Test environment variables substitution
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-env-subs.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-env-subs.json"
+
 # Test that two files that are different versions fail
 convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose.yml"
 

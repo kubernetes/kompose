@@ -29,7 +29,24 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/kubernetes-incubator/kompose/pkg/kobject"
 	"github.com/pkg/errors"
+	"os"
 )
+
+// converts os.Environ() ([]string) to map[string]string
+// based on https://github.com/docker/cli/blob/5dd30732a23bbf14db1c64d084ae4a375f592cfa/cli/command/stack/deploy_composefile.go#L143
+func buildEnvironment() (map[string]string, error) {
+	env := os.Environ()
+	result := make(map[string]string, len(env))
+	for _, s := range env {
+		// if value is empty, s is like "K=", not "K".
+		if !strings.Contains(s, "=") {
+			return result, errors.Errorf("unexpected environment %q", s)
+		}
+		kv := strings.SplitN(s, "=", 2)
+		result[kv[0]] = kv[1]
+	}
+	return result, nil
+}
 
 // The purpose of this is not to deploy, but to be able to parse
 // v3 of Docker Compose into a suitable format. In this case, whatever is returned
@@ -63,12 +80,17 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 		Config:   parsedComposeFile,
 	}
 
+	// get environment variables
+	env, err := buildEnvironment()
+	if err != nil {
+		return kobject.KomposeObject{}, errors.Wrap(err, "cannot build environment variables")
+	}
+
 	// Config details
-	// Environment is nil as docker/cli loads the appropriate environmental values itself
 	configDetails := types.ConfigDetails{
 		WorkingDir:  workingDir,
 		ConfigFiles: []types.ConfigFile{configFile},
-		Environment: nil,
+		Environment: env,
 	}
 
 	// Actual config
