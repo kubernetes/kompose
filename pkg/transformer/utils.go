@@ -213,7 +213,7 @@ func BuildDockerImage(service kobject.ServiceConfig, name string, relativePath s
 
 	// Use the build struct function to build the image
 	// Build the image!
-	build := docker.Build{*client}
+	build := docker.Build{Client: *client}
 	err = build.BuildImage(imagePath, imageName)
 
 	if err != nil {
@@ -240,7 +240,7 @@ func PushDockerImage(service kobject.ServiceConfig, serviceName string) error {
 			return err
 		}
 
-		push := docker.Push{*client}
+		push := docker.Push{Client: *client}
 		err = push.PushImage(service.Image)
 
 		if err != nil {
