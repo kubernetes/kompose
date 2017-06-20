@@ -39,6 +39,8 @@ import (
 
 	"reflect"
 
+	"sort"
+
 	"github.com/kubernetes-incubator/kompose/pkg/transformer"
 	buildapi "github.com/openshift/origin/pkg/build/api"
 	buildconfigreaper "github.com/openshift/origin/pkg/build/cmd"
@@ -51,7 +53,6 @@ import (
 	"k8s.io/kubernetes/pkg/kubectl"
 	"k8s.io/kubernetes/pkg/labels"
 	"k8s.io/kubernetes/pkg/util/intstr"
-	"sort"
 )
 
 // OpenShift implements Transformer interface and represents OpenShift transformer
