@@ -118,6 +118,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	if len(bundle) > 0 {
 		inputFormat = "bundle"
+		log.Fatalf("DAB / bundle (--bundle | -b) is no longer supported. See issue: https://github.com/kubernetes-incubator/kompose/issues/390")
 		opt.InputFiles = []string{bundle}
 	}
 
