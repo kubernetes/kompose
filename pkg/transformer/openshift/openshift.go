@@ -99,27 +99,6 @@ func getImageTag(image string) string {
 
 }
 
-// Inputs name of the service + provided image
-// Outputs name is image is blank, but still provide a tag.
-func taggedImage(name string, serviceImage string) string {
-	var image string
-	tag := getImageTag(serviceImage)
-
-	// Use the image name if not blank
-	if serviceImage != "" {
-		image = serviceImage
-	} else {
-		image = name
-	}
-
-	// Add a tag if not present
-	if !strings.Contains(image, ":") {
-		image = image + ":" + tag
-	}
-
-	return image
-}
-
 // hasGitBinary checks if the 'git' binary is available on the system
 func hasGitBinary() bool {
 	_, err := exec.LookPath("git")
