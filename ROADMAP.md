@@ -1,32 +1,36 @@
 # Kompose roadmap
 
-This document is a general overview of upcoming development for `kompose`.
-It lists only important features and general direction for upcoming releases.
-The dates below are not considered set-in-stone, but rather an approximation of each release. 
+The goal of Kompose is to have the best possible experience converting and using Docker Compose files with Kubernetes (and OpenShift!). For both development and production environments.
 
-## Upcoming releases
-Kompose is on time-based release cycle.
-Current target is release every last week of the month.
+Here we outline our roadmap which encompasses our goals in reaching _1.0.0_. 
 
-### 0.6.0 (end of April)
- - Adding support for more currently unsupported docker-compose keys.
+__Release schedule:__ Kompose is on time-based release cycle. On a 3-4 week cycle, usually ending on the last week of each month.
 
-### 0.7.0 (end of May)
- - Basic support for docker-compose v3 format.
- - Initial support for building and pushing containers locally.
+### [Kompose 0.6.0](https://github.com/kubernetes-incubator/kompose/releases/tag/v0.6.0)
 
-### 0.8.0 (end of June)
- - Improved support for docker-compose v3 format.
- - Kompose consumable as Go library.
+ - [X] Adding more support for more currently unsupported docker-compose keys (cap_add and cap_drop added) [#580](https://github.com/kubernetes-incubator/kompose/pull/580)
+ - [X] Improved edge-cases for deployment (namespace + insecure-repository parameters added) [#547](https://github.com/kubernetes-incubator/kompose/pull/547)
 
-### 0.9.0 (end of July)
+### [Kompose 0.7.0](https://github.com/kubernetes-incubator/kompose/releases/tag/v0.7.0)
 
-### x.x.x (end of August)
- 
-### x.x.x (end of September)
+ - [X] Args support added to `build` key [#424](https://github.com/kubernetes-incubator/kompose/pull/424)
+ - [X] Conversion bug fixes [#613](https://github.com/kubernetes-incubator/kompose/pull/613) [#606](https://github.com/kubernetes-incubator/kompose/pull/606) [#578](https://github.com/kubernetes-incubator/kompose/pull/578)
+
+### Kompose 0.8.0 (end of June)
+
+ - [X] Basic support for docker-compose v3 format [#580](https://github.com/kubernetes-incubator/kompose/issues/412) [#600](https://github.com/kubernetes-incubator/kompose/pull/600)
+ - [X] Initial support for building and pushing containers locally [#97](https://github.com/kubernetes-incubator/kompose/issues/97) [#521](https://github.com/kubernetes-incubator/kompose/pull/521)
+
+### Kompose 0.9.0 (end of July)
+
+ - [ ] Improved support for docker-compose v3 format
+ - [ ] Kompose consumable as Go library [#464](https://github.com/kubernetes-incubator/kompose/issues/464)
+
+### Kompose 1.0.0 (???)
+
+ - [ ] Kompose supports every possible key (that is mappable to Kubernetes)
+ - [ ] Backwards-compatibility on all future releases
 
 ### x.x.x (end of October)
- - **[Deadline for exiting Kubernetes Incubator](https://github.com/kubernetes/community/blob/master/incubator.md#exiting-incubation)**
 
-### 1.0.0 (???)
- - Kompose supports all important keys that are possible to map to Kubernetes from current docker-compose version
+ - **[Deadline for exiting Kubernetes Incubator](https://github.com/kubernetes/community/blob/master/incubator.md#exiting-incubation)**
