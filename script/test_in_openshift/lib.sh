@@ -201,7 +201,6 @@ function convert::kompose_up () {
     fi
 }
 
-
 function convert::kompose_down () {
     # Function for running 'kompose down'
     # Usage: convert::kompose_down <docker_compose_file>
