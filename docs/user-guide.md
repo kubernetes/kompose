@@ -5,13 +5,16 @@ permalink: /user-guide/
 
 # User Guide
 
-- [Usage](#user-guide)
-  * [Kompose convert](#kompose-convert)
-  * [Kompose up](#kompose-up)
-  * [Kompose down](#kompose-down)
-- [Alternate formats](#alternate-formats)
-- [Unsupported docker-compose configuration options](#unsupported-docker-compose-configuration-options)
-
+- CLI
+  - [`kompose convert`](#kompose-convert)
+  - [`kompose up`](#kompose-up)
+  - [`kompose down`](#kompose-down)
+- Documentation
+  - [Build and Pushing Docker Images](#build-and-pushing-docker-images)
+  - [Alternative Conversions](#alternative-conversions)
+  - [Labels](#labels)
+  - [Restart](#restart)
+  - [Docker Compose Versions](#docker-compose-versions)
 
 Kompose has support for two providers: OpenShift and Kubernetes.
 You can choose targeted provider either using global option `--provider`, or by setting environment variable `PROVIDER`.
@@ -19,14 +22,14 @@ By setting environment variable `PROVIDER` you can permanently switch to OpenShi
 If no provider is specified Kubernetes is default provider.
 
 
-## Kompose convert
+## `kompose convert`
 
 Currently Kompose supports to transform either Docker Compose file (both of v1 and v2) and [experimental Distributed Application Bundles](https://blog.docker.com/2016/06/docker-app-bundle/) into Kubernetes and OpenShift objects.
 There is a couple of sample files in the `examples/` directory for testing.
-You will convert the compose or dab file to Kubernetes or OpenShift objects with `kompose convert`.
+You will convert the compose or dab file to Kubernetes or OpenShift objects with `$ kompose convert`.
 
 ### Kubernetes
-```console
+```sh
 $ cd examples/
 
 $ ls
@@ -47,7 +50,7 @@ gitlab-svc.yaml         postgresql-svc.yaml         redisio-deployment.yaml  red
 
 You can try with a Docker Compose version 2 like this:
 
-```console
+```sh
 $ kompose --file docker-voting.yml convert
 WARN Unsupported key networks - ignoring
 WARN Unsupported key build - ignoring
@@ -69,7 +72,7 @@ db-svc.yaml         docker-compose-bundle.dab  docker-voting.yml  redis-svc.yaml
 
 You can also provide multiple docker-compose files at the same time:
 
-```console
+```sh
 $ kompose -f docker-compose.yml -f docker-guestbook.yml convert
 INFO Kubernetes file "frontend-service.yaml" created         
 INFO Kubernetes file "mlbparks-service.yaml" created         
@@ -94,7 +97,7 @@ When multiple docker-compose files are provided the configuration is merged. Any
  
 Using `--bundle, --dab` to specify a DAB file as below:
 
-```console
+```sh
 $ kompose --bundle docker-compose-bundle.dab convert
 WARN: Unsupported key networks - ignoring
 INFO Kubernetes file "redis-svc.yaml" created
@@ -105,7 +108,7 @@ INFO Kubernetes file "redis-deployment.yaml" created
 
 ### OpenShift
 
-```console
+```sh
 $ kompose --provider openshift --file docker-voting.yml convert
 WARN [worker] Service cannot be created because of missing port.
 INFO OpenShift file "vote-service.yaml" created             
@@ -125,7 +128,7 @@ INFO OpenShift file "result-imagestream.yaml" created
 ```
 
 In similar way you can convert DAB files to OpenShift.
-```console
+```sh
 $ kompose --bundle docker-compose-bundle.dab --provider openshift convert
 WARN: Unsupported key networks - ignoring
 INFO OpenShift file "redis-svc.yaml" created
@@ -138,7 +141,7 @@ INFO OpenShift file "redis-imagestream.yaml" created
 
 It also supports creating buildconfig for build directive in a service. By default, it uses the remote repo for the current git branch as the source repo, and the current branch as the source branch for the build. You can specify a different source repo and branch using ``--build-repo`` and ``--build-branch`` options respectively.
 
-```console
+```sh
 $ kompose --provider openshift --file buildconfig/docker-compose.yml convert
 WARN [foo] Service cannot be created because of missing port. 
 INFO OpenShift Buildconfig using git@github.com:rtnpro/kompose.git::master as source. 
@@ -149,13 +152,13 @@ INFO OpenShift file "foo-buildconfig.yaml" created
 
 **Note**: If you are manually pushing the Openshift artifacts using ``oc create -f``, you need to ensure that you push the imagestream artifact before the buildconfig artifact, to workaround this Openshift issue: https://github.com/openshift/origin/issues/4518 .
 
-## Kompose up
+## `kompose up`
 
 Kompose supports a straightforward way to deploy your "composed" application to Kubernetes or OpenShift via `kompose up`.
 
 
 ### Kubernetes
-```console
+```sh
 $ kompose --file ./examples/docker-guestbook.yml up
 We are going to create Kubernetes deployments and services for your Dockerized application.
 If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead.
@@ -191,8 +194,8 @@ Note:
 - Only deployments and services are generated and deployed to Kubernetes. If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead.
 
 ### OpenShift
-```console
-$kompose --file ./examples/docker-guestbook.yml --provider openshift up
+```sh
+$ kompose --file ./examples/docker-guestbook.yml --provider openshift up
 We are going to create OpenShift DeploymentConfigs and Services for your Dockerized application.
 If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead.
 
@@ -226,11 +229,11 @@ is/redis-slave     172.30.12.200:5000/fff/redis-slave    v1
 Note:
 - You must have a running OpenShift cluster with a pre-configured `oc` context (`oc login`)
 
-## Kompose down
+## `kompose down`
 
-Once you have deployed "composed" application to Kubernetes, `kompose down` will help you to take the application out by deleting its deployments and services. If you need to remove other resources, use the 'kubectl' command.
+Once you have deployed "composed" application to Kubernetes, `$ kompose down` will help you to take the application out by deleting its deployments and services. If you need to remove other resources, use the 'kubectl' command.
 
-```console
+```sh
 $ kompose --file docker-guestbook.yml down
 INFO Successfully deleted service: redis-master   
 INFO Successfully deleted deployment: redis-master
@@ -242,11 +245,58 @@ INFO Successfully deleted deployment: frontend
 Note:
 - You must have a running Kubernetes cluster with a pre-configured kubectl context.
 
-## Alternate formats
+## Building and Pushing Docker Images
+
+Kompose supports both building and pushing Docker images. When using the `build` key within your Docker Compose file, your image will:
+
+  - Automatically be built with Docker using the `image` key specified within your file
+  - Be pushed to the correct Docker repository using local credentials (located at `.docker/config`)
+
+Using an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes-incubator/kompose/master/examples/buildconfig/docker-compose.yml):
+
+```yaml
+version: "2"
+
+services:
+    foo:
+        build: "./build"
+        image: docker.io/foo/bar
+```
+
+Using `kompose up` with a `build` key:
+
+```sh
+$ kompose up
+INFO Build key detected. Attempting to build and push image 'docker.io/foo/bar' 
+INFO Building image 'docker.io/foo/bar' from directory 'build' 
+INFO Image 'docker.io/foo/bar' from directory 'build' built successfully 
+INFO Pushing image 'foo/bar:latest' to registry 'docker.io' 
+INFO Attempting authentication credentials 'https://index.docker.io/v1/ 
+INFO Successfully pushed image 'foo/bar:latest' to registry 'docker.io' 
+INFO We are going to create Kubernetes Deployments, Services and PersistentVolumeClaims for your Dockerized application. If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. 
+ 
+INFO Deploying application in "default" namespace 
+INFO Successfully created Service: foo            
+INFO Successfully created Deployment: foo         
+
+Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods,pvc' for details.
+```
+
+In order to disable the functionality, or choose to use BuildConfig generation (with OpenShift) `--build (local|build-config|none)` can be passed.
+
+```sh
+# Disable building/pushing Docker images
+$ kompose up --build none
+
+# Generate Build Config artifacts for OpenShift
+$ kompose up --provider openshift --build build-config
+```
+
+## Alternative Conversions
 
 The default `kompose` transformation will generate Kubernetes [Deployments](http://kubernetes.io/docs/user-guide/deployments/) and [Services](http://kubernetes.io/docs/user-guide/services/), in yaml format. You have alternative option to generate json with `-j`. Also, you can alternatively generate [Replication Controllers](http://kubernetes.io/docs/user-guide/replication-controller/) objects, [Deamon Sets](http://kubernetes.io/docs/admin/daemons/), or [Helm](https://github.com/helm/helm) charts.
 
-```console
+```sh
 $ kompose convert -j
 INFO Kubernetes file "redis-svc.json" created
 INFO Kubernetes file "web-svc.json" created
@@ -255,7 +305,7 @@ INFO Kubernetes file "web-deployment.json" created
 ```
 The `*-deployment.json` files contain the Deployment objects.
 
-```console
+```sh
 $ kompose convert --replication-controller
 INFO Kubernetes file "redis-svc.yaml" created
 INFO Kubernetes file "web-svc.yaml" created
@@ -265,7 +315,7 @@ INFO Kubernetes file "web-replicationcontroller.yaml" created
 
 The `*-replicationcontroller.yaml` files contain the Replication Controller objects. If you want to specify replicas (default is 1), use `--replicas` flag: `$ kompose convert --replication-controller --replicas 3`
 
-```console
+```sh
 $ kompose convert --daemon-set
 INFO Kubernetes file "redis-svc.yaml" created
 INFO Kubernetes file "web-svc.yaml" created
@@ -277,7 +327,7 @@ The `*-daemonset.yaml` files contain the Daemon Set objects
 
 If you want to generate a Chart to be used with [Helm](https://github.com/kubernetes/helm) simply do:
 
-```console
+```sh
 $ kompose convert -c 
 INFO Kubernetes file "web-svc.yaml" created
 INFO Kubernetes file "redis-svc.yaml" created
@@ -297,28 +347,6 @@ docker-compose
 ```
 
 The chart structure is aimed at providing a skeleton for building your Helm charts.
-
-## Unsupported docker-compose configuration options
-
-Currently `kompose` does not support some Docker Compose options, which are listed on the [conversion](/docs/conversion.md) document.
-
-For example:
-
-```console
-$ cat nginx.yml
-nginx:
-  image: nginx
-  dockerfile: foobar
-  build: ./foobar
-  cap_add:
-    - ALL
-  container_name: foobar
-
-$ kompose -f nginx.yml convert
-WARN Unsupported key build - ignoring             
-WARN Unsupported key cap_add - ignoring           
-WARN Unsupported key dockerfile - ignoring
-```
 
 ## Labels
 
@@ -399,7 +427,6 @@ services:
     restart: "on-failure"
 ```
 
-
 #### Warning about Deployment Config's
 
 If the Docker Compose file has a volume specified for a service, the Deployment (Kubernetes) or DeploymentConfig (OpenShift) strategy is changed to "Recreate" instead of "RollingUpdate" (default). This is done to avoid multiple instances of a service from accessing a volume at the same time.
@@ -407,3 +434,9 @@ If the Docker Compose file has a volume specified for a service, the Deployment 
 If the Docker Compose file has service name with `_` in it (eg.`web_service`), then it will be replaced by `-` and the service name will be renamed accordingly (eg.`web-service`). Kompose does this because "Kubernetes" doesn't allow `_` in object name.
 
 Please note that changing service name might break some `docker-compose` files.
+
+## Docker Compose Versions
+
+Kompose supports Docker Compose versions: 1, 2 and 3. We have limited support on versions 2.1 and 3.2 due to their experimental nature.
+
+A full list on compatibility between all three versions is listed in our [conversion document](/docs/conversion.md) including a list of all incompatible Docker Compose keys.
