@@ -10,7 +10,7 @@ permalink: /user-guide/
   - [`kompose up`](#kompose-up)
   - [`kompose down`](#kompose-down)
 - Documentation
-  - [Build and Pushing Docker Images](#build-and-pushing-docker-images)
+  - [Build and Push Docker Images](#build-and-push-docker-images)
   - [Alternative Conversions](#alternative-conversions)
   - [Labels](#labels)
   - [Restart](#restart)
@@ -245,7 +245,7 @@ INFO Successfully deleted deployment: frontend
 Note:
 - You must have a running Kubernetes cluster with a pre-configured kubectl context.
 
-## Building and Pushing Docker Images
+## Build and Push Docker Images
 
 Kompose supports both building and pushing Docker images. When using the `build` key within your Docker Compose file, your image will:
 
