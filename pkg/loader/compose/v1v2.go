@@ -272,7 +272,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 }
 
 func checkLabelsPorts(noOfPort int, labels string, svcName string) error {
-	if noOfPort == 0 && labels == "NodePort" || labels == "LoadBalancer" {
+	if noOfPort == 0 && (labels == "NodePort" || labels == "LoadBalancer") {
 		return errors.Errorf("%s defined in service %s with no ports present. Issues may occur when bringing up artifacts.", labels, svcName)
 	}
 	return nil
