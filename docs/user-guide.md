@@ -12,9 +12,7 @@
   - [Docker Compose Versions](#docker-compose-versions)
 
 Kompose has support for two providers: OpenShift and Kubernetes.
-You can choose targeted provider either using global option `--provider`, or by setting environment variable `PROVIDER`.
-By setting environment variable `PROVIDER` you can permanently switch to OpenShift provider without need to always specify `--provider openshift` option.
-If no provider is specified Kubernetes is default provider.
+You can choose a targeted provider using global option `--provider`. If no provider is specified, Kubernetes is set by default.
 
 
 ## `kompose convert`
