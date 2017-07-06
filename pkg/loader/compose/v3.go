@@ -192,6 +192,11 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Command = composeServiceConfig.Entrypoint
 		serviceConfig.Args = composeServiceConfig.Command
 
+		//Handling replicas
+		if composeServiceConfig.Deploy.Replicas != nil {
+			serviceConfig.Replicas = int(*composeServiceConfig.Deploy.Replicas)
+		}
+
 		// This is a bit messy since we use yaml.MemStringorInt
 		// TODO: Refactor yaml.MemStringorInt in kobject.go to int64
 		// Since Deploy.Resources.Limits does not initialize, we must check type Resources before continuing

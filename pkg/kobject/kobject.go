@@ -53,6 +53,7 @@ type ConvertOptions struct {
 	IsDeploymentFlag            bool
 	IsDaemonSetFlag             bool
 	IsReplicationControllerFlag bool
+	IsReplicaSetFlag            bool
 	IsDeploymentConfigFlag      bool
 	IsNamespaceFlag             bool
 }
@@ -92,6 +93,7 @@ type ServiceConfig struct {
 	MemLimit        yaml.MemStringorInt `compose:"mem_limit" bundle:""`
 	TmpFs           []string            `compose:"tmpfs" bundle:""`
 	Dockerfile      string              `compose:"dockerfile" bundle:""`
+	Replicas        int                 `compose:"replicas" bundle:""`
 }
 
 // EnvVar holds the environment variable struct of a container
