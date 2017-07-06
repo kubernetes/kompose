@@ -1,18 +1,24 @@
-.menu {
-    text-align: center;
+.headerstyle {
+  margin: 0;
+}
+
+.menubar {
+    margin-top:10px;
+    text-align: left;
     z-index: 1000;
     margin-bottom: 10px;
 }
 
-.menu ul {
+.menubar ul {
+    position: static !important;
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.menu ul li {
-    display: inline-block;
-    padding: 10px;
+.menubar ul li {
+    padding: 0 0 10 0;
     background: #fff;
     margin: 2px;
+    width:100%;
 }
