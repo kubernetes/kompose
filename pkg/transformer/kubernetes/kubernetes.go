@@ -489,15 +489,21 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig) []ap
 // CreateKubernetesObjects generates a Kubernetes artifact for each input type service
 func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
 	var objects []runtime.Object
+	var replica int
+	if opt.IsReplicaSetFlag || service.Replicas == 0 {
+		replica = opt.Replicas
+	} else {
+		replica = service.Replicas
+	}
 
 	if opt.CreateD {
-		objects = append(objects, k.InitD(name, service, opt.Replicas))
+		objects = append(objects, k.InitD(name, service, replica))
 	}
 	if opt.CreateDS {
 		objects = append(objects, k.InitDS(name, service))
 	}
 	if opt.CreateRC {
-		objects = append(objects, k.InitRC(name, service, opt.Replicas))
+		objects = append(objects, k.InitRC(name, service, replica))
 	}
 
 	return objects

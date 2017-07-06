@@ -182,7 +182,7 @@
             }
           }
         ],
-        "replicas": 1,
+        "replicas": 6,
         "test": false,
         "selector": {
           "io.kompose.service": "foo"
