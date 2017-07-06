@@ -441,9 +441,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 
 		// Configure the container restart policy.
 		switch service.Restart {
-		case "", "always":
+		case "", "always", "any":
 			template.Spec.RestartPolicy = api.RestartPolicyAlways
-		case "no":
+		case "no", "none":
 			template.Spec.RestartPolicy = api.RestartPolicyNever
 		case "on-failure":
 			template.Spec.RestartPolicy = api.RestartPolicyOnFailure

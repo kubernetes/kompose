@@ -183,7 +183,6 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.CapDrop = composeServiceConfig.CapDrop
 		serviceConfig.Expose = composeServiceConfig.Expose
 		serviceConfig.Privileged = composeServiceConfig.Privileged
-		serviceConfig.Restart = composeServiceConfig.Restart
 		serviceConfig.User = composeServiceConfig.User
 		serviceConfig.Stdin = composeServiceConfig.StdinOpen
 		serviceConfig.Tty = composeServiceConfig.Tty
@@ -203,7 +202,12 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		if (composeServiceConfig.Deploy.Resources != types.Resources{}) {
 			serviceConfig.MemLimit = libcomposeyaml.MemStringorInt(composeServiceConfig.Deploy.Resources.Limits.MemoryBytes)
 		}
+		//Here we handle all Docker Compose Deploy keys
 
+		//Handling restart-policy
+		if composeServiceConfig.Deploy.RestartPolicy != nil {
+			serviceConfig.Restart = composeServiceConfig.Deploy.RestartPolicy.Condition
+		}
 		// POOF. volumes_From is gone in v3. docker/cli will error out of volumes_from is added in v3
 		// serviceConfig.VolumesFrom = composeServiceConfig.VolumesFrom
 
