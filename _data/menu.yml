@@ -1,6 +1,6 @@
 items:
   "Introduction": "/"
-  "Setup": "/setup/"
+  "Installation": "/installation/"
   "User Guide": "/user-guide/"
   "Conversion": "/conversion/"
   "Architecture": "/architecture/"
