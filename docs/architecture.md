@@ -1,4 +1,4 @@
-# Internal Design
+# Architecture and Internal Design
 
 `kompose` has 3 stages: Loader, Transformer and Outputter. Each Stage should have well defined interface so it is easy to write new Loader, Transformer or Outputters and plug it in. Currently only Loader and Transformer interfaces are defined.
 
