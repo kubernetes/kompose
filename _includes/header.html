@@ -1,11 +1,12 @@
 <header>
-  <h1>
-    {{ site.project_name }}
-  </h1>
-  <p>{{ site.description }}</p>
+<h1> {{ site.project_name }}</h1>
+<p>{{ site.description }}</p>
+
   <p class="view"><a href="{{ site.repository_url }}">View the Project on GitHub <small>{{ site.repository_shorthand }}</small></a></p>
   <a class="github-button" href="https://github.com/{{ site.repository_shorthand }}/subscription" data-icon="octicon-eye" data-count-href="/{{ site.repository_shorthand }}/watchers" data-count-api="/repos/{{ site.repository_shorthand }}#subscribers_count" data-count-aria-label="# watchers on GitHub" aria-label="Watch {{ site.repository_shorthand }} on GitHub">Watch</a>
   <a class="github-button" href="https://github.com/{{ site.repository_shorthand }}" data-icon="octicon-star" data-count-href="/{{ site.repository_shorthand }}/stargazers" data-count-api="/repos/{{ site.repository_shorthand }}#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star {{ site.repository_shorthand }} on GitHub">Star</a>
   <a class="github-button" href="https://github.com/{{ site.repository_shorthand }}/fork" data-icon="octicon-repo-forked" data-count-href="/{{ site.repository_shorthand }}/network" data-count-api="/repos/{{ site.repository_shorthand }}#forks_count" data-count-aria-label="# forks on GitHub" aria-label="Fork {{ site.repository_shorthand }} on GitHub">Fork</a>
+
+  {% include menu.html %}
 
 </header>
