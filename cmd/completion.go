@@ -45,8 +45,6 @@ func Generate(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Too many arguments. Expected only the shell type. ex. kompose completion [bash|zsh]")
 	}
 	shell := args[0]
-	if shell != "bash" && shell != "zsh" {
-	}
 
 	// Generate bash through cobra if selected
 	if shell == "bash" {
