@@ -2,5 +2,6 @@ items:
   "Introduction": "/"
   "Setup": "/setup/"
   "User Guide": "/user-guide/"
-  "Conversion": "/conversion/"
+  "Conversion matrix": "/conversion/"
   "Architecture": "/architecture/"
+  "Development": "/development/"
