@@ -22,31 +22,9 @@ You can choose a targeted provider using global option `--provider`. If no provi
 
 ## `kompose convert`
 
-Currently Kompose supports to transform either Docker Compose file (both of v1 and v2) and [experimental Distributed Application Bundles](https://blog.docker.com/2016/06/docker-app-bundle/) into Kubernetes and OpenShift objects.
-There is a couple of sample files in the `examples/` directory for testing.
-You will convert the compose or dab file to Kubernetes or OpenShift objects with `$ kompose convert`.
+Kompose supports conversion of V1, V2, and V3 Docker Compose files into Kubernetes and OpenShift objects.
 
 ### Kubernetes
-```sh
-$ cd examples/
-
-$ ls
-docker-compose.yml  docker-compose-bundle.dab  docker-gitlab.yml  docker-voting.yml
-
-$ kompose -f docker-gitlab.yml convert
-INFO Kubernetes file "redisio-svc.yaml" created
-INFO Kubernetes file "gitlab-svc.yaml" created
-INFO Kubernetes file "postgresql-svc.yaml" created
-INFO Kubernetes file "gitlab-deployment.yaml" created
-INFO Kubernetes file "postgresql-deployment.yaml" created
-INFO Kubernetes file "redisio-deployment.yaml" created
-
-$ ls *.yaml
-gitlab-deployment.yaml  postgresql-deployment.yaml  redis-deployment.yaml    redisio-svc.yaml  web-deployment.yaml
-gitlab-svc.yaml         postgresql-svc.yaml         redisio-deployment.yaml  redis-svc.yaml    web-svc.yaml
-```
-
-You can try with a Docker Compose version 2 like this:
 
 ```sh
 $ kompose --file docker-voting.yml convert
@@ -65,7 +43,7 @@ INFO Kubernetes file "db-deployment.yaml" created
 
 $ ls
 db-deployment.yaml  docker-compose.yml         docker-gitlab.yml  redis-deployment.yaml  result-deployment.yaml  vote-deployment.yaml  worker-deployment.yaml
-db-svc.yaml         docker-compose-bundle.dab  docker-voting.yml  redis-svc.yaml         result-svc.yaml         vote-svc.yaml         worker-svc.yaml
+db-svc.yaml         docker-voting.yml          redis-svc.yaml     result-svc.yaml        vote-svc.yaml           worker-svc.yaml
 ```
 
 You can also provide multiple docker-compose files at the same time:
@@ -93,17 +71,6 @@ redis-master-deployment.yaml
 
 When multiple docker-compose files are provided the configuration is merged. Any configuration that is common will be over ridden by subsequent file.
  
-Using `--bundle, --dab` to specify a DAB file as below:
-
-```sh
-$ kompose --bundle docker-compose-bundle.dab convert
-WARN: Unsupported key networks - ignoring
-INFO Kubernetes file "redis-svc.yaml" created
-INFO Kubernetes file "web-svc.yaml" created
-INFO Kubernetes file "web-deployment.yaml" created
-INFO Kubernetes file "redis-deployment.yaml" created
-```
-
 ### OpenShift
 
 ```sh
@@ -123,18 +90,6 @@ INFO OpenShift file "redis-deploymentconfig.yaml" created
 INFO OpenShift file "redis-imagestream.yaml" created        
 INFO OpenShift file "result-deploymentconfig.yaml" created  
 INFO OpenShift file "result-imagestream.yaml" created  
-```
-
-In similar way you can convert DAB files to OpenShift.
-```sh
-$ kompose --bundle docker-compose-bundle.dab --provider openshift convert
-WARN: Unsupported key networks - ignoring
-INFO OpenShift file "redis-svc.yaml" created
-INFO OpenShift file "web-svc.yaml" created
-INFO OpenShift file "web-deploymentconfig.yaml" created
-INFO OpenShift file "web-imagestream.yaml" created           
-INFO OpenShift file "redis-deploymentconfig.yaml" created
-INFO OpenShift file "redis-imagestream.yaml" created
 ```
 
 It also supports creating buildconfig for build directive in a service. By default, it uses the remote repo for the current git branch as the source repo, and the current branch as the source branch for the build. You can specify a different source repo and branch using ``--build-repo`` and ``--build-branch`` options respectively.
