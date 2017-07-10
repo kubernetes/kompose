@@ -9,3 +9,7 @@ author_name: The Kubernetes Authors
 author_url: https://github.com/kubernetes-incubator/kompose
 
 markdown: kramdown
+
+# Redirection plugin
+gems:
+  - jekyll-redirect-from
