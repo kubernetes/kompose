@@ -114,18 +114,13 @@ Here is a list of all available docs:
 
 ## Community, Discussion, Contribution, and Support
 
-`kompose` is a work in progress, we will see how far it takes us. We welcome any pull request to make it even better.
-If you find any issues, please [file it](https://github.com/kubernetes-incubator/kompose/issues).
+__Issues:__ If you find any issues, please [file it](https://github.com/kubernetes-incubator/kompose/issues).
 
-As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
+__Kubernetes Community:__ As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
 
-You can reach the maintainers of this project on [Slack](http://slack.kubernetes.io) in channel #kompose
+__Kubernetes Incubation:__ Kompose is being incubated into the Kubernetes community via [SIG-APPS](https://github.com/kubernetes/community/tree/master/sig-apps) on [kubernetes/community](https://github.com/kubernetes/community). [@ericchiang](https://github.com/ericchiang) is acting champion for [incubation](https://github.com/kubernetes/community/blob/master/incubator.md).
 
-`kompose` is being incubated into the Kubernetes community via [SIG-APPS](https://github.com/kubernetes/community/tree/master/sig-apps) on [kubernetes/community](https://github.com/kubernetes/community).
-
-[@ericchiang](https://github.com/ericchiang) is acting champion for [incubation](https://github.com/kubernetes/community/blob/master/incubator.md).
-
-We do a biweekly community meeting which is [open to the public](https://bluejeans.com/404059616). Each week we outline what we have talked about in an [agenda doc](https://docs.google.com/document/d/1I5I21Cp_JZ9Az5MgMcu6Hl7m8WQ1Eqk_WeQLHenNom0/edit?usp=sharing). This meeting occurs every two weeks on Wednesday 18:00-19:00 GMT.
+__Chat (Slack):__ We're fairly active on [Slack](http://slack.kubernetes.io#kompose) and you can find us in the #kompose channel.
 
 ## Road Map
 
