@@ -26,14 +26,14 @@ Other examples are provided in the _examples_ [directory](./examples).
 
 We have multiple ways to install Kompose. Our prefered method is downloading the binary from the latest GitHub release.
 
-Our entire list of installation methods are located in our [setup.md](/docs/setup.md) document.
+Our entire list of installation methods are located in our [installation.md](/docs/installation.md) document.
 
 Installation methods:
   - [Binary (Prefered method)](README.md)
-  - [Go](/docs/setup.md#go)
-  - [CentOS](/docs/setup.md#centos)
-  - [Fedora](/docs/setup.md#fedora)
-  - [macOS (Homebrew)](/docs/setup.md#macos)
+  - [Go](/docs/installation.md#go)
+  - [CentOS](/docs/installation.md#centos)
+  - [Fedora](/docs/installation.md#fedora)
+  - [macOS (Homebrew)](/docs/installation.md#macos)
 
 #### Binary installation
 
@@ -106,7 +106,7 @@ Documentation can be found at our [kompose.io](http://kompose.io) website or our
 Here is a list of all available docs:
 
 - [Quick start](docs/quickstart.md)
-- [Setup](docs/setup.md)
+- [Installation](docs/installation.md)
 - [User guide](docs/user-guide.md)
 - [Conversion](docs/conversion.md)
 - [Architecture](docs/architecture.md)
