@@ -68,7 +68,7 @@ func equalStringSlice(s1, s2 []string) bool {
 		return false
 	}
 	for i := range s1 {
-		if s1[i] != s1[i] {
+		if s1[i] != s2[i] {
 			return false
 		}
 	}
