@@ -35,6 +35,7 @@ import (
 // converts os.Environ() ([]string) to map[string]string
 // based on https://github.com/docker/cli/blob/5dd30732a23bbf14db1c64d084ae4a375f592cfa/cli/command/stack/deploy_composefile.go#L143
 func buildEnvironment() (map[string]string, error) {
+	// This is a test
 	env := os.Environ()
 	result := make(map[string]string, len(env))
 	for _, s := range env {
