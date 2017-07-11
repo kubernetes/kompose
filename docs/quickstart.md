@@ -2,8 +2,6 @@
 
 What's Kompose? It's a conversion tool for all things compose (namely Docker Compose) to container orchestrators (Kubernetes or OpenShift).
 
-Whether you have a `docker-compose.yaml` or a `docker-compose.dab`, it doesn't matter. Kompose will get you up-and-running on Kubernetes.
-
 In three simple steps, we'll take you from Docker Compose to Kubernetes.
 
 __1. Take a sample docker-compose.yaml file__
@@ -38,7 +36,7 @@ services:
 __2. Run `kompose up` in the same directory__ 
 
 ```bash
-▶ kompose up
+kompose up
 We are going to create Kubernetes Deployments, Services and PersistentVolumeClaims for your Dockerized application. 
 If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. 
 
@@ -55,7 +53,7 @@ __Alternatively, you can run `kompose convert` and deploy with `kubectl`__
 __2.1. Run `kompose convert` in the same directory__
 
 ```bash
-▶ kompose convert                           
+kompose convert                           
 INFO Kubernetes file "frontend-service.yaml" created         
 INFO Kubernetes file "redis-master-service.yaml" created     
 INFO Kubernetes file "redis-slave-service.yaml" created      
@@ -67,7 +65,7 @@ INFO Kubernetes file "redis-slave-deployment.yaml" created
 __2.2. And start it on Kubernetes!__
 
 ```bash
-▶ kubectl create -f frontend-service.yaml,redis-master-service.yaml,redis-slave-service.yaml,frontend-deployment.yaml,redis-master-deployment.yaml,redis-slave-deployment.yaml
+kubectl create -f frontend-service.yaml,redis-master-service.yaml,redis-slave-service.yaml,frontend-deployment.yaml,redis-master-deployment.yaml,redis-slave-deployment.yaml
 service "frontend" created
 service "redis-master" created
 service "redis-slave" created
@@ -89,7 +87,7 @@ minikube service frontend
 Otherwise, let's look up what IP your service is using!
 
 ```sh
-▶ kubectl describe svc frontend
+kubectl describe svc frontend
 Name:                   frontend
 Namespace:              default
 Labels:                 service=frontend
@@ -108,5 +106,5 @@ No events.
 If you're using a cloud provider, your IP will be listed next to `LoadBalancer Ingress`.
 
 ```sh
-▶ curl http://123.45.67.89
+curl http://123.45.67.89
 ```
