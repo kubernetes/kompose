@@ -1,0 +1,11 @@
+{
+  "maxReviewers": 3, // 3 is enough
+  "numFilesToCheck": 5,
+  "message": "@pullRequester, thanks! @reviewers, please review this.",
+  "findPotentialReviewers": true,
+  "fileBlacklist": ["*.md"], // ignore documentation
+  "userBlacklist": ["ngtuna", "janetkuo", "sebgoa"], // explicitly ignore pinging alumni
+  "assignToReviewer": false,
+  "createReviewRequest": true,
+  "createComment": true,
+}
