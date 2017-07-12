@@ -20,8 +20,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"strings"
 
-	"github.com/kubernetes-incubator/kompose/pkg/app"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/app"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/spf13/cobra"
 )
 

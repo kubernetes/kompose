@@ -27,7 +27,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/project"
 	"github.com/fatih/structs"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 )
 
