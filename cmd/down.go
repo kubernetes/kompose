@@ -45,7 +45,7 @@ var downCmd = &cobra.Command{
 		}
 
 		// Validate before doing anything else.
-		app.ValidateComposeFile(cmd, &DownOpt)
+		app.ValidateComposeFile(&DownOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		app.Down(DownOpt)
