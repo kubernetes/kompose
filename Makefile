@@ -15,7 +15,7 @@
 
 
 GITCOMMIT := $(shell git rev-parse --short HEAD)
-BUILD_FLAGS := -ldflags="-w -X github.com/kubernetes-incubator/kompose/cmd.GITCOMMIT=$(GITCOMMIT)"
+BUILD_FLAGS := -ldflags="-w -X github.com/kubernetes/kompose/cmd.GITCOMMIT=$(GITCOMMIT)"
 PKGS = $(shell glide novendor)
 TEST_IMAGE := kompose/tests:latest
 
@@ -53,7 +53,7 @@ test-unit-cover:
 	go test -i -race -cover $(PKGS)
 	# go test doesn't support colleting coverage across multiple packages,
 	# generate go test commands using go list and run go test for every package separately 
-	go list -f '"go test -race -cover -v -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}}"' github.com/kubernetes-incubator/kompose/...  | grep -v "vendor" | xargs -L 1 -P4 sh -c 
+	go list -f '"go test -race -cover -v -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}}"' github.com/kubernetes/kompose/...  | grep -v "vendor" | xargs -L 1 -P4 sh -c 
 
 
 # run openshift up/down tests

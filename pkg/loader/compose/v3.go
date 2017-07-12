@@ -27,7 +27,7 @@ import (
 	"github.com/docker/cli/cli/compose/types"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	"os"
 )

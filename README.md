@@ -8,7 +8,7 @@
 
 ## Use Case
 
-Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes-incubator/kompose/master/examples/docker-compose.yaml) into Kubernetes deployments and services with one simple command:
+Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml) into Kubernetes deployments and services with one simple command:
 
 ```sh
 kompose convert -f docker-compose.yaml
@@ -37,23 +37,23 @@ Installation methods:
 
 #### Binary installation
 
-Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases).
+Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes/kompose/releases).
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v0.7.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v0.7.0/kompose-darwin-amd64 -o kompose
 
 # Windows
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-windows-amd64.exe -o kompose.exe
+curl -L https://github.com/kubernetes/kompose/releases/download/v0.7.0/kompose-windows-amd64.exe -o kompose.exe
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-Alternatively, you can download the less-bandwidth intense [tarball](https://github.com/kubernetes-incubator/kompose/releases).
+Alternatively, you can download the less-bandwidth intense [tarball](https://github.com/kubernetes/kompose/releases).
 
 ## Shell autocompletion
 
@@ -101,7 +101,7 @@ $ make cross
 
 ## Documentation
 
-Documentation can be found at our [kompose.io](http://kompose.io) website or our [docs](https://github.com/kubernetes-incubator/kompose/tree/master/docs) folder.
+Documentation can be found at our [kompose.io](http://kompose.io) website or our [docs](https://github.com/kubernetes/kompose/tree/master/docs) folder.
 
 Here is a list of all available docs:
 
@@ -114,7 +114,7 @@ Here is a list of all available docs:
 
 ## Community, Discussion, Contribution, and Support
 
-__Issues:__ If you find any issues, please [file it](https://github.com/kubernetes-incubator/kompose/issues).
+__Issues:__ If you find any issues, please [file it](https://github.com/kubernetes/kompose/issues).
 
 __Kubernetes Community:__ As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
 
@@ -130,11 +130,11 @@ An up-to-date roadmap of upcoming releases is located at [ROADMAP.md](/ROADMAP.m
 
 Participation in the Kubernetes community is governed by the [Kubernetes Code of Conduct](code-of-conduct.md).
 
-[Build Status]: https://travis-ci.org/kubernetes-incubator/kompose
-[Build Status Widget]: https://travis-ci.org/kubernetes-incubator/kompose.svg?branch=master
-[GoDoc]: https://godoc.org/github.com/kubernetes-incubator/kompose
-[GoDoc Widget]: https://godoc.org/github.com/kubernetes-incubator/kompose?status.svg
+[Build Status]: https://travis-ci.org/kubernetes/kompose
+[Build Status Widget]: https://travis-ci.org/kubernetes/kompose.svg?branch=master
+[GoDoc]: https://godoc.org/github.com/kubernetes/kompose
+[GoDoc Widget]: https://godoc.org/github.com/kubernetes/kompose?status.svg
 [Slack]: http://slack.kubernetes.io#kompose
 [Slack Widget]: https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png
-[Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes-incubator/kompose/badge.svg?branch=master
-[Coverage Status]: https://coveralls.io/github/kubernetes-incubator/kompose?branch=master
+[Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes/kompose/badge.svg?branch=master
+[Coverage Status]: https://coveralls.io/github/kubernetes/kompose?branch=master

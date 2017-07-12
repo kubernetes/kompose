@@ -22,8 +22,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -39,7 +39,7 @@ import (
 
 	"reflect"
 
-	"github.com/kubernetes-incubator/kompose/pkg/transformer"
+	"github.com/kubernetes/kompose/pkg/transformer"
 	buildapi "github.com/openshift/origin/pkg/build/api"
 	buildconfigreaper "github.com/openshift/origin/pkg/build/cmd"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"

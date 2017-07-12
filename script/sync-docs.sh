@@ -7,7 +7,7 @@ if [ "$TRAVIS_BRANCH" != "master" ] || [ "$BUILD_DOCS" != "yes" ] || [ "$TRAVIS_
 fi
 
 DOCS_REPO_NAME="kompose"
-DOCS_REPO_URL="git@github.com:kubernetes-incubator/kompose.git"
+DOCS_REPO_URL="git@github.com:kubernetes/kompose.git"
 DOCS_KEY="script/deploy_key"
 DOCS_USER="komposebot"
 DOCS_EMAIL="cdrage+kompose@redhat.com"
@@ -80,7 +80,7 @@ git config user.email "$DOCS_EMAIL"
 git add --all
 
 # Check if anything changed, and if it's the case, push to origin/master.
-if git commit -m 'Update docs' -m "Commit: https://github.com/kubernetes-incubator/kompose/commit/$TRAVIS_COMMIT" ; then
+if git commit -m 'Update docs' -m "Commit: https://github.com/kubernetes/kompose/commit/$TRAVIS_COMMIT" ; then
   git push
 fi
 

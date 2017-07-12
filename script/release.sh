@@ -17,7 +17,7 @@
 # Constants. Enter relevant repo information here.
 UPSTREAM_REPO="kubernetes-incubator"
 CLI="kompose"
-GITPATH="$GOPATH/src/github.com/kubernetes-incubator/kompose"
+GITPATH="$GOPATH/src/github.com/kubernetes/kompose"
 
 usage() {
   echo "This will prepare $CLI for release!"
