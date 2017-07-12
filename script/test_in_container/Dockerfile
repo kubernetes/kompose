@@ -28,7 +28,7 @@ ENV GOPATH="/opt/go" \
 ENV PATH="$PATH:$GOPATH/bin" \
     # KOMPOSE_SRC is where kompose source will be copied when container starts (by run.sh script)
     # this is to ensure that we won't write anything to host volume mount
-    KOMPOSE_SRC="$GOPATH/src/github.com/kubernetes-incubator/kompose"
+    KOMPOSE_SRC="$GOPATH/src/github.com/kubernetes/kompose"
 
 RUN go get github.com/Masterminds/glide &&\
     go get github.com/sgotti/glide-vc &&\

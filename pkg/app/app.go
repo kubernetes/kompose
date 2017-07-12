@@ -34,11 +34,11 @@ import (
 
 	"os"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/loader"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer/openshift"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/loader"
+	"github.com/kubernetes/kompose/pkg/transformer"
+	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
+	"github.com/kubernetes/kompose/pkg/transformer/openshift"
 )
 
 const (
@@ -118,7 +118,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	if len(bundle) > 0 {
 		inputFormat = "bundle"
-		log.Fatalf("DAB / bundle (--bundle | -b) is no longer supported. See issue: https://github.com/kubernetes-incubator/kompose/issues/390")
+		log.Fatalf("DAB / bundle (--bundle | -b) is no longer supported. See issue: https://github.com/kubernetes/kompose/issues/390")
 		opt.InputFiles = []string{bundle}
 	}
 

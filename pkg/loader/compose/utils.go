@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
 )

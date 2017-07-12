@@ -1,5 +1,5 @@
-package: github.com/kubernetes-incubator/kompose
-homepage: https://github.com/kubernetes-incubator/kompose
+package: github.com/kubernetes/kompose
+homepage: https://github.com/kubernetes/kompose
 licence: Apache-2.0
 
 import:

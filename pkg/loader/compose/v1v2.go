@@ -30,7 +30,7 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 )
 

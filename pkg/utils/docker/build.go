@@ -20,7 +20,7 @@ import (
 	"bytes"
 	log "github.com/Sirupsen/logrus"
 	dockerlib "github.com/fsouza/go-dockerclient"
-	"github.com/kubernetes-incubator/kompose/pkg/utils/archive"
+	"github.com/kubernetes/kompose/pkg/utils/archive"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"

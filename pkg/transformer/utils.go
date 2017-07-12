@@ -24,9 +24,9 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/kobject"
 
-	"github.com/kubernetes-incubator/kompose/pkg/utils/docker"
+	"github.com/kubernetes/kompose/pkg/utils/docker"
 	"path/filepath"
 
 	"github.com/pkg/errors"
@@ -74,7 +74,7 @@ func ParseVolume(volume string) (name, host, container, mode string, err error) 
 	possibleAccessMode := volumeStrings[len(volumeStrings)-1]
 
 	// Check to see if :Z or :z exists. We do not support SELinux relabeling at the moment.
-	// See https://github.com/kubernetes-incubator/kompose/issues/176
+	// See https://github.com/kubernetes/kompose/issues/176
 	// Otherwise, check to see if "rw" or "ro" has been passed
 	if possibleAccessMode == "z" || possibleAccessMode == "Z" {
 		log.Warnf("Volume mount \"%s\" will be mounted without labeling support. :z or :Z not supported", volume)
