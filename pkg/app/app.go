@@ -136,7 +136,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 }
 
 // ValidateComposeFile validated the compose file provided for conversion
-func ValidateComposeFile(cmd *cobra.Command, opt *kobject.ConvertOptions) {
+func ValidateComposeFile(opt *kobject.ConvertOptions) {
 	if len(opt.InputFiles) == 0 {
 		// Here docker-compose is the input
 		opt.InputFiles = []string{"docker-compose.yml"}

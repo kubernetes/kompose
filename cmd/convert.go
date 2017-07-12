@@ -88,7 +88,7 @@ var convertCmd = &cobra.Command{
 
 		// Validate before doing anything else. Use "bundle" if passed in.
 		app.ValidateFlags(GlobalBundle, args, cmd, &ConvertOpt)
-		app.ValidateComposeFile(cmd, &ConvertOpt)
+		app.ValidateComposeFile(&ConvertOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 
