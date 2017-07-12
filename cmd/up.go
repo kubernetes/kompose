@@ -60,7 +60,7 @@ var upCmd = &cobra.Command{
 		}
 
 		// Validate before doing anything else.
-		app.ValidateComposeFile(cmd, &UpOpt)
+		app.ValidateComposeFile(&UpOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		app.Up(UpOpt)
