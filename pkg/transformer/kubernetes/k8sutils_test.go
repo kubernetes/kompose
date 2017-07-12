@@ -203,7 +203,7 @@ func TestTransformWithPid(t *testing.T) {
 	for _, obj := range objects {
 		if deploy, ok := obj.(*extensions.Deployment); ok {
 			hostPid := deploy.Spec.Template.Spec.SecurityContext.HostPID
-			if hostPid != true {
+			if !hostPid {
 				t.Errorf("Pid in ServiceConfig is not matching HostPID in PodSpec")
 			}
 		}
@@ -240,7 +240,7 @@ func TestTransformWithInvaildPid(t *testing.T) {
 		if deploy, ok := obj.(*extensions.Deployment); ok {
 			if deploy.Spec.Template.Spec.SecurityContext != nil {
 				hostPid := deploy.Spec.Template.Spec.SecurityContext.HostPID
-				if hostPid != false {
+				if hostPid {
 					t.Errorf("Pid in ServiceConfig is not matching HostPID in PodSpec")
 				}
 			}
@@ -272,7 +272,7 @@ func TestIsDir(t *testing.T) {
 	if err != nil {
 		t.Error(errors.Wrap(err, "isDir failed"))
 	}
-	if output != true {
+	if !output {
 		t.Errorf("directory %v exists but isDir() returned %v", tempDir, output)
 	}
 
@@ -281,7 +281,7 @@ func TestIsDir(t *testing.T) {
 	if err != nil {
 		t.Error(errors.Wrap(err, "isDir failed"))
 	}
-	if output != false {
+	if output {
 		t.Errorf("%v is a file but isDir() returned %v", tempDir, output)
 	}
 
@@ -290,7 +290,7 @@ func TestIsDir(t *testing.T) {
 	if err != nil {
 		t.Error(errors.Wrap(err, "isDir failed"))
 	}
-	if output != false {
+	if output {
 		t.Errorf("Directory %v does not exist, but isDir() returned %v", tempAbsentDirPath, output)
 	}
 
