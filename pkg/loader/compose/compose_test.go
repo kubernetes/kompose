@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"k8s.io/kubernetes/pkg/api"
 
 	"github.com/docker/cli/cli/compose/types"

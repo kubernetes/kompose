@@ -103,7 +103,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&GlobalBundle, "bundle", "b", "", "Specify a Distributed Application Bundle (DAB) file")
 	RootCmd.PersistentFlags().StringVar(&GlobalProvider, "provider", "kubernetes", "Specify a provider. Kubernetes or OpenShift.")
 
-	// Mark DAB / bundle as deprecated, see issue: https://github.com/kubernetes-incubator/kompose/issues/390
+	// Mark DAB / bundle as deprecated, see issue: https://github.com/kubernetes/kompose/issues/390
 	// As DAB is still EXPERIMENTAL
-	RootCmd.PersistentFlags().MarkDeprecated("bundle", "DAB / Bundle is deprecated, see: https://github.com/kubernetes-incubator/kompose/issues/390")
+	RootCmd.PersistentFlags().MarkDeprecated("bundle", "DAB / Bundle is deprecated, see: https://github.com/kubernetes/kompose/issues/390")
 }

@@ -26,10 +26,10 @@ import (
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/testutils"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/testutils"
+	"github.com/kubernetes/kompose/pkg/transformer"
+	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
 	"github.com/pkg/errors"
 )
 

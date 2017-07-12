@@ -5,7 +5,7 @@ sudo: required
 language: go
 
 # make this also work for forks
-go_import_path: github.com/kubernetes-incubator/kompose
+go_import_path: github.com/kubernetes/kompose
 
 matrix:
   include:

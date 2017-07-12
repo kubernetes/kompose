@@ -17,7 +17,7 @@ limitations under the License.
 package transformer
 
 import (
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"k8s.io/kubernetes/pkg/runtime"
 )
 
