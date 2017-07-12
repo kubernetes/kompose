@@ -343,12 +343,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	if len(service.TmpFs) > 0 {
 		TmpVolumesMount, TmpVolumes := k.ConfigTmpfs(name, service)
 
-		for _, volume := range TmpVolumes {
-			volumes = append(volumes, volume)
-		}
-		for _, vMount := range TmpVolumesMount {
-			volumesMount = append(volumesMount, vMount)
-		}
+		volumes = append(volumes, TmpVolumes...)
+
+		volumesMount = append(volumesMount, TmpVolumesMount...)
 
 	}
 
@@ -411,7 +408,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 
 		// Setup security context
 		securityContext := &api.SecurityContext{}
-		if service.Privileged == true {
+		if service.Privileged {
 			securityContext.Privileged = &service.Privileged
 		}
 		if service.User != "" {

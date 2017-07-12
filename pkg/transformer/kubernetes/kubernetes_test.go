@@ -180,7 +180,7 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 
 func privilegedNilOrFalse(template api.PodTemplateSpec) bool {
 	return len(template.Spec.Containers) == 0 || template.Spec.Containers[0].SecurityContext == nil ||
-		template.Spec.Containers[0].SecurityContext.Privileged == nil || *template.Spec.Containers[0].SecurityContext.Privileged == false
+		template.Spec.Containers[0].SecurityContext.Privileged == nil || !*template.Spec.Containers[0].SecurityContext.Privileged
 }
 
 func checkService(config kobject.ServiceConfig, svc *api.Service, expectedLabels map[string]string) error {
