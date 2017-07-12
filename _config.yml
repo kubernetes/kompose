@@ -3,9 +3,9 @@ project_name: Kompose
 description: >
   kompose is a tool to help users familiar with docker-compose move to Kubernetes. It takes a Docker Compose file and translates it into Kubernetes resources.
 repository_url: https://github.com/kubernetes-incubator/kompose
-repository_shorthand: kubernetes-incubator/kompose
+repository_shorthand: kubernetes/kompose
 
 author_name: The Kubernetes Authors
-author_url: https://github.com/kubernetes-incubator/kompose
+author_url: https://github.com/kubernetes/kompose
 
 markdown: kramdown
