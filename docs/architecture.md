@@ -1,6 +1,7 @@
 ---
 layout: default
 permalink: /architecture/
+redirect_from: "/docs/architecture/"
 ---
 
 # Architecture and Internal Design
@@ -29,7 +30,7 @@ Every loader “implementation” should be placed into `kompose/pkg/loader` (li
 
 ## KomposeObject
 
-`KomposeObject` is Kompose internal representation of all containers loaded from input file. First version of `KomposeObject` looks like this (source: [kobject.go](https://github.com/kubernetes-incubator/kompose/blob/master/pkg/kobject/kobject.go)):
+`KomposeObject` is Kompose internal representation of all containers loaded from input file. First version of `KomposeObject` looks like this (source: [kobject.go](https://github.com/kubernetes/kompose/blob/master/pkg/kobject/kobject.go)):
 
 ```go
 // KomposeObject holds the generic struct of Kompose transformation

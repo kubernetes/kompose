@@ -1,6 +1,7 @@
 ---
 layout: default
 permalink: /user-guide/
+redirect_from: "/docs/user-guide/"
 ---
 
 # User Guide
@@ -205,7 +206,7 @@ Kompose supports both building and pushing Docker images. When using the `build`
   - Automatically be built with Docker using the `image` key specified within your file
   - Be pushed to the correct Docker repository using local credentials (located at `.docker/config`)
 
-Using an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes-incubator/kompose/master/examples/buildconfig/docker-compose.yml):
+Using an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/buildconfig/docker-compose.yml):
 
 ```yaml
 version: "2"

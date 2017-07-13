@@ -1,18 +1,19 @@
 ---
 layout: default
 permalink: /development/
+redirect_from: "/docs/development/"
 ---
 
 # Development Guide
 
 ## Building Kompose
 
-Read about building kompose [here](https://github.com/kubernetes-incubator/kompose#building).
+Read about building kompose [here](https://github.com/kubernetes/kompose#building).
 
 ## Workflow
 ### Fork the main repository
 
-1. Go to https://github.com/kubernetes-incubator/kompose
+1. Go to https://github.com/kubernetes/kompose
 2. Click the "Fork" button (at the top right)
 
 ### Clone your fork
@@ -20,9 +21,9 @@ Read about building kompose [here](https://github.com/kubernetes-incubator/kompo
 The commands below require that you have $GOPATH. We highly recommended you put Kompose' code into your $GOPATH.
 
 ```console
-git clone https://github.com/$YOUR_GITHUB_USERNAME/kompose.git $GOPATH/src/github.com/kubernetes-incubator/kompose
-cd $GOPATH/src/github.com/kubernetes-incubator/kompose
-git remote add upstream 'https://github.com/kubernetes-incubator/kompose'
+git clone https://github.com/$YOUR_GITHUB_USERNAME/kompose.git $GOPATH/src/github.com/kubernetes/kompose
+cd $GOPATH/src/github.com/kubernetes/kompose
+git remote add upstream 'https://github.com/kubernetes/kompose'
 ```
 
 ### Create a branch and make changes
@@ -39,7 +40,7 @@ git fetch upstream
 git rebase upstream/master
 ```
 
-Note: If you have write access to the main repository at github.com/kubernetes-incubator/kompose, you should modify your git configuration so that you can't accidentally push to upstream:
+Note: If you have write access to the main repository at github.com/kubernetes/kompose, you should modify your git configuration so that you can't accidentally push to upstream:
 
 ```console
 git remote set-url --push upstream no_push

@@ -1,6 +1,7 @@
 ---
 layout: default
 permalink: /installation/
+redirect_from: "/docs/installation/"
 ---
 
 # Installation
@@ -9,30 +10,30 @@ We have multiple ways to install Kompose. Our prefered method is downloading the
 
 #### GitHub release
 
-Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases).
+Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes/kompose/releases).
 
 ```sh
 # Linux 
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v0.7.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v0.7.0/kompose-darwin-amd64 -o kompose
 
 # Windows
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-windows-amd64.exe -o kompose.exe
+curl -L https://github.com/kubernetes/kompose/releases/download/v0.7.0/kompose-windows-amd64.exe -o kompose.exe
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-Alternatively, you can download the [tarball](https://github.com/kubernetes-incubator/kompose/releases).
+Alternatively, you can download the [tarball](https://github.com/kubernetes/kompose/releases).
 
 #### Go
 
 Installing using `go get` pulls from the master branch with the latest development changes.
 
 ```sh
-go get -u github.com/kubernetes-incubator/kompose
+go get -u github.com/kubernetes/kompose
 ```
 
 #### CentOS

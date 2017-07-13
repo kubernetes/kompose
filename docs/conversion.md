@@ -1,9 +1,10 @@
 ---
 layout: default
 permalink: /conversion/
+redirect_from: "/docs/conversion/"
 ---
 
-# Conversion reference
+# Conversion Matrix
 
 This document outlines all possible conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts. This includes version 1, 2 and 3 of Docker Compose.
 
