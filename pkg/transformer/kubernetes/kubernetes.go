@@ -65,7 +65,7 @@ const TIMEOUT = 300
 const PVCRequestSize = "100Mi"
 
 // CheckUnsupportedKey checks if given komposeObject contains
-// keys that are not supported by this tranfomer.
+// keys that are not supported by this transformer.
 // list of all unsupported keys are stored in unsupportedKey variable
 // returns list of TODO: ....
 func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, unsupportedKey map[string]bool) []string {
@@ -138,7 +138,7 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 	return rc
 }
 
-// InitSvc initializes Kubernets Service object
+// InitSvc initializes Kubernetes Service object
 func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Service {
 	svc := &api.Service{
 		TypeMeta: unversioned.TypeMeta{
@@ -377,7 +377,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	volumes := []api.Volume{}
 	var PVCs []*api.PersistentVolumeClaim
 
-	// Set a var based on if the user wants to use emtpy volumes
+	// Set a var based on if the user wants to use empty volumes
 	// as opposed to persistent volumes and volume claims
 	useEmptyVolumes := k.Opt.EmptyVols
 
