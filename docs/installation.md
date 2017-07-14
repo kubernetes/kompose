@@ -42,12 +42,13 @@ Kompose is in [EPEL](https://fedoraproject.org/wiki/EPEL) CentOS repository.
 If you don't have [EPEL](https://fedoraproject.org/wiki/EPEL) repository already installed and enabled you can do it by running  `sudo yum install epel-release`
 
 If you have [EPEL](https://fedoraproject.org/wiki/EPEL) enabled in your system, you can install Kompose like any other package.
+
 ```bash
 sudo yum -y install kompose
 ```
 
 #### Fedora
-Kompose is in Fedora 24 and 25 repositories. You can install it just like any other package.
+Kompose is in Fedora 24, 25 and 26 repositories. You can install it just like any other package.
 
 ```bash
 sudo dnf -y install kompose
