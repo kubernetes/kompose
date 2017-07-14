@@ -1,5 +1,6 @@
 {
-  "numFilesToCheck": 10,
+  "maxReviewers": 2,
+  "numFilesToCheck": 5,
   "message": "@pullRequester, thank you for the pull request! We'll ping some people to review your PR. @reviewers, please review this.",
   "fileBlacklist": ["*.md"],
   "userBlacklist": ["ngtuna", "janetkuo", "sebgoa"],
