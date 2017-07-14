@@ -20,6 +20,7 @@ import (
 	"github.com/fsouza/go-dockerclient"
 )
 
+// DockerClient connects to Docker client on host
 func DockerClient() (*docker.Client, error) {
 
 	// Default end-point, HTTP + TLS support to be added in the future

@@ -33,6 +33,7 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 )
 
+// Selector used as labels and selector
 const Selector = "io.kompose.service"
 
 // CreateOutFile creates the file to write to if --out is specified
@@ -155,7 +156,7 @@ func formatProviderName(provider string) string {
 	return provider
 }
 
-// Sort struct
+// EnvSort struct
 type EnvSort []api.EnvVar
 
 // returns the number of elements in the collection.
@@ -189,6 +190,7 @@ func GetComposeFileDir(inputFiles []string) (string, error) {
 	return filepath.Dir(inputFile), nil
 }
 
+//BuildDockerImage builds docker image
 func BuildDockerImage(service kobject.ServiceConfig, name string, relativePath string) error {
 
 	// First, let's figure out the relative path of the Dockerfile!
@@ -223,6 +225,7 @@ func BuildDockerImage(service kobject.ServiceConfig, name string, relativePath s
 	return nil
 }
 
+// PushDockerImage pushes docker image
 func PushDockerImage(service kobject.ServiceConfig, serviceName string) error {
 
 	log.Debugf("Pushing Docker image '%s'", service.Image)

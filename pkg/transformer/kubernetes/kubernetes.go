@@ -61,7 +61,7 @@ type Kubernetes struct {
 // used when undeploying resources from kubernetes
 const TIMEOUT = 300
 
-//default size of Persistent Volume Claim
+// PVCRequestSize (Persistent Volume Claim) has default size
 const PVCRequestSize = "100Mi"
 
 // CheckUnsupportedKey checks if given komposeObject contains
