@@ -562,7 +562,7 @@ func (k *Kubernetes) VolumesFrom(objects *[]runtime.Object, komposeObject kobjec
 	return nil
 }
 
-//Ensure the kubernetes objects are in a consistent order
+// SortedKeys Ensure the kubernetes objects are in a consistent order
 func SortedKeys(komposeObject kobject.KomposeObject) []string {
 	var sortedKeys []string
 	for name := range komposeObject.ServiceConfigs {
@@ -572,7 +572,7 @@ func SortedKeys(komposeObject kobject.KomposeObject) []string {
 	return sortedKeys
 }
 
-//converts duration string to *int64 in seconds
+// DurationStrToSecondsInt converts duration string to *int64 in seconds
 func DurationStrToSecondsInt(s string) (*int64, error) {
 	if s == "" {
 		return nil, nil

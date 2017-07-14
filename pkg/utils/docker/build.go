@@ -28,12 +28,13 @@ import (
 	"strings"
 )
 
+// Build will provide methods for interaction with API regarding building images
 type Build struct {
 	Client dockerlib.Client
 }
 
 /*
-Build a Docker image via the Docker API. Takes the source directory
+BuildImage builds a Docker image via the Docker API. Takes the source directory
 and image name and then builds the appropriate image. Tarball is utilized
 in order to make building easier.
 */
