@@ -2,7 +2,7 @@
   "numFilesToCheck": 10,
   "message": "@pullRequester, thank you for the pull request! We'll ping some people to review your PR. @reviewers, please review this.",
   "fileBlacklist": ["*.md"],
-  "userBlacklist": ["ngtuna", "janetkuo", "sebgoa"],
+  "userBlacklist": ["ngtuna", "janetkuo", "sebgoa", "dustymabe"],
   "actions": ["opened", "labeled"],
   "skipAlreadyMentionedPR": true,
   "createReviewRequest": true
