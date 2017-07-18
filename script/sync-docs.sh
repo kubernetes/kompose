@@ -65,7 +65,7 @@ for filename in *.md; do
     jekyll="---
 layout: default
 permalink: /$name/
-redirect_from: \"/docs/$name/\"
+redirect_from: \"/docs/$name.md\"
 ---
 "
     echo -e "$jekyll\n$(cat $filename)" > $filename
