@@ -1,7 +1,7 @@
 ---
 layout: default
 permalink: /development/
-redirect_from: "/docs/development/"
+redirect_from: "/docs/development.md"
 ---
 
 # Development Guide
