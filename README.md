@@ -11,7 +11,7 @@
 Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml) into Kubernetes deployments and services with one simple command:
 
 ```sh
-kompose convert -f docker-compose.yaml
+$ kompose convert -f docker-compose.yaml
 INFO Kubernetes file "frontend-service.yaml" created         
 INFO Kubernetes file "redis-master-service.yaml" created     
 INFO Kubernetes file "redis-slave-service.yaml" created      
