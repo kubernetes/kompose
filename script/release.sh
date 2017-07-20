@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # Constants. Enter relevant repo information here.
-UPSTREAM_REPO="kubernetes-incubator"
+UPSTREAM_REPO="kubernetes"
 CLI="kompose"
 GITPATH="$GOPATH/src/github.com/kubernetes/kompose"
 
@@ -97,8 +97,11 @@ replaceversion() {
   echo "Replaced version in README.md"
   sed -i "s/$1/$2/g" README.md
 
-  echo "Replaced version in docs/setup.md"
-  sed -i "s/$1/$2/g" docs/setup.md
+  echo "Replaced version in docs/installation.md"
+  sed -i "s/$1/$2/g" docs/installation.md
+
+  echo "Replaced version in build/VERSION"
+  sed -i "s/$1/$2/g" build/VERSION
 }
 
 changelog() {
@@ -157,6 +160,42 @@ git_sync() {
 
 git_tag() {
   git tag v$1
+}
+
+generate_install_guide() {
+  echo "
+# Installation
+
+__Linux and macOS:__
+
+\`\`\`sh
+# Linux
+curl -L https://github.com/kubernetes/kompose/releases/download/v$1/kompose-linux-amd64 -o kompose
+
+# macOS
+curl -L https://github.com/kubernetes/kompose/releases/download/v$1/kompose-darwin-amd64 -o kompose
+
+chmod +x kompose
+sudo mv ./kompose /usr/local/bin/kompose
+\`\`\`
+
+__Windows:__
+
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v$1/kompose-windows-amd64.exe) and add the binary to your PATH.
+
+__Checksums:__
+
+Filename | SHA256 Hash
+-----------------------" > install_guide.txt
+
+  for f in bin/*
+  do
+    HASH=`sha256sum $f | head -n1 | awk '{print $1;}'`
+    echo "$f | $HASH" >> install_guide.txt
+  done
+
+ # Append the file to the file
+ cat install_guide.txt >> changes.txt
 }
 
 push() {
@@ -248,6 +287,7 @@ main() {
   "Create tag"
   "Build binaries"
   "Create tarballs"
+  "Generate install guide"
   "Upload the binaries and push to GitHub release page"
   "Clean"
   "Quit")
@@ -281,6 +321,9 @@ main() {
               ;;
           "Create tarballs")
               create_tarballs
+              ;;
+          "Generate install guide")
+              generate_install_guide $VERSION
               ;;
           "Upload the binaries and push to GitHub release page")
               push $VERSION
