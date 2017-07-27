@@ -49,6 +49,7 @@ import (
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
 	"sort"
+	"strings"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -376,56 +377,53 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	volumeMounts := []api.VolumeMount{}
 	volumes := []api.Volume{}
 	var PVCs []*api.PersistentVolumeClaim
+	var volumeName string
 
 	// Set a var based on if the user wants to use empty volumes
 	// as opposed to persistent volumes and volume claims
 	useEmptyVolumes := k.Opt.EmptyVols
 
 	var count int
+	//interating over array of `Vols` struct as it contains all necessary information about volumes
 	for _, volume := range service.Volumes {
 
-		volumeName, host, container, mode, err := transformer.ParseVolume(volume)
-		if err != nil {
-			log.Warningf("Failed to configure container volume: %v", err)
-			continue
-		}
-
-		log.Debug("Volume name %s", volumeName)
-
 		// check if ro/rw mode is defined, default rw
-		readonly := len(mode) > 0 && mode == "ro"
+		readonly := len(volume.Mode) > 0 && volume.Mode == "ro"
 
-		if volumeName == "" {
+		if volume.VolumeName == "" {
 			if useEmptyVolumes {
-				volumeName = fmt.Sprintf("%s-empty%d", name, count)
+				volumeName = strings.Replace(volume.PVCName, "claim", "empty", 1)
 			} else {
-				volumeName = fmt.Sprintf("%s-claim%d", name, count)
+				volumeName = volume.PVCName
 			}
 			count++
+		} else {
+			volumeName = volume.VolumeName
 		}
-
-		// create a new volume mount object and append to list
 		volmount := api.VolumeMount{
 			Name:      volumeName,
 			ReadOnly:  readonly,
-			MountPath: container,
+			MountPath: volume.Container,
 		}
 		volumeMounts = append(volumeMounts, volmount)
-
 		// Get a volume source based on the type of volume we are using
 		// For PVC we will also create a PVC object and add to list
 		var volsource *api.VolumeSource
+
 		if useEmptyVolumes {
 			volsource = k.ConfigEmptyVolumeSource("volume")
 		} else {
+
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
+			if volume.VFrom == "" {
+				createdPVC, err := k.CreatePVC(volumeName, volume.Mode)
 
-			createdPVC, err := k.CreatePVC(volumeName, mode)
-			if err != nil {
-				return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
+				if err != nil {
+					return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
+				}
+
+				PVCs = append(PVCs, createdPVC)
 			}
-
-			PVCs = append(PVCs, createdPVC)
 		}
 
 		// create a new volume object using the volsource and add to list
@@ -435,10 +433,12 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		}
 		volumes = append(volumes, vol)
 
-		if len(host) > 0 {
-			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
+		if len(volume.Host) > 0 {
+			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", volume.Host)
 		}
+
 	}
+
 	return volumeMounts, volumes, PVCs, nil
 }
 
@@ -603,8 +603,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 		allobjects = append(allobjects, objects...)
 	}
-	// If docker-compose has a volumes_from directive it will be handled here
-	k.VolumesFrom(&allobjects, komposeObject)
+
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
 	return allobjects, nil
