@@ -106,6 +106,12 @@ convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtur
 # openshift test
 convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-os.json" "ignoring path on the host"
 
+# Tests related to docker-compose file in /script/test/fixtures/volume-mounts/volumes-from corner cases
+# kubernetes test
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose-case.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-k8s-case.json"
+# openshift test
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose-case.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-os-case.json"
+
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/envvars-separators

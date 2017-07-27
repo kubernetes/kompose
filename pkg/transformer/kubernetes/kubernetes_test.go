@@ -40,7 +40,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"}, // not supported
 		Labels:        nil,
 		Annotations:   map[string]string{"abc": "def"},
@@ -54,6 +54,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		Tty:           true,
 		TmpFs:         []string{"/tmp"},
 		Replicas:      2,
+		Volumes:       []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
 	}
 }
 
