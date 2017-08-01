@@ -440,9 +440,9 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		}
 		volumes = append(volumes, vol)
 
-		//if len(volume.Host) > 0 {
-		//	log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", volume.Host)
-		//}
+		if len(hostpath) > 0 {
+			log.Warningf("Volume mount on the host %q make no sense in the cluster - Be careful the path on the host", volume.Host)
+		}
 
 	}
 
