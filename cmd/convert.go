@@ -40,6 +40,7 @@ var (
 	ConvertJSON                  bool
 	ConvertStdout                bool
 	ConvertEmptyVols             bool
+	ConvertHostPaths             bool
 	ConvertInsecureRepo          bool
 	ConvertDeploymentConfig      bool
 	ConvertReplicas              int
@@ -78,6 +79,7 @@ var convertCmd = &cobra.Command{
 			BuildBranch:                 ConvertBuildBranch,
 			CreateDeploymentConfig:      ConvertDeploymentConfig,
 			EmptyVols:                   ConvertEmptyVols,
+			HostPaths:                   ConvertHostPaths,
 			InsecureRepository:          ConvertInsecureRepo,
 			IsDeploymentFlag:            cmd.Flags().Lookup("deployment").Changed,
 			IsDaemonSetFlag:             cmd.Flags().Lookup("daemon-set").Changed,
@@ -129,6 +131,7 @@ func init() {
 	convertCmd.Flags().BoolVarP(&ConvertJSON, "json", "j", false, "Generate resource files into JSON format")
 	convertCmd.Flags().BoolVar(&ConvertStdout, "stdout", false, "Print converted objects to stdout")
 	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
+	convertCmd.Flags().BoolVar(&ConvertHostPaths, "hostpaths", false, "Use HostPath Volumes. Do not generate PVCs")
 	convertCmd.Flags().StringVarP(&ConvertOut, "out", "o", "", "Specify a file name to save objects to")
 	convertCmd.Flags().IntVar(&ConvertReplicas, "replicas", 1, "Specify the number of repliaces in the generate resource spec")
 

@@ -382,6 +382,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	// Set a var based on if the user wants to use empty volumes
 	// as opposed to persistent volumes and volume claims
 	useEmptyVolumes := k.Opt.EmptyVols
+	useHostPaths := k.Opt.HostPaths
 
 	var count int
 	//interating over array of `Vols` struct as it contains all necessary information about volumes
@@ -389,11 +390,15 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 
 		// check if ro/rw mode is defined, default rw
 		readonly := len(volume.Mode) > 0 && volume.Mode == "ro"
+		hostpath := volume.Host
 
 		if volume.VolumeName == "" {
 			if useEmptyVolumes {
 				volumeName = strings.Replace(volume.PVCName, "claim", "empty", 1)
+			} else if useHostPaths {
+				volumeName = strings.Replace(volume.PVCName, "claim", "hostpath", 1)
 			} else {
+
 				volumeName = volume.PVCName
 			}
 			count++
@@ -412,6 +417,8 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 
 		if useEmptyVolumes {
 			volsource = k.ConfigEmptyVolumeSource("volume")
+		} else if useHostPaths && len(hostpath) > 0 {
+			volsource = k.ConfigHostPathVolumeSource(hostpath)
 		} else {
 
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
@@ -433,9 +440,9 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		}
 		volumes = append(volumes, vol)
 
-		if len(volume.Host) > 0 {
-			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", volume.Host)
-		}
+		//if len(volume.Host) > 0 {
+		//	log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", volume.Host)
+		//}
 
 	}
 
@@ -458,6 +465,13 @@ func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
 		EmptyDir: &api.EmptyDirVolumeSource{},
 	}
 
+}
+
+// ConfigHostPathVolumeSource is helper function to create an HostPath api.VolumeSource
+func (k *Kubernetes) ConfigHostPathVolumeSource(host string) *api.VolumeSource {
+	return &api.VolumeSource{
+		HostPath: &api.HostPathVolumeSource{Path: host},
+	}
 }
 
 // ConfigPVCVolumeSource is helper function to create an api.VolumeSource with a PVC
@@ -684,7 +698,7 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 	}
 
 	pvcStr := " "
-	if !opt.EmptyVols {
+	if !opt.EmptyVols || !opt.HostPaths {
 		pvcStr = " and PersistentVolumeClaims "
 	}
 	log.Info("We are going to create Kubernetes Deployments, Services" + pvcStr + "for your Dockerized application. " +
@@ -736,7 +750,7 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 		}
 	}
 
-	if !opt.EmptyVols {
+	if !opt.EmptyVols || !opt.HostPaths {
 		pvcStr = ",pvc"
 	} else {
 		pvcStr = ""
