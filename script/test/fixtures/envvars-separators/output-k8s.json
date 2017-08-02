@@ -1048,16 +1048,16 @@
                 "image": "hygieia-udeploy-collector:latest",
                 "env": [
                   {
+                    "name": "UDEPLOY_PASSWORD",
+                    "value": "-s3cr3t"
+                  },
+                  {
                     "name": "UDEPLOY_URL",
                     "value": "-http://udeploy.company.com"
                   },
                   {
                     "name": "UDEPLOY_USERNAME",
                     "value": "-bobama"
-                  },
-                  {
-                    "name": "UDEPLOY_PASSWORD",
-                    "value": "-s3cr3t"
                   }
                 ],
                 "resources": {},
