@@ -7,26 +7,32 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "client",
+        "name": "redis",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "client"
+          "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/tty-true/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.0.0 (HEAD)"
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "1337",
-            "port": 1337,
-            "targetPort": 1337
+            "name": "6379",
+            "port": 6379,
+            "targetPort": 6379
+          },
+          {
+            "name": "1234",
+            "protocol": "UDP",
+            "port": 1234,
+            "targetPort": 1235
           }
         ],
         "selector": {
-          "io.kompose.service": "client"
+          "io.kompose.service": "redis"
         }
       },
       "status": {
@@ -37,14 +43,14 @@
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "client",
+        "name": "redis",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "client"
+          "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/tty-true/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.0.0 (HEAD)"
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -53,21 +59,28 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "client"
+              "io.kompose.service": "redis"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "client",
-                "image": "registry.centos.org/centos/centos:7",
+                "name": "redis",
+                "image": "redis:3.0",
                 "ports": [
                   {
-                    "containerPort": 1337
+                    "containerPort": 6379
+                  },
+                  {
+                    "containerPort": 1235,
+                    "protocol": "UDP"
                   }
                 ],
-                "resources": {},
-                "tty": true
+                "resources": {
+                  "limits": {
+                    "memory": "10e3"
+                  }
+                }
               }
             ],
             "restartPolicy": "Always"

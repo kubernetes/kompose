@@ -7,10 +7,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "etherpad"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -20,13 +20,18 @@
       "spec": {
         "ports": [
           {
-            "name": "6379",
-            "port": 6379,
-            "targetPort": 6379
+            "name": "80",
+            "port": 80,
+            "targetPort": 9001
+          },
+          {
+            "name": "80",
+            "port": 80,
+            "targetPort": 9001
           }
         ],
         "selector": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "etherpad"
         }
       },
       "status": {
@@ -37,27 +42,31 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "mariadb"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "5000",
-            "port": 5000,
-            "targetPort": 5000
+            "name": "3306",
+            "port": 3306,
+            "targetPort": 3306
+          },
+          {
+            "name": "3307",
+            "port": 3307,
+            "targetPort": 3307
           }
         ],
         "selector": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "mariadb"
         }
       },
       "status": {
@@ -68,10 +77,10 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "etherpad"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -91,11 +100,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "redis"
+                "etherpad"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "redis:3.0"
+                "name": "etherpad:latest"
               }
             }
           }
@@ -103,23 +112,48 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "etherpad"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "redis"
+              "io.kompose.service": "etherpad"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "redis",
+                "name": "etherpad",
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 6379
+                    "containerPort": 9001
+                  },
+                  {
+                    "containerPort": 9001
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_DBID",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "DB_HOST",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "openshift"
                   }
                 ],
                 "resources": {}
@@ -135,20 +169,20 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "etherpad",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "etherpad"
         }
       },
       "spec": {
         "tags": [
           {
-            "name": "3.0",
+            "name": "latest",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "redis:3.0"
+              "name": "centos/etherpad"
             },
             "generation": null,
             "importPolicy": {}
@@ -163,19 +197,19 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "mariadb"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
         "strategy": {
+          "type": "Recreate",
           "resources": {}
         },
         "triggers": [
@@ -187,11 +221,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "web"
+                "mariadb"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "web:latest"
+                "name": "mariadb:latest"
               }
             }
           }
@@ -199,26 +233,71 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "mariadb"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "web"
+              "io.kompose.service": "mariadb"
             }
           },
           "spec": {
+            "volumes": [
+              {
+                "name": "mariadb-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "mariadb-claim0"
+                }
+              },
+              {
+                "name": "mariadb-claim1",
+                "persistentVolumeClaim": {
+                  "claimName": "mariadb-claim1"
+                }
+              }
+            ],
             "containers": [
               {
-                "name": "web",
+                "name": "mariadb",
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 5000
+                    "containerPort": 3306
+                  },
+                  {
+                    "containerPort": 3307
                   }
                 ],
-                "resources": {}
+                "env": [
+                  {
+                    "name": "MYSQL_DATABASE",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_PASSWORD",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "openshift"
+                  },
+                  {
+                    "name": "MYSQL_USER",
+                    "value": "openshift"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "mariadb-claim0",
+                    "mountPath": "/var/lib/mysql"
+                  },
+                  {
+                    "name": "mariadb-claim1",
+                    "mountPath": "/var/lib/mysql"
+                  }
+                ]
               }
             ],
             "restartPolicy": "Always"
@@ -231,10 +310,10 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "mariadb",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "mariadb"
         }
       },
       "spec": {
@@ -244,7 +323,7 @@
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "tuna/docker-counter23"
+              "name": "centos/mariadb"
             },
             "generation": null,
             "importPolicy": {}
@@ -256,29 +335,48 @@
       }
     },
     {
-      "kind": "Route",
+      "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "mariadb-claim0",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "mariadb-claim0"
         }
       },
       "spec": {
-        "host": "",
-        "to": {
-          "kind": "Service",
-          "name": "web",
-          "weight": null
-        },
-        "port": {
-          "targetPort": 5000
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
         }
       },
-      "status": {
-        "ingress": null
-      }
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb-claim1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb-claim1"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
     }
   ]
 }

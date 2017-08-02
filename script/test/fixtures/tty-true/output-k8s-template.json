@@ -13,8 +13,8 @@
           "io.kompose.service": "client"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/tty-true/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.0.0 (HEAD)"
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -43,8 +43,8 @@
           "io.kompose.service": "client"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/tty-true/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.0.0 (HEAD)"
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {

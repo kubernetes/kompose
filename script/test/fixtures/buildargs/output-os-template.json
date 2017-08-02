@@ -11,6 +11,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "foo"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -38,6 +42,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "foo1"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -65,6 +73,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "foo"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -155,6 +167,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "foo"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -205,6 +221,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "foo1"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -295,6 +315,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "foo1"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {

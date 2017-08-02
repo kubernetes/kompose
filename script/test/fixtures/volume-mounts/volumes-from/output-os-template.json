@@ -7,10 +7,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "nginx",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "nginx"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -20,13 +20,13 @@
       "spec": {
         "ports": [
           {
-            "name": "6379",
-            "port": 6379,
-            "targetPort": 6379
+            "name": "80",
+            "port": 80,
+            "targetPort": 80
           }
         ],
         "selector": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "nginx"
         }
       },
       "status": {
@@ -44,16 +44,15 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "5000",
-            "port": 5000,
-            "targetPort": 5000
+            "name": "3030",
+            "port": 3030,
+            "targetPort": 3000
           }
         ],
         "selector": {
@@ -68,10 +67,10 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "nginx",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "nginx"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -80,6 +79,7 @@
       },
       "spec": {
         "strategy": {
+          "type": "Recreate",
           "resources": {}
         },
         "triggers": [
@@ -91,11 +91,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "redis"
+                "nginx"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "redis:3.0"
+                "name": "nginx:latest"
               }
             }
           }
@@ -103,26 +103,50 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "nginx"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "redis"
+              "io.kompose.service": "nginx"
             }
           },
           "spec": {
+            "volumes": [
+              {
+                "name": "nginx-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "nginx-claim0"
+                }
+              },
+              {
+                "name": "web-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "web-claim0"
+                }
+              }
+            ],
             "containers": [
               {
-                "name": "redis",
+                "name": "nginx",
                 "image": " ",
                 "ports": [
                   {
-                    "containerPort": 6379
+                    "containerPort": 80
                   }
                 ],
-                "resources": {}
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "nginx-claim0",
+                    "mountPath": "/www/public"
+                  },
+                  {
+                    "name": "web-claim0",
+                    "mountPath": "/src/app"
+                  }
+                ]
               }
             ],
             "restartPolicy": "Always"
@@ -135,20 +159,20 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "nginx",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "nginx"
         }
       },
       "spec": {
         "tags": [
           {
-            "name": "3.0",
+            "name": "latest",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "redis:3.0"
+              "name": "nginx"
             },
             "generation": null,
             "importPolicy": {}
@@ -158,6 +182,28 @@
       "status": {
         "dockerImageRepository": ""
       }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "nginx-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
     },
     {
       "kind": "DeploymentConfig",
@@ -170,12 +216,12 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
         "strategy": {
+          "type": "Recreate",
           "resources": {}
         },
         "triggers": [
@@ -209,16 +255,35 @@
             }
           },
           "spec": {
+            "volumes": [
+              {
+                "name": "web-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "web-claim0"
+                }
+              }
+            ],
             "containers": [
               {
                 "name": "web",
                 "image": " ",
+                "args": [
+                  "nodemon",
+                  "-L",
+                  "app/bin/www"
+                ],
                 "ports": [
                   {
-                    "containerPort": 5000
+                    "containerPort": 3000
                   }
                 ],
-                "resources": {}
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "web-claim0",
+                    "mountPath": "/src/app"
+                  }
+                ]
               }
             ],
             "restartPolicy": "Always"
@@ -244,7 +309,7 @@
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "tuna/docker-counter23"
+              "name": "centos/httpd"
             },
             "generation": null,
             "importPolicy": {}
@@ -256,29 +321,26 @@
       }
     },
     {
-      "kind": "Route",
+      "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "web-claim0",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "web-claim0"
         }
       },
       "spec": {
-        "host": "",
-        "to": {
-          "kind": "Service",
-          "name": "web",
-          "weight": null
-        },
-        "port": {
-          "targetPort": 5000
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
         }
       },
-      "status": {
-        "ingress": null
-      }
+      "status": {}
     }
   ]
 }

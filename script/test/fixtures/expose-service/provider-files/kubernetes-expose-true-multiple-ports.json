@@ -11,6 +11,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -39,6 +43,8 @@
           "io.kompose.service": "web"
         },
         "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%",
           "kompose.service.expose": "True"
         }
       },
@@ -71,6 +77,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -112,7 +122,9 @@
           "io.kompose.service": "web"
         },
         "annotations": {
-          "kompose.service.expose": "True"
+          "kompose.service.expose": "True",
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
