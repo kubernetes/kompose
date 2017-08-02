@@ -59,5 +59,11 @@ On macOS you can install latest release via [Homebrew](https://brew.sh):
 
 ```bash
 brew install kompose
+```
 
+#### Windows
+Kompose can be installed via [Chocolatey](https://chocolatey.org/packages/kubernetes-kompose)
+
+```console
+choco install kubernetes-kompose
 ```
