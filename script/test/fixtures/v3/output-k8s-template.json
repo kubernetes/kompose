@@ -1,0 +1,241 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "frontend",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "frontend"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.type": "LoadBalancer",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "80",
+            "port": 80,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "frontend"
+        },
+        "type": "LoadBalancer"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis-master",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis-master"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6379",
+            "port": 6379,
+            "targetPort": 6379
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "redis-master"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis-slave",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis-slave"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6379",
+            "port": 6379,
+            "targetPort": 6379
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "redis-slave"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "frontend",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "frontend"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.type": "LoadBalancer",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "frontend"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "frontend",
+                "image": "gcr.io/google-samples/gb-frontend:v4",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "GET_HOSTS_FROM",
+                    "value": "dns"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "redis-master",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis-master"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis-master"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis-master",
+                "image": "gcr.io/google_containers/redis:e2e",
+                "ports": [
+                  {
+                    "containerPort": 6379
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "redis-slave",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis-slave"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis-slave"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis-slave",
+                "image": "gcr.io/google_samples/gb-redisslave:v1",
+                "ports": [
+                  {
+                    "containerPort": 6379
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "GET_HOSTS_FROM",
+                    "value": "dns"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}

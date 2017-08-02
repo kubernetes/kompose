@@ -23,6 +23,12 @@
             "name": "6379",
             "port": 6379,
             "targetPort": 6379
+          },
+          {
+            "name": "1234",
+            "protocol": "UDP",
+            "port": 1234,
+            "targetPort": 1235
           }
         ],
         "selector": {
@@ -44,8 +50,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -95,6 +100,10 @@
                 "ports": [
                   {
                     "containerPort": 6379
+                  },
+                  {
+                    "containerPort": 1235,
+                    "protocol": "UDP"
                   }
                 ],
                 "resources": {}
@@ -118,8 +127,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -138,7 +146,8 @@
                 "image": "tuna/docker-counter23",
                 "ports": [
                   {
-                    "containerPort": 5000
+                    "containerPort": 5000,
+                    "hostIP": "127.0.0.1"
                   }
                 ],
                 "resources": {}
@@ -150,36 +159,6 @@
         "strategy": {}
       },
       "status": {}
-    },
-    {
-      "kind": "Ingress",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "web",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "web"
-        }
-      },
-      "spec": {
-        "rules": [
-          {
-            "http": {
-              "paths": [
-                {
-                  "backend": {
-                    "serviceName": "web",
-                    "servicePort": 5000
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      },
-      "status": {
-        "loadBalancer": {}
-      }
     }
   ]
 }

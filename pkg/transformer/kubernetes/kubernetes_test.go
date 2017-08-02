@@ -197,9 +197,7 @@ func checkMeta(config kobject.ServiceConfig, meta api.ObjectMeta, expectedName s
 	if expectedName != meta.Name {
 		return fmt.Errorf("Found unexpected name: %s vs. %s", expectedName, meta.Name)
 	}
-	if !equalStringMaps(config.Annotations, meta.Annotations) {
-		return fmt.Errorf("Found different annotations: %#v vs. %#v", config.Annotations, meta.Annotations)
-	}
+
 	if shouldSetLabels != (len(meta.Labels) > 0) {
 		return fmt.Errorf("Unexpected labels: %#v", meta.Labels)
 	}

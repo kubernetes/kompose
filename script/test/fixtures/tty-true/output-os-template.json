@@ -7,10 +7,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "myservice",
+        "name": "client",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "myservice"
+          "io.kompose.service": "client"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -20,15 +20,14 @@
       "spec": {
         "ports": [
           {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
+            "name": "1337",
+            "port": 1337,
+            "targetPort": 1337
           }
         ],
         "selector": {
-          "io.kompose.service": "myservice"
-        },
-        "clusterIP": "None"
+          "io.kompose.service": "client"
+        }
       },
       "status": {
         "loadBalancer": {}
@@ -38,10 +37,10 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "myservice",
+        "name": "client",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "myservice"
+          "io.kompose.service": "client"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -61,11 +60,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "myservice"
+                "client"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "myservice:latest"
+                "name": "client:7"
               }
             }
           }
@@ -73,29 +72,30 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "myservice"
+          "io.kompose.service": "client"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "myservice"
+              "io.kompose.service": "client"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "myservice",
+                "name": "client",
                 "image": " ",
-                "resources": {}
+                "ports": [
+                  {
+                    "containerPort": 1337
+                  }
+                ],
+                "resources": {},
+                "tty": true
               }
             ],
-            "restartPolicy": "Always",
-            "securityContext": {
-              "supplementalGroups": [
-                1234
-              ]
-            }
+            "restartPolicy": "Always"
           }
         }
       },
@@ -105,20 +105,20 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "myservice",
+        "name": "client",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "myservice"
+          "io.kompose.service": "client"
         }
       },
       "spec": {
         "tags": [
           {
-            "name": "latest",
+            "name": "7",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "alpine"
+              "name": "registry.centos.org/centos/centos:7"
             },
             "generation": null,
             "importPolicy": {}

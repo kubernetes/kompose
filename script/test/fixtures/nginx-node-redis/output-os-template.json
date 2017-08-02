@@ -11,6 +11,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "nginx"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -37,6 +41,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node1"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -63,6 +71,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node2"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -89,6 +101,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node3"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -115,6 +131,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -141,6 +161,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "nginx"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -232,6 +256,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "nginx"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -275,6 +303,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node1"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -366,6 +398,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node1"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -409,6 +445,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node2"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -500,6 +540,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node2"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -543,6 +587,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node3"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -634,6 +682,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node3"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -677,6 +729,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
