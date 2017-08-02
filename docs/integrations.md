@@ -2,7 +2,7 @@
 
 There are some projects out there known to use Kompose integrated in some form or another
 
-### Kompose UI by Jad Chamoun (ICANN)
+### Kompose UI by Jad Chamoun (ICANN) and Joe Haddad (Anghami)
 
 __Description:__ "A web interface to convert Docker Compose files to Kubernetes YAML"
 
