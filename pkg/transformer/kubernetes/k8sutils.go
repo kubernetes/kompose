@@ -431,6 +431,11 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			}
 		}
 
+		//set supplementalGroups
+		if service.GroupAdd != nil {
+			podSecurityContext.SupplementalGroups = service.GroupAdd
+		}
+
 		// Setup security context
 		securityContext := &api.SecurityContext{}
 		if service.Privileged {
