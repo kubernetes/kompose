@@ -76,6 +76,8 @@ type ServiceConfig struct {
 	CPUSet          string              `compose:"cpuset" bundle:""`
 	CPUShares       int64               `compose:"cpu_shares" bundle:""`
 	CPUQuota        int64               `compose:"cpu_quota" bundle:""`
+	CPULimit        int64               `compose:"" bundle:""`
+	CPUReservation  int64               `compose:"" bundle:""`
 	CapAdd          []string            `compose:"cap_add" bundle:""`
 	CapDrop         []string            `compose:"cap_drop" bundle:""`
 	Expose          []string            `compose:"expose" bundle:""`
@@ -92,6 +94,7 @@ type ServiceConfig struct {
 	Stdin           bool                `compose:"stdin_open" bundle:""`
 	Tty             bool                `compose:"tty" bundle:""`
 	MemLimit        yaml.MemStringorInt `compose:"mem_limit" bundle:""`
+	MemReservation  yaml.MemStringorInt `compose:"" bundle:""`
 	TmpFs           []string            `compose:"tmpfs" bundle:""`
 	Dockerfile      string              `compose:"dockerfile" bundle:""`
 	Replicas        int                 `compose:"replicas" bundle:""`
