@@ -110,4 +110,6 @@ test-image:
 test-container:
 	docker run -v `pwd`:/opt/tmp/kompose:ro -it $(TEST_IMAGE) 
 
-
+.PHONE: test-ci
+test-ci:
+	./script/test_ci/test.sh
