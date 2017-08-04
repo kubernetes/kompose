@@ -1,6 +1,6 @@
 # Kompose (Kubernetes + Compose)
 
-[![Build Status Widget]][Build Status] [![Coverage Status Widget]][Coverage Status] [![GoDoc Widget]][GoDoc] [![Slack Widget]][Slack]
+[![Build Status Widget]][Build Status] [![Coverage Status Widget]][Coverage Status] [![GoDoc Widget]][GoDoc] [![Slack Widget]][Slack]  [![Go Report Card](https://goreportcard.com/badge/github.com/kubernetes/kompose)](https://goreportcard.com/report/github.com/kubernetes/kompose)
 
 `kompose` is a tool to help users who are familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). `kompose` takes a Docker Compose file and translates it into Kubernetes resources.
 
