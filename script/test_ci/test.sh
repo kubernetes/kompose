@@ -8,17 +8,17 @@
 # Check requirements!
 if ! hash go 2>/dev/null; then
   echo "ERROR: go required"
-  exit 0
+  exit 1
 fi
 
 if ! hash docker 2>/dev/null; then
   echo "ERROR: docker required"
-  exit 0
+  exit 1
 fi
 
 if ! hash kubectl 2>/dev/null; then
   echo "ERROR: kubectl required"
-  exit 0
+  exit 1
 fi
 
 # First off, we have to compile the latest binary
