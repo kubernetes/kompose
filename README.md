@@ -34,10 +34,13 @@ Installation methods:
   - [CentOS](/docs/installation.md#centos)
   - [Fedora](/docs/installation.md#fedora)
   - [macOS (Homebrew)](/docs/installation.md#macos)
+  - [Windows](docs/installation.md#windows)
 
 #### Binary installation
 
 Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes/kompose/releases).
+
+__Linux and macOS:__
 
 ```sh
 # Linux
@@ -46,14 +49,13 @@ curl -L https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-l
 # macOS
 curl -L https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-darwin-amd64 -o kompose
 
-# Windows
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-windows-amd64.exe -o kompose.exe
-
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-Alternatively, you can download the less-bandwidth intense [tarball](https://github.com/kubernetes/kompose/releases).
+__Windows:__
+
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 ## Shell autocompletion
 
