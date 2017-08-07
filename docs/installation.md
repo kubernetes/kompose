@@ -12,21 +12,22 @@ We have multiple ways to install Kompose. Our prefered method is downloading the
 
 Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes/kompose/releases).
 
+__Linux and macOS:__
+
 ```sh
-# Linux 
+# Linux
 curl -L https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-linux-amd64 -o kompose
 
 # macOS
 curl -L https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-darwin-amd64 -o kompose
 
-# Windows
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-windows-amd64.exe -o kompose.exe
-
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-Alternatively, you can download the [tarball](https://github.com/kubernetes/kompose/releases).
+__Windows:__
+
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 #### Go
 
