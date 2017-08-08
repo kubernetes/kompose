@@ -18,17 +18,28 @@ package docker
 
 import (
 	"github.com/fsouza/go-dockerclient"
+	"os"
 )
 
 // DockerClient connects to Docker client on host
 func DockerClient() (*docker.Client, error) {
 
-	// Default end-point, HTTP + TLS support to be added in the future
-	// Eventually functionality to specify end-point added to command-line
-	endpoint := "unix:///var/run/docker.sock"
+	var (
+		err    error
+		client *docker.Client
+	)
 
-	// Use the unix socker end-point. No support for TLS (yet)
-	client, err := docker.NewClient(endpoint)
+	dockerHost := os.Getenv("DOCKER_HOST")
+
+	if len(dockerHost) > 0 {
+		// Create client instance from Docker's environment variables:
+		// DOCKER_HOST, DOCKER_TLS_VERIFY, DOCKER_CERT_PATH
+		client, err = docker.NewClientFromEnv()
+	} else {
+		// Default unix socker end-point
+		endpoint := "unix:///var/run/docker.sock"
+		client, err = docker.NewClient(endpoint)
+	}
 	if err != nil {
 		return client, err
 	}
