@@ -155,7 +155,11 @@
             ],
             "resources": {
               "limits": {
+                "cpu": "1",
                 "memory": "52428800"
+              },
+              "requests": {
+                "memory": "20971520"
               }
             },
             "volumeMounts": [

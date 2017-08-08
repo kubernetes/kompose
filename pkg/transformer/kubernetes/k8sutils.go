@@ -389,14 +389,39 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		}
 
 		// Configure the resource limits
-		if service.MemLimit != 0 {
-			memoryResourceList := api.ResourceList{
-				api.ResourceMemory: *resource.NewQuantity(
-					int64(service.MemLimit), "RandomStringForFormat")}
-			template.Spec.Containers[0].Resources.Limits = memoryResourceList
+		if service.MemLimit != 0 || service.CPULimit != 0 {
+			resourceLimit := api.ResourceList{}
+
+			if service.MemLimit != 0 {
+				resourceLimit[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemLimit), "RandomStringForFormat")
+			}
+
+			if service.CPULimit != 0 {
+				resourceLimit[api.ResourceCPU] = *resource.NewQuantity(service.CPULimit, "RandomStringForFormat")
+			}
+
+			template.Spec.Containers[0].Resources.Limits = resourceLimit
 		}
 
+		// Configure the resource requests
+		if service.MemReservation != 0 || service.CPUReservation != 0 {
+			resourceRequests := api.ResourceList{}
+
+			if service.MemReservation != 0 {
+				resourceRequests[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemReservation), "RandomStringForFormat")
+			}
+
+			if service.CPUReservation != 0 {
+				resourceRequests[api.ResourceCPU] = *resource.NewQuantity(service.CPUReservation, "RandomStringForFormat")
+			}
+
+			template.Spec.Containers[0].Resources.Requests = resourceRequests
+		}
+
+		// Configure resource reservations
+
 		podSecurityContext := &api.PodSecurityContext{}
+
 		//set pid namespace mode
 		if service.Pid != "" {
 			if service.Pid == "host" {

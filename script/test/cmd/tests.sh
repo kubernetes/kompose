@@ -270,6 +270,9 @@ cd $CURRENT_DIR
 
 # Test V3 Support of Docker Compose
 
+# Test support for cpu and memory limits + reservations
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-memcpu.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-memcpu-k8s.json"
+
 # Test volumes are passed correctly
 convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-volumes.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-volumes-k8s.json"
 
