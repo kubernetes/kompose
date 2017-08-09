@@ -1,5 +1,5 @@
 hash: e33ffcc6bb6fbd6496e430ef69139c47d0b4e79c6255c7184d2ec7307d7a55d1
-updated: 2017-06-16T17:40:15.118961307+05:30
+updated: 2017-06-20T14:23:11.012556696-04:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -375,7 +375,7 @@ imports:
 - name: github.com/opencontainers/go-digest
   version: 279bed98673dd5bef374d3b6e4b09e2af76183bf
 - name: github.com/opencontainers/image-spec
-  version: df6f3c57dafbbf39d98c24fa6ab509183cfa3efc
+  version: d207df434d113728dc3373cb3a905f00b482a858
   subpackages:
   - specs-go
   - specs-go/v1
@@ -456,13 +456,13 @@ imports:
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: b4dbd37a01839e0653eec12aa4bbb2a2ce7b2a37
+  version: 99b5d838ca16c25cc4944e323684f8415e8b10ba
 - name: github.com/spf13/jwalterweatherman
   version: 0efa5202c04663c757d84f90f5219c1250baf94f
 - name: github.com/spf13/pflag
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
 - name: github.com/spf13/viper
-  version: a1ecfa6a20bd4ef9e9caded262ee1b1b26847675
+  version: c1de95864d73a5465492829d7cb2dd422b19ac96
 - name: github.com/ugorji/go
   version: f4485b318aadd133842532f841dc205a8e339d74
   subpackages:

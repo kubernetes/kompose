@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ package loader
 import (
 	"fmt"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/loader/bundle"
-	"github.com/kubernetes-incubator/kompose/pkg/loader/compose"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/loader/bundle"
+	"github.com/kubernetes/kompose/pkg/loader/compose"
 )
 
 // Loader interface defines loader that loads files and converts it to kobject representation

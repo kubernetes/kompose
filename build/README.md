@@ -10,7 +10,7 @@ Choose which version of the repo you want to build. For kompose it was 0.3.0 and
 
 Run the following to generate spec file:
 ```sh
-gofed repo2spec --detect github.com/kubernetes-incubator/kompose --commit 135165b39c55d29a5426479ded81eddd56bfbaf4 --with-extra --with-build -f
+gofed repo2spec --detect github.com/kubernetes/kompose --commit 135165b39c55d29a5426479ded81eddd56bfbaf4 --with-extra --with-build -f
 ```
 
 The spec file is now located at:

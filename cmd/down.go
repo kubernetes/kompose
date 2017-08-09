@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package cmd
 import (
 	"strings"
 
-	"github.com/kubernetes-incubator/kompose/pkg/app"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/app"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +45,7 @@ var downCmd = &cobra.Command{
 		}
 
 		// Validate before doing anything else.
-		app.ValidateComposeFile(cmd, &DownOpt)
+		app.ValidateComposeFile(&DownOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		app.Down(DownOpt)

@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+
+ web:
+  image: tuna/docker-counter23
+  ports:
+    - "5000:5000"
+  deploy:
+    replicas: 1
+    restart_policy:
+      condition: any
+  labels:
+    kompose.service.type: NodePort
+
+ redis:
+  image: redis:3.0
+  ports:
+    - "6379"

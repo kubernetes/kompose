@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -39,7 +39,7 @@ import (
 
 	"reflect"
 
-	"github.com/kubernetes-incubator/kompose/pkg/transformer"
+	"github.com/kubernetes/kompose/pkg/transformer"
 	buildapi "github.com/openshift/origin/pkg/build/api"
 	buildconfigreaper "github.com/openshift/origin/pkg/build/cmd"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
@@ -346,7 +346,13 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
-
+		//replicas
+		var replica int
+		if opt.IsReplicaSetFlag || service.Replicas == 0 {
+			replica = opt.Replicas
+		} else {
+			replica = service.Replicas
+		}
 		// Must build the images before conversion (got to add service.Image in case 'image' key isn't provided
 		// Check to see if there is an InputFile (required!) before we build the container
 		// Check that there's actually a Build key
@@ -394,7 +400,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			objects = o.CreateKubernetesObjects(name, service, opt)
 
 			if opt.CreateDeploymentConfig {
-				objects = append(objects, o.initDeploymentConfig(name, service, opt.Replicas)) // OpenShift DeploymentConfigs
+				objects = append(objects, o.initDeploymentConfig(name, service, replica)) // OpenShift DeploymentConfigs
 				// create ImageStream after deployment (creating IS will trigger new deployment)
 				objects = append(objects, o.initImageStream(name, service, opt))
 			}
@@ -464,10 +470,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		allobjects = append(allobjects, objects...)
 	}
 
-	// If docker-compose has a volumes_from directive it will be handled here
-	o.VolumesFrom(&allobjects, komposeObject)
-
-	// sort all object so all services are first
+	// sort all object so Services are first
 	o.SortServicesFirst(&allobjects)
 
 	return allobjects, nil

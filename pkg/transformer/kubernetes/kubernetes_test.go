@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import (
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/transformer"
 
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
@@ -40,7 +40,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"}, // not supported
 		Labels:        nil,
 		Annotations:   map[string]string{"abc": "def"},
@@ -53,6 +53,8 @@ func newServiceConfig() kobject.ServiceConfig {
 		Stdin:         true,
 		Tty:           true,
 		TmpFs:         []string{"/tmp"},
+		Replicas:      2,
+		Volumes:       []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
 	}
 }
 
@@ -67,7 +69,7 @@ func equalStringSlice(s1, s2 []string) bool {
 		return false
 	}
 	for i := range s1 {
-		if s1[i] != s1[i] {
+		if s1[i] != s2[i] {
 			return false
 		}
 	}
@@ -179,7 +181,7 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 
 func privilegedNilOrFalse(template api.PodTemplateSpec) bool {
 	return len(template.Spec.Containers) == 0 || template.Spec.Containers[0].SecurityContext == nil ||
-		template.Spec.Containers[0].SecurityContext.Privileged == nil || *template.Spec.Containers[0].SecurityContext.Privileged == false
+		template.Spec.Containers[0].SecurityContext.Privileged == nil || !*template.Spec.Containers[0].SecurityContext.Privileged
 }
 
 func checkService(config kobject.ServiceConfig, svc *api.Service, expectedLabels map[string]string) error {
@@ -270,11 +272,14 @@ func TestKomposeConvert(t *testing.T) {
 		expectedNumObjs int
 	}{
 		// objects generated are deployment, service and pvc
-		"Convert to Deployments (D)":            {newKomposeObject(), kobject.ConvertOptions{CreateD: true, Replicas: replicas}, 3},
-		"Convert to DaemonSets (DS)":            {newKomposeObject(), kobject.ConvertOptions{CreateDS: true}, 3},
-		"Convert to ReplicationController (RC)": {newKomposeObject(), kobject.ConvertOptions{CreateRC: true, Replicas: replicas}, 3},
+		"Convert to Deployments (D)":                             {newKomposeObject(), kobject.ConvertOptions{CreateD: true, Replicas: replicas, IsReplicaSetFlag: true}, 3},
+		"Convert to Deployments (D) with v3 replicas":            {newKomposeObject(), kobject.ConvertOptions{CreateD: true}, 3},
+		"Convert to DaemonSets (DS)":                             {newKomposeObject(), kobject.ConvertOptions{CreateDS: true}, 3},
+		"Convert to ReplicationController(RC)":                   {newKomposeObject(), kobject.ConvertOptions{CreateRC: true, Replicas: replicas, IsReplicaSetFlag: true}, 3},
+		"Convert to ReplicationController(RC) with v3 replicas ": {newKomposeObject(), kobject.ConvertOptions{CreateRC: true}, 3},
 		// objects generated are deployment, daemonset, ReplicationController, service and pvc
-		"Convert to D, DS, and RC": {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true, Replicas: replicas}, 5},
+		"Convert to D, DS, and RC":                  {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true, Replicas: replicas, IsReplicaSetFlag: true}, 5},
+		"Convert to D, DS, and RC with v3 replicas": {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true}, 5},
 		// TODO: add more tests
 	}
 
@@ -313,9 +318,18 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkMeta(config, d.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
-					if (int)(d.Spec.Replicas) != replicas {
-						t.Errorf("Expected %d replicas, got %d", replicas, d.Spec.Replicas)
+					if test.opt.IsReplicaSetFlag {
+						if (int)(d.Spec.Replicas) != replicas {
+							t.Errorf("Expected %d replicas, got %d", replicas, d.Spec.Replicas)
+						}
+					} else {
+
+						if (int)(d.Spec.Replicas) != newServiceConfig().Replicas {
+							t.Errorf("Expected %d replicas, got %d", newServiceConfig().Replicas, d.Spec.Replicas)
+
+						}
 					}
+
 					if d.Spec.Selector != nil && len(d.Spec.Selector.MatchLabels) > 0 {
 						t.Errorf("Expect selector be unset, got: %#v", d.Spec.Selector)
 					}
@@ -344,9 +358,18 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkMeta(config, rc.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
-					if (int)(rc.Spec.Replicas) != replicas {
-						t.Errorf("Expected %d replicas, got %d", replicas, rc.Spec.Replicas)
+					if test.opt.IsReplicaSetFlag {
+						if (int)(rc.Spec.Replicas) != replicas {
+							t.Errorf("Expected %d replicas, got %d", replicas, rc.Spec.Replicas)
+						}
+					} else {
+
+						if (int)(rc.Spec.Replicas) != newServiceConfig().Replicas {
+							t.Errorf("Expected %d replicas, got %d", newServiceConfig().Replicas, rc.Spec.Replicas)
+
+						}
 					}
+
 					if len(rc.Spec.Selector) > 0 {
 						t.Errorf("Expect selector be unset, got: %#v", rc.Spec.Selector)
 					}

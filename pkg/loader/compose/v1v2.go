@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,7 +30,8 @@ import (
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/pkg/errors"
 )
 
@@ -205,7 +206,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		envs := loadEnvVars(composeServiceConfig.Environment)
 		serviceConfig.Environment = envs
 
-		//Validate dockerfile path
+		// Validate dockerfile path
 		if filepath.IsAbs(serviceConfig.Dockerfile) {
 			log.Fatalf("%q defined in service %q is an absolute path, it must be a relative path.", serviceConfig.Dockerfile, name)
 		}
@@ -222,7 +223,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		if composeServiceConfig.Volumes != nil {
 			for _, volume := range composeServiceConfig.Volumes.Volumes {
 				v := normalizeServiceNames(volume.String())
-				serviceConfig.Volumes = append(serviceConfig.Volumes, v)
+				serviceConfig.VolList = append(serviceConfig.VolList, v)
 			}
 		}
 
@@ -268,12 +269,124 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 			log.Infof("Service name in docker-compose has been changed from %q to %q", name, normalizeServiceNames(name))
 		}
 	}
+
+	// This will handle volume at earlier stage itself, it will resolves problems occurred due to `volumes_from` key
+	handleVolume(&komposeObject)
+
 	return komposeObject, nil
 }
 
+// This function will retrieve volumes for each service, as well as it will parse volume information and store it in Volumes struct
+func handleVolume(komposeObject *kobject.KomposeObject) {
+	for name, _ := range komposeObject.ServiceConfigs {
+		// retrieve volumes of service
+		vols, err := retrieveVolume(name, *komposeObject)
+		if err != nil {
+			errors.Wrap(err, "could not retrieve volume")
+		}
+		// We can't assign value to struct field in map while iterating over it, so temporary variable `temp` is used here
+		var temp = komposeObject.ServiceConfigs[name]
+		temp.Volumes = vols
+		komposeObject.ServiceConfigs[name] = temp
+	}
+}
+
 func checkLabelsPorts(noOfPort int, labels string, svcName string) error {
-	if noOfPort == 0 && labels == "NodePort" || labels == "LoadBalancer" {
+	if noOfPort == 0 && (labels == "NodePort" || labels == "LoadBalancer") {
 		return errors.Errorf("%s defined in service %s with no ports present. Issues may occur when bringing up artifacts.", labels, svcName)
 	}
 	return nil
+}
+
+// returns all volumes associated with service, if `volumes_from` key is used, we have to retrieve volumes from the services which are mentioned there. Hence, recursive function is used here.
+func retrieveVolume(svcName string, komposeObject kobject.KomposeObject) (volume []kobject.Volumes, err error) {
+	// if volumes-from key is present
+	if komposeObject.ServiceConfigs[svcName].VolumesFrom != nil {
+		// iterating over services from `volumes-from`
+		for _, depSvc := range komposeObject.ServiceConfigs[svcName].VolumesFrom {
+			// recursive call for retrieving volumes of services from `volumes-from`
+			dVols, err := retrieveVolume(depSvc, komposeObject)
+			if err != nil {
+				return nil, errors.Wrapf(err, "could not retrieve the volume")
+			}
+			var cVols []kobject.Volumes
+			cVols, err = ParseVols(komposeObject.ServiceConfigs[svcName].VolList, svcName)
+			if err != nil {
+				return nil, errors.Wrapf(err, "error generting current volumes")
+			}
+
+			for _, cv := range cVols {
+				// check whether volumes of current service is same or not as that of dependent volumes coming from `volumes-from`
+				ok, dv := getVol(cv, dVols)
+				if ok {
+					// change current volumes service name to dependent service name
+					if dv.VFrom == "" {
+						cv.VFrom = dv.SvcName
+						cv.SvcName = dv.SvcName
+					} else {
+						cv.VFrom = dv.VFrom
+						cv.SvcName = dv.SvcName
+					}
+					cv.PVCName = dv.PVCName
+				}
+				volume = append(volume, cv)
+
+			}
+			// iterating over dependent volumes
+			for _, dv := range dVols {
+				// check whether dependent volume is already present or not
+				if checkVolDependent(dv, volume) {
+					// if found, add service name to `VFrom`
+					dv.VFrom = dv.SvcName
+					volume = append(volume, dv)
+				}
+			}
+		}
+	} else {
+		// if `volumes-from` is not present
+		volume, err = ParseVols(komposeObject.ServiceConfigs[svcName].VolList, svcName)
+		if err != nil {
+			return nil, errors.Wrapf(err, "error generting current volumes")
+		}
+	}
+	return
+}
+
+// checkVolDependent returns false if dependent volume is present
+func checkVolDependent(dv kobject.Volumes, volume []kobject.Volumes) bool {
+	for _, vol := range volume {
+		if vol.PVCName == dv.PVCName {
+			return false
+		}
+	}
+	return true
+
+}
+
+func ParseVols(volNames []string, svcName string) ([]kobject.Volumes, error) {
+	var volumes []kobject.Volumes
+	var err error
+
+	for i, vn := range volNames {
+		var v kobject.Volumes
+		v.VolumeName, v.Host, v.Container, v.Mode, err = transformer.ParseVolume(vn)
+		if err != nil {
+			return nil, errors.Wrapf(err, "could not parse volume %q: %v", vn, err)
+		}
+		v.SvcName = svcName
+		v.MountPath = fmt.Sprintf("%s:%s", v.Host, v.Container)
+		v.PVCName = fmt.Sprintf("%s-claim%d", v.SvcName, i)
+		volumes = append(volumes, v)
+	}
+	return volumes, nil
+}
+
+// for dependent volumes, returns true and the respective volume if mountpath are same
+func getVol(toFind kobject.Volumes, Vols []kobject.Volumes) (bool, kobject.Volumes) {
+	for _, dv := range Vols {
+		if toFind.MountPath == dv.MountPath {
+			return true, dv
+		}
+	}
+	return false, kobject.Volumes{}
 }

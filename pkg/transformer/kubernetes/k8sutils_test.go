@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/testutils"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/testutils"
 
 	"reflect"
 
@@ -47,7 +47,7 @@ func TestCreateService(t *testing.T) {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"}, // not supported
 		Labels:        nil,
 		Annotations:   map[string]string{"abc": "def"},
@@ -78,30 +78,31 @@ func TestCreateService(t *testing.T) {
 }
 
 /*
-	Test the creation of a service with a memory limit
+Test the creation of a service with a memory limit and reservation
 */
 func TestCreateServiceWithMemLimit(t *testing.T) {
 
 	// An example service
 	service := kobject.ServiceConfig{
-		ContainerName: "name",
-		Image:         "image",
-		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolTCP}},
-		Command:       []string{"cmd"},
-		WorkingDir:    "dir",
-		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
-		Network:       []string{"network1", "network2"}, // not supported
-		Labels:        nil,
-		Annotations:   map[string]string{"abc": "def"},
-		CPUQuota:      1,                    // not supported
-		CapAdd:        []string{"cap_add"},  // not supported
-		CapDrop:       []string{"cap_drop"}, // not supported
-		Expose:        []string{"expose"},   // not supported
-		Privileged:    true,
-		Restart:       "always",
-		MemLimit:      1337,
+		ContainerName:  "name",
+		Image:          "image",
+		Environment:    []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
+		Port:           []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolTCP}},
+		Command:        []string{"cmd"},
+		WorkingDir:     "dir",
+		Args:           []string{"arg1", "arg2"},
+		VolList:        []string{"/tmp/volume"},
+		Network:        []string{"network1", "network2"}, // not supported
+		Labels:         nil,
+		Annotations:    map[string]string{"abc": "def"},
+		CPUQuota:       1,                    // not supported
+		CapAdd:         []string{"cap_add"},  // not supported
+		CapDrop:        []string{"cap_drop"}, // not supported
+		Expose:         []string{"expose"},   // not supported
+		Privileged:     true,
+		Restart:        "always",
+		MemLimit:       1337,
+		MemReservation: 1338,
 	}
 
 	// An example object generated via k8s runtime.Objects()
@@ -114,12 +115,69 @@ func TestCreateServiceWithMemLimit(t *testing.T) {
 		t.Error(errors.Wrap(err, "k.Transform failed"))
 	}
 
-	// Retrieve the deployment object and test that it matches the MemLimit value
+	// Retrieve the deployment object and test that it matches the mem value
 	for _, obj := range objects {
 		if deploy, ok := obj.(*extensions.Deployment); ok {
-			memTest, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Memory().AsInt64()
-			if memTest != 1337 {
-				t.Errorf("Expected 1337 for mem_limit check, got %v", memTest)
+			memLimit, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Memory().AsInt64()
+			if memLimit != 1337 {
+				t.Errorf("Expected 1337 for memory limit check, got %v", memLimit)
+			}
+			memReservation, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Memory().AsInt64()
+			if memReservation != 1338 {
+				t.Errorf("Expected 1338 for memory reservation check, got %v", memReservation)
+			}
+		}
+	}
+}
+
+/*
+Test the creation of a service with a cpu limit and reservation
+*/
+func TestCreateServiceWithCPULimit(t *testing.T) {
+
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName:  "name",
+		Image:          "image",
+		Environment:    []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
+		Port:           []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolTCP}},
+		Command:        []string{"cmd"},
+		WorkingDir:     "dir",
+		Args:           []string{"arg1", "arg2"},
+		VolList:        []string{"/tmp/volume"},
+		Network:        []string{"network1", "network2"}, // not supported
+		Labels:         nil,
+		Annotations:    map[string]string{"abc": "def"},
+		CPUQuota:       1,                    // not supported
+		CapAdd:         []string{"cap_add"},  // not supported
+		CapDrop:        []string{"cap_drop"}, // not supported
+		Expose:         []string{"expose"},   // not supported
+		Privileged:     true,
+		Restart:        "always",
+		CPULimit:       10,
+		CPUReservation: 1,
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	// Retrieve the deployment object and test that it matches the cpu value
+	for _, obj := range objects {
+		if deploy, ok := obj.(*extensions.Deployment); ok {
+			cpuLimit, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Cpu().AsInt64()
+			if cpuLimit != 10 {
+				t.Errorf("Expected 10 for cpu limit check, got %v", cpuLimit)
+			}
+			cpuReservation, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Cpu().AsInt64()
+			if cpuReservation != 1 {
+				t.Errorf("Expected 1 for cpu reservation check, got %v", cpuReservation)
 			}
 		}
 	}
@@ -140,7 +198,7 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"}, // not supported
 		Labels:        nil,
 		Annotations:   map[string]string{"kompose.service.type": "nodeport"},
@@ -184,7 +242,7 @@ func TestTransformWithPid(t *testing.T) {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"},
 		Restart:       "always",
 		Pid:           "host",
@@ -203,7 +261,7 @@ func TestTransformWithPid(t *testing.T) {
 	for _, obj := range objects {
 		if deploy, ok := obj.(*extensions.Deployment); ok {
 			hostPid := deploy.Spec.Template.Spec.SecurityContext.HostPID
-			if hostPid != true {
+			if !hostPid {
 				t.Errorf("Pid in ServiceConfig is not matching HostPID in PodSpec")
 			}
 		}
@@ -220,7 +278,7 @@ func TestTransformWithInvaildPid(t *testing.T) {
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
 		Network:       []string{"network1", "network2"},
 		Restart:       "always",
 		Pid:           "badvalue",
@@ -240,7 +298,7 @@ func TestTransformWithInvaildPid(t *testing.T) {
 		if deploy, ok := obj.(*extensions.Deployment); ok {
 			if deploy.Spec.Template.Spec.SecurityContext != nil {
 				hostPid := deploy.Spec.Template.Spec.SecurityContext.HostPID
-				if hostPid != false {
+				if hostPid {
 					t.Errorf("Pid in ServiceConfig is not matching HostPID in PodSpec")
 				}
 			}
@@ -272,7 +330,7 @@ func TestIsDir(t *testing.T) {
 	if err != nil {
 		t.Error(errors.Wrap(err, "isDir failed"))
 	}
-	if output != true {
+	if !output {
 		t.Errorf("directory %v exists but isDir() returned %v", tempDir, output)
 	}
 
@@ -281,7 +339,7 @@ func TestIsDir(t *testing.T) {
 	if err != nil {
 		t.Error(errors.Wrap(err, "isDir failed"))
 	}
-	if output != false {
+	if output {
 		t.Errorf("%v is a file but isDir() returned %v", tempDir, output)
 	}
 
@@ -290,7 +348,7 @@ func TestIsDir(t *testing.T) {
 	if err != nil {
 		t.Error(errors.Wrap(err, "isDir failed"))
 	}
-	if output != false {
+	if output {
 		t.Errorf("Directory %v does not exist, but isDir() returned %v", tempAbsentDirPath, output)
 	}
 
@@ -329,7 +387,8 @@ func TestRecreateStrategyWithVolumesPresent(t *testing.T) {
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
 		Image:         "image",
-		Volumes:       []string{"/tmp/volume"},
+		VolList:       []string{"/tmp/volume"},
+		Volumes:       []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
 	}
 
 	komposeObject := kobject.KomposeObject{

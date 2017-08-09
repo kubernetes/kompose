@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,19 +17,22 @@ limitations under the License.
 package compose
 
 import (
-	libcomposeyaml "github.com/docker/libcompose/yaml"
 	"io/ioutil"
+	"strconv"
 	"strings"
+
+	libcomposeyaml "github.com/docker/libcompose/yaml"
 
 	"k8s.io/kubernetes/pkg/api"
 
 	"github.com/docker/cli/cli/compose/loader"
 	"github.com/docker/cli/cli/compose/types"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/pkg/errors"
 	"os"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/pkg/errors"
 )
 
 // converts os.Environ() ([]string) to map[string]string
@@ -183,7 +186,6 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.CapDrop = composeServiceConfig.CapDrop
 		serviceConfig.Expose = composeServiceConfig.Expose
 		serviceConfig.Privileged = composeServiceConfig.Privileged
-		serviceConfig.Restart = composeServiceConfig.Restart
 		serviceConfig.User = composeServiceConfig.User
 		serviceConfig.Stdin = composeServiceConfig.StdinOpen
 		serviceConfig.Tty = composeServiceConfig.Tty
@@ -192,15 +194,46 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Command = composeServiceConfig.Entrypoint
 		serviceConfig.Args = composeServiceConfig.Command
 
-		// This is a bit messy since we use yaml.MemStringorInt
-		// TODO: Refactor yaml.MemStringorInt in kobject.go to int64
-		// Since Deploy.Resources.Limits does not initialize, we must check type Resources before continuing
+		//
+		// Deploy keys
+		//
+
 		if (composeServiceConfig.Deploy.Resources != types.Resources{}) {
+
+			// memory:
+			// TODO: Refactor yaml.MemStringorInt in kobject.go to int64
+			// Since Deploy.Resources.Limits does not initialize, we must check type Resources before continuing
 			serviceConfig.MemLimit = libcomposeyaml.MemStringorInt(composeServiceConfig.Deploy.Resources.Limits.MemoryBytes)
+			serviceConfig.MemReservation = libcomposeyaml.MemStringorInt(composeServiceConfig.Deploy.Resources.Reservations.MemoryBytes)
+
+			// cpu:
+			// convert to k8s format, for example: 0.5 = 500m
+			// See: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+			// "The expression 0.1 is equivalent to the expression 100m, which can be read as “one hundred millicpu”."
+
+			cpuLimit, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Limits.NanoCPUs, 64)
+			if err != nil {
+				return kobject.KomposeObject{}, errors.Wrap(err, "Unable to convert cpu limits resources value")
+			}
+			serviceConfig.CPULimit = int64(cpuLimit * 1000)
+
+			cpuReservation, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs, 64)
+			if err != nil {
+				return kobject.KomposeObject{}, errors.Wrap(err, "Unable to convert cpu limits reservation value")
+			}
+			serviceConfig.CPUReservation = int64(cpuReservation * 1000)
+
 		}
 
-		// POOF. volumes_From is gone in v3. docker/cli will error out of volumes_from is added in v3
-		// serviceConfig.VolumesFrom = composeServiceConfig.VolumesFrom
+		// restart-policy:
+		if composeServiceConfig.Deploy.RestartPolicy != nil {
+			serviceConfig.Restart = composeServiceConfig.Deploy.RestartPolicy.Condition
+		}
+
+		// replicas:
+		if composeServiceConfig.Deploy.Replicas != nil {
+			serviceConfig.Replicas = int(*composeServiceConfig.Deploy.Replicas)
+		}
 
 		// TODO: Build is not yet supported, see:
 		// https://github.com/docker/cli/blob/master/cli/compose/types/types.go#L9
@@ -224,7 +257,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// Parse the volumes
 		// Again, in v3, we use the "long syntax" for volumes in terms of parsing
 		// https://docs.docker.com/compose/compose-file/#long-syntax-2
-		serviceConfig.Volumes = loadV3Volumes(composeServiceConfig.Volumes)
+		serviceConfig.VolList = loadV3Volumes(composeServiceConfig.Volumes)
 
 		// Label handler
 		// Labels used to influence conversion of kompose will be handled
@@ -251,6 +284,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// Final step, add to the array!
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 	}
+	handleVolume(&komposeObject)
 
 	return komposeObject, nil
 }

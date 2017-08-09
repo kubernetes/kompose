@@ -174,7 +174,7 @@ function convert::oc_cleanup () {
 function convert::oc_check_route () {
     local route_key=$1
     if [ $route_key == 'true' ]; then
-	route_key='xip.io'
+	route_key='nip.io'
     fi
 
     if [ $(oc get route | grep ${route_key} | wc -l ) -gt 0 ]; then
