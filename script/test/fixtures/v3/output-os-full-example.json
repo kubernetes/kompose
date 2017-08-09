@@ -4,425 +4,218 @@
   "metadata": {},
   "items": [
     {
-      "kind": "Service",
+      "kind": "Pod",
       "apiVersion": "v1",
       "metadata": {
         "name": "foo",
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "foo"
-        },
-        "annotations": {
-          "com.example.description": "Accounting webapp",
-          "com.example.empty-label": "",
-          "com.example.number": "42"
         }
       },
       "spec": {
-        "ports": [
+        "volumes": [
           {
-            "name": "3000",
-            "port": 3000,
-            "targetPort": 3000
+            "name": "foo-claim0",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim0"
+            }
           },
           {
-            "name": "3000",
-            "port": 3000,
-            "targetPort": 3000
+            "name": "foo-claim1",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim1"
+            }
           },
           {
-            "name": "3001",
-            "port": 3001,
-            "targetPort": 3001
+            "name": "foo-claim2",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim2"
+            }
           },
           {
-            "name": "3002",
-            "port": 3002,
-            "targetPort": 3002
+            "name": "foo-claim3",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim3"
+            }
           },
           {
-            "name": "3003",
-            "port": 3003,
-            "targetPort": 3003
+            "name": "foo-claim4",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim4",
+              "readOnly": true
+            }
           },
           {
-            "name": "3004",
-            "port": 3004,
-            "targetPort": 3004
+            "name": "datavolume",
+            "persistentVolumeClaim": {
+              "claimName": "datavolume"
+            }
           },
           {
-            "name": "3005",
-            "port": 3005,
-            "targetPort": 3005
+            "name": "foo-tmpfs0",
+            "emptyDir": {
+              "medium": "Memory"
+            }
           },
           {
-            "name": "8000",
-            "port": 8000,
-            "targetPort": 8000
-          },
-          {
-            "name": "9090",
-            "port": 9090,
-            "targetPort": 8080
-          },
-          {
-            "name": "9091",
-            "port": 9091,
-            "targetPort": 8081
-          },
-          {
-            "name": "49100",
-            "port": 49100,
-            "targetPort": 22
-          },
-          {
-            "name": "8001",
-            "port": 8001,
-            "targetPort": 8001
-          },
-          {
-            "name": "5000",
-            "port": 5000,
-            "targetPort": 5000
-          },
-          {
-            "name": "5001",
-            "port": 5001,
-            "targetPort": 5001
-          },
-          {
-            "name": "5002",
-            "port": 5002,
-            "targetPort": 5002
-          },
-          {
-            "name": "5003",
-            "port": 5003,
-            "targetPort": 5003
-          },
-          {
-            "name": "5004",
-            "port": 5004,
-            "targetPort": 5004
-          },
-          {
-            "name": "5005",
-            "port": 5005,
-            "targetPort": 5005
-          },
-          {
-            "name": "5006",
-            "port": 5006,
-            "targetPort": 5006
-          },
-          {
-            "name": "5007",
-            "port": 5007,
-            "targetPort": 5007
-          },
-          {
-            "name": "5008",
-            "port": 5008,
-            "targetPort": 5008
-          },
-          {
-            "name": "5009",
-            "port": 5009,
-            "targetPort": 5009
-          },
-          {
-            "name": "5010",
-            "port": 5010,
-            "targetPort": 5010
+            "name": "foo-tmpfs1",
+            "emptyDir": {
+              "medium": "Memory"
+            }
           }
         ],
-        "selector": {
-          "io.kompose.service": "foo"
-        }
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
-      "kind": "DeploymentConfig",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "foo",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "foo"
-        },
-        "annotations": {
-          "com.example.description": "Accounting webapp",
-          "com.example.empty-label": "",
-          "com.example.number": "42"
-        }
-      },
-      "spec": {
-        "strategy": {
-          "type": "Recreate",
-          "resources": {}
-        },
-        "triggers": [
+        "containers": [
           {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange",
-            "imageChangeParams": {
-              "automatic": true,
-              "containerNames": [
-                "my-web-container"
-              ],
-              "from": {
-                "kind": "ImageStreamTag",
-                "name": "foo:latest"
+            "name": "my-web-container",
+            "image": "redis",
+            "command": [
+              "/code/entrypoint.sh",
+              "-p",
+              "3000"
+            ],
+            "args": [
+              "bundle",
+              "exec",
+              "thin",
+              "-p",
+              "3000"
+            ],
+            "workingDir": "/code",
+            "ports": [
+              {
+                "containerPort": 3000
+              },
+              {
+                "containerPort": 3000
+              },
+              {
+                "containerPort": 3001
+              },
+              {
+                "containerPort": 3002
+              },
+              {
+                "containerPort": 3003
+              },
+              {
+                "containerPort": 3004
+              },
+              {
+                "containerPort": 3005
+              },
+              {
+                "containerPort": 8000
+              },
+              {
+                "containerPort": 8080
+              },
+              {
+                "containerPort": 8081
+              },
+              {
+                "containerPort": 22
+              },
+              {
+                "containerPort": 8001
+              },
+              {
+                "containerPort": 5000
+              },
+              {
+                "containerPort": 5001
+              },
+              {
+                "containerPort": 5002
+              },
+              {
+                "containerPort": 5003
+              },
+              {
+                "containerPort": 5004
+              },
+              {
+                "containerPort": 5005
+              },
+              {
+                "containerPort": 5006
+              },
+              {
+                "containerPort": 5007
+              },
+              {
+                "containerPort": 5008
+              },
+              {
+                "containerPort": 5009
+              },
+              {
+                "containerPort": 5010
               }
-            }
-          }
-        ],
-        "replicas": 1,
-        "test": false,
-        "selector": {
-          "io.kompose.service": "foo"
-        },
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "foo"
-            }
-          },
-          "spec": {
-            "volumes": [
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "1",
+                "memory": "52428800"
+              },
+              "requests": {
+                "memory": "20971520"
+              }
+            },
+            "volumeMounts": [
               {
                 "name": "foo-claim0",
-                "persistentVolumeClaim": {
-                  "claimName": "foo-claim0"
-                }
+                "mountPath": "/var/lib/mysql"
               },
               {
                 "name": "foo-claim1",
-                "persistentVolumeClaim": {
-                  "claimName": "foo-claim1"
-                }
+                "mountPath": "/var/lib/mysql"
               },
               {
                 "name": "foo-claim2",
-                "persistentVolumeClaim": {
-                  "claimName": "foo-claim2"
-                }
+                "mountPath": "/code"
               },
               {
                 "name": "foo-claim3",
-                "persistentVolumeClaim": {
-                  "claimName": "foo-claim3"
-                }
+                "mountPath": "/var/www/html"
               },
               {
                 "name": "foo-claim4",
-                "persistentVolumeClaim": {
-                  "claimName": "foo-claim4",
-                  "readOnly": true
-                }
+                "readOnly": true,
+                "mountPath": "/etc/configs/"
               },
               {
                 "name": "datavolume",
-                "persistentVolumeClaim": {
-                  "claimName": "datavolume"
-                }
+                "mountPath": "/var/lib/mysql"
               },
               {
                 "name": "foo-tmpfs0",
-                "emptyDir": {
-                  "medium": "Memory"
-                }
+                "mountPath": "/run"
               },
               {
                 "name": "foo-tmpfs1",
-                "emptyDir": {
-                  "medium": "Memory"
-                }
+                "mountPath": "/tmp"
               }
             ],
-            "containers": [
-              {
-                "name": "my-web-container",
-                "image": " ",
-                "command": [
-                  "/code/entrypoint.sh",
-                  "-p",
-                  "3000"
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "ALL"
                 ],
-                "args": [
-                  "bundle",
-                  "exec",
-                  "thin",
-                  "-p",
-                  "3000"
-                ],
-                "workingDir": "/code",
-                "ports": [
-                  {
-                    "containerPort": 3000
-                  },
-                  {
-                    "containerPort": 3000
-                  },
-                  {
-                    "containerPort": 3001
-                  },
-                  {
-                    "containerPort": 3002
-                  },
-                  {
-                    "containerPort": 3003
-                  },
-                  {
-                    "containerPort": 3004
-                  },
-                  {
-                    "containerPort": 3005
-                  },
-                  {
-                    "containerPort": 8000
-                  },
-                  {
-                    "containerPort": 8080
-                  },
-                  {
-                    "containerPort": 8081
-                  },
-                  {
-                    "containerPort": 22
-                  },
-                  {
-                    "containerPort": 8001
-                  },
-                  {
-                    "containerPort": 5000
-                  },
-                  {
-                    "containerPort": 5001
-                  },
-                  {
-                    "containerPort": 5002
-                  },
-                  {
-                    "containerPort": 5003
-                  },
-                  {
-                    "containerPort": 5004
-                  },
-                  {
-                    "containerPort": 5005
-                  },
-                  {
-                    "containerPort": 5006
-                  },
-                  {
-                    "containerPort": 5007
-                  },
-                  {
-                    "containerPort": 5008
-                  },
-                  {
-                    "containerPort": 5009
-                  },
-                  {
-                    "containerPort": 5010
-                  }
-                ],
-                "resources": {
-                  "limits": {
-                    "memory": "52428800"
-                  }
-                },
-                "volumeMounts": [
-                  {
-                    "name": "foo-claim0",
-                    "mountPath": "/var/lib/mysql"
-                  },
-                  {
-                    "name": "foo-claim1",
-                    "mountPath": "/var/lib/mysql"
-                  },
-                  {
-                    "name": "foo-claim2",
-                    "mountPath": "/code"
-                  },
-                  {
-                    "name": "foo-claim3",
-                    "mountPath": "/var/www/html"
-                  },
-                  {
-                    "name": "foo-claim4",
-                    "readOnly": true,
-                    "mountPath": "/etc/configs/"
-                  },
-                  {
-                    "name": "datavolume",
-                    "mountPath": "/var/lib/mysql"
-                  },
-                  {
-                    "name": "foo-tmpfs0",
-                    "mountPath": "/run"
-                  },
-                  {
-                    "name": "foo-tmpfs1",
-                    "mountPath": "/tmp"
-                  }
-                ],
-                "securityContext": {
-                  "capabilities": {
-                    "add": [
-                      "ALL"
-                    ],
-                    "drop": [
-                      "NET_ADMIN",
-                      "SYS_ADMIN"
-                    ]
-                  },
-                  "privileged": true
-                },
-                "stdin": true,
-                "tty": true
-              }
-            ],
-            "restartPolicy": "Always"
+                "drop": [
+                  "NET_ADMIN",
+                  "SYS_ADMIN"
+                ]
+              },
+              "privileged": true
+            },
+            "stdin": true,
+            "tty": true
           }
-        }
+        ],
+        "restartPolicy": "OnFailure"
       },
       "status": {}
-    },
-    {
-      "kind": "ImageStream",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "foo",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "foo"
-        }
-      },
-      "spec": {
-        "tags": [
-          {
-            "name": "latest",
-            "annotations": null,
-            "from": {
-              "kind": "DockerImage",
-              "name": "redis"
-            },
-            "generation": null,
-            "importPolicy": {}
-          }
-        ]
-      },
-      "status": {
-        "dockerImageRepository": ""
-      }
     },
     {
       "kind": "PersistentVolumeClaim",

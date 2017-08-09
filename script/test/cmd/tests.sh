@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2016 The Kubernetes Authors All rights reserved.
+# Copyright 2017 The Kubernetes Authors All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -105,6 +105,12 @@ convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/te
 convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-k8s.json" "ignoring path on the host"
 # openshift test
 convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-os.json" "ignoring path on the host"
+
+# Tests related to docker-compose file in /script/test/fixtures/volume-mounts/volumes-from corner cases
+# kubernetes test
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose-case.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-k8s-case.json"
+# openshift test
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose-case.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-os-case.json"
 
 
 ######
@@ -263,6 +269,9 @@ convert::expect_success "kompose --provider=openshift convert --stdout -j" "$KOM
 cd $CURRENT_DIR
 
 # Test V3 Support of Docker Compose
+
+# Test support for cpu and memory limits + reservations
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-memcpu.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-memcpu-k8s.json"
 
 # Test volumes are passed correctly
 convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-volumes.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-volumes-k8s.json"

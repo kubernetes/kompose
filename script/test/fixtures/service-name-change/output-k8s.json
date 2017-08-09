@@ -95,16 +95,16 @@
                 "image": "bitnami/mariadb:latest",
                 "env": [
                   {
-                    "name": "MARIADB_USER",
-                    "value": "bn_wordpress"
+                    "name": "ALLOW_EMPTY_PASSWORD",
+                    "value": "yes"
                   },
                   {
                     "name": "MARIADB_DATABASE",
                     "value": "bitnami_wordpress"
                   },
                   {
-                    "name": "ALLOW_EMPTY_PASSWORD",
-                    "value": "yes"
+                    "name": "MARIADB_USER",
+                    "value": "bn_wordpress"
                   }
                 ],
                 "resources": {},
@@ -201,6 +201,10 @@
                 ],
                 "env": [
                   {
+                    "name": "ALLOW_EMPTY_PASSWORD",
+                    "value": "yes"
+                  },
+                  {
                     "name": "MARIADB_HOST",
                     "value": "mariadb"
                   },
@@ -209,16 +213,12 @@
                     "value": "3306"
                   },
                   {
-                    "name": "WORDPRESS_DATABASE_USER",
-                    "value": "bn_wordpress"
-                  },
-                  {
                     "name": "WORDPRESS_DATABASE_NAME",
                     "value": "bitnami_wordpress"
                   },
                   {
-                    "name": "ALLOW_EMPTY_PASSWORD",
-                    "value": "yes"
+                    "name": "WORDPRESS_DATABASE_USER",
+                    "value": "bn_wordpress"
                   }
                 ],
                 "resources": {},

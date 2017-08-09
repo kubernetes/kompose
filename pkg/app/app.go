@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,11 +34,11 @@ import (
 
 	"os"
 
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/loader"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer/kubernetes"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer/openshift"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/loader"
+	"github.com/kubernetes/kompose/pkg/transformer"
+	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
+	"github.com/kubernetes/kompose/pkg/transformer/openshift"
 )
 
 const (
@@ -118,7 +118,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	if len(bundle) > 0 {
 		inputFormat = "bundle"
-		log.Fatalf("DAB / bundle (--bundle | -b) is no longer supported. See issue: https://github.com/kubernetes-incubator/kompose/issues/390")
+		log.Fatalf("DAB / bundle (--bundle | -b) is no longer supported. See issue: https://github.com/kubernetes/kompose/issues/390")
 		opt.InputFiles = []string{bundle}
 	}
 
@@ -136,7 +136,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 }
 
 // ValidateComposeFile validated the compose file provided for conversion
-func ValidateComposeFile(cmd *cobra.Command, opt *kobject.ConvertOptions) {
+func ValidateComposeFile(opt *kobject.ConvertOptions) {
 	if len(opt.InputFiles) == 0 {
 		// Here docker-compose is the input
 		opt.InputFiles = []string{"docker-compose.yml"}

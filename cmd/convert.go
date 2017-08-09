@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/kubernetes-incubator/kompose/pkg/app"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/app"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -82,12 +82,13 @@ var convertCmd = &cobra.Command{
 			IsDeploymentFlag:            cmd.Flags().Lookup("deployment").Changed,
 			IsDaemonSetFlag:             cmd.Flags().Lookup("daemon-set").Changed,
 			IsReplicationControllerFlag: cmd.Flags().Lookup("replication-controller").Changed,
+			IsReplicaSetFlag:            cmd.Flags().Lookup("replicas").Changed,
 			IsDeploymentConfigFlag:      cmd.Flags().Lookup("deployment-config").Changed,
 		}
 
 		// Validate before doing anything else. Use "bundle" if passed in.
 		app.ValidateFlags(GlobalBundle, args, cmd, &ConvertOpt)
-		app.ValidateComposeFile(cmd, &ConvertOpt)
+		app.ValidateComposeFile(&ConvertOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 

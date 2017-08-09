@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/fatih/structs"
-	"github.com/kubernetes-incubator/kompose/pkg/kobject"
-	"github.com/kubernetes-incubator/kompose/pkg/transformer"
+	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/transformer"
 	buildapi "github.com/openshift/origin/pkg/build/api"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
@@ -49,6 +49,7 @@ import (
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
 	"sort"
+	"strings"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -61,11 +62,11 @@ type Kubernetes struct {
 // used when undeploying resources from kubernetes
 const TIMEOUT = 300
 
-//default size of Persistent Volume Claim
+// PVCRequestSize (Persistent Volume Claim) has default size
 const PVCRequestSize = "100Mi"
 
 // CheckUnsupportedKey checks if given komposeObject contains
-// keys that are not supported by this tranfomer.
+// keys that are not supported by this transformer.
 // list of all unsupported keys are stored in unsupportedKey variable
 // returns list of TODO: ....
 func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, unsupportedKey map[string]bool) []string {
@@ -138,7 +139,7 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 	return rc
 }
 
-// InitSvc initializes Kubernets Service object
+// InitSvc initializes Kubernetes Service object
 func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Service {
 	svc := &api.Service{
 		TypeMeta: unversioned.TypeMeta{
@@ -376,56 +377,53 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	volumeMounts := []api.VolumeMount{}
 	volumes := []api.Volume{}
 	var PVCs []*api.PersistentVolumeClaim
+	var volumeName string
 
-	// Set a var based on if the user wants to use emtpy volumes
+	// Set a var based on if the user wants to use empty volumes
 	// as opposed to persistent volumes and volume claims
 	useEmptyVolumes := k.Opt.EmptyVols
 
 	var count int
+	//interating over array of `Vols` struct as it contains all necessary information about volumes
 	for _, volume := range service.Volumes {
 
-		volumeName, host, container, mode, err := transformer.ParseVolume(volume)
-		if err != nil {
-			log.Warningf("Failed to configure container volume: %v", err)
-			continue
-		}
-
-		log.Debug("Volume name %s", volumeName)
-
 		// check if ro/rw mode is defined, default rw
-		readonly := len(mode) > 0 && mode == "ro"
+		readonly := len(volume.Mode) > 0 && volume.Mode == "ro"
 
-		if volumeName == "" {
+		if volume.VolumeName == "" {
 			if useEmptyVolumes {
-				volumeName = fmt.Sprintf("%s-empty%d", name, count)
+				volumeName = strings.Replace(volume.PVCName, "claim", "empty", 1)
 			} else {
-				volumeName = fmt.Sprintf("%s-claim%d", name, count)
+				volumeName = volume.PVCName
 			}
 			count++
+		} else {
+			volumeName = volume.VolumeName
 		}
-
-		// create a new volume mount object and append to list
 		volmount := api.VolumeMount{
 			Name:      volumeName,
 			ReadOnly:  readonly,
-			MountPath: container,
+			MountPath: volume.Container,
 		}
 		volumeMounts = append(volumeMounts, volmount)
-
 		// Get a volume source based on the type of volume we are using
 		// For PVC we will also create a PVC object and add to list
 		var volsource *api.VolumeSource
+
 		if useEmptyVolumes {
 			volsource = k.ConfigEmptyVolumeSource("volume")
 		} else {
+
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
+			if volume.VFrom == "" {
+				createdPVC, err := k.CreatePVC(volumeName, volume.Mode)
 
-			createdPVC, err := k.CreatePVC(volumeName, mode)
-			if err != nil {
-				return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
+				if err != nil {
+					return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
+				}
+
+				PVCs = append(PVCs, createdPVC)
 			}
-
-			PVCs = append(PVCs, createdPVC)
 		}
 
 		// create a new volume object using the volsource and add to list
@@ -435,10 +433,12 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		}
 		volumes = append(volumes, vol)
 
-		if len(host) > 0 {
-			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", host)
+		if len(volume.Host) > 0 {
+			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", volume.Host)
 		}
+
 	}
+
 	return volumeMounts, volumes, PVCs, nil
 }
 
@@ -489,15 +489,21 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig) []ap
 // CreateKubernetesObjects generates a Kubernetes artifact for each input type service
 func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
 	var objects []runtime.Object
+	var replica int
+	if opt.IsReplicaSetFlag || service.Replicas == 0 {
+		replica = opt.Replicas
+	} else {
+		replica = service.Replicas
+	}
 
 	if opt.CreateD {
-		objects = append(objects, k.InitD(name, service, opt.Replicas))
+		objects = append(objects, k.InitD(name, service, replica))
 	}
 	if opt.CreateDS {
 		objects = append(objects, k.InitDS(name, service))
 	}
 	if opt.CreateRC {
-		objects = append(objects, k.InitRC(name, service, opt.Replicas))
+		objects = append(objects, k.InitRC(name, service, replica))
 	}
 
 	return objects
@@ -597,8 +603,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 		allobjects = append(allobjects, objects...)
 	}
-	// If docker-compose has a volumes_from directive it will be handled here
-	k.VolumesFrom(&allobjects, komposeObject)
+
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
 	return allobjects, nil

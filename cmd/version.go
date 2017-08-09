@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors All rights reserved.
+Copyright 2017 The Kubernetes Authors All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ import (
 
 var (
 	// VERSION  is version number that wil be displayed when running ./kompose version
-	VERSION = "0.7.0"
+	VERSION = "1.0.0"
 	// GITCOMMIT is hash of the commit that wil be displayed when running ./kompose version
-	// this will be overwritten when running  build like this: go build -ldflags="-X github.com/kubernetes-incubator/kompose/cmd.GITCOMMIT=$(GITCOMMIT)"
+	// this will be overwritten when running  build like this: go build -ldflags="-X github.com/kubernetes/kompose/cmd.GITCOMMIT=$(GITCOMMIT)"
 	// HEAD is default indicating that this was not set during build
 	GITCOMMIT = "HEAD"
 )

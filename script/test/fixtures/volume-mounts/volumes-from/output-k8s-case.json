@@ -1,0 +1,388 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "bar",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "bar"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "bar"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "cat",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "cat"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "cat"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "foo"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "bar",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "bar"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "bar"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "bar-claim1",
+                "persistentVolumeClaim": {
+                  "claimName": "bar-claim1"
+                }
+              },
+              {
+                "name": "foo-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "foo-claim0"
+                }
+              },
+              {
+                "name": "foo-claim1",
+                "persistentVolumeClaim": {
+                  "claimName": "foo-claim1"
+                }
+              },
+              {
+                "name": "cat-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "cat-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "bar",
+                "image": "busybox",
+                "args": [
+                  "sleep",
+                  "3600"
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "bar-claim1",
+                    "mountPath": "/bar"
+                  },
+                  {
+                    "name": "foo-claim0",
+                    "mountPath": "/foo1"
+                  },
+                  {
+                    "name": "foo-claim1",
+                    "mountPath": "/foo2"
+                  },
+                  {
+                    "name": "cat-claim0",
+                    "mountPath": "/cat"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "bar-claim1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "bar-claim1"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "cat",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "cat"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "cat"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "cat-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "cat-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "cat",
+                "image": "busybox",
+                "args": [
+                  "sleep",
+                  "3600"
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "cat-claim0",
+                    "mountPath": "/cat"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "cat-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "cat-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "foo"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "foo-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "foo-claim0"
+                }
+              },
+              {
+                "name": "foo-claim1",
+                "persistentVolumeClaim": {
+                  "claimName": "foo-claim1"
+                }
+              },
+              {
+                "name": "cat-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "cat-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "foo",
+                "image": "busybox",
+                "args": [
+                  "sleep",
+                  "3600"
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "foo-claim0",
+                    "mountPath": "/foo1"
+                  },
+                  {
+                    "name": "foo-claim1",
+                    "mountPath": "/foo2"
+                  },
+                  {
+                    "name": "cat-claim0",
+                    "mountPath": "/cat"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo-claim1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo-claim1"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}

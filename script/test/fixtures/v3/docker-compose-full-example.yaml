@@ -39,7 +39,7 @@ services:
           cpus: '0.0001'
           memory: 20M
       restart_policy:
-        condition: on_failure
+        condition: on-failure
         delay: 5s
         max_attempts: 3
         window: 120s

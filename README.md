@@ -1,6 +1,6 @@
 # Kompose (Kubernetes + Compose)
 
-[![Build Status Widget]][Build Status] [![Coverage Status Widget]][Coverage Status] [![GoDoc Widget]][GoDoc] [![Slack Widget]][Slack]
+[![Build Status Widget]][Build Status] [![Coverage Status Widget]][Coverage Status] [![GoDoc Widget]][GoDoc]  [![GoReportCard Widget]][GoReportCardResult] [![Slack Widget]][Slack]
 
 `kompose` is a tool to help users who are familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). `kompose` takes a Docker Compose file and translates it into Kubernetes resources.
 
@@ -8,10 +8,10 @@
 
 ## Use Case
 
-Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes-incubator/kompose/master/examples/docker-compose.yaml) into Kubernetes deployments and services with one simple command:
+Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml) into Kubernetes deployments and services with one simple command:
 
 ```sh
-kompose convert -f docker-compose.yaml
+$ kompose convert -f docker-compose.yaml
 INFO Kubernetes file "frontend-service.yaml" created         
 INFO Kubernetes file "redis-master-service.yaml" created     
 INFO Kubernetes file "redis-slave-service.yaml" created      
@@ -26,34 +26,36 @@ Other examples are provided in the _examples_ [directory](./examples).
 
 We have multiple ways to install Kompose. Our prefered method is downloading the binary from the latest GitHub release.
 
-Our entire list of installation methods are located in our [setup.md](/docs/setup.md) document.
+Our entire list of installation methods are located in our [installation.md](/docs/installation.md) document.
 
 Installation methods:
   - [Binary (Prefered method)](README.md)
-  - [Go](/docs/setup.md#go)
-  - [CentOS](/docs/setup.md#centos)
-  - [Fedora](/docs/setup.md#fedora)
-  - [macOS (Homebrew)](/docs/setup.md#macos)
+  - [Go](/docs/installation.md#go)
+  - [CentOS](/docs/installation.md#centos)
+  - [Fedora](/docs/installation.md#fedora)
+  - [macOS (Homebrew)](/docs/installation.md#macos)
+  - [Windows](docs/installation.md#windows)
 
 #### Binary installation
 
-Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes-incubator/kompose/releases).
+Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes/kompose/releases).
+
+__Linux and macOS:__
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-darwin-amd64 -o kompose
-
-# Windows
-curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-windows-amd64.exe -o kompose.exe
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-darwin-amd64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-Alternatively, you can download the less-bandwidth intense [tarball](https://github.com/kubernetes-incubator/kompose/releases).
+__Windows:__
+
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 ## Shell autocompletion
 
@@ -101,12 +103,12 @@ $ make cross
 
 ## Documentation
 
-Documentation can be found at our [kompose.io](http://kompose.io) website or our [docs](https://github.com/kubernetes-incubator/kompose/tree/master/docs) folder.
+Documentation can be found at our [kompose.io](http://kompose.io) website or our [docs](https://github.com/kubernetes/kompose/tree/master/docs) folder.
 
 Here is a list of all available docs:
 
 - [Quick start](docs/quickstart.md)
-- [Setup](docs/setup.md)
+- [Installation](docs/installation.md)
 - [User guide](docs/user-guide.md)
 - [Conversion](docs/conversion.md)
 - [Architecture](docs/architecture.md)
@@ -114,18 +116,13 @@ Here is a list of all available docs:
 
 ## Community, Discussion, Contribution, and Support
 
-`kompose` is a work in progress, we will see how far it takes us. We welcome any pull request to make it even better.
-If you find any issues, please [file it](https://github.com/kubernetes-incubator/kompose/issues).
+__Issues:__ If you find any issues, please [file it](https://github.com/kubernetes/kompose/issues).
 
-As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
+__Kubernetes Community:__ As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
 
-You can reach the maintainers of this project on [Slack](http://slack.kubernetes.io) in channel #kompose
+__Kubernetes Incubation:__ Kompose is being incubated into the Kubernetes community via [SIG-APPS](https://github.com/kubernetes/community/tree/master/sig-apps) on [kubernetes/community](https://github.com/kubernetes/community). [@ericchiang](https://github.com/ericchiang) is acting champion for [incubation](https://github.com/kubernetes/community/blob/master/incubator.md).
 
-`kompose` is being incubated into the Kubernetes community via [SIG-APPS](https://github.com/kubernetes/community/tree/master/sig-apps) on [kubernetes/community](https://github.com/kubernetes/community).
-
-[@ericchiang](https://github.com/ericchiang) is acting champion for [incubation](https://github.com/kubernetes/community/blob/master/incubator.md).
-
-We do a biweekly community meeting which is [open to the public](https://bluejeans.com/404059616). Each week we outline what we have talked about in an [agenda doc](https://docs.google.com/document/d/1I5I21Cp_JZ9Az5MgMcu6Hl7m8WQ1Eqk_WeQLHenNom0/edit?usp=sharing). This meeting occurs every two weeks on Wednesday 18:00-19:00 GMT.
+__Chat (Slack):__ We're fairly active on [Slack](http://slack.kubernetes.io#kompose) and you can find us in the #kompose channel.
 
 ## Road Map
 
@@ -135,11 +132,13 @@ An up-to-date roadmap of upcoming releases is located at [ROADMAP.md](/ROADMAP.m
 
 Participation in the Kubernetes community is governed by the [Kubernetes Code of Conduct](code-of-conduct.md).
 
-[Build Status]: https://travis-ci.org/kubernetes-incubator/kompose
-[Build Status Widget]: https://travis-ci.org/kubernetes-incubator/kompose.svg?branch=master
-[GoDoc]: https://godoc.org/github.com/kubernetes-incubator/kompose
-[GoDoc Widget]: https://godoc.org/github.com/kubernetes-incubator/kompose?status.svg
+[Build Status]: https://travis-ci.org/kubernetes/kompose
+[Build Status Widget]: https://travis-ci.org/kubernetes/kompose.svg?branch=master
+[GoDoc]: https://godoc.org/github.com/kubernetes/kompose
+[GoDoc Widget]: https://godoc.org/github.com/kubernetes/kompose?status.svg
 [Slack]: http://slack.kubernetes.io#kompose
 [Slack Widget]: https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png
-[Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes-incubator/kompose/badge.svg?branch=master
-[Coverage Status]: https://coveralls.io/github/kubernetes-incubator/kompose?branch=master
+[Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes/kompose/badge.svg?branch=master
+[Coverage Status]: https://coveralls.io/github/kubernetes/kompose?branch=master
+[GoReportCard Widget]: https://goreportcard.com/badge/github.com/kubernetes/kompose
+[GoReportCardResult]: https://goreportcard.com/report/github.com/kubernetes/kompose

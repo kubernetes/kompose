@@ -24,12 +24,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Push will provide methods for interaction with API regarding pushing images
 type Push struct {
 	Client dockerlib.Client
 }
 
 /*
-Push a Docker image via the Docker API. Takes the image name,
+PushImage push a Docker image via the Docker API. Takes the image name,
 parses the URL details and then push based on environment authentication
 credentials.
 */
@@ -80,5 +81,5 @@ func (c *Push) PushImage(fullImageName string) error {
 		}
 	}
 
-	return errors.New("Unable to push docker image(s). Check that `docker login` works successfully on the command line.")
+	return errors.New("unable to push docker image(s). Check that `docker login` works successfully on the command line")
 }
