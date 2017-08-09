@@ -62,44 +62,44 @@ type ConvertOptions struct {
 type ServiceConfig struct {
 	// use tags to mark from what element this value comes
 	ContainerName string
-	Image         string   `compose:"image" bundle:"Image"`
-	Environment   []EnvVar `compose:"environment" bundle:"Env"`
-	Port          []Ports  `compose:"ports" bundle:"Ports"`
-	Command       []string `compose:"command" bundle:"Command"`
-	WorkingDir    string   `compose:"" bundle:"WorkingDir"`
-	Args          []string `compose:"args" bundle:"Args"`
+	Image         string   `compose:"image"`
+	Environment   []EnvVar `compose:"environment"`
+	Port          []Ports  `compose:"ports"`
+	Command       []string `compose:"command"`
+	WorkingDir    string   `compose:""`
+	Args          []string `compose:"args"`
 	// VolList is list of volumes extracted from docker-compose file
-	VolList         []string            `compose:"volumes" bundle:"Volumes"`
-	Network         []string            `compose:"network" bundle:"Networks"`
-	Labels          map[string]string   `compose:"labels" bundle:"Labels"`
-	Annotations     map[string]string   `compose:"" bundle:""`
-	CPUSet          string              `compose:"cpuset" bundle:""`
-	CPUShares       int64               `compose:"cpu_shares" bundle:""`
-	CPUQuota        int64               `compose:"cpu_quota" bundle:""`
-	CPULimit        int64               `compose:"" bundle:""`
-	CPUReservation  int64               `compose:"" bundle:""`
-	CapAdd          []string            `compose:"cap_add" bundle:""`
-	CapDrop         []string            `compose:"cap_drop" bundle:""`
-	Expose          []string            `compose:"expose" bundle:""`
-	Pid             string              `compose:"pid" bundle:""`
-	Privileged      bool                `compose:"privileged" bundle:""`
-	Restart         string              `compose:"restart" bundle:""`
-	User            string              `compose:"user" bundle:"User"`
-	VolumesFrom     []string            `compose:"volumes_from" bundle:""`
-	ServiceType     string              `compose:"kompose.service.type" bundle:""`
-	StopGracePeriod string              `compose:"stop_grace_period" bundle:""`
-	Build           string              `compose:"build" bundle:""`
-	BuildArgs       map[string]*string  `compose:"build-args" bundle:""`
-	ExposeService   string              `compose:"kompose.service.expose" bundle:""`
-	Stdin           bool                `compose:"stdin_open" bundle:""`
-	Tty             bool                `compose:"tty" bundle:""`
-	MemLimit        yaml.MemStringorInt `compose:"mem_limit" bundle:""`
-	MemReservation  yaml.MemStringorInt `compose:"" bundle:""`
-	TmpFs           []string            `compose:"tmpfs" bundle:""`
-	Dockerfile      string              `compose:"dockerfile" bundle:""`
-	Replicas        int                 `compose:"replicas" bundle:""`
+	VolList         []string            `compose:"volumes"`
+	Network         []string            `compose:"network"`
+	Labels          map[string]string   `compose:"labels"`
+	Annotations     map[string]string   `compose:""`
+	CPUSet          string              `compose:"cpuset"`
+	CPUShares       int64               `compose:"cpu_shares"`
+	CPUQuota        int64               `compose:"cpu_quota"`
+	CPULimit        int64               `compose:""`
+	CPUReservation  int64               `compose:""`
+	CapAdd          []string            `compose:"cap_add"`
+	CapDrop         []string            `compose:"cap_drop"`
+	Expose          []string            `compose:"expose"`
+	Pid             string              `compose:"pid"`
+	Privileged      bool                `compose:"privileged"`
+	Restart         string              `compose:"restart"`
+	User            string              `compose:"user"`
+	VolumesFrom     []string            `compose:"volumes_from"`
+	ServiceType     string              `compose:"kompose.service.type"`
+	StopGracePeriod string              `compose:"stop_grace_period"`
+	Build           string              `compose:"build"`
+	BuildArgs       map[string]*string  `compose:"build-args"`
+	ExposeService   string              `compose:"kompose.service.expose"`
+	Stdin           bool                `compose:"stdin_open"`
+	Tty             bool                `compose:"tty"`
+	MemLimit        yaml.MemStringorInt `compose:"mem_limit"`
+	MemReservation  yaml.MemStringorInt `compose:""`
+	TmpFs           []string            `compose:"tmpfs"`
+	Dockerfile      string              `compose:"dockerfile"`
+	Replicas        int                 `compose:"replicas"`
 	// Volumes is a struct which contains all information about each volume
-	Volumes []Volumes `compose:"" bundle:""`
+	Volumes []Volumes `compose:""`
 }
 
 // EnvVar holds the environment variable struct of a container
