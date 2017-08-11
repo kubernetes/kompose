@@ -98,6 +98,7 @@ type ServiceConfig struct {
 	TmpFs           []string            `compose:"tmpfs"`
 	Dockerfile      string              `compose:"dockerfile"`
 	Replicas        int                 `compose:"replicas"`
+	GroupAdd        []int64             `compose:"group_add"`
 	// Volumes is a struct which contains all information about each volume
 	Volumes []Volumes `compose:""`
 }

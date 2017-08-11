@@ -106,15 +106,15 @@
           "spec": {
             "volumes": [
               {
-                "name": "bar-claim1",
-                "persistentVolumeClaim": {
-                  "claimName": "bar-claim1"
-                }
-              },
-              {
                 "name": "foo-claim0",
                 "persistentVolumeClaim": {
                   "claimName": "foo-claim0"
+                }
+              },
+              {
+                "name": "bar-claim1",
+                "persistentVolumeClaim": {
+                  "claimName": "bar-claim1"
                 }
               },
               {
@@ -141,12 +141,12 @@
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "name": "bar-claim1",
-                    "mountPath": "/bar"
-                  },
-                  {
                     "name": "foo-claim0",
                     "mountPath": "/foo1"
+                  },
+                  {
+                    "name": "bar-claim1",
+                    "mountPath": "/bar"
                   },
                   {
                     "name": "foo-claim1",
