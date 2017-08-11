@@ -22,7 +22,8 @@ if ! hash kubectl 2>/dev/null; then
 fi
 
 # First off, we have to compile the latest binary
-make bin
+# We *assume* that the binary has already been built
+# make bin
 
 #####################
 # KUBERNETES TESTS ##
