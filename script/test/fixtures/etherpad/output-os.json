@@ -111,14 +111,6 @@
                 ],
                 "env": [
                   {
-                    "name": "DB_DBID",
-                    "value": "etherpad"
-                  },
-                  {
-                    "name": "DB_HOST",
-                    "value": "mariadb"
-                  },
-                  {
                     "name": "DB_PASS",
                     "value": "etherpad"
                   },
@@ -129,6 +121,14 @@
                   {
                     "name": "DB_USER",
                     "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_DBID",
+                    "value": "etherpad"
+                  },
+                  {
+                    "name": "DB_HOST",
+                    "value": "mariadb"
                   }
                 ],
                 "resources": {}

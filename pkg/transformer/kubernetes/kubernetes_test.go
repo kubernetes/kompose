@@ -55,7 +55,6 @@ func newServiceConfig() kobject.ServiceConfig {
 		TmpFs:         []string{"/tmp"},
 		Replicas:      2,
 		Volumes:       []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
-		GroupAdd:      []int64{1003, 1005},
 	}
 }
 
