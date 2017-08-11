@@ -174,17 +174,6 @@ convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/tty-true/
 # openshift test
 convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/tty-true/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/tty-true/output-oc.json"
 
-# Test related to "group_add" in docker-compose
-# kubernetes test
-convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/group-add/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/group-add/output-k8s.json"
-# openshift test
-convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/group-add/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/group-add/output-os.json"
-
-# Test related to Failing "group_add" in docker-compose
-# kubernetes test
-convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/group-add/docker-compose-fail.yml convert --stdout -j"
-# openshift test
-convert::expect_failure "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/group-add/docker-compose-fail.yml convert --stdout -j"
 
 # Test related to kompose.expose.service label in docker compose file to ensure that services are exposed properly
 #kubernetes tests

@@ -264,14 +264,6 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.MemLimit = composeServiceConfig.MemLimit
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
 		serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod
-
-		// Get GroupAdd, group should be mentioned in gid format but not the group name
-		groupAdd, err := getGroupAdd(composeServiceConfig.GroupAdd)
-		if err != nil {
-			return kobject.KomposeObject{}, errors.Wrap(err, "GroupAdd should be mentioned in gid format, not a group name")
-		}
-		serviceConfig.GroupAdd = groupAdd
-
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 		if normalizeServiceNames(name) != name {
 			log.Infof("Service name in docker-compose has been changed from %q to %q", name, normalizeServiceNames(name))
@@ -397,18 +389,4 @@ func getVol(toFind kobject.Volumes, Vols []kobject.Volumes) (bool, kobject.Volum
 		}
 	}
 	return false, kobject.Volumes{}
-}
-
-// getGroupAdd will return group in int64 format
-func getGroupAdd(group []string) ([]int64, error) {
-	var groupAdd []int64
-	for _, i := range group {
-		j, err := strconv.Atoi(i)
-		if err != nil {
-			return nil, errors.Wrap(err, "unable to get group_add key")
-		}
-		groupAdd = append(groupAdd, int64(j))
-
-	}
-	return groupAdd, nil
 }
