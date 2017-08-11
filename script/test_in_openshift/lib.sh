@@ -192,7 +192,7 @@ function convert::kompose_up () {
     # Usage: convert::kompose_up <docker_compose_file>
     local compose_file=$1
     convert::print_msg "Running kompose up ..."
-    kompose up --provider=openshift --emptyvols -f $compose_file
+    ./kompose up --provider=openshift --emptyvols -f $compose_file
     exit_status=$?
 
     if [ $exit_status -ne 0 ]; then
@@ -206,7 +206,7 @@ function convert::kompose_down () {
     # Usage: convert::kompose_down <docker_compose_file>
     local compose_file=$1
     convert::print_msg "Running kompose down ..."
-    kompose --provider=openshift -f $compose_file down
+    ./kompose --provider=openshift -f $compose_file down
     exit_status=$?
 
     if [ $exit_status -ne 0 ]; then
