@@ -23,7 +23,7 @@ source $KOMPOSE_ROOT/script/test_in_openshift/lib.sh
 convert::print_msg "Running tests for replica option"
 
 # Run kompose up
-kompose up --provider=openshift --emptyvols --replicas 2 -f ${KOMPOSE_ROOT}/examples/docker-compose-counter.yaml; exit_status=$?
+./kompose up --provider=openshift --emptyvols --replicas 2 -f ${KOMPOSE_ROOT}/examples/docker-compose-counter.yaml; exit_status=$?
 
 if [ $exit_status -ne 0 ]; then
     convert::print_fail "kompose up has failed"
