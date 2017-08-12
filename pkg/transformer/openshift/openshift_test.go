@@ -150,7 +150,7 @@ func TestGetGitRemote(t *testing.T) {
 
 	for name, test := range testCases {
 		t.Log("Test case: ", name)
-		output, err = getGitCurrentRemoteURL(test.dir)
+		output, err = GetGitCurrentRemoteURL(test.dir)
 
 		if test.expectError {
 			if err == nil {
@@ -190,7 +190,7 @@ func TestGitGetCurrentBranch(t *testing.T) {
 
 	for name, test := range testCases {
 		t.Log("Test case: ", name)
-		output, err = getGitCurrentBranch(test.dir)
+		output, err = GetGitCurrentBranch(test.dir)
 
 		if test.expectError {
 			if err == nil {
@@ -263,7 +263,7 @@ func TestGetAbsBuildContext(t *testing.T) {
 
 	for name, test := range testCases {
 		t.Log("Test case: ", name)
-		output, err = getAbsBuildContext(test.context)
+		output, err = GetAbsBuildContext(test.context)
 
 		if test.expectError {
 			if err == nil {
@@ -331,7 +331,7 @@ func TestInitBuildConfig(t *testing.T) {
 			"Assert buildconfig source git Ref":     {bc.Spec.CommonSpec.Source.Git.Ref, branch},
 			"Assert buildconfig source context dir": {bc.Spec.CommonSpec.Source.ContextDir, testDir + "/"},
 			// BuildConfig output image is named after service name. If image key is set than tag from that is used.
-			"Assert buildconfig output name":    {bc.Spec.CommonSpec.Output.To.Name, serviceName + ":" + getImageTag(test.ServiceConfig.Image)},
+			"Assert buildconfig output name":    {bc.Spec.CommonSpec.Output.To.Name, serviceName + ":" + GetImageTag(test.ServiceConfig.Image)},
 			"Assert buildconfig dockerfilepath": {bc.Spec.CommonSpec.Strategy.DockerStrategy.DockerfilePath, test.ServiceConfig.Dockerfile},
 		}
 
