@@ -20,14 +20,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/kubernetes/kompose/pkg/kobject"
 
-	"github.com/kubernetes/kompose/pkg/utils/docker"
 	"path/filepath"
+
+	"github.com/kubernetes/kompose/pkg/utils/docker"
 
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
@@ -114,7 +116,14 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 	for key, value := range service.Annotations {
 		annotations[key] = value
 	}
+	annotations["kompose.cmd"] = strings.Join(os.Args, " ")
+	version := exec.Command("kompose", "version")
+	out, err := version.Output()
+	if err != nil {
+		errors.Wrap(err, "Failed to get kompose version")
 
+	}
+	annotations["kompose.version"] = strings.Trim(string(out), " \n")
 	return annotations
 }
 

@@ -11,6 +11,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "client"
+        },
+        "annotations": {
+          "kompose.cmd": "kompose --provider openshift -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/tty-true/docker-compose.yml convert --stdout -j",
+          "kompose.version": "1.0.0 (HEAD)"
         }
       },
       "spec": {
@@ -37,6 +41,10 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "client"
+        },
+        "annotations": {
+          "kompose.cmd": "kompose --provider openshift -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/tty-true/docker-compose.yml convert --stdout -j",
+          "kompose.version": "1.0.0 (HEAD)"
         }
       },
       "spec": {

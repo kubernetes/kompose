@@ -20,14 +20,15 @@
       "spec": {
         "ports": [
           {
-            "name": "6379",
-            "port": 6379,
-            "targetPort": 6379
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
           }
         ],
         "selector": {
           "io.kompose.service": "redis"
-        }
+        },
+        "clusterIP": "None"
       },
       "status": {
         "loadBalancer": {}
@@ -44,8 +45,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -91,12 +91,7 @@
             "containers": [
               {
                 "name": "redis",
-                "image": "redis:3.0",
-                "ports": [
-                  {
-                    "containerPort": 6379
-                  }
-                ],
+                "image": "redis",
                 "resources": {}
               }
             ],
@@ -118,8 +113,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -132,54 +126,66 @@
             }
           },
           "spec": {
+            "volumes": [
+              {
+                "name": "web-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "web-claim0"
+                }
+              }
+            ],
             "containers": [
               {
                 "name": "web",
-                "image": "tuna/docker-counter23",
+                "image": "flask_web",
+                "args": [
+                  "python",
+                  "app.py"
+                ],
                 "ports": [
                   {
                     "containerPort": 5000
                   }
                 ],
-                "resources": {}
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "web-claim0",
+                    "mountPath": "/code"
+                  }
+                ]
               }
             ],
             "restartPolicy": "Always"
           }
         },
-        "strategy": {}
+        "strategy": {
+          "type": "Recreate"
+        }
       },
       "status": {}
     },
     {
-      "kind": "Ingress",
-      "apiVersion": "extensions/v1beta1",
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "web-claim0",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "web-claim0"
         }
       },
       "spec": {
-        "rules": [
-          {
-            "http": {
-              "paths": [
-                {
-                  "backend": {
-                    "serviceName": "web",
-                    "servicePort": 5000
-                  }
-                }
-              ]
-            }
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
           }
-        ]
+        }
       },
-      "status": {
-        "loadBalancer": {}
-      }
+      "status": {}
     }
   ]
 }

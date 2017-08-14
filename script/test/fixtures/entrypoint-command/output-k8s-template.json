@@ -7,27 +7,28 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "client",
+        "name": "base",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "client"
+          "io.kompose.service": "base"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/tty-true/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.0.0 (HEAD)"
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "1337",
-            "port": 1337,
-            "targetPort": 1337
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
           }
         ],
         "selector": {
-          "io.kompose.service": "client"
-        }
+          "io.kompose.service": "base"
+        },
+        "clusterIP": "None"
       },
       "status": {
         "loadBalancer": {}
@@ -37,14 +38,14 @@
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "client",
+        "name": "base",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "client"
+          "io.kompose.service": "base"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/tty-true/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.0.0 (HEAD)"
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -53,21 +54,21 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "client"
+              "io.kompose.service": "base"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "client",
-                "image": "registry.centos.org/centos/centos:7",
-                "ports": [
-                  {
-                    "containerPort": 1337
-                  }
+                "name": "base",
+                "image": "busybox",
+                "command": [
+                  "echo"
                 ],
-                "resources": {},
-                "tty": true
+                "args": [
+                  "foo"
+                ],
+                "resources": {}
               }
             ],
             "restartPolicy": "Always"

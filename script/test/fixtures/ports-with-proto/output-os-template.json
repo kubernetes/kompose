@@ -23,6 +23,12 @@
             "name": "6379",
             "port": 6379,
             "targetPort": 6379
+          },
+          {
+            "name": "1234",
+            "protocol": "UDP",
+            "port": 1234,
+            "targetPort": 1235
           }
         ],
         "selector": {
@@ -44,8 +50,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -120,6 +125,10 @@
                 "ports": [
                   {
                     "containerPort": 6379
+                  },
+                  {
+                    "containerPort": 1235,
+                    "protocol": "UDP"
                   }
                 ],
                 "resources": {}
@@ -170,8 +179,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -253,31 +261,6 @@
       },
       "status": {
         "dockerImageRepository": ""
-      }
-    },
-    {
-      "kind": "Route",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "web",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "web"
-        }
-      },
-      "spec": {
-        "host": "",
-        "to": {
-          "kind": "Service",
-          "name": "web",
-          "weight": null
-        },
-        "port": {
-          "targetPort": 5000
-        }
-      },
-      "status": {
-        "ingress": null
       }
     }
   ]

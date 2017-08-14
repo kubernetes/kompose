@@ -13,7 +13,7 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
+          "kompose.cmd": "kompose convert --stdout -j",
           "kompose.version": "%VERSION%"
         }
       },
@@ -43,9 +43,8 @@
           "io.kompose.service": "web"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.cmd": "kompose convert --stdout -j",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -74,7 +73,7 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
+          "kompose.cmd": "kompose convert --stdout -j",
           "kompose.version": "%VERSION%"
         }
       },
@@ -117,9 +116,8 @@
           "io.kompose.service": "web"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.cmd": "kompose convert --stdout -j",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -150,36 +148,6 @@
         "strategy": {}
       },
       "status": {}
-    },
-    {
-      "kind": "Ingress",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
-        "name": "web",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "web"
-        }
-      },
-      "spec": {
-        "rules": [
-          {
-            "http": {
-              "paths": [
-                {
-                  "backend": {
-                    "serviceName": "web",
-                    "servicePort": 5000
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      },
-      "status": {
-        "loadBalancer": {}
-      }
     }
   ]
 }
