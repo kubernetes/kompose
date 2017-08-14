@@ -102,9 +102,9 @@ convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/te
 ######
 # Tests related to docker-compose file in /script/test/fixtures/volume-mounts/volumes-from
 # kubernetes test
-convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-k8s.json" "ignoring path on the host"
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-k8s.json" "make no sense in the cluster - Be careful the path on the host"
 # openshift test
-convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-os.json" "ignoring path on the host"
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-os.json" "make no sense in the cluster - Be careful the path on the host"
 
 # Tests related to docker-compose file in /script/test/fixtures/volume-mounts/volumes-from corner cases
 # kubernetes test
@@ -259,9 +259,9 @@ rm /tmp/output-buildarg-os.json
 ####
 # Test related to change in pvc name if volume used is in the current directory
 # kubernetes test
-convert::expect_success_and_warning "kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s.json" "Volume mount on the host "\"."\" isn't supported - ignoring path on the host"
+convert::expect_success_and_warning "kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s.json" "Volume mount on the host "\"."\" make no sense in the cluster - Be careful the path on the host"
 # openshift test
-convert::expect_success_and_warning "kompose convert --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-os.json" "Volume mount on the host "\"."\" isn't supported - ignoring path on the host"
+convert::expect_success_and_warning "kompose convert --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-os.json" "Volume mount on the host "\"."\" make no sense in the cluster - Be careful the path on the host"
 
 # Test related to support docker-compose.yaml beside docker-compose.yml
 # Store the original path
@@ -308,6 +308,6 @@ convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KO
 convert::expect_success_and_warning "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-k8s-full-example.json"
 
 # Openshift
-convert::expect_success_and_warning "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-os-full-example.json"
+convert::expect_success_and_warning "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-os-full-example.json" "make no sense in the cluster - Be careful the path on the host"
 
 exit $EXIT_STATUS

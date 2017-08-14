@@ -29,6 +29,7 @@ import (
 var (
 	UpReplicas     int
 	UpEmptyVols    bool
+	UpHostPath     bool
 	UpInsecureRepo bool
 	UpNamespace    string
 	UpOpt          kobject.ConvertOptions
@@ -54,6 +55,7 @@ var upCmd = &cobra.Command{
 			InputFiles:         GlobalFiles,
 			Provider:           strings.ToLower(GlobalProvider),
 			EmptyVols:          UpEmptyVols,
+			HostPaths:          UpHostPath,
 			Namespace:          UpNamespace,
 			InsecureRepository: UpInsecureRepo,
 			IsNamespaceFlag:    cmd.Flags().Lookup("namespace").Changed,
@@ -69,6 +71,7 @@ var upCmd = &cobra.Command{
 
 func init() {
 	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use empty volumes. Do not generate PersistentVolumeClaim")
+	upCmd.Flags().BoolVar(&UpHostPath, "hostpaths", false, "Use hostpath volumes. Do not generate PersistentVolumeClaim")
 	upCmd.Flags().IntVar(&UpReplicas, "replicas", 1, "Specify the number of replicas generated")
 	upCmd.Flags().BoolVar(&UpInsecureRepo, "insecure-repository", false, "Use an insecure Docker repository for OpenShift ImageStream")
 	upCmd.Flags().StringVar(&UpNamespace, "namespace", "default", "Specify Namespace to deploy your application")
