@@ -7,10 +7,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "myservice",
+        "name": "httpd",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "myservice"
+          "io.kompose.service": "httpd"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -20,15 +20,14 @@
       "spec": {
         "ports": [
           {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
+            "name": "80",
+            "port": 80,
+            "targetPort": 80
           }
         ],
         "selector": {
-          "io.kompose.service": "myservice"
-        },
-        "clusterIP": "None"
+          "io.kompose.service": "httpd"
+        }
       },
       "status": {
         "loadBalancer": {}
@@ -38,10 +37,10 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "myservice",
+        "name": "httpd",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "myservice"
+          "io.kompose.service": "httpd"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -50,6 +49,7 @@
       },
       "spec": {
         "strategy": {
+          "type": "Recreate",
           "resources": {}
         },
         "triggers": [
@@ -61,11 +61,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "myservice"
+                "httpd"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "myservice:latest"
+                "name": "httpd:latest"
               }
             }
           }
@@ -73,29 +73,43 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "myservice"
+          "io.kompose.service": "httpd"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "myservice"
+              "io.kompose.service": "httpd"
             }
           },
           "spec": {
-            "containers": [
+            "volumes": [
               {
-                "name": "myservice",
-                "image": " ",
-                "resources": {}
+                "name": "httpd-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "httpd-claim0"
+                }
               }
             ],
-            "restartPolicy": "Always",
-            "securityContext": {
-              "supplementalGroups": [
-                1234
-              ]
-            }
+            "containers": [
+              {
+                "name": "httpd",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "httpd-claim0",
+                    "mountPath": "/var/www/html"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
           }
         }
       },
@@ -105,10 +119,10 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "myservice",
+        "name": "httpd",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "myservice"
+          "io.kompose.service": "httpd"
         }
       },
       "spec": {
@@ -118,7 +132,7 @@
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "alpine"
+              "name": "docker.io/fedora/apache"
             },
             "generation": null,
             "importPolicy": {}
@@ -128,6 +142,28 @@
       "status": {
         "dockerImageRepository": ""
       }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "httpd-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "httpd-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
     }
   ]
 }

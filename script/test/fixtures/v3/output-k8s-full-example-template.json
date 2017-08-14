@@ -1,0 +1,349 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Pod",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "foo-claim0",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim0"
+            }
+          },
+          {
+            "name": "foo-claim1",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim1"
+            }
+          },
+          {
+            "name": "foo-claim2",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim2"
+            }
+          },
+          {
+            "name": "foo-claim3",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim3"
+            }
+          },
+          {
+            "name": "foo-claim4",
+            "persistentVolumeClaim": {
+              "claimName": "foo-claim4",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "datavolume",
+            "persistentVolumeClaim": {
+              "claimName": "datavolume"
+            }
+          },
+          {
+            "name": "foo-tmpfs0",
+            "emptyDir": {
+              "medium": "Memory"
+            }
+          },
+          {
+            "name": "foo-tmpfs1",
+            "emptyDir": {
+              "medium": "Memory"
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "my-web-container",
+            "image": "redis",
+            "command": [
+              "/code/entrypoint.sh",
+              "-p",
+              "3000"
+            ],
+            "args": [
+              "bundle",
+              "exec",
+              "thin",
+              "-p",
+              "3000"
+            ],
+            "workingDir": "/code",
+            "ports": [
+              {
+                "containerPort": 3000
+              },
+              {
+                "containerPort": 3000
+              },
+              {
+                "containerPort": 3001
+              },
+              {
+                "containerPort": 3002
+              },
+              {
+                "containerPort": 3003
+              },
+              {
+                "containerPort": 3004
+              },
+              {
+                "containerPort": 3005
+              },
+              {
+                "containerPort": 8000
+              },
+              {
+                "containerPort": 8080
+              },
+              {
+                "containerPort": 8081
+              },
+              {
+                "containerPort": 22
+              },
+              {
+                "containerPort": 8001
+              },
+              {
+                "containerPort": 5000
+              },
+              {
+                "containerPort": 5001
+              },
+              {
+                "containerPort": 5002
+              },
+              {
+                "containerPort": 5003
+              },
+              {
+                "containerPort": 5004
+              },
+              {
+                "containerPort": 5005
+              },
+              {
+                "containerPort": 5006
+              },
+              {
+                "containerPort": 5007
+              },
+              {
+                "containerPort": 5008
+              },
+              {
+                "containerPort": 5009
+              },
+              {
+                "containerPort": 5010
+              }
+            ],
+            "resources": {
+              "limits": {
+                "memory": "52428800"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "foo-claim0",
+                "mountPath": "/var/lib/mysql"
+              },
+              {
+                "name": "foo-claim1",
+                "mountPath": "/var/lib/mysql"
+              },
+              {
+                "name": "foo-claim2",
+                "mountPath": "/code"
+              },
+              {
+                "name": "foo-claim3",
+                "mountPath": "/var/www/html"
+              },
+              {
+                "name": "foo-claim4",
+                "readOnly": true,
+                "mountPath": "/etc/configs/"
+              },
+              {
+                "name": "datavolume",
+                "mountPath": "/var/lib/mysql"
+              },
+              {
+                "name": "foo-tmpfs0",
+                "mountPath": "/run"
+              },
+              {
+                "name": "foo-tmpfs1",
+                "mountPath": "/tmp"
+              }
+            ],
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "ALL"
+                ],
+                "drop": [
+                  "NET_ADMIN",
+                  "SYS_ADMIN"
+                ]
+              },
+              "privileged": true
+            },
+            "stdin": true,
+            "tty": true
+          }
+        ],
+        "restartPolicy": "OnFailure"
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo-claim1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo-claim1"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo-claim2",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo-claim2"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo-claim3",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo-claim3"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo-claim4",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo-claim4"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadOnlyMany"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "datavolume",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "datavolume"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}

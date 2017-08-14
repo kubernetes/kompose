@@ -20,14 +20,15 @@
       "spec": {
         "ports": [
           {
-            "name": "6379",
-            "port": 6379,
-            "targetPort": 6379
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
           }
         ],
         "selector": {
           "io.kompose.service": "redis"
-        }
+        },
+        "clusterIP": "None"
       },
       "status": {
         "loadBalancer": {}
@@ -44,8 +45,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -95,7 +95,7 @@
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "redis:3.0"
+                "name": "redis:latest"
               }
             }
           }
@@ -117,11 +117,6 @@
               {
                 "name": "redis",
                 "image": " ",
-                "ports": [
-                  {
-                    "containerPort": 6379
-                  }
-                ],
                 "resources": {}
               }
             ],
@@ -144,11 +139,11 @@
       "spec": {
         "tags": [
           {
-            "name": "3.0",
+            "name": "latest",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "redis:3.0"
+              "name": "redis"
             },
             "generation": null,
             "importPolicy": {}
@@ -170,12 +165,12 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
         "strategy": {
+          "type": "Recreate",
           "resources": {}
         },
         "triggers": [
@@ -209,16 +204,34 @@
             }
           },
           "spec": {
+            "volumes": [
+              {
+                "name": "web-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "web-claim0"
+                }
+              }
+            ],
             "containers": [
               {
                 "name": "web",
                 "image": " ",
+                "args": [
+                  "python",
+                  "app.py"
+                ],
                 "ports": [
                   {
                     "containerPort": 5000
                   }
                 ],
-                "resources": {}
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "web-claim0",
+                    "mountPath": "/code"
+                  }
+                ]
               }
             ],
             "restartPolicy": "Always"
@@ -244,7 +257,7 @@
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "tuna/docker-counter23"
+              "name": "flask_web"
             },
             "generation": null,
             "importPolicy": {}
@@ -256,29 +269,26 @@
       }
     },
     {
-      "kind": "Route",
+      "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "web",
+        "name": "web-claim0",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "web"
+          "io.kompose.service": "web-claim0"
         }
       },
       "spec": {
-        "host": "",
-        "to": {
-          "kind": "Service",
-          "name": "web",
-          "weight": null
-        },
-        "port": {
-          "targetPort": 5000
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
         }
       },
-      "status": {
-        "ingress": null
-      }
+      "status": {}
     }
   ]
 }

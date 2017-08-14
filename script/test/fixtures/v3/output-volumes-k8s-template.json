@@ -7,10 +7,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "foo",
+        "name": "foobar",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "foo"
+          "io.kompose.service": "foobar"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -26,7 +26,7 @@
           }
         ],
         "selector": {
-          "io.kompose.service": "foo"
+          "io.kompose.service": "foobar"
         },
         "clusterIP": "None"
       },
@@ -38,10 +38,10 @@
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "foo",
+        "name": "foobar",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "foo"
+          "io.kompose.service": "foobar"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -54,27 +54,59 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "foo"
+              "io.kompose.service": "foobar"
             }
           },
           "spec": {
+            "volumes": [
+              {
+                "name": "foobar-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "foobar-claim0"
+                }
+              }
+            ],
             "containers": [
               {
-                "name": "foo",
+                "name": "foobar",
                 "image": "foo/bar:latest",
-                "env": [
+                "resources": {},
+                "volumeMounts": [
                   {
-                    "name": "FOO",
-                    "value": "bar"
+                    "name": "foobar-claim0",
+                    "mountPath": "/tmp/foo/bar"
                   }
-                ],
-                "resources": {}
+                ]
               }
             ],
             "restartPolicy": "Always"
           }
         },
-        "strategy": {}
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foobar-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foobar-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
       },
       "status": {}
     }
