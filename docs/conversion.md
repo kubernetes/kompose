@@ -1,6 +1,6 @@
 # Conversion Matrix
 
-This document outlines all possible conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts. This convers *major* versions of Docker Compose such as 1, 2 and 3.
+This document outlines all possible conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts. This covers *major* versions of Docker Compose such as 1, 2 and 3.
 
 __Note:__ due to the fast-pace nature of Docker Compose version revisions, minor versions such as 2.1, 2.2, 3.1, 3.2 or 3.3 are not supported until they are cut into a major version release such as 2 or 3.
 
