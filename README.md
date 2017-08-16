@@ -57,6 +57,21 @@ __Windows:__
 
 Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.0.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
+## Compatibility
+
+Kompose converts Docker Compose files controllers such as `Deployment` which are in beta. Depending on the version of Kubernetes you are running, artifacts may not correctly run. Thus we have compatibility matrix on what version Kompose supports.
+
+#### Compatibility matrix
+
+|                    | K8s 1.3 | K8s 1.4 | K8s 1.5 | K8s 1.6 | K8s 1.7 |
+|--------------------|---------|---------|---------|---------|---------|
+| Kompose 1.0.0      | X       | ✓       | ✓       | ✓       | ✓       |
+
+Key:
+
+  - `✓` Compatible with Kubernetes
+  - `X` Incompatible, artifacts may error-out / fail
+
 ## Shell autocompletion
 
 We support both Bash and Zsh autocompletion.
