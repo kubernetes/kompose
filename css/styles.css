@@ -132,7 +132,7 @@ hr {
 footer {
   width:270px;
   float:left;
-  position:fixed;
+  position:absolute;
   bottom:50px;
   -webkit-font-smoothing:subpixel-antialiased;
 }
