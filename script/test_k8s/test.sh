@@ -30,10 +30,10 @@ fi
 #####################
 
 # Now we can start our Kubernetes cluster!
-./script/test_ci/kubernetes.sh start
+./script/test_k8s/kubernetes.sh start
 
 # And we're off! Let's test those example files
-./script/test_ci/kubernetes.sh test
+./script/test_k8s/kubernetes.sh test
 
 # Stop our Kubernetes cluster
-./script/test_ci/kubernetes.sh stop
+./script/test_k8s/kubernetes.sh stop
