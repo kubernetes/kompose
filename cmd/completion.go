@@ -34,7 +34,7 @@ Will load the shell completion code.
 	},
 }
 
-// Generate the the approriate autocompletion file
+// Generate the approriate autocompletion file
 func Generate(cmd *cobra.Command, args []string) error {
 
 	// Check the passed in arguments
