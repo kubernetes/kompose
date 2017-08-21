@@ -99,6 +99,8 @@ test-dep:
 	go get github.com/Masterminds/glide
 	go get github.com/sgotti/glide-vc
 	go get github.com/golang/lint/golint
+	go get github.com/mitchellh/gox
+
 
 # build docker image that is used for running all test localy
 .PHONY: test-image

@@ -29,3 +29,19 @@ after_success:
   - goveralls -coverprofile=gover.coverprofile -service=travis-ci
   # sync the docs only if everything else was successful
   - ./script/sync-docs.sh
+
+before_deploy:
+  - make cross
+  - ./script/generate-bintray-json.sh
+
+deploy:
+  provider: bintray
+  repo: kompose/kompose
+  file: ./.bintray.json
+  user:
+    secure: "cZsouVvTLdvBeXbjQx9n3Pp9pA1x6DK8uiaXEJBO7oG1CbS218hdguEMfZuqk7a1mCPLeKquIbGvlmJZKnthW8T7ncJVLcHSWCT3w5UeyRrhZ2KBdvi0Lw3DFsf2zqRTWqo9yOW2LFU8EK9v8xFVSSdqufHlNhlM9TtT1rEmv9y3E8wyPkP+QMYahc9HCEQByKBL8JhsyK3QIUlKH4R6aLrYE2tsXFNj3Qc3QokziDrxYVgJrzZlV5+gqV5+hR2xHyekwgS+2j+86Gdrm2R4JqF7nz3Y3D21bl5obvuDFTlZmr70r2BE4cvCZSL580NunQxH+eBS0373YS2UqVZDxJw7IhnqRaDTrb7gDEynSaXg/DnVmNZMC1uDv1LizkpoW0lvgnjObIbRF3hM2NqyI7Kr4RkpPl2V5xmIRFCPW63Bk42s+1/2v4TgVHCr6GeqrR6Y6T9yob+tdv9C3MJF5Ac9qJpr/WMWgJNQ+vrgWKqrWgMYrdbIl1G2cR8opvFNBEaz9+fU0L0YrUxFRi0Oyhm6cLaqarB6xnTZI0dIvEuRGcI5C0CfGUWSjR9C02VKrStxr8mxPMpDNDUc1IvvkbYi71JW6WWglNdO/s2RF6JFeM8v/Elyk1NLZp3zeoASLj1u5Iorumf/3K/En415hfwt86vlqzyhURf2N12Wih4="
+  key:
+    secure: "2N6sQef/cJHS6rCJ3YSGxeOChx3pJ0hmM5uuSi0BN8GXVZWQAf3k+pa2s7OISHQoy0YEF7Fpkmx5MsLwPNYSEkwX0HOSFwQPWULZv+uiIXY+bftTUb+adDdZiKC+pHHxcyHl+eDnVd8Ns2fUY6IWFVNNRgzlIiZ8j0OErjah9njG9DUvn/IwGqdSvoe5B17rlMFnMx8W4HalnQ9R2Ye/vPe7yknuv2YbWRrg/7kZKkse7jlh1bJ8qH+qm5pX8lVPCvYCtDQRxAQ7gavpLvcohMAdg41l60wlJGGhZ0fcX8E0xBbQHtRUFYmspUif3VYExbL3Gm99B241XW6IOv4oEWqlJzzRDwhp7G0GpuX8isrsSAkmzpWjLlhwAv0WuREQqxs2FOctzJHQIkna0hoW3MdY+f5uV+RL1DVr5Nblut1Cupy38oANNHc3qmdaCfGYKqpybty4C8fTYg/OqprRz4ZrMRQQXdi5mCN+e0OpIkNt/fm84vERkCKVFOx3pYCeS7LhBhy6ioD9HxTO1wY7vea90VTcMWS7rGby0FuqIxhwtG6OAAvmickkGcpKg1AycSrbflIi9mmVNvWljQOtV00HgcDzjc+o4xGQQlosuHRqbuNDYHGLHPKesBpsGPvPuzEen+VyWDM2mtIT8/yHs25gACgAFUeM85a8IV/VW0o="
+  skip_cleanup: true
+  on:
+    go: 1.8
