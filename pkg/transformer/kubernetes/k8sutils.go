@@ -381,6 +381,33 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].TTY = service.Tty
 		template.Spec.Volumes = volumes
 
+		// Configure the HealthCheck
+		// We check to see if it's blank
+		if !reflect.DeepEqual(service.HealthChecks, kobject.HealthCheck{}) {
+			probe := api.Probe{}
+
+			if len(service.HealthChecks.Test) > 0 {
+				probe.Handler = api.Handler{
+					Exec: &api.ExecAction{
+						Command: service.HealthChecks.Test,
+					},
+				}
+			} else {
+				return errors.New("Health check must contain a command")
+			}
+
+			probe.TimeoutSeconds = service.HealthChecks.Timeout
+			probe.PeriodSeconds = service.HealthChecks.Interval
+			probe.FailureThreshold = service.HealthChecks.Retries
+
+			// See issue: https://github.com/docker/cli/issues/116
+			// StartPeriod has been added to docker/cli however, it is not yet added
+			// to compose. Once the feature has been implemented, this will automatically work
+			probe.InitialDelaySeconds = service.HealthChecks.StartPeriod
+
+			template.Spec.Containers[0].LivenessProbe = &probe
+		}
+
 		if service.StopGracePeriod != "" {
 			template.Spec.TerminationGracePeriodSeconds, err = DurationStrToSecondsInt(service.StopGracePeriod)
 			if err != nil {
