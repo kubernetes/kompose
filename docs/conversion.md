@@ -49,7 +49,7 @@ __Glossary:__
 | external_links         | X  | X  | X  |                                                             | Kubernetes uses a flat-structure for all containers and thus external_links does not have a 1-1 conversion     |
 | extra_hosts            | N  | N  | N  |                                                             |                                                                                                                |
 | group_add              | ✓  | ✓  | ✓  |                                                             |                                                                                                                |
-| healthcheck            | -  | N  | N  |                                                             |                                                                                                                |
+| healthcheck            | -  | N  | ✓  |                                                             |                                                                                                                |
 | image                  | ✓  | ✓  | ✓  | Deployment.Spec.Containers.Image                            |                                                                                                                |
 | isolation              | X  | X  | X  |                                                             | Not applicable as this applies to Windows with HyperV support                                                  |
 | labels                 | ✓  | ✓  | ✓  | Metadata.Annotations                                        |                                                                                                                |
