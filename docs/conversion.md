@@ -21,7 +21,7 @@ __Glossary:__
 
 | Keys                   | V1 | V2 | V3 | Kubernetes / OpenShift                                      | Notes                                                                                                          |
 |------------------------|----|----|----|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| build                  | ✓  | ✓  | N  | Builds/Pushes to Docker repository. See `--build` parameter | Only supported on Version 1/2 of Docker Compose                                                                |
+| build                  | ✓  | ✓  | N  |                                                             | Builds/Pushes to Docker repository. See `--build` parameter                                                    |
 | build: context         | ✓  | ✓  | N  |                                                             |                                                                                                                |
 | build: dockerfile      | ✓  | ✓  | N  |                                                             |                                                                                                                |
 | build: args            | N  | N  | N  |                                                             |                                                                                                                |
@@ -33,7 +33,7 @@ __Glossary:__
 | configs: long-syntax   | N  | N  | N  |                                                             |                                                                                                                |
 | cgroup_parent          | X  | X  | X  |                                                             | Not supported within Kubernetes. See issue https://github.com/kubernetes/kubernetes/issues/11986               |
 | container_name         | ✓  | ✓  | ✓  | Metadata.Name + Deployment.Spec.Containers.Name             |                                                                                                                |
-| credential_spec        | N  | N  | N  |                                                             |                                                                                                                |
+| credential_spec        | X  | X  | X  |                                                             | Only applicable to Windows containers                                                                          |
 | deploy                 | -  | -  | ✓  |                                                             |                                                                                                                |
 | deploy: mode           | -  | -  | ✓  |                                                             |                                                                                                                |
 | deploy: replicas       | -  | -  | ✓  | Deployment.Spec.Replicas / DeploymentConfig.Spec.Replicas   |                                                                                                                |
