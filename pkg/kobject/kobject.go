@@ -61,14 +61,13 @@ type ConvertOptions struct {
 // ServiceConfig holds the basic struct of a container
 type ServiceConfig struct {
 	// use tags to mark from what element this value comes
-	ContainerName string
-	Image         string   `compose:"image"`
-	Environment   []EnvVar `compose:"environment"`
-	Port          []Ports  `compose:"ports"`
-	Command       []string `compose:"command"`
-	WorkingDir    string   `compose:""`
-	Args          []string `compose:"args"`
-	// VolList is list of volumes extracted from docker-compose file
+	ContainerName   string
+	Image           string              `compose:"image"`
+	Environment     []EnvVar            `compose:"environment"`
+	Port            []Ports             `compose:"ports"`
+	Command         []string            `compose:"command"`
+	WorkingDir      string              `compose:""`
+	Args            []string            `compose:"args"`
 	VolList         []string            `compose:"volumes"`
 	Network         []string            `compose:"network"`
 	Labels          map[string]string   `compose:"labels"`
@@ -95,6 +94,7 @@ type ServiceConfig struct {
 	Tty             bool                `compose:"tty"`
 	MemLimit        yaml.MemStringorInt `compose:"mem_limit"`
 	MemReservation  yaml.MemStringorInt `compose:""`
+	DeployMode      string              `compose:""`
 	TmpFs           []string            `compose:"tmpfs"`
 	Dockerfile      string              `compose:"dockerfile"`
 	Replicas        int                 `compose:"replicas"`

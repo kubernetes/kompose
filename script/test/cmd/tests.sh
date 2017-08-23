@@ -394,6 +394,15 @@ cd $CURRENT_DIR
 
 # Test V3 Support of Docker Compose
 
+# Test deploy mode: global
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy-mode.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-deploy-mode-k8s-template.json" > /tmp/output-k8s.json
+convert::expect_success_and_warning "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy-mode.yaml" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy-mode.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-deploy-mode-os-template.json" > /tmp/output-os.json
+convert::expect_success_and_warning "kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy-mode.yaml" "/tmp/output-os.json"
+
 # Test support for cpu and memory limits + reservations
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-memcpu.yaml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-memcpu-k8s.json" > /tmp/output-k8s.json
