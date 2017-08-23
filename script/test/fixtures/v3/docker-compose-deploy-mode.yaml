@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  foo:
+    deploy:
+      mode: global
+      replicas: 6
+    image: redis

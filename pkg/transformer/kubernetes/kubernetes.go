@@ -490,10 +490,17 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig) []ap
 func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
 	var objects []runtime.Object
 	var replica int
+
 	if opt.IsReplicaSetFlag || service.Replicas == 0 {
 		replica = opt.Replicas
 	} else {
 		replica = service.Replicas
+	}
+
+	// Check to see if Docker Compose v3 Deploy.Mode has been set to "global"
+	if service.DeployMode == "global" {
+		log.Warning("Global mode not yet supported, containers will only be replicated once throughout the cluster. DaemonSet support will be added in the future.")
+		replica = 1
 	}
 
 	if opt.CreateD {
