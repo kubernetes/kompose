@@ -1,0 +1,858 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "gitlab",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "gitlab"
+        },
+        "annotations": {
+          "kompose.service.type": "NodePort",
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "10080",
+            "port": 10080,
+            "targetPort": 80
+          },
+          {
+            "name": "10022",
+            "port": 10022,
+            "targetPort": 22
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "gitlab"
+        },
+        "type": "NodePort"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "postgresql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "postgresql"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "5432",
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "postgresql"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6379",
+            "port": 6379,
+            "targetPort": 6379
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "gitlab",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "gitlab"
+        },
+        "annotations": {
+          "kompose.service.type": "NodePort",
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate",
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "gitlab"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "gitlab:8.13.3"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "gitlab"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "gitlab"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "gitlab-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "gitlab-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "gitlab",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  },
+                  {
+                    "containerPort": 22
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_ADAPTER",
+                    "value": "postgresql"
+                  },
+                  {
+                    "name": "DB_HOST",
+                    "value": "postgresql"
+                  },
+                  {
+                    "name": "DB_NAME",
+                    "value": "gitlabhq_production"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "password"
+                  },
+                  {
+                    "name": "DB_PORT",
+                    "value": "5432"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "gitlab"
+                  },
+                  {
+                    "name": "DEBUG",
+                    "value": "false"
+                  },
+                  {
+                    "name": "GITLAB_BACKUP_SCHEDULE",
+                    "value": "daily"
+                  },
+                  {
+                    "name": "GITLAB_BACKUP_TIME",
+                    "value": "01:00"
+                  },
+                  {
+                    "name": "GITLAB_EMAIL",
+                    "value": "notifications@example.com"
+                  },
+                  {
+                    "name": "GITLAB_EMAIL_REPLY_TO",
+                    "value": "noreply@example.com"
+                  },
+                  {
+                    "name": "GITLAB_HOST",
+                    "value": "localhost"
+                  },
+                  {
+                    "name": "GITLAB_HTTPS",
+                    "value": "false"
+                  },
+                  {
+                    "name": "GITLAB_INCOMING_EMAIL_ADDRESS",
+                    "value": "reply@example.com"
+                  },
+                  {
+                    "name": "GITLAB_NOTIFY_ON_BROKEN_BUILDS",
+                    "value": "true"
+                  },
+                  {
+                    "name": "GITLAB_NOTIFY_PUSHER",
+                    "value": "false"
+                  },
+                  {
+                    "name": "GITLAB_PORT",
+                    "value": "10080"
+                  },
+                  {
+                    "name": "GITLAB_RELATIVE_URL_ROOT"
+                  },
+                  {
+                    "name": "GITLAB_ROOT_EMAIL"
+                  },
+                  {
+                    "name": "GITLAB_ROOT_PASSWORD"
+                  },
+                  {
+                    "name": "GITLAB_SECRETS_DB_KEY_BASE",
+                    "value": "long-and-random-alphanumeric-string"
+                  },
+                  {
+                    "name": "GITLAB_SECRETS_OTP_KEY_BASE",
+                    "value": "long-and-random-alphanumeric-string"
+                  },
+                  {
+                    "name": "GITLAB_SECRETS_SECRET_KEY_BASE",
+                    "value": "long-and-random-alphanumeric-string"
+                  },
+                  {
+                    "name": "GITLAB_SSH_PORT",
+                    "value": "10022"
+                  },
+                  {
+                    "name": "GITLAB_TIMEZONE",
+                    "value": "Kolkata"
+                  },
+                  {
+                    "name": "IMAP_ENABLED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "IMAP_HOST",
+                    "value": "imap.gmail.com"
+                  },
+                  {
+                    "name": "IMAP_PASS",
+                    "value": "password"
+                  },
+                  {
+                    "name": "IMAP_PORT",
+                    "value": "993"
+                  },
+                  {
+                    "name": "IMAP_SSL",
+                    "value": "true"
+                  },
+                  {
+                    "name": "IMAP_STARTTLS",
+                    "value": "false"
+                  },
+                  {
+                    "name": "IMAP_USER",
+                    "value": "mailer@example.com"
+                  },
+                  {
+                    "name": "OAUTH_ALLOW_SSO"
+                  },
+                  {
+                    "name": "OAUTH_AUTH0_CLIENT_ID"
+                  },
+                  {
+                    "name": "OAUTH_AUTH0_CLIENT_SECRET"
+                  },
+                  {
+                    "name": "OAUTH_AUTH0_DOMAIN"
+                  },
+                  {
+                    "name": "OAUTH_AUTO_LINK_LDAP_USER",
+                    "value": "false"
+                  },
+                  {
+                    "name": "OAUTH_AUTO_LINK_SAML_USER",
+                    "value": "false"
+                  },
+                  {
+                    "name": "OAUTH_AUTO_SIGN_IN_WITH_PROVIDER"
+                  },
+                  {
+                    "name": "OAUTH_AZURE_API_KEY"
+                  },
+                  {
+                    "name": "OAUTH_AZURE_API_SECRET"
+                  },
+                  {
+                    "name": "OAUTH_AZURE_TENANT_ID"
+                  },
+                  {
+                    "name": "OAUTH_BITBUCKET_API_KEY"
+                  },
+                  {
+                    "name": "OAUTH_BITBUCKET_APP_SECRET"
+                  },
+                  {
+                    "name": "OAUTH_BLOCK_AUTO_CREATED_USERS",
+                    "value": "true"
+                  },
+                  {
+                    "name": "OAUTH_CAS3_DISABLE_SSL_VERIFICATION",
+                    "value": "false"
+                  },
+                  {
+                    "name": "OAUTH_CAS3_LABEL",
+                    "value": "cas3"
+                  },
+                  {
+                    "name": "OAUTH_CAS3_LOGIN_URL",
+                    "value": "/cas/login"
+                  },
+                  {
+                    "name": "OAUTH_CAS3_LOGOUT_URL",
+                    "value": "/cas/logout"
+                  },
+                  {
+                    "name": "OAUTH_CAS3_SERVER"
+                  },
+                  {
+                    "name": "OAUTH_CAS3_VALIDATE_URL",
+                    "value": "/cas/p3/serviceValidate"
+                  },
+                  {
+                    "name": "OAUTH_CROWD_APP_NAME"
+                  },
+                  {
+                    "name": "OAUTH_CROWD_APP_PASSWORD"
+                  },
+                  {
+                    "name": "OAUTH_CROWD_SERVER_URL"
+                  },
+                  {
+                    "name": "OAUTH_ENABLED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "OAUTH_EXTERNAL_PROVIDERS"
+                  },
+                  {
+                    "name": "OAUTH_FACEBOOK_API_KEY"
+                  },
+                  {
+                    "name": "OAUTH_FACEBOOK_APP_SECRET"
+                  },
+                  {
+                    "name": "OAUTH_GITHUB_API_KEY"
+                  },
+                  {
+                    "name": "OAUTH_GITHUB_APP_SECRET"
+                  },
+                  {
+                    "name": "OAUTH_GITHUB_URL"
+                  },
+                  {
+                    "name": "OAUTH_GITHUB_VERIFY_SSL"
+                  },
+                  {
+                    "name": "OAUTH_GITLAB_API_KEY"
+                  },
+                  {
+                    "name": "OAUTH_GITLAB_APP_SECRET"
+                  },
+                  {
+                    "name": "OAUTH_GOOGLE_API_KEY"
+                  },
+                  {
+                    "name": "OAUTH_GOOGLE_APP_SECRET"
+                  },
+                  {
+                    "name": "OAUTH_GOOGLE_RESTRICT_DOMAIN"
+                  },
+                  {
+                    "name": "OAUTH_SAML_ASSERTION_CONSUMER_SERVICE_URL"
+                  },
+                  {
+                    "name": "OAUTH_SAML_ATTRIBUTE_STATEMENTS_EMAIL"
+                  },
+                  {
+                    "name": "OAUTH_SAML_ATTRIBUTE_STATEMENTS_FIRST_NAME"
+                  },
+                  {
+                    "name": "OAUTH_SAML_ATTRIBUTE_STATEMENTS_LAST_NAME"
+                  },
+                  {
+                    "name": "OAUTH_SAML_ATTRIBUTE_STATEMENTS_NAME"
+                  },
+                  {
+                    "name": "OAUTH_SAML_EXTERNAL_GROUPS"
+                  },
+                  {
+                    "name": "OAUTH_SAML_GROUPS_ATTRIBUTE"
+                  },
+                  {
+                    "name": "OAUTH_SAML_IDP_CERT_FINGERPRINT"
+                  },
+                  {
+                    "name": "OAUTH_SAML_IDP_SSO_TARGET_URL"
+                  },
+                  {
+                    "name": "OAUTH_SAML_ISSUER"
+                  },
+                  {
+                    "name": "OAUTH_SAML_LABEL",
+                    "value": "\"Our SAML Provider\""
+                  },
+                  {
+                    "name": "OAUTH_SAML_NAME_IDENTIFIER_FORMAT",
+                    "value": "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
+                  },
+                  {
+                    "name": "OAUTH_TWITTER_API_KEY"
+                  },
+                  {
+                    "name": "OAUTH_TWITTER_APP_SECRET"
+                  },
+                  {
+                    "name": "REDIS_HOST",
+                    "value": "redis"
+                  },
+                  {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
+                  },
+                  {
+                    "name": "SMTP_AUTHENTICATION",
+                    "value": "login"
+                  },
+                  {
+                    "name": "SMTP_DOMAIN",
+                    "value": "www.example.com"
+                  },
+                  {
+                    "name": "SMTP_ENABLED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "SMTP_HOST",
+                    "value": "smtp.gmail.com"
+                  },
+                  {
+                    "name": "SMTP_PASS",
+                    "value": "password"
+                  },
+                  {
+                    "name": "SMTP_PORT",
+                    "value": "587"
+                  },
+                  {
+                    "name": "SMTP_STARTTLS",
+                    "value": "true"
+                  },
+                  {
+                    "name": "SMTP_USER",
+                    "value": "mailer@example.com"
+                  },
+                  {
+                    "name": "SSL_SELF_SIGNED",
+                    "value": "false"
+                  },
+                  {
+                    "name": "TZ",
+                    "value": "Asia/Kolkata"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "gitlab-claim0",
+                    "mountPath": "/home/git/data"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "gitlab",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "gitlab"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "8.13.3",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "sameersbn/gitlab:8.13.3"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "gitlab-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "gitlab-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "postgresql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "postgresql"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate",
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "postgresql"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "postgresql:9.5-3"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "postgresql"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "postgresql"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "postgresql-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "postgresql-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "postgresql",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 5432
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "DB_EXTENSION",
+                    "value": "pg_trgm"
+                  },
+                  {
+                    "name": "DB_NAME",
+                    "value": "gitlabhq_production"
+                  },
+                  {
+                    "name": "DB_PASS",
+                    "value": "password"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "gitlab"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "postgresql-claim0",
+                    "mountPath": "/var/lib/postgresql"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "postgresql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "postgresql"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "9.5-3",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "sameersbn/postgresql:9.5-3"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "postgresql-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "postgresql-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate",
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "redis"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "redis:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "redis"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "redis-claim0",
+                "persistentVolumeClaim": {
+                  "claimName": "redis-claim0"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "redis",
+                "image": " ",
+                "args": [
+                  "--loglevel warning"
+                ],
+                "ports": [
+                  {
+                    "containerPort": 6379
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "redis-claim0",
+                    "mountPath": "/var/lib/redis"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "sameersbn/redis:latest"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis-claim0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis-claim0"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}
