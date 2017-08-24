@@ -209,6 +209,11 @@ function convert::kompose_down () {
     ./kompose --provider=openshift -f $compose_file down
     exit_status=$?
 
+    # Fix CI tests. We have to wait for pods to terminate first...
+    # TODO: refactor
+    convert::oc_cleanup
+    sleep 15
+
     if [ $exit_status -ne 0 ]; then
 	convert::print_fail "kompose down has failed\n"
 	exit 1
