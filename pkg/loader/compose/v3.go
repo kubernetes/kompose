@@ -198,6 +198,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// Deploy keys
 		//
 
+		serviceConfig.DeployMode = composeServiceConfig.Deploy.Mode
+
 		if (composeServiceConfig.Deploy.Resources != types.Resources{}) {
 
 			// memory:

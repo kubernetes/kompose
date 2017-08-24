@@ -272,6 +272,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
+
 		//replicas
 		var replica int
 		if opt.IsReplicaSetFlag || service.Replicas == 0 {
@@ -279,6 +280,12 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		} else {
 			replica = service.Replicas
 		}
+
+		// If Deploy.Mode = Global has been set, make replica = 1 when generating DeploymentConfig
+		if service.DeployMode == "global" {
+			replica = 1
+		}
+
 		// Must build the images before conversion (got to add service.Image in case 'image' key isn't provided
 		// Check to see if there is an InputFile (required!) before we build the container
 		// Check that there's actually a Build key
