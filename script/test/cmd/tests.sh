@@ -449,5 +449,87 @@ convert::expect_success_and_warning "kompose convert --stdout -j -f $KOMPOSE_ROO
 # Openshift
 convert::expect_success_and_warning "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-os-full-example.json"
 
+### Test for docker-compose files present in Examples Directory
+
+# docker compose
+
+# Kubernetes
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-v3-k8s.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose.yaml" "/tmp/output-k8s.json"
+
+
+## OpenShift
+cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-v3-os.json > /tmp/output-os.json
+convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose.yaml" "/tmp/output-os.json"
+
+# docker compose v3
+
+# Kubernetes
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-v3.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-v3-k8s.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-v3.yaml" "/tmp/output-k8s.json"
+
+
+## OpenShift
+cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-v3.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-v3-os.json > /tmp/output-os.json
+convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-v3.yaml" "/tmp/output-os.json"
+
+# counter
+
+# Kubernetes
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-counter.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-counter-k8s.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-counter.yaml" "/tmp/output-k8s.json"
+
+
+## OpenShift
+cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-counter.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-counter-os.json > /tmp/output-os.json
+convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-counter.yaml" "/tmp/output-os.json"
+
+
+# counter v3
+
+# Kubernetes
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-counter-v3.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-counter-v3-k8s.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-counter-v3.yaml" "/tmp/output-k8s.json"
+
+
+## OpenShift
+cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-counter-v3.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-counter-v3-os.json > /tmp/output-os.json
+convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-compose-counter-v3.yaml" "/tmp/output-os.json"
+
+
+# voting
+
+# Kubernetes
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-voting.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-voting-k8s.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-voting.yaml" "/tmp/output-k8s.json"
+
+
+## OpenShift
+cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-voting.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-voting-os.json > /tmp/output-os.json
+convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-voting.yaml" "/tmp/output-os.json"
+
+# gitlab
+
+# Kubernetes
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-gitlab.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-gitlab-k8s.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-gitlab.yaml" "/tmp/output-k8s.json"
+
+
+## OpenShift
+cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-gitlab.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-gitlab-os.json > /tmp/output-os.json
+convert::expect_success_and_warning "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-gitlab.yaml" "/tmp/output-os.json"
+
 rm /tmp/output-k8s.json /tmp/output-os.json
 exit $EXIT_STATUS
