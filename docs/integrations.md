@@ -12,7 +12,7 @@ __Link:__ [https://github.com/JadCham/komposeui](https://github.com/JadCham/komp
 
 __Description:__ "A Docker container for the Kompose translator for docker-compose"
 
-__Link:__ [https://github.com/cloudfind/kompose-docker](https://github.com/JadCham/komposeui)
+__Link:__ [https://github.com/cloudfind/kompose-docker](https://github.com/cloudfind/kompose-docker)
 
 ### KPM by CoreOS
 
