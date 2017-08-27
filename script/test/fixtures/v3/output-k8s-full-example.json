@@ -197,6 +197,16 @@
                 "mountPath": "/tmp"
               }
             ],
+            "livenessProbe": {
+              "exec": {
+                "command": [
+                  "echo \"hello world\""
+                ]
+              },
+              "timeoutSeconds": 1,
+              "periodSeconds": 10,
+              "failureThreshold": 5
+            },
             "securityContext": {
               "capabilities": {
                 "add": [

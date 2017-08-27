@@ -32,6 +32,34 @@ import (
 	"github.com/pkg/errors"
 )
 
+func TestParseHealthCheck(t *testing.T) {
+	helperValue := uint64(2)
+	check := types.HealthCheckConfig{
+		Test:        []string{"CMD-SHELL", "echo", "foobar"},
+		Timeout:     "1s",
+		Interval:    "2s",
+		Retries:     &helperValue,
+		StartPeriod: "3s",
+	}
+
+	// CMD-SHELL or SHELL is included Test within docker/cli, thus we remove the first value in Test
+	expected := kobject.HealthCheck{
+		Test:        []string{"echo", "foobar"},
+		Timeout:     1,
+		Interval:    2,
+		Retries:     2,
+		StartPeriod: 3,
+	}
+	output, err := parseHealthCheck(check)
+	if err != nil {
+		t.Errorf("Unable to convert HealthCheckConfig: %s", err)
+	}
+
+	if !reflect.DeepEqual(output, expected) {
+		t.Errorf("Structs are not equal, expected: %s, output: %s", expected, output)
+	}
+}
+
 func TestLoadV3Volumes(t *testing.T) {
 	vol := types.ServiceVolumeConfig{
 		Type:     "volume",
@@ -66,6 +94,7 @@ func TestLoadV3Ports(t *testing.T) {
 	if output[0] != expected {
 		t.Errorf("Expected %v, got %v", expected, output[0])
 	}
+
 }
 
 // Test if service types are parsed properly on user input

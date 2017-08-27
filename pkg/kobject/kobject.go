@@ -99,8 +99,20 @@ type ServiceConfig struct {
 	Dockerfile      string              `compose:"dockerfile"`
 	Replicas        int                 `compose:"replicas"`
 	GroupAdd        []int64             `compose:"group_add"`
-	// Volumes is a struct which contains all information about each volume
-	Volumes []Volumes `compose:""`
+	Volumes         []Volumes           `compose:""`
+	HealthChecks    HealthCheck         `compose:""`
+}
+
+// HealthCheck the healthcheck configuration for a service
+// "StartPeriod" is not yet added to compose, see:
+// https://github.com/docker/cli/issues/116
+type HealthCheck struct {
+	Test        []string
+	Timeout     int32
+	Interval    int32
+	Retries     int32
+	StartPeriod int32
+	Disable     bool
 }
 
 // EnvVar holds the environment variable struct of a container

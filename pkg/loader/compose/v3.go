@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
+	"time"
 
 	libcomposeyaml "github.com/docker/libcompose/yaml"
 
@@ -162,6 +163,52 @@ func loadV3Ports(ports []types.ServicePortConfig) []kobject.Ports {
 	return komposePorts
 }
 
+/* Convert the HealthCheckConfig as designed by Docker to
+a Kubernetes-compatible format.
+*/
+func parseHealthCheck(composeHealthCheck types.HealthCheckConfig) (kobject.HealthCheck, error) {
+
+	var timeout, interval, retries, startPeriod int32
+
+	// Here we convert the timeout from 1h30s (example) to 36030 seconds.
+	if composeHealthCheck.Timeout != "" {
+		parse, err := time.ParseDuration(composeHealthCheck.Timeout)
+		if err != nil {
+			return kobject.HealthCheck{}, errors.Wrap(err, "unable to parse health check timeout variable")
+		}
+		timeout = int32(parse.Seconds())
+	}
+
+	if composeHealthCheck.Interval != "" {
+		parse, err := time.ParseDuration(composeHealthCheck.Interval)
+		if err != nil {
+			return kobject.HealthCheck{}, errors.Wrap(err, "unable to parse health check interval variable")
+		}
+		interval = int32(parse.Seconds())
+	}
+
+	if *composeHealthCheck.Retries != 0 {
+		retries = int32(*composeHealthCheck.Retries)
+	}
+
+	if composeHealthCheck.StartPeriod != "" {
+		parse, err := time.ParseDuration(composeHealthCheck.StartPeriod)
+		if err != nil {
+			return kobject.HealthCheck{}, errors.Wrap(err, "unable to parse health check startPeriod variable")
+		}
+		startPeriod = int32(parse.Seconds())
+	}
+
+	// Due to docker/cli adding "CMD-SHELL" to the struct, we remove the first element of composeHealthCheck.Test
+	return kobject.HealthCheck{
+		Test:        composeHealthCheck.Test[1:],
+		Timeout:     timeout,
+		Interval:    interval,
+		Retries:     retries,
+		StartPeriod: startPeriod,
+	}, nil
+}
+
 func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.KomposeObject, error) {
 
 	// Step 1. Initialize what's going to be returned
@@ -198,7 +245,17 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// Deploy keys
 		//
 
+		// mode:
 		serviceConfig.DeployMode = composeServiceConfig.Deploy.Mode
+
+		// HealthCheck
+		if composeServiceConfig.HealthCheck != nil && !composeServiceConfig.HealthCheck.Disable {
+			var err error
+			serviceConfig.HealthChecks, err = parseHealthCheck(*composeServiceConfig.HealthCheck)
+			if err != nil {
+				return kobject.KomposeObject{}, errors.Wrap(err, "Unable to parse health check")
+			}
+		}
 
 		if (composeServiceConfig.Deploy.Resources != types.Resources{}) {
 
