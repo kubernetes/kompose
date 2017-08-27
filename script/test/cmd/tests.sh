@@ -392,6 +392,15 @@ convert::expect_success "kompose --provider=openshift convert --stdout -j" "/tmp
 # Return back to the original path
 cd $CURRENT_DIR
 
+# Test HealthCheck
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/healthcheck/docker-compose.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/healthcheck/output-k8s-template.json" > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/healthcheck/docker-compose.yaml" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/healthcheck/docker-compose.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/healthcheck/output-os-template.json" > /tmp/output-os.json
+convert::expect_success "kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/healthcheck/docker-compose.yaml" "/tmp/output-os.json"
+
 # Test V3 Support of Docker Compose
 
 # Test deploy mode: global
