@@ -169,7 +169,7 @@ Additional help topics:{{range .Commands}}{{if .IsHelpCommand}}
 Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
 `
 	// Set the help template + add the command to root
-	convertCmd.SetHelpTemplate(customHelp)
+	convertCmd.SetUsageTemplate(customHelp)
 
 	RootCmd.AddCommand(convertCmd)
 }
