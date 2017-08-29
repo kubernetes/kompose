@@ -111,3 +111,11 @@ Kubernetes version depends on what version is OpenShift using.
 OpenShift is using forked Kubernetes to carry some patches.
 Currently it is not possible to use different Kubernetes version from version that OpenShift uses.
 (for more see comments in `glide.yml`)
+
+### CI
+
+For Kompose, we use numerous CI's:
+
+   - [TravisCI](https://travis-ci.org/kubernetes/kompose): Unit and CLI tests
+   - [SemaphoreCI](https://semaphoreci.com/cdrage/kompose-2): Integration / cluster tests
+   - [Fabric8CI](http://jenkins.cd.k8s.fabric8.io/): Secondary integration tests / future cluster tests
