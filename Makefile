@@ -66,6 +66,11 @@ test-openshift:
 test-cmd:
 	./script/test/cmd/tests.sh
 
+# generate commandline tests
+.PHONY: generate-test-cmd
+gen-cmd:
+	./script/test/cmd/make-test.sh
+
 # run all validation tests
 .PHONY: validate
 validate: gofmt vet lint
