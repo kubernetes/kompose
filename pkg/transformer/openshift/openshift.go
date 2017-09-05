@@ -425,7 +425,7 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 	}
 
 	pvcStr := " "
-	if !opt.EmptyVols {
+	if !opt.EmptyVols || opt.Volumes != "emptyDir" {
 		pvcStr = " and PersistentVolumeClaims "
 	}
 	log.Info("We are going to create OpenShift DeploymentConfigs, Services" + pvcStr + "for your Dockerized application. \n" +
@@ -493,7 +493,7 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 		}
 	}
 
-	if !opt.EmptyVols {
+	if !opt.EmptyVols || opt.Volumes != "emptyDir" {
 		pvcStr = ",pvc"
 	} else {
 		pvcStr = ""

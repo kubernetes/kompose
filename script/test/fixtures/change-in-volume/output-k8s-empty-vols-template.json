@@ -1,0 +1,167 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "redis"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "5000",
+            "port": 5000,
+            "targetPort": 5000
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "web"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis",
+                "image": "redis",
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "web"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "web-empty0",
+                "emptyDir": {}
+              }
+            ],
+            "containers": [
+              {
+                "name": "web",
+                "image": "flask_web",
+                "args": [
+                  "python",
+                  "app.py"
+                ],
+                "ports": [
+                  {
+                    "containerPort": 5000
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "web-empty0",
+                    "mountPath": "/code"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    }
+  ]
+}

@@ -29,6 +29,7 @@ import (
 var (
 	UpReplicas     int
 	UpEmptyVols    bool
+	UpVolumes      string
 	UpInsecureRepo bool
 	UpNamespace    string
 	UpOpt          kobject.ConvertOptions
@@ -54,6 +55,7 @@ var upCmd = &cobra.Command{
 			InputFiles:         GlobalFiles,
 			Provider:           strings.ToLower(GlobalProvider),
 			EmptyVols:          UpEmptyVols,
+			Volumes:            UpVolumes,
 			Namespace:          UpNamespace,
 			InsecureRepository: UpInsecureRepo,
 			IsNamespaceFlag:    cmd.Flags().Lookup("namespace").Changed,
@@ -68,10 +70,15 @@ var upCmd = &cobra.Command{
 }
 
 func init() {
-	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use empty volumes. Do not generate PersistentVolumeClaim")
 	upCmd.Flags().IntVar(&UpReplicas, "replicas", 1, "Specify the number of replicas generated")
+	upCmd.Flags().StringVar(&UpVolumes, "volumes", "persistentVolumeClaim", `Volumes to be generated ("persistentVolumeClaim"|"emptyDir")`)
 	upCmd.Flags().BoolVar(&UpInsecureRepo, "insecure-repository", false, "Use an insecure Docker repository for OpenShift ImageStream")
 	upCmd.Flags().StringVar(&UpNamespace, "namespace", "default", "Specify Namespace to deploy your application")
 	upCmd.Flags().StringVar(&UpBuild, "build", "local", `Set the type of build ("local"|"build-config" (OpenShift only)|"none")`)
+
+	// Deprecated
+	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use empty volumes. Do not generate PersistentVolumeClaim")
+	upCmd.Flags().MarkDeprecated("emptyvols", "emptyvols has been marked as deprecated. Use --volumes empty")
+
 	RootCmd.AddCommand(upCmd)
 }
