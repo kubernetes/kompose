@@ -32,6 +32,7 @@ var (
 	ConvertBuildRepo             string
 	ConvertBuildBranch           string
 	ConvertBuild                 string
+	ConvertVolumes               string
 	ConvertChart                 bool
 	ConvertDeployment            bool
 	ConvertDaemonSet             bool
@@ -78,6 +79,7 @@ var convertCmd = &cobra.Command{
 			BuildBranch:                 ConvertBuildBranch,
 			CreateDeploymentConfig:      ConvertDeploymentConfig,
 			EmptyVols:                   ConvertEmptyVols,
+			Volumes:                     ConvertVolumes,
 			InsecureRepository:          ConvertInsecureRepo,
 			IsDeploymentFlag:            cmd.Flags().Lookup("deployment").Changed,
 			IsDaemonSetFlag:             cmd.Flags().Lookup("daemon-set").Changed,
@@ -128,9 +130,13 @@ func init() {
 	convertCmd.Flags().MarkShorthandDeprecated("y", "YAML is the default format now.")
 	convertCmd.Flags().BoolVarP(&ConvertJSON, "json", "j", false, "Generate resource files into JSON format")
 	convertCmd.Flags().BoolVar(&ConvertStdout, "stdout", false, "Print converted objects to stdout")
-	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
 	convertCmd.Flags().StringVarP(&ConvertOut, "out", "o", "", "Specify a file name to save objects to")
 	convertCmd.Flags().IntVar(&ConvertReplicas, "replicas", 1, "Specify the number of repliaces in the generate resource spec")
+	convertCmd.Flags().StringVar(&ConvertVolumes, "volumes", "persistentVolumeClaim", `Volumes to be generated ("persistentVolumeClaim"|"emptyDir")`)
+
+	// Deprecated commands
+	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
+	convertCmd.Flags().MarkDeprecated("emptyvols", "emptyvols has been marked as deprecated. Use --volumes empty")
 
 	// In order to 'separate' both OpenShift and Kubernetes only flags. A custom help page is created
 	customHelp := `Usage:{{if .Runnable}}

@@ -369,6 +369,10 @@ cmd="kompose convert --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-os-template.json > /tmp/output-os.json
 convert::expect_success_and_warning "kompose convert --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j" "/tmp/output-os.json" "Volume mount on the host "\"."\" isn't supported - ignoring path on the host"
 
+# Test that empty-vols works
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j --volumes emptyDir"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s-empty-vols-template.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j --volumes emptyDir" "/tmp/output-k8s.json" "Volume mount on the host "\"."\" isn't supported - ignoring path on the host"
 
 # Test related to support docker-compose.yaml beside docker-compose.yml
 # Store the original path
