@@ -17,8 +17,6 @@ limitations under the License.
 package cmd
 
 import (
-	"strings"
-
 	"github.com/kubernetes/kompose/pkg/app"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/spf13/cobra"
@@ -39,7 +37,7 @@ var downCmd = &cobra.Command{
 		// Create the Convert options.
 		DownOpt = kobject.ConvertOptions{
 			InputFiles:      GlobalFiles,
-			Provider:        strings.ToLower(GlobalProvider),
+			Provider:        GlobalProvider,
 			Namespace:       DownNamespace,
 			IsNamespaceFlag: cmd.Flags().Lookup("namespace").Changed,
 		}
