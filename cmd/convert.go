@@ -17,6 +17,8 @@ limitations under the License.
 package cmd
 
 import (
+	"strings"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/kubernetes/kompose/pkg/app"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -42,6 +44,7 @@ var (
 	ConvertInsecureRepo          bool
 	ConvertDeploymentConfig      bool
 	ConvertReplicas              int
+	ConvertController            string
 	ConvertOpt                   kobject.ConvertOptions
 )
 
@@ -78,6 +81,7 @@ var convertCmd = &cobra.Command{
 			IsDeploymentFlag:            cmd.Flags().Lookup("deployment").Changed,
 			IsDaemonSetFlag:             cmd.Flags().Lookup("daemon-set").Changed,
 			IsReplicationControllerFlag: cmd.Flags().Lookup("replication-controller").Changed,
+			Controller:                  strings.ToLower(ConvertController),
 			IsReplicaSetFlag:            cmd.Flags().Lookup("replicas").Changed,
 			IsDeploymentConfigFlag:      cmd.Flags().Lookup("deployment-config").Changed,
 		}
@@ -102,6 +106,10 @@ func init() {
 	convertCmd.Flags().BoolVar(&ConvertDaemonSet, "daemon-set", false, "Generate a Kubernetes daemonset object")
 	convertCmd.Flags().BoolVarP(&ConvertDeployment, "deployment", "d", false, "Generate a Kubernetes deployment object")
 	convertCmd.Flags().BoolVar(&ConvertReplicationController, "replication-controller", false, "Generate a Kubernetes replication controller object")
+	convertCmd.Flags().StringVar(&ConvertController, "controller", "", `Set the output controller ("deployment"|"daemonSet"|"replicationController")`)
+	convertCmd.Flags().MarkDeprecated("daemon-set", "use --controller")
+	convertCmd.Flags().MarkDeprecated("deployment", "use --controller")
+	convertCmd.Flags().MarkDeprecated("replication-controller", "use --controller")
 	convertCmd.Flags().MarkHidden("chart")
 	convertCmd.Flags().MarkHidden("daemon-set")
 	convertCmd.Flags().MarkHidden("replication-controller")
@@ -112,6 +120,7 @@ func init() {
 	convertCmd.Flags().BoolVar(&ConvertInsecureRepo, "insecure-repository", false, "Use an insecure Docker repository for OpenShift ImageStream")
 	convertCmd.Flags().StringVar(&ConvertBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 	convertCmd.Flags().StringVar(&ConvertBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
+	convertCmd.Flags().MarkDeprecated("deployment-config", "use --controller")
 	convertCmd.Flags().MarkHidden("deployment-config")
 	convertCmd.Flags().MarkHidden("insecure-repository")
 	convertCmd.Flags().MarkHidden("build-repo")
