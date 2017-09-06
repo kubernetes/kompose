@@ -17,8 +17,6 @@ limitations under the License.
 package cmd
 
 import (
-	"strings"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/kubernetes/kompose/pkg/app"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -46,17 +44,13 @@ var (
 	ConvertOpt                   kobject.ConvertOptions
 )
 
-// ConvertProvider TODO: comment
-var ConvertProvider = GlobalProvider
-
 var convertCmd = &cobra.Command{
 	Use:   "convert [file]",
 	Short: "Convert a Docker Compose file",
 	PreRun: func(cmd *cobra.Command, args []string) {
 
 		// Check that build-config wasn't passed in with --provider=kubernetes
-		provider := strings.ToLower(GlobalProvider)
-		if provider == "kubernetes" && UpBuild == "build-config" {
+		if GlobalProvider == "kubernetes" && UpBuild == "build-config" {
 			log.Fatalf("build-config is not a valid --build parameter with provider Kubernetes")
 		}
 
@@ -69,7 +63,7 @@ var convertCmd = &cobra.Command{
 			Replicas:                    ConvertReplicas,
 			InputFiles:                  GlobalFiles,
 			OutFile:                     ConvertOut,
-			Provider:                    strings.ToLower(GlobalProvider),
+			Provider:                    GlobalProvider,
 			CreateD:                     ConvertDeployment,
 			CreateDS:                    ConvertDaemonSet,
 			CreateRC:                    ConvertReplicationController,
