@@ -1,0 +1,135 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.type": "nodeport",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6379",
+            "port": 6379,
+            "targetPort": 6379
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "redis"
+        },
+        "type": "NodePort"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.type": "nodeport",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis",
+                "image": "bitnami/redis:latest",
+                "ports": [
+                  {
+                    "containerPort": 6379
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "ALLOW_EMPTY_PASSWORD",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "name": "foo-env",
+                        "key": "ALLOW_EMPTY_PASSWORD"
+                      }
+                    }
+                  },
+                  {
+                    "name": "BAR",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "name": "bar-env",
+                        "key": "BAR"
+                      }
+                    }
+                  },
+                  {
+                    "name": "FOO",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "name": "bar-env",
+                        "key": "FOO"
+                      }
+                    }
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo-env",
+        "creationTimestamp": null
+      },
+      "data": {
+        "ALLOW_EMPTY_PASSWORD": "yes"
+      }
+    },
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "bar-env",
+        "creationTimestamp": null
+      },
+      "data": {
+        "BAR": "FOO",
+        "FOO": "BAR"
+      }
+    }
+  ]
+}
