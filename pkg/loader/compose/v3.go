@@ -322,6 +322,9 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 			serviceConfig.Environment = append(serviceConfig.Environment, env)
 		}
 
+		// Get env_file
+		serviceConfig.EnvFile = composeServiceConfig.EnvFile
+
 		// Parse the ports
 		// v3 uses a new format called "long syntax" starting in 3.2
 		// https://docs.docker.com/compose/compose-file/#ports

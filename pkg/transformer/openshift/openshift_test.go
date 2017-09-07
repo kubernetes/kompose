@@ -62,9 +62,10 @@ func TestOpenShiftUpdateKubernetesObjects(t *testing.T) {
 	var object []runtime.Object
 	o := OpenShift{}
 	serviceConfig := newServiceConfig()
+	opt := kobject.ConvertOptions{}
 
 	object = append(object, o.initDeploymentConfig("foobar", serviceConfig, 3))
-	o.UpdateKubernetesObjects("foobar", serviceConfig, &object)
+	o.UpdateKubernetesObjects("foobar", serviceConfig, opt, &object)
 
 	for _, obj := range object {
 		switch tobj := obj.(type) {

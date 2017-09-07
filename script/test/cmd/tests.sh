@@ -418,6 +418,12 @@ cmd="kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/te
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/healthcheck/output-os-template.json" > /tmp/output-os.json
 convert::expect_success "kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/healthcheck/docker-compose.yaml" "/tmp/output-os.json"
 
+# Test ConfigMap generation
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/configmap/docker-compose.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/configmap/output-k8s-template.json" > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/configmap/docker-compose.yaml" "/tmp/output-k8s.json"
+
+
 # Test V3 Support of Docker Compose
 
 # Test deploy mode: global
