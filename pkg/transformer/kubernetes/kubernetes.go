@@ -383,6 +383,10 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	// as opposed to persistent volumes and volume claims
 	useEmptyVolumes := k.Opt.EmptyVols
 
+	if k.Opt.Volumes == "emptyDir" {
+		useEmptyVolumes = true
+	}
+
 	var count int
 	//interating over array of `Vols` struct as it contains all necessary information about volumes
 	for _, volume := range service.Volumes {
@@ -691,7 +695,7 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 	}
 
 	pvcStr := " "
-	if !opt.EmptyVols {
+	if !opt.EmptyVols || opt.Volumes != "emptyDir" {
 		pvcStr = " and PersistentVolumeClaims "
 	}
 	log.Info("We are going to create Kubernetes Deployments, Services" + pvcStr + "for your Dockerized application. " +
@@ -743,7 +747,7 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 		}
 	}
 
-	if !opt.EmptyVols {
+	if !opt.EmptyVols || opt.Volumes != "emptyDir" {
 		pvcStr = ",pvc"
 	} else {
 		pvcStr = ""
