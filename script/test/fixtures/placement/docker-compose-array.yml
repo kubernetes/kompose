@@ -1,0 +1,8 @@
+version: '3'
+services:
+  db:
+   image: postgres
+   deploy:
+     placement:
+       constraints: [node.hostname == machine]
+

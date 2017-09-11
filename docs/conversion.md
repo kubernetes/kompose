@@ -31,7 +31,7 @@ __Glossary:__
 | deploy                 | -  | -  | ✓  |                                                             |                                                                                                                |
 | deploy: mode           | -  | -  | ✓  |                                                             |                                                                                                                |
 | deploy: replicas       | -  | -  | ✓  | Deployment.Spec.Replicas / DeploymentConfig.Spec.Replicas   |                                                                                                                |
-| deploy: placement      | -  | -  | n  |                                                             |                                                                                                                |
+| deploy: placement      | -  | -  | ✓  | Pod.Spec.NodeSelector                                       |                                                                                                                |
 | deploy: update_config  | -  | -  | n  |                                                             |                                                                                                                |
 | deploy: resources      | -  | -  | ✓  | Containers.Resources.Limits.Memory                          | Support for memory but not CPU                                                                                 |
 | deploy: restart_policy | -  | -  | ✓  | Pod generation                                              | This generated a Pod, see the [user guide on restart](http://kompose.io/user-guide/#restart)                   |

@@ -380,7 +380,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].Stdin = service.Stdin
 		template.Spec.Containers[0].TTY = service.Tty
 		template.Spec.Volumes = volumes
-
+		template.Spec.NodeSelector = service.Placement
 		// Configure the HealthCheck
 		// We check to see if it's blank
 		if !reflect.DeepEqual(service.HealthChecks, kobject.HealthCheck{}) {
