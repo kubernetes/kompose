@@ -18,7 +18,6 @@ package cmd
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"strings"
 
 	"github.com/kubernetes/kompose/pkg/app"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -43,8 +42,7 @@ var upCmd = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 
 		// Check that build-config wasn't passed in with --provider=kubernetes
-		provider := strings.ToLower(GlobalProvider)
-		if provider == "kubernetes" && UpBuild == "build-config" {
+		if GlobalProvider == "kubernetes" && UpBuild == "build-config" {
 			log.Fatalf("build-config is not a valid --build parameter with provider Kubernetes")
 		}
 
@@ -53,7 +51,7 @@ var upCmd = &cobra.Command{
 			Build:              UpBuild,
 			Replicas:           UpReplicas,
 			InputFiles:         GlobalFiles,
-			Provider:           strings.ToLower(GlobalProvider),
+			Provider:           GlobalProvider,
 			EmptyVols:          UpEmptyVols,
 			Volumes:            UpVolumes,
 			Namespace:          UpNamespace,
