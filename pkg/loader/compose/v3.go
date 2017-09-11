@@ -294,6 +294,20 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 			serviceConfig.Replicas = int(*composeServiceConfig.Deploy.Replicas)
 		}
 
+		// placement:
+		placement := make(map[string]string)
+		for _, j := range composeServiceConfig.Deploy.Placement.Constraints {
+			p := strings.Split(j, " == ")
+			if p[0] == "node.hostname" {
+				placement["kubernetes.io/hostname"] = p[1]
+			} else if p[0] == "engine.labels.operatingsystem" {
+				placement["beta.kubernetes.io/os"] = p[1]
+			} else {
+				log.Warn(p[0], " constraints in placement is not supported, only 'node.hostname' and 'engine.labels.operatingsystem' is only supported as a constraint ")
+			}
+		}
+		serviceConfig.Placement = placement
+
 		// TODO: Build is not yet supported, see:
 		// https://github.com/docker/cli/blob/master/cli/compose/types/types.go#L9
 		// We will have to *manually* add this / parse.
