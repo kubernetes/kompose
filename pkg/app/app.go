@@ -133,6 +133,10 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 	if opt.GenerateJSON && opt.GenerateYaml {
 		log.Fatalf("YAML and JSON format cannot be provided at the same time")
 	}
+
+	if opt.Volumes != "persistentVolumeClaim" && opt.Volumes != "emptyDir" {
+		log.Fatal("Unknown Volume type: ", opt.Volumes, ", possible values are: persistentVolumeClaim and emptyDir")
+	}
 }
 
 // ValidateComposeFile validated the compose file provided for conversion
