@@ -10,11 +10,10 @@ __Linux and macOS:__
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.1.0/kompose-linux-amd64 -o kompose
+curl -Lo kompose https://github.com/kubernetes/kompose/releases/download/v1.1.0/kompose-linux-amd64 && chmod +x kompose && sudo mv kompose /usr/local/bin/
 
 # macOS
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.1.0/kompose-darwin-amd64 -o kompose
-
+curl -Lo kompose https://github.com/kubernetes/kompose/releases/download/v1.1.0/kompose-darwin-amd64
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
