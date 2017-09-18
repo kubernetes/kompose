@@ -1,5 +1,15 @@
 # Change Log
 
+## [v1.2.0](https://github.com/kubernetes/kompose/tree/v1.2.0) (2017-09-18)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.1.0...v1.2.0)
+
+**Merged pull requests:**
+
+- Update the styles.css for larger width [\#812](https://github.com/kubernetes/kompose/pull/812) ([cdrage](https://github.com/cdrage))
+- emptvols -\> volumes=yes [\#811](https://github.com/kubernetes/kompose/pull/811) ([ashetty1](https://github.com/ashetty1))
+- Remove redundant strings.ToLower\(\) [\#808](https://github.com/kubernetes/kompose/pull/808) ([cdrage](https://github.com/cdrage))
+- Add --volumes parameter, deprecate emptyvols [\#787](https://github.com/kubernetes/kompose/pull/787) ([cdrage](https://github.com/cdrage))
+
 ## [v1.1.0](https://github.com/kubernetes/kompose/tree/v1.1.0) (2017-08-30)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.0.0...v1.1.0)
 
@@ -30,6 +40,7 @@
 
 **Merged pull requests:**
 
+- 1.1.0 Release [\#804](https://github.com/kubernetes/kompose/pull/804) ([cdrage](https://github.com/cdrage))
 - Adding OpenShift tests for deploy keys [\#802](https://github.com/kubernetes/kompose/pull/802) ([ashetty1](https://github.com/ashetty1))
 - Fixes output of help template [\#800](https://github.com/kubernetes/kompose/pull/800) ([cdrage](https://github.com/cdrage))
 - Fix kompose docker container wrong href [\#797](https://github.com/kubernetes/kompose/pull/797) ([JadCham](https://github.com/JadCham))
