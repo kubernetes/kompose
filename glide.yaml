@@ -23,7 +23,7 @@ import:
 
 # We use docker/cli to parse v3 of Docker Compose
 - package: github.com/docker/cli
-  version: 1fc7eb5d644599f30d0c6cc350a4d84ff528c864
+  version: 9bdb0763b9e667dc01adf36ba98a2b7bd47bdc75
 
 # Docker parser library for image names
 - package: github.com/novln/docker-parser
