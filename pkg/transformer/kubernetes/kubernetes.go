@@ -45,11 +45,12 @@ import (
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
 	//"k8s.io/kubernetes/pkg/controller/daemon"
+	"sort"
+	"strings"
+
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
-	"sort"
-	"strings"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -351,7 +352,7 @@ func (k *Kubernetes) ConfigTmpfs(name string, service kobject.ServiceConfig) ([]
 	for index, volume := range service.TmpFs {
 		//naming volumes if multiple tmpfs are provided
 		volumeName := fmt.Sprintf("%s-tmpfs%d", name, index)
-
+		volume = strings.Split(volume, ":")[0]
 		// create a new volume mount object and append to list
 		volMount := api.VolumeMount{
 			Name:      volumeName,

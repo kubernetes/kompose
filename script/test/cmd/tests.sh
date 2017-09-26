@@ -152,7 +152,17 @@ cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-m
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/output-os-template.json > /tmp/output-os.json
 convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/volumes-from/docker-compose.yml convert --stdout -j" "/tmp/output-os.json" "ignoring path on the host"
 
+######
+# Tests related to docker-compose file in /script/test/fixtures/volume-mounts/tmpfs
+# kubernetes test
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/docker-compose.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/output-k8s-template.json > /tmp/output-k8s.json
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/docker-compose.yml convert --stdout -j" "/tmp/output-k8s.json"
 
+# openshift test
+cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/docker-compose.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/output-os-template.json > /tmp/output-os.json
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/docker-compose.yml convert --stdout -j" "/tmp/output-os.json" 
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/envvars-separators
