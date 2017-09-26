@@ -75,12 +75,7 @@ func (opt *WeightdeviceOpt) String() string {
 
 // GetList returns a slice of pointers to WeightDevices.
 func (opt *WeightdeviceOpt) GetList() []*blkiodev.WeightDevice {
-	var weightdevice []*blkiodev.WeightDevice
-	for _, v := range opt.values {
-		weightdevice = append(weightdevice, v)
-	}
-
-	return weightdevice
+	return opt.values
 }
 
 // Type returns the option type

@@ -6,7 +6,6 @@
 package toml
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -25,7 +24,7 @@ type tomlLexStateFn func() tomlLexStateFn
 // Define lexer
 type tomlLexer struct {
 	input         *buffruneio.Reader // Textual source
-	buffer        bytes.Buffer       // Runes composing the current token
+	buffer        []rune             // Runes composing the current token
 	tokens        chan token
 	depth         int
 	line          int
@@ -54,13 +53,13 @@ func (l *tomlLexer) next() rune {
 	r := l.read()
 
 	if r != eof {
-		l.buffer.WriteRune(r)
+		l.buffer = append(l.buffer, r)
 	}
 	return r
 }
 
 func (l *tomlLexer) ignore() {
-	l.buffer.Reset()
+	l.buffer = make([]rune, 0)
 	l.line = l.endbufferLine
 	l.col = l.endbufferCol
 }
@@ -86,7 +85,7 @@ func (l *tomlLexer) emitWithValue(t tokenType, value string) {
 }
 
 func (l *tomlLexer) emit(t tokenType) {
-	l.emitWithValue(t, l.buffer.String())
+	l.emitWithValue(t, string(l.buffer))
 }
 
 func (l *tomlLexer) peek() rune {
@@ -537,7 +536,7 @@ func (l *tomlLexer) lexInsideTableArrayKey() tomlLexStateFn {
 	for r := l.peek(); r != eof; r = l.peek() {
 		switch r {
 		case ']':
-			if l.buffer.Len() > 0 {
+			if len(l.buffer) > 0 {
 				l.emit(tokenKeyGroupArray)
 			}
 			l.next()
@@ -560,7 +559,7 @@ func (l *tomlLexer) lexInsideTableKey() tomlLexStateFn {
 	for r := l.peek(); r != eof; r = l.peek() {
 		switch r {
 		case ']':
-			if l.buffer.Len() > 0 {
+			if len(l.buffer) > 0 {
 				l.emit(tokenKeyGroup)
 			}
 			l.next()
