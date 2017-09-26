@@ -33,6 +33,7 @@ var (
 	UpNamespace    string
 	UpOpt          kobject.ConvertOptions
 	UpBuild        string
+	UpBuildRepo    string
 )
 
 var upCmd = &cobra.Command{
@@ -56,7 +57,9 @@ var upCmd = &cobra.Command{
 			Volumes:            UpVolumes,
 			Namespace:          UpNamespace,
 			InsecureRepository: UpInsecureRepo,
-			IsNamespaceFlag:    cmd.Flags().Lookup("namespace").Changed,
+			BuildRepo:          UpBuildRepo,
+
+			IsNamespaceFlag: cmd.Flags().Lookup("namespace").Changed,
 		}
 
 		// Validate before doing anything else.
@@ -73,6 +76,7 @@ func init() {
 	upCmd.Flags().BoolVar(&UpInsecureRepo, "insecure-repository", false, "Use an insecure Docker repository for OpenShift ImageStream")
 	upCmd.Flags().StringVar(&UpNamespace, "namespace", "default", "Specify Namespace to deploy your application")
 	upCmd.Flags().StringVar(&UpBuild, "build", "local", `Set the type of build ("local"|"build-config" (OpenShift only)|"none")`)
+	upCmd.Flags().StringVar(&UpBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 
 	// Deprecated
 	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use empty volumes. Do not generate PersistentVolumeClaim")
