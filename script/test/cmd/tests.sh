@@ -374,6 +374,9 @@ cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/dock
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s-empty-vols-template.json > /tmp/output-k8s.json
 convert::expect_success_and_warning "kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --stdout -j --volumes emptyDir" "/tmp/output-k8s.json" "Volume mount on the host "\"."\" isn't supported - ignoring path on the host"
 
+#Failing test for `--volumes` option
+convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yaml --volumes foobar"
+
 # Test related to support docker-compose.yaml beside docker-compose.yml
 # Store the original path
 CURRENT_DIR=$(pwd)
