@@ -3,6 +3,7 @@ package loader
 import (
 	"fmt"
 	"path"
+	"path/filepath"
 	"reflect"
 	"sort"
 	"strings"
@@ -13,7 +14,6 @@ import (
 	"github.com/docker/cli/cli/compose/template"
 	"github.com/docker/cli/cli/compose/types"
 	"github.com/docker/cli/opts"
-	runconfigopts "github.com/docker/docker/runconfig/opts"
 	"github.com/docker/go-connections/nat"
 	units "github.com/docker/go-units"
 	shellwords "github.com/mattn/go-shellwords"
@@ -93,11 +93,7 @@ func Load(configDetails types.ConfigDetails) (*types.Config, error) {
 	}
 
 	cfg.Configs, err = LoadConfigObjs(config["configs"], configDetails.WorkingDir)
-	if err != nil {
-		return nil, err
-	}
-
-	return &cfg, nil
+	return &cfg, err
 }
 
 func interpolateConfig(configDict map[string]interface{}, lookupEnv template.Mapping) (map[string]map[string]interface{}, error) {
@@ -195,7 +191,7 @@ func transform(source map[string]interface{}, target interface{}) error {
 	data := mapstructure.Metadata{}
 	config := &mapstructure.DecoderConfig{
 		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			transformHook,
+			createTransformHook(),
 			mapstructure.StringToTimeDurationHookFunc()),
 		Result:   target,
 		Metadata: &data,
@@ -207,46 +203,33 @@ func transform(source map[string]interface{}, target interface{}) error {
 	return decoder.Decode(source)
 }
 
-func transformHook(
-	source reflect.Type,
-	target reflect.Type,
-	data interface{},
-) (interface{}, error) {
-	switch target {
-	case reflect.TypeOf(types.External{}):
-		return transformExternal(data)
-	case reflect.TypeOf(types.HealthCheckTest{}):
-		return transformHealthCheckTest(data)
-	case reflect.TypeOf(types.ShellCommand{}):
-		return transformShellCommand(data)
-	case reflect.TypeOf(types.StringList{}):
-		return transformStringList(data)
-	case reflect.TypeOf(map[string]string{}):
-		return transformMapStringString(data)
-	case reflect.TypeOf(types.UlimitsConfig{}):
-		return transformUlimits(data)
-	case reflect.TypeOf(types.UnitBytes(0)):
-		return transformSize(data)
-	case reflect.TypeOf([]types.ServicePortConfig{}):
-		return transformServicePort(data)
-	case reflect.TypeOf(types.ServiceSecretConfig{}):
-		return transformStringSourceMap(data)
-	case reflect.TypeOf(types.ServiceConfigObjConfig{}):
-		return transformStringSourceMap(data)
-	case reflect.TypeOf(types.StringOrNumberList{}):
-		return transformStringOrNumberList(data)
-	case reflect.TypeOf(map[string]*types.ServiceNetworkConfig{}):
-		return transformServiceNetworkMap(data)
-	case reflect.TypeOf(types.MappingWithEquals{}):
-		return transformMappingOrList(data, "=", true), nil
-	case reflect.TypeOf(types.Labels{}):
-		return transformMappingOrList(data, "=", false), nil
-	case reflect.TypeOf(types.MappingWithColon{}):
-		return transformMappingOrList(data, ":", false), nil
-	case reflect.TypeOf(types.ServiceVolumeConfig{}):
-		return transformServiceVolumeConfig(data)
+func createTransformHook() mapstructure.DecodeHookFuncType {
+	transforms := map[reflect.Type]func(interface{}) (interface{}, error){
+		reflect.TypeOf(types.External{}):                         transformExternal,
+		reflect.TypeOf(types.HealthCheckTest{}):                  transformHealthCheckTest,
+		reflect.TypeOf(types.ShellCommand{}):                     transformShellCommand,
+		reflect.TypeOf(types.StringList{}):                       transformStringList,
+		reflect.TypeOf(map[string]string{}):                      transformMapStringString,
+		reflect.TypeOf(types.UlimitsConfig{}):                    transformUlimits,
+		reflect.TypeOf(types.UnitBytes(0)):                       transformSize,
+		reflect.TypeOf([]types.ServicePortConfig{}):              transformServicePort,
+		reflect.TypeOf(types.ServiceSecretConfig{}):              transformStringSourceMap,
+		reflect.TypeOf(types.ServiceConfigObjConfig{}):           transformStringSourceMap,
+		reflect.TypeOf(types.StringOrNumberList{}):               transformStringOrNumberList,
+		reflect.TypeOf(map[string]*types.ServiceNetworkConfig{}): transformServiceNetworkMap,
+		reflect.TypeOf(types.MappingWithEquals{}):                transformMappingOrListFunc("=", true),
+		reflect.TypeOf(types.Labels{}):                           transformMappingOrListFunc("=", false),
+		reflect.TypeOf(types.MappingWithColon{}):                 transformMappingOrListFunc(":", false),
+		reflect.TypeOf(types.ServiceVolumeConfig{}):              transformServiceVolumeConfig,
 	}
-	return data, nil
+
+	return func(_ reflect.Type, target reflect.Type, data interface{}) (interface{}, error) {
+		transform, ok := transforms[target]
+		if !ok {
+			return data, nil
+		}
+		return transform(data)
+	}
 }
 
 // keys needs to be converted to strings for jsonschema
@@ -350,14 +333,14 @@ func resolveEnvironment(serviceConfig *types.ServiceConfig, workingDir string, l
 
 		for _, file := range serviceConfig.EnvFile {
 			filePath := absPath(workingDir, file)
-			fileVars, err := runconfigopts.ParseEnvFile(filePath)
+			fileVars, err := opts.ParseEnvFile(filePath)
 			if err != nil {
 				return err
 			}
 			envVars = append(envVars, fileVars...)
 		}
 		updateEnvironment(environment,
-			runconfigopts.ConvertKVStringsToMapWithNil(envVars), lookupEnv)
+			opts.ConvertKVStringsToMapWithNil(envVars), lookupEnv)
 	}
 
 	updateEnvironment(environment, serviceConfig.Environment, lookupEnv)
@@ -371,7 +354,16 @@ func resolveVolumePaths(volumes []types.ServiceVolumeConfig, workingDir string, 
 			continue
 		}
 
-		volume.Source = absPath(workingDir, expandUser(volume.Source, lookupEnv))
+		filePath := expandUser(volume.Source, lookupEnv)
+		// Check for a Unix absolute path first, to handle a Windows client
+		// with a Unix daemon. This handles a Windows client connecting to a
+		// Unix daemon. Note that this is not required for Docker for Windows
+		// when specifying a local Windows path, because Docker for Windows
+		// translates the Windows path into a valid path within the VM.
+		if !path.IsAbs(filePath) {
+			filePath = absPath(workingDir, filePath)
+		}
+		volume.Source = filePath
 		volumes[i] = volume
 	}
 }
@@ -448,6 +440,12 @@ func LoadVolumes(source map[string]interface{}) (map[string]types.VolumeConfig, 
 			if volume.External.Name == "" {
 				volume.External.Name = name
 				volumes[name] = volume
+			} else {
+				logrus.Warnf("volume %s: volume.external.name is deprecated in favor of volume.name", name)
+
+				if volume.Name != "" {
+					return nil, errors.Errorf("volume %s: volume.external.name and volume.name conflict; only use volume.name", name)
+				}
 			}
 		}
 	}
@@ -492,11 +490,11 @@ func LoadConfigObjs(source map[string]interface{}, workingDir string) (map[strin
 	return configs, nil
 }
 
-func absPath(workingDir string, filepath string) string {
-	if path.IsAbs(filepath) {
-		return filepath
+func absPath(workingDir string, filePath string) string {
+	if filepath.IsAbs(filePath) {
+		return filePath
 	}
-	return path.Join(workingDir, filepath)
+	return filepath.Join(workingDir, filePath)
 }
 
 func transformMapStringString(data interface{}) (interface{}, error) {
@@ -568,7 +566,7 @@ func transformStringSourceMap(data interface{}) (interface{}, error) {
 func transformServiceVolumeConfig(data interface{}) (interface{}, error) {
 	switch value := data.(type) {
 	case string:
-		return parseVolume(value)
+		return ParseVolume(value)
 	case map[string]interface{}:
 		return data, nil
 	default:
@@ -605,6 +603,12 @@ func transformStringList(data interface{}) (interface{}, error) {
 		return value, nil
 	default:
 		return data, errors.Errorf("invalid type %T for string list", value)
+	}
+}
+
+func transformMappingOrListFunc(sep string, allowNil bool) func(interface{}) (interface{}, error) {
+	return func(data interface{}) (interface{}, error) {
+		return transformMappingOrList(data, sep, allowNil), nil
 	}
 }
 
@@ -649,7 +653,7 @@ func transformHealthCheckTest(data interface{}) (interface{}, error) {
 	}
 }
 
-func transformSize(value interface{}) (int64, error) {
+func transformSize(value interface{}) (interface{}, error) {
 	switch value := value.(type) {
 	case int:
 		return int64(value), nil

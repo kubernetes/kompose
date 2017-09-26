@@ -1249,20 +1249,13 @@ func (c *Command) persistentFlag(name string) (flag *flag.Flag) {
 }
 
 // ParseFlags parses persistent flag tree and local flags.
-func (c *Command) ParseFlags(args []string) error {
+func (c *Command) ParseFlags(args []string) (err error) {
 	if c.DisableFlagParsing {
 		return nil
 	}
-
-	beforeErrorBufLen := c.flagErrorBuf.Len()
 	c.mergePersistentFlags()
-	err := c.Flags().Parse(args)
-	// Print warnings if they occurred (e.g. deprecated flag messages).
-	if c.flagErrorBuf.Len()-beforeErrorBufLen > 0 && err == nil {
-		c.Print(c.flagErrorBuf.String())
-	}
-
-	return err
+	err = c.Flags().Parse(args)
+	return
 }
 
 // Parent returns a commands parent command.

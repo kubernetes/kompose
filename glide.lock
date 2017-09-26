@@ -1,5 +1,5 @@
-hash: e33ffcc6bb6fbd6496e430ef69139c47d0b4e79c6255c7184d2ec7307d7a55d1
-updated: 2017-06-20T14:23:11.012556696-04:00
+hash: dea9df7466c06608df2a07e688dfafcdb213c01074abb0add588123b0d382416
+updated: 2017-09-26T19:25:51.029980554+05:30
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -104,7 +104,7 @@ imports:
 - name: github.com/dgrijalva/jwt-go
   version: 01aeca54ebda6e0fbfafd0a524d234159c05ec20
 - name: github.com/docker/cli
-  version: 1fc7eb5d644599f30d0c6cc350a4d84ff528c864
+  version: 9bdb0763b9e667dc01adf36ba98a2b7bd47bdc75
   subpackages:
   - cli/compose/interpolation
   - cli/compose/loader
@@ -359,13 +359,13 @@ imports:
 - name: github.com/magiconair/properties
   version: 51463bfca2576e06c62a8504b5c0f06d61312647
 - name: github.com/mattn/go-shellwords
-  version: 02e3cf038dcea8290e44424da473dd12be796a8a
+  version: 95c860c1895b21b58903abdd1d9c591560b0601c
 - name: github.com/matttproud/golang_protobuf_extensions
   version: fc2b8d3a73c4867e51861bbdd5ae3c1f0869dd6a
   subpackages:
   - pbutil
 - name: github.com/mitchellh/mapstructure
-  version: d0303fe809921458f417bcf828397a65db30a7e4
+  version: db1efb556f84b25a0a13a04aad883943538ad2e0
 - name: github.com/novln/docker-parser
   version: 6030251119d652af8ead44ac7907444227b64d56
   subpackages:
@@ -375,7 +375,7 @@ imports:
 - name: github.com/opencontainers/go-digest
   version: 279bed98673dd5bef374d3b6e4b09e2af76183bf
 - name: github.com/opencontainers/image-spec
-  version: d207df434d113728dc3373cb3a905f00b482a858
+  version: ebd93fd0782379ca3d821f0fa74f0651a9347a3e
   subpackages:
   - specs-go
   - specs-go/v1
@@ -428,9 +428,9 @@ imports:
 - name: github.com/pelletier/go-buffruneio
   version: c37440a7cf42ac63b919c752ca73a85067e05992
 - name: github.com/pelletier/go-toml
-  version: fe7536c3dee2596cdd23ee9976a17c22bdaae286
+  version: 048765b4491bcff26505dfbb8a7b920133a19fd2
 - name: github.com/pkg/errors
-  version: c605e284fe17294bda444b34710735b29d1a9d90
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/prometheus/client_golang
   version: e51041b3fa41cece0dca035740ba6411905be473
   subpackages:
@@ -456,13 +456,13 @@ imports:
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: 99b5d838ca16c25cc4944e323684f8415e8b10ba
+  version: e606913c4ee45fec232e67e70105fb6c866b95d9
 - name: github.com/spf13/jwalterweatherman
   version: 0efa5202c04663c757d84f90f5219c1250baf94f
 - name: github.com/spf13/pflag
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
 - name: github.com/spf13/viper
-  version: c1de95864d73a5465492829d7cb2dd422b19ac96
+  version: 382f87b929b84ce13e9c8a375a4b217f224e6c65
 - name: github.com/ugorji/go
   version: f4485b318aadd133842532f841dc205a8e339d74
   subpackages:
@@ -496,7 +496,7 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: fb4cac33e3196ff7f507ab9b2d2a44b0142f5b5a
+  version: d9157a9621b69ad1d8d77a1933590c416593f24f
   subpackages:
   - unix
 - name: golang.org/x/text

@@ -52,10 +52,7 @@ func ValidateThrottleIOpsDevice(val string) (*blkiodev.ThrottleDevice, error) {
 		return nil, fmt.Errorf("invalid rate for device: %s. The correct format is <device-path>:<number>. Number must be a positive integer", val)
 	}
 
-	return &blkiodev.ThrottleDevice{
-		Path: split[0],
-		Rate: uint64(rate),
-	}, nil
+	return &blkiodev.ThrottleDevice{Path: split[0], Rate: rate}, nil
 }
 
 // ThrottledeviceOpt defines a map of ThrottleDevices
