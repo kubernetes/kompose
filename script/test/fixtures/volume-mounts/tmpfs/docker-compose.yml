@@ -1,0 +1,10 @@
+version: "2"
+
+services:
+
+  redis-master:
+    image: gcr.io/google_containers/redis:e2e 
+    ports:
+      - "6379"
+    tmpfs:
+      - /tmp:rw,noexec,nosuid
