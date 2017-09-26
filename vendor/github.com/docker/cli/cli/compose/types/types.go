@@ -21,7 +21,6 @@ var UnsupportedProperties = []string{
 	"restart",
 	"security_opt",
 	"shm_size",
-	"stop_signal",
 	"sysctls",
 	"tmpfs",
 	"userns_mode",
@@ -79,6 +78,7 @@ type Config struct {
 type ServiceConfig struct {
 	Name string
 
+	Build           BuildConfig
 	CapAdd          []string `mapstructure:"cap_add"`
 	CapDrop         []string `mapstructure:"cap_drop"`
 	CgroupParent    string   `mapstructure:"cgroup_parent"`
@@ -124,6 +124,18 @@ type ServiceConfig struct {
 	User            string
 	Volumes         []ServiceVolumeConfig
 	WorkingDir      string `mapstructure:"working_dir"`
+}
+
+// BuildConfig is a type for build
+// using the same format at libcompose: https://github.com/docker/libcompose/blob/master/yaml/build.go#L12
+type BuildConfig struct {
+	Context    string
+	Dockerfile string
+	Args       MappingWithEquals
+	Labels     Labels
+	CacheFrom  StringList `mapstructure:"cache_from"`
+	Network    string
+	Target     string
 }
 
 // ShellCommand is a string or list of string args
@@ -187,6 +199,7 @@ type UpdateConfig struct {
 	FailureAction   string `mapstructure:"failure_action"`
 	Monitor         time.Duration
 	MaxFailureRatio float32 `mapstructure:"max_failure_ratio"`
+	Order           string
 }
 
 // Resources the resource limits and reservations
@@ -305,6 +318,7 @@ type IPAMPool struct {
 
 // VolumeConfig for a volume
 type VolumeConfig struct {
+	Name       string
 	Driver     string
 	DriverOpts map[string]string `mapstructure:"driver_opts"`
 	External   External
@@ -313,6 +327,7 @@ type VolumeConfig struct {
 
 // External identifies a Volume or Network as a reference to a resource that is
 // not managed, and should already exist.
+// External.name is deprecated and replaced by Volume.name
 type External struct {
 	Name     string
 	External bool

@@ -132,10 +132,7 @@ __handle_reply()
         declare -F __custom_func >/dev/null && __custom_func
     fi
 
-    # available in bash-completion >= 2, not always present on macOS
-    if declare -F __ltrim_colon_completions >/dev/null; then
-        __ltrim_colon_completions "$cur"
-    fi
+    __ltrim_colon_completions "$cur"
 }
 
 # The arguments should be in the form "ext1|ext2|extn"
