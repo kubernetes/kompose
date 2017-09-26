@@ -56,7 +56,7 @@ func TestParseHealthCheck(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(output, expected) {
-		t.Errorf("Structs are not equal, expected: %s, output: %s", expected, output)
+		t.Errorf("Structs are not equal, expected: %v, output: %v", expected, output)
 	}
 }
 
