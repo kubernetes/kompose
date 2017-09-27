@@ -1,4 +1,12 @@
 <footer>
-    <img src="/img/kubernetes_full.png" style="height:3em; margin-bottom:-5px; display:inline;"></img>
-  <p>This project is maintained by <a href="{{ site.author_url }}">{{ site.author_name }}</a></p>
+  <div class="menubar">
+    <ul>
+    {% for item in site.data.menu.footer %}
+        <li><a href="{{ item[1] | prepend: site.baseurl }}">{{ item[0] }}</a></li>
+    {% endfor %}
+    </ul>
+  </div>
+  <p>An official Kubernetes project</p>
+  <a href="https://github.com/kubernetes/kompose"><img class="logos" src="/img/kubernetes_full.png"></img></a>
+  <p class="misc">{{ site.license }}<br>{{ site.copyright }}</p>
 </footer>

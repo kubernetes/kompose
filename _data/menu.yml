@@ -5,3 +5,8 @@ items:
   "Conversion Matrix": "/conversion/"
   "Architecture": "/architecture/"
   "Integrations": "/integrations/"
+
+footer:
+  "Slack": "http://slack.kubernetes.io/#kompose"
+  "Releases": "https://github.com/kubernetes/kompose/releases"
+  "GitHub": "https://github.com/kubernetes/kompose"
