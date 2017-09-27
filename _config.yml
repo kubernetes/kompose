@@ -8,6 +8,9 @@ repository_shorthand: kubernetes/kompose
 author_name: The Kubernetes Authors
 author_url: https://github.com/kubernetes/kompose
 
+license: Kompose is an Apache 2.0 project.
+copyright: © 2017 The Kubernetes Authors
+
 markdown: kramdown
 
 # Redirection plugin
