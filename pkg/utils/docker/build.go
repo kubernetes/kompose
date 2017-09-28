@@ -38,7 +38,7 @@ BuildImage builds a Docker image via the Docker API. Takes the source directory
 and image name and then builds the appropriate image. Tarball is utilized
 in order to make building easier.
 */
-func (c *Build) BuildImage(source string, image string) error {
+func (c *Build) BuildImage(source string, image string, dockerfile string) error {
 
 	log.Infof("Building image '%s' from directory '%s'", image, path.Base(source))
 
@@ -67,6 +67,7 @@ func (c *Build) BuildImage(source string, image string) error {
 		Name:         image,
 		InputStream:  tarballSource,
 		OutputStream: outputBuffer,
+		Dockerfile:   dockerfile,
 	}
 
 	// Build it!
