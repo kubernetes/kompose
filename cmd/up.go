@@ -33,6 +33,7 @@ var (
 	UpNamespace    string
 	UpOpt          kobject.ConvertOptions
 	UpBuild        string
+	UpBuildBranch  string
 )
 
 var upCmd = &cobra.Command{
@@ -56,6 +57,7 @@ var upCmd = &cobra.Command{
 			Volumes:            UpVolumes,
 			Namespace:          UpNamespace,
 			InsecureRepository: UpInsecureRepo,
+			BuildBranch:        UpBuildBranch,
 			IsNamespaceFlag:    cmd.Flags().Lookup("namespace").Changed,
 		}
 
@@ -74,6 +76,7 @@ func init() {
 	upCmd.Flags().StringVar(&UpNamespace, "namespace", "default", "Specify Namespace to deploy your application")
 	upCmd.Flags().StringVar(&UpBuild, "build", "local", `Set the type of build ("local"|"build-config" (OpenShift only)|"none")`)
 
+	upCmd.Flags().StringVar(&UpBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
 	// Deprecated
 	upCmd.Flags().BoolVar(&UpEmptyVols, "emptyvols", false, "Use empty volumes. Do not generate PersistentVolumeClaim")
 	upCmd.Flags().MarkDeprecated("emptyvols", "emptyvols has been marked as deprecated. Use --volumes empty")
