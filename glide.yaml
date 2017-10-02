@@ -4,8 +4,16 @@ licence: Apache-2.0
 
 import:
 
+- package: github.com/sirupsen/logrus
+  version: 1.0.3
+
 - package: github.com/Sirupsen/logrus
-  version: v0.11.5
+  repo: git@github.com:/sirupsen/logrus
+  vcs: git
+  version: 1.0.3
+
+- package: github.com/xeipuuv/gojsonschema
+  version: 93e72a773fade158921402d6a24c819b48aba29d
 
 - package: github.com/fatih/structs
 - package: github.com/ghodss/yaml
