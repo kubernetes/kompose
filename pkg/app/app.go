@@ -76,6 +76,10 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 	replicationController := cmd.Flags().Lookup("replication-controller").Changed
 	deployment := cmd.Flags().Lookup("deployment").Changed
 
+	// Get the controller
+	controller := opt.Controller
+	log.Debug("Checking validation of controller %s", controller)
+
 	// Check validations against provider flags
 	switch {
 	case provider == "openshift":
@@ -91,6 +95,9 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 		if deployment {
 			log.Fatalf("--deployment, -d is a Kubernetes only flag")
 		}
+		if controller == "daemonset" || controller == "replicationcontroller" || controller == "deployment" {
+			log.Fatalf("--controller= daemonset, replicationcontroller or deployment is a Kubernetes only flag")
+		}
 	case provider == "kubernetes":
 		if deploymentConfig {
 			log.Fatalf("--deployment-config is an OpenShift only flag")
@@ -100,6 +107,9 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 		}
 		if buildBranch {
 			log.Fatalf("--build-branch is an Openshift only flag")
+		}
+		if controller == "deploymentconfig" {
+			log.Fatalf("--controller=deploymentConfig is an OpenShift only flag")
 		}
 	}
 
@@ -159,10 +169,9 @@ func ValidateComposeFile(opt *kobject.ConvertOptions) {
 func validateControllers(opt *kobject.ConvertOptions) {
 
 	singleOutput := len(opt.OutFile) != 0 || opt.OutFile == "-" || opt.ToStdout
-
 	if opt.Provider == "kubernetes" {
 		// create deployment by default if no controller has been set
-		if !opt.CreateD && !opt.CreateDS && !opt.CreateRC {
+		if !opt.CreateD && !opt.CreateDS && !opt.CreateRC && opt.Controller == "" {
 			opt.CreateD = true
 		}
 		if singleOutput {

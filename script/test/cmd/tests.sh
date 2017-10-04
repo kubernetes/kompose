@@ -466,6 +466,23 @@ cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/te
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/v3/output-os-template.json > /tmp/output-os.json
 convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml" "/tmp/output-os.json"
 
+####
+# Test `--controller`
+# kubernetes test (controller=deployment)
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/controller/docker-compose.yml --stdout -j --controller=deployment"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-deployment-template.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/controller/docker-compose.yml --stdout -j --controller=deployment" "/tmp/output-k8s.json"
+
+# kubernetes test (controller=daemonset)
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/controller/docker-compose.yml --stdout -j --controller=daemonset"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-daemonset-template.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/controller/docker-compose.yml --stdout -j --controller=daemonset" "/tmp/output-k8s.json"
+
+# kubernetes test (controller=replicationcontroller)
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/controller/docker-compose.yml --stdout -j --controller=replicationcontroller"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-rc-template.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/controller/docker-compose.yml --stdout -j --controller=replicationcontroller" "/tmp/output-k8s.json"
+
 
 # Test the "full example" from https://raw.githubusercontent.com/aanand/compose-file/master/loader/example1.env
 

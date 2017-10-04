@@ -51,6 +51,7 @@ type ConvertOptions struct {
 	OutFile                     string
 	Provider                    string
 	Namespace                   string
+	Controller                  string
 	IsDeploymentFlag            bool
 	IsDaemonSetFlag             bool
 	IsReplicationControllerFlag bool
