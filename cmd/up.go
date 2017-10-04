@@ -34,6 +34,7 @@ var (
 	UpOpt          kobject.ConvertOptions
 	UpBuild        string
 	UpBuildBranch  string
+	UpBuildRepo    string
 )
 
 var upCmd = &cobra.Command{
@@ -58,6 +59,7 @@ var upCmd = &cobra.Command{
 			Namespace:          UpNamespace,
 			InsecureRepository: UpInsecureRepo,
 			BuildBranch:        UpBuildBranch,
+			BuildRepo:          UpBuildRepo,
 			IsNamespaceFlag:    cmd.Flags().Lookup("namespace").Changed,
 		}
 
@@ -75,6 +77,7 @@ func init() {
 	upCmd.Flags().BoolVar(&UpInsecureRepo, "insecure-repository", false, "Use an insecure Docker repository for OpenShift ImageStream")
 	upCmd.Flags().StringVar(&UpNamespace, "namespace", "default", "Specify Namespace to deploy your application")
 	upCmd.Flags().StringVar(&UpBuild, "build", "local", `Set the type of build ("local"|"build-config" (OpenShift only)|"none")`)
+	upCmd.Flags().StringVar(&UpBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 
 	upCmd.Flags().StringVar(&UpBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
 	// Deprecated
