@@ -507,14 +507,13 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 		log.Warning("Global mode not yet supported, containers will only be replicated once throughout the cluster. DaemonSet support will be added in the future.")
 		replica = 1
 	}
-
-	if opt.CreateD {
+	if opt.CreateD || opt.Controller == "deployment" {
 		objects = append(objects, k.InitD(name, service, replica))
 	}
-	if opt.CreateDS {
+	if opt.CreateDS || opt.Controller == "daemonset" {
 		objects = append(objects, k.InitDS(name, service))
 	}
-	if opt.CreateRC {
+	if opt.CreateRC || opt.Controller == "replicationcontroller" {
 		objects = append(objects, k.InitRC(name, service, replica))
 	}
 
