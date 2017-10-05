@@ -33,8 +33,8 @@ git checkout master docs
 # Remove README.md from docs folder as it isn't relevant
 rm docs/README.md
 
-# Use quickstart.md instead as the main index page
-mv docs/quickstart.md index.md
+# Use introduction.md instead as the main index page
+mv docs/introduction.md index.md
 
 # Check that index.md has the appropriate Jekyll format
 index="index.md"
