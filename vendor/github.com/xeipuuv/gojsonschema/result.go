@@ -48,7 +48,6 @@ type (
 		Value() interface{}
 		SetDetails(ErrorDetails)
 		Details() ErrorDetails
-		String() string
 	}
 
 	// ResultErrorFields holds the fields for each ResultError implementation.

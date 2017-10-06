@@ -31,7 +31,6 @@ import (
 	"errors"
 	"reflect"
 	"regexp"
-	"text/template"
 
 	"github.com/xeipuuv/gojsonreference"
 )
@@ -40,45 +39,10 @@ var (
 	// Locale is the default locale to use
 	// Library users can overwrite with their own implementation
 	Locale locale = DefaultLocale{}
-
-	// ErrorTemplateFuncs allows you to define custom template funcs for use in localization.
-	ErrorTemplateFuncs template.FuncMap
 )
 
 func NewSchema(l JSONLoader) (*Schema, error) {
-	ref, err := l.JsonReference()
-	if err != nil {
-		return nil, err
-	}
-
-	d := Schema{}
-	d.pool = newSchemaPool(l.LoaderFactory())
-	d.documentReference = ref
-	d.referencePool = newSchemaReferencePool()
-
-	var doc interface{}
-	if ref.String() != "" {
-		// Get document from schema pool
-		spd, err := d.pool.GetDocument(d.documentReference)
-		if err != nil {
-			return nil, err
-		}
-		doc = spd.Document
-	} else {
-		// Load JSON directly
-		doc, err = l.LoadJSON()
-		if err != nil {
-			return nil, err
-		}
-		d.pool.SetStandaloneDocument(doc)
-	}
-
-	err = d.parse(doc)
-	if err != nil {
-		return nil, err
-	}
-
-	return &d, nil
+	return l.loadSchema()
 }
 
 type Schema struct {
@@ -107,9 +71,10 @@ func (d *Schema) parseSchema(documentNode interface{}, currentSchema *subSchema)
 
 	if !isKind(documentNode, reflect.Map) {
 		return errors.New(formatErrorDescription(
-			Locale.ParseError(),
+			Locale.InvalidType(),
 			ErrorDetails{
-				"expected": STRING_SCHEMA,
+				"expected": TYPE_OBJECT,
+				"given":    STRING_SCHEMA,
 			},
 		))
 	}
@@ -151,27 +116,14 @@ func (d *Schema) parseSchema(documentNode interface{}, currentSchema *subSchema)
 	}
 	if k, ok := m[KEY_REF].(string); ok {
 
-		jsonReference, err := gojsonreference.NewJsonReference(k)
-		if err != nil {
-			return err
-		}
-
-		if jsonReference.HasFullUrl {
-			currentSchema.ref = &jsonReference
-		} else {
-			inheritedReference, err := currentSchema.ref.Inherits(jsonReference)
-			if err != nil {
-				return err
-			}
-
-			currentSchema.ref = inheritedReference
-		}
-
 		if sch, ok := d.referencePool.Get(currentSchema.ref.String() + k); ok {
+
 			currentSchema.refSchema = sch
 
 		} else {
-			err := d.parseReference(documentNode, currentSchema, k)
+
+			var err error
+			err = d.parseReference(documentNode, currentSchema, k)
 			if err != nil {
 				return err
 			}
@@ -803,10 +755,30 @@ func (d *Schema) parseSchema(documentNode interface{}, currentSchema *subSchema)
 	return nil
 }
 
-func (d *Schema) parseReference(documentNode interface{}, currentSchema *subSchema, reference string) error {
-	var refdDocumentNode interface{}
-	jsonPointer := currentSchema.ref.GetPointer()
+func (d *Schema) parseReference(documentNode interface{}, currentSchema *subSchema, reference string) (e error) {
+
+	var err error
+
+	jsonReference, err := gojsonreference.NewJsonReference(reference)
+	if err != nil {
+		return err
+	}
+
 	standaloneDocument := d.pool.GetStandaloneDocument()
+
+	if jsonReference.HasFullUrl {
+		currentSchema.ref = &jsonReference
+	} else {
+		inheritedReference, err := currentSchema.ref.Inherits(jsonReference)
+		if err != nil {
+			return err
+		}
+		currentSchema.ref = inheritedReference
+	}
+
+	jsonPointer := currentSchema.ref.GetPointer()
+
+	var refdDocumentNode interface{}
 
 	if standaloneDocument != nil {
 
@@ -817,6 +789,8 @@ func (d *Schema) parseReference(documentNode interface{}, currentSchema *subSche
 		}
 
 	} else {
+
+		var err error
 		dsp, err := d.pool.GetDocument(*currentSchema.ref)
 		if err != nil {
 			return err
@@ -838,10 +812,11 @@ func (d *Schema) parseReference(documentNode interface{}, currentSchema *subSche
 
 	// returns the loaded referenced subSchema for the caller to update its current subSchema
 	newSchemaDocument := refdDocumentNode.(map[string]interface{})
+
 	newSchema := &subSchema{property: KEY_REF, parent: currentSchema, ref: currentSchema.ref}
 	d.referencePool.Add(currentSchema.ref.String()+reference, newSchema)
 
-	err := d.parseSchema(newSchemaDocument, newSchema)
+	err = d.parseSchema(newSchemaDocument, newSchema)
 	if err != nil {
 		return err
 	}
