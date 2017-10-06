@@ -103,6 +103,7 @@ type ServiceConfig struct {
 	GroupAdd        []int64             `compose:"group_add"`
 	Volumes         []Volumes           `compose:""`
 	HealthChecks    HealthCheck         `compose:""`
+	Placement       map[string]string   `compose:""`
 }
 
 // HealthCheck the healthcheck configuration for a service

@@ -483,6 +483,29 @@ cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/controller/docker-com
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-rc-template.json > /tmp/output-k8s.json
 convert::expect_success "kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/controller/docker-compose.yml --stdout -j --controller=replicationcontroller" "/tmp/output-k8s.json"
 
+# Test the `placement` key in v3
+
+# Kubernetes
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/placement/output-k8s-template.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose.yml" "/tmp/output-k8s.json"
+
+## OpenShift
+cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/placement/output-os-template.json > /tmp/output-os.json
+convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose.yml" "/tmp/output-os.json"
+
+# Test the `placement` key with constraints in array in v3
+
+# Kubernetes
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose-array.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/placement/output-k8s-array-template.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose-array.yml" "/tmp/output-k8s.json"
+
+## OpenShift
+cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose-array.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/placement/output-os-array-template.json > /tmp/output-os.json
+convert::expect_success "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose-array.yml" "/tmp/output-os.json"
 
 # Test the "full example" from https://raw.githubusercontent.com/aanand/compose-file/master/loader/example1.env
 
