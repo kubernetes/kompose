@@ -4,9 +4,6 @@ sudo: required
 
 language: go
 
-# make this also work for forks
-go_import_path: github.com/kubernetes/kompose
-
 matrix:
   include:
     - go: 1.6
@@ -21,6 +18,7 @@ install:
   - script/test/cmd/fix_detached_head.sh
 
 script:
+  - make bin
   - make test
 
 after_success:
