@@ -13,9 +13,9 @@ import (
 )
 
 type tomlParser struct {
-	flow          chan token
+	flowIdx       int
+	flow          []token
 	tree          *Tree
-	tokensBuffer  []token
 	currentTable  []string
 	seenTableKeys []string
 }
@@ -34,16 +34,10 @@ func (p *tomlParser) run() {
 }
 
 func (p *tomlParser) peek() *token {
-	if len(p.tokensBuffer) != 0 {
-		return &(p.tokensBuffer[0])
-	}
-
-	tok, ok := <-p.flow
-	if !ok {
+	if p.flowIdx >= len(p.flow) {
 		return nil
 	}
-	p.tokensBuffer = append(p.tokensBuffer, tok)
-	return &tok
+	return &p.flow[p.flowIdx]
 }
 
 func (p *tomlParser) assume(typ tokenType) {
@@ -57,16 +51,12 @@ func (p *tomlParser) assume(typ tokenType) {
 }
 
 func (p *tomlParser) getToken() *token {
-	if len(p.tokensBuffer) != 0 {
-		tok := p.tokensBuffer[0]
-		p.tokensBuffer = p.tokensBuffer[1:]
-		return &tok
-	}
-	tok, ok := <-p.flow
-	if !ok {
+	tok := p.peek()
+	if tok == nil {
 		return nil
 	}
-	return &tok
+	p.flowIdx++
+	return tok
 }
 
 func (p *tomlParser) parseStart() tomlParserStateFn {
@@ -120,7 +110,7 @@ func (p *tomlParser) parseGroupArray() tomlParserStateFn {
 	newTree := newTree()
 	newTree.position = startToken.Position
 	array = append(array, newTree)
-	p.tree.SetPath(p.currentTable, array)
+	p.tree.SetPath(p.currentTable, "", false, array)
 
 	// remove all keys that were children of this table array
 	prefix := key.val + "."
@@ -215,7 +205,7 @@ func (p *tomlParser) parseAssign() tomlParserStateFn {
 	case *Tree, []*Tree:
 		toInsert = value
 	default:
-		toInsert = &tomlValue{value, key.Position}
+		toInsert = &tomlValue{value: value, position: key.Position}
 	}
 	targetNode.values[keyVal] = toInsert
 	return p.parseStart
@@ -309,7 +299,7 @@ Loop:
 			key := p.getToken()
 			p.assume(tokenEqual)
 			value := p.parseRvalue()
-			tree.Set(key.val, value)
+			tree.Set(key.val, "", false, value)
 		case tokenComma:
 			if previous == nil {
 				p.raiseError(follow, "inline table cannot start with a comma")
@@ -374,13 +364,13 @@ func (p *tomlParser) parseArray() interface{} {
 	return array
 }
 
-func parseToml(flow chan token) *Tree {
+func parseToml(flow []token) *Tree {
 	result := newTree()
 	result.position = Position{1, 1}
 	parser := &tomlParser{
+		flowIdx:       0,
 		flow:          flow,
 		tree:          result,
-		tokensBuffer:  make([]token, 0),
 		currentTable:  make([]string, 0),
 		seenTableKeys: make([]string, 0),
 	}

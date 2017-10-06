@@ -5,30 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
 
-/*
-Tree structural types and corresponding marshal types
--------------------------------------------------------------------------------
-*Tree                        (*)struct, (*)map[string]interface{}
-[]*Tree                      (*)[](*)struct, (*)[](*)map[string]interface{}
-[]interface{} (as interface{})   (*)[]primitive, (*)[]([]interface{})
-interface{}                      (*)primitive
-
-Tree primitive types and  corresponding marshal types
------------------------------------------------------------
-uint64     uint, uint8-uint64, pointers to same
-int64      int, int8-uint64, pointers to same
-float64    float32, float64, pointers to same
-string     string, pointers to same
-bool       bool, pointers to same
-time.Time  time.Time{}, pointers to same
-*/
-
 type tomlOpts struct {
 	name      string
+	comment   string
+	commented bool
 	include   bool
 	omitempty bool
 }
@@ -112,9 +97,32 @@ encoder, except that there is no concept of a Marshaler interface or MarshalTOML
 function for sub-structs, and currently only definite types can be marshaled
 (i.e. no `interface{}`).
 
+The following struct annotations are supported:
+
+  toml:"Field"      Overrides the field's name to output.
+  omitempty         When set, empty values and groups are not emitted.
+  comment:"comment" Emits a # comment on the same line. This supports new lines.
+  commented:"true"  Emits the value as commented.
+
 Note that pointers are automatically assigned the "omitempty" option, as TOML
 explicity does not handle null values (saying instead the label should be
 dropped).
+
+Tree structural types and corresponding marshal types:
+
+  *Tree                            (*)struct, (*)map[string]interface{}
+  []*Tree                          (*)[](*)struct, (*)[](*)map[string]interface{}
+  []interface{} (as interface{})   (*)[]primitive, (*)[]([]interface{})
+  interface{}                      (*)primitive
+
+Tree primitive types and corresponding marshal types:
+
+  uint64     uint, uint8-uint64, pointers to same
+  int64      int, int8-uint64, pointers to same
+  float64    float32, float64, pointers to same
+  string     string, pointers to same
+  bool       bool, pointers to same
+  time.Time  time.Time{}, pointers to same
 */
 func Marshal(v interface{}) ([]byte, error) {
 	mtype := reflect.TypeOf(v)
@@ -149,7 +157,7 @@ func valueToTree(mtype reflect.Type, mval reflect.Value) (*Tree, error) {
 				if err != nil {
 					return nil, err
 				}
-				tval.Set(opts.name, val)
+				tval.Set(opts.name, opts.comment, opts.commented, val)
 			}
 		}
 	case reflect.Map:
@@ -159,7 +167,7 @@ func valueToTree(mtype reflect.Type, mval reflect.Value) (*Tree, error) {
 			if err != nil {
 				return nil, err
 			}
-			tval.Set(key.String(), val)
+			tval.Set(key.String(), "", false, val)
 		}
 	}
 	return tval, nil
@@ -247,6 +255,12 @@ func (t *Tree) Unmarshal(v interface{}) error {
 // is no concept of an Unmarshaler interface or UnmarshalTOML function for
 // sub-structs, and currently only definite types can be unmarshaled to (i.e. no
 // `interface{}`).
+//
+// The following struct annotations are supported:
+//
+//   toml:"Field" Overrides the field's name to map to.
+//
+// See Marshal() documentation for types mapping table.
 func Unmarshal(data []byte, v interface{}) error {
 	t, err := LoadReader(bytes.NewReader(data))
 	if err != nil {
@@ -268,15 +282,20 @@ func valueFromTree(mtype reflect.Type, tval *Tree) (reflect.Value, error) {
 			mtypef := mtype.Field(i)
 			opts := tomlOptions(mtypef)
 			if opts.include {
-				key := opts.name
-				exists := tval.Has(key)
-				if exists {
+				baseKey := opts.name
+				keysToTry := []string{baseKey, strings.ToLower(baseKey), strings.ToTitle(baseKey)}
+				for _, key := range keysToTry {
+					exists := tval.Has(key)
+					if !exists {
+						continue
+					}
 					val := tval.Get(key)
 					mvalf, err := valueFromToml(mtypef.Type, val)
 					if err != nil {
 						return mval, formatError(err, tval.GetPosition(key))
 					}
 					mval.Field(i).Set(mvalf)
+					break
 				}
 			}
 		}
@@ -443,7 +462,12 @@ func unwrapPointer(mtype reflect.Type, tval interface{}) (reflect.Value, error) 
 func tomlOptions(vf reflect.StructField) tomlOpts {
 	tag := vf.Tag.Get("toml")
 	parse := strings.Split(tag, ",")
-	result := tomlOpts{vf.Name, true, false}
+	var comment string
+	if c := vf.Tag.Get("comment"); c != "" {
+		comment = c
+	}
+	commented, _ := strconv.ParseBool(vf.Tag.Get("commented"))
+	result := tomlOpts{name: vf.Name, comment: comment, commented: commented, include: true, omitempty: false}
 	if parse[0] != "" {
 		if parse[0] == "-" && len(parse) == 1 {
 			result.include = false

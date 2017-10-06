@@ -44,7 +44,7 @@ func (t *jsonSchemaType) IsTyped() bool {
 func (t *jsonSchemaType) Add(etype string) error {
 
 	if !isStringInSlice(JSON_TYPES, etype) {
-		return errors.New(formatErrorDescription(Locale.NotAValidType(), ErrorDetails{"given": "/" + etype + "/", "expected": JSON_TYPES}))
+		return errors.New(formatErrorDescription(Locale.NotAValidType(), ErrorDetails{"type": etype}))
 	}
 
 	if t.Contains(etype) {

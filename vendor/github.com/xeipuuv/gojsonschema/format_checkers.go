@@ -52,20 +52,14 @@ type (
 	// http://tools.ietf.org/html/rfc3339#section-5.6
 	DateTimeFormatChecker struct{}
 
-	// URIFormatChecker validates a URI with a valid Scheme per RFC3986
+	// URIFormatCheckers validates a URI with a valid Scheme per RFC3986
 	URIFormatChecker struct{}
-
-	// URIReferenceFormatChecker validates a URI or relative-reference per RFC3986
-	URIReferenceFormatChecker struct{}
 
 	// HostnameFormatChecker validates a hostname is in the correct format
 	HostnameFormatChecker struct{}
 
 	// UUIDFormatChecker validates a UUID is in the correct format
 	UUIDFormatChecker struct{}
-
-	// RegexFormatChecker validates a regex is in the correct format
-	RegexFormatChecker struct{}
 )
 
 var (
@@ -73,15 +67,13 @@ var (
 	// so library users can add custom formatters
 	FormatCheckers = FormatCheckerChain{
 		formatters: map[string]FormatChecker{
-			"date-time": 	 DateTimeFormatChecker{},
-			"hostname":  	 HostnameFormatChecker{},
-			"email":     	 EmailFormatChecker{},
-			"ipv4":      	 IPV4FormatChecker{},
-			"ipv6":      	 IPV6FormatChecker{},
-			"uri":       	 URIFormatChecker{},
-			"uri-reference": URIReferenceFormatChecker{},
-			"uuid":      	 UUIDFormatChecker{},
-			"regex":     	 RegexFormatChecker{},
+			"date-time": DateTimeFormatChecker{},
+			"hostname":  HostnameFormatChecker{},
+			"email":     EmailFormatChecker{},
+			"ipv4":      IPV4FormatChecker{},
+			"ipv6":      IPV6FormatChecker{},
+			"uri":       URIFormatChecker{},
+			"uuid":      UUIDFormatChecker{},
 		},
 	}
 
@@ -177,27 +169,10 @@ func (f URIFormatChecker) IsFormat(input string) bool {
 	return true
 }
 
-func (f URIReferenceFormatChecker) IsFormat(input string) bool {
-	_, err := url.Parse(input)
-	return err == nil
-}
-
 func (f HostnameFormatChecker) IsFormat(input string) bool {
 	return rxHostname.MatchString(input) && len(input) < 256
 }
 
 func (f UUIDFormatChecker) IsFormat(input string) bool {
 	return rxUUID.MatchString(input)
-}
-
-// IsFormat implements FormatChecker interface.
-func (f RegexFormatChecker) IsFormat(input string) bool {
-	if input == "" {
-		return true
-	}
-	_, err := regexp.Compile(input)
-	if err != nil {
-		return false
-	}
-	return true
 }
