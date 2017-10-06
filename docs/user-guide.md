@@ -6,10 +6,11 @@ redirect_from: "/docs/user-guide.md"
 
 # User Guide
 
-- CLI
-  - [`kompose convert`](#kompose-convert)
-  - [`kompose up`](#kompose-up)
-  - [`kompose down`](#kompose-down)
+- Command Line
+  - [Kompose Convert](#kompose-convert)
+  - [Kompose Up](#kompose-up)
+  - [Kompose Down](#kompose-down)
+
 - Documentation
   - [Build and Push Docker Images](#build-and-push-docker-images)
   - [Alternative Conversions](#alternative-conversions)
@@ -21,7 +22,7 @@ Kompose has support for two providers: OpenShift and Kubernetes.
 You can choose a targeted provider using global option `--provider`. If no provider is specified, Kubernetes is set by default.
 
 
-## `kompose convert`
+## Kompose Convert
 
 Kompose supports conversion of V1, V2, and V3 Docker Compose files into Kubernetes and OpenShift objects.
 
@@ -106,7 +107,7 @@ INFO OpenShift file "foo-buildconfig.yaml" created
 
 **Note**: If you are manually pushing the Openshift artifacts using ``oc create -f``, you need to ensure that you push the imagestream artifact before the buildconfig artifact, to workaround this Openshift issue: https://github.com/openshift/origin/issues/4518 .
 
-## `kompose up`
+## Kompose Up
 
 Kompose supports a straightforward way to deploy your "composed" application to Kubernetes or OpenShift via `kompose up`.
 
@@ -183,7 +184,7 @@ is/redis-slave     172.30.12.200:5000/fff/redis-slave    v1
 Note:
 - You must have a running OpenShift cluster with a pre-configured `oc` context (`oc login`)
 
-## `kompose down`
+## Kompose Down
 
 Once you have deployed "composed" application to Kubernetes, `$ kompose down` will help you to take the application out by deleting its deployments and services. If you need to remove other resources, use the 'kubectl' command.
 

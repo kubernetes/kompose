@@ -3,43 +3,28 @@ layout: default
 ---
 
 # Kubernetes + Compose = Kompose
+## A conversion tool to go from Docker Compose to Kubernetes
 
-What's Kompose? It's a conversion tool for all things compose (namely Docker Compose) to container orchestrators (Kubernetes or OpenShift).
+### What's Kompose?
 
-In three simple steps, we'll take you from Docker Compose to Kubernetes.
+Kompose is a conversion tool for Docker Compose to container orchestrators such as Kubernetes (or OpenShift).
 
-__1. Take a sample docker-compose.yaml file__
+Why do developers love it?
 
-```yaml
-version: "2"
+  - Simplify your development process with Docker Compose and then deploy your containers to a production cluster
+  - Convert your `docker-compose.yaml` with one simple command `kompose convert`
+  - Immediately bring up your cluster with `kompose up`
+  - Bring it back down with `kompose down`
 
-services:
+### It's as simple as 1-2-3
 
-  redis-master:
-    image: gcr.io/google_containers/redis:e2e 
-    ports:
-      - "6379"
+1. [Use an example docker-compose.yaml file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose-v3.yaml) or your own
+2. Run `kompose up`
+3. Check your Kubernetes cluster for your newly deployed containers!
 
-  redis-slave:
-    image: gcr.io/google_samples/gb-redisslave:v1
-    ports:
-      - "6379"
-    environment:
-      - GET_HOSTS_FROM=dns
+```sh
+$ wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose-v3.yaml
 
-  frontend:
-    image: gcr.io/google-samples/gb-frontend:v4
-    ports:
-      - "80:80"
-    environment:
-      - GET_HOSTS_FROM=dns
-    labels:
-      kompose.service.type: LoadBalancer
-```
-
-__2. Run `kompose up` in the same directory__ 
-
-```bash
 $ kompose up
 We are going to create Kubernetes Deployments, Services and PersistentVolumeClaims for your Dockerized application. 
 If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. 
@@ -50,65 +35,29 @@ INFO Successfully created Deployment: redis
 INFO Successfully created Deployment: web         
 
 Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods,pvc' for details.
+
+$ kubectl get po
+NAME                            READY     STATUS              RESTARTS   AGE
+frontend-591253677-5t038        1/1       Running             0          10s
+redis-master-2410703502-9hshf   1/1       Running             0          10s
+redis-slave-4049176185-hr1lr    1/1       Running             0          10s
 ```
 
-__Alternatively, you can run `kompose convert` and deploy with `kubectl`__
+A more detailed guide is available in our [getting started guide](/docs/getting-started.md).
 
-__2.1. Run `kompose convert` in the same directory__
+### Install Kompose on Linux, macOS or Windows
 
-```bash
-$ kompose convert                           
-INFO Kubernetes file "frontend-service.yaml" created         
-INFO Kubernetes file "redis-master-service.yaml" created     
-INFO Kubernetes file "redis-slave-service.yaml" created      
-INFO Kubernetes file "frontend-deployment.yaml" created      
-INFO Kubernetes file "redis-master-deployment.yaml" created  
-INFO Kubernetes file "redis-slave-deployment.yaml" created   
-```
-
-__2.2. And start it on Kubernetes!__
-
-```bash
-$ kubectl create -f frontend-service.yaml,redis-master-service.yaml,redis-slave-service.yaml,frontend-deployment.yaml,redis-master-deployment.yaml,redis-slave-deployment.yaml
-service "frontend" created
-service "redis-master" created
-service "redis-slave" created
-deployment "frontend" created
-deployment "redis-master" created
-deployment "redis-slave" created
-```
-
-__3. View the newly deployed service__
-
-Now that your service has been deployed, let's access it.
-
-If you're already using `minikube` for your development process:
-
-```bash
-$ minikube service frontend
-```
-
-Otherwise, let's look up what IP your service is using!
+Grab the Kompose binary!
 
 ```sh
-$ kubectl describe svc frontend
-Name:                   frontend
-Namespace:              default
-Labels:                 service=frontend
-Selector:               service=frontend
-Type:                   LoadBalancer
-IP:                     10.0.0.183
-LoadBalancer Ingress:   123.45.67.89
-Port:                   80      80/TCP
-NodePort:               80      31144/TCP
-Endpoints:              172.17.0.4:80
-Session Affinity:       None
-No events.
+# Linux
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.2.0/kompose-linux-amd64 -o kompose
 
+# macOS
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.2.0/kompose-darwin-amd64 -o kompose
+
+chmod +x kompose
+sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-If you're using a cloud provider, your IP will be listed next to `LoadBalancer Ingress`.
-
-```sh
-$ curl http://123.45.67.89
-```
+_Windows:_ Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.2.0/kompose-windows-amd64.exe) and add the binary to your PATH.
