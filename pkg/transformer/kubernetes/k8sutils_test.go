@@ -171,11 +171,11 @@ func TestCreateServiceWithCPULimit(t *testing.T) {
 	// Retrieve the deployment object and test that it matches the cpu value
 	for _, obj := range objects {
 		if deploy, ok := obj.(*extensions.Deployment); ok {
-			cpuLimit, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Cpu().AsInt64()
+			cpuLimit := deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Cpu().MilliValue()
 			if cpuLimit != 10 {
 				t.Errorf("Expected 10 for cpu limit check, got %v", cpuLimit)
 			}
-			cpuReservation, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Cpu().AsInt64()
+			cpuReservation := deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
 			if cpuReservation != 1 {
 				t.Errorf("Expected 1 for cpu reservation check, got %v", cpuReservation)
 			}
