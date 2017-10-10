@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=no
+    # Env file will override environment / warn!
+    env_file:
+      - "foo.env"
+      - bar.env
+    labels:
+      kompose.service.type: nodeport
+    ports:
+      - '6379:6379'

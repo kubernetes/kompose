@@ -20,6 +20,7 @@ import:
 - package: github.com/spf13/cobra
 - package: github.com/spf13/viper
 - package: github.com/pkg/errors
+- package: github.com/joho/godotenv
 
 # We use libcompose to parse v1 and v2 of Docker Compose
 - package: github.com/docker/libcompose
