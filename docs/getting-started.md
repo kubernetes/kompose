@@ -6,7 +6,9 @@
 
 This is how you'll get started with Kompose!
 
-There are two different guides depending on your container orchestrator.
+There are three different guides depending on your container orchestrator as well as operating system.
+
+For beginners and the most compatibility, follow the _Minikube and Kompose_ guide.
 
 ## Minikube and Kompose
 
