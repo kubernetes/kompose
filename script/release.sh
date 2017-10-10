@@ -100,6 +100,9 @@ replaceversion() {
   echo "Replaced version in docs/installation.md"
   sed -i "s/$1/$2/g" docs/installation.md
 
+  echo "Replaced version in docs/introduction.md"
+  sed -i "s/$1/$2/g" docs/introduction.md
+
   echo "Replaced version in build/VERSION"
   sed -i "s/$1/$2/g" build/VERSION
 }
