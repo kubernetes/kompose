@@ -177,7 +177,7 @@ func (k *Kubernetes) InitConfigMap(name string, service kobject.ServiceConfig, o
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: envName,
+			Name: name + "-" + envName,
 		},
 		Data: envs,
 	}
@@ -530,7 +530,7 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt 
 					ValueFrom: &api.EnvVarSource{
 						ConfigMapKeyRef: &api.ConfigMapKeySelector{
 							LocalObjectReference: api.LocalObjectReference{
-								Name: envName,
+								Name: name + "-" + envName,
 							},
 							Key: k,
 						}},

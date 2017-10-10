@@ -1,5 +1,5 @@
-hash: 489e34fbf0634da520802fbaec2a52559a2e016b93022c34e8fd4bcc9c7f1130
-updated: 2017-10-02T11:27:54.826873322-04:00
+hash: 14203f2282ff9f112d87d12b1c3f855502d3d0e808520a887757ce8f273f1086
+updated: 2017-10-10T12:44:09.037210249-04:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -338,7 +338,7 @@ imports:
   - runtime/internal
   - utilities
 - name: github.com/hashicorp/hcl
-  version: 68e816d1c783414e79bc65b3994d9ab6b0a722ab
+  version: 42e33e2d55a0ff1d6263f738896ea8c13571a8d0
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -352,6 +352,8 @@ imports:
   version: 6633656539c1639d9d78127b7d47c622b5d7b6dc
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/joho/godotenv
+  version: a79fa1e548e2c689c241d10173efd51e5d689d5b
 - name: github.com/jonboulle/clockwork
   version: 3f831b65b61282ba6bece21b91beea2edc4c887a
 - name: github.com/juju/ratelimit
@@ -452,17 +454,17 @@ imports:
   repo: git@github.com:/sirupsen/logrus
   vcs: git
 - name: github.com/spf13/afero
-  version: ee1bd8ee15a1306d1f9201acc41ef39cd9f99a1b
+  version: e67d870304c4bca21331b02f414f970df13aa694
   subpackages:
   - mem
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: 0dacccfbaabc71b872087c1719c5380d3e185173
+  version: 4d6af280c76ff7d266434f2dba207c4b75dfc076
 - name: github.com/spf13/jwalterweatherman
   version: 12bd96e66386c1960ab0f74ced1362f66f552f7b
 - name: github.com/spf13/pflag
-  version: be7121dd7a937a85e1e4b1ddda6a3edce3466110
+  version: a9789e855c7696159b7db0db7f440b449edf2b31
 - name: github.com/spf13/viper
   version: d9cca5ef33035202efb1586825bdbb15ff9ec3ba
 - name: github.com/ugorji/go
@@ -502,7 +504,7 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: 314a259e304ff91bd6985da2a7149bbf91237993
+  version: ebfc5b4631820b793c9010c87fd8fef0f39eb082
   subpackages:
   - unix
 - name: golang.org/x/text
