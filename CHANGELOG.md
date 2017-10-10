@@ -1,10 +1,43 @@
 # Change Log
 
+## [v1.3.0](https://github.com/kubernetes/kompose/tree/v1.3.0) (2017-10-10)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.2.0...v1.3.0)
+
+**Closed issues:**
+
+- `go vet` is failing locally [\#825](https://github.com/kubernetes/kompose/issues/825)
+- `--volumes` is not validated  [\#814](https://github.com/kubernetes/kompose/issues/814)
+- tmpfs with mode fails [\#807](https://github.com/kubernetes/kompose/issues/807)
+- Add --controller [\#792](https://github.com/kubernetes/kompose/issues/792)
+
+**Merged pull requests:**
+
+- Update version number in introduction.md [\#841](https://github.com/kubernetes/kompose/pull/841) ([cdrage](https://github.com/cdrage))
+- Update getting started guide docs [\#840](https://github.com/kubernetes/kompose/pull/840) ([cdrage](https://github.com/cdrage))
+- Add "getting started" to the menu [\#839](https://github.com/kubernetes/kompose/pull/839) ([cdrage](https://github.com/cdrage))
+- Fix the cpu limits and requests in generated deployment file [\#838](https://github.com/kubernetes/kompose/pull/838) ([denverdino](https://github.com/denverdino))
+- Update vendoring for logrus and gojsonschema changes [\#835](https://github.com/kubernetes/kompose/pull/835) ([cdrage](https://github.com/cdrage))
+- Add Getting Started guide, adds Minishift tutorial [\#834](https://github.com/kubernetes/kompose/pull/834) ([cdrage](https://github.com/cdrage))
+- Add highlighting for menus + add slack/releases/github links [\#831](https://github.com/kubernetes/kompose/pull/831) ([cdrage](https://github.com/cdrage))
+- Add Ubuntu font [\#830](https://github.com/kubernetes/kompose/pull/830) ([cdrage](https://github.com/cdrage))
+- Update CSS [\#829](https://github.com/kubernetes/kompose/pull/829) ([cdrage](https://github.com/cdrage))
+- Updated vendoring [\#828](https://github.com/kubernetes/kompose/pull/828) ([surajnarwade](https://github.com/surajnarwade))
+- Fixed `go vet` [\#827](https://github.com/kubernetes/kompose/pull/827) ([surajnarwade](https://github.com/surajnarwade))
+- Added `--build-repo` in `kompose up` [\#824](https://github.com/kubernetes/kompose/pull/824) ([surajnarwade](https://github.com/surajnarwade))
+- Adding  --build-branch to `kompose up` [\#820](https://github.com/kubernetes/kompose/pull/820) ([surajnarwade](https://github.com/surajnarwade))
+- Fixed `--volumes` validation [\#817](https://github.com/kubernetes/kompose/pull/817) ([surajnarwade](https://github.com/surajnarwade))
+- Fixed tmpfs with mode failure [\#816](https://github.com/kubernetes/kompose/pull/816) ([surajnarwade](https://github.com/surajnarwade))
+- Fix reference to emptyDir in OpenShift test scripts [\#815](https://github.com/kubernetes/kompose/pull/815) ([ashetty1](https://github.com/ashetty1))
+- Added feature for `placement` key in v3 [\#813](https://github.com/kubernetes/kompose/pull/813) ([surajnarwade](https://github.com/surajnarwade))
+- Added `--controller` feature [\#810](https://github.com/kubernetes/kompose/pull/810) ([surajnarwade](https://github.com/surajnarwade))
+- Add env\_file + ConfigMaps feature to Kompose [\#799](https://github.com/kubernetes/kompose/pull/799) ([cdrage](https://github.com/cdrage))
+
 ## [v1.2.0](https://github.com/kubernetes/kompose/tree/v1.2.0) (2017-09-18)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.1.0...v1.2.0)
 
 **Merged pull requests:**
 
+- 1.2.0 Release [\#821](https://github.com/kubernetes/kompose/pull/821) ([cdrage](https://github.com/cdrage))
 - Update the styles.css for larger width [\#812](https://github.com/kubernetes/kompose/pull/812) ([cdrage](https://github.com/cdrage))
 - emptvols -\> volumes=yes [\#811](https://github.com/kubernetes/kompose/pull/811) ([ashetty1](https://github.com/ashetty1))
 - Remove redundant strings.ToLower\(\) [\#808](https://github.com/kubernetes/kompose/pull/808) ([cdrage](https://github.com/cdrage))
