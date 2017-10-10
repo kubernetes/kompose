@@ -672,6 +672,10 @@ func (f *FlagSet) FlagUsagesWrapped(cols int) string {
 				if flag.NoOptDefVal != "true" {
 					line += fmt.Sprintf("[=%s]", flag.NoOptDefVal)
 				}
+			case "count":
+				if flag.NoOptDefVal != "+1" {
+					line += fmt.Sprintf("[=%s]", flag.NoOptDefVal)
+				}
 			default:
 				line += fmt.Sprintf("[=%s]", flag.NoOptDefVal)
 			}

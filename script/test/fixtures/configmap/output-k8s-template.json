@@ -74,7 +74,7 @@
                     "name": "ALLOW_EMPTY_PASSWORD",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "foo-env",
+                        "name": "redis-foo-env",
                         "key": "ALLOW_EMPTY_PASSWORD"
                       }
                     }
@@ -83,7 +83,7 @@
                     "name": "BAR",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "bar-env",
+                        "name": "redis-bar-env",
                         "key": "BAR"
                       }
                     }
@@ -92,7 +92,7 @@
                     "name": "FOO",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "bar-env",
+                        "name": "redis-bar-env",
                         "key": "FOO"
                       }
                     }
@@ -112,7 +112,7 @@
       "kind": "ConfigMap",
       "apiVersion": "v1",
       "metadata": {
-        "name": "foo-env",
+        "name": "redis-foo-env",
         "creationTimestamp": null
       },
       "data": {
@@ -123,7 +123,7 @@
       "kind": "ConfigMap",
       "apiVersion": "v1",
       "metadata": {
-        "name": "bar-env",
+        "name": "redis-bar-env",
         "creationTimestamp": null
       },
       "data": {
