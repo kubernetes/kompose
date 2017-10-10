@@ -64,11 +64,11 @@
                 "image": "redis",
                 "resources": {
                   "limits": {
-                    "cpu": "10",
+                    "cpu": "10m",
                     "memory": "52428800"
                   },
                   "requests": {
-                    "cpu": "1",
+                    "cpu": "1m",
                     "memory": "20971520"
                   }
                 }

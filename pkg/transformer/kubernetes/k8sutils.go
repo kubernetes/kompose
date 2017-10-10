@@ -424,7 +424,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			}
 
 			if service.CPULimit != 0 {
-				resourceLimit[api.ResourceCPU] = *resource.NewQuantity(service.CPULimit, "RandomStringForFormat")
+				resourceLimit[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPULimit, resource.DecimalSI)
 			}
 
 			template.Spec.Containers[0].Resources.Limits = resourceLimit
@@ -439,7 +439,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			}
 
 			if service.CPUReservation != 0 {
-				resourceRequests[api.ResourceCPU] = *resource.NewQuantity(service.CPUReservation, "RandomStringForFormat")
+				resourceRequests[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPUReservation, resource.DecimalSI)
 			}
 
 			template.Spec.Containers[0].Resources.Requests = resourceRequests
