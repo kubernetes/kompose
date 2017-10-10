@@ -398,8 +398,11 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 		}
 
-		// Update and then append the objects (we're done generating)
-		o.UpdateKubernetesObjects(name, service, &objects)
+		err := o.UpdateKubernetesObjects(name, service, opt, &objects)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
+		}
+
 		allobjects = append(allobjects, objects...)
 	}
 

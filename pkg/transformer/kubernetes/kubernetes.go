@@ -158,6 +158,33 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 	return svc
 }
 
+// InitConfigMap initialized a ConfigMap object
+func (k *Kubernetes) InitConfigMap(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
+
+	envs, err := GetEnvsFromFile(envFile, opt)
+	if err != nil {
+		log.Fatalf("Unable to retrieve env file: %s", err)
+	}
+
+	// Remove root pathing
+	// replace all other slashes / preiods
+	envName := FormatEnvName(envFile)
+
+	// In order to differentiate files, we append to the name and remove '.env' if applicate from the file name
+	configMap := &api.ConfigMap{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name + "-" + envName,
+		},
+		Data: envs,
+	}
+
+	return configMap
+}
+
 // InitD initializes Kubernetes Deployment object
 func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
 	dc := &extensions.Deployment{
@@ -476,19 +503,59 @@ func (k *Kubernetes) ConfigPVCVolumeSource(name string, readonly bool) *api.Volu
 }
 
 // ConfigEnvs configures the environment variables.
-func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig) []api.EnvVar {
+func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]api.EnvVar, error) {
+
 	envs := transformer.EnvSort{}
-	for _, v := range service.Environment {
-		envs = append(envs, api.EnvVar{
-			Name:  v.Name,
-			Value: v.Value,
-		})
+
+	// If there is an env_file, use ConfigMaps and ignore the environment variables
+	// already specified
+	if len(service.EnvFile) > 0 {
+
+		// Load each env_file
+
+		for _, file := range service.EnvFile {
+
+			envName := FormatEnvName(file)
+
+			// Load environment variables from file
+			envLoad, err := GetEnvsFromFile(file, opt)
+			if err != nil {
+				return envs, errors.Wrap(err, "Unable to read env_file")
+			}
+
+			// Add configMapKeyRef to each environment variable
+			for k, _ := range envLoad {
+				envs = append(envs, api.EnvVar{
+					Name: k,
+					ValueFrom: &api.EnvVarSource{
+						ConfigMapKeyRef: &api.ConfigMapKeySelector{
+							LocalObjectReference: api.LocalObjectReference{
+								Name: name + "-" + envName,
+							},
+							Key: k,
+						}},
+				})
+			}
+
+		}
+
+	} else {
+
+		// Load up the environment variables
+		for _, v := range service.Environment {
+			envs = append(envs, api.EnvVar{
+				Name:  v.Name,
+				Value: v.Value,
+			})
+		}
+
 	}
+
 	// Stable sorts data while keeping the original order of equal elements
 	// we need this because envs are not populated in any random order
 	// this sorting ensures they are populated in a particular order
 	sort.Stable(envs)
-	return envs
+	return envs, nil
 }
 
 // CreateKubernetesObjects generates a Kubernetes artifact for each input type service
@@ -515,6 +582,13 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 	}
 	if opt.CreateRC || opt.Controller == "replicationcontroller" {
 		objects = append(objects, k.InitRC(name, service, replica))
+	}
+
+	if len(service.EnvFile) > 0 {
+		for _, envFile := range service.EnvFile {
+			configMap := k.InitConfigMap(name, service, opt, envFile)
+			objects = append(objects, configMap)
+		}
 	}
 
 	return objects
@@ -610,7 +684,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			}
 		}
 
-		k.UpdateKubernetesObjects(name, service, &objects)
+		err := k.UpdateKubernetesObjects(name, service, opt, &objects)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
+		}
 
 		allobjects = append(allobjects, objects...)
 	}
@@ -744,6 +821,12 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 				return err
 			}
 			log.Infof("Successfully created Pod: %s", t.Name)
+		case *api.ConfigMap:
+			_, err := client.ConfigMaps(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			log.Infof("Successfully created Config Map: %s", t.Name)
 		}
 	}
 
