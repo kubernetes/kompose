@@ -311,8 +311,9 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// TODO: Build is not yet supported, see:
 		// https://github.com/docker/cli/blob/master/cli/compose/types/types.go#L9
 		// We will have to *manually* add this / parse.
-		// serviceConfig.Build = composeServiceConfig.Build.Context
-		// serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
+		serviceConfig.Build = composeServiceConfig.Build.Context
+		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
+		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
 
 		// Gather the environment values
 		// DockerCompose uses map[string]*string while we use []string
