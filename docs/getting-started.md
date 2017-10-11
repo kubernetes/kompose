@@ -1,7 +1,8 @@
 ---
 layout: default
 permalink: /getting-started/
-redirect_from: "/docs/getting-started.md"
+redirect_from: 
+  - /docs/getting-started.md/
 ---
 
 # Getting Started

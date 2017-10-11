@@ -1,7 +1,8 @@
 ---
 layout: default
 permalink: /conversion/
-redirect_from: "/docs/conversion.md"
+redirect_from: 
+  - /docs/conversion.md/
 ---
 
 # Conversion Matrix
