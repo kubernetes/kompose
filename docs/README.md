@@ -1,9 +1,9 @@
 # Kompose Documentation
 
 * [Introduction](introduction.md)
-* [Quick Start](quickstart.md)
+* [Getting Started](getting-started.md)
 * [User Guide](user-guide.md)
 * [Architecture](architecture.md)
 * [Conversion](conversion.md)
 * [Development](development.md)
-* [Setup](setup.md)
+* [Installation](installation.md)
