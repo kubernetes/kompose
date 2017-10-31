@@ -1,5 +1,26 @@
 # Change Log
 
+## [v1.4.0](https://github.com/kubernetes/kompose/tree/v1.4.0) (2017-10-31)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.3.0...v1.4.0)
+
+**Closed issues:**
+
+- Fix links in docs/README.md [\#845](https://github.com/kubernetes/kompose/issues/845)
+- Link is broken for maven example [\#844](https://github.com/kubernetes/kompose/issues/844)
+- Update --help page for convert to be the same as up [\#842](https://github.com/kubernetes/kompose/issues/842)
+- Add documentation on Kompose integrations [\#732](https://github.com/kubernetes/kompose/issues/732)
+- Convert docker-compose env files into configmaps [\#308](https://github.com/kubernetes/kompose/issues/308)
+- Investigate how to use HCL/Nomad as input object [\#144](https://github.com/kubernetes/kompose/issues/144)
+
+**Merged pull requests:**
+
+- Updated `--help` page for `kompose up` [\#852](https://github.com/kubernetes/kompose/pull/852) ([surajnarwade](https://github.com/surajnarwade))
+- Fix Redirecting Error in README.md [\#849](https://github.com/kubernetes/kompose/pull/849) ([piyush1594](https://github.com/piyush1594))
+- Redirects not working [\#848](https://github.com/kubernetes/kompose/pull/848) ([cdrage](https://github.com/cdrage))
+- Fix Redirecting Error [\#847](https://github.com/kubernetes/kompose/pull/847) ([piyush1594](https://github.com/piyush1594))
+- Added Fabric8 Maven Plugin in Integration [\#836](https://github.com/kubernetes/kompose/pull/836) ([piyush1594](https://github.com/piyush1594))
+- Adding documentation for tests [\#819](https://github.com/kubernetes/kompose/pull/819) ([ashetty1](https://github.com/ashetty1))
+
 ## [v1.3.0](https://github.com/kubernetes/kompose/tree/v1.3.0) (2017-10-10)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.2.0...v1.3.0)
 
@@ -12,6 +33,7 @@
 
 **Merged pull requests:**
 
+- 1.3.0 Release [\#843](https://github.com/kubernetes/kompose/pull/843) ([cdrage](https://github.com/cdrage))
 - Update version number in introduction.md [\#841](https://github.com/kubernetes/kompose/pull/841) ([cdrage](https://github.com/cdrage))
 - Update getting started guide docs [\#840](https://github.com/kubernetes/kompose/pull/840) ([cdrage](https://github.com/cdrage))
 - Add "getting started" to the menu [\#839](https://github.com/kubernetes/kompose/pull/839) ([cdrage](https://github.com/cdrage))
