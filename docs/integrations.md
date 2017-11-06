@@ -7,6 +7,9 @@ redirect_from:
 
 # Integrations
 
+* TOC
+{:toc}
+
 There are some projects out there known to use Kompose integrated in some form or another
 
 ### Kompose UI by Jad Chamoun (ICANN) and Joe Haddad (Anghami)

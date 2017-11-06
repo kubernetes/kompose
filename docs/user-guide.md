@@ -7,17 +7,8 @@ redirect_from:
 
 # User Guide
 
-- Command Line
-  - [Kompose Convert](#kompose-convert)
-  - [Kompose Up](#kompose-up)
-  - [Kompose Down](#kompose-down)
-
-- Documentation
-  - [Build and Push Docker Images](#build-and-push-docker-images)
-  - [Alternative Conversions](#alternative-conversions)
-  - [Labels](#labels)
-  - [Restart](#restart)
-  - [Docker Compose Versions](#docker-compose-versions)
+* TOC
+{:toc}
 
 Kompose has support for two providers: OpenShift and Kubernetes.
 You can choose a targeted provider using global option `--provider`. If no provider is specified, Kubernetes is set by default.

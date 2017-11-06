@@ -7,9 +7,8 @@ redirect_from:
 
 # Getting Started
 
-- [Minikube and Kompose](#minikube-and-kompose)  
-- [Minishift and Kompose](#minishift-and-kompose)  
-- [RHEL and Kompose](#rhel-and-kompose)
+* TOC
+{:toc}
 
 This is how you'll get started with Kompose!
 
