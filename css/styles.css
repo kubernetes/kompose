@@ -1,15 +1,42 @@
 body {
   background-color: white;
-  font: 12px;
-  font-family: 'Ubuntu', sans-serif;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   color:#595959;
   font-weight:300;
+}
+
+#markdown-toc ul {
+  padding: 0px 5px 0px 10px;
+  margin:0 !important;
+}
+
+#markdown-toc li {
+  padding:5px 0px 0px 0px;
+}
+
+#markdown-toc {
+  font-size:14px;
+  font-weight:400;
+  padding: 0 0 0 10px;
 }
 
 strong, b {
   font-weight:500;
 }
 
+.examples {
+  text-align:left;
+}
+
+.examples a {
+  font-weight:500;
+}
+
+
+.demo a {
+  font-weight:500;
+}
 
 h1, h2, h3, h4, h5, h6 {
   color:#222;
@@ -76,7 +103,7 @@ blockquote {
 code, pre {
   font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal, Consolas, Liberation Mono, DejaVu Sans Mono, Courier New, monospace;
   color:#333;
-  font-size:12px;
+  font-size:13px;
 }
 
 pre {
@@ -120,6 +147,44 @@ header {
   float:left;
   position:static;
   -webkit-font-smoothing:subpixel-antialiased;
+}
+
+.whale {
+  width:150px;
+  text-align:center;
+  margin: 0 auto;
+}
+
+.introduction h1 {
+  padding-top:30px;
+  text-align:center;
+  font-weight:500;
+}
+
+.introduction h2 {
+  text-align:center;
+  font-weight:400;
+}
+
+.introsection {
+  width:905px;
+  background: none;
+  border-radius: 0px;
+  padding: 0;
+}
+
+.introsection #sub {
+  width:100%;
+  border-radius: 5px;
+  margin-bottom:10px !important;
+}
+
+.spacing {
+  padding:15px;
+}
+
+.tutorial {
+  background:white;
 }
 
 section {
@@ -251,8 +316,43 @@ footer p {
 font-size:10px;
 }
 
-li {
-  margin-bottom:5px;
+.demo-code {
+  display:inline-block;
+  vertical-align:top;
+  text-align:left;
+}
+
+.demo-code .highlight {
+  padding-bottom:13px;
+}
+
+.demo-gif {
+  display:inline-block;
+  vertical-align:top;
+  padding: 0 8px 0px 8px;
+  background: #fff;
+  border-radius: 5px;
+  border: 1px solid #fff;
+}
+
+.arrow {
+  font-size:1em;
+
+}
+
+.demoexample {
+  text-align:left;
+}
+
+.demoto {
+  vertical-align:middle;
+  display:inline-block;
+}
+
+.httpd {
+  font-size:16px;
+  padding:15px;
+  line-height:130px;
 }
 
 .logo img {
