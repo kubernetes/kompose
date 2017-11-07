@@ -31,6 +31,8 @@ import (
 
 	"github.com/kubernetes/kompose/pkg/utils/docker"
 
+	"github.com/kubernetes/kompose/pkg/version"
+
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
 )
@@ -117,13 +119,19 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 		annotations[key] = value
 	}
 	annotations["kompose.cmd"] = strings.Join(os.Args, " ")
-	version := exec.Command("kompose", "version")
-	out, err := version.Output()
+	versionCmd := exec.Command("kompose", "version")
+	out, err := versionCmd.Output()
 	if err != nil {
 		errors.Wrap(err, "Failed to get kompose version")
 
 	}
 	annotations["kompose.version"] = strings.Trim(string(out), " \n")
+
+	// If the version is blank (couldn't retrieve the kompose version for whatever reason)
+	if annotations["kompose.version"] == "" {
+		annotations["kompose.version"] = version.VERSION + " (" + version.GITCOMMIT + ")"
+	}
+
 	return annotations
 }
 

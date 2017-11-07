@@ -91,8 +91,8 @@ init_sync() {
 }
 
 replaceversion() {
-  echo "Replaced version in version.go"
-  sed -i "s/$1/$2/g" cmd/version.go
+  echo "Replaced version in pkg/version/version.go"
+  sed -i "s/$1/$2/g" pkg/version/version.go
 
   echo "Replaced version in README.md"
   sed -i "s/$1/$2/g" README.md

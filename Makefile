@@ -15,7 +15,7 @@
 
 
 GITCOMMIT := $(shell git rev-parse --short HEAD)
-BUILD_FLAGS := -ldflags="-w -X github.com/kubernetes/kompose/cmd.GITCOMMIT=$(GITCOMMIT)"
+BUILD_FLAGS := -ldflags="-w -X github.com/kubernetes/kompose/pkg/version.GITCOMMIT=$(GITCOMMIT)"
 PKGS = $(shell glide novendor)
 TEST_IMAGE := kompose/tests:latest
 
