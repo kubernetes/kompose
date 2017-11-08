@@ -217,7 +217,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		LoadedFrom:     "compose",
 	}
 
-	// Step 2. Parse through the object and conver it to kobject.KomposeObject!
+	// Step 2. Parse through the object and convert it to kobject.KomposeObject!
 	// Here we "clean up" the service configuration so we return something that includes
 	// all relevant information as well as avoid the unsupported keys as well.
 	for _, composeServiceConfig := range composeObject.Services {
@@ -240,6 +240,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.ContainerName = composeServiceConfig.ContainerName
 		serviceConfig.Command = composeServiceConfig.Entrypoint
 		serviceConfig.Args = composeServiceConfig.Command
+		serviceConfig.Labels = composeServiceConfig.Labels
 
 		//
 		// Deploy keys

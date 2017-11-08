@@ -267,8 +267,8 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 }
 
 // CreatePVC initializes PersistentVolumeClaim
-func (k *Kubernetes) CreatePVC(name string, mode string) (*api.PersistentVolumeClaim, error) {
-	size, err := resource.ParseQuantity(PVCRequestSize)
+func (k *Kubernetes) CreatePVC(name string, mode string, size string) (*api.PersistentVolumeClaim, error) {
+	volsize, err := resource.ParseQuantity(size)
 	if err != nil {
 		return nil, errors.Wrap(err, "resource.ParseQuantity failed, Error parsing size")
 	}
@@ -285,7 +285,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string) (*api.PersistentVolumeC
 		Spec: api.PersistentVolumeClaimSpec{
 			Resources: api.ResourceRequirements{
 				Requests: api.ResourceList{
-					api.ResourceStorage: size,
+					api.ResourceStorage: volsize,
 				},
 			},
 		},
@@ -448,7 +448,15 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
 			if volume.VFrom == "" {
-				createdPVC, err := k.CreatePVC(volumeName, volume.Mode)
+				defaultSize := PVCRequestSize
+
+				for key, value := range service.Labels {
+					if key == "kompose.volume.size" {
+						defaultSize = value
+					}
+				}
+
+				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize)
 
 				if err != nil {
 					return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
