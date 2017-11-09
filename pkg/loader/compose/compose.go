@@ -73,6 +73,7 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		"Net":           false,
 		"Sysctls":       false,
 		"Networks":      false, // there are special checks for Network in checkUnsupportedKey function
+		"Links":         false,
 	}
 
 	// collect all keys found in project
@@ -120,6 +121,26 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 							yamlTagName = "networks"
 						}
 					}
+
+					if linksArray := val.FieldByName(f.Name()); f.Name() == "Links" && linksArray.Kind() == reflect.Slice {
+						//Links has "SERVICE:ALIAS" style, we don't support SERVICE != ALIAS
+						findUnsupportedLinksFlag := false
+						for i := 0; i < linksArray.Len(); i++ {
+							if tmpLink := linksArray.Index(i); tmpLink.Kind() == reflect.String {
+								tmpLinkStr := tmpLink.String()
+								tmpLinkStrSplit := strings.Split(tmpLinkStr, ":")
+								if len(tmpLinkStrSplit) == 2 && tmpLinkStrSplit[0] != tmpLinkStrSplit[1] {
+									findUnsupportedLinksFlag = true
+									break
+								}
+							}
+						}
+						if !findUnsupportedLinksFlag {
+							continue
+						}
+
+					}
+
 					keysFound = append(keysFound, yamlTagName)
 					unsupportedKey[f.Name()] = true
 				}
