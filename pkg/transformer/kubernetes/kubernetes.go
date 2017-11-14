@@ -805,6 +805,21 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 				return err
 			}
 			log.Infof("Successfully created Deployment: %s", t.Name)
+
+		case *extensions.DaemonSet:
+			_, err := client.DaemonSets(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			log.Infof("Successfully created DaemonSet: %s", t.Name)
+
+		case *api.ReplicationController:
+			_, err := client.ReplicationControllers(namespace).Create(t)
+			if err != nil {
+				return err
+			}
+			log.Infof("Successfully created ReplicationController: %s", t.Name)
+
 		case *api.Service:
 			_, err := client.Services(namespace).Create(t)
 			if err != nil {
@@ -897,6 +912,56 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 						break
 					}
 					log.Infof("Successfully deleted Deployment: %s", t.Name)
+
+				}
+			}
+
+		case *extensions.DaemonSet:
+			//delete deployment
+			daemonset, err := client.DaemonSets(namespace).List(options)
+			if err != nil {
+				errorList = append(errorList, err)
+				break
+			}
+			for _, l := range daemonset.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					rpDaemonset, err := kubectl.ReaperFor(extensions.Kind("DaemonSet"), client)
+					if err != nil {
+						errorList = append(errorList, err)
+						break
+					}
+					//FIXME: gracePeriod is nil
+					err = rpDaemonset.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					if err != nil {
+						errorList = append(errorList, err)
+						break
+					}
+					log.Infof("Successfully deleted DaemonSet: %s", t.Name)
+
+				}
+			}
+
+		case *api.ReplicationController:
+			//delete deployment
+			replicationController, err := client.ReplicationControllers(namespace).List(options)
+			if err != nil {
+				errorList = append(errorList, err)
+				break
+			}
+			for _, l := range replicationController.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					rpReplicationController, err := kubectl.ReaperFor(api.Kind("ReplicationController"), client)
+					if err != nil {
+						errorList = append(errorList, err)
+						break
+					}
+					//FIXME: gracePeriod is nil
+					err = rpReplicationController.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					if err != nil {
+						errorList = append(errorList, err)
+						break
+					}
+					log.Infof("Successfully deleted ReplicationController: %s", t.Name)
 
 				}
 			}
