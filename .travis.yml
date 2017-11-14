@@ -24,6 +24,7 @@ install:
   - script/test/cmd/fix_detached_head.sh
 
 script:
+  - make bin
   - make test
   # Only cross-compile once
   - if [ "$CROSS_COMPILE" == "yes" ]; then make cross; fi

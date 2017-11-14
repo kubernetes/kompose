@@ -117,6 +117,13 @@ test_k8s() {
     ./kompose down -f $f --controller=replicationcontroller
 
   done
+
+  echo -e "\nTesting stdin to kompose\n"
+  echo -e "\n${RED}cat examples/docker-compose.yaml | ./kompose up -f -${NC}\n"
+  cat examples/docker-compose.yaml | ./kompose up -f -
+  sleep 2 # Sleep for k8s to catch up to deployment
+  echo -e "\n${RED}cat examples/docker-compose.yaml | ./kompose down -f - ${NC}\n"
+  cat examples/docker-compose.yaml | ./kompose down -f -
 }
 
 if [[ $1 == "start" ]]; then
