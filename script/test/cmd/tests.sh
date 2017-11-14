@@ -663,5 +663,12 @@ cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-gitlab-os.json > /tmp/output-os.json
 convert::expect_success_and_warning "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-gitlab.yaml" "/tmp/output-os.json"
 
+# Testing stdin feature
+cmd="$KOMPOSE_ROOT/kompose convert --stdout -j -f -"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/stdin/output.json > /tmp/output-k8s.json
+
+echo -e "\n"
+go test -v github.com/kubernetes/kompose/script/test/cmd
+
 rm /tmp/output-k8s.json /tmp/output-os.json
 exit $EXIT_STATUS
