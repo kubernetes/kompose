@@ -142,4 +142,5 @@ type Volumes struct {
 	Container  string // Mountpath
 	Mode       string // access mode for volume
 	PVCName    string // name of PVC
+	PVCSize    string // PVC size
 }
