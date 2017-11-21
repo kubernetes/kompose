@@ -1,5 +1,18 @@
 # Change Log
 
+## [v1.5.0](https://github.com/kubernetes/kompose/tree/v1.5.0) (2017-11-21)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.4.0...v1.5.0)
+
+**Merged pull requests:**
+
+-  Set PVC volume size with kompose.volume.size [\#867](https://github.com/kubernetes/kompose/pull/867) ([abitrolly](https://github.com/abitrolly))
+- architecture.md  Link sources [\#866](https://github.com/kubernetes/kompose/pull/866) ([abitrolly](https://github.com/abitrolly))
+- Move version information to separate file [\#864](https://github.com/kubernetes/kompose/pull/864) ([cdrage](https://github.com/cdrage))
+- Fix typo [\#863](https://github.com/kubernetes/kompose/pull/863) ([xianlubird](https://github.com/xianlubird))
+- Ignore links attribute and print warning message [\#862](https://github.com/kubernetes/kompose/pull/862) ([xianlubird](https://github.com/xianlubird))
+- Add TOC to documentation, add readme.md notice [\#861](https://github.com/kubernetes/kompose/pull/861) ([cdrage](https://github.com/cdrage))
+- Update CSS [\#860](https://github.com/kubernetes/kompose/pull/860) ([cdrage](https://github.com/cdrage))
+
 ## [v1.4.0](https://github.com/kubernetes/kompose/tree/v1.4.0) (2017-10-31)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.3.0...v1.4.0)
 
@@ -14,6 +27,7 @@
 
 **Merged pull requests:**
 
+- 1.4.0 Release [\#858](https://github.com/kubernetes/kompose/pull/858) ([cdrage](https://github.com/cdrage))
 - Updated `--help` page for `kompose up` [\#852](https://github.com/kubernetes/kompose/pull/852) ([surajnarwade](https://github.com/surajnarwade))
 - Fix Redirecting Error in README.md [\#849](https://github.com/kubernetes/kompose/pull/849) ([piyush1594](https://github.com/piyush1594))
 - Redirects not working [\#848](https://github.com/kubernetes/kompose/pull/848) ([cdrage](https://github.com/cdrage))
