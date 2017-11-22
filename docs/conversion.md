@@ -42,7 +42,7 @@ __Glossary:__
 | dns_search             | x  | x  | x  |                                                             | See `dns` key                                                                                                  |
 | tmpfs                  | ✓  | ✓  | ✓  | Pod.Spec.Containers.Volumes.EmptyDir                        | Creates emptyDirvolume with medium set to Memory & mounts given directory inside container                     |
 | entrypoint             | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  | Same as command                                                                                                |
-| env_file               | n  | n  | n  |                                                             |                                                                                                                |
+| env_file               | n  | n  | ✓  |                                                             |                                                                                                                |
 | environment            | ✓  | ✓  | ✓  | Pod.Spec.Container.Env                                      |                                                                                                                |
 | expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports                                          |                                                                                                                |
 | extends                | ✓  | ✓  | ✓  |                                                             | Extends by utilizing the same image supplied                                                                   |
