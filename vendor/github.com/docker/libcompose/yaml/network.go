@@ -3,6 +3,8 @@ package yaml
 import (
 	"errors"
 	"fmt"
+	"sort"
+	"strings"
 )
 
 // Networks represents a list of service networks in compose file.
@@ -18,6 +20,35 @@ type Network struct {
 	Aliases     []string `yaml:"aliases,omitempty"`
 	IPv4Address string   `yaml:"ipv4_address,omitempty"`
 	IPv6Address string   `yaml:"ipv6_address,omitempty"`
+}
+
+// Generate a hash string to detect service network config changes
+func (n *Networks) HashString() string {
+	if n == nil {
+		return ""
+	}
+	result := []string{}
+	for _, net := range n.Networks {
+		result = append(result, net.HashString())
+	}
+	sort.Strings(result)
+	return strings.Join(result, ",")
+}
+
+// Generate a hash string to detect service network config changes
+func (n *Network) HashString() string {
+	if n == nil {
+		return ""
+	}
+	result := []string{}
+	result = append(result, n.Name)
+	result = append(result, n.RealName)
+	sort.Strings(n.Aliases)
+	result = append(result, strings.Join(n.Aliases, ","))
+	result = append(result, n.IPv4Address)
+	result = append(result, n.IPv6Address)
+	sort.Strings(result)
+	return strings.Join(result, ",")
 }
 
 // MarshalYAML implements the Marshaller interface.

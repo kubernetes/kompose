@@ -112,6 +112,11 @@ func isFilePath(source string) bool {
 		return true
 	}
 
+	// windows named pipes
+	if strings.HasPrefix(source, `\\`) {
+		return true
+	}
+
 	first, nextIndex := utf8.DecodeRuneInString(source)
 	return isWindowsDrive([]rune{first}, rune(source[nextIndex]))
 }

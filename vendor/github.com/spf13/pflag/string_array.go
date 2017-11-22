@@ -1,5 +1,11 @@
 package pflag
 
+import (
+	"fmt"
+)
+
+var _ = fmt.Fprint
+
 // -- stringArray Value
 type stringArrayValue struct {
 	value   *[]string
