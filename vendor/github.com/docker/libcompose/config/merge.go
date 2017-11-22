@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"strings"
 
+	"reflect"
+
 	"github.com/docker/docker/pkg/urlutil"
 	"github.com/docker/libcompose/utils"
 	composeYaml "github.com/docker/libcompose/yaml"
 	"gopkg.in/yaml.v2"
-	"reflect"
 )
 
 var (
@@ -229,19 +230,11 @@ func readEnvFile(resourceLookup ResourceLookup, inFile string, serviceData RawSe
 
 	serviceData["environment"] = vars
 
-	delete(serviceData, "env_file")
-
 	return serviceData, nil
 }
 
 func mergeConfig(baseService, serviceData RawService) RawService {
 	for k, v := range serviceData {
-		// Image and build are mutually exclusive in merge
-		if k == "image" {
-			delete(baseService, "build")
-		} else if k == "build" {
-			delete(baseService, "image")
-		}
 		existing, ok := baseService[k]
 		if ok {
 			baseService[k] = merge(existing, v)

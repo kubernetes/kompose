@@ -89,7 +89,7 @@ func (d *decoder) decode(name string, node ast.Node, result reflect.Value) error
 	switch k.Kind() {
 	case reflect.Bool:
 		return d.decodeBool(name, node, result)
-	case reflect.Float32, reflect.Float64:
+	case reflect.Float64:
 		return d.decodeFloat(name, node, result)
 	case reflect.Int, reflect.Int32, reflect.Int64:
 		return d.decodeInt(name, node, result)
@@ -137,13 +137,13 @@ func (d *decoder) decodeBool(name string, node ast.Node, result reflect.Value) e
 func (d *decoder) decodeFloat(name string, node ast.Node, result reflect.Value) error {
 	switch n := node.(type) {
 	case *ast.LiteralType:
-		if n.Token.Type == token.FLOAT || n.Token.Type == token.NUMBER {
+		if n.Token.Type == token.FLOAT {
 			v, err := strconv.ParseFloat(n.Token.Text, 64)
 			if err != nil {
 				return err
 			}
 
-			result.Set(reflect.ValueOf(v).Convert(result.Type()))
+			result.Set(reflect.ValueOf(v))
 			return nil
 		}
 	}

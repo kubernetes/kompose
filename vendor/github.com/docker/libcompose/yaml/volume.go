@@ -3,6 +3,7 @@ package yaml
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -17,6 +18,19 @@ type Volume struct {
 	Source      string `yaml:"-"`
 	Destination string `yaml:"-"`
 	AccessMode  string `yaml:"-"`
+}
+
+// Generate a hash string to detect service volume config changes
+func (v *Volumes) HashString() string {
+	if v == nil {
+		return ""
+	}
+	result := []string{}
+	for _, vol := range v.Volumes {
+		result = append(result, vol.String())
+	}
+	sort.Strings(result)
+	return strings.Join(result, ",")
 }
 
 // String implements the Stringer interface.
