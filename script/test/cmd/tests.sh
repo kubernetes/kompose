@@ -84,6 +84,16 @@ cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/nginx-no
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" -e "s;%URI%;$uri;g" -e "s;%REF%;$branch;g" $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os-template.json > /tmp/output-os.json
 convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j --build build-config" "/tmp/output-os.json" "$warning"
 
+# Replacing variables with current branch and uri
+# Test BuildConfig v3/OpenShift Test
+cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j --build build-config"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" -e "s;%URI%;$uri;g" -e "s;%REF%;$branch;g" $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-os-template-v3.json > /tmp/output-os.json
+convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j --build build-config" "/tmp/output-os.json" "$warning"
+
+#Kubernetes Test for v3
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" -e "s;%URI%;$uri;g" -e "s;%REF%;$branch;g" $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/output-k8s-template-v3.json > /tmp/output-k8s.json
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j" "/tmp/output-k8s.json"
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/entrypoint-command
