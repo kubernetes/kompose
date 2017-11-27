@@ -24,8 +24,8 @@ import (
 	"path"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/kubernetes/kompose/pkg/kobject"
+	log "github.com/sirupsen/logrus"
 
 	"path/filepath"
 

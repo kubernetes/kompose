@@ -26,10 +26,10 @@ import (
 
 	"k8s.io/kubernetes/pkg/api"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // Bundle is docker bundle file loader, implements Loader interface

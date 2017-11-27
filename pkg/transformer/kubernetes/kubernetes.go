@@ -22,12 +22,12 @@ import (
 	"strconv"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/transformer"
 	buildapi "github.com/openshift/origin/pkg/build/api"
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	log "github.com/sirupsen/logrus"
 
 	// install kubernetes api
 	_ "k8s.io/kubernetes/pkg/api/install"
