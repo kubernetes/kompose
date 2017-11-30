@@ -118,7 +118,7 @@ test-container:
 vendor-update:
 	glide update --strip-vendor
 	glide-vc --only-code --no-tests
-	find ./vendor/github.com/docker/distribution -type f -exec sed -i 's/Sirupsen/sirupen/g' {} \;        
+	find ./vendor/github.com/docker/distribution -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} \;        
 
 
 .PHONE: test-k8s
