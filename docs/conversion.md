@@ -22,9 +22,9 @@ __Glossary:__
 
 | Keys                   | V1 | V2 | V3 | Kubernetes / OpenShift                                      | Notes                                                                                                          |
 |------------------------|----|----|----|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| build                  | ✓  | ✓  | n  |                                                             | Builds/Pushes to Docker repository. See `--build` parameter                                                    |
-| build: context         | ✓  | ✓  | n  |                                                             |                                                                                                                |
-| build: dockerfile      | ✓  | ✓  | n  |                                                             |                                                                                                                |
+| build                  | ✓  | ✓  | ✓  |                                                             | Builds/Pushes to Docker repository. See `--build` parameter                                                    |
+| build: context         | ✓  | ✓  | ✓  |                                                             |                                                                                                                |
+| build: dockerfile      | ✓  | ✓  | ✓  |                                                             |                                                                                                                |
 | build: args            | n  | n  | n  |                                                             |                                                                                                                |
 | build: cache_from      | -  | -  | n  |                                                             |                                                                                                                |
 | cap_add, cap_drop      | ✓  | ✓  | ✓  | Pod.Spec.Container.SecurityContext.Capabilities.Add/Drop    |                                                                                                                |
