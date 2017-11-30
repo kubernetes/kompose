@@ -19,9 +19,9 @@ package cmd
 import (
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/kubernetes/kompose/pkg/app"
 	"github.com/kubernetes/kompose/pkg/kobject"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

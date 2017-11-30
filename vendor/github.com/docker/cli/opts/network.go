@@ -95,12 +95,12 @@ func (n *NetworkOpt) String() string {
 	return ""
 }
 
-func parseDriverOpt(driverOpt string) (key string, value string, err error) {
+func parseDriverOpt(driverOpt string) (string, string, error) {
 	parts := strings.SplitN(driverOpt, "=", 2)
 	if len(parts) != 2 {
-		err = fmt.Errorf("invalid key value pair format in driver options")
+		return "", "", fmt.Errorf("invalid key value pair format in driver options")
 	}
-	key = strings.TrimSpace(strings.ToLower(parts[0]))
-	value = strings.TrimSpace(strings.ToLower(parts[1]))
-	return
+	key := strings.TrimSpace(strings.ToLower(parts[0]))
+	value := strings.TrimSpace(strings.ToLower(parts[1]))
+	return key, value, nil
 }

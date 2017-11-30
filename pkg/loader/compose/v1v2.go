@@ -26,13 +26,13 @@ import (
 
 	"k8s.io/kubernetes/pkg/api"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // Parse Docker Compose with libcompose (only supports v1 and v2). Eventually we will

@@ -53,16 +53,32 @@ func nametomib(name string) (mib []_C_int, err error) {
 	return nil, EINVAL
 }
 
-func direntIno(buf []byte) (uint64, bool) {
-	return readInt(buf, unsafe.Offsetof(Dirent{}.Fileno), unsafe.Sizeof(Dirent{}.Fileno))
-}
-
-func direntReclen(buf []byte) (uint64, bool) {
-	return readInt(buf, unsafe.Offsetof(Dirent{}.Reclen), unsafe.Sizeof(Dirent{}.Reclen))
-}
-
-func direntNamlen(buf []byte) (uint64, bool) {
-	return readInt(buf, unsafe.Offsetof(Dirent{}.Namlen), unsafe.Sizeof(Dirent{}.Namlen))
+// ParseDirent parses up to max directory entries in buf,
+// appending the names to names. It returns the number
+// bytes consumed from buf, the number of entries added
+// to names, and the new names slice.
+func ParseDirent(buf []byte, max int, names []string) (consumed int, count int, newnames []string) {
+	origlen := len(buf)
+	for max != 0 && len(buf) > 0 {
+		dirent := (*Dirent)(unsafe.Pointer(&buf[0]))
+		if dirent.Reclen == 0 {
+			buf = nil
+			break
+		}
+		buf = buf[dirent.Reclen:]
+		if dirent.Fileno == 0 { // File absent in directory.
+			continue
+		}
+		bytes := (*[10000]byte)(unsafe.Pointer(&dirent.Name[0]))
+		var name = string(bytes[0:dirent.Namlen])
+		if name == "." || name == ".." { // Useless names
+			continue
+		}
+		max--
+		count++
+		names = append(names, name)
+	}
+	return origlen - len(buf), count, names
 }
 
 //sysnb pipe(p *[2]_C_int) (err error)
@@ -149,6 +165,11 @@ func Getfsstat(buf []Statfs_t, flags int) (n int, err error) {
 //sys	Mkdir(path string, mode uint32) (err error)
 //sys	Mkfifo(path string, mode uint32) (err error)
 //sys	Mknod(path string, mode uint32, dev int) (err error)
+//sys	Mlock(b []byte) (err error)
+//sys	Mlockall(flags int) (err error)
+//sys	Mprotect(b []byte, prot int) (err error)
+//sys	Munlock(b []byte) (err error)
+//sys	Munlockall() (err error)
 //sys	Nanosleep(time *Timespec, leftover *Timespec) (err error)
 //sys	Open(path string, mode int, perm uint32) (fd int, err error)
 //sys	Pathconf(path string, name int) (val int, err error)
@@ -188,7 +209,6 @@ func Getfsstat(buf []Statfs_t, flags int) (n int, err error) {
 //sys	munmap(addr uintptr, length uintptr) (err error)
 //sys	readlen(fd int, buf *byte, nbuf int) (n int, err error) = SYS_READ
 //sys	writelen(fd int, buf *byte, nbuf int) (n int, err error) = SYS_WRITE
-//sys	utimensat(dirfd int, path string, times *[2]Timespec, flags int) (err error)
 
 /*
  * Unimplemented
@@ -278,5 +298,6 @@ func Getfsstat(buf []Statfs_t, flags int) (n int, err error) {
 // thrsleep
 // thrwakeup
 // unlinkat
+// utimensat
 // vfork
 // writev

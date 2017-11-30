@@ -31,9 +31,9 @@ import (
 
 	"os"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // converts os.Environ() ([]string) to map[string]string
@@ -171,16 +171,16 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig) (kobject.Healt
 	var timeout, interval, retries, startPeriod int32
 
 	// Here we convert the timeout from 1h30s (example) to 36030 seconds.
-	if composeHealthCheck.Timeout != "" {
-		parse, err := time.ParseDuration(composeHealthCheck.Timeout)
+	if composeHealthCheck.Timeout != nil {
+		parse, err := time.ParseDuration(composeHealthCheck.Timeout.String())
 		if err != nil {
 			return kobject.HealthCheck{}, errors.Wrap(err, "unable to parse health check timeout variable")
 		}
 		timeout = int32(parse.Seconds())
 	}
 
-	if composeHealthCheck.Interval != "" {
-		parse, err := time.ParseDuration(composeHealthCheck.Interval)
+	if composeHealthCheck.Interval != nil {
+		parse, err := time.ParseDuration(composeHealthCheck.Interval.String())
 		if err != nil {
 			return kobject.HealthCheck{}, errors.Wrap(err, "unable to parse health check interval variable")
 		}
@@ -191,8 +191,8 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig) (kobject.Healt
 		retries = int32(*composeHealthCheck.Retries)
 	}
 
-	if composeHealthCheck.StartPeriod != "" {
-		parse, err := time.ParseDuration(composeHealthCheck.StartPeriod)
+	if composeHealthCheck.StartPeriod != nil {
+		parse, err := time.ParseDuration(composeHealthCheck.StartPeriod.String())
 		if err != nil {
 			return kobject.HealthCheck{}, errors.Wrap(err, "unable to parse health check startPeriod variable")
 		}
@@ -312,8 +312,9 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// TODO: Build is not yet supported, see:
 		// https://github.com/docker/cli/blob/master/cli/compose/types/types.go#L9
 		// We will have to *manually* add this / parse.
-		// serviceConfig.Build = composeServiceConfig.Build.Context
-		// serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
+		serviceConfig.Build = composeServiceConfig.Build.Context
+		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
+		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
 
 		// Gather the environment values
 		// DockerCompose uses map[string]*string while we use []string

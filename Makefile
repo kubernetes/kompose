@@ -112,6 +112,15 @@ test-image:
 test-container:
 	docker run -v `pwd`:/opt/tmp/kompose:ro -it $(TEST_IMAGE) 
 
+# Update vendoring
+# Vendoring is a bit messy right now
+.PHONY: vendor-update
+vendor-update:
+	glide update --strip-vendor
+	glide-vc --only-code --no-tests
+	find ./vendor/github.com/docker/distribution -type f -exec sed -i 's/Sirupsen/sirupen/g' {} \;        
+
+
 .PHONE: test-k8s
 test-k8s:
 	./script/test_k8s/test.sh

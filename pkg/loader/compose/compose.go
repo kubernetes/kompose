@@ -24,11 +24,11 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/project"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // Compose is docker compose file loader, implements Loader interface
