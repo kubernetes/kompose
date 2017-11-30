@@ -103,6 +103,19 @@ test_k8s() {
     sleep 2 # Sleep for k8s to catch up to deployment
     echo -e "\n${RED}kompose down -f $f ${NC}\n"
     ./kompose down -f $f
+    echo -e "\nTesting controller=daemonset key\n"
+    echo -e "\n${RED}kompose up -f $f --controller=daemonset ${NC}\n"
+    ./kompose up -f $f --controller=daemonset
+    sleep 2 # Sleep for k8s to catch up to deployment
+    echo -e "\n${RED}kompose down -f $f --controller=daemonset ${NC}\n"
+    ./kompose down -f $f --controller=daemonset
+    echo -e "\nTesting controller=replicationcontroller key\n"
+    echo -e "\n${RED}kompose up -f $f --controller=replicationcontroller ${NC}\n"
+    ./kompose up -f $f --controller=replicationcontroller
+    sleep 2 # Sleep for k8s to catch up to deployment
+    echo -e "\n${RED}kompose down -f $f --controller=replicationcontroller ${NC}\n"
+    ./kompose down -f $f --controller=replicationcontroller
+
   done
 }
 

@@ -17,6 +17,8 @@ limitations under the License.
 package cmd
 
 import (
+	"strings"
+
 	"github.com/kubernetes/kompose/pkg/app"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/spf13/cobra"
@@ -24,8 +26,9 @@ import (
 
 // TODO: comment
 var (
-	DownNamespace string
-	DownOpt       kobject.ConvertOptions
+	DownNamespace  string
+	DownController string
+	DownOpt        kobject.ConvertOptions
 )
 
 var downCmd = &cobra.Command{
@@ -39,6 +42,7 @@ var downCmd = &cobra.Command{
 			InputFiles:      GlobalFiles,
 			Provider:        GlobalProvider,
 			Namespace:       DownNamespace,
+			Controller:      strings.ToLower(DownController),
 			IsNamespaceFlag: cmd.Flags().Lookup("namespace").Changed,
 		}
 
@@ -52,5 +56,6 @@ var downCmd = &cobra.Command{
 
 func init() {
 	downCmd.Flags().StringVar(&DownNamespace, "namespace", "default", " Specify Namespace to deploy your application")
+	downCmd.Flags().StringVar(&DownController, "controller", "", `Set the output controller ("deployment"|"daemonSet"|"replicationController")`)
 	RootCmd.AddCommand(downCmd)
 }
