@@ -10,8 +10,11 @@ go_import_path: github.com/kubernetes/kompose
 matrix:
   include:
     - go: 1.6
-      # Only build docs once
-      env: BUILD_DOCS=yes
+      env: 
+        # Only build docs once
+        - BUILD_DOCS=yes
+        # Test cross-compile as well
+        - CROSS_COMPILE=yes
     - go: 1.7
     - go: 1.8
 
@@ -22,6 +25,8 @@ install:
 
 script:
   - make test
+  # Only cross-compile once
+  - if [ "$CROSS_COMPILE" == "yes" ]; then make cross; fi
 
 after_success:
   # gover collects all .coverprofile files and saves it to one file gover.coverprofile
