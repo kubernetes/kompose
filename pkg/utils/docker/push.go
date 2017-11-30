@@ -18,10 +18,10 @@ package docker
 
 import (
 	"bytes"
-	log "github.com/Sirupsen/logrus"
 	dockerlib "github.com/fsouza/go-dockerclient"
 	"github.com/novln/docker-parser"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // Push will provide methods for interaction with API regarding pushing images

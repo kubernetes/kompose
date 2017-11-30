@@ -9,7 +9,7 @@ import (
 // ************
 //
 // The following notes assume that you are familiar with the YAML specification
-// (http://yaml.org/spec/1.2/spec.html).  We mostly follow it, although in
+// (http://yaml.org/spec/cvs/current.html).  We mostly follow it, although in
 // some cases we are less restrictive that it requires.
 //
 // The process of transforming a YAML stream into a sequence of events is
@@ -611,7 +611,7 @@ func yaml_parser_set_scanner_tag_error(parser *yaml_parser_t, directive bool, co
 	if directive {
 		context = "while parsing a %TAG directive"
 	}
-	return yaml_parser_set_scanner_error(parser, context, context_mark, problem)
+	return yaml_parser_set_scanner_error(parser, context, context_mark, "did not find URI escaped octet")
 }
 
 func trace(args ...interface{}) func() {
@@ -1944,7 +1944,7 @@ func yaml_parser_scan_tag_handle(parser *yaml_parser_t, directive bool, start_ma
 	} else {
 		// It's either the '!' tag or not really a tag handle.  If it's a %TAG
 		// directive, it's an error.  If it's a tag token, it must be a part of URI.
-		if directive && string(s) != "!" {
+		if directive && !(s[0] == '!' && s[1] == 0) {
 			yaml_parser_set_scanner_tag_error(parser, directive,
 				start_mark, "did not find expected '!'")
 			return false
@@ -1959,7 +1959,6 @@ func yaml_parser_scan_tag_handle(parser *yaml_parser_t, directive bool, start_ma
 func yaml_parser_scan_tag_uri(parser *yaml_parser_t, directive bool, head []byte, start_mark yaml_mark_t, uri *[]byte) bool {
 	//size_t length = head ? strlen((char *)head) : 0
 	var s []byte
-	hasTag := len(head) > 0
 
 	// Copy the head if needed.
 	//
@@ -2001,10 +2000,10 @@ func yaml_parser_scan_tag_uri(parser *yaml_parser_t, directive bool, head []byte
 		if parser.unread < 1 && !yaml_parser_update_buffer(parser, 1) {
 			return false
 		}
-		hasTag = true
 	}
 
-	if !hasTag {
+	// Check if the tag is non-empty.
+	if len(s) == 0 {
 		yaml_parser_set_scanner_tag_error(parser, directive,
 			start_mark, "did not find expected tag URI")
 		return false

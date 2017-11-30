@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/docker/libcompose/utils"
+	"github.com/sirupsen/logrus"
 )
 
 // MergeServicesV1 merges a v1 compose file into an existing set of service configs
@@ -29,7 +29,7 @@ func MergeServicesV1(existingServices *ServiceConfigs, environmentLookup Environ
 				return nil, err
 			}
 
-			data = mergeConfig(rawExistingService, data)
+			data = mergeConfigV1(rawExistingService, data)
 		}
 
 		datas[name] = data
@@ -148,7 +148,7 @@ func parseV1(resourceLookup ResourceLookup, environmentLookup EnvironmentLookup,
 		}
 	}
 
-	baseService = mergeConfig(baseService, serviceData)
+	baseService = mergeConfigV1(baseService, serviceData)
 
 	logrus.Debugf("Merged result %#v", baseService)
 
@@ -176,4 +176,23 @@ func resolveContextV1(inFile string, serviceData RawService) RawService {
 	serviceData["build"] = current
 
 	return serviceData
+}
+
+func mergeConfigV1(baseService, serviceData RawService) RawService {
+	for k, v := range serviceData {
+		// Image and build are mutually exclusive in merge
+		if k == "image" {
+			delete(baseService, "build")
+		} else if k == "build" {
+			delete(baseService, "image")
+		}
+		existing, ok := baseService[k]
+		if ok {
+			baseService[k] = merge(existing, v)
+		} else {
+			baseService[k] = v
+		}
+	}
+
+	return baseService
 }

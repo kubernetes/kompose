@@ -1,0 +1,25 @@
+version: "2"
+
+services:
+  nginx:
+      build: ./nginx
+      ports:
+          - "80:80"
+      restart: always
+
+  node1:
+      build: ./node
+      ports:
+          - "8080"
+  node2:
+      build: ./node
+      ports:
+          - "8080"
+  node3:
+      build: ./node
+      ports:
+          - "8080"
+  redis:
+      image: redis
+      ports:
+          - "6379"

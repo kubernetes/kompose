@@ -6,12 +6,14 @@
 package toml
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/pelletier/go-buffruneio"
 )
 
 var dateRegexp *regexp.Regexp
@@ -21,29 +23,29 @@ type tomlLexStateFn func() tomlLexStateFn
 
 // Define lexer
 type tomlLexer struct {
-	inputIdx          int
-	input             []rune // Textual source
-	currentTokenStart int
-	currentTokenStop  int
-	tokens            []token
-	depth             int
-	line              int
-	col               int
-	endbufferLine     int
-	endbufferCol      int
+	input         *buffruneio.Reader // Textual source
+	buffer        []rune             // Runes composing the current token
+	tokens        chan token
+	depth         int
+	line          int
+	col           int
+	endbufferLine int
+	endbufferCol  int
 }
 
 // Basic read operations on input
 
 func (l *tomlLexer) read() rune {
-	r := l.peek()
+	r, _, err := l.input.ReadRune()
+	if err != nil {
+		panic(err)
+	}
 	if r == '\n' {
 		l.endbufferLine++
 		l.endbufferCol = 1
 	} else {
 		l.endbufferCol++
 	}
-	l.inputIdx++
 	return r
 }
 
@@ -51,13 +53,13 @@ func (l *tomlLexer) next() rune {
 	r := l.read()
 
 	if r != eof {
-		l.currentTokenStop++
+		l.buffer = append(l.buffer, r)
 	}
 	return r
 }
 
 func (l *tomlLexer) ignore() {
-	l.currentTokenStart = l.currentTokenStop
+	l.buffer = make([]rune, 0)
 	l.line = l.endbufferLine
 	l.col = l.endbufferCol
 }
@@ -74,46 +76,49 @@ func (l *tomlLexer) fastForward(n int) {
 }
 
 func (l *tomlLexer) emitWithValue(t tokenType, value string) {
-	l.tokens = append(l.tokens, token{
+	l.tokens <- token{
 		Position: Position{l.line, l.col},
 		typ:      t,
 		val:      value,
-	})
+	}
 	l.ignore()
 }
 
 func (l *tomlLexer) emit(t tokenType) {
-	l.emitWithValue(t, string(l.input[l.currentTokenStart:l.currentTokenStop]))
+	l.emitWithValue(t, string(l.buffer))
 }
 
 func (l *tomlLexer) peek() rune {
-	if l.inputIdx >= len(l.input) {
-		return eof
+	r, _, err := l.input.ReadRune()
+	if err != nil {
+		panic(err)
 	}
-	return l.input[l.inputIdx]
-}
-
-func (l *tomlLexer) peekString(size int) string {
-	maxIdx := len(l.input)
-	upperIdx := l.inputIdx + size // FIXME: potential overflow
-	if upperIdx > maxIdx {
-		upperIdx = maxIdx
-	}
-	return string(l.input[l.inputIdx:upperIdx])
+	l.input.UnreadRune()
+	return r
 }
 
 func (l *tomlLexer) follow(next string) bool {
-	return next == l.peekString(len(next))
+	for _, expectedRune := range next {
+		r, _, err := l.input.ReadRune()
+		defer l.input.UnreadRune()
+		if err != nil {
+			panic(err)
+		}
+		if expectedRune != r {
+			return false
+		}
+	}
+	return true
 }
 
 // Error management
 
 func (l *tomlLexer) errorf(format string, args ...interface{}) tomlLexStateFn {
-	l.tokens = append(l.tokens, token{
+	l.tokens <- token{
 		Position: Position{l.line, l.col},
 		typ:      tokenError,
 		val:      fmt.Sprintf(format, args...),
-	})
+	}
 	return nil
 }
 
@@ -214,7 +219,7 @@ func (l *tomlLexer) lexRvalue() tomlLexStateFn {
 			break
 		}
 
-		possibleDate := l.peekString(35)
+		possibleDate := string(l.input.PeekRunes(35))
 		dateMatch := dateRegexp.FindString(possibleDate)
 		if dateMatch != "" {
 			l.fastForward(len(dateMatch))
@@ -531,7 +536,7 @@ func (l *tomlLexer) lexInsideTableArrayKey() tomlLexStateFn {
 	for r := l.peek(); r != eof; r = l.peek() {
 		switch r {
 		case ']':
-			if l.currentTokenStop > l.currentTokenStart {
+			if len(l.buffer) > 0 {
 				l.emit(tokenKeyGroupArray)
 			}
 			l.next()
@@ -554,7 +559,7 @@ func (l *tomlLexer) lexInsideTableKey() tomlLexStateFn {
 	for r := l.peek(); r != eof; r = l.peek() {
 		switch r {
 		case ']':
-			if l.currentTokenStop > l.currentTokenStart {
+			if len(l.buffer) > 0 {
 				l.emit(tokenKeyGroup)
 			}
 			l.next()
@@ -629,6 +634,7 @@ func (l *tomlLexer) run() {
 	for state := l.lexVoid; state != nil; {
 		state = state()
 	}
+	close(l.tokens)
 }
 
 func init() {
@@ -636,16 +642,16 @@ func init() {
 }
 
 // Entry point
-func lexToml(inputBytes []byte) []token {
-	runes := bytes.Runes(inputBytes)
+func lexToml(input io.Reader) chan token {
+	bufferedInput := buffruneio.NewReader(input)
 	l := &tomlLexer{
-		input:         runes,
-		tokens:        make([]token, 0, 256),
+		input:         bufferedInput,
+		tokens:        make(chan token),
 		line:          1,
 		col:           1,
 		endbufferLine: 1,
 		endbufferCol:  1,
 	}
-	l.run()
+	go l.run()
 	return l.tokens
 }

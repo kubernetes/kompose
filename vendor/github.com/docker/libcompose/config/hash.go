@@ -86,8 +86,12 @@ func GetServiceHash(name string, config *ServiceConfig) string {
 			for _, sliceKey := range sliceKeys {
 				io.WriteString(hash, fmt.Sprintf("%s, ", sliceKey))
 			}
+		case *yaml.Networks:
+			io.WriteString(hash, fmt.Sprintf("%s, ", s.HashString()))
+		case *yaml.Volumes:
+			io.WriteString(hash, fmt.Sprintf("%s, ", s.HashString()))
 		default:
-			io.WriteString(hash, fmt.Sprintf("%v", serviceValue))
+			io.WriteString(hash, fmt.Sprintf("%v, ", serviceValue))
 		}
 	}
 

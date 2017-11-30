@@ -25,6 +25,8 @@ import (
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"k8s.io/kubernetes/pkg/api"
 
+	"time"
+
 	"github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
@@ -32,14 +34,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+func durationPtr(value time.Duration) *time.Duration {
+	return &value
+}
+
 func TestParseHealthCheck(t *testing.T) {
 	helperValue := uint64(2)
 	check := types.HealthCheckConfig{
 		Test:        []string{"CMD-SHELL", "echo", "foobar"},
-		Timeout:     "1s",
-		Interval:    "2s",
+		Timeout:     durationPtr(1 * time.Second),
+		Interval:    durationPtr(2 * time.Second),
 		Retries:     &helperValue,
-		StartPeriod: "3s",
+		StartPeriod: durationPtr(3 * time.Second),
 	}
 
 	// CMD-SHELL or SHELL is included Test within docker/cli, thus we remove the first value in Test
