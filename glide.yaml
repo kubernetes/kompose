@@ -7,6 +7,9 @@ import:
 - package: github.com/sirupsen/logrus
   version: 1.0.3
 
+- package: golang.org/x/sys
+  version: ebfc5b4631820b793c9010c87fd8fef0f39eb082
+
 - package: github.com/xeipuuv/gojsonschema
   version: 93e72a773fade158921402d6a24c819b48aba29d
 
