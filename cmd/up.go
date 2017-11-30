@@ -22,6 +22,7 @@ import (
 	"github.com/kubernetes/kompose/pkg/app"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 // TODO: comment
@@ -35,6 +36,7 @@ var (
 	UpBuild        string
 	UpBuildBranch  string
 	UpBuildRepo    string
+	UpController   string
 )
 
 var upCmd = &cobra.Command{
@@ -60,6 +62,7 @@ var upCmd = &cobra.Command{
 			InsecureRepository: UpInsecureRepo,
 			BuildBranch:        UpBuildBranch,
 			BuildRepo:          UpBuildRepo,
+			Controller:         strings.ToLower(UpController),
 			IsNamespaceFlag:    cmd.Flags().Lookup("namespace").Changed,
 		}
 
@@ -79,6 +82,7 @@ func init() {
 	upCmd.Flags().StringVar(&UpBuild, "build", "local", `Set the type of build ("local"|"build-config" (OpenShift only)|"none")`)
 	upCmd.Flags().StringVar(&UpBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 	upCmd.Flags().StringVar(&UpBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
+	upCmd.Flags().StringVar(&UpController, "controller", "", `Set the output controller ("deployment"|"daemonSet"|"replicationController")`)
 	upCmd.Flags().MarkHidden("insecure-repository")
 	upCmd.Flags().MarkHidden("build-repo")
 	upCmd.Flags().MarkHidden("build-branch")
