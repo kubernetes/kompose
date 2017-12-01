@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -12,33 +14,34 @@ import (
 
 // encodes a string to a TOML-compliant string value
 func encodeTomlString(value string) string {
-	result := ""
+	var b bytes.Buffer
+
 	for _, rr := range value {
 		switch rr {
 		case '\b':
-			result += "\\b"
+			b.WriteString(`\b`)
 		case '\t':
-			result += "\\t"
+			b.WriteString(`\t`)
 		case '\n':
-			result += "\\n"
+			b.WriteString(`\n`)
 		case '\f':
-			result += "\\f"
+			b.WriteString(`\f`)
 		case '\r':
-			result += "\\r"
+			b.WriteString(`\r`)
 		case '"':
-			result += "\\\""
+			b.WriteString(`\"`)
 		case '\\':
-			result += "\\\\"
+			b.WriteString(`\\`)
 		default:
 			intRr := uint16(rr)
 			if intRr < 0x001F {
-				result += fmt.Sprintf("\\u%0.4X", intRr)
+				b.WriteString(fmt.Sprintf("\\u%0.4X", intRr))
 			} else {
-				result += string(rr)
+				b.WriteRune(rr)
 			}
 		}
 	}
-	return result
+	return b.String()
 }
 
 func tomlValueStringRepresentation(v interface{}) (string, error) {
@@ -48,9 +51,17 @@ func tomlValueStringRepresentation(v interface{}) (string, error) {
 	case int64:
 		return strconv.FormatInt(value, 10), nil
 	case float64:
+		// Ensure a round float does contain a decimal point. Otherwise feeding
+		// the output back to the parser would convert to an integer.
+		if math.Trunc(value) == value {
+			return strconv.FormatFloat(value, 'f', 1, 32), nil
+		}
 		return strconv.FormatFloat(value, 'f', -1, 32), nil
 	case string:
 		return "\"" + encodeTomlString(value) + "\"", nil
+	case []byte:
+		b, _ := v.([]byte)
+		return tomlValueStringRepresentation(string(b))
 	case bool:
 		if value {
 			return "true", nil
@@ -60,9 +71,14 @@ func tomlValueStringRepresentation(v interface{}) (string, error) {
 		return value.Format(time.RFC3339), nil
 	case nil:
 		return "", nil
-	case []interface{}:
+	}
+
+	rv := reflect.ValueOf(v)
+
+	if rv.Kind() == reflect.Slice {
 		values := []string{}
-		for _, item := range value {
+		for i := 0; i < rv.Len(); i++ {
+			item := rv.Index(i).Interface()
 			itemRepr, err := tomlValueStringRepresentation(item)
 			if err != nil {
 				return "", err
@@ -70,19 +86,18 @@ func tomlValueStringRepresentation(v interface{}) (string, error) {
 			values = append(values, itemRepr)
 		}
 		return "[" + strings.Join(values, ",") + "]", nil
-	default:
-		return "", fmt.Errorf("unsupported value type %T: %v", value, value)
 	}
+	return "", fmt.Errorf("unsupported value type %T: %v", v, v)
 }
 
-func (t *TomlTree) writeTo(w io.Writer, indent, keyspace string, bytesCount int64) (int64, error) {
+func (t *Tree) writeTo(w io.Writer, indent, keyspace string, bytesCount int64) (int64, error) {
 	simpleValuesKeys := make([]string, 0)
 	complexValuesKeys := make([]string, 0)
 
 	for k := range t.values {
 		v := t.values[k]
 		switch v.(type) {
-		case *TomlTree, []*TomlTree:
+		case *Tree, []*Tree:
 			complexValuesKeys = append(complexValuesKeys, k)
 		default:
 			simpleValuesKeys = append(simpleValuesKeys, k)
@@ -95,7 +110,7 @@ func (t *TomlTree) writeTo(w io.Writer, indent, keyspace string, bytesCount int6
 	for _, k := range simpleValuesKeys {
 		v, ok := t.values[k].(*tomlValue)
 		if !ok {
-			return bytesCount, fmt.Errorf("invalid key type at %s: %T", k, t.values[k])
+			return bytesCount, fmt.Errorf("invalid value type at %s: %T", k, t.values[k])
 		}
 
 		repr, err := tomlValueStringRepresentation(v.value)
@@ -103,8 +118,24 @@ func (t *TomlTree) writeTo(w io.Writer, indent, keyspace string, bytesCount int6
 			return bytesCount, err
 		}
 
-		kvRepr := fmt.Sprintf("%s%s = %s\n", indent, k, repr)
-		writtenBytesCount, err := w.Write([]byte(kvRepr))
+		if v.comment != "" {
+			comment := strings.Replace(v.comment, "\n", "\n"+indent+"#", -1)
+			start := "# "
+			if strings.HasPrefix(comment, "#") {
+				start = ""
+			}
+			writtenBytesCountComment, errc := writeStrings(w, "\n", indent, start, comment, "\n")
+			bytesCount += int64(writtenBytesCountComment)
+			if errc != nil {
+				return bytesCount, errc
+			}
+		}
+
+		var commented string
+		if v.commented {
+			commented = "# "
+		}
+		writtenBytesCount, err := writeStrings(w, indent, commented, k, " = ", repr, "\n")
 		bytesCount += int64(writtenBytesCount)
 		if err != nil {
 			return bytesCount, err
@@ -118,12 +149,31 @@ func (t *TomlTree) writeTo(w io.Writer, indent, keyspace string, bytesCount int6
 		if keyspace != "" {
 			combinedKey = keyspace + "." + combinedKey
 		}
+		var commented string
+		if t.commented {
+			commented = "# "
+		}
 
 		switch node := v.(type) {
 		// node has to be of those two types given how keys are sorted above
-		case *TomlTree:
-			tableName := fmt.Sprintf("\n%s[%s]\n", indent, combinedKey)
-			writtenBytesCount, err := w.Write([]byte(tableName))
+		case *Tree:
+			tv, ok := t.values[k].(*Tree)
+			if !ok {
+				return bytesCount, fmt.Errorf("invalid value type at %s: %T", k, t.values[k])
+			}
+			if tv.comment != "" {
+				comment := strings.Replace(tv.comment, "\n", "\n"+indent+"#", -1)
+				start := "# "
+				if strings.HasPrefix(comment, "#") {
+					start = ""
+				}
+				writtenBytesCountComment, errc := writeStrings(w, "\n", indent, start, comment)
+				bytesCount += int64(writtenBytesCountComment)
+				if errc != nil {
+					return bytesCount, errc
+				}
+			}
+			writtenBytesCount, err := writeStrings(w, "\n", indent, commented, "[", combinedKey, "]\n")
 			bytesCount += int64(writtenBytesCount)
 			if err != nil {
 				return bytesCount, err
@@ -132,20 +182,17 @@ func (t *TomlTree) writeTo(w io.Writer, indent, keyspace string, bytesCount int6
 			if err != nil {
 				return bytesCount, err
 			}
-		case []*TomlTree:
+		case []*Tree:
 			for _, subTree := range node {
-				if len(subTree.values) > 0 {
-					tableArrayName := fmt.Sprintf("\n%s[[%s]]\n", indent, combinedKey)
-					writtenBytesCount, err := w.Write([]byte(tableArrayName))
-					bytesCount += int64(writtenBytesCount)
-					if err != nil {
-						return bytesCount, err
-					}
+				writtenBytesCount, err := writeStrings(w, "\n", indent, commented, "[[", combinedKey, "]]\n")
+				bytesCount += int64(writtenBytesCount)
+				if err != nil {
+					return bytesCount, err
+				}
 
-					bytesCount, err = subTree.writeTo(w, indent+"  ", combinedKey, bytesCount)
-					if err != nil {
-						return bytesCount, err
-					}
+				bytesCount, err = subTree.writeTo(w, indent+"  ", combinedKey, bytesCount)
+				if err != nil {
+					return bytesCount, err
 				}
 			}
 		}
@@ -154,16 +201,28 @@ func (t *TomlTree) writeTo(w io.Writer, indent, keyspace string, bytesCount int6
 	return bytesCount, nil
 }
 
-// WriteTo encode the TomlTree as Toml and writes it to the writer w.
+func writeStrings(w io.Writer, s ...string) (int, error) {
+	var n int
+	for i := range s {
+		b, err := io.WriteString(w, s[i])
+		n += b
+		if err != nil {
+			return n, err
+		}
+	}
+	return n, nil
+}
+
+// WriteTo encode the Tree as Toml and writes it to the writer w.
 // Returns the number of bytes written in case of success, or an error if anything happened.
-func (t *TomlTree) WriteTo(w io.Writer) (int64, error) {
+func (t *Tree) WriteTo(w io.Writer) (int64, error) {
 	return t.writeTo(w, "", "", 0)
 }
 
 // ToTomlString generates a human-readable representation of the current tree.
 // Output spans multiple lines, and is suitable for ingest by a TOML parser.
 // If the conversion cannot be performed, ToString returns a non-nil error.
-func (t *TomlTree) ToTomlString() (string, error) {
+func (t *Tree) ToTomlString() (string, error) {
 	var buf bytes.Buffer
 	_, err := t.WriteTo(&buf)
 	if err != nil {
@@ -174,36 +233,35 @@ func (t *TomlTree) ToTomlString() (string, error) {
 
 // String generates a human-readable representation of the current tree.
 // Alias of ToString. Present to implement the fmt.Stringer interface.
-func (t *TomlTree) String() string {
+func (t *Tree) String() string {
 	result, _ := t.ToTomlString()
 	return result
 }
 
 // ToMap recursively generates a representation of the tree using Go built-in structures.
 // The following types are used:
-// * uint64
-// * int64
-// * bool
-// * string
-// * time.Time
-// * map[string]interface{} (where interface{} is any of this list)
-// * []interface{} (where interface{} is any of this list)
-func (t *TomlTree) ToMap() map[string]interface{} {
+//
+//	* bool
+//	* float64
+//	* int64
+//	* string
+//	* uint64
+//	* time.Time
+//	* map[string]interface{} (where interface{} is any of this list)
+//	* []interface{} (where interface{} is any of this list)
+func (t *Tree) ToMap() map[string]interface{} {
 	result := map[string]interface{}{}
 
 	for k, v := range t.values {
 		switch node := v.(type) {
-		case []*TomlTree:
+		case []*Tree:
 			var array []interface{}
 			for _, item := range node {
 				array = append(array, item.ToMap())
 			}
 			result[k] = array
-		case *TomlTree:
+		case *Tree:
 			result[k] = node.ToMap()
-		case map[string]interface{}:
-			sub := TreeFromMap(node)
-			result[k] = sub.ToMap()
 		case *tomlValue:
 			result[k] = node.value
 		}
