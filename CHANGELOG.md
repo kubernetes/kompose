@@ -1,10 +1,35 @@
 # Change Log
 
+## [v1.6.0](https://github.com/kubernetes/kompose/tree/v1.6.0) (2017-12-11)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.5.0...v1.6.0)
+
+**Closed issues:**
+
+- conversion metrix doc is outdated [\#873](https://github.com/kubernetes/kompose/issues/873)
+- Up and convert commands are not equal in features [\#798](https://github.com/kubernetes/kompose/issues/798)
+- Improve user guide [\#776](https://github.com/kubernetes/kompose/issues/776)
+- Tracking card for new `deploy` keys in v3 [\#644](https://github.com/kubernetes/kompose/issues/644)
+- Add `build` key support for v3 of Docker Compose [\#636](https://github.com/kubernetes/kompose/issues/636)
+
+**Merged pull requests:**
+
+- Change font to black, not lightish gray [\#888](https://github.com/kubernetes/kompose/pull/888) ([cdrage](https://github.com/cdrage))
+- Fixed conversion matrix [\#885](https://github.com/kubernetes/kompose/pull/885) ([surajnarwade](https://github.com/surajnarwade))
+- Test cross-compiling within travis [\#882](https://github.com/kubernetes/kompose/pull/882) ([cdrage](https://github.com/cdrage))
+- Fix makefile [\#881](https://github.com/kubernetes/kompose/pull/881) ([cdrage](https://github.com/cdrage))
+- Update vendoring / fix Windows builds [\#880](https://github.com/kubernetes/kompose/pull/880) ([cdrage](https://github.com/cdrage))
+- n -\> ✓ for build v3 support [\#878](https://github.com/kubernetes/kompose/pull/878) ([cdrage](https://github.com/cdrage))
+- Update conversion doc for env\_file [\#875](https://github.com/kubernetes/kompose/pull/875) ([cdrage](https://github.com/cdrage))
+- Adding `--controller` flag in `up` & `down` [\#868](https://github.com/kubernetes/kompose/pull/868) ([surajnarwade](https://github.com/surajnarwade))
+- Added support for build key in v3 [\#846](https://github.com/kubernetes/kompose/pull/846) ([surajnarwade](https://github.com/surajnarwade))
+- Fixed kompose build failure [\#837](https://github.com/kubernetes/kompose/pull/837) ([surajnarwade](https://github.com/surajnarwade))
+
 ## [v1.5.0](https://github.com/kubernetes/kompose/tree/v1.5.0) (2017-11-21)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.4.0...v1.5.0)
 
 **Merged pull requests:**
 
+- 1.5.0 Release [\#874](https://github.com/kubernetes/kompose/pull/874) ([cdrage](https://github.com/cdrage))
 -  Set PVC volume size with kompose.volume.size [\#867](https://github.com/kubernetes/kompose/pull/867) ([abitrolly](https://github.com/abitrolly))
 - architecture.md  Link sources [\#866](https://github.com/kubernetes/kompose/pull/866) ([abitrolly](https://github.com/abitrolly))
 - Move version information to separate file [\#864](https://github.com/kubernetes/kompose/pull/864) ([cdrage](https://github.com/cdrage))
