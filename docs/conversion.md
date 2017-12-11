@@ -40,7 +40,7 @@ __Glossary:__
 | deploy: replicas       | -  | -  | ✓  | Deployment.Spec.Replicas / DeploymentConfig.Spec.Replicas   |                                                                                                                |
 | deploy: placement      | -  | -  | ✓  | Pod.Spec.NodeSelector                                       |                                                                                                                |
 | deploy: update_config  | -  | -  | n  |                                                             |                                                                                                                |
-| deploy: resources      | -  | -  | ✓  | Containers.Resources.Limits.Memory                          | Support for memory but not CPU                                                                                 |
+| deploy: resources      | -  | -  | ✓  | Containers.Resources.Limits.Memory / Containers.Resources.Limits.CPU | Support for memory as well as cpu                                                                    |
 | deploy: restart_policy | -  | -  | ✓  | Pod generation                                              | This generated a Pod, see the [user guide on restart](http://kompose.io/user-guide/#restart)                   |
 | deploy: labels         | -  | -  | n  |                                                             |                                                                                                                |
 | devices                | x  | x  | x  |                                                             | Not supported within Kubernetes, See issue https://github.com/kubernetes/kubernetes/issues/5607                |
