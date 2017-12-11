@@ -233,7 +233,7 @@ func BuildDockerImage(service kobject.ServiceConfig, name string, relativePath s
 	// Use the build struct function to build the image
 	// Build the image!
 	build := docker.Build{Client: *client}
-	err = build.BuildImage(imagePath, imageName)
+	err = build.BuildImage(imagePath, imageName, service.Dockerfile)
 
 	if err != nil {
 		return err
