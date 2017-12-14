@@ -263,6 +263,10 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 		ingress.Spec.Rules[0].Host = service.ExposeService
 	}
 
+	if service.ExposePath != "" {
+		ingress.Spec.Rules[0].IngressRuleValue.HTTP.Paths[0].Path = service.ExposePath
+	}
+
 	return ingress
 }
 

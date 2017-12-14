@@ -241,6 +241,8 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 				serviceConfig.ServiceType = serviceType
 			case "kompose.service.expose":
 				serviceConfig.ExposeService = strings.ToLower(value)
+			case "kompose.service.expose_path":
+				serviceConfig.ExposePath = value
 			}
 		}
 		err = checkLabelsPorts(len(serviceConfig.Port), composeServiceConfig.Labels["kompose.service.type"], name)

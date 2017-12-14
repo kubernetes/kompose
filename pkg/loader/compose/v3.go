@@ -351,6 +351,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 				serviceConfig.ServiceType = serviceType
 			case "kompose.service.expose":
 				serviceConfig.ExposeService = strings.ToLower(value)
+			case "kompose.service.expose_path":
+				serviceConfig.ExposePath = value
 			}
 		}
 

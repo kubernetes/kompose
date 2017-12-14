@@ -92,6 +92,7 @@ type ServiceConfig struct {
 	Build           string              `compose:"build"`
 	BuildArgs       map[string]*string  `compose:"build-args"`
 	ExposeService   string              `compose:"kompose.service.expose"`
+	ExposePath      string              `compose:"kompose.service.expose_path"`
 	Stdin           bool                `compose:"stdin_open"`
 	Tty             bool                `compose:"tty"`
 	MemLimit        yaml.MemStringorInt `compose:"mem_limit"`
