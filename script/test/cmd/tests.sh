@@ -277,16 +277,20 @@ convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/group-add
 # openshift test
 convert::expect_failure "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/group-add/docker-compose-fail.yml convert --stdout -j"
 
-# Test related to kompose.expose.service label in docker compose file to ensure that services are exposed properly
+# Test related to kompose.service.expose label in docker compose file to ensure that services are exposed properly
 #kubernetes tests
 # when kompose.service.expose="True"
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-true.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-true.json > /tmp/output-k8s.json
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-true.yml convert --stdout -j" "/tmp/output-k8s.json"
-# when kompose.expose.service="<hostname>"
+# when kompose.service.expose="<hostname>"
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-hostname.json > /tmp/output-k8s.json
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname.yml convert --stdout -j" "/tmp/output-k8s.json"
+# when kompose.service.expose="<hostname>" and kompose.service.expose.tls-secret="<secret>"
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-tls.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-hostname-tls.json > /tmp/output-k8s.json
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-tls.yml convert --stdout -j" "/tmp/output-k8s.json"
 # when kompose.service.expose="True" and multiple ports in docker compose file (first port should be selected)
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-true-multiple-ports.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-true-multiple-ports.json > /tmp/output-k8s.json
@@ -301,7 +305,7 @@ convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-se
 cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-true.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-true.json > /tmp/output-os.json
 convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-true.yml convert --stdout -j" "/tmp/output-os.json"
-# when kompose.expose.service="<hostname>"
+# when kompose.service.expose="<hostname>"
 cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-hostname.json > /tmp/output-os.json
 convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname.yml convert --stdout -j" "/tmp/output-os.json"

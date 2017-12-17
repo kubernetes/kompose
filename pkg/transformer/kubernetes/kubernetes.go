@@ -262,6 +262,16 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 	if service.ExposeService != "true" {
 		ingress.Spec.Rules[0].Host = service.ExposeService
 	}
+	if service.ExposeServiceTLS != "" {
+		ingress.Spec.TLS = []extensions.IngressTLS{
+			{
+				Hosts: []string{
+					service.ExposeService,
+				},
+				SecretName: service.ExposeServiceTLS,
+			},
+		}
+	}
 
 	return ingress
 }
