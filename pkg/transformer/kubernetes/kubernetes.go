@@ -177,7 +177,8 @@ func (k *Kubernetes) InitConfigMap(name string, service kobject.ServiceConfig, o
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name: name + "-" + envName,
+			Name:   name + "-" + envName,
+			Labels: transformer.ConfigLabels(name + "-" + envName),
 		},
 		Data: envs,
 	}
@@ -1064,6 +1065,24 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 						break
 					}
 					log.Infof("Successfully deleted Pod: %s", t.Name)
+				}
+			}
+
+		case *api.ConfigMap:
+			// delete ConfigMap
+			configMap, err := client.ConfigMaps(namespace).List(options)
+			if err != nil {
+				errorList = append(errorList, err)
+				break
+			}
+			for _, l := range configMap.Items {
+				if reflect.DeepEqual(l.Labels, komposeLabel) {
+					err = client.ConfigMaps(namespace).Delete(t.Name)
+					if err != nil {
+						errorList = append(errorList, err)
+						break
+					}
+					log.Infof("Successfully deleted ConfigMap: %s", t.Name)
 				}
 			}
 		}
