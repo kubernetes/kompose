@@ -113,7 +113,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "redis-foo-env",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+	"labels": {
+          "io.kompose.service": "redis-foo-env"
+        }
       },
       "data": {
         "ALLOW_EMPTY_PASSWORD": "yes"
@@ -124,7 +127,10 @@
       "apiVersion": "v1",
       "metadata": {
         "name": "redis-bar-env",
-        "creationTimestamp": null
+        "creationTimestamp": null,
+	"labels": {
+          "io.kompose.service": "redis-bar-env"
+        }
       },
       "data": {
         "BAR": "FOO",
