@@ -113,6 +113,12 @@ OpenShift is using forked Kubernetes to carry some patches.
 Currently it is not possible to use different Kubernetes version from version that OpenShift uses.
 (for more see comments in `glide.yml`)
 
+### Adding CLI tests
+
+[Kompose CLI tests](https://github.com/kubernetes/kompose/tree/master/script/test/cmd) run `kompose convert` with docker-compose files, and cross-check the k8s and OpenShift artifacts generated with the template files.
+
+To generate CLI tests, please run `make generate-test-cmd`.
+
 ### CI
 
 For Kompose, we use numerous CI's:
