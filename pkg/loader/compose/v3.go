@@ -351,7 +351,13 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 				serviceConfig.ServiceType = serviceType
 			case "kompose.service.expose":
 				serviceConfig.ExposeService = strings.ToLower(value)
+			case "kompose.service.expose.tls-secret":
+				serviceConfig.ExposeServiceTLS = value
 			}
+		}
+
+		if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
+			return kobject.KomposeObject{}, errors.New("kompose.service.expose.tls-secret was specifed without kompose.service.expose")
 		}
 
 		// Log if the name will been changed
