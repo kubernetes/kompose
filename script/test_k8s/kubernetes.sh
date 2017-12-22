@@ -67,13 +67,13 @@ stop_k8s() {
   "
   docker rm -f minikube
 
-  # Delete via image name google_containers
+  # Delete via image name k8s.gcr.io
   # Delete all containers started (names start with k8s_)
   # Run twice in-case a container is replicated during that time
   for run in {0..2}
   do
     docker ps -a | grep 'k8s_' | awk '{print $1}' | xargs --no-run-if-empty docker rm -f
-    docker ps -a | grep 'gcr.io/google_containers/hyperkube-amd64' | awk '{print $1}' | xargs --no-run-if-empty docker rm -f
+    docker ps -a | grep 'k8s.gcr.io/hyperkube-amd64' | awk '{print $1}' | xargs --no-run-if-empty docker rm -f
   done
 }
 
