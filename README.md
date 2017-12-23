@@ -24,17 +24,17 @@ Other examples are provided in the _examples_ [directory](./examples).
 
 ## Installation
 
-We have multiple ways to install Kompose. Our prefered method is downloading the binary from the latest GitHub release.
+We have multiple ways to install Kompose. Our preferred method is downloading the binary from the latest GitHub release.
 
 Our entire list of installation methods are located in our [installation.md](/docs/installation.md) document.
 
 Installation methods:
-  - [Binary (Prefered method)](README.md)
+  - [Binary (Preferred method)](/docs/installation.md#github-release)
   - [Go](/docs/installation.md#go)
   - [CentOS](/docs/installation.md#centos)
   - [Fedora](/docs/installation.md#fedora)
   - [macOS (Homebrew)](/docs/installation.md#macos)
-  - [Windows](docs/installation.md#windows)
+  - [Windows](/docs/installation.md#windows)
 
 #### Binary installation
 
