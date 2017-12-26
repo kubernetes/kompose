@@ -1,0 +1,7 @@
+version: "2"
+
+services:
+ foo:
+  build: "./build"
+  image: "172.30.1.1:5000/myproject/test-image"
+  command: sleep 100
