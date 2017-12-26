@@ -49,7 +49,7 @@ func (c *Push) PushImage(fullImageName string) error {
 
 	// Let's setup the push and authentication options
 	options := dockerlib.PushImageOptions{
-		Name:         parsedImage.Name(),
+		Name:         fullImageName,
 		Registry:     parsedImage.Registry(),
 		OutputStream: outputBuffer,
 	}
