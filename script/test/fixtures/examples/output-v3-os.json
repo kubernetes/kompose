@@ -281,7 +281,7 @@
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "gcr.io/google_containers/redis:e2e"
+              "name": "k8s.gcr.io/redis:e2e"
             },
             "generation": null,
             "importPolicy": {}
