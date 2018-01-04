@@ -1,5 +1,34 @@
 # Change Log
 
+## [v1.7.0](https://github.com/kubernetes/kompose/tree/v1.7.0) (2018-01-04)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.6.0...v1.7.0)
+
+**Closed issues:**
+
+- Cannot run in gcloud environment with Kompose CLI [\#905](https://github.com/kubernetes/kompose/issues/905)
+- docker config.json format [\#904](https://github.com/kubernetes/kompose/issues/904)
+- Unable to push to \(private\) registry [\#893](https://github.com/kubernetes/kompose/issues/893)
+- Bintray links broken in the README [\#889](https://github.com/kubernetes/kompose/issues/889)
+- kompose build fails to read the context correctly [\#832](https://github.com/kubernetes/kompose/issues/832)
+- Build errors with current OpenShift cluster tests [\#752](https://github.com/kubernetes/kompose/issues/752)
+- kompose should give warning on providing blank environment variables [\#545](https://github.com/kubernetes/kompose/issues/545)
+- Docker build fails:  Failed to push image: unauthized:authentication required [\#496](https://github.com/kubernetes/kompose/issues/496)
+- wrong git revision number in version output [\#422](https://github.com/kubernetes/kompose/issues/422)
+- publicly hosted API endpoint for kompose [\#419](https://github.com/kubernetes/kompose/issues/419)
+- Improve logging messages in unit tests [\#351](https://github.com/kubernetes/kompose/issues/351)
+- Improve coveralls.io reporting [\#330](https://github.com/kubernetes/kompose/issues/330)
+- Investigate a preference file [\#39](https://github.com/kubernetes/kompose/issues/39)
+- determine which containers should be in the same pod [\#14](https://github.com/kubernetes/kompose/issues/14)
+
+**Merged pull requests:**
+
+- Convert registry to k8s.gcr.io [\#901](https://github.com/kubernetes/kompose/pull/901) ([thockin](https://github.com/thockin))
+- Added Case for Config Map in kompose down [\#900](https://github.com/kubernetes/kompose/pull/900) ([piyush1594](https://github.com/piyush1594))
+- Update code-of-conduct.md [\#899](https://github.com/kubernetes/kompose/pull/899) ([spiffxp](https://github.com/spiffxp))
+- Add kompose.service.expose.tls-secret [\#896](https://github.com/kubernetes/kompose/pull/896) ([Code0x58](https://github.com/Code0x58))
+- Fix pushing of image to a private repository [\#895](https://github.com/kubernetes/kompose/pull/895) ([Code0x58](https://github.com/Code0x58))
+- Script for generating unit tests [\#805](https://github.com/kubernetes/kompose/pull/805) ([ashetty1](https://github.com/ashetty1))
+
 ## [v1.6.0](https://github.com/kubernetes/kompose/tree/v1.6.0) (2017-12-11)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.5.0...v1.6.0)
 
@@ -13,6 +42,7 @@
 
 **Merged pull requests:**
 
+- 1.6.0 Release [\#891](https://github.com/kubernetes/kompose/pull/891) ([cdrage](https://github.com/cdrage))
 - Change font to black, not lightish gray [\#888](https://github.com/kubernetes/kompose/pull/888) ([cdrage](https://github.com/cdrage))
 - Fixed conversion matrix [\#885](https://github.com/kubernetes/kompose/pull/885) ([surajnarwade](https://github.com/surajnarwade))
 - Test cross-compiling within travis [\#882](https://github.com/kubernetes/kompose/pull/882) ([cdrage](https://github.com/cdrage))
