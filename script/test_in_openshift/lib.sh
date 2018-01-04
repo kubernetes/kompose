@@ -50,6 +50,21 @@ function convert::oc_cluster_up () {
     convert::run_cmd "oc login -u system:admin"
 }
 
+function convert::oc_registry_login () {
+    # wait for the registry to become available
+    local counter=0
+    while ! curl --fail --silent http://172.30.1.1:5000/healthz; do
+        counter=$(($counter + 1))
+        if [ $counter = 48 ]; then
+            echo "Registry did not become available in time"
+            break
+        fi
+        sleep 5
+    done
+    oc serviceaccounts get-token builder \
+        | docker login --password-stdin -u builder 172.30.1.1:5000
+}
+
 function convert::oc_cluster_down () {
 
     convert::run_cmd "oc cluster down"

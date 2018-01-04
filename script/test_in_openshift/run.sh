@@ -33,10 +33,10 @@ if [ -z $(whereis oc | awk '{ print $2 }') ]; then
 fi
 
 convert::oc_cluster_up
-
+convert::oc_registry_login
 
 if [ -z $1 ]; then
-    for test_case in $KOMPOSE_ROOT/script/test_in_openshift/tests/*; do
+    for test_case in $KOMPOSE_ROOT/script/test_in_openshift/tests/*.sh; do
 	$test_case; exit_status=$?
 	if [ $exit_status -ne 0 ]; then
 	    openshift_exit_status=1
