@@ -25,7 +25,7 @@
             "targetPort": 9001
           },
           {
-            "name": "80",
+            "name": "80-TCP",
             "port": 80,
             "targetPort": 9001
           }
