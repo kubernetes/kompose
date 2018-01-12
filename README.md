@@ -130,7 +130,7 @@ Documentation can be found at our [kompose.io](http://kompose.io) website or our
 
 Here is a list of all available docs:
 
-- [Quick start](docs/quickstart.md)
+- [Quick start](docs/getting-started.md)
 - [Installation](docs/installation.md)
 - [User guide](docs/user-guide.md)
 - [Conversion](docs/conversion.md)
