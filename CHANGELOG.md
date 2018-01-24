@@ -1,5 +1,19 @@
 # Change Log
 
+## [v1.8.0](https://github.com/kubernetes/kompose/tree/v1.8.0) (2018-01-24)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.7.0...v1.8.0)
+
+**Closed issues:**
+
+- unable to push to private repo in hub.docker.com [\#910](https://github.com/kubernetes/kompose/issues/910)
+- No proper link to Binary Installation method in README.md [\#902](https://github.com/kubernetes/kompose/issues/902)
+- Kompose down doesn't remove configmaps [\#883](https://github.com/kubernetes/kompose/issues/883)
+
+**Merged pull requests:**
+
+- Invalid quick start link [\#908](https://github.com/kubernetes/kompose/pull/908) ([a8uhnf](https://github.com/a8uhnf))
+- Fix link to binary-installation method in README.md [\#903](https://github.com/kubernetes/kompose/pull/903) ([bhavin192](https://github.com/bhavin192))
+
 ## [v1.7.0](https://github.com/kubernetes/kompose/tree/v1.7.0) (2018-01-04)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.6.0...v1.7.0)
 
@@ -22,6 +36,7 @@
 
 **Merged pull requests:**
 
+- 1.7.0 Release [\#906](https://github.com/kubernetes/kompose/pull/906) ([cdrage](https://github.com/cdrage))
 - Convert registry to k8s.gcr.io [\#901](https://github.com/kubernetes/kompose/pull/901) ([thockin](https://github.com/thockin))
 - Added Case for Config Map in kompose down [\#900](https://github.com/kubernetes/kompose/pull/900) ([piyush1594](https://github.com/piyush1594))
 - Update code-of-conduct.md [\#899](https://github.com/kubernetes/kompose/pull/899) ([spiffxp](https://github.com/spiffxp))
