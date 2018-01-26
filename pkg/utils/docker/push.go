@@ -59,7 +59,17 @@ func (c *Push) PushImage(fullImageName string) error {
 	// $DOCKER_CONFIG/config.json, $HOME/.docker/config.json , $HOME/.dockercfg
 	credentials, err := dockerlib.NewAuthConfigurationsFromDockerCfg()
 	if err != nil {
-		return errors.Wrap(err, "Unable to retrieve .docker/config.json authentication details. Check that 'docker login' works successfully on the command line.")
+		log.Warn(errors.Wrap(err, "Unable to retrieve .docker/config.json authentication details. Check that 'docker login' works successfully on the command line."))
+	}
+
+	// Fallback to unauthenticated access in case if no auth credentials are retrieved
+	if credentials == nil || len(credentials.Configs) == 0 {
+		log.Info("Authentication credentials are not detected. Will try push without authentication.")
+		credentials = &dockerlib.AuthConfigurations{
+			Configs: map[string]dockerlib.AuthConfiguration{
+				registry: {},
+			},
+		}
 	}
 
 	// Push the image to the repository (based on the URL)
