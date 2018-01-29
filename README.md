@@ -1,6 +1,6 @@
 # Kompose (Kubernetes + Compose)
 
-[![Build Status Widget]][Build Status] [![Coverage Status Widget]][Coverage Status] [![GoDoc Widget]][GoDoc]  [![GoReportCard Widget]][GoReportCardResult] [![Slack Widget]][Slack]
+[![Build Status Widget]][Build Status] [![Coverage Status Widget]][Coverage Status] [![GoDoc Widget]][GoDoc]  [![GoReportCard Widget]][GoReportCardResult]
 
 `kompose` is a tool to help users who are familiar with `docker-compose` move to [Kubernetes](http://kubernetes.io). `kompose` takes a Docker Compose file and translates it into Kubernetes resources.
 
@@ -112,12 +112,6 @@ Or `go build`:
 $ go build -o kompose main.go
 ```
 
-If you have `go` v1.5, it's still good to build `kompose` with the following settings:
-
-```console
-$ CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build -o kompose main.go
-```
-
 To create a multi-platform binary, use the `cross` command via `make`:
 
 ```console
@@ -143,8 +137,6 @@ __Issues:__ If you find any issues, please [file it](https://github.com/kubernet
 
 __Kubernetes Community:__ As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
 
-__Kubernetes Incubation:__ Kompose is being incubated into the Kubernetes community via [SIG-APPS](https://github.com/kubernetes/community/tree/master/sig-apps) on [kubernetes/community](https://github.com/kubernetes/community). [@ericchiang](https://github.com/ericchiang) is acting champion for [incubation](https://github.com/kubernetes/community/blob/master/incubator.md).
-
 __Chat (Slack):__ We're fairly active on [Slack](http://slack.kubernetes.io#kompose) and you can find us in the #kompose channel.
 
 ## Road Map
@@ -159,8 +151,6 @@ Participation in the Kubernetes community is governed by the [Kubernetes Code of
 [Build Status Widget]: https://travis-ci.org/kubernetes/kompose.svg?branch=master
 [GoDoc]: https://godoc.org/github.com/kubernetes/kompose
 [GoDoc Widget]: https://godoc.org/github.com/kubernetes/kompose?status.svg
-[Slack]: http://slack.kubernetes.io#kompose
-[Slack Widget]: https://s3.eu-central-1.amazonaws.com/ngtuna/join-us-on-slack.png
 [Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes/kompose/badge.svg?branch=master
 [Coverage Status]: https://coveralls.io/github/kubernetes/kompose?branch=master
 [GoReportCard Widget]: https://goreportcard.com/badge/github.com/kubernetes/kompose
