@@ -107,7 +107,7 @@ Available Commands:{{range .Commands}}{{if .IsAvailableCommand}}
 
 OpenShift Flags:
       --build-branch             Specify repository branch to use for buildconfig (default is current branch name)
-      --build-repo               Specify source repository for buildconfig (default is current branch's remote url
+      --build-repo               Specify source repository for buildconfig (default is current branch's remote url)
       --insecure-repository      Specify to use insecure docker repository while generating Openshift image stream object
 
 Flags:
