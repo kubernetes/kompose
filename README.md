@@ -95,27 +95,31 @@ Download from [Bintray](https://dl.bintray.com/kompose/kompose/latest/kompose-wi
 
 
 ### Building with `go`
+__Requisites:__
+1. [make](https://www.gnu.org/software/make/)
+2. [Golang](https://golang.org/) v1.6 or later
+3. Set `GOPATH` correctly or click [SettingGOPATH](https://github.com/golang/go/wiki/SettingGOPATH) for details
 
-- You need `make`
-- You need `go` v1.6 or later.
-- If your working copy is not in your `GOPATH`, you need to set it accordingly.
-
-You can either build via the Makefile:
-
+__Steps:__
+- clone code
+```console
+$ git clone https://github.com/kubernetes/kompose.git $GOPATH/src/github.com/kubernetes/kompose
+```
+- build by make
 ```console
 $ make bin
 ```
-
-Or `go build`:
-
+- build by go
 ```console
 $ go build -o kompose main.go
 ```
-
-To create a multi-platform binary, use the `cross` command via `make`:
-
+- create a multi-platform binary
 ```console
 $ make cross
+```
+- do not forget test
+```console
+$ make test
 ```
 
 ## Documentation
