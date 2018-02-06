@@ -71,7 +71,6 @@ func loadEnvVars(envars []string) []kobject.EnvVar {
 
 // getComposeFileDir returns compose file directory
 // Assume all the docker-compose files are in the same directory
-// TODO: fix (check if file exists)
 func getComposeFileDir(inputFiles []string) (string, error) {
 	inputFile := inputFiles[0]
 	if strings.Index(inputFile, "/") != 0 {
