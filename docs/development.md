@@ -94,7 +94,7 @@ glide-vc -h
   just new subpackage.
 
 2. Run `glide update --strip-vendor` to get new dependencies.
-   Than run `glide-vc --only-code --no-tests` to delete all unnecessary files from vendor.
+   Then run `glide-vc --only-code --no-tests` to delete all unnecessary files from vendor.
 
 3. Commit updated `glide.yml`, `glide.lock` and `vendor` to git.
 
@@ -104,7 +104,7 @@ glide-vc -h
 1. Set new package version in  `glide.yml` file.
 
 2. Run `glide update --strip-vendor` to update dependencies.
-   Than run `glide-vc --only-code --no-tests` to delete all unnecessary files from vendor.
+   Then run `glide-vc --only-code --no-tests` to delete all unnecessary files from vendor.
 
 
 ##### Updating Kubernetes and OpenShift
