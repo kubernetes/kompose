@@ -101,23 +101,19 @@ __Requisites:__
 3. Set `GOPATH` correctly or click [SettingGOPATH](https://github.com/golang/go/wiki/SettingGOPATH) for details
 
 __Steps:__
-- clone code
+1. Clone repository
 ```console
 $ git clone https://github.com/kubernetes/kompose.git $GOPATH/src/github.com/kubernetes/kompose
 ```
-- build by make
+2. Build with `make`
 ```console
 $ make bin
 ```
-- build by go
+3. Or build with `go`
 ```console
 $ go build -o kompose main.go
 ```
-- create a multi-platform binary
-```console
-$ make cross
-```
-- do not forget test
+4. Test your changes
 ```console
 $ make test
 ```
