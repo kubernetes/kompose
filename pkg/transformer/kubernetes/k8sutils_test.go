@@ -268,7 +268,7 @@ func TestTransformWithPid(t *testing.T) {
 	}
 }
 
-func TestTransformWithInvaildPid(t *testing.T) {
+func TestTransformWithInvalidPid(t *testing.T) {
 	// An example service
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
