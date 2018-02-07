@@ -63,7 +63,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	// Get the provider
 	provider := cmd.Flags().Lookup("provider").Value.String()
-	log.Debug("Checking validation of provider %s", provider)
+	log.Debugf("Checking validation of provider: %s", provider)
 
 	// OpenShift specific flags
 	deploymentConfig := cmd.Flags().Lookup("deployment-config").Changed
@@ -78,7 +78,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	// Get the controller
 	controller := opt.Controller
-	log.Debug("Checking validation of controller %s", controller)
+	log.Debugf("Checking validation of controller: %s", controller)
 
 	// Check validations against provider flags
 	switch {
