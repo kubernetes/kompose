@@ -134,7 +134,7 @@ func init() {
 	convertCmd.Flags().BoolVarP(&ConvertJSON, "json", "j", false, "Generate resource files into JSON format")
 	convertCmd.Flags().BoolVar(&ConvertStdout, "stdout", false, "Print converted objects to stdout")
 	convertCmd.Flags().StringVarP(&ConvertOut, "out", "o", "", "Specify a file name to save objects to")
-	convertCmd.Flags().IntVar(&ConvertReplicas, "replicas", 1, "Specify the number of repliaces in the generate resource spec")
+	convertCmd.Flags().IntVar(&ConvertReplicas, "replicas", 1, "Specify the number of replicas in the generated resource spec")
 	convertCmd.Flags().StringVar(&ConvertVolumes, "volumes", "persistentVolumeClaim", `Volumes to be generated ("persistentVolumeClaim"|"emptyDir")`)
 
 	// Deprecated commands
