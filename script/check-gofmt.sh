@@ -30,7 +30,7 @@ done
 if [ ${#errors[@]} -eq 0 ]; then
 	echo "gofmt OK"
 else
-	echo "gofmt ERROR - These files are not formated by gofmt:"
+	echo "gofmt ERROR - These files are not formatted by gofmt:"
 	for err in "${errors[@]}"; do
 		echo "$err"
 	done
