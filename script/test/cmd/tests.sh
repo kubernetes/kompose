@@ -149,6 +149,18 @@ cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-m
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/output-os-template.json > /tmp/output-os.json
 convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/docker-compose.yml convert --stdout -j" "/tmp/output-os.json"
 
+######
+# Tests related to docker-compose file in /script/test/fixtures/volume-mounts/named-volume
+# kubernetes test
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/docker-compose.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/output-k8s-template.json > /tmp/output-k8s.json
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/docker-compose.yml convert --stdout -j" "/tmp/output-k8s.json"
+
+# openshift test
+cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/docker-compose.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/output-os-template.json > /tmp/output-os.json
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/docker-compose.yml convert --stdout -j" "/tmp/output-os.json"
+
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/volume-mounts/volumes-from
