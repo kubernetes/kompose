@@ -51,7 +51,7 @@ test-unit:
 test-unit-cover:
 	# First install packages that are dependencies of the test. 
 	go test -i -race -cover $(PKGS)
-	# go test doesn't support colleting coverage across multiple packages,
+	# go test doesn't support collecting coverage across multiple packages,
 	# generate go test commands using go list and run go test for every package separately 
 	go list -f '"go test -race -cover -v -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}}"' github.com/kubernetes/kompose/...  | grep -v "vendor" | xargs -L 1 -P4 sh -c 
 
@@ -107,12 +107,12 @@ test-dep:
 	go get github.com/mitchellh/gox
 
 
-# build docker image that is used for running all test localy
+# build docker image that is used for running all test locally
 .PHONY: test-image
 test-image:
 	docker build -t $(TEST_IMAGE) -f script/test_in_container/Dockerfile script/test_in_container/
 
-# run all test localy in docker image (image can be build by by build-test-image target)
+# run all test locally in docker image (image can be build by by build-test-image target)
 .PHONY: test-container
 test-container:
 	docker run -v `pwd`:/opt/tmp/kompose:ro -it $(TEST_IMAGE) 
