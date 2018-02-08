@@ -1,0 +1,10 @@
+version: '2'
+services:
+  db:
+    image: postgres:10.1
+    ports:
+      - "5432"
+    labels:
+      kompose.volume.size: 1Gi
+    volumes:
+      - db-data:/var/lib/postgresql/data
