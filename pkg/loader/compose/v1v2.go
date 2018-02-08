@@ -230,6 +230,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		// canonical "Custom Labels" handler
 		// Labels used to influence conversion of kompose will be handled
 		// from here for docker-compose. Each loader will have such handler.
+		serviceConfig.Labels = make(map[string]string)
 		for key, value := range composeServiceConfig.Labels {
 			switch key {
 			case "kompose.service.type":
@@ -243,6 +244,8 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 				serviceConfig.ExposeService = strings.ToLower(value)
 			case "kompose.service.expose.tls-secret":
 				serviceConfig.ExposeServiceTLS = value
+			default:
+				serviceConfig.Labels[key] = value
 			}
 		}
 		if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
