@@ -1,0 +1,171 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "db",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%",
+          "kompose.volume.size": "1Gi"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "5432",
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "db"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "db",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%",
+          "kompose.volume.size": "1Gi"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate",
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "db"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "db:10.1"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "db"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "db"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "db-data",
+                "persistentVolumeClaim": {
+                  "claimName": "db-data"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "db",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 5432
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "db-data",
+                    "mountPath": "/var/lib/postgresql/data"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "db",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "10.1",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "postgres:10.1"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "db-data",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db-data"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "1Gi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}
