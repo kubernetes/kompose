@@ -466,6 +466,14 @@ sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/f
 convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-env.yaml" "/tmp/output-k8s.json"
 
 
+
+# Test unset environment variables are passed correctly
+export V3_HOST_ENV_TEST_SET_TO_BAR=BAR
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-unset-env.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/v3/output-unset-env-k8s.json > /tmp/output-k8s.json
+convert::expect_success "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-unset-env.yaml" "/tmp/output-k8s.json"
+
+
 # Test environment variables substitution
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-env-subs.yaml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/v3/output-env-subs.json > /tmp/output-k8s.json

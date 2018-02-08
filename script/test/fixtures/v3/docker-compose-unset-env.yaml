@@ -1,0 +1,8 @@
+version: '3'
+services:
+  foo:
+    image: foo/bar:latest
+    environment:
+      - BAR
+      - V3_HOST_ENV_TEST_SET_TO_BAR
+      - FOO=foo
