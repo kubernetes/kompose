@@ -187,7 +187,7 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig) (kobject.Healt
 		interval = int32(parse.Seconds())
 	}
 
-	if *composeHealthCheck.Retries != 0 {
+	if composeHealthCheck.Retries != nil {
 		retries = int32(*composeHealthCheck.Retries)
 	}
 
