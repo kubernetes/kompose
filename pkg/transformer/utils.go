@@ -217,12 +217,7 @@ func BuildDockerImage(service kobject.ServiceConfig, name string, relativePath s
 	}
 
 	// Get the appropriate image source and name
-	// use path.Base to get the last element of the relative build path
-	imagePath := path.Join(relativePath, path.Base(service.Build))
-	imageName := name
-	if service.Image != "" {
-		imageName = service.Image
-	}
+	imagePath, imageName := resolveImagePathAndName(service, name, relativePath)
 
 	// Connect to the Docker client
 	client, err := docker.DockerClient()
@@ -240,6 +235,16 @@ func BuildDockerImage(service kobject.ServiceConfig, name string, relativePath s
 	}
 
 	return nil
+}
+
+func resolveImagePathAndName(service kobject.ServiceConfig, name string, relativePath string) (string, string) {
+	imagePath := path.Join(relativePath, service.Build)
+	imageName := name
+	if service.Image != "" {
+		imageName = service.Image
+	}
+
+	return imagePath, imageName
 }
 
 // PushDockerImage pushes docker image
