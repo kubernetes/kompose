@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/kubernetes/kompose/pkg/kobject"
 )
 
 func TestFormatProviderName(t *testing.T) {
@@ -147,5 +149,41 @@ func TestGetComposeFileDir(t *testing.T) {
 	}
 	if !strings.Contains(output, "foobar") {
 		t.Errorf("Expected $PWD/foobar, got %v", output)
+	}
+}
+
+func TestResolveImagePathAndName(t *testing.T) {
+	service := kobject.ServiceConfig{}
+
+	service.Build = "."
+	service.Image = ""
+	imagePath, imageName := resolveImagePathAndName(service, "name", "/foo")
+	if imagePath != "/foo" {
+		t.Errorf("Got %s as imagePath, expected /foo", imagePath)
+	}
+	if imageName != "name" {
+		t.Errorf("Got %s as imageName, expected name", imageName)
+	}
+
+	service.Build = "./bar"
+	service.Image = "image"
+	imagePath, imageName = resolveImagePathAndName(service, "name", "/foo")
+	if imagePath != "/foo/bar" {
+		t.Errorf("Got %s as imagePath, expected /foo/bar", imagePath)
+	}
+	if imageName != "image" {
+		t.Errorf("Got %s as imageName, expected image", imageName)
+	}
+
+	service.Build = "bar"
+	imagePath, imageName = resolveImagePathAndName(service, "name", "/foo")
+	if imagePath != "/foo/bar" {
+		t.Errorf("Got %s as imagePath, expected /foo/bar", imagePath)
+	}
+
+	service.Build = "bar/buz"
+	imagePath, imageName = resolveImagePathAndName(service, "name", "/foo")
+	if imagePath != "/foo/bar/buz" {
+		t.Errorf("Got %s as imagePath, expected /foo/bar/buz", imagePath)
 	}
 }
