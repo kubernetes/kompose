@@ -1,5 +1,35 @@
 # Change Log
 
+## [v1.9.0](https://github.com/kubernetes/kompose/tree/v1.9.0) (2018-02-13)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.8.0...v1.9.0)
+
+**Closed issues:**
+
+- kompose.volume.size label is not working [\#927](https://github.com/kubernetes/kompose/issues/927)
+- "panic: runtime error: invalid memory address or nil pointer dereference" when using environment unset variables [\#918](https://github.com/kubernetes/kompose/issues/918)
+- \[doc\] more tutorial for gcloud? [\#833](https://github.com/kubernetes/kompose/issues/833)
+- add support for `kompose update` [\#822](https://github.com/kubernetes/kompose/issues/822)
+- Cannot locate specified Dockerfile: Dockerfile [\#809](https://github.com/kubernetes/kompose/issues/809)
+- kompose build fails: unable to create tarball [\#656](https://github.com/kubernetes/kompose/issues/656)
+- kompose passes a kubernetes deployment without image  [\#571](https://github.com/kubernetes/kompose/issues/571)
+- Support for sysctls [\#441](https://github.com/kubernetes/kompose/issues/441)
+
+**Merged pull requests:**
+
+- Refactor package app to use const rather than raw string [\#933](https://github.com/kubernetes/kompose/pull/933) ([hangyan](https://github.com/hangyan))
+- Fix typos in Makefile [\#932](https://github.com/kubernetes/kompose/pull/932) ([hangyan](https://github.com/hangyan))
+- Fix typo in function name [\#931](https://github.com/kubernetes/kompose/pull/931) ([hangyan](https://github.com/hangyan))
+- Fix typos in doc [\#930](https://github.com/kubernetes/kompose/pull/930) ([hangyan](https://github.com/hangyan))
+- Fix custom pvc size in v2 compose not working error [\#929](https://github.com/kubernetes/kompose/pull/929) ([hangyan](https://github.com/hangyan))
+- Fix log format error [\#928](https://github.com/kubernetes/kompose/pull/928) ([hangyan](https://github.com/hangyan))
+- Fix unset env bug for v3 compose [\#926](https://github.com/kubernetes/kompose/pull/926) ([hangyan](https://github.com/hangyan))
+- Fix typo in cli help message [\#925](https://github.com/kubernetes/kompose/pull/925) ([hangyan](https://github.com/hangyan))
+- Remove unneeded TODO comment [\#924](https://github.com/kubernetes/kompose/pull/924) ([hangyan](https://github.com/hangyan))
+- fix a typo in development.md [\#923](https://github.com/kubernetes/kompose/pull/923) ([yank1](https://github.com/yank1))
+- provide more details for building steps [\#921](https://github.com/kubernetes/kompose/pull/921) ([adolphlwq](https://github.com/adolphlwq))
+- Update the README [\#919](https://github.com/kubernetes/kompose/pull/919) ([cdrage](https://github.com/cdrage))
+- Push image without authentication [\#913](https://github.com/kubernetes/kompose/pull/913) ([coodix](https://github.com/coodix))
+
 ## [v1.8.0](https://github.com/kubernetes/kompose/tree/v1.8.0) (2018-01-24)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.7.0...v1.8.0)
 
@@ -11,6 +41,7 @@
 
 **Merged pull requests:**
 
+- 1.8.0 Release [\#912](https://github.com/kubernetes/kompose/pull/912) ([cdrage](https://github.com/cdrage))
 - Invalid quick start link [\#908](https://github.com/kubernetes/kompose/pull/908) ([a8uhnf](https://github.com/a8uhnf))
 - Fix link to binary-installation method in README.md [\#903](https://github.com/kubernetes/kompose/pull/903) ([bhavin192](https://github.com/bhavin192))
 
