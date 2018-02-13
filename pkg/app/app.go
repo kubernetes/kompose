@@ -44,8 +44,13 @@ import (
 const (
 	// DefaultComposeFile name of the file that kompose will use if no file is explicitly set
 	DefaultComposeFile = "docker-compose.yml"
+)
+
+const (
+	ProviderKubernetes = "kubernetes"
+	ProviderOpenshift  = "openshift"
 	// DefaultProvider - provider that will be used if there is no provider was explicitly set
-	DefaultProvider = "kubernetes"
+	DefaultProvider = ProviderKubernetes
 )
 
 var inputFormat = "compose"
@@ -82,7 +87,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	// Check validations against provider flags
 	switch {
-	case provider == "openshift":
+	case provider == ProviderOpenshift:
 		if chart {
 			log.Fatalf("--chart, -c is a Kubernetes only flag")
 		}
@@ -98,7 +103,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 		if controller == "daemonset" || controller == "replicationcontroller" || controller == "deployment" {
 			log.Fatalf("--controller= daemonset, replicationcontroller or deployment is a Kubernetes only flag")
 		}
-	case provider == "kubernetes":
+	case provider == ProviderKubernetes:
 		if deploymentConfig {
 			log.Fatalf("--deployment-config is an OpenShift only flag")
 		}
@@ -153,10 +158,10 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 func ValidateComposeFile(opt *kobject.ConvertOptions) {
 	if len(opt.InputFiles) == 0 {
 		// Here docker-compose is the input
-		opt.InputFiles = []string{"docker-compose.yml"}
-		_, err := os.Stat("docker-compose.yml")
+		opt.InputFiles = []string{DefaultComposeFile}
+		_, err := os.Stat(DefaultComposeFile)
 		if err != nil {
-			log.Debugf("'docker-compose.yml' not found: %v", err)
+			log.Debugf("'%s' not found: %v", DefaultComposeFile, err)
 			opt.InputFiles = []string{"docker-compose.yaml"}
 			_, err = os.Stat("docker-compose.yaml")
 			if err != nil {
@@ -169,7 +174,7 @@ func ValidateComposeFile(opt *kobject.ConvertOptions) {
 func validateControllers(opt *kobject.ConvertOptions) {
 
 	singleOutput := len(opt.OutFile) != 0 || opt.OutFile == "-" || opt.ToStdout
-	if opt.Provider == "kubernetes" {
+	if opt.Provider == ProviderKubernetes {
 		// create deployment by default if no controller has been set
 		if !opt.CreateD && !opt.CreateDS && !opt.CreateRC && opt.Controller == "" {
 			opt.CreateD = true
@@ -190,7 +195,7 @@ func validateControllers(opt *kobject.ConvertOptions) {
 			}
 		}
 
-	} else if opt.Provider == "openshift" {
+	} else if opt.Provider == ProviderOpenshift {
 		// create deploymentconfig by default if no controller has been set
 		if !opt.CreateDeploymentConfig {
 			opt.CreateDeploymentConfig = true
@@ -311,7 +316,7 @@ func Down(opt kobject.ConvertOptions) {
 // what provider we are using.
 func getTransformer(opt kobject.ConvertOptions) transformer.Transformer {
 	var t transformer.Transformer
-	if opt.Provider == "kubernetes" {
+	if opt.Provider == DefaultProvider {
 		// Create/Init new Kubernetes object with CLI opts
 		t = &kubernetes.Kubernetes{Opt: opt}
 	} else {
