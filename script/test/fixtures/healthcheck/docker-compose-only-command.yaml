@@ -1,0 +1,7 @@
+version: "3"
+
+services:
+  redis:
+    image: redis
+    healthcheck:
+      test: echo "hello world"
