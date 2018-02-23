@@ -421,11 +421,11 @@ func (o *OpenShift) getOpenShiftClient() (*oclient.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	oclient := oclient.NewOrDie(oclientConfig)
-	return oclient, nil
+	oc := oclient.NewOrDie(oclientConfig)
+	return oc, nil
 }
 
-// Deploy transofrms and deploys kobject to OpenShift
+// Deploy transforms and deploys kobject to OpenShift
 func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
 	objects, err := o.Transform(komposeObject, opt)
@@ -441,7 +441,7 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 	log.Info("We are going to create OpenShift DeploymentConfigs, Services" + pvcStr + "for your Dockerized application. \n" +
 		"If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. \n")
 
-	oclient, err := o.getOpenShiftClient()
+	oc, err := o.getOpenShiftClient()
 	if err != nil {
 		return err
 	}
@@ -459,19 +459,19 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 	for _, v := range objects {
 		switch t := v.(type) {
 		case *imageapi.ImageStream:
-			_, err := oclient.ImageStreams(namespace).Create(t)
+			_, err := oc.ImageStreams(namespace).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created ImageStream: %s", t.Name)
 		case *buildapi.BuildConfig:
-			_, err := oclient.BuildConfigs(namespace).Create(t)
+			_, err := oc.BuildConfigs(namespace).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created BuildConfig: %s", t.Name)
 		case *deployapi.DeploymentConfig:
-			_, err := oclient.DeploymentConfigs(namespace).Create(t)
+			_, err := oc.DeploymentConfigs(namespace).Create(t)
 			if err != nil {
 				return err
 			}
@@ -489,7 +489,7 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 			}
 			log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, kubernetes.PVCRequestSize)
 		case *routeapi.Route:
-			_, err := oclient.Routes(namespace).Create(t)
+			_, err := oc.Routes(namespace).Create(t)
 			if err != nil {
 				return err
 			}
@@ -523,7 +523,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 		errorList = append(errorList, err)
 		return errorList
 	}
-	oclient, err := o.getOpenShiftClient()
+	oc, err := o.getOpenShiftClient()
 	if err != nil {
 		errorList = append(errorList, err)
 		return errorList
@@ -547,14 +547,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 		switch t := v.(type) {
 		case *imageapi.ImageStream:
 			//delete imageStream
-			imageStream, err := oclient.ImageStreams(namespace).List(options)
+			imageStream, err := oc.ImageStreams(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
 			}
 			for _, l := range imageStream.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					err = oclient.ImageStreams(namespace).Delete(t.Name)
+					err = oc.ImageStreams(namespace).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -564,14 +564,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			}
 
 		case *buildapi.BuildConfig:
-			buildConfig, err := oclient.BuildConfigs(namespace).List(options)
+			buildConfig, err := oc.BuildConfigs(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
 			}
 			for _, l := range buildConfig.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					bcreaper := buildconfigreaper.NewBuildConfigReaper(oclient)
+					bcreaper := buildconfigreaper.NewBuildConfigReaper(oc)
 					err := bcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
@@ -583,14 +583,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 
 		case *deployapi.DeploymentConfig:
 			// delete deploymentConfig
-			deploymentConfig, err := oclient.DeploymentConfigs(namespace).List(options)
+			deploymentConfig, err := oc.DeploymentConfigs(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
 			}
 			for _, l := range deploymentConfig.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					dcreaper := deploymentconfigreaper.NewDeploymentConfigReaper(oclient, kclient)
+					dcreaper := deploymentconfigreaper.NewDeploymentConfigReaper(oc, kclient)
 					err := dcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
@@ -644,14 +644,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 
 		case *routeapi.Route:
 			// delete route
-			route, err := oclient.Routes(namespace).List(options)
+			route, err := oc.Routes(namespace).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
 			}
 			for _, l := range route.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					err = oclient.Routes(namespace).Delete(t.Name)
+					err = oc.Routes(namespace).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
