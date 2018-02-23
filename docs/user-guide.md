@@ -297,9 +297,23 @@ The chart structure is aimed at providing a skeleton for building your Helm char
 
 ## Labels
 
-`kompose` supports Kompose-specific labels within the `docker-compose.yml` file in order to explicitly define a service's behavior upon conversion.
+`kompose` supports Kompose-specific labels within the `docker-compose.yml` file to
+explicitly define the generated resources' behavior upon conversion, like Service, PersistentVolumeClaim...
 
-- kompose.service.type defines the type of service to be created.
+The currently supported options are:
+
+| Key                  | Value                               |
+|----------------------|-------------------------------------|
+| kompose.service.type | nodeport / clusterip / loadbalancer |
+| kompose.service.expose | true / hostname |
+| kompose.service.expose.tls-secret | secret name |
+| kompose.volume.size | kubernetes supported volume size |
+
+**Note**: `kompose.service.type` label should be defined with `ports` only, otherwise `kompose` will fail.
+
+
+
+- `kompose.service.type` defines the type of service to be created.
 
 For example:
 
@@ -317,10 +331,10 @@ services:
       kompose.service.type: nodeport
 ```
 
-- kompose.service.expose defines if the service needs to be made accessible from outside the cluster or not. If the value is set to "true", the provider sets the endpoint automatically, and for any other value, the value is set as the hostname. If multiple ports are defined in a service, the first one is chosen to be the exposed.
+- `kompose.service.expose` defines if the service needs to be made accessible from outside the cluster or not. If the value is set to "true", the provider sets the endpoint automatically, and for any other value, the value is set as the hostname. If multiple ports are defined in a service, the first one is chosen to be the exposed.
     - For the Kubernetes provider, an ingress resource is created and it is assumed that an ingress controller has already been configured.
     - For the OpenShift provider, a route is created.
-- kompose.service.expose.tls-secret provides the name of the TLS secret to use with the Kubernetes ingress controller. This requires kompose.service.expose to be set.
+- `kompose.service.expose.tls-secret` provides the name of the TLS secret to use with the Kubernetes ingress controller. This requires kompose.service.expose to be set.
 
 For example:
 
@@ -342,15 +356,21 @@ services:
      - "6379"
 ```
 
-The currently supported options are:
+- `kompose.volume.size` defines the requests storage's size in the PersistentVolumeClaim
 
-| Key                  | Value                               |
-|----------------------|-------------------------------------|
-| kompose.service.type | nodeport / clusterip / loadbalancer |
-| kompose.service.expose | true / hostname |
-| kompose.service.expose.tls-secret | secret name |
+For example:
 
-**Note**: `kompose.service.type` label should be defined with `ports` only, otherwise `kompose` will fail.
+```yaml
+version: '2'
+services:
+  db:
+    image: postgres:10.1
+    labels:
+      kompose.volume.size: 1Gi
+    volumes:
+      - db-data:/var/lib/postgresql/data
+```
+
 
 ## Restart
 
