@@ -660,13 +660,13 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				return nil, err
 			}
 
-			// Build the container!
+			// Build the image!
 			err = transformer.BuildDockerImage(service, name, composeFileDir)
 			if err != nil {
 				return nil, errors.Wrapf(err, "Unable to build Docker image for service %v", name)
 			}
 
-			// Push the built container to the repo!
+			// Push the built image to the repo!
 			err = transformer.PushDockerImage(service, name)
 			if err != nil {
 				return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
