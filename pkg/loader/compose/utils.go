@@ -26,6 +26,15 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 )
 
+const (
+	// LabelServiceType defines the type of service to be created
+	LabelServiceType = "kompose.service.type"
+	// LabelServiceExpose defines if the service needs to be made accessible from outside the cluster or not
+	LabelServiceExpose = "kompose.service.expose"
+	// LabelServiceExposeTLSSecret  provides the name of the TLS secret to use with the Kubernetes ingress controller
+	LabelServiceExposeTLSSecret = "kompose.service.expose.tls-secret"
+)
+
 // load environment variables from compose file
 func loadEnvVars(envars []string) []kobject.EnvVar {
 	envs := []kobject.EnvVar{}
