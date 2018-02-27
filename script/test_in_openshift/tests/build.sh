@@ -24,3 +24,7 @@ convert::print_msg "Running tests for build+push"
 docker_compose_file="${KOMPOSE_ROOT}/script/test_in_openshift/compose-files/buildconfig/docker-compose-build-image.yml"
 convert::kompose_up $docker_compose_file
 convert::kompose_down $docker_compose_file
+
+docker_compose_file="${KOMPOSE_ROOT}/script/test_in_openshift/compose-files/buildconfig-relative-dirs/docker/docker-compose-build-image.yml"
+convert::kompose_up $docker_compose_file
+convert::kompose_down $docker_compose_file
