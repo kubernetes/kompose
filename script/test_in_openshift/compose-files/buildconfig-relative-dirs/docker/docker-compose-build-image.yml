@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  backend-server:
+    image: "172.30.1.1:5000/myproject/test-image"
+    build:
+      context: ../server
+      dockerfile: Dockerfile
+    env_file:
+      - ../docker_env.list
+    ports:
+      - 5000:4000
+
+  front-end:
+    image: "172.30.1.1:5000/myproject/test-image"
+    build:
+      context: ../web
+      dockerfile: Dockerfile
+    env_file:
+      - ../docker_env.list
+    ports:
+      - 8080:8080
+    depends_on:
+      - backend-server
