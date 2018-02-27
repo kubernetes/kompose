@@ -51,14 +51,11 @@ import (
 /**
  * Generate Helm Chart configuration
  */
-func generateHelm(filenames []string, outFiles []string) error {
+func generateHelm(dirName string) error {
 	type ChartDetails struct {
 		Name string
 	}
-	// Let assume all the docker-compose files are in the same directory
-	filename := filenames[0]
-	extension := filepath.Ext(filename)
-	dirName := filename[0 : len(filename)-len(extension)]
+
 	details := ChartDetails{dirName}
 	manifestDir := dirName + string(os.PathSeparator) + "templates"
 	dir, err := os.Open(dirName)
@@ -78,16 +75,17 @@ func generateHelm(filenames []string, outFiles []string) error {
 		if err != nil {
 			return err
 		}
+	}
 
-		/* Create the readme file */
-		readme := "This chart was created by Kompose\n"
-		err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"README.md", []byte(readme), 0644)
-		if err != nil {
-			return err
-		}
+	/* Create the readme file */
+	readme := "This chart was created by Kompose\n"
+	err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"README.md", []byte(readme), 0644)
+	if err != nil {
+		return err
+	}
 
-		/* Create the Chart.yaml file */
-		chart := `name: {{.Name}}
+	/* Create the Chart.yaml file */
+	chart := `name: {{.Name}}
 description: A generated Helm Chart for {{.Name}} from Skippbox Kompose
 version: 0.0.1
 keywords:
@@ -96,40 +94,20 @@ sources:
 home:
 `
 
-		t, err := template.New("ChartTmpl").Parse(chart)
-		if err != nil {
-			return errors.Wrap(err, "Failed to generate Chart.yaml template, template.New failed")
-		}
-		var chartData bytes.Buffer
-		_ = t.Execute(&chartData, details)
-
-		err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"Chart.yaml", chartData.Bytes(), 0644)
-		if err != nil {
-			return err
-		}
-	}
-
-	/* Copy all related json/yaml files into the newly created manifests directory */
-	for _, filename := range outFiles {
-		if err = cpFileToChart(manifestDir, filename); err != nil {
-			log.Warningln(err)
-		}
-		if err = os.Remove(filename); err != nil {
-			log.Warningln(err)
-		}
-	}
-	log.Infof("chart created in %q\n", "."+string(os.PathSeparator)+dirName+string(os.PathSeparator))
-	return nil
-}
-
-func cpFileToChart(manifestDir, filename string) error {
-	infile, err := ioutil.ReadFile(filename)
+	t, err := template.New("ChartTmpl").Parse(chart)
 	if err != nil {
-		log.Warningf("Error reading %s: %s\n", filename, err)
+		return errors.Wrap(err, "Failed to generate Chart.yaml template, template.New failed")
+	}
+	var chartData bytes.Buffer
+	_ = t.Execute(&chartData, details)
+
+	err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"Chart.yaml", chartData.Bytes(), 0644)
+	if err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(manifestDir+string(os.PathSeparator)+filename, infile, 0644)
+	log.Infof("chart created in %q\n", dirName+string(os.PathSeparator))
+	return nil
 }
 
 // Check if given path is a directory
@@ -155,20 +133,37 @@ func isDir(name string) (bool, error) {
 	return false, nil
 }
 
+func getDirName(opt kobject.ConvertOptions) string {
+	dirName := opt.OutFile
+	if dirName == "" {
+		// Let assume all the docker-compose files are in the same directory
+		if opt.CreateChart {
+			filename := opt.InputFiles[0]
+			extension := filepath.Ext(filename)
+			dirName = filename[0 : len(filename)-len(extension)]
+		} else {
+			dirName = "."
+		}
+	}
+	return dirName
+}
+
 // PrintList will take the data converted and decide on the commandline attributes given
 func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 
 	var f *os.File
-	var dirName string
+	dirName := getDirName(opt)
+	log.Debugf("Target Dir: %s", dirName)
 
 	// Check if output file is a directory
 	isDirVal, err := isDir(opt.OutFile)
 	if err != nil {
 		return errors.Wrap(err, "isDir failed")
 	}
-	if isDirVal {
-		dirName = opt.OutFile
-	} else {
+	if opt.CreateChart {
+		isDirVal = true
+	}
+	if !isDirVal {
 		f, err = transformer.CreateOutFile(opt.OutFile)
 		if err != nil {
 			return errors.Wrap(err, "transformer.CreateOutFile failed")
@@ -200,7 +195,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		}
 		data, err := marshal(convertedList, opt.GenerateJSON)
 		if err != nil {
-			return fmt.Errorf("Error in marshalling the List: %v", err)
+			return fmt.Errorf("error in marshalling the List: %v", err)
 		}
 		printVal, err := transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
 		if err != nil {
@@ -208,6 +203,15 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		}
 		files = append(files, printVal)
 	} else {
+		finalDirName := dirName
+		if opt.CreateChart {
+			finalDirName = dirName + string(os.PathSeparator) + "templates"
+		}
+
+		if err := os.MkdirAll(finalDirName, 0755); err != nil {
+			return err
+		}
+
 		var file string
 		// create a separate file for each provider
 		for _, v := range objects {
@@ -229,7 +233,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			// cast it to correct type - api.ObjectMeta
 			objectMeta := val.FieldByName("ObjectMeta").Interface().(api.ObjectMeta)
 
-			file, err = transformer.Print(objectMeta.Name, dirName, strings.ToLower(typeMeta.Kind), data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
+			file, err = transformer.Print(objectMeta.Name, finalDirName, strings.ToLower(typeMeta.Kind), data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
 			if err != nil {
 				return errors.Wrap(err, "transformer.Print failed")
 			}
@@ -238,7 +242,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		}
 	}
 	if opt.CreateChart {
-		err = generateHelm(opt.InputFiles, files)
+		err = generateHelm(dirName)
 		if err != nil {
 			return errors.Wrap(err, "generateHelm failed")
 		}

@@ -362,6 +362,10 @@ convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixture
 # Behavior with -o <dirname>/<filename>
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR/output_file -j" "$TEMP_DIR/output_file"
 
+######
+# Test charts generate with custom dir
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR -j -c" "$TEMP_DIR/Chart.yaml" "$TEMP_DIR/README.md" "$TEMP_DIR/templates/redis-deployment.json" "$TEMP_DIR/templates/redis-service.json" "$TEMP_DIR/templates/web-deployment.json" "$TEMP_DIR/templates/web-service.json"
+
 ####
 # Test regarding build context (running kompose from various directories)
 # Replacing variables with current branch and uri
