@@ -353,22 +353,22 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// from here for docker-compose. Each loader will have such handler.
 		for key, value := range composeServiceConfig.Labels {
 			switch key {
-			case "kompose.service.type":
+			case LabelServiceType:
 				serviceType, err := handleServiceType(value)
 				if err != nil {
 					return kobject.KomposeObject{}, errors.Wrap(err, "handleServiceType failed")
 				}
 
 				serviceConfig.ServiceType = serviceType
-			case "kompose.service.expose":
+			case LabelServiceExpose:
 				serviceConfig.ExposeService = strings.ToLower(value)
-			case "kompose.service.expose.tls-secret":
+			case LabelServiceExposeTLSSecret:
 				serviceConfig.ExposeServiceTLS = value
 			}
 		}
 
 		if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
-			return kobject.KomposeObject{}, errors.New("kompose.service.expose.tls-secret was specifed without kompose.service.expose")
+			return kobject.KomposeObject{}, errors.New("kompose.service.expose.tls-secret was specified without kompose.service.expose")
 		}
 
 		// Log if the name will been changed

@@ -233,25 +233,25 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.Labels = make(map[string]string)
 		for key, value := range composeServiceConfig.Labels {
 			switch key {
-			case "kompose.service.type":
+			case LabelServiceType:
 				serviceType, err := handleServiceType(value)
 				if err != nil {
 					return kobject.KomposeObject{}, errors.Wrap(err, "handleServiceType failed")
 				}
 
 				serviceConfig.ServiceType = serviceType
-			case "kompose.service.expose":
+			case LabelServiceExpose:
 				serviceConfig.ExposeService = strings.ToLower(value)
-			case "kompose.service.expose.tls-secret":
+			case LabelServiceExposeTLSSecret:
 				serviceConfig.ExposeServiceTLS = value
 			default:
 				serviceConfig.Labels[key] = value
 			}
 		}
 		if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
-			return kobject.KomposeObject{}, errors.New("kompose.service.expose.tls-secret was specifed without kompose.service.expose")
+			return kobject.KomposeObject{}, errors.New("kompose.service.expose.tls-secret was specified without kompose.service.expose")
 		}
-		err = checkLabelsPorts(len(serviceConfig.Port), composeServiceConfig.Labels["kompose.service.type"], name)
+		err = checkLabelsPorts(len(serviceConfig.Port), composeServiceConfig.Labels[LabelServiceType], name)
 		if err != nil {
 			return kobject.KomposeObject{}, errors.Wrap(err, "kompose.service.type can't be set if service doesn't expose any ports.")
 		}
