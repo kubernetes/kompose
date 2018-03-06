@@ -1,5 +1,41 @@
 # Change Log
 
+## [v1.10.0](https://github.com/kubernetes/kompose/tree/v1.10.0) (2018-03-06)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.9.0...v1.10.0)
+
+**Closed issues:**
+
+- Kompose doesn't find dockerfile with context . [\#944](https://github.com/kubernetes/kompose/issues/944)
+- Support for multi-port services [\#941](https://github.com/kubernetes/kompose/issues/941)
+- panic: runtime error: invalid memory address or nil pointer dereference SIGSEGV related to Healthcheck [\#934](https://github.com/kubernetes/kompose/issues/934)
+- Add FAQ [\#887](https://github.com/kubernetes/kompose/issues/887)
+- Output option with convert -c fails. [\#886](https://github.com/kubernetes/kompose/issues/886)
+- Add test cases / documentation for setting PVC volume size [\#872](https://github.com/kubernetes/kompose/issues/872)
+- insufficient cpu [\#856](https://github.com/kubernetes/kompose/issues/856)
+- old Kompose version in Fedora 26 [\#854](https://github.com/kubernetes/kompose/issues/854)
+- Fabric8 CI not working [\#790](https://github.com/kubernetes/kompose/issues/790)
+- remove dependency on docker daemon for building container images [\#696](https://github.com/kubernetes/kompose/issues/696)
+- Add support for providing URL [\#605](https://github.com/kubernetes/kompose/issues/605)
+- Blockers for running buildconfig tests on OpenShift [\#572](https://github.com/kubernetes/kompose/issues/572)
+- git repo with detached head generates wrong `bc` [\#561](https://github.com/kubernetes/kompose/issues/561)
+- move functional tests to golang [\#432](https://github.com/kubernetes/kompose/issues/432)
+- Add support for s2i in buildconfigs for OpenShift [\#353](https://github.com/kubernetes/kompose/issues/353)
+- kubernetes\_test.go and openshift\_test.go follow different patterns [\#346](https://github.com/kubernetes/kompose/issues/346)
+- Get kompose in kubernetes repo [\#328](https://github.com/kubernetes/kompose/issues/328)
+- Support converting OpenShift json \<-\> Kubernetes json/yaml [\#219](https://github.com/kubernetes/kompose/issues/219)
+- RFE can we get Kompose to have a --redeploy option [\#147](https://github.com/kubernetes/kompose/issues/147)
+
+**Merged pull requests:**
+
+- Fix broken links for volume long syntax in comments [\#949](https://github.com/kubernetes/kompose/pull/949) ([hangyan](https://github.com/hangyan))
+- Refactor label names to const strings [\#948](https://github.com/kubernetes/kompose/pull/948) ([hangyan](https://github.com/hangyan))
+- Fix image build path error [\#946](https://github.com/kubernetes/kompose/pull/946) ([hangyan](https://github.com/hangyan))
+- Fix custom output and charts conflict error [\#938](https://github.com/kubernetes/kompose/pull/938) ([hangyan](https://github.com/hangyan))
+- Variable name should not be the same as imported package name [\#937](https://github.com/kubernetes/kompose/pull/937) ([hangyan](https://github.com/hangyan))
+- Fix healthcheck parser nil pointer error [\#936](https://github.com/kubernetes/kompose/pull/936) ([hangyan](https://github.com/hangyan))
+- Add doc for volume size label [\#935](https://github.com/kubernetes/kompose/pull/935) ([hangyan](https://github.com/hangyan))
+- Fixed typo [\#920](https://github.com/kubernetes/kompose/pull/920) ([pborreli](https://github.com/pborreli))
+
 ## [v1.9.0](https://github.com/kubernetes/kompose/tree/v1.9.0) (2018-02-13)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.8.0...v1.9.0)
 
@@ -16,6 +52,7 @@
 
 **Merged pull requests:**
 
+- 1.9.0 Release [\#943](https://github.com/kubernetes/kompose/pull/943) ([cdrage](https://github.com/cdrage))
 - Refactor package app to use const rather than raw string [\#933](https://github.com/kubernetes/kompose/pull/933) ([hangyan](https://github.com/hangyan))
 - Fix typos in Makefile [\#932](https://github.com/kubernetes/kompose/pull/932) ([hangyan](https://github.com/hangyan))
 - Fix typo in function name [\#931](https://github.com/kubernetes/kompose/pull/931) ([hangyan](https://github.com/hangyan))
