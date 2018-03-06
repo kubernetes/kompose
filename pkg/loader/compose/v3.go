@@ -121,7 +121,7 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 // Convert the Docker Compose v3 volumes to []string (the old way)
 // TODO: Check to see if it's a "bind" or "volume". Ignore for now.
 // TODO: Refactor it similar to loadV3Ports
-// See: https://docs.docker.com/compose/compose-file/#long-syntax-2
+// See: https://docs.docker.com/compose/compose-file/#long-syntax-3
 func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
 	var volArray []string
 	for _, vol := range volumes {
@@ -345,7 +345,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 
 		// Parse the volumes
 		// Again, in v3, we use the "long syntax" for volumes in terms of parsing
-		// https://docs.docker.com/compose/compose-file/#long-syntax-2
+		// https://docs.docker.com/compose/compose-file/#long-syntax-3
 		serviceConfig.VolList = loadV3Volumes(composeServiceConfig.Volumes)
 
 		// Label handler
