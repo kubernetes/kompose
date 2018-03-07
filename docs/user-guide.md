@@ -380,6 +380,7 @@ If you want to create normal pods without controllers you can use `restart` cons
 |----------------------------|-------------------|---------------------|
 | `""`                       | controller object | `Always`            |
 | `always`                   | controller object | `Always`            |
+| `unless-stopped`           | controller object | `Always`            |
 | `on-failure`               | Pod               | `OnFailure`         |
 | `no`                       | Pod               | `Never`             |
 
