@@ -337,6 +337,9 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 // ConfigServicePorts configure the container service ports.
 func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
+	seenPorts := make(map[int]struct{}, len(service.Port))
+
+	var servicePort api.ServicePort
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
 			port.HostPort = port.ContainerPort
@@ -346,21 +349,28 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 		targetPort.IntVal = port.ContainerPort
 		targetPort.StrVal = strconv.Itoa(int(port.ContainerPort))
 
-		// If the default is already TCP, no need to include it.
-		if port.Protocol == api.ProtocolTCP {
-			servicePorts = append(servicePorts, api.ServicePort{
-				Name:       strconv.Itoa(int(port.HostPort)),
-				Port:       port.HostPort,
-				TargetPort: targetPort,
-			})
-		} else {
-			servicePorts = append(servicePorts, api.ServicePort{
-				Name:       strconv.Itoa(int(port.HostPort)),
-				Protocol:   port.Protocol,
-				Port:       port.HostPort,
-				TargetPort: targetPort,
-			})
+		// decide the name based on whether we saw this port before
+		name := strconv.Itoa(int(port.HostPort))
+		if _, ok := seenPorts[int(port.HostPort)]; ok {
+			// https://github.com/kubernetes/kubernetes/issues/2995
+			if service.ServiceType == string(api.ServiceTypeLoadBalancer) {
+				log.Fatalf("Service %s of type LoadBalancer cannot use TCP and UDP for the same port", name)
+			}
+			name = fmt.Sprintf("%s-%s", name, port.Protocol)
 		}
+
+		servicePort = api.ServicePort{
+			Name:       name,
+			Port:       port.HostPort,
+			TargetPort: targetPort,
+		}
+		// If the default is already TCP, no need to include it.
+		if port.Protocol != api.ProtocolTCP {
+			servicePort.Protocol = port.Protocol
+		}
+
+		servicePorts = append(servicePorts, servicePort)
+		seenPorts[int(port.HostPort)] = struct{}{}
 	}
 	return servicePorts
 }

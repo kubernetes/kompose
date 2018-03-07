@@ -138,6 +138,19 @@ convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/te
 
 
 ######
+# Tests related to docker-compose file in /script/test/fixtures/same-port-different-proto
+# kubernetes test
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/same-port-different-proto/docker-compose.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/same-port-different-proto/output-k8s-template.json > /tmp/output-k8s.json
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/same-port-different-proto/docker-compose.yml convert --stdout -j" "/tmp/output-k8s.json"
+
+# openshift test
+cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/same-port-different-proto/docker-compose.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/same-port-different-proto/output-os-template.json > /tmp/output-os.json
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/same-port-different-proto/docker-compose.yml convert --stdout -j" "/tmp/output-os.json"
+
+
+######
 # Tests related to docker-compose file in /script/test/fixtures/volume-mounts/simple-vol-mounts
 # kubernetes test
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/simple-vol-mounts/docker-compose.yml convert --stdout -j"
@@ -184,7 +197,7 @@ convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mo
 # openshift test
 cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/docker-compose.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/output-os-template.json > /tmp/output-os.json
-convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/docker-compose.yml convert --stdout -j" "/tmp/output-os.json" 
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/tmpfs/docker-compose.yml convert --stdout -j" "/tmp/output-os.json"
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/envvars-separators

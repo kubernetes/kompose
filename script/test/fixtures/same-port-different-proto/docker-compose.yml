@@ -1,0 +1,21 @@
+version: "2"
+
+services:
+    web:
+      image: tuna/docker-counter23
+      ports:
+        - "5000:5000/tcp"
+      links:
+        - redis
+      networks:
+        - default
+
+    redis:
+      image: redis:3.0
+      networks:
+        - default
+      ports:
+        - "6379/tcp"
+        - "6379/udp"
+        - "1234:1235/udp"
+
