@@ -512,7 +512,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		case "on-failure":
 			template.Spec.RestartPolicy = api.RestartPolicyOnFailure
 		default:
-			return errors.New("Unknown restart policy " + service.Restart + " for service" + name)
+			return errors.New("Unknown restart policy " + service.Restart + " for service " + name)
 		}
 		return nil
 	}

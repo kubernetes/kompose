@@ -285,9 +285,15 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 
 		}
 
-		// restart-policy:
+		// restart-policy: deploy.restart_policy.condition will rewrite restart option
+		// see: https://docs.docker.com/compose/compose-file/#restart_policy
+		serviceConfig.Restart = composeServiceConfig.Restart
 		if composeServiceConfig.Deploy.RestartPolicy != nil {
 			serviceConfig.Restart = composeServiceConfig.Deploy.RestartPolicy.Condition
+		}
+		if serviceConfig.Restart == "unless-stopped" {
+			log.Warnf("Restart policy 'unless-stopped' in service %s is not supported, convert it to 'always'", name)
+			serviceConfig.Restart = "always"
 		}
 
 		// replicas:

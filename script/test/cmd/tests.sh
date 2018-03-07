@@ -236,13 +236,19 @@ convert::expect_success_and_warning "kompose --provider=openshift -f $KOMPOSE_RO
 # kubernetes test
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-no.json"
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-onfail.json"
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-unless-stopped.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-unless-stopped.json" > /tmp/output-k8s.json
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-unless-stopped.yml convert --stdout -j"  /tmp/output-k8s.json
+
 # openshift test
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml --provider openshift convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-no.json"
 convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml --provider openshift convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-onfail.json"
-
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-unless-stopped.yml --provider openshift convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-unless-stopped.json" > /tmp/output-os.json
+convert::expect_success_and_warning "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-unless-stopped.yml --provider openshift convert --stdout -j" /tmp/output-os.json
 
 ######
-# Test key-only envrionment variable
+# Test key-only environment variable
 export $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs)
 cmd="kompose --file $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/env.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/output-k8s-template.json > /tmp/output-k8s.json

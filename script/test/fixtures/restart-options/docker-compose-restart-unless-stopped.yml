@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  foo:
+    image: "foobar"
+    restart: "unless-stopped"
+    environment:
+      GITHUB: surajssd
