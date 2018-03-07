@@ -71,29 +71,6 @@ source <(kompose completion zsh)
 
 ## Development and building of Kompose
 
-
-### Downloading the latest (master) binary
-
-"Nightly" binaries are generated on a per-merge basis and uploaded to [Bintray](https://bintray.com/kompose)
-
-__Linux and macOS:__
-
-```sh
-# Linux 
-curl -L https://dl.bintray.com/kompose/kompose/latest/kompose-linux-amd64 -o kompose
-
-# macOS
-curl -L https://dl.bintray.com/kompose/kompose/latest/kompose-darwin-amd64 -o kompose
-
-chmod +x kompose
-sudo mv ./kompose /usr/local/bin/kompose
-```
-
-__Windows:__
-
-Download from [Bintray](https://dl.bintray.com/kompose/kompose/latest/kompose-windows-amd64.exe) and add the binary to your PATH.
-
-
 ### Building with `go`
 __Requisites:__
 1. [make](https://www.gnu.org/software/make/)
