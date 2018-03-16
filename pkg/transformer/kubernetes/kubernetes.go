@@ -51,6 +51,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
+	"path/filepath"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -431,9 +432,14 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	// Set a var based on if the user wants to use empty volumes
 	// as opposed to persistent volumes and volume claims
 	useEmptyVolumes := k.Opt.EmptyVols
+	useHostPath := false
 
 	if k.Opt.Volumes == "emptyDir" {
 		useEmptyVolumes = true
+	}
+
+	if k.Opt.Volumes == "hostPath" {
+		useHostPath = true
 	}
 
 	var count int
@@ -446,6 +452,8 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		if volume.VolumeName == "" {
 			if useEmptyVolumes {
 				volumeName = strings.Replace(volume.PVCName, "claim", "empty", 1)
+			} else if useHostPath {
+				volumeName = strings.Replace(volume.PVCName, "claim", "hostpath", 1)
 			} else {
 				volumeName = volume.PVCName
 			}
@@ -465,8 +473,13 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 
 		if useEmptyVolumes {
 			volsource = k.ConfigEmptyVolumeSource("volume")
+		} else if useHostPath {
+			source, err := k.ConfigHostPathVolumeSource(volume.Host)
+			if err != nil {
+				return nil, nil, nil, errors.Wrap(err, "k.ConfigHostPathVolumeSource failed")
+			}
+			volsource = source
 		} else {
-
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
 			if volume.VFrom == "" {
 				defaultSize := PVCRequestSize
@@ -485,6 +498,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 
 				PVCs = append(PVCs, createdPVC)
 			}
+
 		}
 
 		// create a new volume object using the volsource and add to list
@@ -494,7 +508,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		}
 		volumes = append(volumes, vol)
 
-		if len(volume.Host) > 0 {
+		if len(volume.Host) > 0 && !useHostPath {
 			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", volume.Host)
 		}
 
@@ -519,6 +533,18 @@ func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
 		EmptyDir: &api.EmptyDirVolumeSource{},
 	}
 
+}
+
+// ConfigHostPathVolumeSource is a helper function to create a HostPath api.VolumeSource
+func (k *Kubernetes) ConfigHostPathVolumeSource(path string) (*api.VolumeSource, error) {
+	dir, err := transformer.GetComposeFileDir(k.Opt.InputFiles)
+	if err != nil {
+		return nil, err
+	}
+	absPath := filepath.Join(dir, path)
+	return &api.VolumeSource{
+		HostPath: &api.HostPathVolumeSource{Path: absPath},
+	}, nil
 }
 
 // ConfigPVCVolumeSource is helper function to create an api.VolumeSource with a PVC
