@@ -149,7 +149,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 		log.Fatalf("YAML and JSON format cannot be provided at the same time")
 	}
 
-	if opt.Volumes != "persistentVolumeClaim" && opt.Volumes != "emptyDir" {
+	if opt.Volumes != "persistentVolumeClaim" && opt.Volumes != "emptyDir" && opt.Volumes != "hostPath" {
 		log.Fatal("Unknown Volume type: ", opt.Volumes, ", possible values are: persistentVolumeClaim and emptyDir")
 	}
 }
