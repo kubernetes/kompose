@@ -367,7 +367,7 @@ services:
 
 ## Restart
 
-If you want to create normal pods without controllers you can use `restart` construct of docker-compose to define that. Follow table below to see what happens on the `restart` value.
+If you want to create normal pods without controller you can use `restart` construct of docker-compose to define that. Follow table below to see what happens on the `restart` value.
 
 | `docker-compose` `restart` | object created    | Pod `restartPolicy` |
 |----------------------------|-------------------|---------------------|
