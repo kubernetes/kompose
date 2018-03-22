@@ -27,6 +27,7 @@ usage() {
   echo " hub"
   echo " github-release"
   echo " github_changelog_generator"
+  echo " fpm"
   echo " GITHUB_TOKEN in your env variable"
   echo " "
   echo "Not only that, but you must have permission for:"
@@ -53,6 +54,11 @@ requirements() {
 
   if ! hash github_changelog_generator 2>/dev/null; then
     echo "ERROR: github_changelog_generator required to generate the change log. Please run 'gem install github_changelog_generator"
+    exit 0
+  fi
+
+  if ! hash fpm 2>/dev/null; then
+    echo "ERROR: fpm required to generate deb/rpm packages. Please run 'gem install fpm"
     exit 0
   fi
 
@@ -120,6 +126,45 @@ changelog_github() {
 
 build_binaries() {
   make cross
+}
+
+build_packages() {
+  # fpm is required installed (https://github.com/jordansissel/fpm)
+  BIN_DIR="./bin/"
+  PKG_DIR="./bin/"
+
+  mkdir -p $PKG_DIR
+
+  # package version, use current date by default (if build from master)
+  PKG_VERSION=$1
+
+  # create packages using fpm
+  fpm -h  >/dev/null 2>&1 || { 
+      echo "ERROR: fpm (https://github.com/jordansissel/fpm) is not installed. Can't create linux packages"
+      exit 1
+  }
+
+  TMP_DIR=$(mktemp -d)
+  mkdir -p $TMP_DIR/usr/local/bin/
+  cp $BIN_DIR/kompose-linux-amd64 $TMP_DIR/usr/local/bin/kompose
+
+  echo "creating DEB package"
+  fpm \
+    --input-type dir --output-type deb \
+    --chdir $TMP_DIR \
+    --name kompose --version $PKG_VERSION \
+    --architecture amd64 \
+    --maintainer "Charlie Drage <cdrage@redhat.com>" \
+    --package $PKG_DIR
+
+  echo "creating RPM package"
+  fpm \
+    --input-type dir --output-type rpm \
+    --chdir $TMP_DIR \
+    --name kompose --version $PKG_VERSION \
+    --architecture x86_64 --rpm-os linux \
+    --maintainer "Charlie Drage <cdrage@redhat.com>" \
+    --package $PKG_DIR
 }
 
 create_tarballs() {
@@ -248,6 +293,7 @@ push() {
 
 clean() {
   rm changes.txt install_guide.txt
+  rm -r bin/*
 }
 
 main() {
@@ -290,6 +336,7 @@ main() {
   "Sync with upstream"
   "Create tag"
   "Build binaries"
+  "Build packages"
   "Create tarballs"
   "Generate install guide"
   "Upload the binaries and push to GitHub release page"
@@ -322,6 +369,9 @@ main() {
               ;;
           "Build binaries")
               build_binaries
+              ;;
+          "Build packages")
+              build_packages $VERSION
               ;;
           "Create tarballs")
               create_tarballs
