@@ -168,10 +168,10 @@ func (k *Kubernetes) InitConfigMap(name string, service kobject.ServiceConfig, o
 	}
 
 	// Remove root pathing
-	// replace all other slashes / preiods
+	// replace all other slashes / periods
 	envName := FormatEnvName(envFile)
 
-	// In order to differentiate files, we append to the name and remove '.env' if applicate from the file name
+	// In order to differentiate files, we append to the name and remove '.env' if applicable from the file name
 	configMap := &api.ConfigMap{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "ConfigMap",
@@ -280,7 +280,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 
 // CreatePVC initializes PersistentVolumeClaim
 func (k *Kubernetes) CreatePVC(name string, mode string, size string) (*api.PersistentVolumeClaim, error) {
-	volsize, err := resource.ParseQuantity(size)
+	volSize, err := resource.ParseQuantity(size)
 	if err != nil {
 		return nil, errors.Wrap(err, "resource.ParseQuantity failed, Error parsing size")
 	}
@@ -297,7 +297,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string) (*api.Pers
 		Spec: api.PersistentVolumeClaimSpec{
 			Resources: api.ResourceRequirements{
 				Requests: api.ResourceList{
-					api.ResourceStorage: volsize,
+					api.ResourceStorage: volSize,
 				},
 			},
 		},
@@ -443,7 +443,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	}
 
 	var count int
-	//interating over array of `Vols` struct as it contains all necessary information about volumes
+	//iterating over array of `Vols` struct as it contains all necessary information about volumes
 	for _, volume := range service.Volumes {
 
 		// check if ro/rw mode is defined, default rw
@@ -461,12 +461,12 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		} else {
 			volumeName = volume.VolumeName
 		}
-		volmount := api.VolumeMount{
+		volMount := api.VolumeMount{
 			Name:      volumeName,
 			ReadOnly:  readonly,
 			MountPath: volume.Container,
 		}
-		volumeMounts = append(volumeMounts, volmount)
+		volumeMounts = append(volumeMounts, volMount)
 		// Get a volume source based on the type of volume we are using
 		// For PVC we will also create a PVC object and add to list
 		var volsource *api.VolumeSource
