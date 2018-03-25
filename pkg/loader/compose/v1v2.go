@@ -294,7 +294,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 
 // This function will retrieve volumes for each service, as well as it will parse volume information and store it in Volumes struct
 func handleVolume(komposeObject *kobject.KomposeObject) {
-	for name, _ := range komposeObject.ServiceConfigs {
+	for name := range komposeObject.ServiceConfigs {
 		// retrieve volumes of service
 		vols, err := retrieveVolume(name, *komposeObject)
 		if err != nil {
@@ -379,6 +379,7 @@ func checkVolDependent(dv kobject.Volumes, volume []kobject.Volumes) bool {
 
 }
 
+// ParseVols parse volumes
 func ParseVols(volNames []string, svcName string) ([]kobject.Volumes, error) {
 	var volumes []kobject.Volumes
 	var err error

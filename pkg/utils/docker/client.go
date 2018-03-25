@@ -21,8 +21,8 @@ import (
 	"os"
 )
 
-// DockerClient connects to Docker client on host
-func DockerClient() (*docker.Client, error) {
+// Client connects to Docker client on host
+func Client() (*docker.Client, error) {
 
 	var (
 		err    error

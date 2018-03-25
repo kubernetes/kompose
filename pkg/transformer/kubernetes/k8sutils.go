@@ -581,6 +581,7 @@ func DurationStrToSecondsInt(s string) (*int64, error) {
 	return &r, nil
 }
 
+// GetEnvsFromFile get env vars from env_file
 func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string, error) {
 	// Get the correct file context / directory
 	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
@@ -598,6 +599,7 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 	return envLoad, nil
 }
 
+// FormatEnvName format env name
 func FormatEnvName(name string) string {
 	envName := strings.Trim(name, "./")
 	envName = strings.Replace(envName, ".", "-", -1)
