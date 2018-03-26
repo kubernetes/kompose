@@ -47,8 +47,10 @@ const (
 )
 
 const (
+	// ProviderKubernetes is provider kubernetes
 	ProviderKubernetes = "kubernetes"
-	ProviderOpenshift  = "openshift"
+	// ProviderOpenshift is provider openshift
+	ProviderOpenshift = "openshift"
 	// DefaultProvider - provider that will be used if there is no provider was explicitly set
 	DefaultProvider = ProviderKubernetes
 )

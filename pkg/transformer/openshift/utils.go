@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// getImageTag get tag name from image name
+// GetImageTag get tag name from image name
 // if no tag is specified return 'latest'
 func GetImageTag(image string) string {
 	// format:      registry_host:registry_port/repo_name/image_name:image_tag
@@ -31,7 +31,7 @@ func GetImageTag(image string) string {
 
 }
 
-// getAbsBuildContext returns build context relative to project root dir
+// GetAbsBuildContext returns build context relative to project root dir
 func GetAbsBuildContext(context string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-prefix")
 	cmd.Dir = context

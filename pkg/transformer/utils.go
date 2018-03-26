@@ -224,7 +224,7 @@ func BuildDockerImage(service kobject.ServiceConfig, name string, relativePath s
 	}
 
 	// Connect to the Docker client
-	client, err := docker.DockerClient()
+	client, err := docker.Client()
 	if err != nil {
 		return err
 	}
@@ -251,20 +251,19 @@ func PushDockerImage(service kobject.ServiceConfig, serviceName string) error {
 	if service.Image == "" {
 		log.Warnf("No image name has been passed for service %s, skipping pushing to repository", serviceName)
 		return nil
-	} else {
+	}
 
-		// Connect to the Docker client
-		client, err := docker.DockerClient()
-		if err != nil {
-			return err
-		}
+	// Connect to the Docker client
+	client, err := docker.Client()
+	if err != nil {
+		return err
+	}
 
-		push := docker.Push{Client: *client}
-		err = push.PushImage(service.Image)
+	push := docker.Push{Client: *client}
+	err = push.PushImage(service.Image)
 
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
 
 	return nil
