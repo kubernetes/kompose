@@ -1,5 +1,30 @@
 # Change Log
 
+## [v1.11.0](https://github.com/kubernetes/kompose/tree/v1.11.0) (2018-03-26)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.10.0...v1.11.0)
+
+**Closed issues:**
+
+- Kompose fails on version 3 with deploy-resources-limits \(panic: runtime error: invalid memory address or nil pointer dereference\) [\#959](https://github.com/kubernetes/kompose/issues/959)
+- Error transforming Kubernetes objects [\#876](https://github.com/kubernetes/kompose/issues/876)
+- volumes long-syntax doesn't work [\#865](https://github.com/kubernetes/kompose/issues/865)
+- unit test for annotation [\#753](https://github.com/kubernetes/kompose/issues/753)
+- hostPath volumes? [\#109](https://github.com/kubernetes/kompose/issues/109)
+
+**Merged pull requests:**
+
+- Fix golint warnings [\#967](https://github.com/kubernetes/kompose/pull/967) ([hangyan](https://github.com/hangyan))
+- Add hangyan to OWNERS [\#963](https://github.com/kubernetes/kompose/pull/963) ([cdrage](https://github.com/cdrage))
+- fix pod-controller relationship mistake [\#961](https://github.com/kubernetes/kompose/pull/961) ([jonyhy96](https://github.com/jonyhy96))
+- Fix deploy resources parse error [\#960](https://github.com/kubernetes/kompose/pull/960) ([hangyan](https://github.com/hangyan))
+- Support hostpath volume [\#957](https://github.com/kubernetes/kompose/pull/957) ([hangyan](https://github.com/hangyan))
+- Refactor tests script to uses vars [\#956](https://github.com/kubernetes/kompose/pull/956) ([hangyan](https://github.com/hangyan))
+- Add script for generating deb / rpm packages [\#955](https://github.com/kubernetes/kompose/pull/955) ([cdrage](https://github.com/cdrage))
+- Add support for compose v3.2 [\#954](https://github.com/kubernetes/kompose/pull/954) ([hangyan](https://github.com/hangyan))
+- Remove bintray instructions [\#953](https://github.com/kubernetes/kompose/pull/953) ([cdrage](https://github.com/cdrage))
+- Support old restart policy in compose v3 [\#950](https://github.com/kubernetes/kompose/pull/950) ([hangyan](https://github.com/hangyan))
+- Allow services to use same port with different protocols [\#907](https://github.com/kubernetes/kompose/pull/907) ([caglar10ur](https://github.com/caglar10ur))
+
 ## [v1.10.0](https://github.com/kubernetes/kompose/tree/v1.10.0) (2018-03-06)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.9.0...v1.10.0)
 
@@ -27,6 +52,7 @@
 
 **Merged pull requests:**
 
+- 1.10.0 Release [\#951](https://github.com/kubernetes/kompose/pull/951) ([cdrage](https://github.com/cdrage))
 - Fix broken links for volume long syntax in comments [\#949](https://github.com/kubernetes/kompose/pull/949) ([hangyan](https://github.com/hangyan))
 - Refactor label names to const strings [\#948](https://github.com/kubernetes/kompose/pull/948) ([hangyan](https://github.com/hangyan))
 - Fix image build path error [\#946](https://github.com/kubernetes/kompose/pull/946) ([hangyan](https://github.com/hangyan))
