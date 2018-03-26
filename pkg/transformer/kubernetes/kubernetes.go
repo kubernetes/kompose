@@ -579,7 +579,7 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt 
 			}
 
 			// Add configMapKeyRef to each environment variable
-			for k, _ := range envLoad {
+			for k := range envLoad {
 				envs = append(envs, api.EnvVar{
 					Name: k,
 					ValueFrom: &api.EnvVarSource{
