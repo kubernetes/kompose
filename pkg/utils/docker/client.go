@@ -36,7 +36,7 @@ func Client() (*docker.Client, error) {
 		// DOCKER_HOST, DOCKER_TLS_VERIFY, DOCKER_CERT_PATH
 		client, err = docker.NewClientFromEnv()
 	} else {
-		// Default unix socker end-point
+		// Default unix socket end-point
 		endpoint := "unix:///var/run/docker.sock"
 		client, err = docker.NewClient(endpoint)
 	}
