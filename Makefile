@@ -67,7 +67,7 @@ test-cmd:
 	./script/test/cmd/tests.sh
 
 # generate commandline tests
-.PHONY: generate-test-cmd
+.PHONY: gen-cmd
 gen-cmd:
 	./script/test/cmd/make-test.sh
 
@@ -126,6 +126,6 @@ vendor-update:
 	find ./vendor/github.com/docker/distribution -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} \;        
 
 
-.PHONE: test-k8s
+.PHONY: test-k8s
 test-k8s:
 	./script/test_k8s/test.sh
