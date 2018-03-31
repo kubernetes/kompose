@@ -318,7 +318,7 @@ func TestUnsupportedKeys(t *testing.T) {
 	}{
 		"With Networks (service and root level)": {
 			projectWithNetworks,
-			[]string{"root level networks", "root level volumes", "hostname", "networks"},
+			[]string{"root level networks", "root level volumes", "networks"},
 		},
 		"Empty Networks on Service level": {
 			projectWithEmptyNetwork,

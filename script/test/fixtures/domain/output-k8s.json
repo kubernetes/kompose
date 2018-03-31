@@ -1,0 +1,78 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "dns",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "dns"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "dns"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "dns",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "dns"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "dns"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "dns",
+                "image": "phensley/docker-dns",
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always",
+            "hostname": "affy",
+            "subdomain": "affy.com"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}

@@ -261,6 +261,30 @@ cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compos
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-unless-stopped.json" > /tmp/output-os.json
 convert::expect_success_and_warning "$cmd" /tmp/output-os.json
 
+
+
+#####
+# Test related to hostname/domainname in docker-compose
+# kubernetes test
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/domain/docker-compose.yaml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/domain/output-k8s.json" > /tmp/output-k8s.json
+convert::expect_success "$cmd" /tmp/output-k8s.json
+
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/domain/docker-compose-v3.yaml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/domain/output-k8s.json" > /tmp/output-k8s.json
+convert::expect_success "$cmd" /tmp/output-k8s.json
+
+
+# openshift test
+cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/domain/docker-compose.yaml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/domain/output-os.json" > /tmp/output-os.json
+convert::expect_success "$cmd" /tmp/output-os.json
+
+cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/domain/docker-compose-v3.yaml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/domain/output-os.json" > /tmp/output-os.json
+convert::expect_success "$cmd" /tmp/output-os.json
+
+
 ######
 # Test key-only environment variable
 export $(cat $KOMPOSE_ROOT/script/test/fixtures/keyonly-envs/envs)
@@ -448,9 +472,9 @@ sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/f
 convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json" "Volume mount on the host "\"."\" isn't supported - ignoring path on the host"
 
 #Failing test for `--volumes` option
-convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yaml --volumes foobar"
+convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml --volumes foobar"
 
-# Test related to support docker-compose.yaml beside docker-compose.yml
+# Test related to support docker-compose.yml beside docker-compose.yml
 # Store the original path
 CURRENT_DIR=$(pwd)
 # Kubernets test
@@ -543,7 +567,7 @@ convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 
 # Test that two files that are different versions fail
-convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose.yml"
+convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose.yaml"
 
 # Kubernetes
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml"

@@ -241,6 +241,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Command = composeServiceConfig.Entrypoint
 		serviceConfig.Args = composeServiceConfig.Command
 		serviceConfig.Labels = composeServiceConfig.Labels
+		serviceConfig.HostName = composeServiceConfig.Hostname
+		serviceConfig.DomainName = composeServiceConfig.DomainName
 
 		//
 		// Deploy keys

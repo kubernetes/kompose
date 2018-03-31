@@ -69,6 +69,8 @@ type ServiceConfig struct {
 	Port             []Ports             `compose:"ports"`
 	Command          []string            `compose:"command"`
 	WorkingDir       string              `compose:""`
+	DomainName       string              `compose:"domainname"`
+	HostName         string              `compose:"hostname"`
 	Args             []string            `compose:"args"`
 	VolList          []string            `compose:"volumes"`
 	Network          []string            `compose:"network"`
