@@ -514,6 +514,15 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		default:
 			return errors.New("Unknown restart policy " + service.Restart + " for service " + name)
 		}
+
+		// Configure hostname/domain_name settings
+		if service.HostName != "" {
+			template.Spec.Hostname = service.HostName
+		}
+		if service.DomainName != "" {
+			template.Spec.Subdomain = service.DomainName
+		}
+
 		return nil
 	}
 

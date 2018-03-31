@@ -223,7 +223,9 @@
             "tty": true
           }
         ],
-        "restartPolicy": "OnFailure"
+        "restartPolicy": "OnFailure",
+        "hostname": "foo",
+        "subdomain": "foo.com"
       },
       "status": {}
     },
