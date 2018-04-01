@@ -54,7 +54,7 @@ var RootCmd = &cobra.Command{
 	Use:   "kompose",
 	Short: "A tool helping Docker Compose users move to Kubernetes",
 	Long:  `Kompose is a tool to help users who are familiar with docker-compose move to Kubernetes.`,
-	// PersitentPreRun will be "inherited" by all children and ran before *every* command unless
+	// PersistentPreRun will be "inherited" by all children and ran before *every* command unless
 	// the child has overridden the functionality. This functionality was implemented to check / modify
 	// all global flag calls regardless of app call.
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {

@@ -110,7 +110,7 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 							continue
 						}
 					}
-					//get yaml tag name instad of variable name
+					//get yaml tag name instead of variable name
 					yamlTagName := strings.Split(f.Tag("yaml"), ",")[0]
 					if f.Name() == "Networks" {
 						// networks always contains one default element, even it isn't declared in compose v2.
