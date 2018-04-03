@@ -117,7 +117,7 @@ Currently it is not possible to use different Kubernetes version from version th
 
 [Kompose CLI tests](https://github.com/kubernetes/kompose/tree/master/script/test/cmd) run `kompose convert` with docker-compose files, and cross-check the k8s and OpenShift artifacts generated with the template files.
 
-To generate CLI tests, please run `make generate-test-cmd`.
+To generate CLI tests, please run `make gen-cmd`.
 
 ### CI
 
