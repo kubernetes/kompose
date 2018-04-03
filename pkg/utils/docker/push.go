@@ -30,7 +30,7 @@ type Push struct {
 }
 
 /*
-PushImage push a Docker image via the Docker API. Takes the image name,
+PushImage pushes a Docker image via the Docker API. Takes the image name,
 parses the URL details and then push based on environment authentication
 credentials.
 */
