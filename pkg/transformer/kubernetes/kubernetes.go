@@ -159,7 +159,7 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 	return svc
 }
 
-// InitConfigMap initialized a ConfigMap object
+// InitConfigMap initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMap(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
 
 	envs, err := GetEnvsFromFile(envFile, opt)
