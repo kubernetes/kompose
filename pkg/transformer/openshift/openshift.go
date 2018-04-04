@@ -72,7 +72,7 @@ const TIMEOUT = 300
 // by keeping record if already saw this key in another service
 var unsupportedKey = map[string]bool{}
 
-// initImageStream initialize ImageStream object
+// initImageStream initializes ImageStream object
 func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) *imageapi.ImageStream {
 
 	// Retrieve tags and image name for mapping
@@ -171,7 +171,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 	return bc, nil
 }
 
-// initDeploymentConfig initialize OpenShifts DeploymentConfig object
+// initDeploymentConfig initializes OpenShifts DeploymentConfig object
 func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
 	containerName := []string{name}
 
