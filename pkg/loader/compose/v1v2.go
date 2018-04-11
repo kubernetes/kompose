@@ -199,6 +199,8 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 			log.Infof("Container name in service %q has been changed from %q to %q", name, composeServiceConfig.ContainerName, newName)
 		}
 		serviceConfig.Command = composeServiceConfig.Entrypoint
+		serviceConfig.HostName = composeServiceConfig.Hostname
+		serviceConfig.DomainName = composeServiceConfig.DomainName
 		serviceConfig.Args = composeServiceConfig.Command
 		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
 		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
