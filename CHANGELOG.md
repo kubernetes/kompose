@@ -373,7 +373,7 @@
 - Update doc script [\#716](https://github.com/kubernetes/kompose/pull/716) ([cdrage](https://github.com/cdrage))
 - Ignore pinging dusty on PR's [\#715](https://github.com/kubernetes/kompose/pull/715) ([cdrage](https://github.com/cdrage))
 - Moving version from variable to text file [\#714](https://github.com/kubernetes/kompose/pull/714) ([surajnarwade](https://github.com/surajnarwade))
-- Make mention bot less aggresive [\#711](https://github.com/kubernetes/kompose/pull/711) ([cdrage](https://github.com/cdrage))
+- Make mention bot less aggressive [\#711](https://github.com/kubernetes/kompose/pull/711) ([cdrage](https://github.com/cdrage))
 - Updated code with go lint result [\#710](https://github.com/kubernetes/kompose/pull/710) ([surajnarwade](https://github.com/surajnarwade))
 - fix some typos to make goreport happy [\#709](https://github.com/kubernetes/kompose/pull/709) ([fate-grand-order](https://github.com/fate-grand-order))
 - Conversion Reference -\> Conversion Matrix [\#708](https://github.com/kubernetes/kompose/pull/708) ([cdrage](https://github.com/cdrage))
@@ -431,7 +431,7 @@
 - Add provider to file output [\#616](https://github.com/kubernetes/kompose/pull/616) ([cdrage](https://github.com/cdrage))
 - Remove version column from conversion document [\#615](https://github.com/kubernetes/kompose/pull/615) ([cdrage](https://github.com/cdrage))
 - Validate dockerfilepath in buildconfig [\#609](https://github.com/kubernetes/kompose/pull/609) ([surajnarwade](https://github.com/surajnarwade))
-- PVC name changes if volumes containes .\(dot\) in it [\#603](https://github.com/kubernetes/kompose/pull/603) ([procrypt](https://github.com/procrypt))
+- PVC name changes if volumes contains .\(dot\) in it [\#603](https://github.com/kubernetes/kompose/pull/603) ([procrypt](https://github.com/procrypt))
 - Add v3 support of Docker Compose [\#600](https://github.com/kubernetes/kompose/pull/600) ([cdrage](https://github.com/cdrage))
 - update generated artifacts for k8s and openshift so that env variables are loaded in a particular order [\#596](https://github.com/kubernetes/kompose/pull/596) ([procrypt](https://github.com/procrypt))
 - Failing when port is specified with labels [\#590](https://github.com/kubernetes/kompose/pull/590) ([surajnarwade](https://github.com/surajnarwade))
@@ -635,7 +635,7 @@
 
 **Closed issues:**
 
-- `make test-unit` does not run on uncomitted changes [\#427](https://github.com/kubernetes/kompose/issues/427)
+- `make test-unit` does not run on uncommitted changes [\#427](https://github.com/kubernetes/kompose/issues/427)
 - Improve error handling [\#416](https://github.com/kubernetes/kompose/issues/416)
 - Wrong version \(0.1.2\) in "kompose versione" \(instead of 0.2.0\) [\#411](https://github.com/kubernetes/kompose/issues/411)
 - Cannot unmarshal float environment values. [\#410](https://github.com/kubernetes/kompose/issues/410)
@@ -907,7 +907,7 @@
 - Should we use libcompose project.Context{} instead of docker.Context{}? [\#134](https://github.com/kubernetes/kompose/issues/134)
 - services should be first in List  [\#130](https://github.com/kubernetes/kompose/issues/130)
 - cmd tests are not working properly [\#125](https://github.com/kubernetes/kompose/issues/125)
-- OpenShift conversoin - invalid DeploymentConfig [\#124](https://github.com/kubernetes/kompose/issues/124)
+- OpenShift conversions - invalid DeploymentConfig [\#124](https://github.com/kubernetes/kompose/issues/124)
 - Wrong output when port is missing [\#121](https://github.com/kubernetes/kompose/issues/121)
 - Create a pod of containers sharing volume [\#116](https://github.com/kubernetes/kompose/issues/116)
 - kompose convert panic on v1 compose file [\#102](https://github.com/kubernetes/kompose/issues/102)
@@ -1033,7 +1033,7 @@
 - Fix some nits in README [\#51](https://github.com/kubernetes/kompose/pull/51) ([janetkuo](https://github.com/janetkuo))
 - Add a bundle example file [\#50](https://github.com/kubernetes/kompose/pull/50) ([janetkuo](https://github.com/janetkuo))
 - Fix failing windows build [\#48](https://github.com/kubernetes/kompose/pull/48) ([kadel](https://github.com/kadel))
-- Inital support for Openshift. [\#46](https://github.com/kubernetes/kompose/pull/46) ([kadel](https://github.com/kadel))
+- Initial support for Openshift. [\#46](https://github.com/kubernetes/kompose/pull/46) ([kadel](https://github.com/kadel))
 - Refactor how we update controllers [\#42](https://github.com/kubernetes/kompose/pull/42) ([janetkuo](https://github.com/janetkuo))
 - Generate only controllers set by flag [\#35](https://github.com/kubernetes/kompose/pull/35) ([kadel](https://github.com/kadel))
 - Make deployment the default controller, create -rc for rc, and enable copying all types of controller to chart templates [\#32](https://github.com/kubernetes/kompose/pull/32) ([janetkuo](https://github.com/janetkuo))
@@ -1041,7 +1041,7 @@
 - Support creating Charts when --yaml set [\#26](https://github.com/kubernetes/kompose/pull/26) ([janetkuo](https://github.com/janetkuo))
 - Fix the 'failed to write to file' error when --out is set [\#24](https://github.com/kubernetes/kompose/pull/24) ([janetkuo](https://github.com/janetkuo))
 - Allow multiple types of controllers be generated unless --out or --stdout is set [\#22](https://github.com/kubernetes/kompose/pull/22) ([janetkuo](https://github.com/janetkuo))
-- Remove redundant file creation message, and always overwirte files when converting [\#19](https://github.com/kubernetes/kompose/pull/19) ([janetkuo](https://github.com/janetkuo))
+- Remove redundant file creation message, and always overwrite files when converting [\#19](https://github.com/kubernetes/kompose/pull/19) ([janetkuo](https://github.com/janetkuo))
 - Support printing to stdout [\#5](https://github.com/kubernetes/kompose/pull/5) ([janetkuo](https://github.com/janetkuo))
 
 ## [v0.0.1-alpha](https://github.com/kubernetes/kompose/tree/v0.0.1-alpha) (2016-06-30)
