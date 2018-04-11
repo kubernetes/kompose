@@ -47,6 +47,7 @@ __Glossary:__
 | depends_on             | x  | x  | x  |                                                             |                                                                                                                |
 | dns                    | x  | x  | x  |                                                             | Not used within Kubernetes. Kubernetes uses a managed DNS server                                               |
 | dns_search             | x  | x  | x  |                                                             | See `dns` key                                                                                                  |
+| dommainname            | ✓  | ✓  | ✓  | Pod.Spec.SubDomain                                          |
 | tmpfs                  | ✓  | ✓  | ✓  | Pod.Spec.Containers.Volumes.EmptyDir                        | Creates emptyDirvolume with medium set to Memory & mounts given directory inside container                     |
 | entrypoint             | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  | Same as command                                                                                                |
 | env_file               | n  | n  | ✓  |                                                             |                                                                                                                |
@@ -57,6 +58,7 @@ __Glossary:__
 | extra_hosts            | n  | n  | n  |                                                             |                                                                                                                |
 | group_add              | ✓  | ✓  | ✓  |                                                             |                                                                                                                |
 | healthcheck            | -  | n  | ✓  |                                                             |                                                                                                                |
+| hostname               | ✓  | ✓  | ✓  | Pod.Spec.HostName                                           |                                                                                                                |
 | image                  | ✓  | ✓  | ✓  | Deployment.Spec.Containers.Image                            |                                                                                                                |
 | isolation              | x  | x  | x  |                                                             | Not applicable as this applies to Windows with HyperV support                                                  |
 | labels                 | ✓  | ✓  | ✓  | Metadata.Annotations                                        |                                                                                                                |
