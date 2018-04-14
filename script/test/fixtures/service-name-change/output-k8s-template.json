@@ -14,6 +14,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
+          "kompose.service.type": "headless",
           "kompose.version": "%VERSION%"
         }
       },
@@ -80,6 +81,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
+          "kompose.service.type": "headless",
           "kompose.version": "%VERSION%"
         }
       },

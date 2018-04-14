@@ -347,11 +347,12 @@ func TestInitBuildConfig(t *testing.T) {
 	}
 }
 
-// TestServiceWithoutPort this tests if Headless Service is created for services without Port.
+// TestServiceWithoutPort this tests if Headless Service is created for services without Port (with label)
 func TestServiceWithoutPort(t *testing.T) {
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
 		Image:         "image",
+		ServiceType:   "Headless",
 	}
 
 	komposeObject := kobject.KomposeObject{

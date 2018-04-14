@@ -725,15 +725,17 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			objects = append(objects, pod)
 		} else {
 			objects = k.CreateKubernetesObjects(name, service, opt)
-			// If ports not provided in configuration we will not make service
-			if k.PortsExist(name, service) {
-				svc := k.CreateService(name, service, objects)
-				objects = append(objects, svc)
+		}
 
-				if service.ExposeService != "" {
-					objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
-				}
-			} else {
+		if k.PortsExist(name, service) {
+			svc := k.CreateService(name, service, objects)
+			objects = append(objects, svc)
+
+			if service.ExposeService != "" {
+				objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+			}
+		} else {
+			if service.ServiceType == "Headless" {
 				svc := k.CreateHeadlessService(name, service, objects)
 				objects = append(objects, svc)
 			}
