@@ -384,18 +384,18 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				log.Infof("Buildconfig using %s::%s as source.", buildRepo, buildBranch)
 			}
 
-			// If ports not provided in configuration we will not make service
-			if o.PortsExist(name, service) {
-				svc := o.CreateService(name, service, objects)
-				objects = append(objects, svc)
+		}
 
-				if service.ExposeService != "" {
-					objects = append(objects, o.initRoute(name, service, svc.Spec.Ports[0].Port))
-				}
-			} else {
-				svc := o.CreateHeadlessService(name, service, objects)
-				objects = append(objects, svc)
+		if o.PortsExist(name, service) {
+			svc := o.CreateService(name, service, objects)
+			objects = append(objects, svc)
+
+			if service.ExposeService != "" {
+				objects = append(objects, o.initRoute(name, service, svc.Spec.Ports[0].Port))
 			}
+		} else if service.ServiceType == "Headless" {
+			svc := o.CreateHeadlessService(name, service, objects)
+			objects = append(objects, svc)
 		}
 
 		err := o.UpdateKubernetesObjects(name, service, opt, &objects)

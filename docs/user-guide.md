@@ -297,12 +297,12 @@ The currently supported options are:
 
 | Key                  | Value                               |
 |----------------------|-------------------------------------|
-| kompose.service.type | nodeport / clusterip / loadbalancer |
+| kompose.service.type | nodeport / clusterip / loadbalancer / headless |
 | kompose.service.expose | true / hostname |
 | kompose.service.expose.tls-secret | secret name |
 | kompose.volume.size | kubernetes supported volume size |
 
-**Note**: `kompose.service.type` label should be defined with `ports` only, otherwise `kompose` will fail.
+**Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
 
 

@@ -624,10 +624,14 @@ convert::expect_success "$cmd" "/tmp/output-os.json"
 # Test the "full example" from https://raw.githubusercontent.com/aanand/compose-file/master/loader/example1.env
 
 # Kubernetes
-convert::expect_success_and_warning "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-k8s-full-example.json"
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-k8s-full-example.json" > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
 
 # Openshift
-convert::expect_success_and_warning "kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml" "$KOMPOSE_ROOT/script/test/fixtures/v3/output-os-full-example.json"
+cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-full-example.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-os-full-example.json" > /tmp/output-os.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-os.json"
 
 ### Test for docker-compose files present in Examples Directory
 
@@ -688,6 +692,7 @@ convert::expect_success "$cmd" "/tmp/output-os.json"
 # voting
 
 # Kubernetes
+# This test also contains headless service test (not create by default)
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/examples/docker-voting.yaml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-voting-k8s.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"

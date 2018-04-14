@@ -33,6 +33,9 @@ const (
 	LabelServiceExpose = "kompose.service.expose"
 	// LabelServiceExposeTLSSecret  provides the name of the TLS secret to use with the Kubernetes ingress controller
 	LabelServiceExposeTLSSecret = "kompose.service.expose.tls-secret"
+
+	// ServiceTypeHeadless...
+	ServiceTypeHeadless = "Headless"
 )
 
 // load environment variables from compose file
@@ -100,8 +103,10 @@ func handleServiceType(ServiceType string) (string, error) {
 		return string(api.ServiceTypeNodePort), nil
 	case "loadbalancer":
 		return string(api.ServiceTypeLoadBalancer), nil
+	case "headless":
+		return ServiceTypeHeadless, nil
 	default:
-		return "", errors.New("Unknown value " + ServiceType + " , supported values are 'NodePort, ClusterIP or LoadBalancer'")
+		return "", errors.New("Unknown value " + ServiceType + " , supported values are 'nodeport, clusterip, headless or loadbalancer'")
 	}
 }
 

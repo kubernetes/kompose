@@ -11,3 +11,5 @@ services:
      - redis
   redis:
     image: redis
+    labels:
+      kompose.service.type: headless

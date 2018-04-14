@@ -1,6 +1,8 @@
 version: '3'
 services:
   foo:
+    labels:
+      kompose.service.type: headless
     image: foo/bar:latest
     environment:
       - BAR

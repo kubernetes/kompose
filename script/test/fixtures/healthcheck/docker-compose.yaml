@@ -3,6 +3,8 @@ version: "3"
 services:
   redis:
     image: redis
+    labels:
+      kompose.service.type: headless
     healthcheck:
       test: echo "hello world"
       interval: 10s

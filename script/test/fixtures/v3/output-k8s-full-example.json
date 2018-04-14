@@ -4,6 +4,149 @@
   "metadata": {},
   "items": [
     {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        },
+        "annotations": {
+          "com.example.description": "Accounting webapp",
+          "com.example.empty-label": "",
+          "com.example.number": "42",
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "3000",
+            "port": 3000,
+            "targetPort": 3000
+          },
+          {
+            "name": "3000-TCP",
+            "port": 3000,
+            "targetPort": 3000
+          },
+          {
+            "name": "3001",
+            "port": 3001,
+            "targetPort": 3001
+          },
+          {
+            "name": "3002",
+            "port": 3002,
+            "targetPort": 3002
+          },
+          {
+            "name": "3003",
+            "port": 3003,
+            "targetPort": 3003
+          },
+          {
+            "name": "3004",
+            "port": 3004,
+            "targetPort": 3004
+          },
+          {
+            "name": "3005",
+            "port": 3005,
+            "targetPort": 3005
+          },
+          {
+            "name": "8000",
+            "port": 8000,
+            "targetPort": 8000
+          },
+          {
+            "name": "9090",
+            "port": 9090,
+            "targetPort": 8080
+          },
+          {
+            "name": "9091",
+            "port": 9091,
+            "targetPort": 8081
+          },
+          {
+            "name": "49100",
+            "port": 49100,
+            "targetPort": 22
+          },
+          {
+            "name": "8001",
+            "port": 8001,
+            "targetPort": 8001
+          },
+          {
+            "name": "5000",
+            "port": 5000,
+            "targetPort": 5000
+          },
+          {
+            "name": "5001",
+            "port": 5001,
+            "targetPort": 5001
+          },
+          {
+            "name": "5002",
+            "port": 5002,
+            "targetPort": 5002
+          },
+          {
+            "name": "5003",
+            "port": 5003,
+            "targetPort": 5003
+          },
+          {
+            "name": "5004",
+            "port": 5004,
+            "targetPort": 5004
+          },
+          {
+            "name": "5005",
+            "port": 5005,
+            "targetPort": 5005
+          },
+          {
+            "name": "5006",
+            "port": 5006,
+            "targetPort": 5006
+          },
+          {
+            "name": "5007",
+            "port": 5007,
+            "targetPort": 5007
+          },
+          {
+            "name": "5008",
+            "port": 5008,
+            "targetPort": 5008
+          },
+          {
+            "name": "5009",
+            "port": 5009,
+            "targetPort": 5009
+          },
+          {
+            "name": "5010",
+            "port": 5010,
+            "targetPort": 5010
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
       "kind": "Pod",
       "apiVersion": "v1",
       "metadata": {
