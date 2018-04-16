@@ -57,7 +57,7 @@ __Glossary:__
 | labels                 | ✓  | ✓  | ✓  | Metadata.Annotations                                        |                                                                                                                |
 | links                  | x  | x  | x  |                                                             | All containers in the same pod are accessible in Kubernetes                                                    |
 | logging                | x  | x  | x  |                                                             | Kubernetes has built-in logging support at the node-level                                                      |
-| network_mode           | x  | x  | x  |                                                             | Kubernetes uses it's own cluster networking                                                                    |
+| network_mode           | x  | x  | x  |                                                             | Kubernetes uses its own cluster networking                                                                    |
 | networks               | x  | x  | x  |                                                             | See `networks` key                                                                                             |
 | networks: aliases      | x  | x  | x  |                                                             | See `networks` key                                                                                             |
 | networks: addresses    | x  | x  | x  |                                                             | See `networks` key                                                                                             |
@@ -68,7 +68,7 @@ __Glossary:__
 | secrets                | -  | -  | n  |                                                             |                                                                                                                |
 | secrets: short-syntax  | -  | -  | n  |                                                             |                                                                                                                |
 | secrets: long-syntax   | -  | -  | n  |                                                             |                                                                                                                |
-| security_opt           | x  | x  | x  |                                                             | Kubernetes uses it's own container naming scheme                                                               |
+| security_opt           | x  | x  | x  |                                                             | Kubernetes uses its own container naming scheme                                                               |
 | stop_grace_period      | ✓  | ✓  | ✓  | Pod.Spec.TerminationGracePeriodSeconds                      |                                                                                                                |
 | stop_signal            | x  | x  | x  |                                                             | Not supported within Kubernetes. See issue https://github.com/kubernetes/kubernetes/issues/30051               |
 | sysctls                | n  | n  | n  |                                                             |                                                                                                                |
