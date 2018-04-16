@@ -364,6 +364,7 @@ func TestServiceWithoutPort(t *testing.T) {
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
 		Image:         "image",
+		ServiceType:   "Headless",
 	}
 
 	komposeObject := kobject.KomposeObject{

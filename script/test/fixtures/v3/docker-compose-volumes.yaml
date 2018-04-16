@@ -3,6 +3,8 @@ version: "3"
 services:
 
   foobar:
+    labels:
+      kompose.service.type: headless
     image: foo/bar:latest
     volumes:
       - /tmp/foo/bar
