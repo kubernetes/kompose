@@ -301,7 +301,12 @@ func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, o
 	servicePorts := k.ConfigServicePorts(name, service)
 	svc.Spec.Ports = servicePorts
 
-	svc.Spec.Type = api.ServiceType(service.ServiceType)
+	if service.ServiceType == "Headless" {
+		svc.Spec.Type = api.ServiceTypeClusterIP
+		svc.Spec.ClusterIP = "None"
+	} else {
+		svc.Spec.Type = api.ServiceType(service.ServiceType)
+	}
 
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
@@ -311,7 +316,7 @@ func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, o
 }
 
 // CreateHeadlessService creates a k8s headless service.
-// Thi is used for docker-compose services without ports. For such services we can't create regular Kubernetes Service.
+// This is used for docker-compose services without ports. For such services we can't create regular Kubernetes Service.
 // and without Service Pods can't find each other using DNS names.
 // Instead of regular Kubernetes Service we create Headless Service. DNS of such service points directly to Pod IP address.
 // You can find more about Headless Services in Kubernetes documentation https://kubernetes.io/docs/user-guide/services/#headless-services

@@ -1,6 +1,8 @@
 version: '2'
 services:
   mariadb:
+    labels:
+      kompose.service.type: headless
     image: 'bitnami/mariadb:latest'
     volumes:
       - 'mariadb-data:/bitnami/mariadb'

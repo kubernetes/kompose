@@ -126,37 +126,6 @@
       }
     },
     {
-      "kind": "Service",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "worker",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "worker"
-        },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
-      },
-      "spec": {
-        "ports": [
-          {
-            "name": "headless",
-            "port": 55555,
-            "targetPort": 0
-          }
-        ],
-        "selector": {
-          "io.kompose.service": "worker"
-        },
-        "clusterIP": "None"
-      },
-      "status": {
-        "loadBalancer": {}
-      }
-    },
-    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {

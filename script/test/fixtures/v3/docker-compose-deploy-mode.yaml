@@ -2,6 +2,8 @@ version: "3"
 
 services:
   foo:
+    labels:
+      kompose.service.type: headless
     deploy:
       mode: global
       replicas: 6
