@@ -47,7 +47,7 @@ __Glossary:__
 | depends_on             | x  | x  | x  |                                                             |                                                                                                                |
 | dns                    | x  | x  | x  |                                                             | Not used within Kubernetes. Kubernetes uses a managed DNS server                                               |
 | dns_search             | x  | x  | x  |                                                             | See `dns` key                                                                                                  |
-| dommainname            | ✓  | ✓  | ✓  | Pod.Spec.SubDomain                                          |
+| domainname             | ✓  | ✓  | ✓  | Pod.Spec.SubDomain                                          |
 | tmpfs                  | ✓  | ✓  | ✓  | Pod.Spec.Containers.Volumes.EmptyDir                        | Creates emptyDirvolume with medium set to Memory & mounts given directory inside container                     |
 | entrypoint             | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  | Same as command                                                                                                |
 | env_file               | n  | n  | ✓  |                                                             |                                                                                                                |
