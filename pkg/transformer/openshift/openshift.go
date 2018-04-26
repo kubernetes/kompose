@@ -386,7 +386,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 		}
 
-		if o.PortsExist(name, service) {
+		if o.PortsExist(service) {
 			svc := o.CreateService(name, service, objects)
 			objects = append(objects, svc)
 
