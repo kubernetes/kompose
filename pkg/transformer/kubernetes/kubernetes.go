@@ -727,7 +727,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			objects = k.CreateKubernetesObjects(name, service, opt)
 		}
 
-		if k.PortsExist(name, service) {
+		if k.PortsExist(service) {
 			svc := k.CreateService(name, service, objects)
 			objects = append(objects, svc)
 

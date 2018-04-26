@@ -284,13 +284,8 @@ func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion)
 }
 
 // PortsExist checks if service has ports defined
-func (k *Kubernetes) PortsExist(name string, service kobject.ServiceConfig) bool {
-	if len(service.Port) == 0 {
-		log.Debugf("[%s] No ports defined. Headless service will be created.", name)
-		return false
-	}
-	return true
-
+func (k *Kubernetes) PortsExist(service kobject.ServiceConfig) bool {
+	return len(service.Port) != 0
 }
 
 // CreateService creates a k8s service
