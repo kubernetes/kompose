@@ -1,0 +1,71 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "web"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "web",
+                "image": "richarvey/nginx-php-fpm",
+                "env": [
+                  {
+                    "name": "ENABLE_XDEBUG",
+                    "value": "1"
+                  },
+                  {
+                    "name": "ERRORS",
+                    "value": "1"
+                  },
+                  {
+                    "name": "HIDE_NGINX_HEADERS",
+                    "value": "0"
+                  },
+                  {
+                    "name": "PHP_ERRORS_STDERR",
+                    "value": "1"
+                  },
+                  {
+                    "name": "REMOVE_FILES",
+                    "value": "0"
+                  },
+                  {
+                    "name": "RUN_SCRIPTS",
+                    "value": "1"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}

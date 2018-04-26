@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  server:
+    image: test
+    container_name: test_server
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    ports:
+      - 3000:3000
