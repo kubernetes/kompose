@@ -122,7 +122,23 @@ cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/mem-limit/docker-compose-mb.y
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/mem-limit/output-mb-k8s-template.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
+######
+# Tests merge multiple docker-compose files
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/base.yml -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/dev.yml --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/output-base-template.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/compose-port-base.yml -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/compose-port-prod.yml --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/output-compose-port-template.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/compose-port-base.yml -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/compose-new-service-prob.yml --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/output-compose-new-service-template.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose --provider=openshift convert -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/compose-port-base.yml -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/compose-new-service-prob.yml --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/output-openshift-template.json > /tmp/output-os.json
+convert::expect_success "$cmd" "/tmp/output-os.json"
 
 ######
 # Tests related to docker-compose file in /script/test/fixtures/ports-with-proto
