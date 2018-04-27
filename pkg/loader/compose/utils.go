@@ -34,7 +34,7 @@ const (
 	// LabelServiceExposeTLSSecret  provides the name of the TLS secret to use with the Kubernetes ingress controller
 	LabelServiceExposeTLSSecret = "kompose.service.expose.tls-secret"
 
-	// ServiceTypeHeadless...
+	// ServiceTypeHeadless ...
 	ServiceTypeHeadless = "Headless"
 )
 
