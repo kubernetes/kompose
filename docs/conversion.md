@@ -4,7 +4,7 @@ This document outlines all possible conversion details regarding `docker-compose
 
 The current table covers all **current** possible Docker Compose keys.
 
-__Note:__ due to the fast-pace nature of Docker Compose version revisions, minor versions such as 2.1, 2.2, 3.3 are not supported until they are cut into a major version release such as 2 or 3.
+__Note:__ We don't support anything 3.4 and above at the moment.
 
 __Glossary:__
 
@@ -22,9 +22,9 @@ __Glossary:__
 | build: cache_from      | -  | -  | n  |                                                             |                                                                                                                |
 | cap_add, cap_drop      | ✓  | ✓  | ✓  | Pod.Spec.Container.SecurityContext.Capabilities.Add/Drop    |                                                                                                                |
 | command                | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  |                                                                                                                |
-| configs                | n  | n  | n  |                                                             |                                                                                                                |
-| configs: short-syntax  | n  | n  | n  |                                                             |                                                                                                                |
-| configs: long-syntax   | n  | n  | n  |                                                             |                                                                                                                |
+| configs                | n  | n  | ✓  |                                                             |                                                                                                                |
+| configs: short-syntax  | n  | n  | ✓  |                                                             |                                                                                                                |
+| configs: long-syntax   | n  | n  | ✓  |                                                             |                                                                                                                |
 | cgroup_parent          | x  | x  | x  |                                                             | Not supported within Kubernetes. See issue https://github.com/kubernetes/kubernetes/issues/11986               |
 | container_name         | ✓  | ✓  | ✓  | Metadata.Name + Deployment.Spec.Containers.Name             |                                                                                                                |
 | credential_spec        | x  | x  | x  |                                                             | Only applicable to Windows containers                                                                          |

@@ -386,10 +386,10 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].Command = service.Command
 		template.Spec.Containers[0].Args = service.Args
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
-		template.Spec.Containers[0].VolumeMounts = volumesMount
+		template.Spec.Containers[0].VolumeMounts = append(template.Spec.Containers[0].VolumeMounts, volumesMount...)
 		template.Spec.Containers[0].Stdin = service.Stdin
 		template.Spec.Containers[0].TTY = service.Tty
-		template.Spec.Volumes = volumes
+		template.Spec.Volumes = append(template.Spec.Volumes, volumes...)
 		template.Spec.NodeSelector = service.Placement
 		// Configure the HealthCheck
 		// We check to see if it's blank
@@ -608,10 +608,32 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 	return envLoad, nil
 }
 
+// GetContentFromFile get content from file
+func GetContentFromFile(file string, opt kobject.ConvertOptions) (string, error) {
+	// Get the correct file context / directory
+	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
+	if err != nil {
+		return "", errors.Wrap(err, "Unable to load file context")
+	}
+	fileLocation := path.Join(composeDir, file)
+	fileBytes, err := ioutil.ReadFile(fileLocation)
+	if err != nil {
+		return "", errors.Wrap(err, "Unable to read file")
+	}
+	return string(fileBytes), nil
+}
+
 // FormatEnvName format env name
 func FormatEnvName(name string) string {
 	envName := strings.Trim(name, "./")
 	envName = strings.Replace(envName, ".", "-", -1)
 	envName = strings.Replace(envName, "/", "-", -1)
+	return envName
+}
+
+// FormatFileName format file name
+func FormatFileName(name string) string {
+	envName := strings.Trim(name, "./")
+	envName = strings.Replace(envName, "_", "-", -1)
 	return envName
 }

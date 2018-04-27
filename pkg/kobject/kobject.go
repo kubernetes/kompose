@@ -17,6 +17,7 @@ limitations under the License.
 package kobject
 
 import (
+	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/yaml"
 	"k8s.io/kubernetes/pkg/api"
 )
@@ -107,6 +108,10 @@ type ServiceConfig struct {
 	Volumes          []Volumes           `compose:""`
 	HealthChecks     HealthCheck         `compose:""`
 	Placement        map[string]string   `compose:""`
+	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
+	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
+	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
+	ConfigsMetaData map[string]dockerCliTypes.ConfigObjConfig `compose:""`
 }
 
 // HealthCheck the healthcheck configuration for a service

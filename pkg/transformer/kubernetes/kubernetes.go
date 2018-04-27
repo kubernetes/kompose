@@ -127,6 +127,52 @@ func (k *Kubernetes) InitPodSpec(name string, image string) api.PodSpec {
 	return pod
 }
 
+//InitPodSpecWithConfigMap creates the pod specification
+func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service kobject.ServiceConfig) api.PodSpec {
+	var volumeMounts []api.VolumeMount
+	var volumes []api.Volume
+
+	if len(service.Configs) > 0 && service.Configs[0].Mode != nil {
+		//This is for LONG SYNTAX
+		for _, value := range service.Configs {
+			if value.Target == "/" {
+				log.Warnf("Long syntax config, target path can not be /")
+				continue
+			}
+			tmpKey := FormatFileName(value.Source)
+			volumeMounts = append(volumeMounts,
+				api.VolumeMount{
+					Name:      tmpKey,
+					MountPath: "/" + FormatFileName(value.Target),
+				})
+
+			tmpVolume := api.Volume{
+				Name: tmpKey,
+			}
+			tmpVolume.ConfigMap = &api.ConfigMapVolumeSource{}
+			tmpVolume.ConfigMap.Name = tmpKey
+			var tmpMode int32
+			tmpMode = int32(*value.Mode)
+			tmpVolume.ConfigMap.DefaultMode = &tmpMode
+			volumes = append(volumes, tmpVolume)
+		}
+	} else {
+		//This is for SHORT SYNTAX, unsupported
+	}
+
+	pod := api.PodSpec{
+		Containers: []api.Container{
+			{
+				Name:         name,
+				Image:        image,
+				VolumeMounts: volumeMounts,
+			},
+		},
+		Volumes: volumes,
+	}
+	return pod
+}
+
 // InitRC initializes Kubernetes ReplicationController object
 func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
 	rc := &api.ReplicationController{
@@ -169,8 +215,8 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 	return svc
 }
 
-// InitConfigMap initializes a ConfigMap object
-func (k *Kubernetes) InitConfigMap(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
+// InitConfigMapForEnv initializes a ConfigMap object
+func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
 
 	envs, err := GetEnvsFromFile(envFile, opt)
 	if err != nil {
@@ -197,8 +243,46 @@ func (k *Kubernetes) InitConfigMap(name string, service kobject.ServiceConfig, o
 	return configMap
 }
 
+//InitConfigMapFromFile initializes a ConfigMap object
+func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, fileName string) *api.ConfigMap {
+	content, err := GetContentFromFile(fileName, opt)
+	if err != nil {
+		log.Fatalf("Unable to retrieve file: %s", err)
+	}
+
+	originFileName := FormatFileName(fileName)
+	dataMap := make(map[string]string)
+	dataMap[originFileName] = content
+	configMapName := ""
+	for key, tmpConfig := range service.ConfigsMetaData {
+		if tmpConfig.File == fileName {
+			configMapName = key
+		}
+	}
+	configMap := &api.ConfigMap{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name:   FormatFileName(configMapName),
+			Labels: transformer.ConfigLabels(name),
+		},
+		Data: dataMap,
+	}
+	return configMap
+}
+
 // InitD initializes Kubernetes Deployment object
 func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
+
+	var podSpec api.PodSpec
+	if len(service.Configs) > 0 {
+		podSpec = k.InitPodSpecWithConfigMap(name, service.Image, service)
+	} else {
+		podSpec = k.InitPodSpec(name, service.Image)
+	}
+
 	dc := &extensions.Deployment{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Deployment",
@@ -211,7 +295,7 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
 			Template: api.PodTemplateSpec{
-				Spec: k.InitPodSpec(name, service.Image),
+				Spec: podSpec,
 			},
 		},
 	}
@@ -660,9 +744,14 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 		opt.Controller = val
 	}
 
+	if len(service.Configs) > 0 {
+		objects = k.createConfigMapFromComposeConfig(name, opt, service, objects)
+	}
+
 	if opt.CreateD || opt.Controller == DeploymentController {
 		objects = append(objects, k.InitD(name, service, replica))
 	}
+
 	if opt.CreateDS || opt.Controller == DaemonSetController {
 		objects = append(objects, k.InitDS(name, service))
 	}
@@ -672,11 +761,25 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 
 	if len(service.EnvFile) > 0 {
 		for _, envFile := range service.EnvFile {
-			configMap := k.InitConfigMap(name, service, opt, envFile)
+			configMap := k.InitConfigMapForEnv(name, service, opt, envFile)
 			objects = append(objects, configMap)
 		}
 	}
 
+	return objects
+}
+
+func (k *Kubernetes) createConfigMapFromComposeConfig(name string, opt kobject.ConvertOptions, service kobject.ServiceConfig, objects []runtime.Object) []runtime.Object {
+	for _, config := range service.Configs {
+		currentConfigName := config.Source
+		currentConfigObj := service.ConfigsMetaData[currentConfigName]
+		if currentConfigObj.External.External {
+			continue
+		}
+		currentFileName := currentConfigObj.File
+		configMap := k.InitConfigMapFromFile(name, service, opt, currentFileName)
+		objects = append(objects, configMap)
+	}
 	return objects
 }
 

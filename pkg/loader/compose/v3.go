@@ -119,8 +119,10 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 		}
 	}
 
-	// TODO: Check all "unsupported" keys and output details
-	// Specifically, keys such as "volumes_from" are not supported in V3.
+	noSupKeys := checkUnsupportedKeyForV3(config)
+	for _, keyName := range noSupKeys {
+		log.Warningf("Unsupported %s key - ignoring", keyName)
+	}
 
 	// Finally, we convert the object from docker/cli's ServiceConfig to our appropriate one
 	komposeObject, err := dockerComposeToKomposeMapping(config)
@@ -411,9 +413,12 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 			log.Infof("Service name in docker-compose has been changed from %q to %q", name, normalizeServiceNames(name))
 		}
 
+		serviceConfig.Configs = composeServiceConfig.Configs
+		serviceConfig.ConfigsMetaData = composeObject.Configs
 		// Final step, add to the array!
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 	}
+
 	handleVolume(&komposeObject)
 
 	return komposeObject, nil
@@ -579,4 +584,37 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 	}
 
 	return oldCompose, nil
+}
+
+func checkUnsupportedKeyForV3(composeObject *types.Config) []string {
+	if composeObject == nil {
+		return []string{}
+	}
+
+	var keysFound []string
+
+	for _, service := range composeObject.Services {
+		//For short syntax, volume mount path must be /, but this will cause pod create fail in kubernetes
+		//So we ignore this attribute
+		for _, tmpConfig := range service.Configs {
+			if tmpConfig.Mode == nil {
+				keysFound = append(keysFound, "short syntax config")
+			} else {
+				if tmpConfig.GID != "" {
+					keysFound = append(keysFound, "long syntax config gid")
+				}
+				if tmpConfig.UID != "" {
+					keysFound = append(keysFound, "long syntax config uid")
+				}
+			}
+		}
+	}
+
+	for _, config := range composeObject.Configs {
+		if config.External.External {
+			keysFound = append(keysFound, "external config")
+		}
+	}
+
+	return keysFound
 }
