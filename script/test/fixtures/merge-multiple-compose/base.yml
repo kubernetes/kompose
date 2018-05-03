@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  web:
+    image: richarvey/nginx-php-fpm
+    environment:
+      - ERRORS=0
+      - HIDE_NGINX_HEADERS=0
+      - REMOVE_FILES=0
+      - RUN_SCRIPTS=0
+      - PHP_ERRORS_STDERR=0
+      - ENABLE_XDEBUG=0

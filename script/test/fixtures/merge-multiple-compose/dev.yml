@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  web:
+    environment:
+      - ERRORS=1
+      - HIDE_NGINX_HEADERS=0
+      - REMOVE_FILES=0
+      - RUN_SCRIPTS=1
+      - PHP_ERRORS_STDERR=1
+      - ENABLE_XDEBUG=1
