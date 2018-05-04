@@ -541,11 +541,11 @@ convert::expect_success "$cmd" "/tmp/output-k8s.json"
 # Test deploy mode: global
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy-mode.yaml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-deploy-mode-k8s-template.json" > /tmp/output-k8s.json
-convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 cmd="kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy-mode.yaml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-deploy-mode-os-template.json" > /tmp/output-os.json
-convert::expect_success_and_warning "$cmd" "/tmp/output-os.json"
+convert::expect_success "$cmd" "/tmp/output-os.json"
 
 # Test support for cpu and memory limits + reservations
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-memcpu.yaml"
@@ -731,6 +731,15 @@ convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
 cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/examples/docker-gitlab.yaml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/examples/output-gitlab-os.json > /tmp/output-os.json
 convert::expect_success_and_warning "$cmd" "/tmp/output-os.json"
+
+## Test compose v3 global deploy
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/controller/compose-global.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-global-template.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --controller deployment --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/controller/compose-global.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-global-deployment-template.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
 
 rm /tmp/output-k8s.json /tmp/output-os.json
 exit $EXIT_STATUS
