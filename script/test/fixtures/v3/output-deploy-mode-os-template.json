@@ -36,6 +36,47 @@
       }
     },
     {
+      "kind": "DaemonSet",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.type": "headless",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "foo"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "foo",
+                "image": "redis",
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {
+        "currentNumberScheduled": 0,
+        "numberMisscheduled": 0,
+        "desiredNumberScheduled": 0
+      }
+    },
+    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
