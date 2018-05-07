@@ -48,6 +48,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
@@ -66,6 +67,12 @@ const TIMEOUT = 300
 
 // PVCRequestSize (Persistent Volume Claim) has default size
 const PVCRequestSize = "100Mi"
+
+const (
+	DeploymentController  = "deployment"
+	DaemonSetController   = "daemonset"
+	ReplicationController = "replicationcontroller"
+)
 
 // CheckUnsupportedKey checks if given komposeObject contains
 // keys that are not supported by this transformer.
@@ -635,13 +642,25 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 		}
 
 	}
-	if opt.CreateD || opt.Controller == "deployment" {
+
+	//Resolve labels first
+	if val, ok := service.Labels[compose.LabelControllerType]; ok {
+		opt.CreateD = false
+		opt.CreateDS = false
+		opt.CreateRC = false
+		if opt.Controller != "" {
+			log.Warnf("Use label %s type %s for service %s, ignore %s flags", compose.LabelControllerType, val, name, opt.Controller)
+		}
+		opt.Controller = val
+	}
+
+	if opt.CreateD || opt.Controller == DeploymentController {
 		objects = append(objects, k.InitD(name, service, replica))
 	}
-	if opt.CreateDS || opt.Controller == "daemonset" {
+	if opt.CreateDS || opt.Controller == DaemonSetController {
 		objects = append(objects, k.InitDS(name, service))
 	}
-	if opt.CreateRC || opt.Controller == "replicationcontroller" {
+	if opt.CreateRC || opt.Controller == ReplicationController {
 		objects = append(objects, k.InitRC(name, service, replica))
 	}
 
