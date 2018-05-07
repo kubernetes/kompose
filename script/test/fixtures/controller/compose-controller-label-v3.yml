@@ -1,0 +1,29 @@
+version: '3'
+services:
+  web:
+    image: wordpress:4
+    environment:
+      - WORDPRESS_DB_PASSWORD=password
+      - WORDPRESS_AUTH_KEY=changeme
+      - WORDPRESS_SECURE_AUTH_KEY=changeme
+      - WORDPRESS_LOGGED_IN_KEY=changeme
+      - WORDPRESS_NONCE_KEY=changeme
+      - WORDPRESS_AUTH_SALT=changeme
+      - WORDPRESS_SECURE_AUTH_SALT=changeme
+      - WORDPRESS_LOGGED_IN_SALT=changeme
+      - WORDPRESS_NONCE_SALT=changeme
+      - WORDPRESS_NONCE_AA=changeme
+    ports:
+      - 80
+    depends_on:
+      - mysql
+    deploy:
+      replicas: 3
+    labels:
+      port: wordpress
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    labels:
+      kompose.controller.type: daemonset

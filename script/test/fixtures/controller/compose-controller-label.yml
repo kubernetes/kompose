@@ -1,0 +1,25 @@
+web:
+  image: wordpress:4.5
+  ports:
+    - '80'
+  environment:
+    WORDPRESS_AUTH_KEY: changeme
+    WORDPRESS_SECURE_AUTH_KEY: changeme
+    WORDPRESS_LOGGED_IN_KEY: changeme
+    WORDPRESS_NONCE_KEY: changeme
+    WORDPRESS_AUTH_SALT: changeme
+    WORDPRESS_SECURE_AUTH_SALT: changeme
+    WORDPRESS_LOGGED_IN_SALT: changeme
+    WORDPRESS_NONCE_SALT: changeme
+    WORDPRESS_NONCE_AA: changeme
+  restart: always
+  links:
+    - 'db:mysql'
+db:
+  image: mysql:5.7
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+  restart: always
+  labels:
+    project.logs: /var/log/mysql
+    kompose.controller.type: daemonset
