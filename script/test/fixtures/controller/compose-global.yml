@@ -1,0 +1,6 @@
+version: '3'
+services:
+  worker:
+    image: dockersamples/examplevotingapp_worker
+    deploy:
+      mode: global

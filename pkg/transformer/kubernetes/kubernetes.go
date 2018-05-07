@@ -626,8 +626,14 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 
 	// Check to see if Docker Compose v3 Deploy.Mode has been set to "global"
 	if service.DeployMode == "global" {
-		log.Warning("Global mode not yet supported, containers will only be replicated once throughout the cluster. DaemonSet support will be added in the future.")
-		replica = 1
+		//default use daemonset
+		if opt.Controller == "" {
+			opt.CreateD = false
+			opt.CreateDS = true
+		} else if opt.Controller != "daemonset" {
+			log.Warnf("Global deploy mode service is best converted to daemonset, now it convert to %s", opt.Controller)
+		}
+
 	}
 	if opt.CreateD || opt.Controller == "deployment" {
 		objects = append(objects, k.InitD(name, service, replica))

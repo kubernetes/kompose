@@ -36,7 +36,7 @@
       }
     },
     {
-      "kind": "Deployment",
+      "kind": "DaemonSet",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "foo",
@@ -51,7 +51,6 @@
         }
       },
       "spec": {
-        "replicas": 1,
         "template": {
           "metadata": {
             "creationTimestamp": null,
@@ -69,10 +68,13 @@
             ],
             "restartPolicy": "Always"
           }
-        },
-        "strategy": {}
+        }
       },
-      "status": {}
+      "status": {
+        "currentNumberScheduled": 0,
+        "numberMisscheduled": 0,
+        "desiredNumberScheduled": 0
+      }
     }
   ]
 }
