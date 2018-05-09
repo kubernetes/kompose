@@ -415,6 +415,9 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 
 		serviceConfig.Configs = composeServiceConfig.Configs
 		serviceConfig.ConfigsMetaData = composeObject.Configs
+		if composeServiceConfig.Deploy.EndpointMode == "vip" {
+			serviceConfig.ServiceType = string(api.ServiceTypeNodePort)
+		}
 		// Final step, add to the array!
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 	}
@@ -607,6 +610,11 @@ func checkUnsupportedKeyForV3(composeObject *types.Config) []string {
 					keysFound = append(keysFound, "long syntax config uid")
 				}
 			}
+		}
+
+		if service.CredentialSpec.Registry != "" || service.CredentialSpec.File != "" {
+			keysFound = append(keysFound, "credential_spec")
+
 		}
 	}
 

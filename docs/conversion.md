@@ -45,7 +45,8 @@ __Glossary:__
 | entrypoint             | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  | Same as command                                                                                                |
 | env_file               | n  | n  | ✓  |                                                             |                                                                                                                |
 | environment            | ✓  | ✓  | ✓  | Pod.Spec.Container.Env                                      |                                                                                                                |
-| expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports                                          |                                                                                                                |
+| expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports 
+| endpoint_mode          | n  | n  | ✓  |                                                             |                                                                                                                |
 | extends                | ✓  | ✓  | ✓  |                                                             | Extends by utilizing the same image supplied                                                                   |
 | external_links         | x  | x  | x  |                                                             | Kubernetes uses a flat-structure for all containers and thus external_links does not have a 1-1 conversion     |
 | extra_hosts            | n  | n  | n  |                                                             |                                                                                                                |
