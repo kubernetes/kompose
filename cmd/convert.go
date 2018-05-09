@@ -103,9 +103,9 @@ func init() {
 
 	// Kubernetes only
 	convertCmd.Flags().BoolVarP(&ConvertChart, "chart", "c", false, "Create a Helm chart for converted objects")
-	convertCmd.Flags().BoolVar(&ConvertDaemonSet, "daemon-set", false, "Generate a Kubernetes daemonset object")
-	convertCmd.Flags().BoolVarP(&ConvertDeployment, "deployment", "d", false, "Generate a Kubernetes deployment object")
-	convertCmd.Flags().BoolVar(&ConvertReplicationController, "replication-controller", false, "Generate a Kubernetes replication controller object")
+	convertCmd.Flags().BoolVar(&ConvertDaemonSet, "daemon-set", false, "Generate a Kubernetes daemonset object (deprecated, use --controller instead)")
+	convertCmd.Flags().BoolVarP(&ConvertDeployment, "deployment", "d", false, "Generate a Kubernetes deployment object (deprecated, use --controller instead)")
+	convertCmd.Flags().BoolVar(&ConvertReplicationController, "replication-controller", false, "Generate a Kubernetes replication controller object (deprecated, use --controller instead)")
 	convertCmd.Flags().StringVar(&ConvertController, "controller", "", `Set the output controller ("deployment"|"daemonSet"|"replicationController")`)
 	convertCmd.Flags().MarkDeprecated("daemon-set", "use --controller")
 	convertCmd.Flags().MarkDeprecated("deployment", "use --controller")
@@ -156,10 +156,10 @@ Available Commands:{{range .Commands}}{{if .IsAvailableCommand}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{ if .HasAvailableLocalFlags}}
 
 Kubernetes Flags:
-      --daemon-set               Generate a Kubernetes daemonset object
-  -d, --deployment               Generate a Kubernetes deployment object
+      --daemon-set               Generate a Kubernetes daemonset object (deprecated, use --controller instead)
+  -d, --deployment               Generate a Kubernetes deployment object (deprecated, use --controller instead)
   -c, --chart                    Create a Helm chart for converted objects
-      --replication-controller   Generate a Kubernetes replication controller object
+      --replication-controller   Generate a Kubernetes replication controller object (deprecated, use --controller instead)
 
 OpenShift Flags:
       --build-branch             Specify repository branch to use for buildconfig (default is current branch name)

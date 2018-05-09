@@ -246,17 +246,17 @@ INFO Kubernetes file "web-deployment.json" created
 The `*-deployment.json` files contain the Deployment objects.
 
 ```sh
-$ kompose convert --replication-controller
+$ kompose convert --controller replicationController
 INFO Kubernetes file "redis-svc.yaml" created
 INFO Kubernetes file "web-svc.yaml" created
 INFO Kubernetes file "redis-replicationcontroller.yaml" created
 INFO Kubernetes file "web-replicationcontroller.yaml" created
 ```
 
-The `*-replicationcontroller.yaml` files contain the Replication Controller objects. If you want to specify replicas (default is 1), use `--replicas` flag: `$ kompose convert --replication-controller --replicas 3`
+The `*-replicationcontroller.yaml` files contain the Replication Controller objects. If you want to specify replicas (default is 1), use `--replicas` flag: `$ kompose convert --controller replicationController --replicas 3`
 
 ```sh
-$ kompose convert --daemon-set
+$ kompose convert --controller daemonSet
 INFO Kubernetes file "redis-svc.yaml" created
 INFO Kubernetes file "web-svc.yaml" created
 INFO Kubernetes file "redis-daemonset.yaml" created
