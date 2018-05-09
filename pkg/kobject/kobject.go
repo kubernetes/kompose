@@ -95,6 +95,7 @@ type ServiceConfig struct {
 	Build            string              `compose:"build"`
 	BuildArgs        map[string]*string  `compose:"build-args"`
 	ExposeService    string              `compose:"kompose.service.expose"`
+	BuildLabels      map[string]string   `compose:"build-labels"`
 	ExposeServiceTLS string              `compose:"kompose.service.expose.tls-secret"`
 	Stdin            bool                `compose:"stdin_open"`
 	Tty              bool                `compose:"tty"`

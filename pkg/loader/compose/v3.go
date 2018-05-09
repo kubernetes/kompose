@@ -352,6 +352,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Build = composeServiceConfig.Build.Context
 		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
 		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
+		serviceConfig.BuildLabels = composeServiceConfig.Build.Labels
 
 		// Gather the environment values
 		// DockerCompose uses map[string]*string while we use []string
