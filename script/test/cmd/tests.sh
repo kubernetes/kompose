@@ -741,5 +741,22 @@ cmd="kompose convert --controller deployment --stdout -j -f $KOMPOSE_ROOT/script
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-global-deployment-template.json > /tmp/output-k8s.json
 convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
 
+## Test label kompose.controller.type
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/controller/compose-controller-label.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-controller-template.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --controller deployment --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/controller/compose-controller-label.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-controller-template.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/controller/compose-controller-label-v3.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-controller-v3-template.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose --provider=openshift convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/controller/compose-controller-label-v3.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-os-controller-v3-template.json > /tmp/output-os.json
+convert::expect_success "$cmd" "/tmp/output-os.json"
+
 rm /tmp/output-k8s.json /tmp/output-os.json
 exit $EXIT_STATUS

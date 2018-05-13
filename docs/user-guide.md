@@ -301,6 +301,7 @@ The currently supported options are:
 | kompose.service.expose | true / hostname |
 | kompose.service.expose.tls-secret | secret name |
 | kompose.volume.size | kubernetes supported volume size |
+| kompose.controller.type | deployment / daemonset / replicationcontroller |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -364,6 +365,39 @@ services:
       - db-data:/var/lib/postgresql/data
 ```
 
+- `kompose.controller.type` defines which controller type should convert for this service
+
+For example:
+
+```
+web:
+  image: wordpress:4.5
+  ports:
+    - '80'
+  environment:
+    WORDPRESS_AUTH_KEY: changeme
+    WORDPRESS_SECURE_AUTH_KEY: changeme
+    WORDPRESS_LOGGED_IN_KEY: changeme
+    WORDPRESS_NONCE_KEY: changeme
+    WORDPRESS_AUTH_SALT: changeme
+    WORDPRESS_SECURE_AUTH_SALT: changeme
+    WORDPRESS_LOGGED_IN_SALT: changeme
+    WORDPRESS_NONCE_SALT: changeme
+    WORDPRESS_NONCE_AA: changeme
+  restart: always
+  links:
+    - 'db:mysql'
+db:
+  image: mysql:5.7
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+  restart: always
+  labels:
+    project.logs: /var/log/mysql
+    kompose.controller.type: daemonset
+```
+
+Service `web` will be converted to `Deployment` as default, service `db` will be converted to `DaemonSet` because of `kompose.controller.type` label.
 
 ## Restart
 

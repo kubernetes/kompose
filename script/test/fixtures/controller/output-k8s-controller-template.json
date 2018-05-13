@@ -1,0 +1,166 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "80",
+            "port": 80,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "web"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "DaemonSet",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "db",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%",
+          "kompose.controller.type": "daemonset",
+          "project.logs": "/var/log/mysql"
+        }
+      },
+      "spec": {
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "db"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "db",
+                "image": "mysql:5.7",
+                "env": [
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "password"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {
+        "currentNumberScheduled": 0,
+        "numberMisscheduled": 0,
+        "desiredNumberScheduled": 0
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "web"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "web",
+                "image": "wordpress:4.5",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "WORDPRESS_AUTH_KEY",
+                    "value": "changeme"
+                  },
+                  {
+                    "name": "WORDPRESS_AUTH_SALT",
+                    "value": "changeme"
+                  },
+                  {
+                    "name": "WORDPRESS_LOGGED_IN_KEY",
+                    "value": "changeme"
+                  },
+                  {
+                    "name": "WORDPRESS_LOGGED_IN_SALT",
+                    "value": "changeme"
+                  },
+                  {
+                    "name": "WORDPRESS_NONCE_AA",
+                    "value": "changeme"
+                  },
+                  {
+                    "name": "WORDPRESS_NONCE_KEY",
+                    "value": "changeme"
+                  },
+                  {
+                    "name": "WORDPRESS_NONCE_SALT",
+                    "value": "changeme"
+                  },
+                  {
+                    "name": "WORDPRESS_SECURE_AUTH_KEY",
+                    "value": "changeme"
+                  },
+                  {
+                    "name": "WORDPRESS_SECURE_AUTH_SALT",
+                    "value": "changeme"
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}
