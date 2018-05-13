@@ -33,6 +33,8 @@ const (
 	LabelServiceExpose = "kompose.service.expose"
 	// LabelServiceExposeTLSSecret  provides the name of the TLS secret to use with the Kubernetes ingress controller
 	LabelServiceExposeTLSSecret = "kompose.service.expose.tls-secret"
+	// LabelControllerType defines the type of controller to be created
+	LabelControllerType = "kompose.controller.type"
 
 	// ServiceTypeHeadless ...
 	ServiceTypeHeadless = "Headless"
