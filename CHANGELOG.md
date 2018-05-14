@@ -1,5 +1,28 @@
 # Change Log
 
+## [v1.13.0](https://github.com/kubernetes/kompose/tree/v1.13.0) (2018-05-14)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.12.0...v1.13.0)
+
+**Closed issues:**
+
+- Kubernetes multiple volumeMounts with subPath and 1 configmap volume - onle 1 volumeMount works [\#1005](https://github.com/kubernetes/kompose/issues/1005)
+- Environment value merge failed with multiple docker-compose files [\#972](https://github.com/kubernetes/kompose/issues/972)
+- Merge multiple docker-compose files [\#968](https://github.com/kubernetes/kompose/issues/968)
+- Docker compose links section can't support [\#859](https://github.com/kubernetes/kompose/issues/859)
+
+**Merged pull requests:**
+
+- Add label 'kompose.controller.type' set service convert controller type [\#1001](https://github.com/kubernetes/kompose/pull/1001) ([xianlubird](https://github.com/xianlubird))
+- Add some deprecated info warning [\#1000](https://github.com/kubernetes/kompose/pull/1000) ([xianlubird](https://github.com/xianlubird))
+- Support compose global deploy mode to daemonset [\#999](https://github.com/kubernetes/kompose/pull/999) ([xianlubird](https://github.com/xianlubird))
+- Typo fix: wil-\>will [\#998](https://github.com/kubernetes/kompose/pull/998) ([AdamDang](https://github.com/AdamDang))
+- Remove go1.6 support in ci [\#997](https://github.com/kubernetes/kompose/pull/997) ([hangyan](https://github.com/hangyan))
+- Fix doc that we have support v3.1 & 3.2 [\#993](https://github.com/kubernetes/kompose/pull/993) ([xianlubird](https://github.com/xianlubird))
+- Fix golint warnings [\#992](https://github.com/kubernetes/kompose/pull/992) ([xianlubird](https://github.com/xianlubird))
+- Remove incorrect logging about headless service [\#991](https://github.com/kubernetes/kompose/pull/991) ([hangyan](https://github.com/hangyan))
+- Fix missing attribute when convert with multiple docker-compose files [\#990](https://github.com/kubernetes/kompose/pull/990) ([xianlubird](https://github.com/xianlubird))
+- Fix typo in conversion.md [\#989](https://github.com/kubernetes/kompose/pull/989) ([jonathanperret](https://github.com/jonathanperret))
+
 ## [v1.12.0](https://github.com/kubernetes/kompose/tree/v1.12.0) (2018-04-18)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.11.0...v1.12.0)
 
@@ -15,6 +38,7 @@
 
 **Merged pull requests:**
 
+- 1.12.0 Release [\#988](https://github.com/kubernetes/kompose/pull/988) ([cdrage](https://github.com/cdrage))
 - Typo fix [\#987](https://github.com/kubernetes/kompose/pull/987) ([jonyhy96](https://github.com/jonyhy96))
 - Typo fix in conversion.md [\#985](https://github.com/kubernetes/kompose/pull/985) ([AdamDang](https://github.com/AdamDang))
 - Fix some typo [\#983](https://github.com/kubernetes/kompose/pull/983) ([xianlubird](https://github.com/xianlubird))
