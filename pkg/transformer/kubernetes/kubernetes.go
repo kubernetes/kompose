@@ -69,8 +69,11 @@ const TIMEOUT = 300
 const PVCRequestSize = "100Mi"
 
 const (
+	// DeploymentController is controller type for Deployment
 	DeploymentController  = "deployment"
+	// DaemonSetController is controller type for DaemonSet
 	DaemonSetController   = "daemonset"
+	// ReplicationController is controller type for  ReplicationController
 	ReplicationController = "replicationcontroller"
 )
 
