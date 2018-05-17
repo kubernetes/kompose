@@ -23,7 +23,7 @@ __Description:__ "KPM is a tool to deploy and manage application stacks on Kuber
 
 __Link:__ [https://github.com/coreos/kpm](https://github.com/coreos/kpm)
 
-### Docker Image for Adobe Enterprise Manager by Adfinis SysGroup AG
+### Docker Image for Adobe Enterprise Manager by Adfinis SyGroup AG
 
 __Description:__ "Docker Image for Adobe Enterprise Manager"
 
