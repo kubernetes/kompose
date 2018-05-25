@@ -493,7 +493,7 @@ convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/tes
 # Test related to support docker-compose.yml beside docker-compose.yml
 # Store the original path
 CURRENT_DIR=$(pwd)
-# Kubernets test
+# Kubernetes test
 cd "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/"
 sed -e "s;%VERSION%;$version;g"   $KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/output-k8s-template.json > /tmp/output-k8s.json
 convert::expect_success "kompose convert --stdout -j" "/tmp/output-k8s.json"
