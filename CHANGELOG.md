@@ -1083,7 +1083,7 @@
 - Fix some nits in README [\#51](https://github.com/kubernetes/kompose/pull/51) ([janetkuo](https://github.com/janetkuo))
 - Add a bundle example file [\#50](https://github.com/kubernetes/kompose/pull/50) ([janetkuo](https://github.com/janetkuo))
 - Fix failing windows build [\#48](https://github.com/kubernetes/kompose/pull/48) ([kadel](https://github.com/kadel))
-- Inital support for Openshift. [\#46](https://github.com/kubernetes/kompose/pull/46) ([kadel](https://github.com/kadel))
+- Initial support for Openshift. [\#46](https://github.com/kubernetes/kompose/pull/46) ([kadel](https://github.com/kadel))
 - Refactor how we update controllers [\#42](https://github.com/kubernetes/kompose/pull/42) ([janetkuo](https://github.com/janetkuo))
 - Generate only controllers set by flag [\#35](https://github.com/kubernetes/kompose/pull/35) ([kadel](https://github.com/kadel))
 - Make deployment the default controller, create -rc for rc, and enable copying all types of controller to chart templates [\#32](https://github.com/kubernetes/kompose/pull/32) ([janetkuo](https://github.com/janetkuo))
