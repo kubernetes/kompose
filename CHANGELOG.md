@@ -481,7 +481,7 @@
 - Add provider to file output [\#616](https://github.com/kubernetes/kompose/pull/616) ([cdrage](https://github.com/cdrage))
 - Remove version column from conversion document [\#615](https://github.com/kubernetes/kompose/pull/615) ([cdrage](https://github.com/cdrage))
 - Validate dockerfilepath in buildconfig [\#609](https://github.com/kubernetes/kompose/pull/609) ([surajnarwade](https://github.com/surajnarwade))
-- PVC name changes if volumes containes .\(dot\) in it [\#603](https://github.com/kubernetes/kompose/pull/603) ([procrypt](https://github.com/procrypt))
+- PVC name changes if volumes contains .\(dot\) in it [\#603](https://github.com/kubernetes/kompose/pull/603) ([procrypt](https://github.com/procrypt))
 - Add v3 support of Docker Compose [\#600](https://github.com/kubernetes/kompose/pull/600) ([cdrage](https://github.com/cdrage))
 - update generated artifacts for k8s and openshift so that env variables are loaded in a particular order [\#596](https://github.com/kubernetes/kompose/pull/596) ([procrypt](https://github.com/procrypt))
 - Failing when port is specified with labels [\#590](https://github.com/kubernetes/kompose/pull/590) ([surajnarwade](https://github.com/surajnarwade))
