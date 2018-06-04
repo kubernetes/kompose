@@ -1,5 +1,22 @@
 # Change Log
 
+## [v1.14.0](https://github.com/kubernetes/kompose/tree/v1.14.0) (2018-06-04)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.13.0...v1.14.0)
+
+**Closed issues:**
+
+- Add \(better\) documentation on adding tests [\#898](https://github.com/kubernetes/kompose/issues/898)
+- `--deployment-config` flag is not necessary [\#803](https://github.com/kubernetes/kompose/issues/803)
+
+**Merged pull requests:**
+
+- Typo fix: overwite -\> overwrite [\#1028](https://github.com/kubernetes/kompose/pull/1028) ([mirake](https://github.com/mirake))
+- Typo fix in tests.sh: kubernets-\>kubernetes [\#1018](https://github.com/kubernetes/kompose/pull/1018) ([AdamDang](https://github.com/AdamDang))
+- Update contact information for sebgoa [\#1017](https://github.com/kubernetes/kompose/pull/1017) ([cdrage](https://github.com/cdrage))
+- Add security contacts [\#1016](https://github.com/kubernetes/kompose/pull/1016) ([cdrage](https://github.com/cdrage))
+- Fix typo in integrations.md [\#1011](https://github.com/kubernetes/kompose/pull/1011) ([tongpu](https://github.com/tongpu))
+- Fix golint warnings [\#1009](https://github.com/kubernetes/kompose/pull/1009) ([skyc024](https://github.com/skyc024))
+
 ## [v1.13.0](https://github.com/kubernetes/kompose/tree/v1.13.0) (2018-05-14)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.12.0...v1.13.0)
 
@@ -12,6 +29,7 @@
 
 **Merged pull requests:**
 
+- 1.13.0 Release [\#1006](https://github.com/kubernetes/kompose/pull/1006) ([cdrage](https://github.com/cdrage))
 - Add label 'kompose.controller.type' set service convert controller type [\#1001](https://github.com/kubernetes/kompose/pull/1001) ([xianlubird](https://github.com/xianlubird))
 - Add some deprecated info warning [\#1000](https://github.com/kubernetes/kompose/pull/1000) ([xianlubird](https://github.com/xianlubird))
 - Support compose global deploy mode to daemonset [\#999](https://github.com/kubernetes/kompose/pull/999) ([xianlubird](https://github.com/xianlubird))
