@@ -27,7 +27,7 @@ import (
 
 // Logrus hooks
 
-// Hook for erroring and exit out on warning
+// Hook for error and exit out on warning
 type errorOnWarningHook struct{}
 
 func (errorOnWarningHook) Levels() []log.Level {
