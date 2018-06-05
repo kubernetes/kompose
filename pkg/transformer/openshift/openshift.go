@@ -200,7 +200,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 				ObjectMeta: kapi.ObjectMeta{
 					Labels: transformer.ConfigLabels(name),
 				},
-				Spec: o.InitPodSpec(name, " "),
+				Spec: o.InitPodSpec(name, " ", ""),
 			},
 			Triggers: []deployapi.DeploymentTriggerPolicy{
 				// Trigger new deploy when DeploymentConfig is created (config change)
