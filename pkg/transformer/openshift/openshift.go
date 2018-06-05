@@ -187,7 +187,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 	if len(service.Configs) > 0 {
 		podSpec = o.InitPodSpecWithConfigMap(name, " ", service)
 	} else {
-		podSpec = o.InitPodSpec(name, " ")
+		podSpec = o.InitPodSpec(name, " ", "")
 	}
 
 	dc := &deployapi.DeploymentConfig{
