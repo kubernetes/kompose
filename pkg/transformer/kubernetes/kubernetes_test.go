@@ -186,7 +186,7 @@ func privilegedNilOrFalse(template api.PodTemplateSpec) bool {
 		template.Spec.Containers[0].SecurityContext.Privileged == nil || !*template.Spec.Containers[0].SecurityContext.Privileged
 }
 
-func checkService(config kobject.ServiceConfig, svc *api.Service, expectedLabels map[string]string) error {
+func checkService(svc *api.Service, expectedLabels map[string]string) error {
 	if !equalStringMaps(expectedLabels, svc.Spec.Selector) {
 		return fmt.Errorf("Found unexpected selector: %#v vs. %#v", expectedLabels, svc.Spec.Selector)
 	}
