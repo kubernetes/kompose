@@ -758,5 +758,12 @@ cmd="kompose --provider=openshift convert --stdout -j -f $KOMPOSE_ROOT/script/te
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-os-controller-v3-template.json > /tmp/output-os.json
 convert::expect_success "$cmd" "/tmp/output-os.json"
 
+# Testing stdin feature
+cmd="$KOMPOSE_ROOT/kompose convert --stdout -j -f -"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/stdin/output.json > /tmp/output-k8s.json
+
+echo -e "\n"
+go test -v github.com/kubernetes/kompose/script/test/cmd
+
 rm /tmp/output-k8s.json /tmp/output-os.json
 exit $EXIT_STATUS
