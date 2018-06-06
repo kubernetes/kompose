@@ -186,7 +186,7 @@ func privilegedNilOrFalse(template api.PodTemplateSpec) bool {
 		template.Spec.Containers[0].SecurityContext.Privileged == nil || !*template.Spec.Containers[0].SecurityContext.Privileged
 }
 
-func checkService(config kobject.ServiceConfig, svc *api.Service, expectedLabels map[string]string) error {
+func checkService(svc *api.Service, expectedLabels map[string]string) error {
 	if !equalStringMaps(expectedLabels, svc.Spec.Selector) {
 		return fmt.Errorf("Found unexpected selector: %#v vs. %#v", expectedLabels, svc.Spec.Selector)
 	}
@@ -309,7 +309,7 @@ func TestKomposeConvert(t *testing.T) {
 		// Check results
 		for _, obj := range objs {
 			if svc, ok := obj.(*api.Service); ok {
-				if err := checkService(config, svc, labels); err != nil {
+				if err := checkService(svc, labels); err != nil {
 					t.Errorf("%v", err)
 				}
 				if err := checkMeta(config, svc.ObjectMeta, name, true); err != nil {
