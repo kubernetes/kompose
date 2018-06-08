@@ -1,0 +1,127 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "nginx0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx0"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.image-pull-policy": "Always",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "nginx0"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "nginx0",
+                "image": "nginx",
+                "resources": {},
+                "imagePullPolicy": "Always"
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "nginx1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx1"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.image-pull-policy": "IfNotPresent",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "nginx1"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "nginx1",
+                "image": "nginx",
+                "resources": {},
+                "imagePullPolicy": "IfNotPresent"
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "nginx2",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx2"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.image-pull-policy": "Never",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "nginx2"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "nginx2",
+                "image": "nginx",
+                "resources": {},
+                "imagePullPolicy": "Never"
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}

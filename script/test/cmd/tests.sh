@@ -413,6 +413,20 @@ cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-secret/compose-fil
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-secret/provider-files/kubernetes-image-pull-secret.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
+# Test related to kompose.image-pull-secrets label in docker compose file.
+# Kubernetes Tests
+# when kompose.image-pull-secrets is invalid
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-files/v12-fail-image-pull-policy.yml convert --stdout"
+# when kompose.image-pull-secrets in v1 and 2
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-files/v12-image-pull-policy.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/provider-files/kubernetes-v12-image-pull-policy.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+# when kompose.image-pull-secrets in v3
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-files/v3-image-pull-policy.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/provider-files/kubernetes-v3-image-pull-policy.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+
 # Test the change in the service name
 # Kubernetes Test
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/service-name-change/docker-compose.yml convert --stdout -j"
