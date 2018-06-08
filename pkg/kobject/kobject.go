@@ -84,6 +84,7 @@ type ServiceConfig struct {
 	CapAdd           []string            `compose:"cap_add"`
 	CapDrop          []string            `compose:"cap_drop"`
 	Expose           []string            `compose:"expose"`
+	ImagePullPolicy  string              `compose:"kompose.image-pull-policy"`
 	Pid              string              `compose:"pid"`
 	Privileged       bool                `compose:"privileged"`
 	Restart          string              `compose:"restart"`

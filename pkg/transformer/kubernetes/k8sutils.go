@@ -503,6 +503,19 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].Ports = ports
 		template.ObjectMeta.Labels = transformer.ConfigLabels(name)
 
+		// Configure the image pull policy
+		switch service.ImagePullPolicy {
+		case "":
+		case "Always":
+			template.Spec.Containers[0].ImagePullPolicy = api.PullAlways
+		case "Never":
+			template.Spec.Containers[0].ImagePullPolicy = api.PullNever
+		case "IfNotPresent":
+			template.Spec.Containers[0].ImagePullPolicy = api.PullIfNotPresent
+		default:
+			return errors.New("Unknown image-pull-policy " + service.ImagePullPolicy + " for service " + name)
+		}
+
 		// Configure the container restart policy.
 		switch service.Restart {
 		case "", "always", "any":
