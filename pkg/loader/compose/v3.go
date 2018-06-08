@@ -403,6 +403,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 				serviceConfig.ExposeServiceTLS = value
 			case LabelImagePullSecret:
 				serviceConfig.ImagePullSecret = value
+			case LabelImagePullPolicy:
+				serviceConfig.ImagePullPolicy = value
 			}
 		}
 

@@ -302,6 +302,7 @@ The currently supported options are:
 | kompose.service.expose.tls-secret | secret name |
 | kompose.volume.size | kubernetes supported volume size |
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
+| kompose.image-pull-policy | kubernetes pods imagePullPolicy |
 | kompose.image-pull-secret | kubernetes secret name for imagePullSecrets |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
@@ -412,6 +413,19 @@ db:
 ```
 
 Service `web` will be converted to `Deployment` as default, service `db` will be converted to `DaemonSet` because of `kompose.controller.type` label.
+
+- `kompose.image-pull-policy` defines Kubernetes PodSpec imagePullPolicy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
+
+For example:
+
+```yaml
+version: '2'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.image-pull-policy: "Never"
+```
 
 ## Restart
 
