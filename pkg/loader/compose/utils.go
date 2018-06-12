@@ -27,6 +27,7 @@ import (
 )
 
 const (
+	LabelServiceImagePullPolicy = "kompose.service.image-pull-policy"
 	// LabelServiceType defines the type of service to be created
 	LabelServiceType = "kompose.service.type"
 	// LabelServiceExpose defines if the service needs to be made accessible from outside the cluster or not

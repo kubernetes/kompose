@@ -86,6 +86,7 @@ type ServiceConfig struct {
 	Expose           []string            `compose:"expose"`
 	Pid              string              `compose:"pid"`
 	Privileged       bool                `compose:"privileged"`
+	PullPolicy       string              `compose:"kompose.service.image-pull-policy"`
 	Restart          string              `compose:"restart"`
 	User             string              `compose:"user"`
 	VolumesFrom      []string            `compose:"volumes_from"`
