@@ -32,6 +32,7 @@ import (
 	"os"
 
 	"fmt"
+
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -380,6 +381,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// from here for docker-compose. Each loader will have such handler.
 		for key, value := range composeServiceConfig.Labels {
 			switch key {
+			case LabelServiceImagePullPolicy:
+				serviceConfig.PullPolicy = strings.ToLower(value)
 			case LabelServiceType:
 				serviceType, err := handleServiceType(value)
 				if err != nil {

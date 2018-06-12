@@ -515,6 +515,18 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			return errors.New("Unknown restart policy " + service.Restart + " for service " + name)
 		}
 
+		// Configure the image pull policy.
+		switch service.PullPolicy {
+		case "always":
+			template.Spec.Containers[0].ImagePullPolicy = "Always"
+		case "", "if-not-present":
+			template.Spec.Containers[0].ImagePullPolicy = "IfNotPresent"
+		case "never":
+			template.Spec.Containers[0].ImagePullPolicy = "Never"
+		default:
+			return errors.New("Unknown image pull policy " + service.PullPolicy + " for service " + name)
+		}
+
 		// Configure hostname/domain_name settings
 		if service.HostName != "" {
 			template.Spec.Hostname = service.HostName
