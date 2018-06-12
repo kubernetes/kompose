@@ -235,6 +235,8 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.Labels = make(map[string]string)
 		for key, value := range composeServiceConfig.Labels {
 			switch key {
+			case LabelServiceImagePullPolicy:
+				serviceConfig.PullPolicy = strings.ToLower(value)
 			case LabelServiceType:
 				serviceType, err := handleServiceType(value)
 				if err != nil {

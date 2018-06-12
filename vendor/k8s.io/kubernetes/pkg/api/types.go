@@ -1262,6 +1262,14 @@ type PodCondition struct {
 	Message            string           `json:"message,omitempty"`
 }
 
+type ImagePullPolicy string
+
+const (
+	ImagePullPolicyAlways       PullPolicy = "Always"
+	ImagePullPolicyIfNotPresent PullPolicy = "IfNotPresent"
+	ImagePullPolicyNever        PullPolicy = "Never"
+)
+
 // RestartPolicy describes how the container should be restarted.
 // Only one of the following restart policies may be specified.
 // If none of the following policies is specified, the default one
