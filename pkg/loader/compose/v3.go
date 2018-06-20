@@ -331,8 +331,11 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 				placement["kubernetes.io/hostname"] = p[1]
 			} else if p[0] == "engine.labels.operatingsystem" {
 				placement["beta.kubernetes.io/os"] = p[1]
+			} else if strings.HasPrefix(p[0], "node.labels.") {
+				label := strings.TrimPrefix(p[0], "node.labels.")
+				placement[label] = p[1]
 			} else {
-				log.Warn(p[0], " constraints in placement is not supported, only 'node.hostname' and 'engine.labels.operatingsystem' is only supported as a constraint ")
+				log.Warn(p[0], " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.whatever == anything) is supported as a constraint ")
 			}
 		}
 		serviceConfig.Placement = placement
