@@ -29,6 +29,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+	"strings"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
@@ -36,7 +37,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		ContainerName: "name",
 		Image:         "image",
 		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456}},
+		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456}, kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolUDP}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
@@ -188,6 +189,13 @@ func privilegedNilOrFalse(template api.PodTemplateSpec) bool {
 func checkService(config kobject.ServiceConfig, svc *api.Service, expectedLabels map[string]string) error {
 	if !equalStringMaps(expectedLabels, svc.Spec.Selector) {
 		return fmt.Errorf("Found unexpected selector: %#v vs. %#v", expectedLabels, svc.Spec.Selector)
+	}
+	for _, port := range svc.Spec.Ports {
+		name := port.Name
+		expectedName := strings.ToLower(name)
+		if expectedName != name {
+			return fmt.Errorf("Found unexpected port name: %#v vs. %#v", expectedName, name)
+		}
 	}
 	// TODO: finish this
 	return nil
@@ -481,7 +489,7 @@ func TestRestartOnFailure(t *testing.T) {
 func TestInitPodSpec(t *testing.T) {
 	name := "foo"
 	k := Kubernetes{}
-	result := k.InitPodSpec(name, newServiceConfig().Image)
+	result := k.InitPodSpec(name, newServiceConfig().Image, "")
 	if result.Containers[0].Name != "foo" && result.Containers[0].Image != "image" {
 		t.Fatalf("Pod object not found")
 	}
