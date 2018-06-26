@@ -96,6 +96,7 @@ type ServiceConfig struct {
 	BuildArgs        map[string]*string  `compose:"build-args"`
 	ExposeService    string              `compose:"kompose.service.expose"`
 	ExposeServiceTLS string              `compose:"kompose.service.expose.tls-secret"`
+	ImagePullSecret  string              `compose:"kompose.image-pull-secret"`
 	Stdin            bool                `compose:"stdin_open"`
 	Tty              bool                `compose:"tty"`
 	MemLimit         yaml.MemStringorInt `compose:"mem_limit"`

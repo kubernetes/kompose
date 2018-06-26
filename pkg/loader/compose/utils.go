@@ -37,6 +37,8 @@ const (
 	LabelControllerType = "kompose.controller.type"
 	// LabelImagePullPolicy defines Kubernetes PodSpec imagePullPolicy.
 	LabelImagePullPolicy = "kompose.image-pull-policy"
+	// LabelImagePullSecret defines a secret name for kubernetes ImagePullSecrets
+	LabelImagePullSecret = "kompose.image-pull-secret"
 
 	// ServiceTypeHeadless ...
 	ServiceTypeHeadless = "Headless"

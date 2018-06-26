@@ -248,6 +248,8 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 				serviceConfig.ExposeServiceTLS = value
 			case LabelImagePullPolicy:
 				serviceConfig.ImagePullPolicy = value
+			case LabelImagePullSecret:
+				serviceConfig.ImagePullSecret = value
 			default:
 				serviceConfig.Labels[key] = value
 			}
