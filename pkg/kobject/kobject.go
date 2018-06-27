@@ -107,6 +107,7 @@ type ServiceConfig struct {
 	Volumes          []Volumes           `compose:""`
 	HealthChecks     HealthCheck         `compose:""`
 	Placement        map[string]string   `compose:""`
+	AutoScaler       AutoScaler          `compose:""`
 }
 
 // HealthCheck the healthcheck configuration for a service
@@ -146,4 +147,16 @@ type Volumes struct {
 	Mode       string // access mode for volume
 	PVCName    string // name of PVC
 	PVCSize    string // PVC size
+}
+
+// Autoscaler holds the HorizontalPodAutoscaler struct of a service.
+type AutoScaler struct {
+	MinReplicas  int32         // Minimum number of pod replicas
+	MaxReplicas  int32         // Maximum number of pod replicas
+	TargetAvgCPU AutoScalerCPU // AutoScaler CPU options
+}
+
+// AutoScalerCPU holds the AutoScaler CPU configuration of a service.
+type AutoScalerCPU struct {
+	TargetAverageUtilization int32 // Target average utilization
 }

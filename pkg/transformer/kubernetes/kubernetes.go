@@ -36,6 +36,7 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/resource"
 	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/apis/autoscaling"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 
 	client "k8s.io/kubernetes/pkg/client/unversioned"
@@ -286,6 +287,43 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 	}
 
 	return ingress
+}
+
+func (k *Kubernetes) initHorizontalPodAutoscaler(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) (*autoscaling.HorizontalPodAutoscaler, error) {
+	var kind string
+	switch opt.Controller {
+
+	case DeploymentController:
+		kind = "Deployment"
+	case DaemonSetController:
+		return nil, errors.New("Autoscaling cannot be used with controller type DaemonSet.")
+	case ReplicationController:
+		kind = "ReplicationController"
+	}
+
+	autoscaler := &autoscaling.HorizontalPodAutoscaler{
+
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "HorizontalPodAutoscaler",
+			APIVersion: "extensions/v1beta1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name:   name,
+			Labels: transformer.ConfigLabels(name),
+		},
+		Spec: autoscaling.HorizontalPodAutoscalerSpec{
+			ScaleTargetRef: autoscaling.CrossVersionObjectReference{
+				Kind:       kind,
+				Name:       name,
+				APIVersion: "apps/v1",
+			},
+			MaxReplicas:                    int32(service.AutoScaler.MaxReplicas),
+			MinReplicas:                    &service.AutoScaler.MinReplicas,
+			TargetCPUUtilizationPercentage: &service.AutoScaler.TargetAvgCPU.TargetAverageUtilization,
+		},
+	}
+
+	return autoscaler, nil
 }
 
 // CreatePVC initializes PersistentVolumeClaim
@@ -767,6 +805,13 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				svc := k.CreateHeadlessService(name, service, objects)
 				objects = append(objects, svc)
 			}
+		}
+		if service.AutoScaler.MaxReplicas != 0 {
+			cas, err := k.initHorizontalPodAutoscaler(name, service, opt)
+			if err != nil {
+				return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
+			}
+			objects = append(objects, cas)
 		}
 
 		err := k.UpdateKubernetesObjects(name, service, opt, &objects)

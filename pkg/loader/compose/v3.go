@@ -391,6 +391,24 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 				serviceConfig.ExposeService = strings.ToLower(value)
 			case LabelServiceExposeTLSSecret:
 				serviceConfig.ExposeServiceTLS = value
+			case LabelAutoscalerMinReplicas:
+				v, err := strconv.Atoi(value)
+				if err != nil {
+					return kobject.KomposeObject{}, errors.Wrap(err, "unable to get HorizontalPodAutoscaler.minReplicas")
+				}
+				serviceConfig.AutoScaler.MinReplicas = int32(v)
+			case LabelAutoscalerMaxReplicas:
+				v, err := strconv.Atoi(value)
+				if err != nil {
+					return kobject.KomposeObject{}, errors.Wrap(err, "unable to get HorizontalPodAutoscaler.maxReplicas")
+				}
+				serviceConfig.AutoScaler.MaxReplicas = int32(v)
+			case LabelAutoscalerAvgCPUUtilization:
+				v, err := strconv.Atoi(value)
+				if err != nil {
+					return kobject.KomposeObject{}, errors.Wrap(err, "unable to get HorizontalPodAutoscaler.cpu.targetAverageUtilization")
+				}
+				serviceConfig.AutoScaler.TargetAvgCPU.TargetAverageUtilization = int32(v)
 			}
 		}
 
