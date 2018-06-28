@@ -1,5 +1,22 @@
 # Change Log
 
+## [v1.15.0](https://github.com/kubernetes/kompose/tree/v1.15.0) (2018-06-28)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.14.0...v1.15.0)
+
+**Closed issues:**
+
+- Correct DL-link to latest kompose in installation guide [\#952](https://github.com/kubernetes/kompose/issues/952)
+- Add development.md to site, refactor with `make vendor-update` [\#879](https://github.com/kubernetes/kompose/issues/879)
+- update integration doc [\#857](https://github.com/kubernetes/kompose/issues/857)
+- Enable kompose to generate configs per docker-compose service [\#657](https://github.com/kubernetes/kompose/issues/657)
+
+**Merged pull requests:**
+
+- Typo fix: erroring -\> error [\#1032](https://github.com/kubernetes/kompose/pull/1032) ([mirake](https://github.com/mirake))
+- Fix invalid port name with uppercase characters [\#1029](https://github.com/kubernetes/kompose/pull/1029) ([denverdino](https://github.com/denverdino))
+- Typo fix in maven-example.md [\#1021](https://github.com/kubernetes/kompose/pull/1021) ([AdamDang](https://github.com/AdamDang))
+- Kompose will read input from stdin [\#871](https://github.com/kubernetes/kompose/pull/871) ([surajnarwade](https://github.com/surajnarwade))
+
 ## [v1.14.0](https://github.com/kubernetes/kompose/tree/v1.14.0) (2018-06-04)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.13.0...v1.14.0)
 
@@ -10,6 +27,7 @@
 
 **Merged pull requests:**
 
+- 1.14.0 Release [\#1030](https://github.com/kubernetes/kompose/pull/1030) ([cdrage](https://github.com/cdrage))
 - Typo fix: overwite -\> overwrite [\#1028](https://github.com/kubernetes/kompose/pull/1028) ([mirake](https://github.com/mirake))
 - Typo fix in tests.sh: kubernets-\>kubernetes [\#1018](https://github.com/kubernetes/kompose/pull/1018) ([AdamDang](https://github.com/AdamDang))
 - Update contact information for sebgoa [\#1017](https://github.com/kubernetes/kompose/pull/1017) ([cdrage](https://github.com/cdrage))
