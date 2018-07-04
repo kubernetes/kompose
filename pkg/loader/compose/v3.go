@@ -131,6 +131,24 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 	return komposeObject, nil
 }
 
+func loadV3Placement(constraints []string) map[string]string {
+	placement := make(map[string]string)
+	for _, j := range constraints {
+		p := strings.Split(j, " == ")
+		if p[0] == "node.hostname" {
+			placement["kubernetes.io/hostname"] = p[1]
+		} else if p[0] == "engine.labels.operatingsystem" {
+			placement["beta.kubernetes.io/os"] = p[1]
+		} else if strings.HasPrefix(p[0], "node.labels.") {
+			label := strings.TrimPrefix(p[0], "node.labels.")
+			placement[label] = p[1]
+		} else {
+			log.Warn(p[0], " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint ")
+		}
+	}
+	return placement
+}
+
 // Convert the Docker Compose v3 volumes to []string (the old way)
 // TODO: Check to see if it's a "bind" or "volume". Ignore for now.
 // TODO: Refactor it similar to loadV3Ports
@@ -324,21 +342,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		}
 
 		// placement:
-		placement := make(map[string]string)
-		for _, j := range composeServiceConfig.Deploy.Placement.Constraints {
-			p := strings.Split(j, " == ")
-			if p[0] == "node.hostname" {
-				placement["kubernetes.io/hostname"] = p[1]
-			} else if p[0] == "engine.labels.operatingsystem" {
-				placement["beta.kubernetes.io/os"] = p[1]
-			} else if strings.HasPrefix(p[0], "node.labels.") {
-				label := strings.TrimPrefix(p[0], "node.labels.")
-				placement[label] = p[1]
-			} else {
-				log.Warn(p[0], " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.whatever == anything) is supported as a constraint ")
-			}
-		}
-		serviceConfig.Placement = placement
+		serviceConfig.Placement = loadV3Placement(composeServiceConfig.Deploy.Placement.Constraints)
 
 		// TODO: Build is not yet supported, see:
 		// https://github.com/docker/cli/blob/master/cli/compose/types/types.go#L9
