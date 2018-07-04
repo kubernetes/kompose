@@ -382,3 +382,18 @@ func TestCheckLabelsPorts(t *testing.T) {
 
 	}
 }
+
+func TestCheckPlacementCustomLabels(t *testing.T) {
+
+	placement := types.Placement{
+		Constraints: []string{"node.labels.something == anything"},
+	}
+	output := loadV3Placement(placement.Constraints)
+
+	expected := map[string]string{"something": "anything"}
+
+	if output["something"] != expected["something"] {
+		t.Errorf("Expected %s, got %s", expected, output)
+	}
+
+}
