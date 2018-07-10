@@ -568,7 +568,6 @@ sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/f
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 
-
 # Test unset environment variables are passed correctly
 export V3_HOST_ENV_TEST_SET_TO_BAR=BAR
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-unset-env.yaml"
@@ -581,6 +580,15 @@ cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/v3/output-env-subs.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
+
+# Test key/value env with env_files
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/env/docker-compose.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" $KOMPOSE_ROOT/script/test/fixtures/env/output-k8s.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/env/docker-compose.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" $KOMPOSE_ROOT/script/test/fixtures/env/output-os.json > /tmp/output-os.json
+ convert::expect_success "$cmd" "/tmp/output-os.json"
 
 # Test that two files that are different versions fail
 convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose.yaml"
