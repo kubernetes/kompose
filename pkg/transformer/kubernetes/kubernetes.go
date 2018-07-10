@@ -572,8 +572,11 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt 
 
 	envs := transformer.EnvSort{}
 
+	keysFromEnvFile := make(map[string]bool)
+
 	// If there is an env_file, use ConfigMaps and ignore the environment variables
 	// already specified
+
 	if len(service.EnvFile) > 0 {
 
 		// Load each env_file
@@ -600,14 +603,14 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt 
 							Key: k,
 						}},
 				})
+				keysFromEnvFile[k] = true
 			}
-
 		}
+	}
 
-	} else {
-
-		// Load up the environment variables
-		for _, v := range service.Environment {
+	// Load up the environment variables
+	for _, v := range service.Environment {
+		if !keysFromEnvFile[v.Name] {
 			envs = append(envs, api.EnvVar{
 				Name:  v.Name,
 				Value: v.Value,
