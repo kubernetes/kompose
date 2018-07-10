@@ -49,6 +49,29 @@ Kompose is in Fedora 24, 25 and 26 repositories. You can install it just like an
 sudo dnf -y install kompose
 ```
 
+#### openSUSE/SLE
+Kompose is available in the official Virtualization:containers repository for openSUSE Tumbleweed, Leap 15, Leap 42.3 and SUSE Linux Enterprise 15.
+
+Head over to [software.opensuse.org for One-Click Installation](https://software.opensuse.org//download.html?project=Virtualization%3Acontainers&package=kompose) or add the repository manually:
+```bash
+#openSUSE Tumbleweed
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Tumbleweed/Virtualization:containers.repo
+
+#openSUSE Leap 42.3
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_42.3/Virtualization:containers.repo
+
+#openSUSE Leap 15
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_15.0/Virtualization:containers.repo
+
+#SUSE Linux Enterprise 15
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/SLE_15/Virtualization:containers.repo
+```
+and install the package:
+```bash
+sudo zypper refresh
+sudo zypper install kompose
+```
+
 #### macOS
 On macOS you can install latest release via [Homebrew](https://brew.sh):
 
