@@ -489,7 +489,7 @@ func TestRestartOnFailure(t *testing.T) {
 func TestInitPodSpec(t *testing.T) {
 	name := "foo"
 	k := Kubernetes{}
-	result := k.InitPodSpec(name, newServiceConfig().Image)
+	result := k.InitPodSpec(name, newServiceConfig().Image, "")
 	if result.Containers[0].Name != "foo" && result.Containers[0].Image != "image" {
 		t.Fatalf("Pod object not found")
 	}

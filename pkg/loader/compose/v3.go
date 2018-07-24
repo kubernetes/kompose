@@ -399,6 +399,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 				serviceConfig.ExposeService = strings.ToLower(value)
 			case LabelServiceExposeTLSSecret:
 				serviceConfig.ExposeServiceTLS = value
+			case LabelImagePullSecret:
+				serviceConfig.ImagePullSecret = value
 			}
 		}
 

@@ -302,6 +302,7 @@ The currently supported options are:
 | kompose.service.expose.tls-secret | secret name |
 | kompose.volume.size | kubernetes supported volume size |
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
+| kompose.image-pull-secret | kubernetes secret name for imagePullSecrets |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -348,6 +349,19 @@ services:
     image: redis:3.0
     ports:
      - "6379"
+```
+
+- `kompose.image-pull-secret` defines a kubernetes secret name for imagePullSecrets podspec field.
+This secret will be used for pulling private images.
+For example:
+
+```yaml
+version: '2'
+services:
+  tm-service:
+    image: premium/private-image
+    labels:
+      kompose.image-pull-secret: "example-kubernetes-secret"
 ```
 
 - `kompose.volume.size` defines the requests storage's size in the PersistentVolumeClaim
