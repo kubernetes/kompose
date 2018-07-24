@@ -49,6 +49,20 @@ Kompose is in Fedora 24, 25 and 26 repositories. You can install it just like an
 sudo dnf -y install kompose
 ```
 
+#### macOS
+On macOS you can install latest release via [Homebrew](https://brew.sh):
+
+```bash
+brew install kompose
+```
+
+#### Windows
+Kompose can be installed via [Chocolatey](https://chocolatey.org/packages/kubernetes-kompose)
+
+```console
+choco install kubernetes-kompose
+```
+
 #### openSUSE/SLE
 Kompose is available in the official Virtualization:containers repository for openSUSE Tumbleweed, Leap 15, Leap 42.3 and SUSE Linux Enterprise 15.
 
@@ -70,18 +84,4 @@ and install the package:
 ```bash
 sudo zypper refresh
 sudo zypper install kompose
-```
-
-#### macOS
-On macOS you can install latest release via [Homebrew](https://brew.sh):
-
-```bash
-brew install kompose
-```
-
-#### Windows
-Kompose can be installed via [Chocolatey](https://chocolatey.org/packages/kubernetes-kompose)
-
-```console
-choco install kubernetes-kompose
 ```
