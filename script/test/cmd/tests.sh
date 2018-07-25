@@ -416,7 +416,31 @@ cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/service-
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/service-name-change/output-os-template.json > /tmp/output-os.json
 convert::expect_success_and_warning "$cmd" "/tmp/output-os.json" "Unsupported root level volumes key - ignoring"
 
+#####
+# Test secrets
+# Kubernetes Test
 
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/secrets/docker-compose-secrets-long.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/secrets/output-long-k8s.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json" "External secrets my_other_secret is not currently supported - ignoring"
+
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/secrets/docker-compose-secrets-short.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/secrets/output-short-k8s.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json" "External secrets my_other_secret is not currently supported - ignoring"
+
+
+
+# Openshift Test
+cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/secrets/docker-compose-secrets-long.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/secrets/output-long-os.json > /tmp/output-os.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-os.json" "External secrets my_other_secret is not currently supported - ignoring"
+
+cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/secrets/docker-compose-secrets-short.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/secrets/output-short-os.json > /tmp/output-os.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-os.json" "External secrets my_other_secret is not currently supported - ignoring"
+
+
+#####
 # Test regarding validating dockerfilepath
 convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/dockerfilepath/docker-compose.yml convert --stdout"
 

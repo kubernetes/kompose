@@ -608,6 +608,16 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 	return envLoad, nil
 }
 
+// GetSecretDataFromFile load secret content data
+func GetSecretDataFromFile(file string, opt kobject.ConvertOptions) ([]byte, error) {
+	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to load file context")
+	}
+	fileLocation := path.Join(composeDir, file)
+	return ioutil.ReadFile(fileLocation)
+}
+
 // FormatEnvName format env name
 func FormatEnvName(name string) string {
 	envName := strings.Trim(name, "./")

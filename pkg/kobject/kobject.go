@@ -17,6 +17,7 @@ limitations under the License.
 package kobject
 
 import (
+	cliTypes "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/yaml"
 	"k8s.io/kubernetes/pkg/api"
 )
@@ -28,6 +29,8 @@ type KomposeObject struct {
 	// Transformer need to know origin format in order to tell user what tag is not supported in origin format
 	// as they can have different names. For example environment variables  are called environment in compose but Env in bundle.
 	LoadedFrom string
+
+	Secrets map[string]cliTypes.SecretConfig
 }
 
 // ConvertOptions holds all options that controls transformation process
@@ -105,8 +108,9 @@ type ServiceConfig struct {
 	Replicas         int                 `compose:"replicas"`
 	GroupAdd         []int64             `compose:"group_add"`
 	Volumes          []Volumes           `compose:""`
-	HealthChecks     HealthCheck         `compose:""`
-	Placement        map[string]string   `compose:""`
+	Secrets          []cliTypes.ServiceSecretConfig
+	HealthChecks     HealthCheck       `compose:""`
+	Placement        map[string]string `compose:""`
 }
 
 // HealthCheck the healthcheck configuration for a service
