@@ -1,0 +1,74 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "my-config",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "data": {
+        "my-config.txt": "aaaa"
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "my-config",
+                "configMap": {
+                  "name": "my-config",
+                  "defaultMode": 288
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "redis",
+                "image": "redis:latest",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "my-config",
+                    "mountPath": "/redis-config"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}
