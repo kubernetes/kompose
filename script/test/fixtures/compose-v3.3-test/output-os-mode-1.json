@@ -1,0 +1,133 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "wordpress",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "wordpress"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "8080",
+            "port": 8080,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "wordpress"
+        },
+        "type": "NodePort"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "wordpress",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "wordpress"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "wordpress"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "wordpress:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 2,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "wordpress"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "wordpress"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "wordpress",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "wordpress",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "wordpress"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "wordpress"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    }
+  ]
+}

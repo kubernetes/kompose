@@ -1,0 +1,126 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "my-config",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "data": {
+        "my-config.txt": "aaaa"
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "redis"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "redis:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "redis"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "my-config",
+                "configMap": {
+                  "name": "my-config",
+                  "defaultMode": 288
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "redis",
+                "image": " ",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "my-config",
+                    "mountPath": "/redis-config"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "redis:latest"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    }
+  ]
+}
