@@ -1,5 +1,5 @@
 # Fabric8 Maven Plugin + Kompose:
-Lets deploy a Springboot Java application with Docker Compose file using Fabric8 Maven Plugin to Kubernetes or OpenShift.
+Let's deploy a Springboot Java application with Docker Compose file using Fabric8 Maven Plugin to Kubernetes or OpenShift.
 
 ##### Requirements
 * Linux or MacOS or Windows
@@ -22,7 +22,7 @@ __2. Add Fabric8 Maven Plugin to your project__
 $ mvn io.fabric8:fabric8-maven-plugin:3.5.28:setup
 ```
 
-Adds the Fabric8 Maven Plugin configuration to `pom.xml` of project. `pom.xml` is manifest or deployment descriptor file of a maven project.
+Add the Fabric8 Maven Plugin configuration to `pom.xml` of project. `pom.xml` is manifest or deployment descriptor file of a maven project.
 
 __3. Install Kompose through Maven__
 ```bash
@@ -78,7 +78,7 @@ NAME                        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
 springboot-docker-compose   172.30.205.137   <none>        8080/TCP   6m
 ```
 
-Lets access the Springboot service.
+Let's access the Springboot service.
 ```bash
 $ minishift openshift service --in-browser springboot-docker-compose
 Created the new window in existing browser session.

@@ -1,0 +1,17 @@
+version: "3.3"
+services:
+  redis:
+    image: redis:latest
+    deploy:
+      replicas: 1
+    configs:
+      - source: my_config
+        target: /redis_config
+        uid: '103'
+        gid: '103'
+        mode: 0440
+configs:
+  my_config:
+    file: ./my_config.txt
+  my_other_config:
+    external: true

@@ -24,6 +24,9 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
+	"bufio"
+	"os"
+
 	"github.com/docker/libcompose/project"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -180,7 +183,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		}
 		return komposeObject, nil
 	// Use docker/cli for 3
-	case "3", "3.0", "3.1", "3.2":
+	case "3", "3.0", "3.1", "3.2", "3.3":
 		komposeObject, err := parseV3(files)
 		if err != nil {
 			return kobject.KomposeObject{}, err
@@ -197,10 +200,16 @@ func getVersionFromFile(file string) (string, error) {
 		Version string `json:"version"` // This affects YAML as well
 	}
 	var version ComposeVersion
-
-	loadedFile, err := ioutil.ReadFile(file)
-	if err != nil {
-		return "", err
+	var loadedFile []byte
+	var err error
+	if file == "-" {
+		data := bufio.NewScanner(os.Stdin)
+		loadedFile = data.Bytes()
+	} else {
+		loadedFile, err = ioutil.ReadFile(file)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	err = yaml.Unmarshal(loadedFile, &version)

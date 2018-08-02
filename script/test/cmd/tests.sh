@@ -517,7 +517,7 @@ convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/tes
 # Test related to support docker-compose.yml beside docker-compose.yml
 # Store the original path
 CURRENT_DIR=$(pwd)
-# Kubernets test
+# Kubernetes test
 cd "$KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/"
 sed -e "s;%VERSION%;$version;g"   $KOMPOSE_ROOT/script/test/fixtures/yaml-and-yml/output-k8s-template.json > /tmp/output-k8s.json
 convert::expect_success "kompose convert --stdout -j" "/tmp/output-k8s.json"
@@ -592,7 +592,6 @@ sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/f
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 
-
 # Test unset environment variables are passed correctly
 export V3_HOST_ENV_TEST_SET_TO_BAR=BAR
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-unset-env.yaml"
@@ -605,6 +604,15 @@ cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/v3/output-env-subs.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
+
+# Test key/value env with env_files
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/env/docker-compose.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" $KOMPOSE_ROOT/script/test/fixtures/env/output-k8s.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/env/docker-compose.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" $KOMPOSE_ROOT/script/test/fixtures/env/output-os.json > /tmp/output-os.json
+ convert::expect_success "$cmd" "/tmp/output-os.json"
 
 # Test that two files that are different versions fail
 convert::expect_failure "kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose.yaml -f $KOMPOSE_ROOT/script/test/fixtures/etherpad/docker-compose.yaml"
@@ -781,6 +789,51 @@ convert::expect_success "$cmd" "/tmp/output-k8s.json"
 cmd="kompose --provider=openshift convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/controller/compose-controller-label-v3.yml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-os-controller-v3-template.json > /tmp/output-os.json
 convert::expect_success "$cmd" "/tmp/output-os.json"
+
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-config-short.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-k8s-config-short.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-config-short-warning.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-k8s-config-short-warning.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-config-long.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-k8s-config-long.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-config-long-warning.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-k8s-config-long-warning.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
+
+## Test compose v3.3
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-endpoint-mode-1.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-k8s-endpoint-mode-1.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-endpoint-mode-2.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-k8s-endpoint-mode-2.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+## Test OpenShift for compose v3.3
+cmd="kompose --provider openshift convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-config-long.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-os-config-long.json > /tmp/output-os.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-os.json"
+
+cmd="kompose --provider openshift convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-config-short.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-os-config-short.json > /tmp/output-os.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-os.json"
+
+cmd="kompose --provider openshift convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-endpoint-mode-1.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-os-mode-1.json > /tmp/output-os.json
+convert::expect_success "$cmd" "/tmp/output-os.json"
+
+# Testing stdin feature
+cmd="$KOMPOSE_ROOT/kompose convert --stdout -j -f -"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/stdin/output.json > /tmp/output-k8s.json
+
+echo -e "\n"
+go test -v github.com/kubernetes/kompose/script/test/cmd
 
 rm /tmp/output-k8s.json /tmp/output-os.json
 exit $EXIT_STATUS

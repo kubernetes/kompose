@@ -4,7 +4,7 @@ This document outlines all possible conversion details regarding `docker-compose
 
 The current table covers all **current** possible Docker Compose keys.
 
-__Note:__ due to the fast-pace nature of Docker Compose version revisions, minor versions such as 2.1, 2.2, 3.3 are not supported until they are cut into a major version release such as 2 or 3.
+__Note:__ We don't support anything 3.4 and above at the moment.
 
 __Glossary:__
 
@@ -22,9 +22,9 @@ __Glossary:__
 | build: cache_from      | -  | -  | n  |                                                             |                                                                                                                |
 | cap_add, cap_drop      | ✓  | ✓  | ✓  | Pod.Spec.Container.SecurityContext.Capabilities.Add/Drop    |                                                                                                                |
 | command                | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  |                                                                                                                |
-| configs                | n  | n  | n  |                                                             |                                                                                                                |
-| configs: short-syntax  | n  | n  | n  |                                                             |                                                                                                                |
-| configs: long-syntax   | n  | n  | n  |                                                             |                                                                                                                |
+| configs                | n  | n  | ✓  |                                                             |                                                                                                                |
+| configs: short-syntax  | n  | n  | n  |                                                             | Only create configMap                                                                                          |
+| configs: long-syntax   | n  | n  | ✓  |                                                             | If target path is /, ignore this and only create configMap                                                     |
 | cgroup_parent          | x  | x  | x  |                                                             | Not supported within Kubernetes. See issue https://github.com/kubernetes/kubernetes/issues/11986               |
 | container_name         | ✓  | ✓  | ✓  | Metadata.Name + Deployment.Spec.Containers.Name             |                                                                                                                |
 | credential_spec        | x  | x  | x  |                                                             | Only applicable to Windows containers                                                                          |
@@ -45,7 +45,8 @@ __Glossary:__
 | entrypoint             | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  | Same as command                                                                                                |
 | env_file               | n  | n  | ✓  |                                                             |                                                                                                                |
 | environment            | ✓  | ✓  | ✓  | Pod.Spec.Container.Env                                      |                                                                                                                |
-| expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports                                          |                                                                                                                |
+| expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports 
+| endpoint_mode          | n  | n  | ✓  |                                                             |                                                                                                                |
 | extends                | ✓  | ✓  | ✓  |                                                             | Extends by utilizing the same image supplied                                                                   |
 | external_links         | x  | x  | x  |                                                             | Kubernetes uses a flat-structure for all containers and thus external_links does not have a 1-1 conversion     |
 | extra_hosts            | n  | n  | n  |                                                             |                                                                                                                |

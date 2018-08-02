@@ -25,7 +25,7 @@
             "targetPort": 6379
           },
           {
-            "name": "6379-UDP",
+            "name": "6379-udp",
             "protocol": "UDP",
             "port": 6379,
             "targetPort": 6379

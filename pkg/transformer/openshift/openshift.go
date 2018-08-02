@@ -56,7 +56,7 @@ import (
 // OpenShift implements Transformer interface and represents OpenShift transformer
 type OpenShift struct {
 	// Anonymous field allows for inheritance. We are basically inheriting
-	// all of kubernetes.Kubernetes Methods and variables here. We'll overwite
+	// all of kubernetes.Kubernetes Methods and variables here. We'll overwrite
 	// some of those methods with our own for openshift.
 	kubernetes.Kubernetes
 }
@@ -183,6 +183,13 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 		containerName = []string{service.ContainerName}
 	}
 
+	var podSpec kapi.PodSpec
+	if len(service.Configs) > 0 {
+		podSpec = o.InitPodSpecWithConfigMap(name, " ", service)
+	} else {
+		podSpec = o.InitPodSpec(name, " ")
+	}
+
 	dc := &deployapi.DeploymentConfig{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DeploymentConfig",
@@ -200,7 +207,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 				ObjectMeta: kapi.ObjectMeta{
 					Labels: transformer.ConfigLabels(name),
 				},
-				Spec: o.InitPodSpec(name, " "),
+				Spec: podSpec,
 			},
 			Triggers: []deployapi.DeploymentTriggerPolicy{
 				// Trigger new deploy when DeploymentConfig is created (config change)

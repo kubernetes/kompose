@@ -10,10 +10,10 @@ __Linux and macOS:__
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.13.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.16.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.13.0/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.16.0/kompose-darwin-amd64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
@@ -21,7 +21,7 @@ sudo mv ./kompose /usr/local/bin/kompose
 
 __Windows:__
 
-Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.13.0/kompose-windows-amd64.exe) and add the binary to your PATH.
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.16.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 #### Go
 
@@ -61,4 +61,27 @@ Kompose can be installed via [Chocolatey](https://chocolatey.org/packages/kubern
 
 ```console
 choco install kubernetes-kompose
+```
+
+#### openSUSE/SLE
+Kompose is available in the official Virtualization:containers repository for openSUSE Tumbleweed, Leap 15, Leap 42.3 and SUSE Linux Enterprise 15.
+
+Head over to [software.opensuse.org for One-Click Installation](https://software.opensuse.org//download.html?project=Virtualization%3Acontainers&package=kompose) or add the repository manually:
+```bash
+#openSUSE Tumbleweed
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Tumbleweed/Virtualization:containers.repo
+
+#openSUSE Leap 42.3
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_42.3/Virtualization:containers.repo
+
+#openSUSE Leap 15
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_15.0/Virtualization:containers.repo
+
+#SUSE Linux Enterprise 15
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/SLE_15/Virtualization:containers.repo
+```
+and install the package:
+```bash
+sudo zypper refresh
+sudo zypper install kompose
 ```

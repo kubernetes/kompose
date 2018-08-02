@@ -32,6 +32,7 @@ import (
 	"os"
 
 	"fmt"
+
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -118,8 +119,10 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 		}
 	}
 
-	// TODO: Check all "unsupported" keys and output details
-	// Specifically, keys such as "volumes_from" are not supported in V3.
+	noSupKeys := checkUnsupportedKeyForV3(config)
+	for _, keyName := range noSupKeys {
+		log.Warningf("Unsupported %s key - ignoring", keyName)
+	}
 
 	// Finally, we convert the object from docker/cli's ServiceConfig to our appropriate one
 	komposeObject, err := dockerComposeToKomposeMapping(config)
@@ -128,6 +131,24 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 	}
 
 	return komposeObject, nil
+}
+
+func loadV3Placement(constraints []string) map[string]string {
+	placement := make(map[string]string)
+	for _, j := range constraints {
+		p := strings.Split(j, " == ")
+		if p[0] == "node.hostname" {
+			placement["kubernetes.io/hostname"] = p[1]
+		} else if p[0] == "engine.labels.operatingsystem" {
+			placement["beta.kubernetes.io/os"] = p[1]
+		} else if strings.HasPrefix(p[0], "node.labels.") {
+			label := strings.TrimPrefix(p[0], "node.labels.")
+			placement[label] = p[1]
+		} else {
+			log.Warn(p[0], " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint ")
+		}
+	}
+	return placement
 }
 
 // Convert the Docker Compose v3 volumes to []string (the old way)
@@ -325,18 +346,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		}
 
 		// placement:
-		placement := make(map[string]string)
-		for _, j := range composeServiceConfig.Deploy.Placement.Constraints {
-			p := strings.Split(j, " == ")
-			if p[0] == "node.hostname" {
-				placement["kubernetes.io/hostname"] = p[1]
-			} else if p[0] == "engine.labels.operatingsystem" {
-				placement["beta.kubernetes.io/os"] = p[1]
-			} else {
-				log.Warn(p[0], " constraints in placement is not supported, only 'node.hostname' and 'engine.labels.operatingsystem' is only supported as a constraint ")
-			}
-		}
-		serviceConfig.Placement = placement
+		serviceConfig.Placement = loadV3Placement(composeServiceConfig.Deploy.Placement.Constraints)
 
 		// TODO: Build is not yet supported, see:
 		// https://github.com/docker/cli/blob/master/cli/compose/types/types.go#L9
@@ -344,6 +354,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Build = composeServiceConfig.Build.Context
 		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
 		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
+		serviceConfig.BuildLabels = composeServiceConfig.Build.Labels
 
 		// Gather the environment values
 		// DockerCompose uses map[string]*string while we use []string
@@ -405,9 +416,15 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 			log.Infof("Service name in docker-compose has been changed from %q to %q", name, normalizeServiceNames(name))
 		}
 
+		serviceConfig.Configs = composeServiceConfig.Configs
+		serviceConfig.ConfigsMetaData = composeObject.Configs
+		if composeServiceConfig.Deploy.EndpointMode == "vip" {
+			serviceConfig.ServiceType = string(api.ServiceTypeNodePort)
+		}
 		// Final step, add to the array!
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 	}
+
 	handleVolume(&komposeObject)
 
 	return komposeObject, nil
@@ -573,4 +590,42 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 	}
 
 	return oldCompose, nil
+}
+
+func checkUnsupportedKeyForV3(composeObject *types.Config) []string {
+	if composeObject == nil {
+		return []string{}
+	}
+
+	var keysFound []string
+
+	for _, service := range composeObject.Services {
+		//For short syntax, volume mount path must be /, but this will cause pod create fail in kubernetes
+		//So we ignore this attribute
+		for _, tmpConfig := range service.Configs {
+			if tmpConfig.Mode == nil {
+				keysFound = append(keysFound, "short syntax config")
+			} else {
+				if tmpConfig.GID != "" {
+					keysFound = append(keysFound, "long syntax config gid")
+				}
+				if tmpConfig.UID != "" {
+					keysFound = append(keysFound, "long syntax config uid")
+				}
+			}
+		}
+
+		if service.CredentialSpec.Registry != "" || service.CredentialSpec.File != "" {
+			keysFound = append(keysFound, "credential_spec")
+
+		}
+	}
+
+	for _, config := range composeObject.Configs {
+		if config.External.External {
+			keysFound = append(keysFound, "external config")
+		}
+	}
+
+	return keysFound
 }

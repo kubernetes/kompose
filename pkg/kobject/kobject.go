@@ -17,7 +17,7 @@ limitations under the License.
 package kobject
 
 import (
-	cliTypes "github.com/docker/cli/cli/compose/types"
+	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/yaml"
 	"k8s.io/kubernetes/pkg/api"
 )
@@ -97,6 +97,7 @@ type ServiceConfig struct {
 	Build            string              `compose:"build"`
 	BuildArgs        map[string]*string  `compose:"build-args"`
 	ExposeService    string              `compose:"kompose.service.expose"`
+	BuildLabels      map[string]string   `compose:"build-labels"`
 	ExposeServiceTLS string              `compose:"kompose.service.expose.tls-secret"`
 	Stdin            bool                `compose:"stdin_open"`
 	Tty              bool                `compose:"tty"`
@@ -108,9 +109,13 @@ type ServiceConfig struct {
 	Replicas         int                 `compose:"replicas"`
 	GroupAdd         []int64             `compose:"group_add"`
 	Volumes          []Volumes           `compose:""`
-	Secrets          []cliTypes.ServiceSecretConfig
-	HealthChecks     HealthCheck       `compose:""`
-	Placement        map[string]string `compose:""`
+	Secrets          []dockercliTypes.ServiceSecretConfig
+	HealthChecks     HealthCheck         `compose:""`
+	Placement        map[string]string   `compose:""`
+	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
+	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
+	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
+	ConfigsMetaData map[string]dockerCliTypes.ConfigObjConfig `compose:""`
 }
 
 // HealthCheck the healthcheck configuration for a service
