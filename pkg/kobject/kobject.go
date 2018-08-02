@@ -30,7 +30,7 @@ type KomposeObject struct {
 	// as they can have different names. For example environment variables  are called environment in compose but Env in bundle.
 	LoadedFrom string
 
-	Secrets map[string]cliTypes.SecretConfig
+	Secrets map[string]dockerCliTypes.SecretConfig
 }
 
 // ConvertOptions holds all options that controls transformation process
@@ -109,9 +109,9 @@ type ServiceConfig struct {
 	Replicas         int                 `compose:"replicas"`
 	GroupAdd         []int64             `compose:"group_add"`
 	Volumes          []Volumes           `compose:""`
-	Secrets          []dockercliTypes.ServiceSecretConfig
-	HealthChecks     HealthCheck         `compose:""`
-	Placement        map[string]string   `compose:""`
+	Secrets          []dockerCliTypes.ServiceSecretConfig
+	HealthChecks     HealthCheck       `compose:""`
+	Placement        map[string]string `compose:""`
 	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
 	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)

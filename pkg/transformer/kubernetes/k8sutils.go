@@ -608,7 +608,6 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 	return envLoad, nil
 }
 
-
 // GetSecretDataFromFile load secret content data
 func GetSecretDataFromFile(file string, opt kobject.ConvertOptions) ([]byte, error) {
 	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
@@ -617,9 +616,10 @@ func GetSecretDataFromFile(file string, opt kobject.ConvertOptions) ([]byte, err
 	}
 	fileLocation := path.Join(composeDir, file)
 	return ioutil.ReadFile(fileLocation)
+}
 
 // GetContentFromFile get content from file
- // TODO(hang): merge these two functions
+// TODO(hang): merge these two functions
 func GetContentFromFile(file string, opt kobject.ConvertOptions) (string, error) {
 	// Get the correct file context / directory
 	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
