@@ -17,6 +17,7 @@ limitations under the License.
 package compose
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -114,4 +115,19 @@ func handleServiceType(ServiceType string) (string, error) {
 
 func normalizeServiceNames(svcName string) string {
 	return strings.Replace(svcName, "_", "-", -1)
+}
+
+// ReadFile read data from file or stdin
+func ReadFile(fileName string) ([]byte, error) {
+	if fileName == "-" {
+		if StdinData == nil {
+			data, err := ioutil.ReadAll(os.Stdin)
+			StdinData = data
+			return data, err
+		} else {
+			return StdinData, nil
+		}
+	}
+	return ioutil.ReadFile(fileName)
+
 }
