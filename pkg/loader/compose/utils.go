@@ -19,8 +19,8 @@ package compose
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"regexp"
+	"strings"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
