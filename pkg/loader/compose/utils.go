@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"regexp"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
@@ -113,5 +114,6 @@ func handleServiceType(ServiceType string) (string, error) {
 }
 
 func normalizeServiceNames(svcName string) string {
-	return strings.Replace(svcName, "_", "-", -1)
+	re := regexp.MustCompile("[._]")
+	return re.ReplaceAllString(svcName, "-")
 }
