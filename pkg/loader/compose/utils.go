@@ -115,5 +115,9 @@ func handleServiceType(ServiceType string) (string, error) {
 
 func normalizeServiceNames(svcName string) string {
 	re := regexp.MustCompile("[._]")
-	return re.ReplaceAllString(svcName, "-")
+	return strings.ToLower(re.ReplaceAllString(svcName, "-"))
+}
+
+func normalizeVolumes(svcName string) string {
+	return strings.Replace(svcName, "_", "-", -1)
 }
