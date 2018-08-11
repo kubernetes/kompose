@@ -160,7 +160,7 @@ func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
 	for _, vol := range volumes {
 
 		// There will *always* be Source when parsing
-		v := normalizeServiceNames(vol.Source)
+		v := normalizeVolumes(vol.Source)
 
 		if vol.Target != "" {
 			v = v + ":" + vol.Target
