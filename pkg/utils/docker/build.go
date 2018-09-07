@@ -43,7 +43,7 @@ func (c *Build) BuildImage(source string, image string, dockerfile string) error
 	log.Infof("Building image '%s' from directory '%s'", image, path.Base(source))
 
 	// Create a temporary file for tarball image packaging
-	tmpFile, err := ioutil.TempFile("/tmp", "kompose-image-build-")
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "kompose-image-build-")
 	if err != nil {
 		return err
 	}
