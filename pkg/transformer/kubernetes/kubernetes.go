@@ -566,9 +566,35 @@ func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceCon
 				log.Warnf("Ignore gid in secrets for service: %s", name)
 			}
 
-			target := secretConfig.Target
-			if target == "" {
-				target = secretConfig.Source
+			var itemPath string // should be the filename
+			var mountPath = ""  // should be the directory
+			// if is used the short-syntax
+			if secretConfig.Target == "" {
+				// the secret path (mountPath) should be inside the default directory /run/secrets
+				mountPath = "/run/secrets/" + secretConfig.Source
+				// the itemPath should be the source itself
+				itemPath = secretConfig.Source
+			} else {
+				// if is the long-syntax, i should get the last part of path and consider it the filename
+				pathSplitted := strings.Split(secretConfig.Target, "/")
+				lastPart := pathSplitted[len(pathSplitted)-1]
+
+				// if the filename (lastPart) and the target is the same
+				if lastPart == secretConfig.Target {
+					// the secret path should be the source (it need to be inside a directory and only the filename was given)
+					mountPath = secretConfig.Source
+				} else {
+					// should then get the target without the filename (lastPart)
+					mountPath = mountPath + strings.TrimSuffix(secretConfig.Target, "/"+lastPart) // menos ultima parte
+				}
+
+				// if the target isn't absolute path
+				if strings.HasPrefix(secretConfig.Target, "/") == false {
+					// concat the default secret directory
+					mountPath = "/run/secrets/" + mountPath
+				}
+
+				itemPath = lastPart
 			}
 
 			volSource := api.VolumeSource{
@@ -576,7 +602,7 @@ func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceCon
 					SecretName: secretConfig.Source,
 					Items: []api.KeyToPath{{
 						Key:  secretConfig.Source,
-						Path: target,
+						Path: itemPath,
 					}},
 				},
 			}
@@ -594,7 +620,7 @@ func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceCon
 
 			volMount := api.VolumeMount{
 				Name:      vol.Name,
-				MountPath: "/run/secrets",
+				MountPath: mountPath,
 			}
 			volumeMounts = append(volumeMounts, volMount)
 		}
