@@ -19,6 +19,7 @@ package compose
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -112,6 +113,15 @@ func handleServiceType(ServiceType string) (string, error) {
 	}
 }
 
+func normalizeContainerNames(svcName string) string {
+	return strings.ToLower(svcName)
+}
+
 func normalizeServiceNames(svcName string) string {
+	re := regexp.MustCompile("[._]")
+	return strings.ToLower(re.ReplaceAllString(svcName, "-"))
+}
+
+func normalizeVolumes(svcName string) string {
 	return strings.Replace(svcName, "_", "-", -1)
 }

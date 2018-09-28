@@ -193,7 +193,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig := kobject.ServiceConfig{}
 		serviceConfig.Image = composeServiceConfig.Image
 		serviceConfig.Build = composeServiceConfig.Build.Context
-		newName := normalizeServiceNames(composeServiceConfig.ContainerName)
+		newName := normalizeContainerNames(composeServiceConfig.ContainerName)
 		serviceConfig.ContainerName = newName
 		if newName != composeServiceConfig.ContainerName {
 			log.Infof("Container name in service %q has been changed from %q to %q", name, composeServiceConfig.ContainerName, newName)
@@ -224,7 +224,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 
 		if composeServiceConfig.Volumes != nil {
 			for _, volume := range composeServiceConfig.Volumes.Volumes {
-				v := normalizeServiceNames(volume.String())
+				v := normalizeVolumes(volume.String())
 				serviceConfig.VolList = append(serviceConfig.VolList, v)
 			}
 		}

@@ -160,7 +160,7 @@ func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
 	for _, vol := range volumes {
 
 		// There will *always* be Source when parsing
-		v := normalizeServiceNames(vol.Source)
+		v := normalizeVolumes(vol.Source)
 
 		if vol.Target != "" {
 			v = v + ":" + vol.Target
@@ -270,7 +270,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Stdin = composeServiceConfig.StdinOpen
 		serviceConfig.Tty = composeServiceConfig.Tty
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
-		serviceConfig.ContainerName = composeServiceConfig.ContainerName
+		serviceConfig.ContainerName = normalizeContainerNames(composeServiceConfig.ContainerName)
 		serviceConfig.Command = composeServiceConfig.Entrypoint
 		serviceConfig.Args = composeServiceConfig.Command
 		serviceConfig.Labels = composeServiceConfig.Labels
