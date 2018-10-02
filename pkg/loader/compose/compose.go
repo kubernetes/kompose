@@ -18,14 +18,10 @@ package compose
 
 import (
 	"fmt"
-	"io/ioutil"
 	"reflect"
 	"strings"
 
-	yaml "gopkg.in/yaml.v2"
-
-	"bufio"
-	"os"
+	"gopkg.in/yaml.v2"
 
 	"github.com/docker/libcompose/project"
 	"github.com/fatih/structs"
@@ -33,6 +29,9 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
+
+//
+var StdinData []byte
 
 // Compose is docker compose file loader, implements Loader interface
 type Compose struct {
@@ -182,7 +181,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 			return kobject.KomposeObject{}, err
 		}
 		return komposeObject, nil
-	// Use docker/cli for 3
+		// Use docker/cli for 3
 	case "3", "3.0", "3.1", "3.2", "3.3":
 		komposeObject, err := parseV3(files)
 		if err != nil {
@@ -200,16 +199,10 @@ func getVersionFromFile(file string) (string, error) {
 		Version string `json:"version"` // This affects YAML as well
 	}
 	var version ComposeVersion
-	var loadedFile []byte
-	var err error
-	if file == "-" {
-		data := bufio.NewScanner(os.Stdin)
-		loadedFile = data.Bytes()
-	} else {
-		loadedFile, err = ioutil.ReadFile(file)
-		if err != nil {
-			return "", err
-		}
+	loadedFile, err := ReadFile(file)
+
+	if err != nil {
+		return "", err
 	}
 
 	err = yaml.Unmarshal(loadedFile, &version)

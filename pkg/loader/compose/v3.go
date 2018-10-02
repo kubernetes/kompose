@@ -17,7 +17,6 @@ limitations under the License.
 package compose
 
 import (
-	"io/ioutil"
 	"strconv"
 	"strings"
 	"time"
@@ -77,7 +76,7 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 	var config *types.Config
 	for _, file := range files {
 		// Load and then parse the YAML first!
-		loadedFile, err := ioutil.ReadFile(file)
+		loadedFile, err := ReadFile(file)
 		if err != nil {
 			return kobject.KomposeObject{}, err
 		}
