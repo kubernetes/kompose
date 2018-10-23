@@ -103,7 +103,7 @@ test-dep:
 	go get github.com/modocache/gover
 	go get github.com/Masterminds/glide
 	go get github.com/sgotti/glide-vc
-	go get github.com/golang/lint/golint
+	go get golang.org/x/lint/golint
 	go get github.com/mitchellh/gox
 
 
