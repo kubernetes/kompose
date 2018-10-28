@@ -9,14 +9,14 @@ go_import_path: github.com/kubernetes/kompose
 
 matrix:
   include:
-    - go: "1.9"
+    - go: "1.9.x"
       env: 
         # Only build docs once
         - BUILD_DOCS=yes
         # Test cross-compile as well
         - CROSS_COMPILE=yes
-    - go: "1.10"
-    - go: "1.11"
+    - go: "1.10.x"
+    - go: "1.11.x"
 
 install:
   - true
