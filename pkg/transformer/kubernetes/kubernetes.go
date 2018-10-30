@@ -594,7 +594,8 @@ func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceCon
 
 			volMount := api.VolumeMount{
 				Name:      vol.Name,
-				MountPath: "/run/secrets",
+				MountPath: fmt.Sprintf("/run/secrets/%s", secretConfig.Target),
+				SubPath: secretConfig.Target,
 			}
 			volumeMounts = append(volumeMounts, volMount)
 		}
