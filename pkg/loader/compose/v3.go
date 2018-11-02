@@ -422,9 +422,43 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 	}
 
-	handleVolume(&komposeObject)
+	handleV3Volume(&komposeObject, &composeObject.Volumes)
 
 	return komposeObject, nil
+}
+
+func handleV3Volume(komposeObject *kobject.KomposeObject, volumes *map[string]types.VolumeConfig) {
+	for name := range komposeObject.ServiceConfigs {
+		// retrieve volumes of service
+		vols, err := retrieveVolume(name, *komposeObject)
+		if err != nil {
+			errors.Wrap(err, "could not retrieve vvolume")
+		}
+		for volName, vol := range vols {
+			size := getV3VolumeSize(vol.VolumeName, volumes)
+			if len(size) > 0 {
+				// We can't assign value to struct field in map while iterating over it, so temporary variable `temp` is used here
+				var temp = vols[volName]
+				temp.PVCSize = size
+				vols[volName] = temp
+			}
+		}
+		// We can't assign value to struct field in map while iterating over it, so temporary variable `temp` is used here
+		var temp = komposeObject.ServiceConfigs[name]
+		temp.Volumes = vols
+		komposeObject.ServiceConfigs[name] = temp
+	}
+}
+
+func getV3VolumeSize(name string, volumes *map[string]types.VolumeConfig) string {
+	if volume, ok := (*volumes)[name]; ok {
+		for key, value := range volume.Labels {
+			if key == "kompose.volume.size" {
+				return value
+			}
+		}
+	}
+	return ""
 }
 
 func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*types.Config, error) {

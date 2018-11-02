@@ -578,9 +578,13 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			if volume.VFrom == "" {
 				defaultSize := PVCRequestSize
 
-				for key, value := range service.Labels {
-					if key == "kompose.volume.size" {
-						defaultSize = value
+				if len(volume.PVCSize) > 0 {
+					defaultSize = volume.PVCSize
+				} else {
+					for key, value := range service.Labels {
+						if key == "kompose.volume.size" {
+							defaultSize = value
+						}
 					}
 				}
 
