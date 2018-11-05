@@ -1,5 +1,63 @@
 # Change Log
 
+## [v1.17.0](https://github.com/kubernetes/kompose/tree/v1.17.0) (2018-11-05)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.16.0...v1.17.0)
+
+**Closed issues:**
+
+- Use tide for PR merging [\#1069](https://github.com/kubernetes/kompose/issues/1069)
+- kompose up - unmarshal errors when using docker compose version '3' [\#1064](https://github.com/kubernetes/kompose/issues/1064)
+- dots get propagated into invalid names [\#1062](https://github.com/kubernetes/kompose/issues/1062)
+- kompose webside is outdated [\#1057](https://github.com/kubernetes/kompose/issues/1057)
+- read input from stdin does not work [\#1056](https://github.com/kubernetes/kompose/issues/1056)
+- Init Containers [\#1053](https://github.com/kubernetes/kompose/issues/1053)
+- Installation Instructions for openSUSE/SLE [\#1049](https://github.com/kubernetes/kompose/issues/1049)
+- getsockopt: connection refused when executing kompose up [\#1023](https://github.com/kubernetes/kompose/issues/1023)
+- Support specifying nodePort via label [\#1022](https://github.com/kubernetes/kompose/issues/1022)
+- Failing with my Node.js, RabbitMQ app [\#1019](https://github.com/kubernetes/kompose/issues/1019)
+- Create a SECURITY\_CONTACTS file. [\#1015](https://github.com/kubernetes/kompose/issues/1015)
+- Add support for Docker stack files [\#1014](https://github.com/kubernetes/kompose/issues/1014)
+- multiple containers in a pod sharing volume [\#1012](https://github.com/kubernetes/kompose/issues/1012)
+- Missing service metadata.labels mapping [\#1010](https://github.com/kubernetes/kompose/issues/1010)
+- when to support this parameter build: args? [\#1004](https://github.com/kubernetes/kompose/issues/1004)
+- Glide update error [\#1003](https://github.com/kubernetes/kompose/issues/1003)
+- Activate downward api [\#1002](https://github.com/kubernetes/kompose/issues/1002)
+- FATA services.xxx.ports.0 must be a string or number [\#986](https://github.com/kubernetes/kompose/issues/986)
+- Remove status field in the generated yaml [\#975](https://github.com/kubernetes/kompose/issues/975)
+- Create Rolling updates using Kompose tool [\#965](https://github.com/kubernetes/kompose/issues/965)
+- Support ubuntu's snap package format [\#964](https://github.com/kubernetes/kompose/issues/964)
+- kompose up is not able to mount configmap volume [\#962](https://github.com/kubernetes/kompose/issues/962)
+- How do I Specify the instance count via docker -compose file for Kompose [\#958](https://github.com/kubernetes/kompose/issues/958)
+- Remove RC from supported workload [\#947](https://github.com/kubernetes/kompose/issues/947)
+- Add HTTPS support for download URLs [\#945](https://github.com/kubernetes/kompose/issues/945)
+- Coordinated efforts / centralized location for packages. [\#942](https://github.com/kubernetes/kompose/issues/942)
+- docker-compose version 3.3 is not supported. [\#914](https://github.com/kubernetes/kompose/issues/914)
+- extended env\_file capability to in-docker-compose.yml substitutions [\#909](https://github.com/kubernetes/kompose/issues/909)
+- Allow specifying imagePullSecret [\#897](https://github.com/kubernetes/kompose/issues/897)
+- Doesn't run on alpine? [\#890](https://github.com/kubernetes/kompose/issues/890)
+- \[EPIC\] Improvements to volumes [\#884](https://github.com/kubernetes/kompose/issues/884)
+- Refactor tests \(integration\) [\#877](https://github.com/kubernetes/kompose/issues/877)
+- Not creation of `-service.yaml` when `restart` is present [\#851](https://github.com/kubernetes/kompose/issues/851)
+- Update Kubernetes cluster tests with port testing [\#789](https://github.com/kubernetes/kompose/issues/789)
+- Add testing documentation [\#781](https://github.com/kubernetes/kompose/issues/781)
+- Update to annotations / cli tests + development document [\#770](https://github.com/kubernetes/kompose/issues/770)
+- Adding compatibility matrix for different Kubernetes versions [\#726](https://github.com/kubernetes/kompose/issues/726)
+- Add OpenShift specific examples for conversion [\#676](https://github.com/kubernetes/kompose/issues/676)
+- Clean up and add current example files to integration tests. [\#675](https://github.com/kubernetes/kompose/issues/675)
+- Add openshift tests for docker compose v3 [\#641](https://github.com/kubernetes/kompose/issues/641)
+- duplicate info from multiple compose files not being overridden [\#624](https://github.com/kubernetes/kompose/issues/624)
+- Add design decisions for contributors [\#607](https://github.com/kubernetes/kompose/issues/607)
+- kompose logo [\#274](https://github.com/kubernetes/kompose/issues/274)
+- add tests when converting to separate files [\#129](https://github.com/kubernetes/kompose/issues/129)
+
+**Merged pull requests:**
+
+- Bump Go versions [\#1073](https://github.com/kubernetes/kompose/pull/1073) ([HaraldNordgren](https://github.com/HaraldNordgren))
+- Use OS provided temporary directory [\#1068](https://github.com/kubernetes/kompose/pull/1068) ([segrax](https://github.com/segrax))
+- Propagate dots into valid service names [\#1063](https://github.com/kubernetes/kompose/pull/1063) ([rcmorano](https://github.com/rcmorano))
+- Support read data from stdin [\#1061](https://github.com/kubernetes/kompose/pull/1061) ([hangyan](https://github.com/hangyan))
+- Add support for Config, endpoint\_mode and 3.3 support [\#994](https://github.com/kubernetes/kompose/pull/994) ([xianlubird](https://github.com/xianlubird))
+
 ## [v1.16.0](https://github.com/kubernetes/kompose/tree/v1.16.0) (2018-07-24)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.15.0...v1.16.0)
 
@@ -16,6 +74,7 @@
 
 **Merged pull requests:**
 
+- 1.16.0 Release [\#1055](https://github.com/kubernetes/kompose/pull/1055) ([cdrage](https://github.com/cdrage))
 - Add installation instructions for openSUSE/SLE [\#1050](https://github.com/kubernetes/kompose/pull/1050) ([suntorytimed](https://github.com/suntorytimed))
 - Add surajnarwade in OWNER file [\#1047](https://github.com/kubernetes/kompose/pull/1047) ([surajnarwade](https://github.com/surajnarwade))
 - Support node.labels at placement [\#1041](https://github.com/kubernetes/kompose/pull/1041) ([jvitor83](https://github.com/jvitor83))
@@ -240,7 +299,7 @@
 
 - 1.7.0 Release [\#906](https://github.com/kubernetes/kompose/pull/906) ([cdrage](https://github.com/cdrage))
 - Convert registry to k8s.gcr.io [\#901](https://github.com/kubernetes/kompose/pull/901) ([thockin](https://github.com/thockin))
-- Added Case for Config Map in kompose down [\#900](https://github.com/kubernetes/kompose/pull/900) ([piyush1594](https://github.com/piyush1594))
+- Added Case for Config Map in kompose down [\#900](https://github.com/kubernetes/kompose/pull/900) ([piyush-garg](https://github.com/piyush-garg))
 - Update code-of-conduct.md [\#899](https://github.com/kubernetes/kompose/pull/899) ([spiffxp](https://github.com/spiffxp))
 - Add kompose.service.expose.tls-secret [\#896](https://github.com/kubernetes/kompose/pull/896) ([Code0x58](https://github.com/Code0x58))
 - Fix pushing of image to a private repository [\#895](https://github.com/kubernetes/kompose/pull/895) ([Code0x58](https://github.com/Code0x58))
@@ -301,10 +360,10 @@
 
 - 1.4.0 Release [\#858](https://github.com/kubernetes/kompose/pull/858) ([cdrage](https://github.com/cdrage))
 - Updated `--help` page for `kompose up` [\#852](https://github.com/kubernetes/kompose/pull/852) ([surajnarwade](https://github.com/surajnarwade))
-- Fix Redirecting Error in README.md [\#849](https://github.com/kubernetes/kompose/pull/849) ([piyush1594](https://github.com/piyush1594))
+- Fix Redirecting Error in README.md [\#849](https://github.com/kubernetes/kompose/pull/849) ([piyush-garg](https://github.com/piyush-garg))
 - Redirects not working [\#848](https://github.com/kubernetes/kompose/pull/848) ([cdrage](https://github.com/cdrage))
-- Fix Redirecting Error [\#847](https://github.com/kubernetes/kompose/pull/847) ([piyush1594](https://github.com/piyush1594))
-- Added Fabric8 Maven Plugin in Integration [\#836](https://github.com/kubernetes/kompose/pull/836) ([piyush1594](https://github.com/piyush1594))
+- Fix Redirecting Error [\#847](https://github.com/kubernetes/kompose/pull/847) ([piyush-garg](https://github.com/piyush-garg))
+- Added Fabric8 Maven Plugin in Integration [\#836](https://github.com/kubernetes/kompose/pull/836) ([piyush-garg](https://github.com/piyush-garg))
 - Adding documentation for tests [\#819](https://github.com/kubernetes/kompose/pull/819) ([ashetty1](https://github.com/ashetty1))
 
 ## [v1.3.0](https://github.com/kubernetes/kompose/tree/v1.3.0) (2017-10-10)
