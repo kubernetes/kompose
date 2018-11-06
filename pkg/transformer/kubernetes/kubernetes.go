@@ -982,6 +982,8 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 		return err
 	}
 
+	pvcCreatedSet := make(map[string]bool)
+
 	log.Infof("Deploying application in %q namespace", namespace)
 
 	for _, v := range objects {
@@ -1014,13 +1016,18 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 			}
 			log.Infof("Successfully created Service: %s", t.Name)
 		case *api.PersistentVolumeClaim:
-			_, err := client.PersistentVolumeClaims(namespace).Create(t)
-			if err != nil {
-				return err
+			if pvcCreatedSet[t.Name] {
+				log.Infof("Skip creation of PersistentVolumeClaim as it is already created: %s", t.Name)
+			} else {
+				_, err := client.PersistentVolumeClaims(namespace).Create(t)
+				if err != nil {
+					return err
+				}
+				pvcCreatedSet[t.Name] = true
+				storage := t.Spec.Resources.Requests[api.ResourceStorage]
+				capacity := storage.String()
+				log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, capacity)
 			}
-			storage := t.Spec.Resources.Requests[api.ResourceStorage]
-			capacity := storage.String()
-			log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, capacity)
 		case *extensions.Ingress:
 			_, err := client.Ingress(namespace).Create(t)
 			if err != nil {
