@@ -90,7 +90,7 @@ function convert::match_output() {
 }
 readonly -f convert::match_output
 
-# function called from outside which accecpts cmd to run and
+# function called from outside which accepts cmd to run and
 # file to compare output with
 function convert::expect_success() {
     local cmd=$1
