@@ -143,13 +143,14 @@ type Ports struct {
 
 // Volumes holds the volume struct of container
 type Volumes struct {
-	SvcName    string // Service name to which volume is linked
-	MountPath  string // Mountpath extracted from docker-compose file
-	VFrom      string // denotes service name from which volume is coming
-	VolumeName string // name of volume if provided explicitly
-	Host       string // host machine address
-	Container  string // Mountpath
-	Mode       string // access mode for volume
-	PVCName    string // name of PVC
-	PVCSize    string // PVC size
+	SvcName       string // Service name to which volume is linked
+	MountPath     string // Mountpath extracted from docker-compose file
+	VFrom         string // denotes service name from which volume is coming
+	VolumeName    string // name of volume if provided explicitly
+	Host          string // host machine address
+	Container     string // Mountpath
+	Mode          string // access mode for volume
+	PVCName       string // name of PVC
+	PVCSize       string // PVC size
+	SelectorValue string // Value of the label selector
 }

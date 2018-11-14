@@ -373,7 +373,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 }
 
 // CreatePVC initializes PersistentVolumeClaim
-func (k *Kubernetes) CreatePVC(name string, mode string, size string) (*api.PersistentVolumeClaim, error) {
+func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorValue string) (*api.PersistentVolumeClaim, error) {
 	volSize, err := resource.ParseQuantity(size)
 	if err != nil {
 		return nil, errors.Wrap(err, "resource.ParseQuantity failed, Error parsing size")
@@ -395,6 +395,12 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string) (*api.Pers
 				},
 			},
 		},
+	}
+
+	if len(selectorValue) > 0 {
+		pvc.Spec.Selector = &unversioned.LabelSelector{
+			MatchLabels: transformer.ConfigLabels(selectorValue),
+		}
 	}
 
 	if mode == "ro" {
@@ -588,7 +594,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 					}
 				}
 
-				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize)
+				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue)
 
 				if err != nil {
 					return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
