@@ -135,9 +135,8 @@ func ReadFile(fileName string) ([]byte, error) {
 			data, err := ioutil.ReadAll(os.Stdin)
 			StdinData = data
 			return data, err
-		} else {
-			return StdinData, nil
 		}
+		return StdinData, nil
 	}
 	return ioutil.ReadFile(fileName)
 
