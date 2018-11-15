@@ -332,7 +332,7 @@ func retrieveVolume(svcName string, komposeObject kobject.KomposeObject) (volume
 			var cVols []kobject.Volumes
 			cVols, err = ParseVols(komposeObject.ServiceConfigs[svcName].VolList, svcName)
 			if err != nil {
-				return nil, errors.Wrapf(err, "error generting current volumes")
+				return nil, errors.Wrapf(err, "error generating current volumes")
 			}
 
 			for _, cv := range cVols {
@@ -366,7 +366,7 @@ func retrieveVolume(svcName string, komposeObject kobject.KomposeObject) (volume
 		// if `volumes-from` is not present
 		volume, err = ParseVols(komposeObject.ServiceConfigs[svcName].VolList, svcName)
 		if err != nil {
-			return nil, errors.Wrapf(err, "error generting current volumes")
+			return nil, errors.Wrapf(err, "error generating current volumes")
 		}
 	}
 	return
