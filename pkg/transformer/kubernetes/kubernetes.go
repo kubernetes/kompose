@@ -333,9 +333,9 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
-			Annotations:  transformer.ConfigAnnotations(service),
+			Name:        name,
+			Labels:      transformer.ConfigLabels(name),
+			Annotations: transformer.ConfigAnnotations(service),
 		},
 		Spec: extensions.IngressSpec{
 			Rules: make([]extensions.IngressRule, len(hosts)),
