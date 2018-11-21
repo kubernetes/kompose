@@ -44,8 +44,8 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.service.expose": "True",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -122,8 +122,8 @@
           "io.kompose.service": "web"
         },
         "annotations": {
-          "kompose.service.expose": "True",
           "kompose.cmd": "%CMD%",
+          "kompose.service.expose": "True",
           "kompose.version": "%VERSION%"
         }
       },
@@ -167,6 +167,11 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.expose": "True",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {

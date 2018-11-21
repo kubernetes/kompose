@@ -44,9 +44,9 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
           "kompose.service.expose": "batman.example.com",
-          "kompose.service.expose.tls-secret": "test-secret"
+          "kompose.service.expose.tls-secret": "test-secret",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -119,9 +119,9 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
           "kompose.service.expose": "batman.example.com",
-          "kompose.service.expose.tls-secret": "test-secret"
+          "kompose.service.expose.tls-secret": "test-secret",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -161,6 +161,12 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.expose": "batman.example.com",
+          "kompose.service.expose.tls-secret": "test-secret",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
