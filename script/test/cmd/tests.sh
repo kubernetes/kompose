@@ -185,6 +185,10 @@ cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/do
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/output-k8s-template.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/docker-compose-v3.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/output-k8s-v3.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
 # openshift test
 cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/docker-compose.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/output-os-template.json > /tmp/output-os.json

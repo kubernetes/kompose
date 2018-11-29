@@ -1,0 +1,16 @@
+version: '3'
+services:
+  db:
+    image: postgres:10.1
+    ports:
+      - "5432"
+    labels:
+      kompose.volume.size: 200Mi
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - db-config:/var/lib/postgresql/config
+volumes:
+  db-data:
+    labels:
+      kompose.volume.selector: db-data-dev
+      kompose.volume.size: 500Mi

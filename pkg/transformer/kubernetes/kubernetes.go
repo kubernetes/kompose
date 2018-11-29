@@ -373,7 +373,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 }
 
 // CreatePVC initializes PersistentVolumeClaim
-func (k *Kubernetes) CreatePVC(name string, mode string, size string) (*api.PersistentVolumeClaim, error) {
+func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorValue string) (*api.PersistentVolumeClaim, error) {
 	volSize, err := resource.ParseQuantity(size)
 	if err != nil {
 		return nil, errors.Wrap(err, "resource.ParseQuantity failed, Error parsing size")
@@ -395,6 +395,12 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string) (*api.Pers
 				},
 			},
 		},
+	}
+
+	if len(selectorValue) > 0 {
+		pvc.Spec.Selector = &unversioned.LabelSelector{
+			MatchLabels: transformer.ConfigLabels(selectorValue),
+		}
 	}
 
 	if mode == "ro" {
@@ -578,13 +584,17 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			if volume.VFrom == "" {
 				defaultSize := PVCRequestSize
 
-				for key, value := range service.Labels {
-					if key == "kompose.volume.size" {
-						defaultSize = value
+				if len(volume.PVCSize) > 0 {
+					defaultSize = volume.PVCSize
+				} else {
+					for key, value := range service.Labels {
+						if key == "kompose.volume.size" {
+							defaultSize = value
+						}
 					}
 				}
 
-				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize)
+				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue)
 
 				if err != nil {
 					return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
@@ -978,6 +988,8 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 		return err
 	}
 
+	pvcCreatedSet := make(map[string]bool)
+
 	log.Infof("Deploying application in %q namespace", namespace)
 
 	for _, v := range objects {
@@ -1010,11 +1022,18 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 			}
 			log.Infof("Successfully created Service: %s", t.Name)
 		case *api.PersistentVolumeClaim:
-			_, err := client.PersistentVolumeClaims(namespace).Create(t)
-			if err != nil {
-				return err
+			if pvcCreatedSet[t.Name] {
+				log.Infof("Skip creation of PersistentVolumeClaim as it is already created: %s", t.Name)
+			} else {
+				_, err := client.PersistentVolumeClaims(namespace).Create(t)
+				if err != nil {
+					return err
+				}
+				pvcCreatedSet[t.Name] = true
+				storage := t.Spec.Resources.Requests[api.ResourceStorage]
+				capacity := storage.String()
+				log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, capacity)
 			}
-			log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, PVCRequestSize)
 		case *extensions.Ingress:
 			_, err := client.Ingress(namespace).Create(t)
 			if err != nil {
