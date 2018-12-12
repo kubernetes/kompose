@@ -295,11 +295,11 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
 			Template: api.PodTemplateSpec{
-               ObjectMeta: api.ObjectMeta{
-			     Name:   name,
-			     Annotations: service.Annotations,
-			     Labels: transformer.ConfigLabels(name),
-		    }, 
+				ObjectMeta: api.ObjectMeta{
+					Name:        name,
+					Annotations: service.Annotations,
+					Labels:      transformer.ConfigLabels(name),
+				},
 				Spec: podSpec,
 			},
 		},
