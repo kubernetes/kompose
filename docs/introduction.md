@@ -19,7 +19,7 @@ Why do developers love it?
 3. Check your Kubernetes cluster for your newly deployed containers!
 
 ```sh
-$ wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose-v3.yaml
+$ wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose-v3.yaml -O docker-compose.yaml
 
 $ kompose up
 We are going to create Kubernetes Deployments, Services and PersistentVolumeClaims for your Dockerized application. 
