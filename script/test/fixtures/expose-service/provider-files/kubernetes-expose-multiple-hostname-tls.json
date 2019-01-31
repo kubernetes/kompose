@@ -45,7 +45,7 @@
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%",
-          "kompose.service.expose": "batman.example.com;batwoman.example.com",
+          "kompose.service.expose": "batman.example.com,batwoman.example.com",
           "kompose.service.expose.tls-secret": "test-secret"
         }
       },
@@ -120,7 +120,7 @@
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%",
-          "kompose.service.expose": "batman.example.com;batwoman.example.com",
+          "kompose.service.expose": "batman.example.com,batwoman.example.com",
           "kompose.service.expose.tls-secret": "test-secret"
         }
       },

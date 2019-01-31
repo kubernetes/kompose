@@ -19,6 +19,7 @@ package kubernetes
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -324,7 +325,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 
 func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *extensions.Ingress {
 
-	hosts := strings.Split(service.ExposeService, ";")
+	hosts := regexp.MustCompile("[ ,]*,[ ,]*").Split(service.ExposeService, -1)
 
 	ingress := &extensions.Ingress{
 		TypeMeta: unversioned.TypeMeta{

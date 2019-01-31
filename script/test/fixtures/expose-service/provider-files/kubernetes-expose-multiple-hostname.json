@@ -45,7 +45,7 @@
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%",
-          "kompose.service.expose": "batman.example.com;batwoman.example.com"
+          "kompose.service.expose": "  batman.example.com ,, batwoman.example.com "
         }
       },
       "spec": {
@@ -119,7 +119,7 @@
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%",
-          "kompose.service.expose": "batman.example.com;batwoman.example.com"
+          "kompose.service.expose": "  batman.example.com ,, batwoman.example.com "
         }
       },
       "spec": {
