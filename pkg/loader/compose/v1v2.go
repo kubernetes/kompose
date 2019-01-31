@@ -245,7 +245,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 
 				serviceConfig.ServiceType = serviceType
 			case LabelServiceExpose:
-				serviceConfig.ExposeService = strings.ToLower(value)
+				serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
 			case LabelServiceExposeTLSSecret:
 				serviceConfig.ExposeServiceTLS = value
 			default:
