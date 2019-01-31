@@ -298,7 +298,7 @@ The currently supported options are:
 | Key                  | Value                               |
 |----------------------|-------------------------------------|
 | kompose.service.type | nodeport / clusterip / loadbalancer / headless |
-| kompose.service.expose | true / hostname |
+| kompose.service.expose | true / hostnames (separated by comma) |
 | kompose.service.expose.tls-secret | secret name |
 | kompose.volume.size | kubernetes supported volume size |
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
@@ -326,7 +326,7 @@ services:
 ```
 
 - `kompose.service.expose` defines if the service needs to be made accessible from outside the cluster or not. If the value is set to "true", the provider sets the endpoint automatically, and for any other value, the value is set as the hostname. If multiple ports are defined in a service, the first one is chosen to be the exposed.
-    - For the Kubernetes provider, an ingress resource is created and it is assumed that an ingress controller has already been configured.
+    - For the Kubernetes provider, an ingress resource is created and it is assumed that an ingress controller has already been configured. If the value is set to a comma sepatated list, multiple hostnames are supported.
     - For the OpenShift provider, a route is created.
 - `kompose.service.expose.tls-secret` provides the name of the TLS secret to use with the Kubernetes ingress controller. This requires kompose.service.expose to be set.
 
@@ -342,7 +342,7 @@ services:
     links:
      - redis
     labels:
-      kompose.service.expose: "counter.example.com"
+      kompose.service.expose: "counter.example.com,foobar.example.com"
       kompose.service.expose.tls-secret: "example-secret"
   redis:
     image: redis:3.0

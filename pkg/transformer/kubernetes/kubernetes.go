@@ -19,6 +19,7 @@ package kubernetes
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -324,6 +325,8 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 
 func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *extensions.Ingress {
 
+	hosts := regexp.MustCompile("[ ,]*,[ ,]*").Split(service.ExposeService, -1)
+
 	ingress := &extensions.Ingress{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Ingress",
@@ -334,36 +337,36 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: extensions.IngressSpec{
-			Rules: []extensions.IngressRule{
-				{
-					IngressRuleValue: extensions.IngressRuleValue{
-						HTTP: &extensions.HTTPIngressRuleValue{
-							Paths: []extensions.HTTPIngressPath{
-								{
-									Backend: extensions.IngressBackend{
-										ServiceName: name,
-										ServicePort: intstr.IntOrString{
-											IntVal: port,
-										},
-									},
+			Rules: make([]extensions.IngressRule, len(hosts)),
+		},
+	}
+
+	for i, host := range hosts {
+		ingress.Spec.Rules[i] = extensions.IngressRule{
+			IngressRuleValue: extensions.IngressRuleValue{
+				HTTP: &extensions.HTTPIngressRuleValue{
+					Paths: []extensions.HTTPIngressPath{
+						{
+							Backend: extensions.IngressBackend{
+								ServiceName: name,
+								ServicePort: intstr.IntOrString{
+									IntVal: port,
 								},
 							},
 						},
 					},
 				},
 			},
-		},
+		}
+		if host != "true" {
+			ingress.Spec.Rules[i].Host = host
+		}
 	}
 
-	if service.ExposeService != "true" {
-		ingress.Spec.Rules[0].Host = service.ExposeService
-	}
 	if service.ExposeServiceTLS != "" {
 		ingress.Spec.TLS = []extensions.IngressTLS{
 			{
-				Hosts: []string{
-					service.ExposeService,
-				},
+				Hosts:      hosts,
 				SecretName: service.ExposeServiceTLS,
 			},
 		}
