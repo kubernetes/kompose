@@ -1,0 +1,14 @@
+version: "3"
+services:
+  nginx0:
+    image: nginx
+    labels:
+      kompose.image-pull-policy: "Always"
+  nginx1:
+    image: nginx
+    labels:
+      kompose.image-pull-policy: "IfNotPresent"
+  nginx2:
+    image: nginx
+    labels:
+      kompose.image-pull-policy: "Never"

@@ -415,6 +415,25 @@ cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-s
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-hostname-multiple-ports.json > /tmp/output-os.json
 convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-multiple-ports.yml convert --stdout -j" "/tmp/output-os.json"
 
+# Test related to kompose.image-pull-secret label in docker compose file to ensure imagePullSecrets are populated properly.
+# Kubernetes Test
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-secret/compose-files/docker-compose-image-pull-secret.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-secret/provider-files/kubernetes-image-pull-secret.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+# Test related to kompose.image-pull-secrets label in docker compose file.
+# Kubernetes Tests
+# when kompose.image-pull-secrets is invalid
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-files/v12-fail-image-pull-policy.yml convert --stdout"
+# when kompose.image-pull-secrets in v1 and 2
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-files/v12-image-pull-policy.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/provider-files/kubernetes-v12-image-pull-policy.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+# when kompose.image-pull-secrets in v3
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-files/v3-image-pull-policy.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/provider-files/kubernetes-v3-image-pull-policy.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
 
 # Test the change in the service name
 # Kubernetes Test
