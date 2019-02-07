@@ -85,6 +85,7 @@ type ServiceConfig struct {
 	CapAdd           []string            `compose:"cap_add"`
 	CapDrop          []string            `compose:"cap_drop"`
 	Expose           []string            `compose:"expose"`
+	ImagePullPolicy  string              `compose:"kompose.image-pull-policy"`
 	Pid              string              `compose:"pid"`
 	Privileged       bool                `compose:"privileged"`
 	PullPolicy       string              `compose:"kompose.service.image-pull-policy"`
@@ -98,6 +99,7 @@ type ServiceConfig struct {
 	ExposeService    string              `compose:"kompose.service.expose"`
 	BuildLabels      map[string]string   `compose:"build-labels"`
 	ExposeServiceTLS string              `compose:"kompose.service.expose.tls-secret"`
+	ImagePullSecret  string              `compose:"kompose.image-pull-secret"`
 	Stdin            bool                `compose:"stdin_open"`
 	Tty              bool                `compose:"tty"`
 	MemLimit         yaml.MemStringorInt `compose:"mem_limit"`

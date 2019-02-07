@@ -38,6 +38,10 @@ const (
 	LabelServiceExposeTLSSecret = "kompose.service.expose.tls-secret"
 	// LabelControllerType defines the type of controller to be created
 	LabelControllerType = "kompose.controller.type"
+	// LabelImagePullSecret defines a secret name for kubernetes ImagePullSecrets
+	LabelImagePullSecret = "kompose.image-pull-secret"
+	// LabelImagePullPolicy defines Kubernetes PodSpec imagePullPolicy.
+	LabelImagePullPolicy = "kompose.image-pull-policy"
 
 	// ServiceTypeHeadless ...
 	ServiceTypeHeadless = "Headless"
