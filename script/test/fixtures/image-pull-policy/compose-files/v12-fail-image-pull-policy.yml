@@ -1,0 +1,6 @@
+version: "2"
+services:
+  nginx0:
+    image: nginx
+    labels:
+      kompose.image-pull-policy: "Fail"

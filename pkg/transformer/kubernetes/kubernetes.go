@@ -116,7 +116,7 @@ func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, u
 }
 
 // InitPodSpec creates the pod specification
-func (k *Kubernetes) InitPodSpec(name string, image string) api.PodSpec {
+func (k *Kubernetes) InitPodSpec(name string, image string, pullSecret string) api.PodSpec {
 	pod := api.PodSpec{
 		Containers: []api.Container{
 			{
@@ -124,6 +124,13 @@ func (k *Kubernetes) InitPodSpec(name string, image string) api.PodSpec {
 				Image: image,
 			},
 		},
+	}
+	if pullSecret != "" {
+		pod.ImagePullSecrets = []api.LocalObjectReference{
+			{
+				Name: pullSecret,
+			},
+		}
 	}
 	return pod
 }
@@ -191,7 +198,7 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 				ObjectMeta: api.ObjectMeta{
 					Labels: transformer.ConfigLabels(name),
 				},
-				Spec: k.InitPodSpec(name, service.Image),
+				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 			},
 		},
 	}
@@ -281,7 +288,7 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 	if len(service.Configs) > 0 {
 		podSpec = k.InitPodSpecWithConfigMap(name, service.Image, service)
 	} else {
-		podSpec = k.InitPodSpec(name, service.Image)
+		podSpec = k.InitPodSpec(name, service.Image, service.ImagePullSecret)
 	}
 
 	dc := &extensions.Deployment{
@@ -316,7 +323,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
-				Spec: k.InitPodSpec(name, service.Image),
+				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 			},
 		},
 	}
@@ -807,7 +814,7 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
-		Spec: k.InitPodSpec(name, service.Image),
+		Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 	}
 	return &pod
 }

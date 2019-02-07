@@ -1,0 +1,47 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "nginx0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx0"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.image-pull-policy": "Always",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "nginx0"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "nginx0",
+                "image": "nginx",
+                "resources": {},
+                "imagePullPolicy": "Always"
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}
