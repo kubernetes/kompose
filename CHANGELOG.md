@@ -1,5 +1,44 @@
 # Change Log
 
+## [v1.18.0](https://github.com/kubernetes/kompose/tree/v1.18.0) (2019-03-01)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.17.0...v1.18.0)
+
+**Closed issues:**
+
+- kompose up returning ErrImagePull while pulling from a private repo [\#1102](https://github.com/kubernetes/kompose/issues/1102)
+- k.Transform failed archive/tar: write too long [\#1093](https://github.com/kubernetes/kompose/issues/1093)
+- kompose up fails to parse yml that kompose convert generated [\#1082](https://github.com/kubernetes/kompose/issues/1082)
+- Unable to load yaml/json file [\#1072](https://github.com/kubernetes/kompose/issues/1072)
+- Command converted to Args [\#1067](https://github.com/kubernetes/kompose/issues/1067)
+- Deploy to OSE with Self Signed Certificate [\#1065](https://github.com/kubernetes/kompose/issues/1065)
+- ignore Docker Compose in conversion [\#1059](https://github.com/kubernetes/kompose/issues/1059)
+- hostPort in deployment spec: is this supported? [\#1054](https://github.com/kubernetes/kompose/issues/1054)
+- imagePullPolicy: is there way of specifying this [\#1052](https://github.com/kubernetes/kompose/issues/1052)
+- Node Taints: is this supported. [\#1051](https://github.com/kubernetes/kompose/issues/1051)
+- Multiple compose files seems to be broken [\#1048](https://github.com/kubernetes/kompose/issues/1048)
+- Support for PVC Access Mode ReadWriteMany [\#1046](https://github.com/kubernetes/kompose/issues/1046)
+- Support for converting docker-compose.yml files using YAML Merge Key [\#1038](https://github.com/kubernetes/kompose/issues/1038)
+- Support imagePullPolicy via label. [\#1036](https://github.com/kubernetes/kompose/issues/1036)
+- Support HorizontalPodAutoscaler via label [\#1035](https://github.com/kubernetes/kompose/issues/1035)
+- FATA services.xxx.ports.0 must be a string or number [\#986](https://github.com/kubernetes/kompose/issues/986)
+- Add support for "scratch space" volumes [\#850](https://github.com/kubernetes/kompose/issues/850)
+- Do not generate empty services [\#823](https://github.com/kubernetes/kompose/issues/823)
+- Improve chart support / Helm testing [\#745](https://github.com/kubernetes/kompose/issues/745)
+- using kompose as a library [\#464](https://github.com/kubernetes/kompose/issues/464)
+- \[EPIC\] Use kubernetes/client-go [\#175](https://github.com/kubernetes/kompose/issues/175)
+
+**Merged pull requests:**
+
+- Update the year [\#1099](https://github.com/kubernetes/kompose/pull/1099) ([cdrage](https://github.com/cdrage))
+- Support multiple hostnames on expose label in service for Kubernetes [\#1092](https://github.com/kubernetes/kompose/pull/1092) ([huikaihoo](https://github.com/huikaihoo))
+- Add kompose.image-pull-secret and kompose.image-pull-policy [\#1091](https://github.com/kubernetes/kompose/pull/1091) ([kiela](https://github.com/kiela))
+- Update introduction.md [\#1090](https://github.com/kubernetes/kompose/pull/1090) ([hexmind](https://github.com/hexmind))
+- Fix log output specific warning info [\#1084](https://github.com/kubernetes/kompose/pull/1084) ([gaozhenhai](https://github.com/gaozhenhai))
+- Add label support to named volumes in docker compose v3 to Kubernetes [\#1083](https://github.com/kubernetes/kompose/pull/1083) ([huikaihoo](https://github.com/huikaihoo))
+- Fix typo: generting -\> generating [\#1080](https://github.com/kubernetes/kompose/pull/1080) ([SataQiu](https://github.com/SataQiu))
+- delete excess code [\#1079](https://github.com/kubernetes/kompose/pull/1079) ([xichengliudui](https://github.com/xichengliudui))
+- Fix typos: accecpts -\> accepts [\#1077](https://github.com/kubernetes/kompose/pull/1077) ([mooncak](https://github.com/mooncak))
+
 ## [v1.17.0](https://github.com/kubernetes/kompose/tree/v1.17.0) (2018-11-05)
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.16.0...v1.17.0)
 
@@ -22,7 +61,6 @@
 - when to support this parameter build: args? [\#1004](https://github.com/kubernetes/kompose/issues/1004)
 - Glide update error [\#1003](https://github.com/kubernetes/kompose/issues/1003)
 - Activate downward api [\#1002](https://github.com/kubernetes/kompose/issues/1002)
-- FATA services.xxx.ports.0 must be a string or number [\#986](https://github.com/kubernetes/kompose/issues/986)
 - Remove status field in the generated yaml [\#975](https://github.com/kubernetes/kompose/issues/975)
 - Create Rolling updates using Kompose tool [\#965](https://github.com/kubernetes/kompose/issues/965)
 - Support ubuntu's snap package format [\#964](https://github.com/kubernetes/kompose/issues/964)
@@ -52,6 +90,7 @@
 
 **Merged pull requests:**
 
+- 1.17.0 Release [\#1075](https://github.com/kubernetes/kompose/pull/1075) ([cdrage](https://github.com/cdrage))
 - Bump Go versions [\#1073](https://github.com/kubernetes/kompose/pull/1073) ([HaraldNordgren](https://github.com/HaraldNordgren))
 - Use OS provided temporary directory [\#1068](https://github.com/kubernetes/kompose/pull/1068) ([segrax](https://github.com/segrax))
 - Propagate dots into valid service names [\#1063](https://github.com/kubernetes/kompose/pull/1063) ([rcmorano](https://github.com/rcmorano))
