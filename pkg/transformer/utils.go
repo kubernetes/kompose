@@ -26,6 +26,7 @@ import (
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
 
 	"path/filepath"
 
@@ -39,6 +40,8 @@ import (
 
 // Selector used as labels and selector
 const Selector = "io.kompose.service"
+
+var StdinData []byte
 
 // CreateOutFile creates the file to write to if --out is specified
 func CreateOutFile(out string) (*os.File, error) {
@@ -205,6 +208,41 @@ func GetComposeFileDir(inputFiles []string) (string, error) {
 	}
 	log.Debugf("Compose file dir: %s", filepath.Dir(inputFile))
 	return filepath.Dir(inputFile), nil
+}
+
+// GetVersionFromFile returns compose file version
+func GetVersionFromFile(inputFiles []string) (string, error) {
+	inputFile := inputFiles[0]
+	type ComposeVersion struct {
+		Version string `json:"version"` // This affects YAML as well
+	}
+	var version ComposeVersion
+	loadedFile, err := ReadFile(inputFile)
+
+	if err != nil {
+		return "", err
+	}
+
+	err = yaml.Unmarshal(loadedFile, &version)
+	if err != nil {
+		return "", err
+	}
+
+	return version.Version, nil
+}
+
+// ReadFile read data from file or stdin
+func ReadFile(fileName string) ([]byte, error) {
+	if fileName == "-" {
+		if StdinData == nil {
+			data, err := ioutil.ReadAll(os.Stdin)
+			StdinData = data
+			return data, err
+		}
+		return StdinData, nil
+	}
+	return ioutil.ReadFile(fileName)
+
 }
 
 //BuildDockerImage builds docker image

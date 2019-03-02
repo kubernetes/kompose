@@ -652,13 +652,28 @@ func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
 // ConfigHostPathVolumeSource is a helper function to create a HostPath api.VolumeSource
 func (k *Kubernetes) ConfigHostPathVolumeSource(path string) (*api.VolumeSource, error) {
 	dir, err := transformer.GetComposeFileDir(k.Opt.InputFiles)
+	version, err := transformer.GetVersionFromFile(k.Opt.InputFiles)
 	if err != nil {
 		return nil, err
 	}
-	absPath := filepath.Join(dir, path)
-	return &api.VolumeSource{
-		HostPath: &api.HostPathVolumeSource{Path: absPath},
-	}, nil
+	// Concat path based on version
+	switch version {
+	// Concat dir with path if it's 1 or 2
+	// If blank, it's assumed it's 1 or 2
+	case "", "1", "1.0", "2", "2.0":
+		return &api.VolumeSource{
+			HostPath: &api.HostPathVolumeSource{Path: filepath.Join(dir, path)},
+		}, nil
+	// Again, in v3, we use the "long syntax" for volumes in terms of parsing
+	// https://docs.docker.com/compose/compose-file/#long-syntax-3
+	// So the path is already an absolute path
+	case "3", "3.0", "3.1", "3.2", "3.3":
+		return &api.VolumeSource{
+			HostPath: &api.HostPathVolumeSource{Path: path},
+		}, nil
+	default:
+		return &api.VolumeSource{}, fmt.Errorf("Version %s of Docker Compose is not supported. Please use version 1, 2 or 3", version)
+	}
 }
 
 // ConfigPVCVolumeSource is helper function to create an api.VolumeSource with a PVC
