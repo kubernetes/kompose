@@ -176,12 +176,12 @@ func formatProviderName(provider string) string {
 // EnvSort struct
 type EnvSort []api.EnvVar
 
-// returns the number of elements in the collection.
+// Len returns the number of elements in the collection.
 func (env EnvSort) Len() int {
 	return len(env)
 }
 
-// returns whether the element with index i should sort before
+// Less returns whether the element with index i should sort before
 // the element with index j.
 func (env EnvSort) Less(i, j int) bool {
 	return env[i].Name < env[j].Name
