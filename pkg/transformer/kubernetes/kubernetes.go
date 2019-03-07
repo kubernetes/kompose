@@ -651,11 +651,10 @@ func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
 
 // ConfigHostPathVolumeSource is a helper function to create a HostPath api.VolumeSource
 func (k *Kubernetes) ConfigHostPathVolumeSource(path string) (*api.VolumeSource, error) {
-	dir, err := transformer.GetComposeFileDir(k.Opt.InputFiles)
+	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
 	}
-	absPath := filepath.Join(dir, path)
 	return &api.VolumeSource{
 		HostPath: &api.HostPathVolumeSource{Path: absPath},
 	}, nil
