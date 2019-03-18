@@ -117,9 +117,6 @@ __Kubernetes Community:__ As part of the Kubernetes ecosystem, we follow the Kub
 
 __Chat (Slack):__ We're fairly active on [Slack](http://slack.kubernetes.io#kompose) and you can find us in the #kompose channel.
 
-## Road Map
-
-An up-to-date roadmap of upcoming releases is located at [ROADMAP.md](/ROADMAP.md).
 
 ### Code of Conduct
 
