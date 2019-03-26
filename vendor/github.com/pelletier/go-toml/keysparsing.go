@@ -3,155 +3,107 @@
 package toml
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"strconv"
 	"unicode"
 )
 
-var escapeSequenceMap = map[rune]rune{
-	'b':  '\b',
-	't':  '\t',
-	'n':  '\n',
-	'f':  '\f',
-	'r':  '\r',
-	'"':  '"',
-	'\\': '\\',
-}
-
-type parseKeyState int
-
-const (
-	BARE parseKeyState = iota
-	BASIC
-	LITERAL
-	ESC
-	UNICODE_4
-	UNICODE_8
-)
-
+// Convert the bare key group string to an array.
+// The input supports double quotation and single quotation,
+// but escape sequences are not supported. Lexers must unescape them beforehand.
 func parseKey(key string) ([]string, error) {
-	groups := []string{}
-	var buffer bytes.Buffer
-	var hex bytes.Buffer
-	state := BARE
-	wasInQuotes := false
-	ignoreSpace := true
-	expectDot := false
+	runes := []rune(key)
+	var groups []string
 
-	for _, char := range key {
-		if ignoreSpace {
-			if char == ' ' {
-				continue
-			}
-			ignoreSpace = false
+	if len(key) == 0 {
+		return nil, errors.New("empty key")
+	}
+
+	idx := 0
+	for idx < len(runes) {
+		for ; idx < len(runes) && isSpace(runes[idx]); idx++ {
+			// skip leading whitespace
 		}
-
-		if state == ESC {
-			if char == 'u' {
-				state = UNICODE_4
-				hex.Reset()
-			} else if char == 'U' {
-				state = UNICODE_8
-				hex.Reset()
-			} else if newChar, ok := escapeSequenceMap[char]; ok {
-				buffer.WriteRune(newChar)
-				state = BASIC
-			} else {
-				return nil, fmt.Errorf(`invalid escape sequence \%c`, char)
-			}
-			continue
+		if idx >= len(runes) {
+			break
 		}
-
-		if state == UNICODE_4 || state == UNICODE_8 {
-			if isHexDigit(char) {
-				hex.WriteRune(char)
-			}
-			if (state == UNICODE_4 && hex.Len() == 4) || (state == UNICODE_8 && hex.Len() == 8) {
-				if value, err := strconv.ParseInt(hex.String(), 16, 32); err == nil {
-					buffer.WriteRune(rune(value))
-				} else {
-					return nil, err
-				}
-				state = BASIC
-			}
-			continue
-		}
-
-		switch char {
-		case '\\':
-			if state == BASIC {
-				state = ESC
-			} else if state == LITERAL {
-				buffer.WriteRune(char)
-			}
-		case '\'':
-			if state == BARE {
-				state = LITERAL
-			} else if state == LITERAL {
-				groups = append(groups, buffer.String())
-				buffer.Reset()
-				wasInQuotes = true
-				state = BARE
-			}
-			expectDot = false
-		case '"':
-			if state == BARE {
-				state = BASIC
-			} else if state == BASIC {
-				groups = append(groups, buffer.String())
-				buffer.Reset()
-				state = BARE
-				wasInQuotes = true
-			}
-			expectDot = false
-		case '.':
-			if state != BARE {
-				buffer.WriteRune(char)
-			} else {
-				if !wasInQuotes {
-					if buffer.Len() == 0 {
-						return nil, errors.New("empty table key")
+		r := runes[idx]
+		if isValidBareChar(r) {
+			// parse bare key
+			startIdx := idx
+			endIdx := -1
+			idx++
+			for idx < len(runes) {
+				r = runes[idx]
+				if isValidBareChar(r) {
+					idx++
+				} else if r == '.' {
+					endIdx = idx
+					break
+				} else if isSpace(r) {
+					endIdx = idx
+					for ; idx < len(runes) && isSpace(runes[idx]); idx++ {
+						// skip trailing whitespace
 					}
-					groups = append(groups, buffer.String())
-					buffer.Reset()
-				}
-				ignoreSpace = true
-				expectDot = false
-				wasInQuotes = false
-			}
-		case ' ':
-			if state == BASIC {
-				buffer.WriteRune(char)
-			} else {
-				expectDot = true
-			}
-		default:
-			if state == BARE {
-				if !isValidBareChar(char) {
-					return nil, fmt.Errorf("invalid bare character: %c", char)
-				} else if expectDot {
-					return nil, errors.New("what?")
+					if idx < len(runes) && runes[idx] != '.' {
+						return nil, fmt.Errorf("invalid key character after whitespace: %c", runes[idx])
+					}
+					break
+				} else {
+					return nil, fmt.Errorf("invalid bare key character: %c", r)
 				}
 			}
-			buffer.WriteRune(char)
-			expectDot = false
+			if endIdx == -1 {
+				endIdx = idx
+			}
+			groups = append(groups, string(runes[startIdx:endIdx]))
+		} else if r == '\'' {
+			// parse single quoted key
+			idx++
+			startIdx := idx
+			for {
+				if idx >= len(runes) {
+					return nil, fmt.Errorf("unclosed single-quoted key")
+				}
+				r = runes[idx]
+				if r == '\'' {
+					groups = append(groups, string(runes[startIdx:idx]))
+					idx++
+					break
+				}
+				idx++
+			}
+		} else if r == '"' {
+			// parse double quoted key
+			idx++
+			startIdx := idx
+			for {
+				if idx >= len(runes) {
+					return nil, fmt.Errorf("unclosed double-quoted key")
+				}
+				r = runes[idx]
+				if r == '"' {
+					groups = append(groups, string(runes[startIdx:idx]))
+					idx++
+					break
+				}
+				idx++
+			}
+		} else if r == '.' {
+			idx++
+			if idx >= len(runes) {
+				return nil, fmt.Errorf("unexpected end of key")
+			}
+			r = runes[idx]
+			if !isValidBareChar(r) && r != '\'' && r != '"' && r != ' ' {
+				return nil, fmt.Errorf("expecting key part after dot")
+			}
+		} else {
+			return nil, fmt.Errorf("invalid key character: %c", r)
 		}
-	}
-
-	// state must be BARE at the end
-	if state == ESC {
-		return nil, errors.New("unfinished escape sequence")
-	} else if state != BARE {
-		return nil, errors.New("mismatched quotes")
-	}
-
-	if buffer.Len() > 0 {
-		groups = append(groups, buffer.String())
 	}
 	if len(groups) == 0 {
-		return nil, errors.New("empty key")
+		return nil, fmt.Errorf("empty key")
 	}
 	return groups, nil
 }

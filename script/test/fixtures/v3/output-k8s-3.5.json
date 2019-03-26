@@ -1,0 +1,80 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "helloworld",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "helloworld"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "80",
+            "port": 80,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "helloworld"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "helloworld",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "helloworld"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "helloworld"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "helloworld",
+                "image": "tutum/hello-world",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}
