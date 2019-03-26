@@ -1,0 +1,14 @@
+version: "3.5"
+
+services:
+
+  helloworld:
+    image: tutum/hello-world
+    ports:
+      - 80:80
+    networks:
+      - helloworld-network
+
+networks:
+  helloworld-network:
+    name: helloworld-network

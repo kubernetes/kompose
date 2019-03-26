@@ -182,7 +182,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		}
 		return komposeObject, nil
 		// Use docker/cli for 3
-	case "3", "3.0", "3.1", "3.2", "3.3":
+	case "3", "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7":
 		komposeObject, err := parseV3(files)
 		if err != nil {
 			return kobject.KomposeObject{}, err
