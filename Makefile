@@ -123,7 +123,8 @@ test-container:
 vendor-update:
 	glide update --strip-vendor
 	glide-vc --only-code --no-tests
-	find ./vendor/github.com/docker/distribution -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} \;        
+	find ./vendor/github.com/docker/distribution -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} \;
+	rm -rf vendor/github.com/Sirupsen
 
 
 .PHONY: test-k8s

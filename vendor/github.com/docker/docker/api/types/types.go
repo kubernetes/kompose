@@ -1,4 +1,4 @@
-package types
+package types // import "github.com/docker/docker/api/types"
 
 import (
 	"errors"
@@ -45,6 +45,12 @@ type ImageInspect struct {
 	VirtualSize     int64
 	GraphDriver     GraphDriverData
 	RootFS          RootFS
+	Metadata        ImageMetadata
+}
+
+// ImageMetadata contains engine-local data about the image
+type ImageMetadata struct {
+	LastTagTime time.Time `json:",omitempty"`
 }
 
 // Container contains response of Engine API:
@@ -101,9 +107,21 @@ type Ping struct {
 	Experimental bool
 }
 
+// ComponentVersion describes the version information for a specific component.
+type ComponentVersion struct {
+	Name    string
+	Version string
+	Details map[string]string `json:",omitempty"`
+}
+
 // Version contains response of Engine API:
 // GET "/version"
 type Version struct {
+	Platform   struct{ Name string } `json:",omitempty"`
+	Components []ComponentVersion    `json:",omitempty"`
+
+	// The following fields are deprecated, they relate to the Engine component and are kept for backwards compatibility
+
 	Version       string
 	APIVersion    string `json:"ApiVersion"`
 	MinAPIVersion string `json:"MinAPIVersion,omitempty"`
@@ -162,6 +180,7 @@ type Info struct {
 	RegistryConfig     *registry.ServiceConfig
 	NCPU               int
 	MemTotal           int64
+	GenericResources   []swarm.GenericResource
 	DockerRootDir      string
 	HTTPProxy          string `json:"HttpProxy"`
 	HTTPSProxy         string `json:"HttpsProxy"`
@@ -320,6 +339,7 @@ type ContainerJSONBase struct {
 	Name            string
 	RestartCount    int
 	Driver          string
+	Platform        string
 	MountLabel      string
 	ProcessLabel    string
 	AppArmorProfile string
@@ -468,6 +488,12 @@ type NetworkDisconnect struct {
 	Force     bool
 }
 
+// NetworkInspectOptions holds parameters to inspect network
+type NetworkInspectOptions struct {
+	Scope   string
+	Verbose bool
+}
+
 // Checkpoint represents the details of a checkpoint
 type Checkpoint struct {
 	Name string // Name is the name of the checkpoint
@@ -482,10 +508,11 @@ type Runtime struct {
 // DiskUsage contains response of Engine API:
 // GET "/system/df"
 type DiskUsage struct {
-	LayersSize int64
-	Images     []*ImageSummary
-	Containers []*Container
-	Volumes    []*Volume
+	LayersSize  int64
+	Images      []*ImageSummary
+	Containers  []*Container
+	Volumes     []*Volume
+	BuilderSize int64
 }
 
 // ContainersPruneReport contains the response for Engine API:
@@ -506,6 +533,12 @@ type VolumesPruneReport struct {
 // POST "/images/prune"
 type ImagesPruneReport struct {
 	ImagesDeleted  []ImageDeleteResponseItem
+	SpaceReclaimed uint64
+}
+
+// BuildCachePruneReport contains the response for Engine API:
+// POST "/build/prune"
+type BuildCachePruneReport struct {
 	SpaceReclaimed uint64
 }
 
