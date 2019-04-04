@@ -386,7 +386,10 @@ func TestCheckLabelsPorts(t *testing.T) {
 func TestCheckPlacementCustomLabels(t *testing.T) {
 
 	placement := types.Placement{
-		Constraints: []string{"node.labels.something == anything"},
+		Constraints: []string{
+			"node.labels.something == anything",
+			"node.labels.monitor != xxx",
+		},
 	}
 	output := loadV3Placement(placement.Constraints)
 

@@ -134,8 +134,13 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 
 func loadV3Placement(constraints []string) map[string]string {
 	placement := make(map[string]string)
+	errMsg := " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
 	for _, j := range constraints {
 		p := strings.Split(j, " == ")
+		if len(p) < 2 {
+			log.Warn(p[0], errMsg)
+			continue
+		}
 		if p[0] == "node.hostname" {
 			placement["kubernetes.io/hostname"] = p[1]
 		} else if p[0] == "engine.labels.operatingsystem" {
@@ -144,7 +149,7 @@ func loadV3Placement(constraints []string) map[string]string {
 			label := strings.TrimPrefix(p[0], "node.labels.")
 			placement[label] = p[1]
 		} else {
-			log.Warn(p[0], " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint ")
+			log.Warn(p[0], errMsg)
 		}
 	}
 	return placement
