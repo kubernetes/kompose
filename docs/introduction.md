@@ -36,7 +36,7 @@ $ kubectl get po
 NAME                            READY     STATUS              RESTARTS   AGE
 frontend-591253677-5t038        1/1       Running             0          10s
 redis-master-2410703502-9hshf   1/1       Running             0          10s
-redis-slave-4049176185-hr1lr    1/1       Running             0          10s
+redis-node-4049176185-hr1lr     1/1       Running             0          10s
 ```
 
 A more detailed guide is available in our [getting started guide](/docs/getting-started.md).
