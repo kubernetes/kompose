@@ -48,10 +48,10 @@ Run `kompose convert` in the same directory as your `docker-compose.yaml` file.
 $ kompose convert                           
 INFO Kubernetes file "frontend-service.yaml" created         
 INFO Kubernetes file "redis-master-service.yaml" created     
-INFO Kubernetes file "redis-slave-service.yaml" created      
+INFO Kubernetes file "redis-node-service.yaml" created      
 INFO Kubernetes file "frontend-deployment.yaml" created      
 INFO Kubernetes file "redis-master-deployment.yaml" created  
-INFO Kubernetes file "redis-slave-deployment.yaml" created 
+INFO Kubernetes file "redis-node-deployment.yaml" created 
 ```
 
 Alternatively, you can convert and deploy directly to Kubernetes with `kompose up`.
@@ -152,13 +152,13 @@ Run `kompose convert --provider=openshift` in the same directory as your `docker
 $ kompose convert --provider=openshift
 INFO OpenShift file "frontend-service.yaml" created 
 INFO OpenShift file "redis-master-service.yaml" created 
-INFO OpenShift file "redis-slave-service.yaml" created 
+INFO OpenShift file "redis-node-service.yaml" created 
 INFO OpenShift file "frontend-deploymentconfig.yaml" created 
 INFO OpenShift file "frontend-imagestream.yaml" created 
 INFO OpenShift file "redis-master-deploymentconfig.yaml" created 
 INFO OpenShift file "redis-master-imagestream.yaml" created 
-INFO OpenShift file "redis-slave-deploymentconfig.yaml" created 
-INFO OpenShift file "redis-slave-imagestream.yaml" created 
+INFO OpenShift file "redis-node-deploymentconfig.yaml" created 
+INFO OpenShift file "redis-node-imagestream.yaml" created 
 ```
 
 Alternatively, you can convert and deploy directly to OpenShift with `kompose up --provider=openshift`.
@@ -171,13 +171,13 @@ If you need different kind of resources, use the 'kompose convert' and 'oc creat
 INFO Deploying application in "myproject" namespace 
 INFO Successfully created Service: frontend       
 INFO Successfully created Service: redis-master   
-INFO Successfully created Service: redis-slave    
+INFO Successfully created Service: redis-node    
 INFO Successfully created DeploymentConfig: frontend 
 INFO Successfully created ImageStream: frontend   
 INFO Successfully created DeploymentConfig: redis-master 
 INFO Successfully created ImageStream: redis-master 
-INFO Successfully created DeploymentConfig: redis-slave 
-INFO Successfully created ImageStream: redis-slave 
+INFO Successfully created DeploymentConfig: redis-node 
+INFO Successfully created ImageStream: redis-node 
 
 Your application has been deployed to OpenShift. You can run 'oc get dc,svc,is,pvc' for details.
 ```
@@ -290,13 +290,13 @@ Run `kompose convert --provider=openshift` in the same directory as your `docker
 $ kompose convert --provider=openshift
 INFO OpenShift file "frontend-service.yaml" created 
 INFO OpenShift file "redis-master-service.yaml" created 
-INFO OpenShift file "redis-slave-service.yaml" created 
+INFO OpenShift file "redis-node-service.yaml" created 
 INFO OpenShift file "frontend-deploymentconfig.yaml" created 
 INFO OpenShift file "frontend-imagestream.yaml" created 
 INFO OpenShift file "redis-master-deploymentconfig.yaml" created 
 INFO OpenShift file "redis-master-imagestream.yaml" created 
-INFO OpenShift file "redis-slave-deploymentconfig.yaml" created 
-INFO OpenShift file "redis-slave-imagestream.yaml" created 
+INFO OpenShift file "redis-node-deploymentconfig.yaml" created 
+INFO OpenShift file "redis-node-imagestream.yaml" created 
 ```
 
 Alternatively, you can convert and deploy directly to OpenShift with `kompose up --provider=openshift`.
@@ -309,13 +309,13 @@ If you need different kind of resources, use the 'kompose convert' and 'oc creat
 INFO Deploying application in "myproject" namespace 
 INFO Successfully created Service: frontend       
 INFO Successfully created Service: redis-master   
-INFO Successfully created Service: redis-slave    
+INFO Successfully created Service: redis-node    
 INFO Successfully created DeploymentConfig: frontend 
 INFO Successfully created ImageStream: frontend   
 INFO Successfully created DeploymentConfig: redis-master 
 INFO Successfully created ImageStream: redis-master 
-INFO Successfully created DeploymentConfig: redis-slave 
-INFO Successfully created ImageStream: redis-slave 
+INFO Successfully created DeploymentConfig: redis-node 
+INFO Successfully created ImageStream: redis-node 
 
 Your application has been deployed to OpenShift. You can run 'oc get dc,svc,is,pvc' for details.
 ```

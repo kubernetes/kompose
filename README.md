@@ -14,10 +14,10 @@ Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes/kom
 $ kompose convert -f docker-compose.yaml
 INFO Kubernetes file "frontend-service.yaml" created         
 INFO Kubernetes file "redis-master-service.yaml" created     
-INFO Kubernetes file "redis-slave-service.yaml" created      
+INFO Kubernetes file "redis-node-service.yaml" created      
 INFO Kubernetes file "frontend-deployment.yaml" created      
 INFO Kubernetes file "redis-master-deployment.yaml" created  
-INFO Kubernetes file "redis-slave-deployment.yaml" created 
+INFO Kubernetes file "redis-node-deployment.yaml" created 
 ```
 
 Other examples are provided in the _examples_ [directory](./examples).
