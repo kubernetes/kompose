@@ -158,6 +158,14 @@ func TestLoadPorts(t *testing.T) {
 		Protocol:      api.ProtocolTCP,
 	}
 
+	port5 := []string{"fe80::6ec2:17ff:fe84:4270:8096:8096"}
+	result5 := kobject.Ports{
+		HostPort:      8096,
+		ContainerPort: 8096,
+		Protocol:      api.ProtocolTCP,
+		HostIP:        "fe80::6ec2:17ff:fe84:4270",
+	}
+
 	tests := []struct {
 		ports  []string
 		result kobject.Ports
@@ -166,6 +174,7 @@ func TestLoadPorts(t *testing.T) {
 		{port2, result2},
 		{port3, result3},
 		{port4, result4},
+		{port5, result5},
 	}
 
 	for _, tt := range tests {

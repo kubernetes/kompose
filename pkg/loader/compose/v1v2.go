@@ -109,24 +109,26 @@ func loadPorts(composePorts []string) ([]kobject.Ports, error) {
 		// Split up the ports / IP without the "/tcp" or "/udp" appended to it
 		justPorts := strings.Split(protocolCheck[0], character)
 
-		if len(justPorts) == 3 {
+		if len(justPorts) >= 3 {
 			// ex. 127.0.0.1:80:80
+			// ex. fe80::6ec2:17ff:fe84:4270:8096:8096
 
+			l := len(justPorts)
 			// Get the IP address
-			hostIP := justPorts[0]
+			hostIP := protocolCheck[0][:len(protocolCheck[0])-2-(len(justPorts[l-2])+len(justPorts[l-1]))]
 			ip := net.ParseIP(hostIP)
 			if ip.To4() == nil && ip.To16() == nil {
 				return nil, fmt.Errorf("%q contains an invalid IPv4 or IPv6 IP address", port)
 			}
 
 			// Get the host port
-			hostPortInt, err := strconv.Atoi(justPorts[1])
+			hostPortInt, err := strconv.Atoi(justPorts[l-2])
 			if err != nil {
 				return nil, fmt.Errorf("invalid host port %q valid example: 127.0.0.1:80:80", port)
 			}
 
 			// Get the container port
-			containerPortInt, err := strconv.Atoi(justPorts[2])
+			containerPortInt, err := strconv.Atoi(justPorts[l-1])
 			if err != nil {
 				return nil, fmt.Errorf("invalid container port %q valid example: 127.0.0.1:80:80", port)
 			}
