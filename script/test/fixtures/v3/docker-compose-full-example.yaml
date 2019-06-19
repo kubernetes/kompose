@@ -15,7 +15,7 @@ services:
     command: bundle exec thin -p 3000
     # command: ["bundle", "exec", "thin", "-p", "3000"]
 
-    container_name: my-web-container
+    container_name: my_web-container
 
     depends_on:
       - db
