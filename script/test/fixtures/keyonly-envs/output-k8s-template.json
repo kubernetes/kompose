@@ -67,10 +67,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis-node",
+        "name": "redis-slave",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis-node"
+          "io.kompose.service": "redis-slave"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -86,7 +86,7 @@
           }
         ],
         "selector": {
-          "io.kompose.service": "redis-node"
+          "io.kompose.service": "redis-slave"
         }
       },
       "status": {
@@ -201,10 +201,10 @@
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "redis-node",
+        "name": "redis-slave",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis-node"
+          "io.kompose.service": "redis-slave"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -217,13 +217,13 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "redis-node"
+              "io.kompose.service": "redis-slave"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "redis-node",
+                "name": "redis-slave",
                 "image": "gcr.io/google_samples/gb-redisslave:v1",
                 "ports": [
                   {
