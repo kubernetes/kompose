@@ -380,7 +380,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	// fillTemplate fills the pod template with the value calculated from config
 	fillTemplate := func(template *api.PodTemplateSpec) error {
 		if len(service.ContainerName) > 0 {
-			template.Spec.Containers[0].Name = service.ContainerName
+			template.Spec.Containers[0].Name = FormatContainerName(service.ContainerName)
 		}
 		template.Spec.Containers[0].Env = envs
 		template.Spec.Containers[0].Command = service.Command
@@ -649,4 +649,11 @@ func FormatFileName(name string) string {
 	envName := strings.Trim(name, "./")
 	envName = strings.Replace(envName, "_", "-", -1)
 	return envName
+}
+
+//FormatContainerName format Container name
+func FormatContainerName(name string) string {
+	name = strings.Replace(name, "_", "-", -1)
+	return name
+
 }
