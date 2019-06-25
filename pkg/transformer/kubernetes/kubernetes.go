@@ -842,7 +842,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				return nil, fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
 			}
 
-			log.Infof("Build key detected. Attempting to build and push image '%s'", service.Image)
+			log.Infof("Build key detected. Attempting to build image '%s'", service.Image)
 
 			// Get the directory where the compose file is
 			composeFileDir, err := transformer.GetComposeFileDir(opt.InputFiles)
@@ -857,11 +857,13 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			}
 
 			// Push the built image to the repo!
-			err = transformer.PushDockerImage(service, name)
-			if err != nil {
-				return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
+			if opt.PushImage {
+				log.Infof("Push image enabled. Attempting to push image '%s'", service.Image)
+				err = transformer.PushDockerImage(service, name)
+				if err != nil {
+					return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
+				}
 			}
-
 		}
 
 		// If there's no "image" key, use the name of the container that's built
