@@ -173,14 +173,14 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 
 // initDeploymentConfig initializes OpenShifts DeploymentConfig object
 func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceConfig, replicas int) *deployapi.DeploymentConfig {
-	containerName := []string{name}
+	containerName := []string{kubernetes.FormatContainerName(name)}
 
 	// Properly add tags to the image name
 	tag := GetImageTag(service.Image)
 
 	// Use ContainerName if it was set
 	if service.ContainerName != "" {
-		containerName = []string{service.ContainerName}
+		containerName = []string{kubernetes.FormatContainerName(service.ContainerName)}
 	}
 
 	var podSpec kapi.PodSpec

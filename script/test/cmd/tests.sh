@@ -847,6 +847,8 @@ cat $KOMPOSE_ROOT/script/test/fixtures/stdin/docker-compose.yaml | $cmd | diff /
 EXIT_STATUS=$?
 
 echo -e "\n"
+cmd="$KOMPOSE_ROOT/kompose convert --stdout -j -f -"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/stdin/output.json > /tmp/output-k8s.json
 go test -v github.com/kubernetes/kompose/script/test/cmd
 
 rm /tmp/output-k8s.json /tmp/output-os.json

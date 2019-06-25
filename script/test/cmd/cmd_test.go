@@ -25,6 +25,7 @@ func Test_stdin(t *testing.T) {
 	}
 	g, err := ioutil.ReadFile("/tmp/output-k8s.json")
 	if !bytes.Equal(output, g) {
+		t.Logf("data not equal: %s \n %s", string(output), string(g))
 		t.Errorf("Test Failed")
 	}
 }

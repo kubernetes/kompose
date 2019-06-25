@@ -628,7 +628,10 @@ func GetContentFromFile(file string, opt kobject.ConvertOptions) (string, error)
 	if err != nil {
 		return "", errors.Wrap(err, "Unable to load file context")
 	}
-	fileLocation := path.Join(composeDir, file)
+	fileLocation := file
+	if !filepath.IsAbs(file) {
+		fileLocation = path.Join(composeDir, file)
+	}
 	fileBytes, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
 		return "", errors.Wrap(err, "Unable to read file")

@@ -253,6 +253,7 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceCon
 
 //InitConfigMapFromFile initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, fileName string) *api.ConfigMap {
+	fileName = filepath.Base(fileName)
 	content, err := GetContentFromFile(fileName, opt)
 	if err != nil {
 		log.Fatalf("Unable to retrieve file: %s", err)
@@ -263,7 +264,7 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 	dataMap[originFileName] = content
 	configMapName := ""
 	for key, tmpConfig := range service.ConfigsMetaData {
-		if tmpConfig.File == fileName {
+		if filepath.Base(tmpConfig.File) == fileName {
 			configMapName = key
 		}
 	}

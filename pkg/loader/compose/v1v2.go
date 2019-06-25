@@ -41,7 +41,15 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 
 	// Gather the appropriate context for parsing
 	context := &project.Context{}
-	context.ComposeFiles = files
+	if len(files) == 1 && files[0] == "-" {
+		data, err := ReadFile("-")
+		if err != nil {
+			return kobject.KomposeObject{}, nil
+		}
+		context.ComposeBytes = [][]byte{data}
+	} else {
+		context.ComposeFiles = files
+	}
 
 	if context.ResourceLookup == nil {
 		context.ResourceLookup = &lookup.FileResourceLookup{}

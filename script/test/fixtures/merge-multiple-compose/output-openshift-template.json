@@ -150,7 +150,7 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "test_server"
+                "test-server"
               ],
               "from": {
                 "kind": "ImageStreamTag",
@@ -174,7 +174,7 @@
           "spec": {
             "containers": [
               {
-                "name": "test_server",
+                "name": "test-server",
                 "image": " ",
                 "ports": [
                   {
