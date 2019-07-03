@@ -1,9 +1,7 @@
 name: kompose
 summary:  Go from Docker Compose to Kubernetes.
-description:| kompose is a tool to help users who are familiar with docker-compose move to Kubernetes. kompose takes a Docker Compose file and translates it into Kubernetes resources.
+description:Kompose is a tool to help users who are familiar with docker-compose move to Kubernetes. kompose takes a Docker Compose file and translates it into Kubernetes resources.
   
-adopt-info: kompose
-
 grade: stable
 confinement: classic
 
@@ -29,7 +27,7 @@ parts:
     source-type: git
     override-pull: |
       git clone https://github.com/kubernetes/kompose.git src/github.com/kubernetes/kompose
-       cd src/github.com/kubernetes/kompose
+      cd src/github.com/kubernetes/kompose
       last_committed_tag="$(git describe --tags --abbrev=0)"
       last_committed_tag_ver="$(echo ${last_committed_tag} | sed 's/v//')"
       last_released_tag="$(snap info $SNAPCRAFT_PROJECT_NAME | awk '$1 == "beta:" { print $2 }')"
@@ -38,7 +36,7 @@ parts:
       if [ "${last_committed_tag_ver}" != "${last_released_tag}" ]; then
         git fetch
         git checkout "${last_committed_tag}"
-      fi
+        fi
       snapcraftctl set-version "$(git describe --tags | sed 's/v//')"
       override-build: |
       export GOPATH=$PWD
