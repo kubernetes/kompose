@@ -294,7 +294,7 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 	dc := &extensions.Deployment{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Deployment",
-			APIVersion: "extensions/v1beta1",
+			APIVersion: "apps/v1",
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
@@ -318,7 +318,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 	ds := &extensions.DaemonSet{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "DaemonSet",
-			APIVersion: "extensions/v1beta1",
+			APIVersion: "apps/v1",
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
