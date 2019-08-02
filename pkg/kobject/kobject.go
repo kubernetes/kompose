@@ -87,6 +87,7 @@ type ServiceConfig struct {
 	CapAdd           []string            `compose:"cap_add"`
 	CapDrop          []string            `compose:"cap_drop"`
 	Expose           []string            `compose:"expose"`
+	ImagePullPolicy  string              `compose:"kompose.image-pull-policy"`
 	Pid              string              `compose:"pid"`
 	Privileged       bool                `compose:"privileged"`
 	Restart          string              `compose:"restart"`
@@ -99,6 +100,7 @@ type ServiceConfig struct {
 	ExposeService    string              `compose:"kompose.service.expose"`
 	BuildLabels      map[string]string   `compose:"build-labels"`
 	ExposeServiceTLS string              `compose:"kompose.service.expose.tls-secret"`
+	ImagePullSecret  string              `compose:"kompose.image-pull-secret"`
 	Stdin            bool                `compose:"stdin_open"`
 	Tty              bool                `compose:"tty"`
 	MemLimit         yaml.MemStringorInt `compose:"mem_limit"`
@@ -146,13 +148,14 @@ type Ports struct {
 
 // Volumes holds the volume struct of container
 type Volumes struct {
-	SvcName    string // Service name to which volume is linked
-	MountPath  string // Mountpath extracted from docker-compose file
-	VFrom      string // denotes service name from which volume is coming
-	VolumeName string // name of volume if provided explicitly
-	Host       string // host machine address
-	Container  string // Mountpath
-	Mode       string // access mode for volume
-	PVCName    string // name of PVC
-	PVCSize    string // PVC size
+	SvcName       string // Service name to which volume is linked
+	MountPath     string // Mountpath extracted from docker-compose file
+	VFrom         string // denotes service name from which volume is coming
+	VolumeName    string // name of volume if provided explicitly
+	Host          string // host machine address
+	Container     string // Mountpath
+	Mode          string // access mode for volume
+	PVCName       string // name of PVC
+	PVCSize       string // PVC size
+	SelectorValue string // Value of the label selector
 }

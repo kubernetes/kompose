@@ -19,6 +19,7 @@ package kubernetes
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -116,7 +117,7 @@ func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, u
 }
 
 // InitPodSpec creates the pod specification
-func (k *Kubernetes) InitPodSpec(name string, image string) api.PodSpec {
+func (k *Kubernetes) InitPodSpec(name string, image string, pullSecret string) api.PodSpec {
 	pod := api.PodSpec{
 		Containers: []api.Container{
 			{
@@ -124,6 +125,13 @@ func (k *Kubernetes) InitPodSpec(name string, image string) api.PodSpec {
 				Image: image,
 			},
 		},
+	}
+	if pullSecret != "" {
+		pod.ImagePullSecrets = []api.LocalObjectReference{
+			{
+				Name: pullSecret,
+			},
+		}
 	}
 	return pod
 }
@@ -191,7 +199,7 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 				ObjectMeta: api.ObjectMeta{
 					Labels: transformer.ConfigLabels(name),
 				},
-				Spec: k.InitPodSpec(name, service.Image),
+				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 			},
 		},
 	}
@@ -281,7 +289,7 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 	if len(service.Configs) > 0 {
 		podSpec = k.InitPodSpecWithConfigMap(name, service.Image, service)
 	} else {
-		podSpec = k.InitPodSpec(name, service.Image)
+		podSpec = k.InitPodSpec(name, service.Image, service.ImagePullSecret)
 	}
 
 	dc := &extensions.Deployment{
@@ -316,7 +324,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
-				Spec: k.InitPodSpec(name, service.Image),
+				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 			},
 		},
 	}
@@ -324,6 +332,8 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 }
 
 func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *extensions.Ingress {
+
+	hosts := regexp.MustCompile("[ ,]*,[ ,]*").Split(service.ExposeService, -1)
 
 	ingress := &extensions.Ingress{
 		TypeMeta: unversioned.TypeMeta{
@@ -335,36 +345,36 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: extensions.IngressSpec{
-			Rules: []extensions.IngressRule{
-				{
-					IngressRuleValue: extensions.IngressRuleValue{
-						HTTP: &extensions.HTTPIngressRuleValue{
-							Paths: []extensions.HTTPIngressPath{
-								{
-									Backend: extensions.IngressBackend{
-										ServiceName: name,
-										ServicePort: intstr.IntOrString{
-											IntVal: port,
-										},
-									},
+			Rules: make([]extensions.IngressRule, len(hosts)),
+		},
+	}
+
+	for i, host := range hosts {
+		ingress.Spec.Rules[i] = extensions.IngressRule{
+			IngressRuleValue: extensions.IngressRuleValue{
+				HTTP: &extensions.HTTPIngressRuleValue{
+					Paths: []extensions.HTTPIngressPath{
+						{
+							Backend: extensions.IngressBackend{
+								ServiceName: name,
+								ServicePort: intstr.IntOrString{
+									IntVal: port,
 								},
 							},
 						},
 					},
 				},
 			},
-		},
+		}
+		if host != "true" {
+			ingress.Spec.Rules[i].Host = host
+		}
 	}
 
-	if service.ExposeService != "true" {
-		ingress.Spec.Rules[0].Host = service.ExposeService
-	}
 	if service.ExposeServiceTLS != "" {
 		ingress.Spec.TLS = []extensions.IngressTLS{
 			{
-				Hosts: []string{
-					service.ExposeService,
-				},
+				Hosts:      hosts,
 				SecretName: service.ExposeServiceTLS,
 			},
 		}
@@ -405,7 +415,7 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 }
 
 // CreatePVC initializes PersistentVolumeClaim
-func (k *Kubernetes) CreatePVC(name string, mode string, size string) (*api.PersistentVolumeClaim, error) {
+func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorValue string) (*api.PersistentVolumeClaim, error) {
 	volSize, err := resource.ParseQuantity(size)
 	if err != nil {
 		return nil, errors.Wrap(err, "resource.ParseQuantity failed, Error parsing size")
@@ -427,6 +437,12 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string) (*api.Pers
 				},
 			},
 		},
+	}
+
+	if len(selectorValue) > 0 {
+		pvc.Spec.Selector = &unversioned.LabelSelector{
+			MatchLabels: transformer.ConfigLabels(selectorValue),
+		}
 	}
 
 	if mode == "ro" {
@@ -695,13 +711,17 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			if volume.VFrom == "" {
 				defaultSize := PVCRequestSize
 
-				for key, value := range service.Labels {
-					if key == "kompose.volume.size" {
-						defaultSize = value
+				if len(volume.PVCSize) > 0 {
+					defaultSize = volume.PVCSize
+				} else {
+					for key, value := range service.Labels {
+						if key == "kompose.volume.size" {
+							defaultSize = value
+						}
 					}
 				}
 
-				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize)
+				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue)
 
 				if err != nil {
 					return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
@@ -911,7 +931,7 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
-		Spec: k.InitPodSpec(name, service.Image),
+		Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 	}
 	return &pod
 }
@@ -1105,6 +1125,8 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 		return err
 	}
 
+	pvcCreatedSet := make(map[string]bool)
+
 	log.Infof("Deploying application in %q namespace", namespace)
 
 	for _, v := range objects {
@@ -1137,11 +1159,18 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 			}
 			log.Infof("Successfully created Service: %s", t.Name)
 		case *api.PersistentVolumeClaim:
-			_, err := client.PersistentVolumeClaims(namespace).Create(t)
-			if err != nil {
-				return err
+			if pvcCreatedSet[t.Name] {
+				log.Infof("Skip creation of PersistentVolumeClaim as it is already created: %s", t.Name)
+			} else {
+				_, err := client.PersistentVolumeClaims(namespace).Create(t)
+				if err != nil {
+					return err
+				}
+				pvcCreatedSet[t.Name] = true
+				storage := t.Spec.Resources.Requests[api.ResourceStorage]
+				capacity := storage.String()
+				log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, capacity)
 			}
-			log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, PVCRequestSize)
 		case *extensions.Ingress:
 			_, err := client.Ingress(namespace).Create(t)
 			if err != nil {

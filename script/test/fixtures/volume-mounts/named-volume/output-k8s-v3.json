@@ -1,0 +1,157 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "db",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%",
+          "kompose.volume.size": "200Mi"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "5432",
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "db"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "db",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%",
+          "kompose.volume.size": "200Mi"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "db"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "db-data",
+                "persistentVolumeClaim": {
+                  "claimName": "db-data"
+                }
+              },
+              {
+                "name": "db-config",
+                "persistentVolumeClaim": {
+                  "claimName": "db-config"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "db",
+                "image": "postgres:10.1",
+                "ports": [
+                  {
+                    "containerPort": 5432
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "db-data",
+                    "mountPath": "/var/lib/postgresql/data"
+                  },
+                  {
+                    "name": "db-config",
+                    "mountPath": "/var/lib/postgresql/config"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "db-data",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db-data"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "db-data-dev"
+          }
+        },
+        "resources": {
+          "requests": {
+            "storage": "500Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "db-config",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db-config"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "200Mi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}

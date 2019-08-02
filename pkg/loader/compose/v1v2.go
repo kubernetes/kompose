@@ -193,7 +193,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig := kobject.ServiceConfig{}
 		serviceConfig.Image = composeServiceConfig.Image
 		serviceConfig.Build = composeServiceConfig.Build.Context
-		newName := normalizeServiceNames(composeServiceConfig.ContainerName)
+		newName := normalizeContainerNames(composeServiceConfig.ContainerName)
 		serviceConfig.ContainerName = newName
 		if newName != composeServiceConfig.ContainerName {
 			log.Infof("Container name in service %q has been changed from %q to %q", name, composeServiceConfig.ContainerName, newName)
@@ -224,7 +224,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 
 		if composeServiceConfig.Volumes != nil {
 			for _, volume := range composeServiceConfig.Volumes.Volumes {
-				v := normalizeServiceNames(volume.String())
+				v := normalizeVolumes(volume.String())
 				serviceConfig.VolList = append(serviceConfig.VolList, v)
 			}
 		}
@@ -243,9 +243,13 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 
 				serviceConfig.ServiceType = serviceType
 			case LabelServiceExpose:
-				serviceConfig.ExposeService = strings.ToLower(value)
+				serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
 			case LabelServiceExposeTLSSecret:
 				serviceConfig.ExposeServiceTLS = value
+			case LabelImagePullSecret:
+				serviceConfig.ImagePullSecret = value
+			case LabelImagePullPolicy:
+				serviceConfig.ImagePullPolicy = value
 			default:
 				serviceConfig.Labels[key] = value
 			}
@@ -330,7 +334,7 @@ func retrieveVolume(svcName string, komposeObject kobject.KomposeObject) (volume
 			var cVols []kobject.Volumes
 			cVols, err = ParseVols(komposeObject.ServiceConfigs[svcName].VolList, svcName)
 			if err != nil {
-				return nil, errors.Wrapf(err, "error generting current volumes")
+				return nil, errors.Wrapf(err, "error generating current volumes")
 			}
 
 			for _, cv := range cVols {
@@ -364,7 +368,7 @@ func retrieveVolume(svcName string, komposeObject kobject.KomposeObject) (volume
 		// if `volumes-from` is not present
 		volume, err = ParseVols(komposeObject.ServiceConfigs[svcName].VolList, svcName)
 		if err != nil {
-			return nil, errors.Wrapf(err, "error generting current volumes")
+			return nil, errors.Wrapf(err, "error generating current volumes")
 		}
 	}
 	return

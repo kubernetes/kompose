@@ -185,6 +185,10 @@ cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/do
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/output-k8s-template.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/docker-compose-v3.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/output-k8s-v3.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
 # openshift test
 cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/docker-compose.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/named-volume/output-os-template.json > /tmp/output-os.json
@@ -384,6 +388,14 @@ convert::expect_success "$cmd" "/tmp/output-k8s.json"
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-multiple-ports.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-hostname-multiple-ports.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
+# when kompose.service.expose="<hostname_1>;<hostname_2>;...<hostname_N>"
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-multiple-hostname.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-multiple-hostname.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+# when kompose.service.expose="<hostname_1>;<hostname_2>;...<hostname_N>" and kompose.service.expose.tls-secret="<secret>"
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-multiple-hostname-tls.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/kubernetes-expose-multiple-hostname-tls.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 #openshift tests
 # when kompose.service.expose="True"
@@ -402,6 +414,25 @@ convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/te
 cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-multiple-ports.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/expose-service/provider-files/openshift-expose-hostname-multiple-ports.json > /tmp/output-os.json
 convert::expect_success "kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose-service/compose-files/docker-compose-expose-hostname-multiple-ports.yml convert --stdout -j" "/tmp/output-os.json"
+
+# Test related to kompose.image-pull-secret label in docker compose file to ensure imagePullSecrets are populated properly.
+# Kubernetes Test
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-secret/compose-files/docker-compose-image-pull-secret.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-secret/provider-files/kubernetes-image-pull-secret.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+# Test related to kompose.image-pull-secrets label in docker compose file.
+# Kubernetes Tests
+# when kompose.image-pull-secrets is invalid
+convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-files/v12-fail-image-pull-policy.yml convert --stdout"
+# when kompose.image-pull-secrets in v1 and 2
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-files/v12-image-pull-policy.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/provider-files/kubernetes-v12-image-pull-policy.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+# when kompose.image-pull-secrets in v3
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-files/v3-image-pull-policy.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/provider-files/kubernetes-v3-image-pull-policy.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 
 # Test the change in the service name
@@ -815,6 +846,11 @@ cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-k8s-endpoint-mode-2.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
+## Test compose v3.5+
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-3.5.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/v3/output-k8s-3.5.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
 ## Test OpenShift for compose v3.3
 cmd="kompose --provider openshift convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-config-long.yaml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-os-config-long.json > /tmp/output-os.json
@@ -829,8 +865,10 @@ sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/f
 convert::expect_success "$cmd" "/tmp/output-os.json"
 
 # Testing stdin feature
-cmd="$KOMPOSE_ROOT/kompose convert --stdout -j -f -"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/stdin/output.json > /tmp/output-k8s.json
+cmd="kompose convert --stdout -j -f -"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/stdin/output-k8s.json > /tmp/output-k8s.json
+cat $KOMPOSE_ROOT/script/test/fixtures/stdin/docker-compose.yaml | $cmd | diff /tmp/output-k8s.json -
+EXIT_STATUS=$?
 
 echo -e "\n"
 go test -v github.com/kubernetes/kompose/script/test/cmd

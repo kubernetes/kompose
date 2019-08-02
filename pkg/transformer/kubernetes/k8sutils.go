@@ -380,7 +380,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	// fillTemplate fills the pod template with the value calculated from config
 	fillTemplate := func(template *api.PodTemplateSpec) error {
 		if len(service.ContainerName) > 0 {
-			template.Spec.Containers[0].Name = service.ContainerName
+			template.Spec.Containers[0].Name = FormatContainerName(service.ContainerName)
 		}
 		template.Spec.Containers[0].Env = envs
 		template.Spec.Containers[0].Command = service.Command
@@ -502,6 +502,19 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		}
 		template.Spec.Containers[0].Ports = ports
 		template.ObjectMeta.Labels = transformer.ConfigLabels(name)
+
+		// Configure the image pull policy
+		switch service.ImagePullPolicy {
+		case "":
+		case "Always":
+			template.Spec.Containers[0].ImagePullPolicy = api.PullAlways
+		case "Never":
+			template.Spec.Containers[0].ImagePullPolicy = api.PullNever
+		case "IfNotPresent":
+			template.Spec.Containers[0].ImagePullPolicy = api.PullIfNotPresent
+		default:
+			return errors.New("Unknown image-pull-policy " + service.ImagePullPolicy + " for service " + name)
+		}
 
 		// Configure the container restart policy.
 		switch service.Restart {
@@ -647,4 +660,11 @@ func FormatFileName(name string) string {
 	envName := strings.Trim(name, "./")
 	envName = strings.Replace(envName, "_", "-", -1)
 	return envName
+}
+
+//FormatContainerName format Container name
+func FormatContainerName(name string) string {
+	name = strings.Replace(name, "_", "-", -1)
+	return name
+
 }

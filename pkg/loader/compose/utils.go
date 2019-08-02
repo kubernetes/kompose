@@ -17,8 +17,10 @@ limitations under the License.
 package compose
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -35,6 +37,10 @@ const (
 	LabelServiceExposeTLSSecret = "kompose.service.expose.tls-secret"
 	// LabelControllerType defines the type of controller to be created
 	LabelControllerType = "kompose.controller.type"
+	// LabelImagePullSecret defines a secret name for kubernetes ImagePullSecrets
+	LabelImagePullSecret = "kompose.image-pull-secret"
+	// LabelImagePullPolicy defines Kubernetes PodSpec imagePullPolicy.
+	LabelImagePullPolicy = "kompose.image-pull-policy"
 
 	// ServiceTypeHeadless ...
 	ServiceTypeHeadless = "Headless"
@@ -112,6 +118,29 @@ func handleServiceType(ServiceType string) (string, error) {
 	}
 }
 
+func normalizeContainerNames(svcName string) string {
+	return strings.ToLower(svcName)
+}
+
 func normalizeServiceNames(svcName string) string {
+	re := regexp.MustCompile("[._]")
+	return strings.ToLower(re.ReplaceAllString(svcName, "-"))
+}
+
+func normalizeVolumes(svcName string) string {
 	return strings.Replace(svcName, "_", "-", -1)
+}
+
+// ReadFile read data from file or stdin
+func ReadFile(fileName string) ([]byte, error) {
+	if fileName == "-" {
+		if StdinData == nil {
+			data, err := ioutil.ReadAll(os.Stdin)
+			StdinData = data
+			return data, err
+		}
+		return StdinData, nil
+	}
+	return ioutil.ReadFile(fileName)
+
 }

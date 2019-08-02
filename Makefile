@@ -103,7 +103,7 @@ test-dep:
 	go get github.com/modocache/gover
 	go get github.com/Masterminds/glide
 	go get github.com/sgotti/glide-vc
-	go get github.com/golang/lint/golint
+	go get golang.org/x/lint/golint
 	go get github.com/mitchellh/gox
 
 
@@ -123,7 +123,8 @@ test-container:
 vendor-update:
 	glide update --strip-vendor
 	glide-vc --only-code --no-tests
-	find ./vendor/github.com/docker/distribution -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} \;        
+	find ./vendor/github.com/docker/distribution -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} \;
+	rm -rf vendor/github.com/Sirupsen
 
 
 .PHONY: test-k8s

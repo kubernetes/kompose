@@ -17,7 +17,6 @@ limitations under the License.
 package compose
 
 import (
-	"io/ioutil"
 	"strconv"
 	"strings"
 	"time"
@@ -77,7 +76,7 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 	var config *types.Config
 	for _, file := range files {
 		// Load and then parse the YAML first!
-		loadedFile, err := ioutil.ReadFile(file)
+		loadedFile, err := ReadFile(file)
 		if err != nil {
 			return kobject.KomposeObject{}, err
 		}
@@ -135,8 +134,13 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 
 func loadV3Placement(constraints []string) map[string]string {
 	placement := make(map[string]string)
+	errMsg := " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
 	for _, j := range constraints {
 		p := strings.Split(j, " == ")
+		if len(p) < 2 {
+			log.Warn(p[0], errMsg)
+			continue
+		}
 		if p[0] == "node.hostname" {
 			placement["kubernetes.io/hostname"] = p[1]
 		} else if p[0] == "engine.labels.operatingsystem" {
@@ -145,7 +149,7 @@ func loadV3Placement(constraints []string) map[string]string {
 			label := strings.TrimPrefix(p[0], "node.labels.")
 			placement[label] = p[1]
 		} else {
-			log.Warn(p[0], " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint ")
+			log.Warn(p[0], errMsg)
 		}
 	}
 	return placement
@@ -160,7 +164,7 @@ func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
 	for _, vol := range volumes {
 
 		// There will *always* be Source when parsing
-		v := normalizeServiceNames(vol.Source)
+		v := normalizeVolumes(vol.Source)
 
 		if vol.Target != "" {
 			v = v + ":" + vol.Target
@@ -271,7 +275,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Stdin = composeServiceConfig.StdinOpen
 		serviceConfig.Tty = composeServiceConfig.Tty
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
-		serviceConfig.ContainerName = composeServiceConfig.ContainerName
+		serviceConfig.ContainerName = normalizeContainerNames(composeServiceConfig.ContainerName)
 		serviceConfig.Command = composeServiceConfig.Entrypoint
 		serviceConfig.Args = composeServiceConfig.Command
 		serviceConfig.Labels = composeServiceConfig.Labels
@@ -401,9 +405,13 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 
 				serviceConfig.ServiceType = serviceType
 			case LabelServiceExpose:
-				serviceConfig.ExposeService = strings.ToLower(value)
+				serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
 			case LabelServiceExposeTLSSecret:
 				serviceConfig.ExposeServiceTLS = value
+			case LabelImagePullSecret:
+				serviceConfig.ImagePullSecret = value
+			case LabelImagePullPolicy:
+				serviceConfig.ImagePullPolicy = value
 			}
 		}
 
@@ -425,9 +433,49 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 	}
 
-	handleVolume(&komposeObject)
+	handleV3Volume(&komposeObject, &composeObject.Volumes)
 
 	return komposeObject, nil
+}
+
+func handleV3Volume(komposeObject *kobject.KomposeObject, volumes *map[string]types.VolumeConfig) {
+	for name := range komposeObject.ServiceConfigs {
+		// retrieve volumes of service
+		vols, err := retrieveVolume(name, *komposeObject)
+		if err != nil {
+			errors.Wrap(err, "could not retrieve vvolume")
+		}
+		for volName, vol := range vols {
+			size, selector := getV3VolumeLabels(vol.VolumeName, volumes)
+			if len(size) > 0 || len(selector) > 0 {
+				// We can't assign value to struct field in map while iterating over it, so temporary variable `temp` is used here
+				var temp = vols[volName]
+				temp.PVCSize = size
+				temp.SelectorValue = selector
+				vols[volName] = temp
+			}
+		}
+		// We can't assign value to struct field in map while iterating over it, so temporary variable `temp` is used here
+		var temp = komposeObject.ServiceConfigs[name]
+		temp.Volumes = vols
+		komposeObject.ServiceConfigs[name] = temp
+	}
+}
+
+func getV3VolumeLabels(name string, volumes *map[string]types.VolumeConfig) (string, string) {
+	size, selector := "", ""
+
+	if volume, ok := (*volumes)[name]; ok {
+		for key, value := range volume.Labels {
+			if key == "kompose.volume.size" {
+				size = value
+			} else if key == "kompose.volume.selector" {
+				selector = value
+			}
+		}
+	}
+
+	return size, selector
 }
 
 func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*types.Config, error) {

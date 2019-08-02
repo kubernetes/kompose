@@ -187,7 +187,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 	if len(service.Configs) > 0 {
 		podSpec = o.InitPodSpecWithConfigMap(name, " ", service)
 	} else {
-		podSpec = o.InitPodSpec(name, " ")
+		podSpec = o.InitPodSpec(name, " ", "")
 	}
 
 	dc := &deployapi.DeploymentConfig{
@@ -362,7 +362,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				// Get the compose file directory
 				composeFileDir, err = transformer.GetComposeFileDir(opt.InputFiles)
 				if err != nil {
-					log.Warningf("Error in detecting compose file's directory.")
+					log.Warningf("Error %v in detecting compose file's directory.", err)
 					continue
 				}
 
