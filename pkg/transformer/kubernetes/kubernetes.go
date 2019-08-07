@@ -49,11 +49,12 @@ import (
 	"sort"
 	"strings"
 
+	"path/filepath"
+
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
-	"path/filepath"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -189,8 +190,9 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: api.ReplicationControllerSpec{
 			Replicas: int32(replicas),
@@ -213,8 +215,9 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: api.ServiceSpec{
 			Selector: transformer.ConfigLabels(name),
@@ -242,8 +245,9 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceCon
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name + "-" + envName,
-			Labels: transformer.ConfigLabels(name + "-" + envName),
+			Name:      name + "-" + envName,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name + "-" + envName),
 		},
 		Data: envs,
 	}
@@ -273,8 +277,9 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   FormatFileName(configMapName),
-			Labels: transformer.ConfigLabels(name),
+			Name:      FormatFileName(configMapName),
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Data: dataMap,
 	}
@@ -297,8 +302,9 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
@@ -318,8 +324,9 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
@@ -340,8 +347,9 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 			APIVersion: "extensions/v1beta1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: extensions.IngressSpec{
 			Rules: make([]extensions.IngressRule, len(hosts)),
@@ -383,7 +391,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 }
 
 // CreatePVC initializes PersistentVolumeClaim
-func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorValue string) (*api.PersistentVolumeClaim, error) {
+func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorValue string, namespace string) (*api.PersistentVolumeClaim, error) {
 	volSize, err := resource.ParseQuantity(size)
 	if err != nil {
 		return nil, errors.Wrap(err, "resource.ParseQuantity failed, Error parsing size")
@@ -395,8 +403,9 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: namespace,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: api.PersistentVolumeClaimSpec{
 			Resources: api.ResourceRequirements{
@@ -604,7 +613,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 					}
 				}
 
-				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue)
+				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue, service.Namespace.Name)
 
 				if err != nil {
 					return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
@@ -811,8 +820,9 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 	}
@@ -888,6 +898,12 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			if service.ExposeService != "" {
 				objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
 			}
+
+			if service.Namespace.Create && service.Namespace.Name != "" {
+				var obj = k.InitNamespace(service.Namespace.Name)
+				objects = append(objects, obj)
+			}
+
 		} else {
 			if service.ServiceType == "Headless" {
 				svc := k.CreateHeadlessService(name, service, objects)
@@ -973,6 +989,20 @@ func (k *Kubernetes) GetKubernetesClient() (*client.Client, string, error) {
 	return client, namespace, nil
 }
 
+// InitNamespace initializes Kubernetes Namespace object
+func (k *Kubernetes) InitNamespace(name string) *api.Namespace {
+	namespace := api.Namespace{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "Namespace",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: name,
+		},
+	}
+	return &namespace
+}
+
 // Deploy submits deployment and svc to k8s endpoint
 func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
@@ -991,8 +1021,11 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 
 	client, ns, err := k.GetKubernetesClient()
 	namespace := ns
+	namespaceOverride := false
 	if opt.IsNamespaceFlag {
 		namespace = opt.Namespace
+		namespaceOverride = true
+		log.Infof("Using namespace %q", namespace)
 	}
 	if err != nil {
 		return err
@@ -1000,33 +1033,49 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 
 	pvcCreatedSet := make(map[string]bool)
 
-	log.Infof("Deploying application in %q namespace", namespace)
+	log.Infof("Deploying application")
 
 	for _, v := range objects {
 		switch t := v.(type) {
 		case *extensions.Deployment:
-			_, err := client.Deployments(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := client.Deployments(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created Deployment: %s", t.Name)
 
 		case *extensions.DaemonSet:
-			_, err := client.DaemonSets(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := client.DaemonSets(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created DaemonSet: %s", t.Name)
 
 		case *api.ReplicationController:
-			_, err := client.ReplicationControllers(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := client.ReplicationControllers(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created ReplicationController: %s", t.Name)
 
 		case *api.Service:
-			_, err := client.Services(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := client.Services(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
@@ -1035,7 +1084,11 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 			if pvcCreatedSet[t.Name] {
 				log.Infof("Skip creation of PersistentVolumeClaim as it is already created: %s", t.Name)
 			} else {
-				_, err := client.PersistentVolumeClaims(namespace).Create(t)
+				var namespaceObject = t.Namespace
+				if namespaceOverride {
+					namespaceObject = namespace
+				}
+				_, err := client.PersistentVolumeClaims(namespaceObject).Create(t)
 				if err != nil {
 					return err
 				}
@@ -1045,19 +1098,31 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 				log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, capacity)
 			}
 		case *extensions.Ingress:
-			_, err := client.Ingress(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := client.Ingress(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created Ingress: %s", t.Name)
 		case *api.Pod:
-			_, err := client.Pods(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := client.Pods(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created Pod: %s", t.Name)
 		case *api.ConfigMap:
-			_, err := client.ConfigMaps(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := client.ConfigMaps(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
@@ -1087,8 +1152,11 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 
 	client, ns, err := k.GetKubernetesClient()
 	namespace := ns
+	namespaceOverride := false
 	if opt.IsNamespaceFlag {
 		namespace = opt.Namespace
+		namespaceOverride = true
+		log.Infof("Using namespace %q", namespace)
 	}
 
 	if err != nil {
@@ -1096,7 +1164,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 		return errorList
 	}
 
-	log.Infof("Deleting application in %q namespace", namespace)
+	log.Infof("Deleting application")
 
 	for _, v := range objects {
 		label := labels.SelectorFromSet(labels.Set(map[string]string{transformer.Selector: v.(meta.Object).GetName()}))
@@ -1105,7 +1173,11 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 		switch t := v.(type) {
 		case *extensions.Deployment:
 			//delete deployment
-			deployment, err := client.Deployments(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			deployment, err := client.Deployments(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
@@ -1118,7 +1190,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 						break
 					}
 					//FIXME: gracePeriod is nil
-					err = rpDeployment.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					err = rpDeployment.Stop(namespaceObject, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -1130,7 +1202,11 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 
 		case *extensions.DaemonSet:
 			//delete deployment
-			daemonset, err := client.DaemonSets(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			daemonset, err := client.DaemonSets(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
@@ -1143,7 +1219,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 						break
 					}
 					//FIXME: gracePeriod is nil
-					err = rpDaemonset.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					err = rpDaemonset.Stop(namespaceObject, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -1155,7 +1231,11 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 
 		case *api.ReplicationController:
 			//delete deployment
-			replicationController, err := client.ReplicationControllers(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			replicationController, err := client.ReplicationControllers(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
@@ -1168,7 +1248,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 						break
 					}
 					//FIXME: gracePeriod is nil
-					err = rpReplicationController.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					err = rpReplicationController.Stop(namespaceObject, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -1180,7 +1260,11 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 
 		case *api.Service:
 			//delete svc
-			svc, err := client.Services(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			svc, err := client.Services(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
@@ -1193,7 +1277,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 						break
 					}
 					//FIXME: gracePeriod is nil
-					err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					err = rpService.Stop(namespaceObject, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -1205,14 +1289,18 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 
 		case *api.PersistentVolumeClaim:
 			// delete pvc
-			pvc, err := client.PersistentVolumeClaims(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			pvc, err := client.PersistentVolumeClaims(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
 			}
 			for _, l := range pvc.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					err = client.PersistentVolumeClaims(namespace).Delete(t.Name)
+					err = client.PersistentVolumeClaims(namespaceObject).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -1229,7 +1317,11 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 					APIVersion: "extensions/v1beta1",
 				},
 			}
-			ingress, err := client.Ingress(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			ingress, err := client.Ingress(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
@@ -1237,7 +1329,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 			for _, l := range ingress.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 
-					err = client.Ingress(namespace).Delete(t.Name, ingDeleteOptions)
+					err = client.Ingress(namespaceObject).Delete(t.Name, ingDeleteOptions)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -1248,7 +1340,11 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 
 		case *api.Pod:
 			//delete pod
-			pod, err := client.Pods(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			pod, err := client.Pods(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 			}
@@ -1260,7 +1356,7 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 						break
 					}
 					//FIXME: gracePeriod is nil
-					err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					err = rpPod.Stop(namespaceObject, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -1271,14 +1367,18 @@ func (k *Kubernetes) Undeploy(komposeObject kobject.KomposeObject, opt kobject.C
 
 		case *api.ConfigMap:
 			// delete ConfigMap
-			configMap, err := client.ConfigMaps(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			configMap, err := client.ConfigMaps(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
 			}
 			for _, l := range configMap.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					err = client.ConfigMaps(namespace).Delete(t.Name)
+					err = client.ConfigMaps(namespaceObject).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
