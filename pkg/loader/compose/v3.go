@@ -282,6 +282,31 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.DomainName = composeServiceConfig.DomainName
 
 		//
+		// Treat network as namespace
+		//
+		if len(composeServiceConfig.Networks) == 0 {
+			if defaultNetwork, ok := composeObject.Networks["default"]; ok {
+				serviceConfig.Namespace = kobject.Namespace{
+					Name:   defaultNetwork.Name,
+					Create: defaultNetwork.External.External == false,
+				}
+			}
+		} else {
+			if len(composeServiceConfig.Networks) > 1 {
+				log.Warnf("Services with more than 1 network will use the first as namespace!")
+			}
+			var alias = ""
+			for key := range composeServiceConfig.Networks {
+				alias = key
+				break
+			}
+			serviceConfig.Namespace = kobject.Namespace{
+				Name:   composeObject.Networks[alias].Name,
+				Create: composeObject.Networks[alias].External.External == false,
+			}
+		}
+
+		//
 		// Deploy keys
 		//
 

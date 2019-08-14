@@ -89,8 +89,9 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 		tags = map[string]imageapi.TagReference{
 			tag: imageapi.TagReference{
 				From: &kapi.ObjectReference{
-					Kind: "DockerImage",
-					Name: service.Image,
+					Kind:      "DockerImage",
+					Name:      service.Image,
+					Namespace: service.Namespace.Name,
 				},
 				ImportPolicy: importPolicy,
 			},
@@ -103,8 +104,9 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 			APIVersion: "v1",
 		},
 		ObjectMeta: kapi.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: imageapi.ImageStreamSpec{
 			Tags: tags,
@@ -137,8 +139,9 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 		},
 
 		ObjectMeta: kapi.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: buildapi.BuildConfigSpec{
 			Triggers: []buildapi.BuildTriggerPolicy{
@@ -161,8 +164,9 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 				},
 				Output: buildapi.BuildOutput{
 					To: &kapi.ObjectReference{
-						Kind: "ImageStreamTag",
-						Name: name + ":" + GetImageTag(service.Image),
+						Kind:      "ImageStreamTag",
+						Namespace: service.Namespace.Name,
+						Name:      name + ":" + GetImageTag(service.Image),
 					},
 				},
 			},
@@ -196,8 +200,9 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 			APIVersion: "v1",
 		},
 		ObjectMeta: kapi.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: deployapi.DeploymentConfigSpec{
 			Replicas: int32(replicas),
@@ -205,7 +210,8 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 			//UniqueLabelKey: p.Name,
 			Template: &kapi.PodTemplateSpec{
 				ObjectMeta: kapi.ObjectMeta{
-					Labels: transformer.ConfigLabels(name),
+					Namespace: service.Namespace.Name,
+					Labels:    transformer.ConfigLabels(name),
 				},
 				Spec: podSpec,
 			},
@@ -239,8 +245,9 @@ func (o *OpenShift) initRoute(name string, service kobject.ServiceConfig, port i
 			APIVersion: "v1",
 		},
 		ObjectMeta: kapi.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:      name,
+			Namespace: service.Namespace.Name,
+			Labels:    transformer.ConfigLabels(name),
 		},
 		Spec: routeapi.RouteSpec{
 			Port: &routeapi.RoutePort{
@@ -400,6 +407,12 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			if service.ExposeService != "" {
 				objects = append(objects, o.initRoute(name, service, svc.Spec.Ports[0].Port))
 			}
+
+			if service.Namespace.Create && service.Namespace.Name != "" {
+				var obj = o.InitNamespace(service.Namespace.Name)
+				objects = append(objects, obj)
+			}
+
 		} else if service.ServiceType == "Headless" {
 			svc := o.CreateHeadlessService(name, service, objects)
 			objects = append(objects, svc)
@@ -432,6 +445,20 @@ func (o *OpenShift) getOpenShiftClient() (*oclient.Client, error) {
 	return oc, nil
 }
 
+// InitNamespace initializes Namespace object
+func (o *OpenShift) InitNamespace(name string) *kapi.Namespace {
+	project := kapi.Namespace{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "Namespace",
+			APIVersion: "v1",
+		},
+		ObjectMeta: kapi.ObjectMeta{
+			Name: name,
+		},
+	}
+	return &project
+}
+
 // Deploy transforms and deploys kobject to OpenShift
 func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error {
 	//Convert komposeObject
@@ -457,52 +484,83 @@ func (o *OpenShift) Deploy(komposeObject kobject.KomposeObject, opt kobject.Conv
 		return err
 	}
 	namespace := ns
+	namespaceOverride := false
 	if opt.IsNamespaceFlag {
 		namespace = opt.Namespace
+		namespaceOverride = true
+		log.Infof("Using namespace %q", namespace)
 	}
 
-	log.Infof("Deploying application in %q namespace", namespace)
+	log.Infof("Deploying application")
 
 	for _, v := range objects {
 		switch t := v.(type) {
 		case *imageapi.ImageStream:
-			_, err := oc.ImageStreams(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := oc.ImageStreams(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created ImageStream: %s", t.Name)
 		case *buildapi.BuildConfig:
-			_, err := oc.BuildConfigs(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := oc.BuildConfigs(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created BuildConfig: %s", t.Name)
 		case *deployapi.DeploymentConfig:
-			_, err := oc.DeploymentConfigs(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := oc.DeploymentConfigs(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created DeploymentConfig: %s", t.Name)
 		case *kapi.Service:
-			_, err := kclient.Services(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := kclient.Services(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created Service: %s", t.Name)
 		case *kapi.PersistentVolumeClaim:
-			_, err := kclient.PersistentVolumeClaims(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := kclient.PersistentVolumeClaims(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created PersistentVolumeClaim: %s of size %s. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work", t.Name, kubernetes.PVCRequestSize)
 		case *routeapi.Route:
-			_, err := oc.Routes(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := oc.Routes(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
 			log.Infof("Successfully created Route: %s", t.Name)
 		case *kapi.Pod:
-			_, err := kclient.Pods(namespace).Create(t)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			_, err := kclient.Pods(namespaceObject).Create(t)
 			if err != nil {
 				return err
 			}
@@ -541,11 +599,14 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 		return errorList
 	}
 	namespace := ns
+	namespaceOverride := false
 	if opt.IsNamespaceFlag {
 		namespace = opt.Namespace
+		namespaceOverride = true
+		log.Infof("Using namespace %q", namespace)
 	}
 
-	log.Infof("Deleting application in %q namespace", namespace)
+	log.Infof("Deleting application")
 
 	for _, v := range objects {
 		label := labels.SelectorFromSet(labels.Set(map[string]string{transformer.Selector: v.(meta.Object).GetName()}))
@@ -554,14 +615,18 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 		switch t := v.(type) {
 		case *imageapi.ImageStream:
 			//delete imageStream
-			imageStream, err := oc.ImageStreams(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			imageStream, err := oc.ImageStreams(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
 			}
 			for _, l := range imageStream.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					err = oc.ImageStreams(namespace).Delete(t.Name)
+					err = oc.ImageStreams(namespaceObject).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -571,7 +636,11 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			}
 
 		case *buildapi.BuildConfig:
-			buildConfig, err := oc.BuildConfigs(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			buildConfig, err := oc.BuildConfigs(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
@@ -579,7 +648,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			for _, l := range buildConfig.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					bcreaper := buildconfigreaper.NewBuildConfigReaper(oc)
-					err := bcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					err := bcreaper.Stop(namespaceObject, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -590,7 +659,11 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 
 		case *deployapi.DeploymentConfig:
 			// delete deploymentConfig
-			deploymentConfig, err := oc.DeploymentConfigs(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			deploymentConfig, err := oc.DeploymentConfigs(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
@@ -598,7 +671,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 			for _, l := range deploymentConfig.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
 					dcreaper := deploymentconfigreaper.NewDeploymentConfigReaper(oc, kclient)
-					err := dcreaper.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					err := dcreaper.Stop(namespaceObject, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -609,7 +682,11 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 
 		case *kapi.Service:
 			//delete svc
-			svc, err := kclient.Services(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			svc, err := kclient.Services(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
@@ -622,7 +699,11 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 						break
 					}
 					//FIXME: gracePeriod is nil
-					err = rpService.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					var namespaceObject = t.Namespace
+					if namespaceOverride {
+						namespaceObject = namespace
+					}
+					err = rpService.Stop(namespaceObject, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -633,14 +714,18 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 
 		case *kapi.PersistentVolumeClaim:
 			// delete pvc
-			pvc, err := kclient.PersistentVolumeClaims(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			pvc, err := kclient.PersistentVolumeClaims(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
 			}
 			for _, l := range pvc.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					err = kclient.PersistentVolumeClaims(namespace).Delete(t.Name)
+					err = kclient.PersistentVolumeClaims(namespaceObject).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -651,14 +736,18 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 
 		case *routeapi.Route:
 			// delete route
-			route, err := oc.Routes(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			route, err := oc.Routes(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
 			}
 			for _, l := range route.Items {
 				if reflect.DeepEqual(l.Labels, komposeLabel) {
-					err = oc.Routes(namespace).Delete(t.Name)
+					err = oc.Routes(namespaceObject).Delete(t.Name)
 					if err != nil {
 						errorList = append(errorList, err)
 						break
@@ -669,7 +758,11 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 
 		case *kapi.Pod:
 			//delete pods
-			pod, err := kclient.Pods(namespace).List(options)
+			var namespaceObject = t.Namespace
+			if namespaceOverride {
+				namespaceObject = namespace
+			}
+			pod, err := kclient.Pods(namespaceObject).List(options)
 			if err != nil {
 				errorList = append(errorList, err)
 				break
@@ -683,7 +776,7 @@ func (o *OpenShift) Undeploy(komposeObject kobject.KomposeObject, opt kobject.Co
 					}
 
 					//FIXME: gracePeriod is nil
-					err = rpPod.Stop(namespace, t.Name, TIMEOUT*time.Second, nil)
+					err = rpPod.Stop(namespaceObject, t.Name, TIMEOUT*time.Second, nil)
 					if err != nil {
 						errorList = append(errorList, err)
 						break

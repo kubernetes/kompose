@@ -75,6 +75,7 @@ type ServiceConfig struct {
 	Args             []string            `compose:"args"`
 	VolList          []string            `compose:"volumes"`
 	Network          []string            `compose:"network"`
+	Namespace        Namespace           `compose:""`
 	Labels           map[string]string   `compose:"labels"`
 	Annotations      map[string]string   `compose:""`
 	CPUSet           string              `compose:"cpuset"`
@@ -127,6 +128,12 @@ type HealthCheck struct {
 	Retries     int32
 	StartPeriod int32
 	Disable     bool
+}
+
+// Namespace holds configuration for a service namespace
+type Namespace struct {
+	Name   string
+	Create bool
 }
 
 // EnvVar holds the environment variable struct of a container
