@@ -94,6 +94,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "etherpad"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -162,6 +166,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "mariadb"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {

@@ -117,6 +117,11 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "frontend"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.service.type": "LoadBalancer",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -166,6 +171,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis-master"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -209,6 +218,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis-slave"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {

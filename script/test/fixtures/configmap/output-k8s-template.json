@@ -57,6 +57,11 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.service.type": "nodeport",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -114,7 +119,7 @@
       "metadata": {
         "name": "redis-foo-env",
         "creationTimestamp": null,
-	"labels": {
+        "labels": {
           "io.kompose.service": "redis-foo-env"
         }
       },
@@ -128,7 +133,7 @@
       "metadata": {
         "name": "redis-bar-env",
         "creationTimestamp": null,
-	"labels": {
+        "labels": {
           "io.kompose.service": "redis-bar-env"
         }
       },

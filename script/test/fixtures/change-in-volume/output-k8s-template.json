@@ -87,6 +87,11 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.service.type": "headless",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -125,6 +130,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "web"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {

@@ -85,6 +85,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -129,6 +133,11 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "web"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%",
+              "kompose.service.expose": "  batman.example.com ,, batwoman.example.com "
             }
           },
           "spec": {

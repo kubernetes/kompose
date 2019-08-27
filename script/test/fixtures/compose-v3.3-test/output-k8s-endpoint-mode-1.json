@@ -55,6 +55,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "wordpress"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {

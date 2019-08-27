@@ -124,6 +124,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "gitlab"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -207,6 +211,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "postgresql"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -264,6 +272,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {

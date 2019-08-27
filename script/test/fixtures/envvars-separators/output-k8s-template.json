@@ -114,6 +114,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-api"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -195,6 +199,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-bitbucket-scm-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -271,6 +279,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-chat-ops-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -347,6 +359,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-github-scm-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -423,6 +439,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-jenkins-build-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -499,6 +519,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-jenkins-cucumber-test-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -575,6 +599,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-jira-feature-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -661,6 +689,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-sonar-codequality-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -737,6 +769,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-subversion-scm-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -813,6 +849,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-udeploy-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -903,6 +943,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-ui"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -946,6 +990,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "hygieia-versionone-collector"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -1022,6 +1070,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "mongodb"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
