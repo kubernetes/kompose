@@ -86,6 +86,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -130,6 +134,11 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "web"
+            },
+            "annotations": {
+              "kompose.service.type": "NodePort",
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
