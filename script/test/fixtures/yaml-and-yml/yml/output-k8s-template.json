@@ -84,6 +84,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.cmd": "kompose convert --stdout -j",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -127,6 +131,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "web"
+            },
+            "annotations": {
+              "kompose.cmd": "kompose convert --stdout -j",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {

@@ -30,7 +30,6 @@
             "port": 6379,
             "targetPort": 6379
           },
-
           {
             "name": "1234",
             "protocol": "UDP",
@@ -97,6 +96,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -148,6 +151,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "web"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {

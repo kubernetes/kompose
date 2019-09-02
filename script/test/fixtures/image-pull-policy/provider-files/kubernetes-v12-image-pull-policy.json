@@ -25,6 +25,11 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "nginx0"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.image-pull-policy": "Always",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {

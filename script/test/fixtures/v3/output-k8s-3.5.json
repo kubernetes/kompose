@@ -54,6 +54,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "helloworld"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {

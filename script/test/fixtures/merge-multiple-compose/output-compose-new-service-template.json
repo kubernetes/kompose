@@ -54,6 +54,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "new-my-service"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -92,12 +96,16 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "server"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "test_server",
+                "name": "test-server",
                 "image": "test",
                 "ports": [
                   {
