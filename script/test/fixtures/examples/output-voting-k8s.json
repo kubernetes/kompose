@@ -147,6 +147,11 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "db"
+            },
+            "annotations": {
+              "com.example.description": "Postgres Database",
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -190,6 +195,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -233,6 +242,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "result"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -277,6 +290,11 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "vote"
+            },
+            "annotations": {
+              "com.example.description": "Vote",
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -320,6 +338,10 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "worker"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
