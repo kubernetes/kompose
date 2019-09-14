@@ -26,7 +26,7 @@ all: bin
 
 .PHONY: bin
 bin:
-	go build ${BUILD_FLAGS} -o kompose main.go
+	CGO_ENABLED=0 go build ${BUILD_FLAGS} -o kompose main.go
 
 .PHONY: install
 install:
@@ -49,10 +49,10 @@ test-unit:
 # Run unit tests and collect coverage
 .PHONY: test-unit-cover
 test-unit-cover:
-	# First install packages that are dependencies of the test. 
+	# First install packages that are dependencies of the test.
 	go test -short -i -race -cover $(PKGS)
 	# go test doesn't support colleting coverage across multiple packages,
-	# generate go test commands using go list and run go test for every package separately 
+	# generate go test commands using go list and run go test for every package separately
 	go list -f '"go test -short -race -cover -v -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}}"' github.com/kubernetes/kompose/...  | grep -v "vendor" | xargs -L 1 -P4 sh -c
 
 
@@ -115,7 +115,7 @@ test-image:
 # run all test locally in docker image (image can be build by by build-test-image target)
 .PHONY: test-container
 test-container:
-	docker run -v `pwd`:/opt/tmp/kompose:ro -it $(TEST_IMAGE) 
+	docker run -v `pwd`:/opt/tmp/kompose:ro -it $(TEST_IMAGE)
 
 # Update vendoring
 # Vendoring is a bit messy right now
