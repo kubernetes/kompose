@@ -236,11 +236,14 @@ __Checksums:__
 | Filename        | SHA256 Hash |
 | ------------- |:-------------:|" > install_guide.txt
 
+  touch bin/SHA256_SUM
+
   for f in bin/*
   do
     HASH=`sha256sum $f | head -n1 | awk '{print $1;}'`
     NAME=`echo $f | sed "s,bin/,,g"`
     echo "[$NAME](https://github.com/kubernetes/kompose/releases/download/v$1/$NAME) | $HASH" >> install_guide.txt
+    echo "$HASH $NAME" >> bin/SHA256_SUM
   done
 
  # Append the file to the file
