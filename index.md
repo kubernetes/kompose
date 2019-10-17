@@ -23,7 +23,7 @@ Why do developers love it?
 3. Check your Kubernetes cluster for your newly deployed containers!
 
 ```sh
-$ wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose-v3.yaml
+$ wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose-v3.yaml -O docker-compose.yaml
 
 $ kompose up
 We are going to create Kubernetes Deployments, Services and PersistentVolumeClaims for your Dockerized application. 
@@ -51,13 +51,13 @@ Grab the Kompose binary!
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.17.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.19.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.17.0/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.19.0/kompose-darwin-amd64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-_Windows:_ Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.17.0/kompose-windows-amd64.exe) and add the binary to your PATH.
+_Windows:_ Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.19.0/kompose-windows-amd64.exe) and add the binary to your PATH.
