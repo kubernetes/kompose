@@ -621,15 +621,9 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 	return envLoad, nil
 }
 
-// GetContentFromFile get content from file
+// GetContentFromFile gets the content from the file..
 func GetContentFromFile(file string, opt kobject.ConvertOptions) (string, error) {
-	// Get the correct file context / directory
-	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
-	if err != nil {
-		return "", errors.Wrap(err, "Unable to load file context")
-	}
-	fileLocation := path.Join(composeDir, file)
-	fileBytes, err := ioutil.ReadFile(fileLocation)
+	fileBytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return "", errors.Wrap(err, "Unable to read file")
 	}
@@ -646,9 +640,13 @@ func FormatEnvName(name string) string {
 
 // FormatFileName format file name
 func FormatFileName(name string) string {
-	envName := strings.Trim(name, "./")
-	envName = strings.Replace(envName, "_", "-", -1)
-	return envName
+	// Split the filepath name so that we use the
+	// file name (after the base) for ConfigMap,
+	// it shouldn't matter whether it has special characters or not
+	_, file := path.Split(name)
+
+	// Make it DNS-1123 compliant for Kubernetes
+	return strings.Replace(file, "_", "-", -1)
 }
 
 //FormatContainerName format Container name

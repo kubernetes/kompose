@@ -259,6 +259,7 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 	}
 
 	originFileName := FormatFileName(fileName)
+
 	dataMap := make(map[string]string)
 	dataMap[originFileName] = content
 	configMapName := ""

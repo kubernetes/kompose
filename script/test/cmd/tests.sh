@@ -844,7 +844,6 @@ convert::expect_success "$cmd" "/tmp/output-os.json"
 cmd="kompose convert --stdout -j -f -"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/stdin/output-k8s.json > /tmp/output-k8s.json
 cat $KOMPOSE_ROOT/script/test/fixtures/stdin/docker-compose.yaml | $cmd | diff /tmp/output-k8s.json -
-EXIT_STATUS=$?
 
 echo -e "\n"
 go test -v github.com/kubernetes/kompose/script/test/cmd
