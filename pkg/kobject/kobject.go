@@ -41,6 +41,7 @@ type ConvertOptions struct {
 	BuildRepo                   string
 	BuildBranch                 string
 	Build                       string
+	PushImage                   bool
 	CreateChart                 bool
 	GenerateYaml                bool
 	GenerateJSON                bool
