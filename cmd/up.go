@@ -37,6 +37,8 @@ var (
 	UpBuildBranch  string
 	UpBuildRepo    string
 	UpController   string
+	// UpPushImage decides if we should push the docker image
+	UpPushImage bool
 )
 
 var upCmd = &cobra.Command{
@@ -53,6 +55,7 @@ var upCmd = &cobra.Command{
 		// Create the Convert options.
 		UpOpt = kobject.ConvertOptions{
 			Build:              UpBuild,
+			PushImage:          UpPushImage,
 			Replicas:           UpReplicas,
 			InputFiles:         GlobalFiles,
 			Provider:           GlobalProvider,
@@ -82,6 +85,7 @@ func init() {
 	upCmd.Flags().StringVar(&UpBuild, "build", "local", `Set the type of build ("local"|"build-config" (OpenShift only)|"none")`)
 	upCmd.Flags().StringVar(&UpBuildRepo, "build-repo", "", "Specify source repository for buildconfig (default remote origin)")
 	upCmd.Flags().StringVar(&UpBuildBranch, "build-branch", "", "Specify repository branch to use for buildconfig (default master)")
+	upCmd.Flags().BoolVar(&UpPushImage, "push-image", true, "If we should push the docker image we built")
 	upCmd.Flags().StringVar(&UpController, "controller", "", `Set the output controller ("deployment"|"daemonSet"|"replicationController")`)
 	upCmd.Flags().MarkHidden("insecure-repository")
 	upCmd.Flags().MarkHidden("build-repo")
