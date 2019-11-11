@@ -30,7 +30,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//
+// StdinData is data bytes read from stdin
 var StdinData []byte
 
 // Compose is docker compose file loader, implements Loader interface
