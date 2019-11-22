@@ -1,0 +1,9 @@
+version: "3.3"
+
+volumes:
+  firstvolume:
+    external: true
+
+configs:
+  firstconfig:
+    file: ./second_config.txt
