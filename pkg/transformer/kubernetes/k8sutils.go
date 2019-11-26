@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -55,7 +56,7 @@ func generateHelm(dirName string) error {
 		Name string
 	}
 
-	details := ChartDetails{"A new Move2Kube project"}
+	details := ChartDetails{"dirName"}
 	manifestDir := dirName + string(os.PathSeparator) + "templates"
 	dir, err := os.Open(dirName)
 
@@ -77,7 +78,7 @@ func generateHelm(dirName string) error {
 	}
 
 	/* Create the readme file */
-	readme := "This chart was created by move2kube\n"
+	readme := "This chart was created by kompose\n"
 	err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"README.md", []byte(readme), 0644)
 	if err != nil {
 		return err
@@ -85,7 +86,7 @@ func generateHelm(dirName string) error {
 
 	/* Create the Chart.yaml file */
 	chart := `name: {{.Name}}
-description: A generated Helm Chart for {{.Name}} from move2kube
+description: A generated Helm Chart for {{.Name}} from Skippbox Kompose
 version: 0.0.1
 keywords:
   - {{.Name}}
@@ -137,12 +138,9 @@ func getDirName(opt kobject.ConvertOptions) string {
 	if dirName == "" {
 		// Let assume all the docker-compose files are in the same directory
 		if opt.CreateChart {
-			// filename := opt.InputFiles[0]
-			// extension := filepath.Ext(filename)
-			// dirName = filename[0 : len(filename)-len(extension)]
-
-			// Even for Helm -> create in the current directory
-			dirName = "./helm-charts"
+			 filename := opt.InputFiles[0]
+			 extension := filepath.Ext(filename)
+			 dirName = filename[0 : len(filename)-len(extension)]
 		} else {
 			dirName = "."
 		}
@@ -218,10 +216,6 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		// create a separate file for each provider
 		for _, v := range objects {
 
-			//fmt.Println("=================")
-
-			//a, _ := json.MarshalIndent(v, "", "\t")
-			//fmt.Println(string(a))
 			versionedObject, err := convertToVersion(v, unversioned.GroupVersion{})
 			if err != nil {
 				return err

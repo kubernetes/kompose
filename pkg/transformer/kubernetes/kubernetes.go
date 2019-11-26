@@ -865,9 +865,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 
-	//s, _ := json.MarshalIndent(komposeObject, "", "\t")
-	//n, _ := json.MarshalIndent(opt, "", "\t")
-
 	sortedKeys := SortedKeys(komposeObject)
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
@@ -965,16 +962,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	}
 
 	// sort all object so Services are first
-	//k.SortServicesFirst(&allobjects)
-	//a, _ := json.MarshalIndent(allobjects, "", "\t")
-	//fmt.Println("======allObject========")
-	//fmt.Println(string(a))
-
-	//fmt.Println("COMPOSE Object")
-	//      fmt.Println(string(s))
-
-	//      fmt.Println("OPT Object")
-	//      fmt.Println(string(n))
+	k.SortServicesFirst(&allobjects)
 
 	return allobjects, nil
 }

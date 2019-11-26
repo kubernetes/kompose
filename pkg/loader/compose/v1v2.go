@@ -69,13 +69,10 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 		return kobject.KomposeObject{}, errors.Wrap(err, "composeObject.Parse() failed, Failed to load compose file")
 	}
 
-	//fmt.Println("Compose Object")
-	//      s, _ := json.MarshalIndent(composeObject, "", "\t")
-	//      fmt.Println(string(s))
 
 	noSupKeys := checkUnsupportedKey(composeObject)
 	for _, keyName := range noSupKeys {
-		fmt.Printf("Unsupported %s key - ignoring", keyName)
+		log.Warningf("Unsupported %s key - ignoring", keyName)
 	}
 
 	// Map the parsed struct to a struct we understand (kobject)
@@ -84,9 +81,6 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 		return kobject.KomposeObject{}, err
 	}
 
-	//fmt.Println("Kompose Object")
-	//s, _ = json.MarshalIndent(komposeObject, "", "\t")
-	//fmt.Println(string(s))
 
 	return komposeObject, nil
 }
@@ -195,9 +189,6 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		LoadedFrom:     "compose",
 	}
 
-	//c, _ := json.MarshalIndent(composeObject.ServiceConfigs.All(), "", "\t")
-	//fmt.Println("composeObject.ServiceConfigs.All")
-	//fmt.Println(string(c))
 
 	// Here we "clean up" the service configuration so we return something that includes
 	// all relevant information as well as avoid the unsupported keys as well.

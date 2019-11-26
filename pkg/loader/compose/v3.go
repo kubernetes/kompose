@@ -252,17 +252,12 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		LoadedFrom:     "compose",
 	}
 
-	//fmt.Println("Compose Config File with External Nextwork")
-	//      c, _ := json.MarshalIndent(composeObject, "", "\t")
-	//      fmt.Println(string(c))
 
 	// Step 2. Parse through the object and convert it to kobject.KomposeObject!
 	// Here we "clean up" the service configuration so we return something that includes
 	// all relevant information as well as avoid the unsupported keys as well.
 
 	for _, composeServiceConfig := range composeObject.Services {
-
-		//Since network key is not yet supported, add it to labels which we would use later to produce another file
 
 		// Standard import
 		// No need to modify before importation
@@ -466,10 +461,6 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 	}
 
 	handleV3Volume(&komposeObject, &composeObject.Volumes)
-
-	//fmt.Println("Kompose Object")
-	//c, _ = json.MarshalIndent(komposeObject, "", "\t")
-	//fmt.Println(string(c))
 
 	return komposeObject, nil
 }
