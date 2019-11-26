@@ -56,7 +56,7 @@ func generateHelm(dirName string) error {
 		Name string
 	}
 
-	details := ChartDetails{dirName}
+	details := ChartDetails{"dirName"}
 	manifestDir := dirName + string(os.PathSeparator) + "templates"
 	dir, err := os.Open(dirName)
 
@@ -78,7 +78,7 @@ func generateHelm(dirName string) error {
 	}
 
 	/* Create the readme file */
-	readme := "This chart was created by Kompose\n"
+	readme := "This chart was created by kompose\n"
 	err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"README.md", []byte(readme), 0644)
 	if err != nil {
 		return err
@@ -215,6 +215,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		var file string
 		// create a separate file for each provider
 		for _, v := range objects {
+
 			versionedObject, err := convertToVersion(v, unversioned.GroupVersion{})
 			if err != nil {
 				return err
@@ -501,7 +502,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			template.Spec.SecurityContext = podSecurityContext
 		}
 		template.Spec.Containers[0].Ports = ports
-		template.ObjectMeta.Labels = transformer.ConfigLabels(name)
+		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
 
 		// Configure the image pull policy
 		switch service.ImagePullPolicy {
