@@ -191,13 +191,13 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name, service.Network),
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: api.ReplicationControllerSpec{
 			Replicas: int32(replicas),
 			Template: &api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
-					Labels: transformer.ConfigLabels(name, service.Network),
+					Labels: transformer.ConfigLabels(name),
 				},
 				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 			},
@@ -215,10 +215,10 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name, service.Network),
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: api.ServiceSpec{
-			Selector: transformer.ConfigLabelsWithName(name),
+			Selector: transformer.ConfigLabels(name),
 		},
 	}
 	return svc
@@ -244,7 +244,7 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceCon
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name + "-" + envName,
-			Labels: transformer.ConfigLabels(name+"-"+envName, service.Network),
+			Labels: transformer.ConfigLabels(name + "-" + envName),
 		},
 		Data: envs,
 	}
@@ -276,7 +276,7 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   FormatFileName(configMapName),
-			Labels: transformer.ConfigLabels(name, service.Network),
+			Labels: transformer.ConfigLabels(name),
 		},
 		Data: dataMap,
 	}
@@ -300,21 +300,21 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name, service.Network),
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
 
 			Template: api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
-					//Labels: transformer.ConfigLabels(name, service.Network),
+					//Labels: transformer.ConfigLabels(name),
 					Annotations: transformer.ConfigAnnotations(service),
 				},
 				Spec: podSpec,
 			},
 		},
 	}
-	dc.Spec.Template.Labels = transformer.ConfigLabels(name, service.Network)
+	dc.Spec.Template.Labels = transformer.ConfigLabels(name)
 
 	return dc
 }
@@ -328,7 +328,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name, service.Network),
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
@@ -350,7 +350,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name, service.Network),
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: extensions.IngressSpec{
 			Rules: make([]extensions.IngressRule, len(hosts)),
@@ -405,7 +405,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabelsWithName(name),
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: api.PersistentVolumeClaimSpec{
 			Resources: api.ResourceRequirements{
@@ -418,7 +418,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 
 	if len(selectorValue) > 0 {
 		pvc.Spec.Selector = &unversioned.LabelSelector{
-			MatchLabels: transformer.ConfigLabelsWithName(selectorValue),
+			MatchLabels: transformer.ConfigLabels(selectorValue),
 		}
 	}
 
@@ -821,7 +821,7 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name, service.Network),
+			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 	}
@@ -839,7 +839,7 @@ func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*exte
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name: networkName,
-			//Labels: transformer.ConfigLabelsWithName(name),
+			//Labels: transformer.ConfigLabels(name)(name),
 		},
 		Spec: extensions.NetworkPolicySpec{
 			PodSelector: unversioned.LabelSelector{

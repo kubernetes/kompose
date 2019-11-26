@@ -138,9 +138,9 @@ func getDirName(opt kobject.ConvertOptions) string {
 	if dirName == "" {
 		// Let assume all the docker-compose files are in the same directory
 		if opt.CreateChart {
-			 filename := opt.InputFiles[0]
-			 extension := filepath.Ext(filename)
-			 dirName = filename[0 : len(filename)-len(extension)]
+			filename := opt.InputFiles[0]
+			extension := filepath.Ext(filename)
+			dirName = filename[0 : len(filename)-len(extension)]
 		} else {
 			dirName = "."
 		}
@@ -502,7 +502,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			template.Spec.SecurityContext = podSecurityContext
 		}
 		template.Spec.Containers[0].Ports = ports
-		template.ObjectMeta.Labels = transformer.ConfigLabels(name, service.Network)
+		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
 
 		// Configure the image pull policy
 		switch service.ImagePullPolicy {
