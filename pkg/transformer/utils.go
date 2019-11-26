@@ -108,12 +108,30 @@ func isPath(substring string) bool {
 }
 
 // ConfigLabels configures label
-func ConfigLabels(name string) map[string]string {
+func ConfigLabelsWithName(name string) map[string]string {
 	return map[string]string{Selector: name}
+}
+
+// ConfigLabels configures label
+func ConfigLabels(name string, net []string) map[string]string {
+
+	labels := map[string]string{}
+	labels[Selector] = name
+
+	for _, n := range net {
+		labels["io.kompose.network/"+n] = "true"
+	}
+	return labels
+	//return map[string]string{Selector: name, "Network": net}
 }
 
 // ConfigAnnotations configures annotations
 func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
+
+	//fmt.Println("kobject.ServiceConfig")
+	//s, _ := json.MarshalIndent(service, "", "\t")
+	//fmt.Println(string(s))
+
 	annotations := map[string]string{}
 	for key, value := range service.Annotations {
 		annotations[key] = value

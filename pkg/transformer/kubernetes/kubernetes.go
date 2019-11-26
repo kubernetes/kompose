@@ -49,11 +49,12 @@ import (
 	"sort"
 	"strings"
 
+	"path/filepath"
+
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
-	"path/filepath"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -190,13 +191,13 @@ func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: api.ReplicationControllerSpec{
 			Replicas: int32(replicas),
 			Template: &api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
-					Labels: transformer.ConfigLabels(name),
+					Labels: transformer.ConfigLabels(name, service.Network),
 				},
 				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 			},
@@ -214,10 +215,10 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: api.ServiceSpec{
-			Selector: transformer.ConfigLabels(name),
+			Selector: transformer.ConfigLabelsWithName(name),
 		},
 	}
 	return svc
@@ -243,7 +244,7 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceCon
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name + "-" + envName,
-			Labels: transformer.ConfigLabels(name + "-" + envName),
+			Labels: transformer.ConfigLabels(name+"-"+envName, service.Network),
 		},
 		Data: envs,
 	}
@@ -275,7 +276,7 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   FormatFileName(configMapName),
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Data: dataMap,
 	}
@@ -299,18 +300,22 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
+
 			Template: api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
+					//Labels: transformer.ConfigLabels(name, service.Network),
 					Annotations: transformer.ConfigAnnotations(service),
 				},
 				Spec: podSpec,
 			},
 		},
 	}
+	dc.Spec.Template.Labels = transformer.ConfigLabels(name, service.Network)
+
 	return dc
 }
 
@@ -323,7 +328,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
@@ -345,7 +350,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: extensions.IngressSpec{
 			Rules: make([]extensions.IngressRule, len(hosts)),
@@ -400,7 +405,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabelsWithName(name),
 		},
 		Spec: api.PersistentVolumeClaimSpec{
 			Resources: api.ResourceRequirements{
@@ -413,7 +418,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 
 	if len(selectorValue) > 0 {
 		pvc.Spec.Selector = &unversioned.LabelSelector{
-			MatchLabels: transformer.ConfigLabels(selectorValue),
+			MatchLabels: transformer.ConfigLabelsWithName(selectorValue),
 		}
 	}
 
@@ -816,11 +821,41 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 	}
 	return &pod
+}
+
+// CreateNetworkPolicy initializes Network policy
+func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*extensions.NetworkPolicy, error) {
+
+	str := "true"
+	np := &extensions.NetworkPolicy{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "NetworkPolicy",
+			APIVersion: "extensions/v1beta1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: networkName,
+			//Labels: transformer.ConfigLabelsWithName(name),
+		},
+		Spec: extensions.NetworkPolicySpec{
+			PodSelector: unversioned.LabelSelector{
+				MatchLabels: map[string]string{"io.kompose.network/" + networkName: str},
+			},
+			Ingress: []extensions.NetworkPolicyIngressRule{{
+				From: []extensions.NetworkPolicyPeer{{
+					PodSelector: &unversioned.LabelSelector{
+						MatchLabels: map[string]string{"io.kompose.network/" + networkName: str},
+					},
+				}},
+			}},
+		},
+	}
+
+	return np, nil
 }
 
 // Transform maps komposeObject to k8s objects
@@ -829,6 +864,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 	// this will hold all the converted data
 	var allobjects []runtime.Object
+
+	//s, _ := json.MarshalIndent(komposeObject, "", "\t")
+	//n, _ := json.MarshalIndent(opt, "", "\t")
 
 	sortedKeys := SortedKeys(komposeObject)
 	for _, name := range sortedKeys {
@@ -906,11 +944,38 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 		}
 
+		if len(service.Network) > 0 {
+
+			for _, net := range service.Network {
+
+				log.Infof("Network < %s > is detected at Source - Will be converted to equivalent NetworkPolicy at Destination", net)
+				np, err := k.CreateNetworkPolicy(name, net)
+
+				if err != nil {
+					return nil, errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)
+				}
+				objects = append(objects, np)
+
+			}
+
+		}
+
 		allobjects = append(allobjects, objects...)
+
 	}
 
 	// sort all object so Services are first
-	k.SortServicesFirst(&allobjects)
+	//k.SortServicesFirst(&allobjects)
+	//a, _ := json.MarshalIndent(allobjects, "", "\t")
+	//fmt.Println("======allObject========")
+	//fmt.Println(string(a))
+
+	//fmt.Println("COMPOSE Object")
+	//      fmt.Println(string(s))
+
+	//      fmt.Println("OPT Object")
+	//      fmt.Println(string(n))
+
 	return allobjects, nil
 }
 

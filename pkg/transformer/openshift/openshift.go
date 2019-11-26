@@ -104,7 +104,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 		},
 		ObjectMeta: kapi.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: imageapi.ImageStreamSpec{
 			Tags: tags,
@@ -138,7 +138,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 
 		ObjectMeta: kapi.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: buildapi.BuildConfigSpec{
 			Triggers: []buildapi.BuildTriggerPolicy{
@@ -197,15 +197,15 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 		},
 		ObjectMeta: kapi.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: deployapi.DeploymentConfigSpec{
 			Replicas: int32(replicas),
-			Selector: transformer.ConfigLabels(name),
+			Selector: transformer.ConfigLabels(name, service.Network),
 			//UniqueLabelKey: p.Name,
 			Template: &kapi.PodTemplateSpec{
 				ObjectMeta: kapi.ObjectMeta{
-					Labels: transformer.ConfigLabels(name),
+					Labels: transformer.ConfigLabels(name, service.Network),
 				},
 				Spec: podSpec,
 			},
@@ -240,7 +240,7 @@ func (o *OpenShift) initRoute(name string, service kobject.ServiceConfig, port i
 		},
 		ObjectMeta: kapi.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigLabels(name, service.Network),
 		},
 		Spec: routeapi.RouteSpec{
 			Port: &routeapi.RoutePort{

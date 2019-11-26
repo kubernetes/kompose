@@ -30,7 +30,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// StdinData is data bytes read from stdin
+//
 var StdinData []byte
 
 // Compose is docker compose file loader, implements Loader interface
@@ -72,9 +72,15 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		"Ulimits":       false,
 		"Net":           false,
 		"Sysctls":       false,
-		"Networks":      false, // there are special checks for Network in checkUnsupportedKey function
-		"Links":         false,
+		//"Networks":      false, // there are special checks for Network in checkUnsupportedKey function
+		"Links": false,
 	}
+
+	//s, _ := json.MarshalIndent(composeProject, "", "\t")
+
+	//fmt.Println("Compose Object Given")
+
+	//fmt.Println(string(s))
 
 	// collect all keys found in project
 	var keysFound []string
@@ -85,7 +91,7 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 	if _, ok := composeProject.NetworkConfigs["default"]; ok && len(composeProject.NetworkConfigs) == 1 {
 		log.Debug("Default network found")
 	} else if len(composeProject.NetworkConfigs) > 0 {
-		keysFound = append(keysFound, "root level networks")
+		//keysFound = append(keysFound, "root level networks")
 	}
 
 	// Root level volumes are not yet supported
@@ -118,7 +124,7 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 							// this is empty Network definition, skip it
 							continue
 						} else {
-							yamlTagName = "networks"
+							//yamlTagName = "networks"
 						}
 					}
 
@@ -147,6 +153,7 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 			}
 		}
 	}
+	//fmt.Printf("%v", keysFound)
 	return keysFound
 }
 

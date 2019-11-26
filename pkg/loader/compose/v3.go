@@ -24,14 +24,12 @@ import (
 	libcomposeyaml "github.com/docker/libcompose/yaml"
 
 	"k8s.io/kubernetes/pkg/api"
+	"regexp"
+	"fmt"
+	"os"
 
 	"github.com/docker/cli/cli/compose/loader"
 	"github.com/docker/cli/cli/compose/types"
-
-	"os"
-
-	"fmt"
-
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -254,10 +252,17 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		LoadedFrom:     "compose",
 	}
 
+	//fmt.Println("Compose Config File with External Nextwork")
+	//      c, _ := json.MarshalIndent(composeObject, "", "\t")
+	//      fmt.Println(string(c))
+
 	// Step 2. Parse through the object and convert it to kobject.KomposeObject!
 	// Here we "clean up" the service configuration so we return something that includes
 	// all relevant information as well as avoid the unsupported keys as well.
+
 	for _, composeServiceConfig := range composeObject.Services {
+
+		//Since network key is not yet supported, add it to labels which we would use later to produce another file
 
 		// Standard import
 		// No need to modify before importation
@@ -280,6 +285,35 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Labels = composeServiceConfig.Labels
 		serviceConfig.HostName = composeServiceConfig.Hostname
 		serviceConfig.DomainName = composeServiceConfig.DomainName
+
+		if len(composeServiceConfig.Networks) == 0 {
+			if defaultNetwork, ok := composeObject.Networks["default"]; ok {
+				//serviceConfig.Labels["network"] = defaultNetwork.Name
+				netval:= strings.ToLower(defaultNetwork.Name)
+                                reg, err := regexp.Compile("[^A-Za-z0-9.-]+")
+                                if err != nil {
+                                        log.Fatal(err)
+                                }
+                                netval = reg.ReplaceAllString(netval,"")
+				log.Warnf("Network Name would be converted to lower case and any non-alphanumeric characters would be removed")	
+				serviceConfig.Network = append(serviceConfig.Network, netval)
+			}
+		} else {
+			var alias = ""
+			for key := range composeServiceConfig.Networks {
+				alias = key
+
+                                netval:= strings.ToLower(composeObject.Networks[alias].Name)
+                                reg, err := regexp.Compile("[^A-Za-z0-9.-]+")
+                                if err != nil {
+                                        log.Fatal(err)
+                                }
+                                netval = reg.ReplaceAllString(netval,"")	
+				log.Warnf("Network Name would be converted to lower case and any non-alphanumeric characters would be removed")
+				serviceConfig.Network = append(serviceConfig.Network, netval)
+			}
+		}
+		//Since network key is not yet supported, add it to labels which we would use later to produce another file
 
 		//
 		// Deploy keys
@@ -432,6 +466,10 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 	}
 
 	handleV3Volume(&komposeObject, &composeObject.Volumes)
+
+	//fmt.Println("Kompose Object")
+	//c, _ = json.MarshalIndent(komposeObject, "", "\t")
+	//fmt.Println(string(c))
 
 	return komposeObject, nil
 }
@@ -633,6 +671,11 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 			tmpOldService.WorkingDir = service.WorkingDir
 		}
 		oldCompose.Services[index] = tmpOldService
+	}
+
+	// Merge the networks information
+	for idx, net := range newCompose.Networks {
+		oldCompose.Networks[idx] = net
 	}
 
 	return oldCompose, nil

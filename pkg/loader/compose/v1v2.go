@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-
+	"regexp"
 	"k8s.io/kubernetes/pkg/api"
 
 	"github.com/docker/libcompose/config"
@@ -69,9 +69,13 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 		return kobject.KomposeObject{}, errors.Wrap(err, "composeObject.Parse() failed, Failed to load compose file")
 	}
 
+	//fmt.Println("Compose Object")
+	//      s, _ := json.MarshalIndent(composeObject, "", "\t")
+	//      fmt.Println(string(s))
+
 	noSupKeys := checkUnsupportedKey(composeObject)
 	for _, keyName := range noSupKeys {
-		log.Warningf("Unsupported %s key - ignoring", keyName)
+		fmt.Printf("Unsupported %s key - ignoring", keyName)
 	}
 
 	// Map the parsed struct to a struct we understand (kobject)
@@ -79,6 +83,10 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 	if err != nil {
 		return kobject.KomposeObject{}, err
 	}
+
+	//fmt.Println("Kompose Object")
+	//s, _ = json.MarshalIndent(komposeObject, "", "\t")
+	//fmt.Println(string(s))
 
 	return komposeObject, nil
 }
@@ -187,6 +195,10 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		LoadedFrom:     "compose",
 	}
 
+	//c, _ := json.MarshalIndent(composeObject.ServiceConfigs.All(), "", "\t")
+	//fmt.Println("composeObject.ServiceConfigs.All")
+	//fmt.Println(string(c))
+
 	// Here we "clean up" the service configuration so we return something that includes
 	// all relevant information as well as avoid the unsupported keys as well.
 	for name, composeServiceConfig := range composeObject.ServiceConfigs.All() {
@@ -278,6 +290,19 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.MemLimit = composeServiceConfig.MemLimit
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
 		serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod
+
+		if len(composeServiceConfig.Networks.Networks) > 0 {
+			for _, value := range composeServiceConfig.Networks.Networks {
+				netval:= strings.ToLower(value.RealName)
+				reg, err := regexp.Compile("[^A-Za-z0-9.-]+")
+				if err != nil {
+					log.Fatal(err)
+				}
+				netval = reg.ReplaceAllString(netval,"")
+				log.Warnf("Network Name would be converted to lower case and any non-alphanumeric characters would be removed")
+				serviceConfig.Network = append(serviceConfig.Network, netval)
+			}
+		}
 
 		// Get GroupAdd, group should be mentioned in gid format but not the group name
 		groupAdd, err := getGroupAdd(composeServiceConfig.GroupAdd)
