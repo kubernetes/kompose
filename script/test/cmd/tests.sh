@@ -850,3 +850,13 @@ go test -v github.com/kubernetes/kompose/script/test/cmd
 
 rm /tmp/output-k8s.json /tmp/output-os.json
 exit $EXIT_STATUS
+
+# Network Translation compose v3
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/network/docker-compose-v3.yaml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e  "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/network/output-k8s.json > /tmp/output-k8s.json
+convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/network/docker-compose-v3.yaml convert --stdout -j"
+# OpenShift test
+cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/network/docker-compose-v3.yaml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e  "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/network/output-os.json > /tmp/output-os.json
+convert::expect_success "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/network/docker-compose-v3.yaml convert --stdout -j"
+
