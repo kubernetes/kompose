@@ -73,7 +73,7 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 		"Net":           false,
 		"Sysctls":       false,
 		//"Networks":    false, // We shall be spporting network now. There are special checks for Network in checkUnsupportedKey function
-		"Links": 	 false,
+		"Links": false,
 	}
 
 	var keysFound []string

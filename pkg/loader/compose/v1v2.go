@@ -18,13 +18,13 @@ package compose
 
 import (
 	"fmt"
+	"k8s.io/kubernetes/pkg/api"
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
-	"regexp"
-	"k8s.io/kubernetes/pkg/api"
 
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
@@ -69,7 +69,6 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 		return kobject.KomposeObject{}, errors.Wrap(err, "composeObject.Parse() failed, Failed to load compose file")
 	}
 
-
 	noSupKeys := checkUnsupportedKey(composeObject)
 	for _, keyName := range noSupKeys {
 		log.Warningf("Unsupported %s key - ignoring", keyName)
@@ -80,7 +79,6 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 	if err != nil {
 		return kobject.KomposeObject{}, err
 	}
-
 
 	return komposeObject, nil
 }
@@ -189,7 +187,6 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		LoadedFrom:     "compose",
 	}
 
-
 	// Here we "clean up" the service configuration so we return something that includes
 	// all relevant information as well as avoid the unsupported keys as well.
 	for name, composeServiceConfig := range composeObject.ServiceConfigs.All() {
@@ -284,12 +281,12 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 
 		if len(composeServiceConfig.Networks.Networks) > 0 {
 			for _, value := range composeServiceConfig.Networks.Networks {
-				netval:= strings.ToLower(value.RealName)
+				netval := strings.ToLower(value.RealName)
 				reg, err := regexp.Compile("[^A-Za-z0-9.-]+")
 				if err != nil {
 					log.Fatal(err)
 				}
-				netval = reg.ReplaceAllString(netval,"")
+				netval = reg.ReplaceAllString(netval, "")
 				log.Warnf("Network Name would be converted to lower case and any non-alphanumeric characters would be removed")
 				serviceConfig.Network = append(serviceConfig.Network, netval)
 			}

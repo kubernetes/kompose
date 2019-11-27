@@ -260,7 +260,7 @@ func TestUnsupportedKeys(t *testing.T) {
 		Ports:    []string{}, // test empty array
 		Networks: &yaml.Networks{
 			Networks: []*yaml.Network{
-				&yaml.Network{
+				{
 					Name: "net1",
 				},
 			},
@@ -275,19 +275,19 @@ func TestUnsupportedKeys(t *testing.T) {
 		Ports:    []string{}, // test empty array
 		Networks: &yaml.Networks{
 			Networks: []*yaml.Network{
-				&yaml.Network{
+				{
 					Name: "net1",
 				},
 			},
 		},
 	})
 	projectWithNetworks.VolumeConfigs = map[string]*config.VolumeConfig{
-		"foo": &config.VolumeConfig{
+		"foo": {
 			Driver: "storage",
 		},
 	}
 	projectWithNetworks.NetworkConfigs = map[string]*config.NetworkConfig{
-		"foo": &config.NetworkConfig{
+		"foo": {
 			Driver: "bridge",
 		},
 	}
@@ -304,7 +304,7 @@ func TestUnsupportedKeys(t *testing.T) {
 	projectWithDefaultNetwork.ServiceConfigs.Add("foo", &config.ServiceConfig{
 		Networks: &yaml.Networks{
 			Networks: []*yaml.Network{
-				&yaml.Network{
+				{
 					Name: "default",
 				},
 			},
