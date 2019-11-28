@@ -281,6 +281,19 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.HostName = composeServiceConfig.Hostname
 		serviceConfig.DomainName = composeServiceConfig.DomainName
 
+		//Adding network key related info
+		if len(composeServiceConfig.Networks) == 0 {
+			if defaultNetwork, ok := composeObject.Networks["default"]; ok {
+				serviceConfig.Network = append(serviceConfig.Network, defaultNetwork.Name)
+			}
+		} else {
+			var alias = ""
+			for key := range composeServiceConfig.Networks {
+				alias = key
+				serviceConfig.Network = append(serviceConfig.Network, composeObject.Networks[alias].Name)
+			}
+		}
+
 		//
 		// Deploy keys
 		//

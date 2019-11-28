@@ -18,13 +18,12 @@ package compose
 
 import (
 	"fmt"
+	"k8s.io/kubernetes/pkg/api"
 	"net"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"k8s.io/kubernetes/pkg/api"
 
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
@@ -278,6 +277,12 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.MemLimit = composeServiceConfig.MemLimit
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
 		serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod
+
+		if len(composeServiceConfig.Networks.Networks) > 0 {
+			for _, value := range composeServiceConfig.Networks.Networks {
+				serviceConfig.Network = append(serviceConfig.Network, value.RealName)
+			}
+		}
 
 		// Get GroupAdd, group should be mentioned in gid format but not the group name
 		groupAdd, err := getGroupAdd(composeServiceConfig.GroupAdd)

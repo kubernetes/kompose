@@ -131,6 +131,17 @@ func normalizeVolumes(svcName string) string {
 	return strings.Replace(svcName, "_", "-", -1)
 }
 
+func normalizeNetworkNames(netName string) (string, error) {
+	netval := strings.ToLower(netName)
+	regString := ("[^A-Za-z0-9.-]+")
+	reg, err := regexp.Compile(regString)
+	if err != nil {
+		return "", err
+	}
+	netval = reg.ReplaceAllString(netval, "")
+	return netval, nil
+}
+
 // ReadFile read data from file or stdin
 func ReadFile(fileName string) ([]byte, error) {
 	if fileName == "-" {
