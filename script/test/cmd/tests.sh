@@ -140,6 +140,17 @@ cmd="kompose --provider=openshift convert -f $KOMPOSE_ROOT/script/test/fixtures/
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/output-openshift-template.json > /tmp/output-os.json
 convert::expect_success "$cmd" "/tmp/output-os.json"
 
+# Test other top level keys
+# In merge
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/other-toplevel-dev.yml -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/other-toplevel-ext.yml --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/output-other-toplevel-merge-template.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+# In Override
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/other-toplevel-base.yml -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/other-toplevel-override.yml --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/output-other-toplevel-override-template.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
 ######
 # Tests related to docker-compose file in /script/test/fixtures/ports-with-proto
 # kubernetes test

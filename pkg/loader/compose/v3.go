@@ -635,6 +635,26 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 		oldCompose.Services[index] = tmpOldService
 	}
 
+	// Merge the networks information
+	for idx, network := range newCompose.Networks {
+		oldCompose.Networks[idx] = network
+	}
+
+	// Merge the volumes information
+	for idx, volume := range newCompose.Volumes {
+		oldCompose.Volumes[idx] = volume
+	}
+
+	// Merge the secrets information
+	for idx, secret := range newCompose.Secrets {
+		oldCompose.Secrets[idx] = secret
+	}
+
+	// Merge the configs information
+	for idx, config := range newCompose.Configs {
+		oldCompose.Configs[idx] = config
+	}
+
 	return oldCompose, nil
 }
 
