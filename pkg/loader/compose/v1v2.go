@@ -22,7 +22,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -282,12 +281,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		if len(composeServiceConfig.Networks.Networks) > 0 {
 			for _, value := range composeServiceConfig.Networks.Networks {
 				netval := strings.ToLower(value.RealName)
-				reg, err := regexp.Compile("[^A-Za-z0-9.-]+")
-				if err != nil {
-					log.Fatal(err)
-				}
-				netval = reg.ReplaceAllString(netval, "")
-				log.Warnf("Network Name would be converted to lower case and any non-alphanumeric characters would be removed")
+				log.Warnf("Network Name would be converted to lower case")
 				serviceConfig.Network = append(serviceConfig.Network, netval)
 			}
 		}

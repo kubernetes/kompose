@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"k8s.io/kubernetes/pkg/api"
 	"os"
-	"regexp"
 
 	"github.com/docker/cli/cli/compose/loader"
 	"github.com/docker/cli/cli/compose/types"
@@ -284,12 +283,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 			if defaultNetwork, ok := composeObject.Networks["default"]; ok {
 				//serviceConfig.Labels["network"] = defaultNetwork.Name
 				netval := strings.ToLower(defaultNetwork.Name)
-				reg, err := regexp.Compile("[^A-Za-z0-9.-]+")
-				if err != nil {
-					log.Fatal(err)
-				}
-				netval = reg.ReplaceAllString(netval, "")
-				log.Warnf("Network Name would be converted to lower case and any non-alphanumeric characters would be removed")
+				log.Warnf("Network Name would be converted to lower case")
 				serviceConfig.Network = append(serviceConfig.Network, netval)
 			}
 		} else {
@@ -298,12 +292,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 				alias = key
 
 				netval := strings.ToLower(composeObject.Networks[alias].Name)
-				reg, err := regexp.Compile("[^A-Za-z0-9.-]+")
-				if err != nil {
-					log.Fatal(err)
-				}
-				netval = reg.ReplaceAllString(netval, "")
-				log.Warnf("Network Name would be converted to lower case and any non-alphanumeric characters would be removed")
+				log.Warnf("Network Name would be converted to lower case")
 				serviceConfig.Network = append(serviceConfig.Network, netval)
 			}
 		}
@@ -662,12 +651,6 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 		}
 		oldCompose.Services[index] = tmpOldService
 	}
-
-	// Merge the networks information
-	for idx, net := range newCompose.Networks {
-		oldCompose.Networks[idx] = net
-	}
-
 	return oldCompose, nil
 }
 

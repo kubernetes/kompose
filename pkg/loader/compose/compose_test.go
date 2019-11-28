@@ -359,6 +359,29 @@ func TestNormalizeServiceNames(t *testing.T) {
 	}
 }
 
+func TestNormalizeNetworkNames(t *testing.T) {
+	testCases := []struct {
+		composeNetworkName    string
+		normalizedNetworkName string
+	}{
+		{"foo_bar", "foobar"},
+		{"foo", "foo"},
+		{"FOO", "foo"},
+		{"foo.bar", "foo.bar"},
+		//{"", ""},
+	}
+
+	for _, testCase := range testCases {
+		returnValue, err := normalizeNetworkNames(testCase.composeNetworkName)
+		if err != nil {
+			t.Log("Unxpected error, got ", err)
+		}
+		if returnValue != testCase.normalizedNetworkName {
+			t.Logf("Expected %q, got %q", testCase.normalizedNetworkName, returnValue)
+		}
+	}
+}
+
 func TestCheckLabelsPorts(t *testing.T) {
 	testCases := []struct {
 		name        string
