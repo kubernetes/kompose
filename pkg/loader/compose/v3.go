@@ -31,7 +31,6 @@ import (
 	"os"
 
 	"fmt"
-
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"

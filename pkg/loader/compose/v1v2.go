@@ -18,13 +18,6 @@ package compose
 
 import (
 	"fmt"
-	"k8s.io/kubernetes/pkg/api"
-	"net"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
-
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
@@ -32,6 +25,12 @@ import (
 	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/kubernetes/pkg/api"
+	"net"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 // Parse Docker Compose with libcompose (only supports v1 and v2). Eventually we will
@@ -280,7 +279,9 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 
 		if len(composeServiceConfig.Networks.Networks) > 0 {
 			for _, value := range composeServiceConfig.Networks.Networks {
-				serviceConfig.Network = append(serviceConfig.Network, value.RealName)
+				if value.Name != "default" {
+					serviceConfig.Network = append(serviceConfig.Network, value.RealName)
+				}
 			}
 		}
 
