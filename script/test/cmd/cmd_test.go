@@ -24,6 +24,8 @@ func Test_stdin(t *testing.T) {
 		fmt.Println("error", err)
 	}
 	g, err := ioutil.ReadFile("/tmp/output-k8s.json")
+	fmt.Println(string(g))
+	fmt.Println(string(output))
 	if !bytes.Equal(output, g) {
 		t.Errorf("Test Failed")
 	}
