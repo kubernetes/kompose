@@ -501,7 +501,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			template.Spec.SecurityContext = podSecurityContext
 		}
 		template.Spec.Containers[0].Ports = ports
-		template.ObjectMeta.Labels = transformer.ConfigLabels(name)
+		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
 
 		// Configure the image pull policy
 		switch service.ImagePullPolicy {

@@ -107,13 +107,27 @@ func isPath(substring string) bool {
 	return strings.Contains(substring, "/") || substring == "."
 }
 
-// ConfigLabels configures label
+// ConfigLabels configures label name alone
 func ConfigLabels(name string) map[string]string {
 	return map[string]string{Selector: name}
 }
 
+// ConfigLabels configures label and add Network Information in labels
+func ConfigLabelsWithNetwork(name string, net []string) map[string]string {
+
+	labels := map[string]string{}
+	labels[Selector] = name
+
+	for _, n := range net {
+		labels["io.kompose.network/"+n] = "true"
+	}
+	return labels
+	//return map[string]string{Selector: name, "Network": net}
+}
+
 // ConfigAnnotations configures annotations
 func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
+
 	annotations := map[string]string{}
 	for key, value := range service.Annotations {
 		annotations[key] = value

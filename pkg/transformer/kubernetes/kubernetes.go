@@ -49,11 +49,12 @@ import (
 	"sort"
 	"strings"
 
+	"path/filepath"
+
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
-	"path/filepath"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -303,14 +304,18 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
+
 			Template: api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
+					//Labels: transformer.ConfigLabels(name),
 					Annotations: transformer.ConfigAnnotations(service),
 				},
 				Spec: podSpec,
 			},
 		},
 	}
+	dc.Spec.Template.Labels = transformer.ConfigLabels(name)
+
 	return dc
 }
 
@@ -823,6 +828,36 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 	return &pod
 }
 
+// CreateNetworkPolicy initializes Network policy
+func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*extensions.NetworkPolicy, error) {
+
+	str := "true"
+	np := &extensions.NetworkPolicy{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "NetworkPolicy",
+			APIVersion: "extensions/v1beta1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: networkName,
+			//Labels: transformer.ConfigLabels(name)(name),
+		},
+		Spec: extensions.NetworkPolicySpec{
+			PodSelector: unversioned.LabelSelector{
+				MatchLabels: map[string]string{"io.kompose.network/" + networkName: str},
+			},
+			Ingress: []extensions.NetworkPolicyIngressRule{{
+				From: []extensions.NetworkPolicyPeer{{
+					PodSelector: &unversioned.LabelSelector{
+						MatchLabels: map[string]string{"io.kompose.network/" + networkName: str},
+					},
+				}},
+			}},
+		},
+	}
+
+	return np, nil
+}
+
 // Transform maps komposeObject to k8s objects
 // returns object that are already sorted in the way that Services are first
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) ([]runtime.Object, error) {
@@ -906,11 +941,29 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 		}
 
+		if len(service.Network) > 0 {
+
+			for _, net := range service.Network {
+
+				log.Infof("Network %s is detected at Source, shall be converted to equivalent NetworkPolicy at Destination", net)
+				np, err := k.CreateNetworkPolicy(name, net)
+
+				if err != nil {
+					return nil, errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)
+				}
+				objects = append(objects, np)
+
+			}
+
+		}
+
 		allobjects = append(allobjects, objects...)
+
 	}
 
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
+
 	return allobjects, nil
 }
 
