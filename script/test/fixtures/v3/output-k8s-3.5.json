@@ -10,7 +10,6 @@
         "name": "helloworld",
         "creationTimestamp": null,
         "labels": {
-	  "io.kompose.network/helloworld-network": "true",
           "io.kompose.service": "helloworld"
         },
         "annotations": {
@@ -54,6 +53,7 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
+	      "io.kompose.network/helloworld-network": "true",
               "io.kompose.service": "helloworld"
             },
             "annotations": {
@@ -108,6 +108,6 @@
           }
         ]
       }
-    }  
+    }
   ]
 }
