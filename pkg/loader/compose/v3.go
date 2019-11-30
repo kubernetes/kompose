@@ -290,7 +290,13 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 			var alias = ""
 			for key := range composeServiceConfig.Networks {
 				alias = key
-				serviceConfig.Network = append(serviceConfig.Network, composeObject.Networks[alias].Name)
+				netName := composeObject.Networks[alias].Name
+				// if Network Name Field is empty in the docker-compose definition
+				// we will use the alias name defined in service config file
+				if netName == "" {
+					netName = alias
+				}
+				serviceConfig.Network = append(serviceConfig.Network, netName)
 			}
 		}
 		//
