@@ -24,8 +24,6 @@ import (
 	"strconv"
 	"strings"
 
-	"k8s.io/kubernetes/pkg/api"
-
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
@@ -33,6 +31,7 @@ import (
 	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/kubernetes/pkg/api"
 )
 
 // Parse Docker Compose with libcompose (only supports v1 and v2). Eventually we will
@@ -279,6 +278,15 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
 		serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod
 
+		if composeServiceConfig.Networks != nil {
+			if len(composeServiceConfig.Networks.Networks) > 0 {
+				for _, value := range composeServiceConfig.Networks.Networks {
+					if value.Name != "default" {
+						serviceConfig.Network = append(serviceConfig.Network, value.RealName)
+					}
+				}
+			}
+		}
 		// Get GroupAdd, group should be mentioned in gid format but not the group name
 		groupAdd, err := getGroupAdd(composeServiceConfig.GroupAdd)
 		if err != nil {

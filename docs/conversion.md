@@ -59,7 +59,7 @@ __Glossary:__
 | links                  | x  | x  | x  |                                                             | All containers in the same pod are accessible in Kubernetes                                                    |
 | logging                | x  | x  | x  |                                                             | Kubernetes has built-in logging support at the node-level                                                      |
 | network_mode           | x  | x  | x  |                                                             | Kubernetes uses its own cluster networking                                                                    |
-| networks               | x  | x  | x  |                                                             | See `networks` key                                                                                             |
+| networks               | ✓  | ✓  | ✓  |                                                             | See `networks` key                                                                                             |
 | networks: aliases      | x  | x  | x  |                                                             | See `networks` key                                                                                             |
 | networks: addresses    | x  | x  | x  |                                                             | See `networks` key                                                                                             |
 | pid                    | ✓  | ✓  | ✓  | Pod.Spec.HostPID                                            |                                                                                                                |

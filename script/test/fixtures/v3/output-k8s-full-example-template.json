@@ -10,6 +10,9 @@
         "name": "foo",
         "creationTimestamp": null,
         "labels": {
+          "io.kompose.network/other-network": "true",
+          "io.kompose.network/other-other-network": "true",
+          "io.kompose.network/some-network": "true",
           "io.kompose.service": "foo"
         }
       },
@@ -344,6 +347,90 @@
         }
       },
       "status": {}
+    },
+    {
+      "kind": "NetworkPolicy",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "other-other-network",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "io.kompose.network/other-other-network": "true"
+          }
+        },
+        "ingress": [
+          {
+            "from": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "io.kompose.network/other-other-network": "true"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "NetworkPolicy",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "some-network",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "io.kompose.network/some-network": "true"
+          }
+        },
+        "ingress": [
+          {
+            "from": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "io.kompose.network/some-network": "true"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "NetworkPolicy",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "other-network",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "io.kompose.network/other-network": "true"
+          }
+        },
+        "ingress": [
+          {
+            "from": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "io.kompose.network/other-network": "true"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
