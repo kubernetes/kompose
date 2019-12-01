@@ -1,0 +1,20 @@
+version: "3.3"
+
+services:
+  other-toplevel-dev:
+    image: nginx
+    volumes:
+      - firstvolume:/var/www/nginx
+    configs:
+      - source: firstconfig
+        target: /etc/nginx.conf
+        mode: 644
+
+volumes:
+  firstvolume:
+    driver_opts:
+      type: "nfs"
+
+configs:
+  firstconfig:
+    file: ./first_config.txt

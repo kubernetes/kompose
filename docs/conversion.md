@@ -46,7 +46,7 @@ __Glossary:__
 | env_file               | n  | n  | ✓  |                                                             |                                                                                                                |
 | environment            | ✓  | ✓  | ✓  | Pod.Spec.Container.Env                                      |                                                                                                                |
 | expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports 
-| endpoint_mode          | n  | n  | ✓  |                                                             |                                                                                                                |
+| endpoint_mode          | n  | n  | ✓  |                                                             | If endpoint_mode=vip, the created Service will be forced to set to NodePort type                               |
 | extends                | ✓  | ✓  | ✓  |                                                             | Extends by utilizing the same image supplied                                                                   |
 | external_links         | x  | x  | x  |                                                             | Kubernetes uses a flat-structure for all containers and thus external_links does not have a 1-1 conversion     |
 | extra_hosts            | n  | n  | n  |                                                             |                                                                                                                |
@@ -58,8 +58,8 @@ __Glossary:__
 | labels                 | ✓  | ✓  | ✓  | Metadata.Annotations                                        |                                                                                                                |
 | links                  | x  | x  | x  |                                                             | All containers in the same pod are accessible in Kubernetes                                                    |
 | logging                | x  | x  | x  |                                                             | Kubernetes has built-in logging support at the node-level                                                      |
-| network_mode           | x  | x  | x  |                                                             | Kubernetes uses its own cluster networking                                                                     |
-| networks               | x  | x  | x  |                                                             | See `networks` key                                                                                             |
+| network_mode           | x  | x  | x  |                                                             | Kubernetes uses its own cluster networking                                                                    |
+| networks               | ✓  | ✓  | ✓  |                                                             | See `networks` key                                                                                             |
 | networks: aliases      | x  | x  | x  |                                                             | See `networks` key                                                                                             |
 | networks: addresses    | x  | x  | x  |                                                             | See `networks` key                                                                                             |
 | pid                    | ✓  | ✓  | ✓  | Pod.Spec.HostPID                                            |                                                                                                                |

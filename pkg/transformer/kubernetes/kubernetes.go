@@ -49,12 +49,13 @@ import (
 	"sort"
 	"strings"
 
+	"path/filepath"
+
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
-	"path/filepath"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -260,6 +261,7 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 	}
 
 	originFileName := FormatFileName(fileName)
+
 	dataMap := make(map[string]string)
 	dataMap[originFileName] = content
 	configMapName := ""
@@ -303,11 +305,18 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
+
 			Template: api.PodTemplateSpec{
+				ObjectMeta: api.ObjectMeta{
+					//Labels: transformer.ConfigLabels(name),
+					Annotations: transformer.ConfigAnnotations(service),
+				},
 				Spec: podSpec,
 			},
 		},
 	}
+	dc.Spec.Template.Labels = transformer.ConfigLabels(name)
+
 	return dc
 }
 
@@ -936,6 +945,36 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 	return &pod
 }
 
+// CreateNetworkPolicy initializes Network policy
+func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*extensions.NetworkPolicy, error) {
+
+	str := "true"
+	np := &extensions.NetworkPolicy{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "NetworkPolicy",
+			APIVersion: "extensions/v1beta1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name: networkName,
+			//Labels: transformer.ConfigLabels(name)(name),
+		},
+		Spec: extensions.NetworkPolicySpec{
+			PodSelector: unversioned.LabelSelector{
+				MatchLabels: map[string]string{"io.kompose.network/" + networkName: str},
+			},
+			Ingress: []extensions.NetworkPolicyIngressRule{{
+				From: []extensions.NetworkPolicyPeer{{
+					PodSelector: &unversioned.LabelSelector{
+						MatchLabels: map[string]string{"io.kompose.network/" + networkName: str},
+					},
+				}},
+			}},
+		},
+	}
+
+	return np, nil
+}
+
 // Transform maps komposeObject to k8s objects
 // returns object that are already sorted in the way that Services are first
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) ([]runtime.Object, error) {
@@ -969,7 +1008,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				return nil, fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
 			}
 
-			log.Infof("Build key detected. Attempting to build and push image '%s'", service.Image)
+			log.Infof("Build key detected. Attempting to build image '%s'", service.Image)
 
 			// Get the directory where the compose file is
 			composeFileDir, err := transformer.GetComposeFileDir(opt.InputFiles)
@@ -984,11 +1023,13 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			}
 
 			// Push the built image to the repo!
-			err = transformer.PushDockerImage(service, name)
-			if err != nil {
-				return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
+			if opt.PushImage {
+				log.Infof("Push image enabled. Attempting to push image '%s'", service.Image)
+				err = transformer.PushDockerImage(service, name)
+				if err != nil {
+					return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
+				}
 			}
-
 		}
 
 		// If there's no "image" key, use the name of the container that's built
@@ -1027,11 +1068,29 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 		}
 
+		if len(service.Network) > 0 {
+
+			for _, net := range service.Network {
+
+				log.Infof("Network %s is detected at Source, shall be converted to equivalent NetworkPolicy at Destination", net)
+				np, err := k.CreateNetworkPolicy(name, net)
+
+				if err != nil {
+					return nil, errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)
+				}
+				objects = append(objects, np)
+
+			}
+
+		}
+
 		allobjects = append(allobjects, objects...)
+
 	}
 
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
+
 	return allobjects, nil
 }
 

@@ -53,7 +53,12 @@
           "metadata": {
             "creationTimestamp": null,
             "labels": {
+	      "io.kompose.network/helloworld-network": "true",
               "io.kompose.service": "helloworld"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
@@ -75,6 +80,34 @@
         "strategy": {}
       },
       "status": {}
+    },
+    {
+      "kind": "NetworkPolicy",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "helloworld-network",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "io.kompose.network/helloworld-network": "true"
+          }
+        },
+        "ingress": [
+          {
+            "from": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "io.kompose.network/helloworld-network": "true"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

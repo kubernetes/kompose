@@ -1,0 +1,104 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "appfoo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "appfoo"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%"
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "appfoo"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "appfoo:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "appfoo"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.network/app-network": "true",
+              "io.kompose.network/web-network": "true",
+              "io.kompose.service": "appfoo"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "appfoo",
+                "image": " ",
+                "args": [
+                  "sh",
+                  "-c",
+                  "echo Hello Foo"
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "appfoo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "appfoo"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "foo:latest"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    }
+  ]
+}

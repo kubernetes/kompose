@@ -260,7 +260,7 @@ func TestUnsupportedKeys(t *testing.T) {
 		Ports:    []string{}, // test empty array
 		Networks: &yaml.Networks{
 			Networks: []*yaml.Network{
-				&yaml.Network{
+				{
 					Name: "net1",
 				},
 			},
@@ -275,19 +275,19 @@ func TestUnsupportedKeys(t *testing.T) {
 		Ports:    []string{}, // test empty array
 		Networks: &yaml.Networks{
 			Networks: []*yaml.Network{
-				&yaml.Network{
+				{
 					Name: "net1",
 				},
 			},
 		},
 	})
 	projectWithNetworks.VolumeConfigs = map[string]*config.VolumeConfig{
-		"foo": &config.VolumeConfig{
+		"foo": {
 			Driver: "storage",
 		},
 	}
 	projectWithNetworks.NetworkConfigs = map[string]*config.NetworkConfig{
-		"foo": &config.NetworkConfig{
+		"foo": {
 			Driver: "bridge",
 		},
 	}
@@ -304,7 +304,7 @@ func TestUnsupportedKeys(t *testing.T) {
 	projectWithDefaultNetwork.ServiceConfigs.Add("foo", &config.ServiceConfig{
 		Networks: &yaml.Networks{
 			Networks: []*yaml.Network{
-				&yaml.Network{
+				{
 					Name: "default",
 				},
 			},
@@ -318,11 +318,8 @@ func TestUnsupportedKeys(t *testing.T) {
 	}{
 		"With Networks (service and root level)": {
 			projectWithNetworks,
-			[]string{"root level networks", "root level volumes", "networks"},
-		},
-		"Empty Networks on Service level": {
-			projectWithEmptyNetwork,
-			[]string{"networks"},
+			//root level network and network are now supported"
+			[]string{"root level volumes"},
 		},
 		"Default root level Network": {
 			projectWithDefaultNetwork,
@@ -355,6 +352,29 @@ func TestNormalizeServiceNames(t *testing.T) {
 		returnValue := normalizeServiceNames(testCase.composeServiceName)
 		if returnValue != testCase.normalizedServiceName {
 			t.Logf("Expected %q, got %q", testCase.normalizedServiceName, returnValue)
+		}
+	}
+}
+
+func TestNormalizeNetworkNames(t *testing.T) {
+	testCases := []struct {
+		composeNetworkName    string
+		normalizedNetworkName string
+	}{
+		{"foo_bar", "foobar"},
+		{"foo", "foo"},
+		{"FOO", "foo"},
+		{"foo.bar", "foo.bar"},
+		//{"", ""},
+	}
+
+	for _, testCase := range testCases {
+		returnValue, err := normalizeNetworkNames(testCase.composeNetworkName)
+		if err != nil {
+			t.Log("Unxpected error, got ", err)
+		}
+		if returnValue != testCase.normalizedNetworkName {
+			t.Logf("Expected %q, got %q", testCase.normalizedNetworkName, returnValue)
 		}
 	}
 }

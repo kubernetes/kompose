@@ -501,7 +501,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			template.Spec.SecurityContext = podSecurityContext
 		}
 		template.Spec.Containers[0].Ports = ports
-		template.ObjectMeta.Labels = transformer.ConfigLabels(name)
+		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
 
 		// Configure the image pull policy
 		switch service.ImagePullPolicy {
@@ -621,6 +621,7 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 	return envLoad, nil
 }
 
+
 // GetSecretDataFromFile load secret content data
 func GetSecretDataFromFile(file string, opt kobject.ConvertOptions) ([]byte, error) {
 	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
@@ -631,16 +632,10 @@ func GetSecretDataFromFile(file string, opt kobject.ConvertOptions) ([]byte, err
 	return ioutil.ReadFile(fileLocation)
 }
 
-// GetContentFromFile get content from file
 // TODO(hang): merge these two functions
+// GetContentFromFile gets the content from the file..
 func GetContentFromFile(file string, opt kobject.ConvertOptions) (string, error) {
-	// Get the correct file context / directory
-	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
-	if err != nil {
-		return "", errors.Wrap(err, "Unable to load file context")
-	}
-	fileLocation := path.Join(composeDir, file)
-	fileBytes, err := ioutil.ReadFile(fileLocation)
+	fileBytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return "", errors.Wrap(err, "Unable to read file")
 	}
@@ -657,9 +652,13 @@ func FormatEnvName(name string) string {
 
 // FormatFileName format file name
 func FormatFileName(name string) string {
-	envName := strings.Trim(name, "./")
-	envName = strings.Replace(envName, "_", "-", -1)
-	return envName
+	// Split the filepath name so that we use the
+	// file name (after the base) for ConfigMap,
+	// it shouldn't matter whether it has special characters or not
+	_, file := path.Split(name)
+
+	// Make it DNS-1123 compliant for Kubernetes
+	return strings.Replace(file, "_", "-", -1)
 }
 
 //FormatContainerName format Container name

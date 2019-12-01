@@ -283,6 +283,24 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.DomainName = composeServiceConfig.DomainName
 		serviceConfig.Secrets = composeServiceConfig.Secrets
 
+		//Adding network key related info
+		if len(composeServiceConfig.Networks) == 0 {
+			if defaultNetwork, ok := composeObject.Networks["default"]; ok {
+				serviceConfig.Network = append(serviceConfig.Network, defaultNetwork.Name)
+			}
+		} else {
+			var alias = ""
+			for key := range composeServiceConfig.Networks {
+				alias = key
+				netName := composeObject.Networks[alias].Name
+				// if Network Name Field is empty in the docker-compose definition
+				// we will use the alias name defined in service config file
+				if netName == "" {
+					netName = alias
+				}
+				serviceConfig.Network = append(serviceConfig.Network, netName)
+			}
+		}
 		//
 		// Deploy keys
 		//
@@ -635,6 +653,26 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 			tmpOldService.WorkingDir = service.WorkingDir
 		}
 		oldCompose.Services[index] = tmpOldService
+	}
+
+	// Merge the networks information
+	for idx, network := range newCompose.Networks {
+		oldCompose.Networks[idx] = network
+	}
+
+	// Merge the volumes information
+	for idx, volume := range newCompose.Volumes {
+		oldCompose.Volumes[idx] = volume
+	}
+
+	// Merge the secrets information
+	for idx, secret := range newCompose.Secrets {
+		oldCompose.Secrets[idx] = secret
+	}
+
+	// Merge the configs information
+	for idx, config := range newCompose.Configs {
+		oldCompose.Configs[idx] = config
 	}
 
 	return oldCompose, nil

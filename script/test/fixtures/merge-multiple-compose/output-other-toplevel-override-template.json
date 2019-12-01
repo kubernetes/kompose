@@ -1,0 +1,112 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "firstconfig",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "other-toplevel-base"
+        }
+      },
+      "data": {
+        "second-config.txt": "Second config\n"
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "other-toplevel-base",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "other-toplevel-base"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "other-toplevel-base"
+            },
+            "annotations": {
+							"kompose.cmd": "%CMD%",
+							"kompose.version": "%VERSION%"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "firstconfig",
+                "configMap": {
+                  "name": "firstconfig",
+                  "defaultMode": 644
+                }
+              },
+              {
+                "name": "firstvolume",
+                "persistentVolumeClaim": {
+                  "claimName": "firstvolume"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "other-toplevel-base",
+                "image": "nginx",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "firstconfig",
+                    "mountPath": "/nginx.conf"
+                  },
+                  {
+                    "name": "firstvolume",
+                    "mountPath": "/var/www/nginx"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "firstvolume",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "firstvolume"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}

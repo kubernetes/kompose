@@ -1,0 +1,217 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "firstconfig",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "other-toplevel-dev"
+        }
+      },
+      "data": {
+        "first-config.txt": "First config\n"
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "other-toplevel-dev",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "other-toplevel-dev"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "other-toplevel-dev"
+            },
+            "annotations": {
+							"kompose.cmd": "%CMD%",
+							"kompose.version": "%VERSION%"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "firstconfig",
+                "configMap": {
+                  "name": "firstconfig",
+                  "defaultMode": 644
+                }
+              },
+              {
+                "name": "firstvolume",
+                "persistentVolumeClaim": {
+                  "claimName": "firstvolume"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "other-toplevel-dev",
+                "image": "nginx",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "firstconfig",
+                    "mountPath": "/nginx.conf"
+                  },
+                  {
+                    "name": "firstvolume",
+                    "mountPath": "/var/www/nginx"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "firstvolume",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "firstvolume"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "secondconfig",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "other-toplevel-second"
+        }
+      },
+      "data": {
+        "second-config.txt": "Second config\n"
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "other-toplevel-second",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "other-toplevel-second"
+        },
+        "annotations": {
+					"kompose.cmd": "%CMD%",
+					"kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "other-toplevel-second"
+            },
+            "annotations": {
+							"kompose.cmd": "%CMD%",
+							"kompose.version": "%VERSION%"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "secondconfig",
+                "configMap": {
+                  "name": "secondconfig",
+                  "defaultMode": 644
+                }
+              },
+              {
+                "name": "secondvolume",
+                "persistentVolumeClaim": {
+                  "claimName": "secondvolume"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "other-toplevel-second",
+                "image": "nginx",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "secondconfig",
+                    "mountPath": "/nginx.conf"
+                  },
+                  {
+                    "name": "secondvolume",
+                    "mountPath": "/var/www/nginx"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "secondvolume",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "secondvolume"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}

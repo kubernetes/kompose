@@ -1,0 +1,19 @@
+version: "3.3"
+
+services:
+  other-toplevel-second:
+    image: nginx
+    volumes:
+      - secondvolume:/var/www/nginx
+    configs:
+      - source: secondconfig
+        target: /etc/nginx.conf
+        mode: 644
+
+volumes:
+  secondvolume:
+    external: true
+
+configs:
+  secondconfig:
+    file: ./second_config.txt
