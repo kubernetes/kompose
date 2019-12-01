@@ -621,7 +621,6 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 	return envLoad, nil
 }
 
-
 // GetSecretDataFromFile load secret content data
 func GetSecretDataFromFile(file string, opt kobject.ConvertOptions) ([]byte, error) {
 	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
