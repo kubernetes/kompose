@@ -7,6 +7,9 @@ import:
 - package: github.com/sirupsen/logrus
   version: 1.0.3
 
+- package: github.com/spf13/cast
+  version: v1.2.0
+
 - package: golang.org/x/sys
   version: ebfc5b4631820b793c9010c87fd8fef0f39eb082
 

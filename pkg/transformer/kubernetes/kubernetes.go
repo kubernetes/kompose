@@ -53,6 +53,7 @@ import (
 
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
 )
@@ -391,6 +392,37 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 	return ingress
 }
 
+// CreateSecrets create secrets
+func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.Secret, error) {
+	var objects []*api.Secret
+	for name, config := range komposeObject.Secrets {
+		if config.File != "" {
+			data, err := GetSecretDataFromFile(config.File, k.Opt)
+			if err != nil {
+				log.Fatal("unable to read secret from file: ", config.File)
+				return nil, err
+			}
+			secret := &api.Secret{
+				TypeMeta: unversioned.TypeMeta{
+					Kind:       "Secret",
+					APIVersion: "v1",
+				},
+				ObjectMeta: api.ObjectMeta{
+					Name:   name,
+					Labels: transformer.ConfigLabels(name),
+				},
+				Type: api.SecretTypeOpaque,
+				Data: map[string][]byte{name: data},
+			}
+			objects = append(objects, secret)
+		} else {
+			log.Warnf("External secrets %s is not currently supported - ignoring", name)
+		}
+	}
+	return objects, nil
+
+}
+
 // CreatePVC initializes PersistentVolumeClaim
 func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorValue string) (*api.PersistentVolumeClaim, error) {
 	volSize, err := resource.ParseQuantity(size)
@@ -541,6 +573,86 @@ func (k *Kubernetes) ConfigTmpfs(name string, service kobject.ServiceConfig) ([]
 	return volumeMounts, volumes
 }
 
+// ConfigSecretVolumes config volumes from secret.
+// Link: https://docs.docker.com/compose/compose-file/#secrets
+// In kubernetes' Secret resource, it has a data structure like a map[string]bytes, every key will act like the file name
+// when mount to a container. This is the part that missing in compose. So we will create a single key secret from compose
+// config and the key's name will be the secret's name, it's value is the file content.
+// compose'secret can only be mounted at `/run/secrets`, so we will hardcoded this.
+func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume) {
+	var volumeMounts []api.VolumeMount
+	var volumes []api.Volume
+	if len(service.Secrets) > 0 {
+		for _, secretConfig := range service.Secrets {
+			if secretConfig.UID != "" {
+				log.Warnf("Ignore pid in secrets for service: %s", name)
+			}
+			if secretConfig.GID != "" {
+				log.Warnf("Ignore gid in secrets for service: %s", name)
+			}
+
+			var itemPath string // should be the filename
+			var mountPath = ""  // should be the directory
+			// if is used the short-syntax
+			if secretConfig.Target == "" {
+				// the secret path (mountPath) should be inside the default directory /run/secrets
+				mountPath = "/run/secrets/" + secretConfig.Source
+				// the itemPath should be the source itself
+				itemPath = secretConfig.Source
+			} else {
+				// if is the long-syntax, i should get the last part of path and consider it the filename
+				pathSplitted := strings.Split(secretConfig.Target, "/")
+				lastPart := pathSplitted[len(pathSplitted)-1]
+
+				// if the filename (lastPart) and the target is the same
+				if lastPart == secretConfig.Target {
+					// the secret path should be the source (it need to be inside a directory and only the filename was given)
+					mountPath = secretConfig.Source
+				} else {
+					// should then get the target without the filename (lastPart)
+					mountPath = mountPath + strings.TrimSuffix(secretConfig.Target, "/"+lastPart) // menos ultima parte
+				}
+
+				// if the target isn't absolute path
+				if strings.HasPrefix(secretConfig.Target, "/") == false {
+					// concat the default secret directory
+					mountPath = "/run/secrets/" + mountPath
+				}
+
+				itemPath = lastPart
+			}
+
+			volSource := api.VolumeSource{
+				Secret: &api.SecretVolumeSource{
+					SecretName: secretConfig.Source,
+					Items: []api.KeyToPath{{
+						Key:  secretConfig.Source,
+						Path: itemPath,
+					}},
+				},
+			}
+
+			if secretConfig.Mode != nil {
+				mode := cast.ToInt32(*secretConfig.Mode)
+				volSource.Secret.DefaultMode = &mode
+			}
+
+			vol := api.Volume{
+				Name:         secretConfig.Source,
+				VolumeSource: volSource,
+			}
+			volumes = append(volumes, vol)
+
+			volMount := api.VolumeMount{
+				Name:      vol.Name,
+				MountPath: mountPath,
+			}
+			volumeMounts = append(volumeMounts, volMount)
+		}
+	}
+	return volumeMounts, volumes
+}
+
 // ConfigVolumes configure the container volumes.
 func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim, error) {
 	volumeMounts := []api.VolumeMount{}
@@ -560,6 +672,11 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	if k.Opt.Volumes == "hostPath" {
 		useHostPath = true
 	}
+
+	// config volumes from secret if present
+	secretsVolumeMounts, secretsVolumes := k.ConfigSecretVolumes(name, service)
+	volumeMounts = append(volumeMounts, secretsVolumeMounts...)
+	volumes = append(volumes, secretsVolumes...)
 
 	var count int
 	//iterating over array of `Vols` struct as it contains all necessary information about volumes
@@ -864,6 +981,16 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 	// this will hold all the converted data
 	var allobjects []runtime.Object
+
+	if komposeObject.Secrets != nil {
+		secrets, err := k.CreateSecrets(komposeObject)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unable to create Secret resource")
+		}
+		for _, item := range secrets {
+			allobjects = append(allobjects, item)
+		}
+	}
 
 	sortedKeys := SortedKeys(komposeObject)
 	for _, name := range sortedKeys {

@@ -252,6 +252,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 		LoadedFrom:     "compose",
+		Secrets:        composeObject.Secrets,
 	}
 
 	// Step 2. Parse through the object and convert it to kobject.KomposeObject!
@@ -280,6 +281,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Labels = composeServiceConfig.Labels
 		serviceConfig.HostName = composeServiceConfig.Hostname
 		serviceConfig.DomainName = composeServiceConfig.DomainName
+		serviceConfig.Secrets = composeServiceConfig.Secrets
 
 		//Adding network key related info
 		if len(composeServiceConfig.Networks) == 0 {

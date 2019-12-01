@@ -275,6 +275,16 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	buildRepo := opt.BuildRepo
 	buildBranch := opt.BuildBranch
 
+	if komposeObject.Secrets != nil {
+		secrets, err := o.CreateSecrets(komposeObject)
+		if err != nil {
+			return nil, errors.Wrapf(err, "create secrets error")
+		}
+		for _, item := range secrets {
+			allobjects = append(allobjects, item)
+		}
+	}
+
 	sortedKeys := kubernetes.SortedKeys(komposeObject)
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
