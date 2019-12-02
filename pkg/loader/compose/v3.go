@@ -564,13 +564,18 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 		}
 
 		if len(service.Devices) != 0 {
+			// merge the 2 sets of values
+			// TODO: need to merge the sets based on target values
+			// Not implemented yet as we don't convert devices to k8s anyway
 			tmpOldService.Devices = service.Devices
 		}
 		if len(service.DNS) != 0 {
-			tmpOldService.DNS = service.DNS
+			// concat the 2 sets of values
+			tmpOldService.DNS = append(tmpOldService.DNS, service.DNS...)
 		}
 		if len(service.DNSSearch) != 0 {
-			tmpOldService.DNSSearch = service.DNSSearch
+			// concat the 2 sets of values
+			tmpOldService.DNSSearch = append(tmpOldService.DNSSearch, service.DNSSearch...)
 		}
 		if service.DomainName != "" {
 			tmpOldService.DomainName = service.DomainName
@@ -579,16 +584,21 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 			tmpOldService.Entrypoint = service.Entrypoint
 		}
 		if len(service.Environment) != 0 {
-			tmpOldService.Environment = service.Environment
+			// merge the 2 sets of values
+			for k, v := range service.Environment {
+				tmpOldService.Environment[k] = v
+			}
 		}
 		if len(service.EnvFile) != 0 {
 			tmpOldService.EnvFile = service.EnvFile
 		}
 		if len(service.Expose) != 0 {
-			tmpOldService.Expose = service.Expose
+			// concat the 2 sets of values
+			tmpOldService.Expose = append(tmpOldService.Expose, service.Expose...)
 		}
 		if len(service.ExternalLinks) != 0 {
-			tmpOldService.ExternalLinks = service.ExternalLinks
+			// concat the 2 sets of values
+			tmpOldService.ExternalLinks = append(tmpOldService.ExternalLinks, service.ExternalLinks...)
 		}
 		if len(service.ExtraHosts) != 0 {
 			tmpOldService.ExtraHosts = service.ExtraHosts
@@ -606,7 +616,10 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 			tmpOldService.Ipc = service.Ipc
 		}
 		if len(service.Labels) != 0 {
-			tmpOldService.Labels = service.Labels
+			// merge the 2 sets of values
+			for k, v := range service.Labels {
+				tmpOldService.Labels[k] = v
+			}
 		}
 		if len(service.Links) != 0 {
 			tmpOldService.Links = service.Links
@@ -627,7 +640,8 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 			tmpOldService.Pid = service.Pid
 		}
 		if len(service.Ports) != 0 {
-			tmpOldService.Ports = service.Ports
+			// concat the 2 sets of values
+			tmpOldService.Ports = append(tmpOldService.Ports, service.Ports...)
 		}
 		if service.Privileged != tmpOldService.Privileged {
 			tmpOldService.Privileged = service.Privileged
@@ -654,7 +668,8 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 			tmpOldService.StopSignal = service.StopSignal
 		}
 		if len(service.Tmpfs) != 0 {
-			tmpOldService.Tmpfs = service.Tmpfs
+			// concat the 2 sets of values
+			tmpOldService.Tmpfs = append(tmpOldService.Tmpfs, service.Tmpfs...)
 		}
 		if service.Tty != tmpOldService.Tty {
 			tmpOldService.Tty = service.Tty
@@ -666,7 +681,25 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 			tmpOldService.User = service.User
 		}
 		if len(service.Volumes) != 0 {
-			tmpOldService.Volumes = service.Volumes
+			// merge the 2 sets of values
+
+			// Store volumes by Target
+			volumeConfigsMap := make(map[string]types.ServiceVolumeConfig)
+			// populate the older values
+			for _, volConfig := range tmpOldService.Volumes {
+				volumeConfigsMap[volConfig.Target] = volConfig
+			}
+			// add the new values, overriding as needed
+			for _, volConfig := range service.Volumes {
+				volumeConfigsMap[volConfig.Target] = volConfig
+			}
+
+			// get the new list of volume configs
+			var volumes []types.ServiceVolumeConfig
+			for _, volConfig := range volumeConfigsMap {
+				volumes = append(volumes, volConfig)
+			}
+			tmpOldService.Volumes = volumes
 		}
 		if service.WorkingDir != "" {
 			tmpOldService.WorkingDir = service.WorkingDir
