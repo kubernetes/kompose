@@ -45,6 +45,7 @@ import (
 
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/util/intstr"
+
 	//"k8s.io/kubernetes/pkg/controller/daemon"
 	"sort"
 	"strings"
@@ -397,11 +398,12 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 	var objects []*api.Secret
 	for name, config := range komposeObject.Secrets {
 		if config.File != "" {
-			data, err := GetSecretDataFromFile(config.File, k.Opt)
+			dataString, err := GetContentFromFile(config.File, k.Opt)
 			if err != nil {
 				log.Fatal("unable to read secret from file: ", config.File)
 				return nil, err
 			}
+			data := []byte(dataString)
 			secret := &api.Secret{
 				TypeMeta: unversioned.TypeMeta{
 					Kind:       "Secret",
