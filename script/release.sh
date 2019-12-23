@@ -115,7 +115,7 @@ replaceversion() {
 
 changelog() {
   echo "Generating changelog using github-changelog-generator"
-  github_changelog_generator $UPSTREAM_REPO/$CLI -t $GITHUB_TOKEN --future-release v$1
+  github_changelog_generator --user $UPSTREAM_REPO --project $CLI -t $GITHUB_TOKEN --future-release v$1
 }
 
 changelog_github() {
