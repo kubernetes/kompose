@@ -18,6 +18,9 @@ package kubernetes
 
 import (
 	"fmt"
+	"github.com/spf13/pflag"
+	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
+	"os"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -57,6 +60,10 @@ import (
 	"github.com/spf13/cast"
 	"k8s.io/kubernetes/pkg/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
+
+	"path/filepath"
+
+	utilflag "k8s.io/kubernetes/pkg/util/flag"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer
@@ -1143,10 +1150,41 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 	return nil
 }
 
+// DefaultClientConfig get default client config.
+// This function is copied from library , we just overrides the apiserver url
+func DefaultClientConfig(flags *pflag.FlagSet) clientcmd.ClientConfig {
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	// use the standard defaults for this client command
+	// DEPRECATED: remove and replace with something more accurate
+	loadingRules.DefaultClientConfig = &clientcmd.DefaultClientConfig
+
+	flags.StringVar(&loadingRules.ExplicitPath, "kubeconfig", "", "Path to the kubeconfig file to use for CLI requests.")
+
+	clusterDefaults := clientcmd.ClusterDefaults
+	clusterDefaults.Server = "https://127.0.0.1:6443"
+
+	overrides := &clientcmd.ConfigOverrides{ClusterDefaults: clusterDefaults}
+
+	flagNames := clientcmd.RecommendedConfigOverrideFlags("")
+	// short flagnames are disabled by default.  These are here for compatibility with existing scripts
+	flagNames.ClusterOverrideFlags.APIServer.ShortName = "s"
+
+	clientcmd.BindOverrideFlags(overrides, flags, flagNames)
+	clientConfig := clientcmd.NewInteractiveDeferredLoadingClientConfig(loadingRules, overrides, os.Stdin)
+
+	return clientConfig
+}
+
 // GetKubernetesClient creates the k8s Client, returns k8s client and namespace
 func (k *Kubernetes) GetKubernetesClient() (*client.Client, string, error) {
+
+	// generate a new client config
+	flags := pflag.NewFlagSet("", pflag.ContinueOnError)
+	flags.SetNormalizeFunc(utilflag.WarnWordSepNormalizeFunc) // Warn for "_" flags
+	oc := DefaultClientConfig(flags)
+
 	// initialize Kubernetes client
-	factory := cmdutil.NewFactory(nil)
+	factory := cmdutil.NewFactory(oc)
 	clientConfig, err := factory.ClientConfig()
 	if err != nil {
 		return nil, "", err
