@@ -88,6 +88,7 @@ func generateHelm(dirName string) error {
 	chart := `name: {{.Name}}
 description: A generated Helm Chart for {{.Name}} from Skippbox Kompose
 version: 0.0.1
+apiVersion: v1
 keywords:
   - {{.Name}}
 sources:
