@@ -42,6 +42,83 @@
       "kind": "Deployment",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
+        "name": "another-namenode",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "another-namenode"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "another-namenode"
+            },
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "another-namenode",
+                "image": "bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8",
+                "env": [
+                  {
+                    "name": "BAR",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "name": "hadoop-hive-namenode-env",
+                        "key": "BAR"
+                      }
+                    }
+                  },
+                  {
+                    "name": "FOO",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "name": "hadoop-hive-namenode-env",
+                        "key": "FOO"
+                      }
+                    }
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "hadoop-hive-namenode-env",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "another-namenode-hadoop-hive-namenode-env"
+        }
+      },
+      "data": {
+        "BAR": "FOO",
+        "FOO": "BAR"
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
         "name": "namenode",
         "creationTimestamp": null,
         "labels": {
@@ -91,7 +168,7 @@
                     "name": "BAR",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "namenode-hadoop-hive-namenode-env",
+                        "name": "hadoop-hive-namenode-env",
                         "key": "BAR"
                       }
                     }
@@ -104,7 +181,7 @@
                     "name": "FOO",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "namenode-hadoop-hive-namenode-env",
+                        "name": "hadoop-hive-namenode-env",
                         "key": "FOO"
                       }
                     }
@@ -127,21 +204,6 @@
         }
       },
       "status": {}
-    },
-    {
-      "kind": "ConfigMap",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "namenode-hadoop-hive-namenode-env",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "namenode-hadoop-hive-namenode-env"
-        }
-      },
-      "data": {
-        "BAR": "FOO",
-        "FOO": "BAR"
-      }
     },
     {
       "kind": "PersistentVolumeClaim",

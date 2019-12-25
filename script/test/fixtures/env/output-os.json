@@ -42,15 +42,125 @@
       "kind": "ConfigMap",
       "apiVersion": "v1",
       "metadata": {
-        "name": "namenode-hadoop-hive-namenode-env",
+        "name": "hadoop-hive-namenode-env",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "namenode-hadoop-hive-namenode-env"
+          "io.kompose.service": "another-namenode-hadoop-hive-namenode-env"
         }
       },
       "data": {
         "BAR": "FOO",
         "FOO": "BAR"
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "another-namenode",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "another-namenode"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "another-namenode"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "another-namenode:2.0.0-hadoop2.7.4-java8"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "another-namenode"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "another-namenode"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "another-namenode",
+                "image": " ",
+                "env": [
+                  {
+                    "name": "BAR",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "name": "hadoop-hive-namenode-env",
+                        "key": "BAR"
+                      }
+                    }
+                  },
+                  {
+                    "name": "FOO",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "name": "hadoop-hive-namenode-env",
+                        "key": "FOO"
+                      }
+                    }
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "another-namenode",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "another-namenode"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "2.0.0-hadoop2.7.4-java8",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8"
+            },
+            "generation": null,
+            "importPolicy": {}
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
       }
     },
     {
@@ -128,7 +238,7 @@
                     "name": "BAR",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "namenode-hadoop-hive-namenode-env",
+                        "name": "hadoop-hive-namenode-env",
                         "key": "BAR"
                       }
                     }
@@ -141,7 +251,7 @@
                     "name": "FOO",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "namenode-hadoop-hive-namenode-env",
+                        "name": "hadoop-hive-namenode-env",
                         "key": "FOO"
                       }
                     }

@@ -11,3 +11,7 @@ services:
     ports:
       - "50070:50070"
       - "8020:8020"
+  another-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+    env_file:
+      - ./hadoop-hive-namenode.env
