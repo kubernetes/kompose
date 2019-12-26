@@ -632,7 +632,7 @@ func resetWorkloadApiVersion(d runtime.Object) runtime.Object {
 			us.SetGroupVersionKind(unversioned.GroupVersionKind{
 				Group:   "apps",
 				Version: "v1",
-				Kind:    "Deployment",
+				Kind:    d.GetObjectKind().GroupVersionKind().Kind,
 			})
 			return &us
 		} else {
