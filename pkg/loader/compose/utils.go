@@ -31,6 +31,8 @@ import (
 const (
 	// LabelServiceType defines the type of service to be created
 	LabelServiceType = "kompose.service.type"
+	// LabelNodePortPort defines the port value for NodePort service
+	LabelNodePortPort = "kompose.service.nodeport.port"
 	// LabelServiceExpose defines if the service needs to be made accessible from outside the cluster or not
 	LabelServiceExpose = "kompose.service.expose"
 	// LabelServiceExposeTLSSecret  provides the name of the TLS secret to use with the Kubernetes ingress controller

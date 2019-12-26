@@ -95,6 +95,7 @@ type ServiceConfig struct {
 	User             string              `compose:"user"`
 	VolumesFrom      []string            `compose:"volumes_from"`
 	ServiceType      string              `compose:"kompose.service.type"`
+	NodePortPort     int32               `compose:"kompose.service.nodeport.port"`
 	StopGracePeriod  string              `compose:"stop_grace_period"`
 	Build            string              `compose:"build"`
 	BuildArgs        map[string]*string  `compose:"build-args"`

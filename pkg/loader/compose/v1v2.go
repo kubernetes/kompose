@@ -18,6 +18,7 @@ package compose
 
 import (
 	"fmt"
+	"github.com/spf13/cast"
 	"net"
 	"os"
 	"path/filepath"
@@ -245,6 +246,8 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 				serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
 			case LabelServiceExposeTLSSecret:
 				serviceConfig.ExposeServiceTLS = value
+			case LabelNodePortPort:
+				serviceConfig.NodePortPort = cast.ToInt32(value)
 			case LabelImagePullSecret:
 				serviceConfig.ImagePullSecret = value
 			case LabelImagePullPolicy:
@@ -256,6 +259,15 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
 			return kobject.KomposeObject{}, errors.New("kompose.service.expose.tls-secret was specified without kompose.service.expose")
 		}
+
+		if serviceConfig.ServiceType != string(api.ServiceTypeNodePort) && serviceConfig.NodePortPort != 0 {
+			return kobject.KomposeObject{}, errors.New("kompose.service.type must be nodeport when assign node port value")
+		}
+
+		if len(serviceConfig.Port) > 1 && serviceConfig.NodePortPort != 0 {
+			return kobject.KomposeObject{}, errors.New("cannnot set kompose.service.nodeport.port when service has multiple ports")
+		}
+
 		err = checkLabelsPorts(len(serviceConfig.Port), composeServiceConfig.Labels[LabelServiceType], name)
 		if err != nil {
 			return kobject.KomposeObject{}, errors.Wrap(err, "kompose.service.type can't be set if service doesn't expose any ports.")

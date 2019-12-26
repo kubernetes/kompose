@@ -17,6 +17,7 @@ limitations under the License.
 package compose
 
 import (
+	"github.com/spf13/cast"
 	"strconv"
 	"strings"
 	"time"
@@ -424,6 +425,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 				serviceConfig.ServiceType = serviceType
 			case LabelServiceExpose:
 				serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
+			case LabelNodePortPort:
+				serviceConfig.NodePortPort = cast.ToInt32(value)
 			case LabelServiceExposeTLSSecret:
 				serviceConfig.ExposeServiceTLS = value
 			case LabelImagePullSecret:
@@ -435,6 +438,14 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 
 		if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
 			return kobject.KomposeObject{}, errors.New("kompose.service.expose.tls-secret was specified without kompose.service.expose")
+		}
+
+		if serviceConfig.ServiceType != string(api.ServiceTypeNodePort) && serviceConfig.NodePortPort != 0 {
+			return kobject.KomposeObject{}, errors.New("kompose.service.type must be nodeport when assign node port value")
+		}
+
+		if len(serviceConfig.Port) > 1 && serviceConfig.NodePortPort != 0 {
+			return kobject.KomposeObject{}, errors.New("cannot set kompose.service.nodeport.port when service has multiple ports")
 		}
 
 		// Log if the name will been changed

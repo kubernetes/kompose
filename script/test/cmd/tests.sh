@@ -488,6 +488,19 @@ convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/dockerfil
 convert::expect_failure "kompose -f $KOMPOSE_ROOT/script/test/fixtures/label-port/docker-compose.yml convert --stdout"
 
 
+####
+# test node port with port set
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/service-label/docker-compose.yaml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/service-label/output-k8s.json > /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose --provide openshift -f $KOMPOSE_ROOT/script/test/fixtures/service-label/docker-compose.yaml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/service-label/output-oc.json > /tmp/output-oc.json
+convert::expect_success "$cmd" "/tmp/output-oc.json"
+
+
+
+
 ######
 # Test the output file behavior of kompose convert
 # Default behavior without -o

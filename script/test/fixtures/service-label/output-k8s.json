@@ -1,0 +1,114 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mariadb",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.nodeport.port": "33111",
+          "kompose.service.type": "nodeport",
+          "kompose.version": "%VERSION%"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "3306",
+            "port": 3306,
+            "targetPort": 3306,
+            "nodePort": 33111
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "mariadb"
+        },
+        "type": "NodePort"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.nodeport.port": "33111",
+          "kompose.service.type": "nodeport",
+          "kompose.version": "%VERSION%"
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mariadb"
+        },
+        "name": "mariadb"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "mariadb"
+          }
+        },
+        "strategy": {},
+        "template": {
+          "metadata": {
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.service.nodeport.port": "33111",
+              "kompose.service.type": "nodeport",
+              "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "mariadb"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "ALLOW_EMPTY_PASSWORD",
+                    "value": "yes"
+                  },
+                  {
+                    "name": "MARIADB_DATABASE",
+                    "value": "bitnami_wordpress"
+                  },
+                  {
+                    "name": "MARIADB_USER",
+                    "value": "bn_wordpress"
+                  }
+                ],
+                "image": "bitnami/mariadb:latest",
+                "imagePullPolicy": "",
+                "name": "mariadb",
+                "ports": [
+                  {
+                    "containerPort": 3306
+                  }
+                ],
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
+          }
+        }
+      },
+      "status": {}
+    }
+  ]
+}

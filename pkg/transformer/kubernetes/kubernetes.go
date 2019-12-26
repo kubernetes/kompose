@@ -500,6 +500,12 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 	servicePorts := []api.ServicePort{}
 	seenPorts := make(map[int]struct{}, len(service.Port))
 
+	log.Info("fuck len", service.Port)
+
+	if len(service.Port) > 1 && service.NodePortPort != 0 {
+		log.Fatalf("Service %s has multiple ports and assigned node port value")
+	}
+
 	var servicePort api.ServicePort
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
@@ -525,6 +531,12 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 			Port:       port.HostPort,
 			TargetPort: targetPort,
 		}
+		log.Info("Fuck:", service.ServiceType, service.NodePortPort)
+
+		if service.ServiceType == string(api.ServiceTypeNodePort) && service.NodePortPort != 0 {
+			servicePort.NodePort = service.NodePortPort
+		}
+
 		// If the default is already TCP, no need to include it.
 		if port.Protocol != api.ProtocolTCP {
 			servicePort.Protocol = port.Protocol
