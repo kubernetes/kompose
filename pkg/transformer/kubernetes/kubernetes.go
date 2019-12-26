@@ -1210,6 +1210,13 @@ func (k *Kubernetes) Deploy(komposeObject kobject.KomposeObject, opt kobject.Con
 		return errors.Wrap(err, "k.Transform failed")
 	}
 
+	if opt.StoreManifest {
+		log.Info("Store manifest to disk")
+		if err := PrintList(objects, opt); err != nil {
+			return errors.Wrap(err, "Store manifest failed")
+		}
+	}
+
 	pvcStr := " "
 	if !opt.EmptyVols || opt.Volumes != "emptyDir" {
 		pvcStr = " and PersistentVolumeClaims "

@@ -47,6 +47,7 @@ type ConvertOptions struct {
 	CreateChart                 bool
 	GenerateYaml                bool
 	GenerateJSON                bool
+	StoreManifest               bool
 	EmptyVols                   bool
 	Volumes                     string
 	InsecureRepository          bool
