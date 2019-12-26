@@ -250,7 +250,7 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceCon
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name + "-" + envName,
+			Name:   envName,
 			Labels: transformer.ConfigLabels(name + "-" + envName),
 		},
 		Data: envs,
@@ -835,7 +835,7 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt 
 					ValueFrom: &api.EnvVarSource{
 						ConfigMapKeyRef: &api.ConfigMapKeySelector{
 							LocalObjectReference: api.LocalObjectReference{
-								Name: name + "-" + envName,
+								Name: envName,
 							},
 							Key: k,
 						}},
@@ -1097,6 +1097,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
+	k.RemoveDupObjects(&allobjects)
 
 	return allobjects, nil
 }

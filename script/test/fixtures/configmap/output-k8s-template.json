@@ -79,7 +79,7 @@
                     "name": "ALLOW_EMPTY_PASSWORD",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "redis-foo-env",
+                        "name": "foo-env",
                         "key": "ALLOW_EMPTY_PASSWORD"
                       }
                     }
@@ -88,7 +88,7 @@
                     "name": "BAR",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "redis-bar-env",
+                        "name": "bar-env",
                         "key": "BAR"
                       }
                     }
@@ -97,7 +97,7 @@
                     "name": "FOO",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "name": "redis-bar-env",
+                        "name": "bar-env",
                         "key": "FOO"
                       }
                     }
@@ -117,7 +117,7 @@
       "kind": "ConfigMap",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis-foo-env",
+        "name": "foo-env",
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis-foo-env"
@@ -131,7 +131,7 @@
       "kind": "ConfigMap",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis-bar-env",
+        "name": "bar-env",
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis-bar-env"

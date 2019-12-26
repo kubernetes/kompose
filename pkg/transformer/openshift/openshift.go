@@ -427,6 +427,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 	// sort all object so Services are first
 	o.SortServicesFirst(&allobjects)
+	o.RemoveDupObjects(&allobjects)
 
 	return allobjects, nil
 }
