@@ -8,7 +8,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "kompose -f /Users/yayu/Golang/src/github.com/kubernetes/kompose/script/test/fixtures/network/docker-compose-v3.yaml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -28,7 +28,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "kompose -f /Users/yayu/Golang/src/github.com/kubernetes/kompose/script/test/fixtures/network/docker-compose-v3.yaml convert --stdout -j",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
@@ -64,34 +64,6 @@
       "kind": "NetworkPolicy",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "web-network",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "podSelector": {
-          "matchLabels": {
-            "io.kompose.network/web-network": "true"
-          }
-        },
-        "ingress": [
-          {
-            "from": [
-              {
-                "podSelector": {
-                  "matchLabels": {
-                    "io.kompose.network/web-network": "true"
-                  }
-                }
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "kind": "NetworkPolicy",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
         "name": "app-network",
         "creationTimestamp": null
       },
@@ -108,6 +80,34 @@
                 "podSelector": {
                   "matchLabels": {
                     "io.kompose.network/app-network": "true"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "NetworkPolicy",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "web-network",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "io.kompose.network/web-network": "true"
+          }
+        },
+        "ingress": [
+          {
+            "from": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "io.kompose.network/web-network": "true"
                   }
                 }
               }
