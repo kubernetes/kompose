@@ -818,8 +818,17 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt 
 
 	keysFromEnvFile := make(map[string]bool)
 
-	// If there is an env_file, use ConfigMaps and ignore the environment variables
-	// already specified
+	// Load up the environment variables
+	for _, v := range service.Environment {
+
+		envs = append(envs, api.EnvVar{
+			Name:  v.Name,
+			Value: v.Value,
+		})
+
+		keysFromEnvFile[v.Name] = true
+
+	}
 
 	if len(service.EnvFile) > 0 {
 
@@ -837,30 +846,22 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt 
 
 			// Add configMapKeyRef to each environment variable
 			for k := range envLoad {
-				envs = append(envs, api.EnvVar{
-					Name: k,
-					ValueFrom: &api.EnvVarSource{
-						ConfigMapKeyRef: &api.ConfigMapKeySelector{
-							LocalObjectReference: api.LocalObjectReference{
-								Name: envName,
-							},
-							Key: k,
-						}},
-				})
-				keysFromEnvFile[k] = true
+				if !keysFromEnvFile[k] {
+					envs = append(envs, api.EnvVar{
+						Name: k,
+						ValueFrom: &api.EnvVarSource{
+							ConfigMapKeyRef: &api.ConfigMapKeySelector{
+								LocalObjectReference: api.LocalObjectReference{
+									Name: envName,
+								},
+								Key: k,
+							}},
+					})
+
+				}
+
 			}
 		}
-	}
-
-	// Load up the environment variables
-	for _, v := range service.Environment {
-		if !keysFromEnvFile[v.Name] {
-			envs = append(envs, api.EnvVar{
-				Name:  v.Name,
-				Value: v.Value,
-			})
-		}
-
 	}
 
 	// Stable sorts data while keeping the original order of equal elements

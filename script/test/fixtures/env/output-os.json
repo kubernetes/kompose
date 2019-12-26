@@ -249,12 +249,7 @@
                   },
                   {
                     "name": "FOO",
-                    "valueFrom": {
-                      "configMapKeyRef": {
-                        "name": "hadoop-hive-namenode-env",
-                        "key": "FOO"
-                      }
-                    }
+                    "value": "foo-back"
                   }
                 ],
                 "resources": {},

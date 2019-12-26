@@ -177,12 +177,7 @@
                   },
                   {
                     "name": "FOO",
-                    "valueFrom": {
-                      "configMapKeyRef": {
-                        "Name": "hadoop-hive-namenode-env",
-                        "key": "FOO"
-                      }
-                    }
+                    "value": "foo-back"
                   }
                 ],
                 "image": "bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8",

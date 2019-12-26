@@ -6,6 +6,7 @@ services:
       - namenode:/hadoop/dfs/name
     environment:
       - CLUSTER_NAME=test
+      - FOO=foo-back
     env_file:
       - ./hadoop-hive-namenode.env
     ports:
