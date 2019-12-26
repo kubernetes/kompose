@@ -500,8 +500,6 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 	servicePorts := []api.ServicePort{}
 	seenPorts := make(map[int]struct{}, len(service.Port))
 
-	log.Info("fuck len", service.Port)
-
 	if len(service.Port) > 1 && service.NodePortPort != 0 {
 		log.Fatalf("Service %s has multiple ports and assigned node port value")
 	}
@@ -531,8 +529,7 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 			Port:       port.HostPort,
 			TargetPort: targetPort,
 		}
-		log.Info("Fuck:", service.ServiceType, service.NodePortPort)
-
+		
 		if service.ServiceType == string(api.ServiceTypeNodePort) && service.NodePortPort != 0 {
 			servicePort.NodePort = service.NodePortPort
 		}
