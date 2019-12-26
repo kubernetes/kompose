@@ -9,7 +9,7 @@
       "metadata": {
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.version": "1.20.0 (5bfc17ca)"
         },
         "creationTimestamp": null,
         "labels": {
@@ -29,7 +29,7 @@
           "metadata": {
             "annotations": {
               "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
+              "kompose.version": "1.20.0 (5bfc17ca)"
             },
             "creationTimestamp": null,
             "labels": {

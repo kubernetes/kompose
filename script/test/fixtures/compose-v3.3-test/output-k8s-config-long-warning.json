@@ -18,59 +18,66 @@
       }
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "redis",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "1.20.0 (5bfc17ca)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "redis"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "redis"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "1.20.0 (5bfc17ca)"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
-            },
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
-            "volumes": [
-              {
-                "name": "my-config",
-                "configMap": {
-                  "name": "my-config",
-                  "defaultMode": 288
-                }
-              }
-            ],
             "containers": [
               {
-                "name": "redis",
                 "image": "redis:latest",
+                "imagePullPolicy": "",
+                "name": "redis",
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "name": "my-config",
-                    "mountPath": "/redis-config"
+                    "mountPath": "/redis-config",
+                    "name": "my-config"
                   }
                 ]
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": [
+              {
+                "configMap": {
+                  "Name": "my-config",
+                  "defaultMode": 288
+                },
+                "name": "my-config"
+              }
+            ]
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }

@@ -14,7 +14,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.version": "1.20.0 (5bfc17ca)"
         }
       },
       "spec": {
@@ -34,37 +34,44 @@
       }
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "wordpress",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "1.20.0 (5bfc17ca)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "wordpress"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "wordpress"
       },
       "spec": {
         "replicas": 2,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "wordpress"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "1.20.0 (5bfc17ca)"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "wordpress"
-            },
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "wordpress",
                 "image": "wordpress",
+                "imagePullPolicy": "",
+                "name": "wordpress",
                 "ports": [
                   {
                     "containerPort": 80
@@ -73,10 +80,11 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }

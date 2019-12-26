@@ -15,7 +15,7 @@
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.service.type": "headless",
-          "kompose.version": "%VERSION%"
+          "kompose.version": "1.20.0 (5bfc17ca)"
         }
       },
       "spec": {
@@ -36,19 +36,19 @@
       }
     },
     {
-      "kind": "DaemonSet",
       "apiVersion": "apps/v1",
+      "kind": "DaemonSet",
       "metadata": {
-        "name": "foo",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.type": "headless",
+          "kompose.version": "1.20.0 (5bfc17ca)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "foo"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.service.type": "headless",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "foo"
       },
       "spec": {
         "template": {
@@ -61,19 +61,22 @@
           "spec": {
             "containers": [
               {
-                "name": "foo",
                 "image": "redis",
+                "imagePullPolicy": "",
+                "name": "foo",
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
         }
       },
       "status": {
         "currentNumberScheduled": 0,
-        "numberMisscheduled": 0,
-        "desiredNumberScheduled": 0
+        "desiredNumberScheduled": 0,
+        "numberMisscheduled": 0
       }
     },
     {
@@ -88,7 +91,7 @@
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.service.type": "headless",
-          "kompose.version": "%VERSION%"
+          "kompose.version": "1.20.0 (5bfc17ca)"
         }
       },
       "spec": {

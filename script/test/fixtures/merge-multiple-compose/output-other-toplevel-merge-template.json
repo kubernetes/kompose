@@ -22,7 +22,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "%CMD",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -44,7 +44,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "%CMD",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
@@ -134,7 +134,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "%CMD",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -156,7 +156,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "%CMD",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,

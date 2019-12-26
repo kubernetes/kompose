@@ -246,7 +246,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "%CMD%  ",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,

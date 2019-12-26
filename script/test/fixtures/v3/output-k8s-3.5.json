@@ -14,7 +14,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.version": "1.20.0 (5bfc17ca)"
         }
       },
       "spec": {
@@ -34,38 +34,45 @@
       }
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "helloworld",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "1.20.0 (5bfc17ca)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "helloworld"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "helloworld"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "helloworld"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-	      "io.kompose.network/helloworld-network": "true",
-              "io.kompose.service": "helloworld"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
+              "kompose.version": "1.20.0 (5bfc17ca)"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.network/helloworld-network": "true",
+              "io.kompose.service": "helloworld"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "helloworld",
                 "image": "tutum/hello-world",
+                "imagePullPolicy": "",
+                "name": "helloworld",
                 "ports": [
                   {
                     "containerPort": 80
@@ -74,10 +81,11 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },

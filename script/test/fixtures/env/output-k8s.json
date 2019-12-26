@@ -13,7 +13,7 @@
           "io.kompose.service": "namenode"
         },
         "annotations": {
-          "kompose.cmd": "kompose convert --stdout -j -f /Users/yayu/Golang/src/github.com/kubernetes/kompose/script/test/fixtures/env/docker-compose.yml",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         }
       },
@@ -43,7 +43,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "kompose convert --stdout -j -f /Users/yayu/Golang/src/github.com/kubernetes/kompose/script/test/fixtures/env/docker-compose.yml",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -63,7 +63,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "kompose convert --stdout -j -f /Users/yayu/Golang/src/github.com/kubernetes/kompose/script/test/fixtures/env/docker-compose.yml",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
@@ -128,7 +128,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "kompose convert --stdout -j -f /Users/yayu/Golang/src/github.com/kubernetes/kompose/script/test/fixtures/env/docker-compose.yml",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -150,7 +150,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "kompose convert --stdout -j -f /Users/yayu/Golang/src/github.com/kubernetes/kompose/script/test/fixtures/env/docker-compose.yml",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,

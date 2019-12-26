@@ -14,7 +14,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.version": "1.20.0 (5bfc17ca)"
         }
       },
       "spec": {
@@ -34,20 +34,20 @@
       }
     },
     {
-      "kind": "DaemonSet",
       "apiVersion": "apps/v1",
+      "kind": "DaemonSet",
       "metadata": {
-        "name": "db",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.controller.type": "daemonset",
+          "kompose.version": "1.20.0 (5bfc17ca)",
+          "project.logs": "/var/log/mysql"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "db"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.controller.type": "daemonset",
-          "project.logs": "/var/log/mysql"
-        }
+        "name": "db"
       },
       "spec": {
         "template": {
@@ -60,64 +60,66 @@
           "spec": {
             "containers": [
               {
-                "name": "db",
-                "image": "mysql:5.7",
                 "env": [
                   {
                     "name": "MYSQL_ROOT_PASSWORD",
                     "value": "password"
                   }
                 ],
+                "image": "mysql:5.7",
+                "imagePullPolicy": "",
+                "name": "db",
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
         }
       },
       "status": {
         "currentNumberScheduled": 0,
-        "numberMisscheduled": 0,
-        "desiredNumberScheduled": 0
+        "desiredNumberScheduled": 0,
+        "numberMisscheduled": 0
       }
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "web",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "1.20.0 (5bfc17ca)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "web"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "web"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "web"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "1.20.0 (5bfc17ca)"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "web"
-            },
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "web",
-                "image": "wordpress:4.5",
-                "ports": [
-                  {
-                    "containerPort": 80
-                  }
-                ],
                 "env": [
                   {
                     "name": "WORDPRESS_AUTH_KEY",
@@ -156,13 +158,22 @@
                     "value": "changeme"
                   }
                 ],
+                "image": "wordpress:4.5",
+                "imagePullPolicy": "",
+                "name": "web",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  }
+                ],
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }
