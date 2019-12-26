@@ -311,7 +311,9 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
-
+			Selector: &unversioned.LabelSelector{
+				MatchLabels: transformer.ConfigLabels(name),
+			},
 			Template: api.PodTemplateSpec{
 				ObjectMeta: api.ObjectMeta{
 					//Labels: transformer.ConfigLabels(name),
@@ -1098,6 +1100,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
 	k.RemoveDupObjects(&allobjects)
+	k.FixWorkloadVersion(&allobjects)
 
 	return allobjects, nil
 }

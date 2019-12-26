@@ -225,14 +225,28 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 				return err
 			}
 
-			val := reflect.ValueOf(v).Elem()
-			// Use reflect to access TypeMeta struct inside runtime.Object.
-			// cast it to correct type - unversioned.TypeMeta
-			typeMeta := val.FieldByName("TypeMeta").Interface().(unversioned.TypeMeta)
+			var typeMeta unversioned.TypeMeta
+			var objectMeta api.ObjectMeta
 
-			// Use reflect to access ObjectMeta struct inside runtime.Object.
-			// cast it to correct type - api.ObjectMeta
-			objectMeta := val.FieldByName("ObjectMeta").Interface().(api.ObjectMeta)
+			if us, ok := v.(*runtime.Unstructured); ok {
+				typeMeta = unversioned.TypeMeta{
+					Kind:       us.GetKind(),
+					APIVersion: us.GetAPIVersion(),
+				}
+				objectMeta = api.ObjectMeta{
+					Name: us.GetName(),
+				}
+			} else {
+				val := reflect.ValueOf(v).Elem()
+				// Use reflect to access TypeMeta struct inside runtime.Object.
+				// cast it to correct type - unversioned.TypeMeta
+				typeMeta = val.FieldByName("TypeMeta").Interface().(unversioned.TypeMeta)
+
+				// Use reflect to access ObjectMeta struct inside runtime.Object.
+				// cast it to correct type - api.ObjectMeta
+				objectMeta = val.FieldByName("ObjectMeta").Interface().(api.ObjectMeta)
+
+			}
 
 			file, err = transformer.Print(objectMeta.Name, finalDirName, strings.ToLower(typeMeta.Kind), data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
 			if err != nil {
@@ -268,6 +282,11 @@ func marshal(obj runtime.Object, jsonFormat bool) (data []byte, err error) {
 // Convert object to versioned object
 // if groupVersion is  empty (unversioned.GroupVersion{}), use version from original object (obj)
 func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion) (runtime.Object, error) {
+
+	// ignore unstruct object
+	if _, ok := obj.(*runtime.Unstructured); ok {
+		return obj, nil
+	}
 
 	var version unversioned.GroupVersion
 
@@ -601,6 +620,42 @@ func (k *Kubernetes) RemoveDupObjects(objs *[]runtime.Object) {
 			result = append(result, obj)
 		}
 
+	}
+	*objs = result
+}
+
+func resetWorkloadApiVersion(d runtime.Object) runtime.Object {
+	data, err := json.Marshal(d)
+	if err == nil {
+		var us runtime.Unstructured
+		if err := json.Unmarshal(data, &us); err == nil {
+			us.SetGroupVersionKind(unversioned.GroupVersionKind{
+				Group:   "apps",
+				Version: "v1",
+				Kind:    "Deployment",
+			})
+			return &us
+		} else {
+			return d
+		}
+	} else {
+		return d
+	}
+}
+
+// FixWorkloadVersion force reset deployment/daemonset's apiversion to apps/v1
+func (k *Kubernetes) FixWorkloadVersion(objs *[]runtime.Object) {
+	var result []runtime.Object
+	for _, obj := range *objs {
+		if d, ok := obj.(*extensions.Deployment); ok {
+			nd := resetWorkloadApiVersion(d)
+			result = append(result, nd)
+		} else if d, ok := obj.(*extensions.DaemonSet); ok {
+			nd := resetWorkloadApiVersion(d)
+			result = append(result, nd)
+		} else {
+			result = append(result, obj)
+		}
 	}
 	*objs = result
 }
