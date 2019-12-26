@@ -13,7 +13,7 @@
           "io.kompose.service": "nginx"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         }
       },
@@ -43,7 +43,7 @@
           "io.kompose.service": "node1"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         }
       },
@@ -73,7 +73,7 @@
           "io.kompose.service": "node2"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         }
       },
@@ -103,7 +103,7 @@
           "io.kompose.service": "node3"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         }
       },
@@ -133,7 +133,7 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         }
       },
@@ -158,7 +158,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -178,7 +178,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
@@ -213,7 +213,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -233,7 +233,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
@@ -268,7 +268,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -288,7 +288,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
@@ -323,7 +323,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -343,7 +343,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
@@ -378,7 +378,7 @@
       "kind": "Deployment",
       "metadata": {
         "annotations": {
-          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
@@ -398,7 +398,7 @@
         "template": {
           "metadata": {
             "annotations": {
-              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose.yml convert --stdout -j",
+              "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
