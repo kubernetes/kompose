@@ -102,7 +102,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "gitlab",
         "creationTimestamp": null,
@@ -526,7 +526,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "postgresql",
         "creationTimestamp": null,
@@ -629,7 +629,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "redis",
         "creationTimestamp": null,

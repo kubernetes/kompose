@@ -97,7 +97,7 @@
     },
     {
       "kind": "DaemonSet",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "frontend",
         "creationTimestamp": null,
@@ -150,7 +150,7 @@
     },
     {
       "kind": "DaemonSet",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "redis-master",
         "creationTimestamp": null,
@@ -195,7 +195,7 @@
     },
     {
       "kind": "DaemonSet",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "redis-slave",
         "creationTimestamp": null,

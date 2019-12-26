@@ -127,7 +127,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "db",
         "creationTimestamp": null,
@@ -176,7 +176,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "redis",
         "creationTimestamp": null,
@@ -223,7 +223,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "result",
         "creationTimestamp": null,
@@ -270,7 +270,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "vote",
         "creationTimestamp": null,
@@ -319,7 +319,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "worker",
         "creationTimestamp": null,

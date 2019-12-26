@@ -95,7 +95,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-api",
         "creationTimestamp": null,
@@ -180,7 +180,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-bitbucket-scm-collector",
         "creationTimestamp": null,
@@ -260,7 +260,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-chat-ops-collector",
         "creationTimestamp": null,
@@ -340,7 +340,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-github-scm-collector",
         "creationTimestamp": null,
@@ -420,7 +420,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-jenkins-build-collector",
         "creationTimestamp": null,
@@ -500,7 +500,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-jenkins-cucumber-test-collector",
         "creationTimestamp": null,
@@ -580,7 +580,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-jira-feature-collector",
         "creationTimestamp": null,
@@ -670,7 +670,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-sonar-codequality-collector",
         "creationTimestamp": null,
@@ -750,7 +750,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-subversion-scm-collector",
         "creationTimestamp": null,
@@ -830,7 +830,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-udeploy-collector",
         "creationTimestamp": null,
@@ -924,7 +924,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-ui",
         "creationTimestamp": null,
@@ -971,7 +971,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "hygieia-versionone-collector",
         "creationTimestamp": null,
@@ -1051,7 +1051,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "mongodb",
         "creationTimestamp": null,

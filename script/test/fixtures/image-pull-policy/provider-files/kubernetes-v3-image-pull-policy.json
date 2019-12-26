@@ -5,7 +5,7 @@
   "items": [
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "nginx0",
         "creationTimestamp": null,
@@ -50,7 +50,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "nginx1",
         "creationTimestamp": null,
@@ -95,7 +95,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "nginx2",
         "creationTimestamp": null,
