@@ -34,37 +34,44 @@
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "client",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "client"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "client"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "client"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "client"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "client"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "client",
                 "image": "registry.centos.org/centos/centos:7",
+                "imagePullPolicy": "",
+                "name": "client",
                 "ports": [
                   {
                     "containerPort": 1337
@@ -74,10 +81,11 @@
                 "stdin": true
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }

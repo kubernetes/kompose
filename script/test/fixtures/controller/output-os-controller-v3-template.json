@@ -35,19 +35,19 @@
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "DaemonSet",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "mysql",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "mysql"
-        },
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.controller.type": "daemonset",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mysql"
+        },
+        "name": "mysql"
       },
       "spec": {
         "template": {
@@ -60,25 +60,28 @@
           "spec": {
             "containers": [
               {
-                "name": "mysql",
-                "image": "mysql:5.7",
                 "env": [
                   {
                     "name": "MYSQL_ROOT_PASSWORD",
                     "value": "password"
                   }
                 ],
+                "image": "mysql:5.7",
+                "imagePullPolicy": "",
+                "name": "mysql",
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
         }
       },
       "status": {
         "currentNumberScheduled": 0,
-        "numberMisscheduled": 0,
-        "desiredNumberScheduled": 0
+        "desiredNumberScheduled": 0,
+        "numberMisscheduled": 0
       }
     },
     {

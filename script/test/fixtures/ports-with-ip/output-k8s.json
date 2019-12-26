@@ -13,7 +13,7 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/ports-with-ip/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "1.0.0 (HEAD)"
         }
       },
@@ -49,7 +49,7 @@
           "io.kompose.service": "web"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/ports-with-ip/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "1.0.0 (HEAD)"
         }
       },
@@ -71,7 +71,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "redis",
         "creationTimestamp": null,
@@ -79,7 +79,7 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/ports-with-ip/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "1.0.0 (HEAD)"
         }
       },
@@ -118,7 +118,7 @@
     },
     {
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
+      "apiVersion": "apps/v1",
       "metadata": {
         "name": "web",
         "creationTimestamp": null,
@@ -126,7 +126,7 @@
           "io.kompose.service": "web"
         },
         "annotations": {
-          "kompose.cmd": "kompose -f /home/snarwade/go/src/github.com/kubernetes/kompose/script/test/fixtures/ports-with-ip/docker-compose.yml convert --stdout -j",
+          "kompose.cmd": "%CMD%",
           "kompose.version": "1.0.0 (HEAD)"
         }
       },

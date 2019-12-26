@@ -126,39 +126,46 @@
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "db",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "db"
-        },
         "annotations": {
           "com.example.description": "Postgres Database",
           "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        },
+        "name": "db"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "db"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "db"
-            },
             "annotations": {
               "com.example.description": "Postgres Database",
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "db"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "db",
                 "image": "postgres:9.4",
+                "imagePullPolicy": "",
+                "name": "db",
                 "ports": [
                   {
                     "containerPort": 5432
@@ -167,45 +174,53 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "redis",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "redis"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "redis"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "redis"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "redis",
                 "image": "redis:alpine",
+                "imagePullPolicy": "",
+                "name": "redis",
                 "ports": [
                   {
                     "containerPort": 6379
@@ -214,45 +229,53 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "result",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "result"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "result"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "result"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "result"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "result"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "result",
                 "image": "tmadams333/example-voting-app-result:latest",
+                "imagePullPolicy": "",
+                "name": "result",
                 "ports": [
                   {
                     "containerPort": 80
@@ -261,47 +284,55 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "vote",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "vote"
-        },
         "annotations": {
           "com.example.description": "Vote",
           "kompose.cmd": "%CMD%",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "vote"
+        },
+        "name": "vote"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "vote"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "vote"
-            },
             "annotations": {
               "com.example.description": "Vote",
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "vote"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "vote",
                 "image": "docker/example-voting-app-vote:latest",
+                "imagePullPolicy": "",
+                "name": "vote",
                 "ports": [
                   {
                     "containerPort": 80
@@ -310,52 +341,61 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "worker",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "worker"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "worker"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "worker"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "worker"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "worker"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "worker",
                 "image": "docker/example-voting-app-worker:latest",
+                "imagePullPolicy": "",
+                "name": "worker",
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }

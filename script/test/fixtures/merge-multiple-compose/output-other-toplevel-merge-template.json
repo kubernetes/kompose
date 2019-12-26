@@ -18,40 +18,68 @@
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "other-toplevel-dev",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "other-toplevel-dev"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "other-toplevel-dev"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "other-toplevel-dev"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        },
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "other-toplevel-dev"
-            },
-            "annotations": {
-							"kompose.cmd": "%CMD%",
-							"kompose.version": "%VERSION%"
             }
           },
           "spec": {
+            "containers": [
+              {
+                "image": "nginx",
+                "imagePullPolicy": "",
+                "name": "other-toplevel-dev",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "mountPath": "/nginx.conf",
+                    "name": "firstconfig"
+                  },
+                  {
+                    "mountPath": "/var/www/nginx",
+                    "name": "firstvolume"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
             "volumes": [
               {
-                "name": "firstconfig",
                 "configMap": {
-                  "name": "firstconfig",
+                  "Name": "firstconfig",
                   "defaultMode": 644
-                }
+                },
+                "name": "firstconfig"
               },
               {
                 "name": "firstvolume",
@@ -59,29 +87,8 @@
                   "claimName": "firstvolume"
                 }
               }
-            ],
-            "containers": [
-              {
-                "name": "other-toplevel-dev",
-                "image": "nginx",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "firstconfig",
-                    "mountPath": "/nginx.conf"
-                  },
-                  {
-                    "name": "firstvolume",
-                    "mountPath": "/var/www/nginx"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
+            ]
           }
-        },
-        "strategy": {
-          "type": "Recreate"
         }
       },
       "status": {}
@@ -123,40 +130,68 @@
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "other-toplevel-second",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "other-toplevel-second"
         },
-        "annotations": {
-					"kompose.cmd": "%CMD%",
-					"kompose.version": "%VERSION%"
-        }
+        "name": "other-toplevel-second"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "other-toplevel-second"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        },
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "other-toplevel-second"
-            },
-            "annotations": {
-							"kompose.cmd": "%CMD%",
-							"kompose.version": "%VERSION%"
             }
           },
           "spec": {
+            "containers": [
+              {
+                "image": "nginx",
+                "imagePullPolicy": "",
+                "name": "other-toplevel-second",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "mountPath": "/nginx.conf",
+                    "name": "secondconfig"
+                  },
+                  {
+                    "mountPath": "/var/www/nginx",
+                    "name": "secondvolume"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
             "volumes": [
               {
-                "name": "secondconfig",
                 "configMap": {
-                  "name": "secondconfig",
+                  "Name": "secondconfig",
                   "defaultMode": 644
-                }
+                },
+                "name": "secondconfig"
               },
               {
                 "name": "secondvolume",
@@ -164,29 +199,8 @@
                   "claimName": "secondvolume"
                 }
               }
-            ],
-            "containers": [
-              {
-                "name": "other-toplevel-second",
-                "image": "nginx",
-                "resources": {},
-                "volumeMounts": [
-                  {
-                    "name": "secondconfig",
-                    "mountPath": "/nginx.conf"
-                  },
-                  {
-                    "name": "secondvolume",
-                    "mountPath": "/var/www/nginx"
-                  }
-                ]
-              }
-            ],
-            "restartPolicy": "Always"
+            ]
           }
-        },
-        "strategy": {
-          "type": "Recreate"
         }
       },
       "status": {}

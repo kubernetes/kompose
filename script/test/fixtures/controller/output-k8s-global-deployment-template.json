@@ -4,44 +4,52 @@
   "metadata": {},
   "items": [
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "worker",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "worker"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "worker"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "worker"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "worker"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "worker"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "worker",
                 "image": "dockersamples/examplevotingapp_worker",
+                "imagePullPolicy": "",
+                "name": "worker",
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }

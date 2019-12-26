@@ -36,53 +36,61 @@
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "redis",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "redis"
-        },
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.service.type": "headless",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "name": "redis"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "redis"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "redis"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.service.type": "headless",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "redis",
                 "image": "redis",
-                "resources": {},
+                "imagePullPolicy": "",
                 "livenessProbe": {
                   "exec": {
                     "command": [
                       "echo \"hello world\""
                     ]
                   }
-                }
+                },
+                "name": "redis",
+                "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }

@@ -4,48 +4,56 @@
   "metadata": {},
   "items": [
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "db",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "db"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "db"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "db"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "db"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "db"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "db",
                 "image": "postgres",
+                "imagePullPolicy": "",
+                "name": "db",
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always",
             "nodeSelector": {
               "beta.kubernetes.io/os": "ubuntu 14.04",
               "kubernetes.io/hostname": "machine"
-            }
+            },
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }

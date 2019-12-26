@@ -14,8 +14,8 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.type": "LoadBalancer"
+          "kompose.service.type": "LoadBalancer",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -106,8 +106,8 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.type": "LoadBalancer"
+          "kompose.service.type": "LoadBalancer",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {

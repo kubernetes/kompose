@@ -17,7 +17,10 @@ limitations under the License.
 package kubernetes
 
 import (
+	"encoding/json"
 	"fmt"
+	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/kubernetes/pkg/runtime"
 	"reflect"
 	"testing"
 
@@ -343,6 +346,43 @@ func TestKomposeConvert(t *testing.T) {
 					}
 					foundD = true
 				}
+
+				if u, ok := obj.(*runtime.Unstructured); ok {
+					if u.GetKind() == "Deployment" {
+						u.SetGroupVersionKind(unversioned.GroupVersionKind{
+							Group:   "extensions",
+							Version: "v1beta1",
+							Kind:    "Deployment",
+						})
+						data, err := json.Marshal(u)
+						if err != nil {
+							t.Errorf("%v", err)
+						}
+						var d extensions.Deployment
+						if err := json.Unmarshal(data, &d); err == nil {
+							if err := checkPodTemplate(config, d.Spec.Template, labelsWithNetwork); err != nil {
+								t.Errorf("%v", err)
+							}
+							if err := checkMeta(config, d.ObjectMeta, name, true); err != nil {
+								t.Errorf("%v", err)
+							}
+							if test.opt.IsReplicaSetFlag {
+								if (int)(d.Spec.Replicas) != replicas {
+									t.Errorf("Expected %d replicas, got %d", replicas, d.Spec.Replicas)
+								}
+							} else {
+
+								if (int)(d.Spec.Replicas) != newServiceConfig().Replicas {
+									t.Errorf("Expected %d replicas, got %d", newServiceConfig().Replicas, d.Spec.Replicas)
+
+								}
+							}
+							foundD = true
+						}
+
+					}
+				}
+
 			}
 			if test.opt.CreateDS {
 				if ds, ok := obj.(*extensions.DaemonSet); ok {
@@ -357,6 +397,33 @@ func TestKomposeConvert(t *testing.T) {
 					}
 					foundDS = true
 				}
+
+				if u, ok := obj.(*runtime.Unstructured); ok {
+					if u.GetKind() == "DaemonSet" {
+						u.SetGroupVersionKind(unversioned.GroupVersionKind{
+							Group:   "extensions",
+							Version: "v1beta1",
+							Kind:    "DaemonSet",
+						})
+						data, err := json.Marshal(u)
+						if err != nil {
+							t.Errorf("%v", err)
+						}
+						var ds extensions.DaemonSet
+						if err := json.Unmarshal(data, &ds); err == nil {
+							if err := checkPodTemplate(config, ds.Spec.Template, labelsWithNetwork); err != nil {
+								t.Errorf("%v", err)
+							}
+							if err := checkMeta(config, ds.ObjectMeta, name, true); err != nil {
+								t.Errorf("%v", err)
+							}
+							foundDS = true
+						}
+
+					}
+
+				}
+
 			}
 			if test.opt.CreateRC {
 				if rc, ok := obj.(*api.ReplicationController); ok {

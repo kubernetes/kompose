@@ -96,92 +96,107 @@
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "frontend",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "frontend"
-        },
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.service.type": "LoadBalancer",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "frontend"
+        },
+        "name": "frontend"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "frontend"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "frontend"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.service.type": "LoadBalancer",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "frontend"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "frontend",
+                "env": [
+                  {
+                    "name": "GET_HOSTS_FROM",
+                    "value": "dns"
+                  }
+                ],
                 "image": "gcr.io/google-samples/gb-frontend:v4",
+                "imagePullPolicy": "",
+                "name": "frontend",
                 "ports": [
                   {
                     "containerPort": 80
                   }
                 ],
-                "env": [
-                  {
-                    "name": "GET_HOSTS_FROM",
-                    "value": "dns"
-                  }
-                ],
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "redis-master",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis-master"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "redis-master"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "redis-master"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "redis-master"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis-master"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "redis-master",
                 "image": "k8s.gcr.io/redis:e2e",
+                "imagePullPolicy": "",
+                "name": "redis-master",
                 "ports": [
                   {
                     "containerPort": 6379
@@ -190,63 +205,72 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "Deployment",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "redis-slave",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis-slave"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "redis-slave"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "redis-slave"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "redis-slave"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis-slave"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "redis-slave",
-                "image": "gcr.io/google_samples/gb-redisslave:v1",
-                "ports": [
-                  {
-                    "containerPort": 6379
-                  }
-                ],
                 "env": [
                   {
                     "name": "GET_HOSTS_FROM",
                     "value": "dns"
                   }
                 ],
+                "image": "gcr.io/google_samples/gb-redisslave:v1",
+                "imagePullPolicy": "",
+                "name": "redis-slave",
+                "ports": [
+                  {
+                    "containerPort": 6379
+                  }
+                ],
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }

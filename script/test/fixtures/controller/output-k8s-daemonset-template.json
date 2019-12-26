@@ -14,8 +14,8 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.type": "LoadBalancer"
+          "kompose.service.type": "LoadBalancer",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -96,20 +96,19 @@
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "DaemonSet",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "frontend",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.type": "LoadBalancer",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "frontend"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.type": "LoadBalancer"
-
-        }
+        "name": "frontend"
       },
       "spec": {
         "template": {
@@ -122,45 +121,48 @@
           "spec": {
             "containers": [
               {
-                "name": "frontend",
-                "image": "gcr.io/google-samples/gb-frontend:v4",
-                "ports": [
-                  {
-                    "containerPort": 80
-                  }
-                ],
                 "env": [
                   {
                     "name": "GET_HOSTS_FROM",
                     "value": "dns"
                   }
                 ],
+                "image": "gcr.io/google-samples/gb-frontend:v4",
+                "imagePullPolicy": "",
+                "name": "frontend",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  }
+                ],
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
         }
       },
       "status": {
         "currentNumberScheduled": 0,
-        "numberMisscheduled": 0,
-        "desiredNumberScheduled": 0
+        "desiredNumberScheduled": 0,
+        "numberMisscheduled": 0
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "DaemonSet",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "redis-master",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis-master"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "redis-master"
       },
       "spec": {
         "template": {
@@ -173,8 +175,9 @@
           "spec": {
             "containers": [
               {
-                "name": "redis-master",
                 "image": "k8s.gcr.io/redis:e2e",
+                "imagePullPolicy": "",
+                "name": "redis-master",
                 "ports": [
                   {
                     "containerPort": 6379
@@ -183,29 +186,31 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
         }
       },
       "status": {
         "currentNumberScheduled": 0,
-        "numberMisscheduled": 0,
-        "desiredNumberScheduled": 0
+        "desiredNumberScheduled": 0,
+        "numberMisscheduled": 0
       }
     },
     {
+      "apiVersion": "apps/v1",
       "kind": "DaemonSet",
-      "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "redis-slave",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis-slave"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "redis-slave"
       },
       "spec": {
         "template": {
@@ -218,30 +223,33 @@
           "spec": {
             "containers": [
               {
-                "name": "redis-slave",
-                "image": "gcr.io/google_samples/gb-redisslave:v1",
-                "ports": [
-                  {
-                    "containerPort": 6379
-                  }
-                ],
                 "env": [
                   {
                     "name": "GET_HOSTS_FROM",
                     "value": "dns"
                   }
                 ],
+                "image": "gcr.io/google_samples/gb-redisslave:v1",
+                "imagePullPolicy": "",
+                "name": "redis-slave",
+                "ports": [
+                  {
+                    "containerPort": 6379
+                  }
+                ],
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
         }
       },
       "status": {
         "currentNumberScheduled": 0,
-        "numberMisscheduled": 0,
-        "desiredNumberScheduled": 0
+        "desiredNumberScheduled": 0,
+        "numberMisscheduled": 0
       }
     }
   ]

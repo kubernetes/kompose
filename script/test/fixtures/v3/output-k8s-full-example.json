@@ -511,34 +511,6 @@
       "kind": "NetworkPolicy",
       "apiVersion": "extensions/v1beta1",
       "metadata": {
-        "name": "other-other-network",
-        "creationTimestamp": null
-      },
-      "spec": {
-        "podSelector": {
-          "matchLabels": {
-            "io.kompose.network/other-other-network": "true"
-          }
-        },
-        "ingress": [
-          {
-            "from": [
-              {
-                "podSelector": {
-                  "matchLabels": {
-                    "io.kompose.network/other-other-network": "true"
-                  }
-                }
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "kind": "NetworkPolicy",
-      "apiVersion": "extensions/v1beta1",
-      "metadata": {
         "name": "some-network",
         "creationTimestamp": null
       },
@@ -583,6 +555,34 @@
                 "podSelector": {
                   "matchLabels": {
                     "io.kompose.network/other-network": "true"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "NetworkPolicy",
+      "apiVersion": "extensions/v1beta1",
+      "metadata": {
+        "name": "other-other-network",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "io.kompose.network/other-other-network": "true"
+          }
+        },
+        "ingress": [
+          {
+            "from": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "io.kompose.network/other-other-network": "true"
                   }
                 }
               }
