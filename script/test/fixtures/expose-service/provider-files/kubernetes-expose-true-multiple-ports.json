@@ -44,8 +44,8 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%",
-          "kompose.service.expose": "True"
+          "kompose.service.expose": "True",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -70,37 +70,44 @@
       }
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "redis",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "redis"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "redis"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "redis"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "redis",
                 "image": "redis:3.0",
+                "imagePullPolicy": "",
+                "name": "redis",
                 "ports": [
                   {
                     "containerPort": 6379
@@ -109,47 +116,55 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "web",
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.expose": "True",
+          "kompose.version": "%VERSION%"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "web"
         },
-        "annotations": {
-          "kompose.service.expose": "True",
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "web"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "web"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.service.expose": "True",
+              "kompose.version": "%VERSION%"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "web"
-            },
-            "annotations": {
-              "kompose.service.expose": "True",
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "web",
                 "image": "tuna/docker-counter23",
+                "imagePullPolicy": "",
+                "name": "web",
                 "ports": [
                   {
                     "containerPort": 5000
@@ -161,16 +176,17 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
       "kind": "Ingress",
-      "apiVersion": "apps/v1",
+      "apiVersion": "extensions/v1beta1",
       "metadata": {
         "name": "web",
         "creationTimestamp": null,

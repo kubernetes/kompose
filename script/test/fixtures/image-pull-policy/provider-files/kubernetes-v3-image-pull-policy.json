@@ -4,137 +4,158 @@
   "metadata": {},
   "items": [
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "nginx0",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "nginx0"
-        },
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.image-pull-policy": "Always",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx0"
+        },
+        "name": "nginx0"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "nginx0"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "nginx0"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.image-pull-policy": "Always",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "nginx0"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "nginx0",
                 "image": "nginx",
-                "resources": {},
-                "imagePullPolicy": "Always"
+                "imagePullPolicy": "Always",
+                "name": "nginx0",
+                "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "nginx1",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "nginx1"
-        },
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.image-pull-policy": "IfNotPresent",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx1"
+        },
+        "name": "nginx1"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "nginx1"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "nginx1"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.image-pull-policy": "IfNotPresent",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "nginx1"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "nginx1",
                 "image": "nginx",
-                "resources": {},
-                "imagePullPolicy": "IfNotPresent"
+                "imagePullPolicy": "IfNotPresent",
+                "name": "nginx1",
+                "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "nginx2",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "nginx2"
-        },
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.image-pull-policy": "Never",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx2"
+        },
+        "name": "nginx2"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "nginx2"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "nginx2"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.image-pull-policy": "Never",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "nginx2"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "nginx2",
                 "image": "nginx",
-                "resources": {},
-                "imagePullPolicy": "Never"
+                "imagePullPolicy": "Never",
+                "name": "nginx2",
+                "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }

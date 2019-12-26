@@ -36,56 +36,64 @@
       }
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "foo",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "foo"
-        },
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.service.type": "headless",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        },
+        "name": "foo"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "foo"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "io.kompose.service": "foo"
-            },
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.service.type": "headless",
               "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "foo"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "foo",
-                "image": "foo/bar:latest",
                 "env": [
-                  {
-                    "name": "V3_HOST_ENV_TEST_SET_TO_BAR",
-                    "value": "BAR"
-                  },
                   {
                     "name": "FOO",
                     "value": "foo"
+                  },
+                  {
+                    "name": "V3_HOST_ENV_TEST_SET_TO_BAR",
+                    "value": "BAR"
                   }
                 ],
+                "image": "foo/bar:latest",
+                "imagePullPolicy": "",
+                "name": "foo",
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }
