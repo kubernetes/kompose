@@ -13,8 +13,8 @@
           "io.kompose.service": "nginx"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
         }
       },
       "spec": {
@@ -43,8 +43,8 @@
           "io.kompose.service": "node1"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
         }
       },
       "spec": {
@@ -73,8 +73,8 @@
           "io.kompose.service": "node2"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
         }
       },
       "spec": {
@@ -103,8 +103,8 @@
           "io.kompose.service": "node3"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
         }
       },
       "spec": {
@@ -133,8 +133,8 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
         }
       },
       "spec": {
@@ -154,37 +154,44 @@
       }
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "nginx",
+        "annotations": {
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "nginx"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "nginx"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "nginx"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+              "kompose.version": "1.20.0 (148291b6)"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "nginx"
-            },
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "nginx",
                 "image": "nginx",
+                "imagePullPolicy": "",
+                "name": "nginx",
                 "ports": [
                   {
                     "containerPort": 80
@@ -193,45 +200,53 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "node1",
+        "annotations": {
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node1"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "node1"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "node1"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+              "kompose.version": "1.20.0 (148291b6)"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "node1"
-            },
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "node1",
                 "image": "node1",
+                "imagePullPolicy": "",
+                "name": "node1",
                 "ports": [
                   {
                     "containerPort": 8080
@@ -240,45 +255,53 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "node2",
+        "annotations": {
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node2"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "node2"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "node2"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+              "kompose.version": "1.20.0 (148291b6)"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "node2"
-            },
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "node2",
                 "image": "node2",
+                "imagePullPolicy": "",
+                "name": "node2",
                 "ports": [
                   {
                     "containerPort": 8080
@@ -287,45 +310,53 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "node3",
+        "annotations": {
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "node3"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "node3"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "node3"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+              "kompose.version": "1.20.0 (148291b6)"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "node3"
-            },
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "node3",
                 "image": "node3",
+                "imagePullPolicy": "",
+                "name": "node3",
                 "ports": [
                   {
                     "containerPort": 8080
@@ -334,45 +365,53 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     },
     {
-      "kind": "Deployment",
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "redis",
+        "annotations": {
+          "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+          "kompose.version": "1.20.0 (148291b6)"
+        },
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
         },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        }
+        "name": "redis"
       },
       "spec": {
         "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "redis"
+          }
+        },
+        "strategy": {},
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "kompose -f ./script/test/fixtures/nginx-node-redis/docker-compose-v3.yml convert --stdout -j",
+              "kompose.version": "1.20.0 (148291b6)"
+            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
-            },
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "redis",
                 "image": "redis",
+                "imagePullPolicy": "",
+                "name": "redis",
                 "ports": [
                   {
                     "containerPort": 6379
@@ -381,10 +420,11 @@
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
-        },
-        "strategy": {}
+        }
       },
       "status": {}
     }
