@@ -14,7 +14,7 @@
         },
         "annotations": {
           "kompose.cmd": "kompose -f ./script/test/fixtures/gitlab/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.20.0 (148291b6)"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -54,7 +54,7 @@
         },
         "annotations": {
           "kompose.cmd": "kompose -f ./script/test/fixtures/gitlab/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.20.0 (148291b6)"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -84,7 +84,7 @@
         },
         "annotations": {
           "kompose.cmd": "kompose -f ./script/test/fixtures/gitlab/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.20.0 (148291b6)"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -109,7 +109,7 @@
       "metadata": {
         "annotations": {
           "kompose.cmd": "kompose -f ./script/test/fixtures/gitlab/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.20.0 (148291b6)"
+          "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
         "labels": {
@@ -129,7 +129,7 @@
           "metadata": {
             "annotations": {
               "kompose.cmd": "kompose -f ./script/test/fixtures/gitlab/docker-compose.yml convert --stdout -j",
-              "kompose.version": "1.20.0 (148291b6)"
+              "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
             "labels": {
@@ -204,7 +204,7 @@
       "metadata": {
         "annotations": {
           "kompose.cmd": "kompose -f ./script/test/fixtures/gitlab/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.20.0 (148291b6)"
+          "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
         "labels": {
@@ -224,7 +224,7 @@
           "metadata": {
             "annotations": {
               "kompose.cmd": "kompose -f ./script/test/fixtures/gitlab/docker-compose.yml convert --stdout -j",
-              "kompose.version": "1.20.0 (148291b6)"
+              "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
             "labels": {
@@ -273,7 +273,7 @@
       "metadata": {
         "annotations": {
           "kompose.cmd": "kompose -f ./script/test/fixtures/gitlab/docker-compose.yml convert --stdout -j",
-          "kompose.version": "1.20.0 (148291b6)"
+          "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
         "labels": {
@@ -293,7 +293,7 @@
           "metadata": {
             "annotations": {
               "kompose.cmd": "kompose -f ./script/test/fixtures/gitlab/docker-compose.yml convert --stdout -j",
-              "kompose.version": "1.20.0 (148291b6)"
+              "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
             "labels": {
