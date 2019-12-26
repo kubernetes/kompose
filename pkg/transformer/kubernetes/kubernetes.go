@@ -525,6 +525,11 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 			Port:       port.HostPort,
 			TargetPort: targetPort,
 		}
+
+		if service.ServiceType == string(api.ServiceTypeNodePort) && service.NodePortPort != 0 {
+			servicePort.NodePort = service.NodePortPort
+		}
+
 		// If the default is already TCP, no need to include it.
 		if port.Protocol != api.ProtocolTCP {
 			servicePort.Protocol = port.Protocol

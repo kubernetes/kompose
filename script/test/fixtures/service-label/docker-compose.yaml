@@ -1,0 +1,13 @@
+version: '2'
+services:
+  mariadb:
+    ports:
+      - '3306:3306'
+    labels:
+      kompose.service.type: nodeport
+      kompose.service.nodeport.port: "33111"
+    image: 'bitnami/mariadb:latest'
+    environment:
+      - MARIADB_USER=bn_wordpress
+      - MARIADB_DATABASE=bitnami_wordpress
+      - ALLOW_EMPTY_PASSWORD=yes
