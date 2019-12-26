@@ -14,7 +14,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "1.20.0 (5bfc17ca)"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -40,7 +40,7 @@
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.controller.type": "daemonset",
-          "kompose.version": "1.20.0 (5bfc17ca)",
+          "kompose.version": "%VERSION%",
           "project.logs": "/var/log/mysql"
         },
         "creationTimestamp": null,
@@ -90,7 +90,7 @@
       "metadata": {
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "1.20.0 (5bfc17ca)"
+          "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
         "labels": {
@@ -110,7 +110,7 @@
           "metadata": {
             "annotations": {
               "kompose.cmd": "%CMD%",
-              "kompose.version": "1.20.0 (5bfc17ca)"
+              "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
             "labels": {

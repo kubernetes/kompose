@@ -14,7 +14,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "1.20.0 (5bfc17ca)"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -45,7 +45,7 @@
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.service.type": "NodePort",
-          "kompose.version": "1.20.0 (5bfc17ca)"
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -71,7 +71,7 @@
       "metadata": {
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.version": "1.20.0 (5bfc17ca)"
+          "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
         "labels": {
@@ -91,7 +91,7 @@
           "metadata": {
             "annotations": {
               "kompose.cmd": "%CMD%",
-              "kompose.version": "1.20.0 (5bfc17ca)"
+              "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
             "labels": {
@@ -127,7 +127,7 @@
         "annotations": {
           "kompose.cmd": "%CMD%",
           "kompose.service.type": "NodePort",
-          "kompose.version": "1.20.0 (5bfc17ca)"
+          "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
         "labels": {
@@ -148,7 +148,7 @@
             "annotations": {
               "kompose.cmd": "%CMD%",
               "kompose.service.type": "NodePort",
-              "kompose.version": "1.20.0 (5bfc17ca)"
+              "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
             "labels": {

@@ -9,7 +9,7 @@
       "metadata": {
         "annotations": {
           "kompose.cmd": "kompose -f /Users/yayu/Golang/src/github.com/kubernetes/kompose/script/test/fixtures/network/docker-compose-v3.yaml convert --stdout -j",
-          "kompose.version": "1.20.0 (5bfc17ca)"
+          "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
         "labels": {
@@ -29,7 +29,7 @@
           "metadata": {
             "annotations": {
               "kompose.cmd": "kompose -f /Users/yayu/Golang/src/github.com/kubernetes/kompose/script/test/fixtures/network/docker-compose-v3.yaml convert --stdout -j",
-              "kompose.version": "1.20.0 (5bfc17ca)"
+              "kompose.version": "%VERSION%"
             },
             "creationTimestamp": null,
             "labels": {
