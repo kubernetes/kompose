@@ -76,7 +76,7 @@
             "volumes": [
               {
                 "configMap": {
-                  "Name": "firstconfig",
+                  "name": "firstconfig",
                   "defaultMode": 644
                 },
                 "name": "firstconfig"
@@ -188,7 +188,7 @@
             "volumes": [
               {
                 "configMap": {
-                  "Name": "secondconfig",
+                  "name": "secondconfig",
                   "defaultMode": 644
                 },
                 "name": "secondconfig"
