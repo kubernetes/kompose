@@ -161,6 +161,7 @@ func loadV3Placement(constraints []string) map[string]string {
 // TODO: Refactor it similar to loadV3Ports
 // See: https://docs.docker.com/compose/compose-file/#long-syntax-3
 func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
+
 	var volArray []string
 	for _, vol := range volumes {
 

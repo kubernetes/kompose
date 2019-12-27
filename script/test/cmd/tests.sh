@@ -621,6 +621,16 @@ sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 
+# Test configmap as volume
+cmd="kompose convert --stdout -j --volumes=configMap -f $KOMPOSE_ROOT/script/test/fixtures/configmap-volume/docker-compose.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-k8s.json" >  /tmp/output-k8s.json
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
+
+cmd="kompose convert --stdout --provider=oepnshift -j --volumes=configMap -f $KOMPOSE_ROOT/script/test/fixtures/configmap-volume/docker-compose.yml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-oc.json" >  /tmp/output-oc.json
+convert::expect_success "$cmd" "/tmp/output-oc.json"
+
+
 # Test V3 Support of Docker Compose
 
 # Test deploy mode: global
