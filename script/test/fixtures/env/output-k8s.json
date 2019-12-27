@@ -79,7 +79,7 @@
                     "name": "BAR",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "Name": "hadoop-hive-namenode-env",
+                        "name": "hadoop-hive-namenode-env",
                         "key": "BAR"
                       }
                     }
@@ -88,7 +88,7 @@
                     "name": "FOO",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "Name": "hadoop-hive-namenode-env",
+                        "name": "hadoop-hive-namenode-env",
                         "key": "FOO"
                       }
                     }
@@ -166,7 +166,7 @@
                     "name": "BAR",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "Name": "hadoop-hive-namenode-env",
+                        "name": "hadoop-hive-namenode-env",
                         "key": "BAR"
                       }
                     }
@@ -179,7 +179,7 @@
                     "name": "FOO",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "Name": "hadoop-hive-namenode-env",
+                        "name": "hadoop-hive-namenode-env",
                         "key": "FOO"
                       }
                     }

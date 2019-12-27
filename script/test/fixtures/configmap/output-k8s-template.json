@@ -78,7 +78,7 @@
                     "name": "ALLOW_EMPTY_PASSWORD",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "Name": "foo-env",
+                        "ame": "foo-env",
                         "key": "ALLOW_EMPTY_PASSWORD"
                       }
                     }
@@ -87,7 +87,7 @@
                     "name": "BAR",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "Name": "bar-env",
+                        "name": "bar-env",
                         "key": "BAR"
                       }
                     }
@@ -96,7 +96,7 @@
                     "name": "FOO",
                     "valueFrom": {
                       "configMapKeyRef": {
-                        "Name": "bar-env",
+                        "name": "bar-env",
                         "key": "FOO"
                       }
                     }
