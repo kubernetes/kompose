@@ -125,6 +125,11 @@ func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, u
 
 // InitPodSpec creates the pod specification
 func (k *Kubernetes) InitPodSpec(name string, image string, pullSecret string) api.PodSpec {
+
+	if image == "" {
+		image = name
+	}
+
 	pod := api.PodSpec{
 		Containers: []api.Container{
 			{
@@ -1018,6 +1023,11 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		// Lastly, we must have an Image name to continue
 		if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
 
+			// If there's no "image" key, use the name of the container that's built
+			if service.Image == "" {
+				service.Image = name
+			}
+
 			if service.Image == "" {
 				return nil, fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
 			}
@@ -1038,11 +1048,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
 				}
 			}
-		}
-
-		// If there's no "image" key, use the name of the container that's built
-		if service.Image == "" {
-			service.Image = name
 		}
 
 		// Generate pod only and nothing more

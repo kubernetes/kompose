@@ -309,6 +309,11 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		// Lastly, we must have an Image name to continue
 		if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
 
+			// If there's no "image" key, use the name of the container that's built
+			if service.Image == "" {
+				service.Image = name
+			}
+
 			if service.Image == "" {
 				return nil, fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
 			}
@@ -327,11 +332,6 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				}
 			}
 
-		}
-
-		// If there's no "image" key, use the name of the container that's built
-		if service.Image == "" {
-			service.Image = name
 		}
 
 		// Generate pod only and nothing more
