@@ -74,6 +74,9 @@ var unsupportedKey = map[string]bool{}
 
 // initImageStream initializes ImageStream object
 func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) *imageapi.ImageStream {
+	if service.Image == "" {
+		service.Image = name
+	}
 
 	// Retrieve tags and image name for mapping
 	tag := GetImageTag(service.Image)
