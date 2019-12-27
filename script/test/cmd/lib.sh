@@ -70,6 +70,16 @@ function convert::run_cmd() {
 }
 readonly -f convert::run_cmd
 
+
+function convert::expect_cmd_success() {
+    local cmd=$1
+
+    convert::start_test "convert::expect_cmd_success: Running: '${cmd}'"
+
+    convert::run_cmd $cmd
+    exit_status=$?
+    if [ $exit_status -ne 0 ]; then FAIL_MSGS=$FAIL_MSGS"exit status: $exit_status\n"; return $exit_status; fi
+}
 # run the command and match the output to the existing file
 # if error then save error string in FAIL_MSGS
 # if success save pass string in SUCCESS_MSGS

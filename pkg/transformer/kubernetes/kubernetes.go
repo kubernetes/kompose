@@ -1024,14 +1024,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 			log.Infof("Build key detected. Attempting to build image '%s'", service.Image)
 
-			// Get the directory where the compose file is
-			composeFileDir, err := transformer.GetComposeFileDir(opt.InputFiles)
-			if err != nil {
-				return nil, err
-			}
-
 			// Build the image!
-			err = transformer.BuildDockerImage(service, name, composeFileDir)
+			err := transformer.BuildDockerImage(service, name)
 			if err != nil {
 				return nil, errors.Wrapf(err, "Unable to build Docker image for service %v", name)
 			}
