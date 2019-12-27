@@ -222,12 +222,21 @@ func GetComposeFileDir(inputFiles []string) (string, error) {
 }
 
 //BuildDockerImage builds docker image
-func BuildDockerImage(service kobject.ServiceConfig, name string, relativePath string) error {
-	// Get the appropriate image source and name
-	imagePath := path.Join(relativePath, path.Base(service.Build))
-	if !path.IsAbs(service.Build) {
-		imagePath = path.Join(relativePath, service.Build)
+func BuildDockerImage(service kobject.ServiceConfig, name string) error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
 	}
+
+	log.Debug("Build image working dir is: ", wd)
+
+	// Get the appropriate image source and name
+	imagePath := path.Join(wd, path.Base(service.Build))
+	if !path.IsAbs(service.Build) {
+		imagePath = path.Join(wd, service.Build)
+	}
+	log.Debugf("Build image context is: %s", imagePath)
+
 	if _, err := os.Stat(imagePath); err != nil {
 		return errors.Wrapf(err, "%s is not a valid path for building image %s. Check if this dir exists.", service.Build, name)
 	}

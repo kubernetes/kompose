@@ -313,14 +313,8 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				return nil, fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
 			}
 
-			// Get the directory where the compose file is
-			composeFileDir, err := transformer.GetComposeFileDir(opt.InputFiles)
-			if err != nil {
-				return nil, err
-			}
-
 			// Build the container!
-			err = transformer.BuildDockerImage(service, name, composeFileDir)
+			err := transformer.BuildDockerImage(service, name)
 			if err != nil {
 				log.Fatalf("Unable to build Docker container for service %v: %v", name, err)
 			}
