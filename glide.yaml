@@ -1,45 +1,30 @@
 package: github.com/kubernetes/kompose
 homepage: https://github.com/kubernetes/kompose
-licence: Apache-2.0
-
 import:
-
 - package: github.com/sirupsen/logrus
   version: 1.0.3
-
 - package: github.com/spf13/cast
   version: v1.2.0
-
 - package: golang.org/x/sys
   version: ebfc5b4631820b793c9010c87fd8fef0f39eb082
-
 - package: github.com/xeipuuv/gojsonschema
   version: 93e72a773fade158921402d6a24c819b48aba29d
-
 - package: github.com/fatih/structs
 - package: github.com/ghodss/yaml
 - package: github.com/spf13/cobra
 - package: github.com/spf13/viper
 - package: github.com/pkg/errors
 - package: github.com/joho/godotenv
-
-# We use libcompose to parse v1 and v2 of Docker Compose
 - package: github.com/docker/libcompose
   version: 57bd716502dcbe1799f026148016022b0f3b989c
   subpackages:
   - config
   - lookup
   - project
-
-# We use docker/cli to parse v3 of Docker Compose
 - package: github.com/docker/cli
   version: df6e38b81a94c06ee1e3bd3fd3b17cd9b67c926b
-  # version: 9b7656cc05d2878c85dc1252f5813f0ad77d808f
-
-# Docker parser library for image names
 - package: github.com/novln/docker-parser
   version: 6030251119d652af8ead44ac7907444227b64d56
-
 - package: github.com/openshift/origin
   version: v1.4.0-rc1
   subpackages:
@@ -53,9 +38,6 @@ import:
   - pkg/image/api/install
   - pkg/route/api
   - pkg/route/api/install
-
-# OpenShift uses Kubernetes fork to carry some patches
-# Kubernetes will be in the same version as what OpenShift is using (from OpenShifts Godeps.json)
 - package: k8s.io/kubernetes
   repo: https://github.com/openshift/kubernetes
   subpackages:
@@ -71,24 +53,13 @@ import:
   - pkg/kubectl/cmd/util
   - pkg/runtime
   - pkg/util/intstr
-
-# OpenShift uses glog fork to carry some patches
-# There are more forks that openshift is using (see: https://github.com/openshift/origin/blob/master/hack/godep-restore.sh)
-# But we are not importing any packages that are using forked packages (expect glog).
-# This is why only glog is here.
 - package: github.com/golang/glog
   repo: https://github.com/openshift/glog
-
-# libcompose and OpenShift depends on different Docker version,
-# this makes sure that we are using version that is compatible with both.
-# Glide will show WARN about conflicting rev (in this case it is OK)
 - package: github.com/docker/docker
   version: 8e435b8279f2af3e0cebd73fa9e25ca1bb26004e
-
-
 - package: github.com/gogo/protobuf
   version: 382325bbbb4d1c850eec1f3ec92a1a16f502d68b
-
 - package: github.com/imdario/mergo
   version: 367dccd03f18bf85378395651a9be25c129fb3bf
-
+- package: gopkg.in/yaml.v3
+  version: ^2.2.7
