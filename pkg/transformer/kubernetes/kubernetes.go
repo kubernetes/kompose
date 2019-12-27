@@ -19,8 +19,10 @@ package kubernetes
 import (
 	"fmt"
 	"github.com/spf13/pflag"
+	"io/ioutil"
 	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
 	"os"
+	"path"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -264,9 +266,73 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceCon
 	return configMap
 }
 
+// IntiConfigMapFromFileOrDir will create a configmap from dir or file
+// usage:
+//   1. volume
+func (k *Kubernetes) IntiConfigMapFromFileOrDir(name, cmName, filePath string, service kobject.ServiceConfig) (*api.ConfigMap, error) {
+	configMap := &api.ConfigMap{
+		TypeMeta: unversioned.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Name:   cmName,
+			Labels: transformer.ConfigLabels(name),
+		},
+	}
+	dataMap := make(map[string]string)
+
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	switch mode := fi.Mode(); {
+	case mode.IsDir():
+		files, err := ioutil.ReadDir(filePath)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, file := range files {
+			if !file.IsDir() {
+				log.Debugf("Read file to ConfigMap: %s", file.Name())
+				data, err := GetContentFromFile(filePath + "/" + file.Name())
+				if err != nil {
+					return nil, err
+				}
+				dataMap[file.Name()] = data
+			}
+		}
+		configMap.Data = dataMap
+
+	case mode.IsRegular():
+		// do file stuff
+		configMap = k.InitConfigMapFromFile(name, service, filePath)
+		configMap.Name = cmName
+		configMap.Annotations = map[string]string{
+			"use-subpath": "true",
+		}
+	}
+
+	return configMap, nil
+}
+
+// useSubPathMount check if a configmap should be mounted as subpath
+// in this situation, this configmap will only contains 1 key in data
+func useSubPathMount(cm *api.ConfigMap) bool {
+	if cm.Annotations == nil {
+		return false
+	}
+	if cm.Annotations["use-subpath"] != "true" {
+		return false
+	}
+	return true
+}
+
 //InitConfigMapFromFile initializes a ConfigMap object
-func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, fileName string) *api.ConfigMap {
-	content, err := GetContentFromFile(fileName, opt)
+func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceConfig, fileName string) *api.ConfigMap {
+	content, err := GetContentFromFile(fileName)
 	if err != nil {
 		log.Fatalf("Unable to retrieve file: %s", err)
 	}
@@ -274,7 +340,9 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 	originFileName := FormatFileName(fileName)
 
 	dataMap := make(map[string]string)
+
 	dataMap[originFileName] = content
+
 	configMapName := ""
 	for key, tmpConfig := range service.ConfigsMetaData {
 		if tmpConfig.File == fileName {
@@ -410,7 +478,7 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 	var objects []*api.Secret
 	for name, config := range komposeObject.Secrets {
 		if config.File != "" {
-			dataString, err := GetContentFromFile(config.File, k.Opt)
+			dataString, err := GetContentFromFile(config.File)
 			if err != nil {
 				log.Fatal("unable to read secret from file: ", config.File)
 				return nil, err
@@ -673,23 +741,21 @@ func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceCon
 }
 
 // ConfigVolumes configure the container volumes.
-func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim, error) {
+func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume, []*api.PersistentVolumeClaim, []*api.ConfigMap, error) {
 	volumeMounts := []api.VolumeMount{}
 	volumes := []api.Volume{}
 	var PVCs []*api.PersistentVolumeClaim
+	var cms []*api.ConfigMap
 	var volumeName string
 
 	// Set a var based on if the user wants to use empty volumes
 	// as opposed to persistent volumes and volume claims
 	useEmptyVolumes := k.Opt.EmptyVols
-	useHostPath := false
+	useHostPath := k.Opt.Volumes == "hostPath"
+	useConfigMap := k.Opt.Volumes == "configMap"
 
 	if k.Opt.Volumes == "emptyDir" {
 		useEmptyVolumes = true
-	}
-
-	if k.Opt.Volumes == "hostPath" {
-		useHostPath = true
 	}
 
 	// config volumes from secret if present
@@ -709,6 +775,8 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 				volumeName = strings.Replace(volume.PVCName, "claim", "empty", 1)
 			} else if useHostPath {
 				volumeName = strings.Replace(volume.PVCName, "claim", "hostpath", 1)
+			} else if useConfigMap {
+				volumeName = strings.Replace(volume.PVCName, "claim", "cm", 1)
 			} else {
 				volumeName = volume.PVCName
 			}
@@ -721,7 +789,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			ReadOnly:  readonly,
 			MountPath: volume.Container,
 		}
-		volumeMounts = append(volumeMounts, volMount)
+
 		// Get a volume source based on the type of volume we are using
 		// For PVC we will also create a PVC object and add to list
 		var volsource *api.VolumeSource
@@ -731,9 +799,23 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		} else if useHostPath {
 			source, err := k.ConfigHostPathVolumeSource(volume.Host)
 			if err != nil {
-				return nil, nil, nil, errors.Wrap(err, "k.ConfigHostPathVolumeSource failed")
+				return nil, nil, nil, nil, errors.Wrap(err, "k.ConfigHostPathVolumeSource failed")
 			}
 			volsource = source
+		} else if useConfigMap {
+			log.Debugf("Use configmap volume")
+
+			if cm, err := k.IntiConfigMapFromFileOrDir(name, volumeName, volume.Host, service); err != nil {
+				return nil, nil, nil, nil, err
+			} else {
+				cms = append(cms, cm)
+				volsource = k.ConfigConfigMapVolumeSource(volumeName, volume.Container, cm)
+
+				if useSubPathMount(cm) {
+					volMount.SubPath = volsource.ConfigMap.Items[0].Path
+				}
+			}
+
 		} else {
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
 			if volume.VFrom == "" {
@@ -752,13 +834,14 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue)
 
 				if err != nil {
-					return nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
+					return nil, nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
 				}
 
 				PVCs = append(PVCs, createdPVC)
 			}
 
 		}
+		volumeMounts = append(volumeMounts, volMount)
 
 		// create a new volume object using the volsource and add to list
 		vol := api.Volume{
@@ -767,13 +850,13 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		}
 		volumes = append(volumes, vol)
 
-		if len(volume.Host) > 0 && !useHostPath {
+		if len(volume.Host) > 0 && (!useHostPath && !useConfigMap) {
 			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", volume.Host)
 		}
 
 	}
 
-	return volumeMounts, volumes, PVCs, nil
+	return volumeMounts, volumes, PVCs, cms, nil
 }
 
 // ConfigEmptyVolumeSource is helper function to create an EmptyDir api.VolumeSource
@@ -790,6 +873,30 @@ func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
 	//if key is volume
 	return &api.VolumeSource{
 		EmptyDir: &api.EmptyDirVolumeSource{},
+	}
+
+}
+
+// ConfigHostPathVolumeSource config a configmap to use as volume source
+func (k *Kubernetes) ConfigConfigMapVolumeSource(cmName string, targetPath string, cm *api.ConfigMap) *api.VolumeSource {
+	s := api.ConfigMapVolumeSource{}
+	s.Name = cmName
+	if useSubPathMount(cm) {
+		var keys []string
+		for k := range cm.Data {
+			keys = append(keys, k)
+		}
+		key := keys[0]
+		_, p := path.Split(targetPath)
+		s.Items = []api.KeyToPath{
+			{
+				Key:  key,
+				Path: p,
+			},
+		}
+	}
+	return &api.VolumeSource{
+		ConfigMap: &s,
 	}
 
 }
@@ -942,7 +1049,7 @@ func (k *Kubernetes) createConfigMapFromComposeConfig(name string, opt kobject.C
 			continue
 		}
 		currentFileName := currentConfigObj.File
-		configMap := k.InitConfigMapFromFile(name, service, opt, currentFileName)
+		configMap := k.InitConfigMapFromFile(name, service, currentFileName)
 		objects = append(objects, configMap)
 	}
 	return objects

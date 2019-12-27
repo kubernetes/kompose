@@ -365,7 +365,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	}
 
 	// Configure the container volumes.
-	volumesMount, volumes, pvc, err := k.ConfigVolumes(name, service)
+	volumesMount, volumes, pvc, cms, err := k.ConfigVolumes(name, service)
 	if err != nil {
 		return errors.Wrap(err, "k.ConfigVolumes failed")
 	}
@@ -385,6 +385,12 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		// one element at a time it gets converted to runtime.Object for objects slice
 		for _, p := range pvc {
 			*objects = append(*objects, p)
+		}
+	}
+
+	if cms != nil {
+		for _, c := range cms {
+			*objects = append(*objects, c)
 		}
 	}
 
@@ -702,7 +708,7 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 }
 
 // GetContentFromFile gets the content from the file..
-func GetContentFromFile(file string, opt kobject.ConvertOptions) (string, error) {
+func GetContentFromFile(file string) (string, error) {
 	fileBytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return "", errors.Wrap(err, "Unable to read file")
