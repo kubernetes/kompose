@@ -3,7 +3,7 @@ package schema1
 import (
 	"crypto/x509"
 
-	"github.com/sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"github.com/docker/libtrust"
 )
 

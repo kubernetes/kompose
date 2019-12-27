@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/docker/distribution/uuid"
 	"github.com/gorilla/mux"
 )

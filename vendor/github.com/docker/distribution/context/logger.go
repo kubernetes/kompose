@@ -3,7 +3,7 @@ package context
 import (
 	"fmt"
 
-	"github.com/sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"runtime"
 )
 
