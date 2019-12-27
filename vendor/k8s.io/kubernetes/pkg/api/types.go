@@ -2583,7 +2583,7 @@ type ObjectReference struct {
 // LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
 type LocalObjectReference struct {
 	//TODO: Add other useful fields.  apiVersion, kind, uid?
-	Name string
+	Name string `json:"name"`
 }
 
 type SerializedReference struct {
