@@ -127,7 +127,7 @@ vendor-update:
 	rm -rf vendor/github.com/Sirupsen
 
 	# a field does not has json tag defined.
-	cp vendor-sync/types.go vendor/k8s.io/kubernetes/pkg/api/types.go
+	cp vendor-sync/types.go.txt vendor/k8s.io/kubernetes/pkg/api/types.go
 
 
 .PHONY: test-k8s
