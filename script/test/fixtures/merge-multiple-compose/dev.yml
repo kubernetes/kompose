@@ -2,6 +2,12 @@ version: '3'
 
 services:
   web:
+    deploy:
+      resources:
+        limits:
+          cpus: "1"  # as opposed to 0.1 (default)
+        reservations:
+          cpus: "1"
     environment:
       - ERRORS=1
       - HIDE_NGINX_HEADERS=0

@@ -555,6 +555,14 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 		if service.Deploy.Mode != "" {
 			tmpOldService.Deploy = service.Deploy
 		}
+		if service.Deploy.Resources.Limits != nil {
+			tmpOldService.Deploy.Resources.Limits = service.Deploy.Resources.Limits
+		}
+
+		if service.Deploy.Resources.Reservations != nil {
+			tmpOldService.Deploy.Resources.Reservations = service.Deploy.Resources.Reservations
+		}
+
 		if len(service.Devices) != 0 {
 			tmpOldService.Devices = service.Devices
 		}

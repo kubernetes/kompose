@@ -68,7 +68,14 @@
                 "image": "richarvey/nginx-php-fpm",
                 "imagePullPolicy": "",
                 "name": "web",
-                "resources": {}
+                "resources": {
+                  "limits": {
+                    "cpu": "1"
+                  },
+                  "requests": {
+                    "cpu": "1"
+                  }
+                }
               }
             ],
             "restartPolicy": "Always",
