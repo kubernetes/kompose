@@ -539,10 +539,10 @@ cd $CURRENT_DIR
 
 #### Test docker build feature
 cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose-dockerfile.yml --stdout -j --build=local"
-${cmd}
+convert::expect_cmd_success "$cmd"
 
 cmd="kompose convert  --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose-dockerfile.yml --stdout -j --build=local"
-${cmd}
+convert::expect_cmd_success "$cmd"
 
 
 # Test the presence of build args in buildconfig
