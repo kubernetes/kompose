@@ -46,6 +46,7 @@ var (
 	ConvertReplicas              int
 	ConvertController            string
 	ConvertOpt                   kobject.ConvertOptions
+	ConvertYAMLIndent            int
 )
 
 var convertCmd = &cobra.Command{
@@ -84,6 +85,7 @@ var convertCmd = &cobra.Command{
 			Controller:                  strings.ToLower(ConvertController),
 			IsReplicaSetFlag:            cmd.Flags().Lookup("replicas").Changed,
 			IsDeploymentConfigFlag:      cmd.Flags().Lookup("deployment-config").Changed,
+			YAMLIndent:                  ConvertYAMLIndent,
 		}
 
 		// Validate before doing anything else. Use "bundle" if passed in.
@@ -140,6 +142,8 @@ func init() {
 	// Deprecated commands
 	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
 	convertCmd.Flags().MarkDeprecated("emptyvols", "emptyvols has been marked as deprecated. Use --volumes empty")
+
+	convertCmd.Flags().IntVar(&ConvertYAMLIndent, "indent", 2, "Spaces length to indent generated yaml files")
 
 	// In order to 'separate' both OpenShift and Kubernetes only flags. A custom help page is created
 	customHelp := `Usage:{{if .Runnable}}
