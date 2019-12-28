@@ -308,12 +308,12 @@ func jsonToYaml(j []byte, spaces int) ([]byte, error) {
 func marshalWithIndent(o interface{}, indent int) ([]byte, error) {
 	j, err := json.Marshal(o)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling into JSON: ", err)
+		return nil, fmt.Errorf("error marshaling into JSON: %s", err.Error())
 	}
 
 	y, err := jsonToYaml(j, indent)
 	if err != nil {
-		return nil, fmt.Errorf("error converting JSON to YAML: ", err)
+		return nil, fmt.Errorf("error converting JSON to YAML: %s", err.Error())
 	}
 
 	return y, nil
