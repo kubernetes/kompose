@@ -58,6 +58,8 @@ __Windows:__
 
 Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.20.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
+Note: `kompose up` is not supported on windows.
+
 ## Shell autocompletion
 
 We support both Bash and Zsh autocompletion.
