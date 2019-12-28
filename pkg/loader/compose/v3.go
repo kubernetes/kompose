@@ -164,9 +164,8 @@ func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
 
 	var volArray []string
 	for _, vol := range volumes {
-
 		// There will *always* be Source when parsing
-		v := normalizeVolumes(vol.Source)
+		v := vol.Source
 
 		if vol.Target != "" {
 			v = v + ":" + vol.Target

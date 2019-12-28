@@ -1,0 +1,8 @@
+version: '3'
+services:
+  db:
+    image: postgres:10.1
+    ports:
+      - "5432"
+    volumes:
+      - ./data_sux:/var/lib/postgresql/data_sux
