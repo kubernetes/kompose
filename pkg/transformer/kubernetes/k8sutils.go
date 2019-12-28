@@ -294,7 +294,6 @@ func jsonToYaml(j []byte, spaces int) ([]byte, error) {
 	}
 
 	var b bytes.Buffer
-	log.Debugf("fuck indent: %d", spaces)
 	encoder := yaml.NewEncoder(&b)
 	encoder.SetIndent(spaces)
 	if err := encoder.Encode(jsonObj); err != nil {
