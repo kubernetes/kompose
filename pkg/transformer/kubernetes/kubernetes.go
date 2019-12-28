@@ -550,7 +550,7 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 	exist := map[string]bool{}
 	for _, port := range service.Port {
 		// temp use as an id
-		if exist[string(port.ContainerPort) + string(port.Protocol)] {
+		if exist[string(port.ContainerPort)+string(port.Protocol)] {
 			continue
 		}
 		// If the default is already TCP, no need to include it.
@@ -566,7 +566,7 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 				HostIP:        port.HostIP,
 			})
 		}
-		exist[string(port.ContainerPort) + string(port.Protocol)] = true
+		exist[string(port.ContainerPort)+string(port.Protocol)] = true
 
 	}
 
