@@ -224,7 +224,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 
 		if composeServiceConfig.Volumes != nil {
 			for _, volume := range composeServiceConfig.Volumes.Volumes {
-				v := normalizeVolumes(volume.String())
+				v := volume.String()
 				serviceConfig.VolList = append(serviceConfig.VolList, v)
 			}
 		}
@@ -416,11 +416,13 @@ func ParseVols(volNames []string, svcName string) ([]kobject.Volumes, error) {
 		if err != nil {
 			return nil, errors.Wrapf(err, "could not parse volume %q: %v", vn, err)
 		}
+		v.VolumeName = normalizeVolumes(v.VolumeName)
 		v.SvcName = svcName
 		v.MountPath = fmt.Sprintf("%s:%s", v.Host, v.Container)
 		v.PVCName = fmt.Sprintf("%s-claim%d", v.SvcName, i)
 		volumes = append(volumes, v)
 	}
+
 	return volumes, nil
 }
 

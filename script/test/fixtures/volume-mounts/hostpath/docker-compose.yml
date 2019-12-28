@@ -5,4 +5,4 @@ services:
     ports:
       - "5432"
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - ./data_sux:/var/lib/postgresql/data_sux
