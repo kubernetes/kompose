@@ -129,9 +129,6 @@
                 "ports": [
                   {
                     "containerPort": 9001
-                  },
-                  {
-                    "containerPort": 9001
                   }
                 ],
                 "env": [
