@@ -63,6 +63,8 @@ type ConvertOptions struct {
 	IsReplicaSetFlag            bool
 	IsDeploymentConfigFlag      bool
 	IsNamespaceFlag             bool
+
+	YAMLIndent int
 }
 
 // ServiceConfig holds the basic struct of a container
