@@ -82,7 +82,7 @@
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "mountPath": "/var/lib/postgresql/data",
+                    "mountPath": "/var/lib/postgresql/data_sux",
                     "name": "db-hostpath0"
                   }
                 ]

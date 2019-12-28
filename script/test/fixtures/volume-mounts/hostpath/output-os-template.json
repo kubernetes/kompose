@@ -104,7 +104,7 @@
                 "volumeMounts": [
                   {
                     "name": "db-hostpath0",
-                    "mountPath": "/var/lib/postgresql/data"
+                    "mountPath": "/var/lib/postgresql/data_sux"
                   }
                 ]
               }
