@@ -1,5 +1,5 @@
-hash: 9dcd8f3426a2eea65ce4a496b449c4a8f6856d277e019fb77bbb056fde544799
-updated: 2019-12-28T01:29:09.034049984+08:00
+hash: 5d0b746887e65e70ad961240c408be3e4073db0a8ed0bd80d7a36f290fbcddf5
+updated: 2019-12-28T11:27:41.20851964+08:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -530,6 +530,8 @@ imports:
   version: 94291fffe2b14f4632ec0e67c1bfecfc1287a168
 - name: gopkg.in/yaml.v2
   version: 1f64d6156d11335c3f22d9330b0ad14fc1e789ce
+- name: gopkg.in/yaml.v3
+  version: 4206685974f28e3178b35fa198a59899aa4dee3a
 - name: k8s.io/client-go
   version: d72c0e162789e1bbb33c33cfa26858a1375efe01
   subpackages:
