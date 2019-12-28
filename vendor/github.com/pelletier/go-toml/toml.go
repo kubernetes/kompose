@@ -27,9 +27,13 @@ type Tree struct {
 }
 
 func newTree() *Tree {
+	return newTreeWithPosition(Position{})
+}
+
+func newTreeWithPosition(pos Position) *Tree {
 	return &Tree{
 		values:   make(map[string]interface{}),
-		position: Position{},
+		position: pos,
 	}
 }
 
@@ -194,10 +198,10 @@ func (t *Tree) SetWithOptions(key string, opts SetOptions, value interface{}) {
 // formatting instructions to the key, that will be reused by Marshal().
 func (t *Tree) SetPathWithOptions(keys []string, opts SetOptions, value interface{}) {
 	subtree := t
-	for _, intermediateKey := range keys[:len(keys)-1] {
+	for i, intermediateKey := range keys[:len(keys)-1] {
 		nextTree, exists := subtree.values[intermediateKey]
 		if !exists {
-			nextTree = newTree()
+			nextTree = newTreeWithPosition(Position{Line: t.position.Line + i, Col: t.position.Col})
 			subtree.values[intermediateKey] = nextTree // add new element here
 		}
 		switch node := nextTree.(type) {
@@ -207,7 +211,7 @@ func (t *Tree) SetPathWithOptions(keys []string, opts SetOptions, value interfac
 			// go to most recent element
 			if len(node) == 0 {
 				// create element if it does not exist
-				subtree.values[intermediateKey] = append(node, newTree())
+				subtree.values[intermediateKey] = append(node, newTreeWithPosition(Position{Line: t.position.Line + i, Col: t.position.Col}))
 			}
 			subtree = node[len(node)-1]
 		}
@@ -225,7 +229,11 @@ func (t *Tree) SetPathWithOptions(keys []string, opts SetOptions, value interfac
 		v.comment = opts.Comment
 		toInsert = v
 	default:
-		toInsert = &tomlValue{value: value, comment: opts.Comment, commented: opts.Commented, multiline: opts.Multiline}
+		toInsert = &tomlValue{value: value,
+			comment:   opts.Comment,
+			commented: opts.Commented,
+			multiline: opts.Multiline,
+			position:  Position{Line: subtree.position.Line + len(subtree.values) + 1, Col: subtree.position.Col}}
 	}
 
 	subtree.values[keys[len(keys)-1]] = toInsert
@@ -254,42 +262,7 @@ func (t *Tree) SetPath(keys []string, value interface{}) {
 // SetPathWithComment is the same as SetPath, but allows you to provide comment
 // information to the key, that will be reused by Marshal().
 func (t *Tree) SetPathWithComment(keys []string, comment string, commented bool, value interface{}) {
-	subtree := t
-	for _, intermediateKey := range keys[:len(keys)-1] {
-		nextTree, exists := subtree.values[intermediateKey]
-		if !exists {
-			nextTree = newTree()
-			subtree.values[intermediateKey] = nextTree // add new element here
-		}
-		switch node := nextTree.(type) {
-		case *Tree:
-			subtree = node
-		case []*Tree:
-			// go to most recent element
-			if len(node) == 0 {
-				// create element if it does not exist
-				subtree.values[intermediateKey] = append(node, newTree())
-			}
-			subtree = node[len(node)-1]
-		}
-	}
-
-	var toInsert interface{}
-
-	switch v := value.(type) {
-	case *Tree:
-		v.comment = comment
-		toInsert = value
-	case []*Tree:
-		toInsert = value
-	case *tomlValue:
-		v.comment = comment
-		toInsert = v
-	default:
-		toInsert = &tomlValue{value: value, comment: comment, commented: commented}
-	}
-
-	subtree.values[keys[len(keys)-1]] = toInsert
+	t.SetPathWithOptions(keys, SetOptions{Comment: comment, Commented: commented}, value)
 }
 
 // Delete removes a key from the tree.
@@ -302,7 +275,7 @@ func (t *Tree) Delete(key string) error {
 	return t.DeletePath(keys)
 }
 
-// Delete removes a key from the tree.
+// DeletePath removes a key from the tree.
 // Keys is an array of path elements (e.g. {"a","b","c"}).
 func (t *Tree) DeletePath(keys []string) error {
 	keyLen := len(keys)
@@ -329,10 +302,10 @@ func (t *Tree) DeletePath(keys []string) error {
 // Returns nil on success, error object on failure
 func (t *Tree) createSubTree(keys []string, pos Position) error {
 	subtree := t
-	for _, intermediateKey := range keys {
+	for i, intermediateKey := range keys {
 		nextTree, exists := subtree.values[intermediateKey]
 		if !exists {
-			tree := newTree()
+			tree := newTreeWithPosition(Position{Line: t.position.Line + i, Col: t.position.Col})
 			tree.position = pos
 			subtree.values[intermediateKey] = tree
 			nextTree = tree
