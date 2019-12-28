@@ -224,7 +224,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 
 		if composeServiceConfig.Volumes != nil {
 			for _, volume := range composeServiceConfig.Volumes.Volumes {
-				v := normalizeVolumes(volume.String())
+				v := volume.String()
 				serviceConfig.VolList = append(serviceConfig.VolList, v)
 			}
 		}
