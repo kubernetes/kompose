@@ -233,9 +233,6 @@
                 "containerPort": 3000
               },
               {
-                "containerPort": 3000
-              },
-              {
                 "containerPort": 3001
               },
               {

@@ -5,6 +5,7 @@ services:
       image: tuna/docker-counter23
       ports:
         - "5000:5000/tcp"
+        - "5001:5000/tcp"
       links:
         - redis
       networks:

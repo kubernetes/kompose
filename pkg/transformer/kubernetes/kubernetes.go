@@ -547,8 +547,12 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 // ConfigPorts configures the container ports.
 func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
+	exist := map[string]bool{}
 	for _, port := range service.Port {
-
+		// temp use as an id
+		if exist[string(port.ContainerPort)+string(port.Protocol)] {
+			continue
+		}
 		// If the default is already TCP, no need to include it.
 		if port.Protocol == api.ProtocolTCP {
 			ports = append(ports, api.ContainerPort{
@@ -562,6 +566,7 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 				HostIP:        port.HostIP,
 			})
 		}
+		exist[string(port.ContainerPort)+string(port.Protocol)] = true
 
 	}
 
