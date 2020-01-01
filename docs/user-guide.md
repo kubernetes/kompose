@@ -191,6 +191,8 @@ Kompose supports both building and pushing Docker images. When using the `build`
 
   - Automatically be built with Docker using the `image` key specified within your file
   - Be pushed to the correct Docker repository using local credentials (located at `.docker/config`)
+  
+If you do not want to push the image you have built, you and use the `--push-image=false` flag to disable it.
 
 Using an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/buildconfig/docker-compose.yml):
 
