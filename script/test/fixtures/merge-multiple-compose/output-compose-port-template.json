@@ -20,6 +20,11 @@
       "spec": {
         "ports": [
           {
+            "name": "3000",
+            "port": 3000,
+            "targetPort": 3000
+          },
+          {
             "name": "5000",
             "port": 5000,
             "targetPort": 5000
@@ -73,6 +78,9 @@
                 "imagePullPolicy": "",
                 "name": "test-server",
                 "ports": [
+                  {
+                    "containerPort": 3000
+                  },
                   {
                     "containerPort": 5000
                   }

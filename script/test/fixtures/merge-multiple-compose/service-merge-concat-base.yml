@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  server:
+    image: test
+    container_name: test_server
+    environment:
+      - SIMPLE_ONE=true
+      - SAMPLE_TO_BE_OVERRIDDEN=original
+    expose:
+      - "3000"
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    dns_search: first.search.domain.com
+    external_links:
+      - other_service_1
+      - common_service:alias1
+    labels:
+      - "simplelabel.first=Foo" 
+      - "complexlabel=original"
+    tmpfs:
+      - /base-tmpdir
+    volumes:
+      - /simple/base/volume
+      - /base/dir:/common/mount/point
+      

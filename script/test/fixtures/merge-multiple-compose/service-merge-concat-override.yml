@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  server:
+    image: test
+    container_name: test_server
+    environment:
+      - SAMPLE_TO_BE_OVERRIDDEN=new
+      - NEW_ONE=1234
+    expose:
+      - "5000"
+    dns: 9.9.9.9
+    dns_search:
+      - second.search.domain.com
+    external_links:
+      - other_service_2
+      - common_service:alias2
+    labels:
+      simplelabel.second: "Bar"
+      complexlabel: override
+    tmpfs: /additional-tmpdir
+    volumes:
+      - /additional/added/volume
+      - /override/dir:/common/mount/point

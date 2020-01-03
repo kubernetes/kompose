@@ -138,6 +138,10 @@ cmd="kompose --provider=openshift convert -f $KOMPOSE_ROOT/script/test/fixtures/
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/output-openshift-template.json > /tmp/output-os.json
 convert::expect_success "$cmd" "/tmp/output-os.json"
 
+cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/service-merge-concat-base.yml -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/service-merge-concat-override.yml --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/output-service-merge-concat-template.json > /tmp/output-k8s.json
+convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json" "Volume mount on the host \"/override/dir\" isn't supported - ignoring path on the host"
+
 # Test other top level keys
 # In merge
 cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/other-toplevel-dev.yml -f $KOMPOSE_ROOT/script/test/fixtures/merge-multiple-compose/other-toplevel-ext.yml --stdout -j"
