@@ -19,7 +19,9 @@ package kobject
 import (
 	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/yaml"
+	"github.com/pkg/errors"
 	"k8s.io/kubernetes/pkg/api"
+	"path/filepath"
 )
 
 // KomposeObject holds the generic struct of Kompose transformation
@@ -163,4 +165,24 @@ type Volumes struct {
 	PVCName       string // name of PVC
 	PVCSize       string // PVC size
 	SelectorValue string // Value of the label selector
+}
+
+// GetConfigMapKeyFromMeta...
+// given a source name ,find the file and extract the filename which will be act as ConfigMap key
+// return "" if not found
+func (s *ServiceConfig) GetConfigMapKeyFromMeta(name string) (string, error) {
+	if s.ConfigsMetaData == nil {
+		return "", errors.Errorf("config %s not found", name)
+	}
+	if _, ok := s.ConfigsMetaData[name]; !ok {
+		return "", errors.Errorf("config %s not found", name)
+	}
+
+	config := s.ConfigsMetaData[name]
+	if config.External.External {
+		return "", errors.Errorf("config %s is external", name)
+	}
+
+	return filepath.Base(config.File), nil
+
 }
