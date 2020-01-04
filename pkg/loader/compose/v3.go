@@ -735,20 +735,30 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 
 			// Store volumes by Target
 			volumeConfigsMap := make(map[string]types.ServiceVolumeConfig)
+			// map is not iterated in the same order.
+			// but why only this code cause test error?
+			var keys [] string
+
 			// populate the older values
 			for _, volConfig := range tmpOldService.Volumes {
 				volumeConfigsMap[volConfig.Target] = volConfig
+				keys = append(keys, volConfig.Target)
 			}
 			// add the new values, overriding as needed
 			for _, volConfig := range service.Volumes {
+				if _, ok := volumeConfigsMap[volConfig.Target]; !ok {
+					keys = append(keys, volConfig.Target)
+				}
 				volumeConfigsMap[volConfig.Target] = volConfig
 			}
 
 			// get the new list of volume configs
 			var volumes []types.ServiceVolumeConfig
-			for _, volConfig := range volumeConfigsMap {
-				volumes = append(volumes, volConfig)
+
+			for _, key := range keys {
+				volumes = append(volumes, volumeConfigsMap[key])
 			}
+
 			tmpOldService.Volumes = volumes
 		}
 		if service.WorkingDir != "" {
