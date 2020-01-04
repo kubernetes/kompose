@@ -6,6 +6,9 @@ services:
     image: tutum/hello-world
     ports:
       - 80:80
+    expose: # this may be mis-usage, only to test expose with ports.
+      - "3000"
+      - "80"
     networks:
       - helloworld-network
 

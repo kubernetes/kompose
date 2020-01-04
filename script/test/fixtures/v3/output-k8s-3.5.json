@@ -23,6 +23,11 @@
             "name": "80",
             "port": 80,
             "targetPort": 80
+          },
+          {
+            "name": "3000",
+            "port": 3000,
+            "targetPort": 3000
           }
         ],
         "selector": {
@@ -76,6 +81,9 @@
                 "ports": [
                   {
                     "containerPort": 80
+                  },
+                  {
+                    "containerPort": 3000
                   }
                 ],
                 "resources": {}

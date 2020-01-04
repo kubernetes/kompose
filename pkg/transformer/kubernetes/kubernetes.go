@@ -917,8 +917,6 @@ func (k *Kubernetes) ConfigHostPathVolumeSource(path string) (*api.VolumeSource,
 		absPath = filepath.Join(dir, path)
 	}
 
-	log.Debugf("fuck path: %s,%s", path, absPath)
-
 	return &api.VolumeSource{
 		HostPath: &api.HostPathVolumeSource{Path: absPath},
 	}, nil

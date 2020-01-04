@@ -89,8 +89,9 @@ func TestLoadV3Ports(t *testing.T) {
 		Published: 80,
 		Protocol:  "TCP",
 	}
+	expose := []string{"80", "8080"}
 	ports := []types.ServicePortConfig{port}
-	output := loadV3Ports(ports)
+	output := loadV3Ports(ports, expose)
 	expected := kobject.Ports{
 		HostPort:      80,
 		ContainerPort: 80,
@@ -99,6 +100,16 @@ func TestLoadV3Ports(t *testing.T) {
 
 	if output[0] != expected {
 		t.Errorf("Expected %v, got %v", expected, output[0])
+	}
+
+	ep2 := kobject.Ports{
+		HostPort:      8080,
+		ContainerPort: 8080,
+		Protocol:      api.ProtocolTCP,
+	}
+
+	if output[1] != expected {
+		t.Errorf("Expected %v, got %v", ep2, output[1])
 	}
 
 }
@@ -169,7 +180,7 @@ func TestLoadPorts(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		result, err := loadPorts(tt.ports)
+		result, err := loadPorts(tt.ports, nil)
 		if err != nil {
 			t.Errorf("Unexpected error with loading ports %v", err)
 		}
