@@ -491,38 +491,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			}
 		}
 
-		// Configure the resource limits
-		if service.MemLimit != 0 || service.CPULimit != 0 {
-			resourceLimit := api.ResourceList{}
-
-			if service.MemLimit != 0 {
-				resourceLimit[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemLimit), "RandomStringForFormat")
-			}
-
-			if service.CPULimit != 0 {
-				resourceLimit[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPULimit, resource.DecimalSI)
-			}
-
-			template.Spec.Containers[0].Resources.Limits = resourceLimit
-		}
-
-		// Configure the resource requests
-		if service.MemReservation != 0 || service.CPUReservation != 0 {
-			resourceRequests := api.ResourceList{}
-
-			if service.MemReservation != 0 {
-				resourceRequests[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemReservation), "RandomStringForFormat")
-			}
-
-			if service.CPUReservation != 0 {
-				resourceRequests[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPUReservation, resource.DecimalSI)
-			}
-
-			template.Spec.Containers[0].Resources.Requests = resourceRequests
-		}
+		TranslatePodResource(&service, template)
 
 		// Configure resource reservations
-
 		podSecurityContext := &api.PodSecurityContext{}
 
 		//set pid namespace mode
@@ -570,28 +541,17 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
 
 		// Configure the image pull policy
-		switch service.ImagePullPolicy {
-		case "":
-		case "Always":
-			template.Spec.Containers[0].ImagePullPolicy = api.PullAlways
-		case "Never":
-			template.Spec.Containers[0].ImagePullPolicy = api.PullNever
-		case "IfNotPresent":
-			template.Spec.Containers[0].ImagePullPolicy = api.PullIfNotPresent
-		default:
-			return errors.New("Unknown image-pull-policy " + service.ImagePullPolicy + " for service " + name)
+		if policy, err := GetImagePullPolicy(name, service.ImagePullPolicy); err != nil {
+			return err
+		} else {
+			template.Spec.Containers[0].ImagePullPolicy = policy
 		}
 
 		// Configure the container restart policy.
-		switch service.Restart {
-		case "", "always", "any":
-			template.Spec.RestartPolicy = api.RestartPolicyAlways
-		case "no", "none":
-			template.Spec.RestartPolicy = api.RestartPolicyNever
-		case "on-failure":
-			template.Spec.RestartPolicy = api.RestartPolicyOnFailure
-		default:
-			return errors.New("Unknown restart policy " + service.Restart + " for service " + name)
+		if restart, err := GetRestartPolicy(name, service.Restart); err != nil {
+			return err
+		} else {
+			template.Spec.RestartPolicy = restart
 		}
 
 		// Configure hostname/domain_name settings
@@ -626,6 +586,70 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		}
 	}
 	return nil
+}
+
+func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTemplateSpec) {
+	// Configure the resource limits
+	if service.MemLimit != 0 || service.CPULimit != 0 {
+		resourceLimit := api.ResourceList{}
+
+		if service.MemLimit != 0 {
+			resourceLimit[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemLimit), "RandomStringForFormat")
+		}
+
+		if service.CPULimit != 0 {
+			resourceLimit[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPULimit, resource.DecimalSI)
+		}
+
+		template.Spec.Containers[0].Resources.Limits = resourceLimit
+	}
+
+	// Configure the resource requests
+	if service.MemReservation != 0 || service.CPUReservation != 0 {
+		resourceRequests := api.ResourceList{}
+
+		if service.MemReservation != 0 {
+			resourceRequests[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemReservation), "RandomStringForFormat")
+		}
+
+		if service.CPUReservation != 0 {
+			resourceRequests[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPUReservation, resource.DecimalSI)
+		}
+
+		template.Spec.Containers[0].Resources.Requests = resourceRequests
+	}
+
+	return
+
+}
+
+func GetImagePullPolicy(name, policy string) (api.PullPolicy, error) {
+	switch policy {
+	case "":
+	case "Always":
+		return api.PullAlways, nil
+	case "Never":
+		return api.PullNever, nil
+	case "IfNotPresent":
+		return api.PullIfNotPresent, nil
+	default:
+		return "", errors.New("Unknown image-pull-policy " + policy + " for service " + name)
+	}
+	return "", nil
+
+}
+
+func GetRestartPolicy(name, restart string) (api.RestartPolicy, error) {
+	switch restart {
+	case "", "always", "any":
+		return api.RestartPolicyAlways, nil
+	case "no", "none":
+		return api.RestartPolicyNever, nil
+	case "on-failure":
+		return api.RestartPolicyOnFailure, nil
+	default:
+		return "", errors.New("Unknown restart policy " + restart + " for service " + name)
+	}
 }
 
 // SortServicesFirst - the objects that we get can be in any order this keeps services first

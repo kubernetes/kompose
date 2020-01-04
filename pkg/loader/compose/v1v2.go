@@ -261,40 +261,8 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		// canonical "Custom Labels" handler
 		// Labels used to influence conversion of kompose will be handled
 		// from here for docker-compose. Each loader will have such handler.
-		serviceConfig.Labels = make(map[string]string)
-		for key, value := range composeServiceConfig.Labels {
-			switch key {
-			case LabelServiceType:
-				serviceType, err := handleServiceType(value)
-				if err != nil {
-					return kobject.KomposeObject{}, errors.Wrap(err, "handleServiceType failed")
-				}
-
-				serviceConfig.ServiceType = serviceType
-			case LabelServiceExpose:
-				serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
-			case LabelServiceExposeTLSSecret:
-				serviceConfig.ExposeServiceTLS = value
-			case LabelNodePortPort:
-				serviceConfig.NodePortPort = cast.ToInt32(value)
-			case LabelImagePullSecret:
-				serviceConfig.ImagePullSecret = value
-			case LabelImagePullPolicy:
-				serviceConfig.ImagePullPolicy = value
-			default:
-				serviceConfig.Labels[key] = value
-			}
-		}
-		if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
-			return kobject.KomposeObject{}, errors.New("kompose.service.expose.tls-secret was specified without kompose.service.expose")
-		}
-
-		if serviceConfig.ServiceType != string(api.ServiceTypeNodePort) && serviceConfig.NodePortPort != 0 {
-			return kobject.KomposeObject{}, errors.New("kompose.service.type must be nodeport when assign node port value")
-		}
-
-		if len(serviceConfig.Port) > 1 && serviceConfig.NodePortPort != 0 {
-			return kobject.KomposeObject{}, errors.New("cannnot set kompose.service.nodeport.port when service has multiple ports")
+		if err := parseKomposeLabels(composeServiceConfig.Labels, &serviceConfig); err != nil {
+			return kobject.KomposeObject{}, err
 		}
 
 		err = checkLabelsPorts(len(serviceConfig.Port), composeServiceConfig.Labels[LabelServiceType], name)

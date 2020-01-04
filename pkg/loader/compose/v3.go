@@ -406,24 +406,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
 		serviceConfig.BuildLabels = composeServiceConfig.Build.Labels
 
-		// Gather the environment values
-		// DockerCompose uses map[string]*string while we use []string
-		// So let's convert that using this hack
-		// Note: unset env pick up the env value on host if exist
-		for name, value := range composeServiceConfig.Environment {
-			var env kobject.EnvVar
-			if value != nil {
-				env = kobject.EnvVar{Name: name, Value: *value}
-			} else {
-				result, ok := os.LookupEnv(name)
-				if ok {
-					env = kobject.EnvVar{Name: name, Value: result}
-				} else {
-					continue
-				}
-			}
-			serviceConfig.Environment = append(serviceConfig.Environment, env)
-		}
+		// env
+		parseV3Environment(&composeServiceConfig, &serviceConfig)
 
 		// Get env_file
 		serviceConfig.EnvFile = composeServiceConfig.EnvFile
@@ -440,41 +424,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// https://docs.docker.com/compose/compose-file/#long-syntax-3
 		serviceConfig.VolList = loadV3Volumes(composeServiceConfig.Volumes)
 
-		// Label handler
-		// Labels used to influence conversion of kompose will be handled
-		// from here for docker-compose. Each loader will have such handler.
-		for key, value := range composeServiceConfig.Labels {
-			switch key {
-			case LabelServiceType:
-				serviceType, err := handleServiceType(value)
-				if err != nil {
-					return kobject.KomposeObject{}, errors.Wrap(err, "handleServiceType failed")
-				}
-
-				serviceConfig.ServiceType = serviceType
-			case LabelServiceExpose:
-				serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
-			case LabelNodePortPort:
-				serviceConfig.NodePortPort = cast.ToInt32(value)
-			case LabelServiceExposeTLSSecret:
-				serviceConfig.ExposeServiceTLS = value
-			case LabelImagePullSecret:
-				serviceConfig.ImagePullSecret = value
-			case LabelImagePullPolicy:
-				serviceConfig.ImagePullPolicy = value
-			}
-		}
-
-		if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
-			return kobject.KomposeObject{}, errors.New("kompose.service.expose.tls-secret was specified without kompose.service.expose")
-		}
-
-		if serviceConfig.ServiceType != string(api.ServiceTypeNodePort) && serviceConfig.NodePortPort != 0 {
-			return kobject.KomposeObject{}, errors.New("kompose.service.type must be nodeport when assign node port value")
-		}
-
-		if len(serviceConfig.Port) > 1 && serviceConfig.NodePortPort != 0 {
-			return kobject.KomposeObject{}, errors.New("cannot set kompose.service.nodeport.port when service has multiple ports")
+		if err := parseKomposeLabels(composeServiceConfig.Labels, &serviceConfig); err != nil {
+			return kobject.KomposeObject{}, err
 		}
 
 		// Log if the name will been changed
@@ -494,6 +445,76 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 	handleV3Volume(&komposeObject, &composeObject.Volumes)
 
 	return komposeObject, nil
+}
+
+func parseV3Environment(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) {
+	// Gather the environment values
+	// DockerCompose uses map[string]*string while we use []string
+	// So let's convert that using this hack
+	// Note: unset env pick up the env value on host if exist
+	for name, value := range composeServiceConfig.Environment {
+		var env kobject.EnvVar
+		if value != nil {
+			env = kobject.EnvVar{Name: name, Value: *value}
+		} else {
+			result, ok := os.LookupEnv(name)
+			if ok {
+				env = kobject.EnvVar{Name: name, Value: result}
+			} else {
+				continue
+			}
+		}
+		serviceConfig.Environment = append(serviceConfig.Environment, env)
+	}
+}
+
+// parseKomposeLabels parse kompose labels, also do some validation
+func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.ServiceConfig) error {
+	// Label handler
+	// Labels used to influence conversion of kompose will be handled
+	// from here for docker-compose. Each loader will have such handler.
+
+	if serviceConfig.Labels == nil {
+		serviceConfig.Labels = make(map[string]string)
+	}
+
+	for key, value := range labels {
+		switch key {
+		case LabelServiceType:
+			serviceType, err := handleServiceType(value)
+			if err != nil {
+				return errors.Wrap(err, "handleServiceType failed")
+			}
+
+			serviceConfig.ServiceType = serviceType
+		case LabelServiceExpose:
+			serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
+		case LabelNodePortPort:
+			serviceConfig.NodePortPort = cast.ToInt32(value)
+		case LabelServiceExposeTLSSecret:
+			serviceConfig.ExposeServiceTLS = value
+		case LabelImagePullSecret:
+			serviceConfig.ImagePullSecret = value
+		case LabelImagePullPolicy:
+			serviceConfig.ImagePullPolicy = value
+		default:
+			serviceConfig.Labels[key] = value
+		}
+	}
+
+	if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
+		return errors.New("kompose.service.expose.tls-secret was specified without kompose.service.expose")
+	}
+
+	if serviceConfig.ServiceType != string(api.ServiceTypeNodePort) && serviceConfig.NodePortPort != 0 {
+		return errors.New("kompose.service.type must be nodeport when assign node port value")
+	}
+
+	if len(serviceConfig.Port) > 1 && serviceConfig.NodePortPort != 0 {
+		return errors.New("cannot set kompose.service.nodeport.port when service has multiple ports")
+	}
+
+	return nil
 }
 
 func handleV3Volume(komposeObject *kobject.KomposeObject, volumes *map[string]types.VolumeConfig) {
@@ -714,20 +735,30 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 
 			// Store volumes by Target
 			volumeConfigsMap := make(map[string]types.ServiceVolumeConfig)
+			// map is not iterated in the same order.
+			// but why only this code cause test error?
+			var keys []string
+
 			// populate the older values
 			for _, volConfig := range tmpOldService.Volumes {
 				volumeConfigsMap[volConfig.Target] = volConfig
+				keys = append(keys, volConfig.Target)
 			}
 			// add the new values, overriding as needed
 			for _, volConfig := range service.Volumes {
+				if _, ok := volumeConfigsMap[volConfig.Target]; !ok {
+					keys = append(keys, volConfig.Target)
+				}
 				volumeConfigsMap[volConfig.Target] = volConfig
 			}
 
 			// get the new list of volume configs
 			var volumes []types.ServiceVolumeConfig
-			for _, volConfig := range volumeConfigsMap {
-				volumes = append(volumes, volConfig)
+
+			for _, key := range keys {
+				volumes = append(volumes, volumeConfigsMap[key])
 			}
+
 			tmpOldService.Volumes = volumes
 		}
 		if service.WorkingDir != "" {
