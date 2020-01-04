@@ -4,6 +4,44 @@
   "metadata": {},
   "items": [
     {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "server",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "server"
+        },
+        "annotations": {
+          "complexlabel": "override",
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%",
+          "simplelabel.first": "Foo",
+          "simplelabel.second": "Bar"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "3000",
+            "port": 3000,
+            "targetPort": 3000
+          },
+          {
+            "name": "5000",
+            "port": 5000,
+            "targetPort": 5000
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "server"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
       "apiVersion": "apps/v1",
       "kind": "Deployment",
       "metadata": {
@@ -64,6 +102,14 @@
                 "image": "test",
                 "imagePullPolicy": "",
                 "name": "test-server",
+                "ports": [
+                  {
+                    "containerPort": 3000
+                  },
+                  {
+                    "containerPort": 5000
+                  }
+                ],
                 "resources": {},
                 "volumeMounts": [
                   {
