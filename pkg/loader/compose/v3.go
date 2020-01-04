@@ -406,24 +406,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
 		serviceConfig.BuildLabels = composeServiceConfig.Build.Labels
 
-		// Gather the environment values
-		// DockerCompose uses map[string]*string while we use []string
-		// So let's convert that using this hack
-		// Note: unset env pick up the env value on host if exist
-		for name, value := range composeServiceConfig.Environment {
-			var env kobject.EnvVar
-			if value != nil {
-				env = kobject.EnvVar{Name: name, Value: *value}
-			} else {
-				result, ok := os.LookupEnv(name)
-				if ok {
-					env = kobject.EnvVar{Name: name, Value: result}
-				} else {
-					continue
-				}
-			}
-			serviceConfig.Environment = append(serviceConfig.Environment, env)
-		}
+		// env
+		parseV3Environment(&composeServiceConfig, &serviceConfig)
 
 		// Get env_file
 		serviceConfig.EnvFile = composeServiceConfig.EnvFile
@@ -461,6 +445,27 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 	handleV3Volume(&komposeObject, &composeObject.Volumes)
 
 	return komposeObject, nil
+}
+
+func parseV3Environment(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) {
+	// Gather the environment values
+	// DockerCompose uses map[string]*string while we use []string
+	// So let's convert that using this hack
+	// Note: unset env pick up the env value on host if exist
+	for name, value := range composeServiceConfig.Environment {
+		var env kobject.EnvVar
+		if value != nil {
+			env = kobject.EnvVar{Name: name, Value: *value}
+		} else {
+			result, ok := os.LookupEnv(name)
+			if ok {
+				env = kobject.EnvVar{Name: name, Value: result}
+			} else {
+				continue
+			}
+		}
+		serviceConfig.Environment = append(serviceConfig.Environment, env)
+	}
 }
 
 // parseKomposeLabels parse kompose labels, also do some validation
