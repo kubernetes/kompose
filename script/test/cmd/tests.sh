@@ -882,7 +882,7 @@ convert::expect_success "$cmd" "/tmp/output-os.json"
 
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-config-short.yaml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-k8s-config-short.json > /tmp/output-k8s.json
-convert::expect_success_and_warning "$cmd" "/tmp/output-k8s.json"
+convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/compose-config-short-warning.yaml"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/compose-v3.3-test/output-k8s-config-short-warning.json > /tmp/output-k8s.json
