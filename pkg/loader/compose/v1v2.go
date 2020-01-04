@@ -186,10 +186,18 @@ func loadPorts(composePorts []string, expose []string) ([]kobject.Ports, error) 
 
 	if expose != nil {
 		for _, port := range expose {
-			if !exist[string(port)+string(api.ProtocolTCP)] {
+			portValue := port
+			protocol := api.ProtocolTCP
+			if strings.Contains(portValue, "/") {
+				splits := strings.Split(port, "/")
+				portValue = splits[0]
+				protocol = api.Protocol(strings.ToUpper(splits[1]))
+			}
+
+			if !exist[portValue+string(protocol)] {
 				ports = append(ports, kobject.Ports{
-					ContainerPort: cast.ToInt32(port),
-					Protocol:      api.ProtocolTCP,
+					ContainerPort: cast.ToInt32(portValue),
+					Protocol:      protocol,
 				})
 			}
 		}
