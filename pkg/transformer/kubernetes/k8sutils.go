@@ -491,38 +491,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			}
 		}
 
-		// Configure the resource limits
-		if service.MemLimit != 0 || service.CPULimit != 0 {
-			resourceLimit := api.ResourceList{}
-
-			if service.MemLimit != 0 {
-				resourceLimit[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemLimit), "RandomStringForFormat")
-			}
-
-			if service.CPULimit != 0 {
-				resourceLimit[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPULimit, resource.DecimalSI)
-			}
-
-			template.Spec.Containers[0].Resources.Limits = resourceLimit
-		}
-
-		// Configure the resource requests
-		if service.MemReservation != 0 || service.CPUReservation != 0 {
-			resourceRequests := api.ResourceList{}
-
-			if service.MemReservation != 0 {
-				resourceRequests[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemReservation), "RandomStringForFormat")
-			}
-
-			if service.CPUReservation != 0 {
-				resourceRequests[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPUReservation, resource.DecimalSI)
-			}
-
-			template.Spec.Containers[0].Resources.Requests = resourceRequests
-		}
+		TranslatePodResource(&service, template)
 
 		// Configure resource reservations
-
 		podSecurityContext := &api.PodSecurityContext{}
 
 		//set pid namespace mode
@@ -617,6 +588,41 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	return nil
 }
 
+func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTemplateSpec) {
+	// Configure the resource limits
+	if service.MemLimit != 0 || service.CPULimit != 0 {
+		resourceLimit := api.ResourceList{}
+
+		if service.MemLimit != 0 {
+			resourceLimit[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemLimit), "RandomStringForFormat")
+		}
+
+		if service.CPULimit != 0 {
+			resourceLimit[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPULimit, resource.DecimalSI)
+		}
+
+		template.Spec.Containers[0].Resources.Limits = resourceLimit
+	}
+
+	// Configure the resource requests
+	if service.MemReservation != 0 || service.CPUReservation != 0 {
+		resourceRequests := api.ResourceList{}
+
+		if service.MemReservation != 0 {
+			resourceRequests[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemReservation), "RandomStringForFormat")
+		}
+
+		if service.CPUReservation != 0 {
+			resourceRequests[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPUReservation, resource.DecimalSI)
+		}
+
+		template.Spec.Containers[0].Resources.Requests = resourceRequests
+	}
+
+	return
+
+}
+
 func GetImagePullPolicy(name, policy string) (api.PullPolicy, error) {
 	switch policy {
 	case "":
@@ -629,6 +635,7 @@ func GetImagePullPolicy(name, policy string) (api.PullPolicy, error) {
 	default:
 		return "", errors.New("Unknown image-pull-policy " + policy + " for service " + name)
 	}
+	return api.PullAlways, nil
 
 }
 
