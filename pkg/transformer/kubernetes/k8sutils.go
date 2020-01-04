@@ -635,7 +635,7 @@ func GetImagePullPolicy(name, policy string) (api.PullPolicy, error) {
 	default:
 		return "", errors.New("Unknown image-pull-policy " + policy + " for service " + name)
 	}
-	return api.PullAlways, nil
+	return "", nil
 
 }
 
