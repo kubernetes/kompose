@@ -84,9 +84,11 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 }
 
 // Load ports from compose file
-func loadPorts(composePorts []string) ([]kobject.Ports, error) {
+// also load `expose` here
+func loadPorts(composePorts []string, expose []string) ([]kobject.Ports, error) {
 	ports := []kobject.Ports{}
 	character := ":"
+	exist := map[string]bool{}
 
 	// For each port listed
 	for _, port := range composePorts {
@@ -175,6 +177,32 @@ func loadPorts(composePorts []string) ([]kobject.Ports, error) {
 		}
 
 	}
+
+	// load remain expose ports
+	for _, port := range ports {
+		// must use cast...
+		exist[cast.ToString(port.ContainerPort)+string(port.Protocol)] = true
+	}
+
+	if expose != nil {
+		for _, port := range expose {
+			portValue := port
+			protocol := api.ProtocolTCP
+			if strings.Contains(portValue, "/") {
+				splits := strings.Split(port, "/")
+				portValue = splits[0]
+				protocol = api.Protocol(strings.ToUpper(splits[1]))
+			}
+
+			if !exist[portValue+string(protocol)] {
+				ports = append(ports, kobject.Ports{
+					ContainerPort: cast.ToInt32(portValue),
+					Protocol:      protocol,
+				})
+			}
+		}
+	}
+
 	return ports, nil
 }
 
@@ -204,6 +232,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.Args = composeServiceConfig.Command
 		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
 		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
+		serviceConfig.Expose = composeServiceConfig.Expose
 
 		envs := loadEnvVars(composeServiceConfig.Environment)
 		serviceConfig.Environment = envs
@@ -213,8 +242,8 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 			log.Fatalf("%q defined in service %q is an absolute path, it must be a relative path.", serviceConfig.Dockerfile, name)
 		}
 
-		// load ports
-		ports, err := loadPorts(composeServiceConfig.Ports)
+		// load ports, same as v3, we also load `expose`
+		ports, err := loadPorts(composeServiceConfig.Ports, serviceConfig.Expose)
 		if err != nil {
 			return kobject.KomposeObject{}, errors.Wrap(err, "loadPorts failed. "+name+" failed to load ports from compose file")
 		}
@@ -279,7 +308,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.CapAdd = composeServiceConfig.CapAdd
 		serviceConfig.CapDrop = composeServiceConfig.CapDrop
 		serviceConfig.Pid = composeServiceConfig.Pid
-		serviceConfig.Expose = composeServiceConfig.Expose
+
 		serviceConfig.Privileged = composeServiceConfig.Privileged
 		serviceConfig.Restart = composeServiceConfig.Restart
 		serviceConfig.User = composeServiceConfig.User

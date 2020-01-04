@@ -181,8 +181,11 @@ func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
 }
 
 // Convert Docker Compose v3 ports to kobject.Ports
-func loadV3Ports(ports []types.ServicePortConfig) []kobject.Ports {
+// expose ports will be treated as TCP ports
+func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Ports {
 	komposePorts := []kobject.Ports{}
+
+	exist := map[string]bool{}
 
 	for _, port := range ports {
 
@@ -196,6 +199,30 @@ func loadV3Ports(ports []types.ServicePortConfig) []kobject.Ports {
 			Protocol:      api.Protocol(strings.ToUpper(string(port.Protocol))),
 		})
 
+		exist[cast.ToString(port.Target)+strings.ToUpper(string(port.Protocol))] = true
+
+	}
+
+	if expose != nil {
+		for _, port := range expose {
+			portValue := port
+			protocol := api.ProtocolTCP
+			if strings.Contains(portValue, "/") {
+				splits := strings.Split(port, "/")
+				portValue = splits[0]
+				protocol = api.Protocol(strings.ToUpper(splits[1]))
+			}
+
+			if exist[portValue+string(protocol)] {
+				continue
+			}
+			komposePorts = append(komposePorts, kobject.Ports{
+				HostPort:      cast.ToInt32(portValue),
+				ContainerPort: cast.ToInt32(portValue),
+				HostIP:        "",
+				Protocol:      protocol,
+			})
+		}
 	}
 
 	return komposePorts
@@ -404,7 +431,9 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// Parse the ports
 		// v3 uses a new format called "long syntax" starting in 3.2
 		// https://docs.docker.com/compose/compose-file/#ports
-		serviceConfig.Port = loadV3Ports(composeServiceConfig.Ports)
+
+		// here we will translate `expose` too, they basically means the same thing in kubernetes
+		serviceConfig.Port = loadV3Ports(composeServiceConfig.Ports, serviceConfig.Expose)
 
 		// Parse the volumes
 		// Again, in v3, we use the "long syntax" for volumes in terms of parsing

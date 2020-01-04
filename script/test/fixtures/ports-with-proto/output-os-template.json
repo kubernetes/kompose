@@ -64,6 +64,16 @@
             "name": "5001",
             "port": 5001,
             "targetPort": 5000
+          },
+          {
+            "name": "3000",
+            "port": 3000,
+            "targetPort": 3000
+          },
+          {
+            "name": "8000",
+            "port": 8000,
+            "targetPort": 8000
           }
         ],
         "selector": {
@@ -229,6 +239,12 @@
                 "ports": [
                   {
                     "containerPort": 5000
+                  },
+                  {
+                    "containerPort": 3000
+                  },
+                  {
+                    "containerPort": 8000
                   }
                 ],
                 "resources": {}
