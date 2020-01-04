@@ -108,7 +108,7 @@ func TestLoadV3Ports(t *testing.T) {
 		Protocol:      api.ProtocolTCP,
 	}
 
-	if output[1] != expected {
+	if output[1] != ep2 {
 		t.Errorf("Expected %v, got %v", ep2, output[1])
 	}
 
