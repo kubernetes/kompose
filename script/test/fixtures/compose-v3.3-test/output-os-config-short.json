@@ -14,7 +14,7 @@
         }
       },
       "data": {
-        "my-config.txt": "aaaa"
+        "my_config.txt": "aaaa"
       }
     },
     {

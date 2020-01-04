@@ -155,6 +155,8 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 	var volumeMounts []api.VolumeMount
 	var volumes []api.Volume
 
+	log.Debugf("fuck config: %+v", service.Configs)
+
 	for _, value := range service.Configs {
 		cmVolName := FormatFileName(value.Source)
 		target := value.Target
@@ -164,12 +166,6 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 		}
 		subPath := filepath.Base(target)
 
-		volumeMounts = append(volumeMounts,
-			api.VolumeMount{
-				Name:      cmVolName,
-				MountPath: target,
-				SubPath:   subPath,
-			})
 		volSource := api.ConfigMapVolumeSource{}
 		volSource.Name = cmVolName
 		key, err := service.GetConfigMapKeyFromMeta(value.Source)
@@ -192,6 +188,13 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 			Name:         cmVolName,
 			VolumeSource: api.VolumeSource{ConfigMap: &volSource},
 		}
+
+		volumeMounts = append(volumeMounts,
+			api.VolumeMount{
+				Name:      cmVolName,
+				MountPath: target,
+				SubPath:   subPath,
+			})
 		volumes = append(volumes, cmVol)
 
 	}

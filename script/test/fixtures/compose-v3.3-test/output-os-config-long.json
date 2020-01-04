@@ -89,7 +89,7 @@
                 "volumeMounts": [
                   {
                     "name": "my-config",
-                    "mountPath": "/redis-config",
+                    "mountPath": "/redis_config",
                     "subPath": "redis_config"
                   }
                 ]

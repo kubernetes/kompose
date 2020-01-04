@@ -61,7 +61,7 @@
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "mountPath": "/nginx.conf",
+                    "mountPath": "/etc/nginx.conf",
                     "name": "firstconfig",
                     "subPath": "nginx.conf"
                   },
@@ -180,7 +180,7 @@
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "mountPath": "/nginx.conf",
+                    "mountPath": "/etc/nginx.conf",
                     "name": "secondconfig",
                     "subPath": "nginx.conf"
                   },
