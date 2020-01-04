@@ -14,7 +14,7 @@
         }
       },
       "data": {
-        "first-config.txt": "First config\n"
+        "first_config.txt": "First config\n"
       }
     },
     {
@@ -62,7 +62,8 @@
                 "volumeMounts": [
                   {
                     "mountPath": "/nginx.conf",
-                    "name": "firstconfig"
+                    "name": "firstconfig",
+                    "subPath": "nginx.conf"
                   },
                   {
                     "mountPath": "/var/www/nginx",
@@ -76,8 +77,14 @@
             "volumes": [
               {
                 "configMap": {
-                  "name": "firstconfig",
-                  "defaultMode": 644
+                  "defaultMode": 644,
+                  "items": [
+                    {
+                      "key": "first_config.txt",
+                      "path": "nginx.conf"
+                    }
+                  ],
+                  "name": "firstconfig"
                 },
                 "name": "firstconfig"
               },
@@ -126,7 +133,7 @@
         }
       },
       "data": {
-        "second-config.txt": "Second config\n"
+        "second_config.txt": "Second config\n"
       }
     },
     {
@@ -174,7 +181,8 @@
                 "volumeMounts": [
                   {
                     "mountPath": "/nginx.conf",
-                    "name": "secondconfig"
+                    "name": "secondconfig",
+                    "subPath": "nginx.conf"
                   },
                   {
                     "mountPath": "/var/www/nginx",
@@ -188,8 +196,14 @@
             "volumes": [
               {
                 "configMap": {
-                  "name": "secondconfig",
-                  "defaultMode": 644
+                  "defaultMode": 644,
+                  "items": [
+                    {
+                      "key": "second_config.txt",
+                      "path": "nginx.conf"
+                    }
+                  ],
+                  "name": "secondconfig"
                 },
                 "name": "secondconfig"
               },

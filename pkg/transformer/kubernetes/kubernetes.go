@@ -174,7 +174,9 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 		volSource.Name = cmVolName
 		key, err := service.GetConfigMapKeyFromMeta(value.Source)
 		if err != nil {
-			log.Fatalf("cannot parse config %s , %s", value.Source, err.Error())
+			log.Warnf("cannot parse config %s , %s", value.Source, err.Error())
+			// mostly it's external
+			continue
 		}
 		volSource.Items = []api.KeyToPath{{
 			Key:  key,
