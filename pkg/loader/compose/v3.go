@@ -311,30 +311,17 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.DomainName = composeServiceConfig.DomainName
 		serviceConfig.Secrets = composeServiceConfig.Secrets
 
-		//Adding network key related info
-		if len(composeServiceConfig.Networks) == 0 {
-			if defaultNetwork, ok := composeObject.Networks["default"]; ok {
-				serviceConfig.Network = append(serviceConfig.Network, defaultNetwork.Name)
-			}
-		} else {
-			var alias = ""
-			for key := range composeServiceConfig.Networks {
-				alias = key
-				netName := composeObject.Networks[alias].Name
-				// if Network Name Field is empty in the docker-compose definition
-				// we will use the alias name defined in service config file
-				if netName == "" {
-					netName = alias
-				}
-				serviceConfig.Network = append(serviceConfig.Network, netName)
-			}
-		}
-		//
-		// Deploy keys
-		//
+		parseV3Network(&composeServiceConfig, &serviceConfig, composeObject)
 
+		if err := parseV3Resources(&composeServiceConfig, &serviceConfig); err != nil {
+			return kobject.KomposeObject{}, err
+		}
+
+		// Deploy keys
 		// mode:
 		serviceConfig.DeployMode = composeServiceConfig.Deploy.Mode
+		// labels
+		serviceConfig.DeployLabels = composeServiceConfig.Deploy.Labels
 
 		// HealthCheck
 		if composeServiceConfig.HealthCheck != nil && !composeServiceConfig.HealthCheck.Disable {
@@ -342,40 +329,6 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 			serviceConfig.HealthChecks, err = parseHealthCheck(*composeServiceConfig.HealthCheck)
 			if err != nil {
 				return kobject.KomposeObject{}, errors.Wrap(err, "Unable to parse health check")
-			}
-		}
-
-		if (composeServiceConfig.Deploy.Resources != types.Resources{}) {
-
-			// memory:
-			// TODO: Refactor yaml.MemStringorInt in kobject.go to int64
-			// cpu:
-			// convert to k8s format, for example: 0.5 = 500m
-			// See: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
-			// "The expression 0.1 is equivalent to the expression 100m, which can be read as “one hundred millicpu”."
-
-			// Since Deploy.Resources.Limits does not initialize, we must check type Resources before continuing
-			if composeServiceConfig.Deploy.Resources.Limits != nil {
-				serviceConfig.MemLimit = libcomposeyaml.MemStringorInt(composeServiceConfig.Deploy.Resources.Limits.MemoryBytes)
-
-				if composeServiceConfig.Deploy.Resources.Limits.NanoCPUs != "" {
-					cpuLimit, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Limits.NanoCPUs, 64)
-					if err != nil {
-						return kobject.KomposeObject{}, errors.Wrap(err, "Unable to convert cpu limits resources value")
-					}
-					serviceConfig.CPULimit = int64(cpuLimit * 1000)
-				}
-			}
-			if composeServiceConfig.Deploy.Resources.Reservations != nil {
-				serviceConfig.MemReservation = libcomposeyaml.MemStringorInt(composeServiceConfig.Deploy.Resources.Reservations.MemoryBytes)
-
-				if composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs != "" {
-					cpuReservation, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs, 64)
-					if err != nil {
-						return kobject.KomposeObject{}, errors.Wrap(err, "Unable to convert cpu limits reservation value")
-					}
-					serviceConfig.CPUReservation = int64(cpuReservation * 1000)
-				}
 			}
 		}
 
@@ -445,6 +398,64 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 	handleV3Volume(&komposeObject, &composeObject.Volumes)
 
 	return komposeObject, nil
+}
+
+func parseV3Network(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig, composeObject *types.Config) {
+	if len(composeServiceConfig.Networks) == 0 {
+		if defaultNetwork, ok := composeObject.Networks["default"]; ok {
+			serviceConfig.Network = append(serviceConfig.Network, defaultNetwork.Name)
+		}
+	} else {
+		var alias = ""
+		for key := range composeServiceConfig.Networks {
+			alias = key
+			netName := composeObject.Networks[alias].Name
+			// if Network Name Field is empty in the docker-compose definition
+			// we will use the alias name defined in service config file
+			if netName == "" {
+				netName = alias
+			}
+			serviceConfig.Network = append(serviceConfig.Network, netName)
+		}
+	}
+}
+
+func parseV3Resources(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) error {
+	if (composeServiceConfig.Deploy.Resources != types.Resources{}) {
+
+		// memory:
+		// TODO: Refactor yaml.MemStringorInt in kobject.go to int64
+		// cpu:
+		// convert to k8s format, for example: 0.5 = 500m
+		// See: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+		// "The expression 0.1 is equivalent to the expression 100m, which can be read as “one hundred millicpu”."
+
+		// Since Deploy.Resources.Limits does not initialize, we must check type Resources before continuing
+		if composeServiceConfig.Deploy.Resources.Limits != nil {
+			serviceConfig.MemLimit = libcomposeyaml.MemStringorInt(composeServiceConfig.Deploy.Resources.Limits.MemoryBytes)
+
+			if composeServiceConfig.Deploy.Resources.Limits.NanoCPUs != "" {
+				cpuLimit, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Limits.NanoCPUs, 64)
+				if err != nil {
+					return errors.Wrap(err, "Unable to convert cpu limits resources value")
+				}
+				serviceConfig.CPULimit = int64(cpuLimit * 1000)
+			}
+		}
+		if composeServiceConfig.Deploy.Resources.Reservations != nil {
+			serviceConfig.MemReservation = libcomposeyaml.MemStringorInt(composeServiceConfig.Deploy.Resources.Reservations.MemoryBytes)
+
+			if composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs != "" {
+				cpuReservation, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs, 64)
+				if err != nil {
+					return errors.Wrap(err, "Unable to convert cpu limits reservation value")
+				}
+				serviceConfig.CPUReservation = int64(cpuReservation * 1000)
+			}
+		}
+	}
+	return nil
+
 }
 
 func parseV3Environment(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) {

@@ -113,14 +113,16 @@ type ServiceConfig struct {
 	MemLimit         yaml.MemStringorInt `compose:"mem_limit"`
 	MemReservation   yaml.MemStringorInt `compose:""`
 	DeployMode       string              `compose:""`
-	TmpFs            []string            `compose:"tmpfs"`
-	Dockerfile       string              `compose:"dockerfile"`
-	Replicas         int                 `compose:"replicas"`
-	GroupAdd         []int64             `compose:"group_add"`
-	Volumes          []Volumes           `compose:""`
-	Secrets          []dockerCliTypes.ServiceSecretConfig
-	HealthChecks     HealthCheck       `compose:""`
-	Placement        map[string]string `compose:""`
+	// DeployLabels mapping to kubernetes labels
+	DeployLabels map[string]string `compose:""`
+	TmpFs        []string          `compose:"tmpfs"`
+	Dockerfile   string            `compose:"dockerfile"`
+	Replicas     int               `compose:"replicas"`
+	GroupAdd     []int64           `compose:"group_add"`
+	Volumes      []Volumes         `compose:""`
+	Secrets      []dockerCliTypes.ServiceSecretConfig
+	HealthChecks HealthCheck       `compose:""`
+	Placement    map[string]string `compose:""`
 	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
 	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)

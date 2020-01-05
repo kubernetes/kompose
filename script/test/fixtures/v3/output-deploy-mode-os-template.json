@@ -46,6 +46,7 @@
         },
         "creationTimestamp": null,
         "labels": {
+          "com.example.description": "This label will appear on the web service",
           "io.kompose.service": "foo"
         },
         "name": "foo"

@@ -393,7 +393,7 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigAllLabels(name, &service),
 		},
 		Spec: extensions.DeploymentSpec{
 			Replicas: int32(replicas),
@@ -423,7 +423,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 		},
 		ObjectMeta: api.ObjectMeta{
 			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Labels: transformer.ConfigAllLabels(name, &service),
 		},
 		Spec: extensions.DaemonSetSpec{
 			Template: api.PodTemplateSpec{

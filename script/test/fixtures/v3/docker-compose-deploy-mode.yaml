@@ -7,4 +7,6 @@ services:
     deploy:
       mode: global
       replicas: 6
+      labels:
+        com.example.description: "This label will appear on the web service"
     image: redis
