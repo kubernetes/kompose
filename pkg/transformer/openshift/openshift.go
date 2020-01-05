@@ -232,6 +232,16 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 			},
 		},
 	}
+
+	update := service.GetOCUpdateStrategy()
+	if update != nil {
+		dc.Spec.Strategy = deployapi.DeploymentStrategy{
+			Type:          deployapi.DeploymentStrategyTypeRolling,
+			RollingParams: update,
+		}
+		log.Debugf("Set deployment '%s' rolling update: MaxSurge: %s, MaxUnavailable: %s", name, update.MaxSurge.String(), update.MaxUnavailable.String())
+	}
+
 	return dc
 }
 
