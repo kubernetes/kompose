@@ -14,7 +14,7 @@
         }
       },
       "data": {
-        "my-config.txt": "aaaa"
+        "my_config.txt": "aaaa"
       }
     },
     {
@@ -56,12 +56,32 @@
                 "image": "redis:latest",
                 "imagePullPolicy": "",
                 "name": "redis",
-                "resources": {}
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "mountPath": "/my_config",
+                    "name": "my-config",
+                    "subPath": "my_config"
+                  }
+                ]
               }
             ],
             "restartPolicy": "Always",
             "serviceAccountName": "",
-            "volumes": null
+            "volumes": [
+              {
+                "configMap": {
+                  "items": [
+                    {
+                      "key": "my_config.txt",
+                      "path": "my_config"
+                    }
+                  ],
+                  "name": "my-config"
+                },
+                "name": "my-config"
+              }
+            ]
           }
         }
       },

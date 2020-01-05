@@ -155,32 +155,48 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 	var volumeMounts []api.VolumeMount
 	var volumes []api.Volume
 
-	if len(service.Configs) > 0 && service.Configs[0].Mode != nil {
-		//This is for LONG SYNTAX
-		for _, value := range service.Configs {
-			if value.Target == "/" {
-				log.Warnf("Long syntax config, target path can not be /")
-				continue
-			}
-			tmpKey := FormatFileName(value.Source)
-			volumeMounts = append(volumeMounts,
-				api.VolumeMount{
-					Name:      tmpKey,
-					MountPath: "/" + FormatFileName(value.Target),
-				})
+	log.Debugf("fuck config: %+v", service.Configs)
 
-			tmpVolume := api.Volume{
-				Name: tmpKey,
-			}
-			tmpVolume.ConfigMap = &api.ConfigMapVolumeSource{}
-			tmpVolume.ConfigMap.Name = tmpKey
-			var tmpMode int32
-			tmpMode = int32(*value.Mode)
-			tmpVolume.ConfigMap.DefaultMode = &tmpMode
-			volumes = append(volumes, tmpVolume)
+	for _, value := range service.Configs {
+		cmVolName := FormatFileName(value.Source)
+		target := value.Target
+		if target == "" {
+			// short syntax, = /<source>
+			target = "/" + value.Source
 		}
-	} else {
-		//This is for SHORT SYNTAX, unsupported
+		subPath := filepath.Base(target)
+
+		volSource := api.ConfigMapVolumeSource{}
+		volSource.Name = cmVolName
+		key, err := service.GetConfigMapKeyFromMeta(value.Source)
+		if err != nil {
+			log.Warnf("cannot parse config %s , %s", value.Source, err.Error())
+			// mostly it's external
+			continue
+		}
+		volSource.Items = []api.KeyToPath{{
+			Key:  key,
+			Path: subPath,
+		}}
+
+		if value.Mode != nil {
+			tmpMode := int32(*value.Mode)
+			volSource.DefaultMode = &tmpMode
+		}
+
+		cmVol := api.Volume{
+			Name:         cmVolName,
+			VolumeSource: api.VolumeSource{ConfigMap: &volSource},
+		}
+
+		volumeMounts = append(volumeMounts,
+			api.VolumeMount{
+				Name:      cmVolName,
+				MountPath: target,
+				SubPath:   subPath,
+			})
+		volumes = append(volumes, cmVol)
+
 	}
 
 	pod := api.PodSpec{
@@ -337,11 +353,8 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 		log.Fatalf("Unable to retrieve file: %s", err)
 	}
 
-	originFileName := FormatFileName(fileName)
-
 	dataMap := make(map[string]string)
-
-	dataMap[originFileName] = content
+	dataMap[filepath.Base(fileName)] = content
 
 	configMapName := ""
 	for key, tmpConfig := range service.ConfigsMetaData {

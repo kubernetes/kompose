@@ -14,7 +14,7 @@
         }
       },
       "data": {
-        "my-config.txt": "aaaa"
+        "my_config.txt": "aaaa"
       }
     },
     {
@@ -66,11 +66,32 @@
             }
           },
           "spec": {
+            "volumes": [
+              {
+                "name": "my-config",
+                "configMap": {
+                  "name": "my-config",
+                  "items": [
+                    {
+                      "key": "my_config.txt",
+                      "path": "my_config"
+                    }
+                  ]
+                }
+              }
+            ],
             "containers": [
               {
                 "name": "redis",
                 "image": " ",
-                "resources": {}
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "my-config",
+                    "mountPath": "/my_config",
+                    "subPath": "my_config"
+                  }
+                ]
               }
             ],
             "restartPolicy": "Always"

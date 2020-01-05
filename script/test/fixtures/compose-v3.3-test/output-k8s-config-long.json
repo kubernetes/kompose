@@ -14,7 +14,7 @@
         }
       },
       "data": {
-        "my-config.txt": "aaaa"
+        "my_config.txt": "aaaa"
       }
     },
     {
@@ -59,8 +59,9 @@
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "mountPath": "/redis-config",
-                    "name": "my-config"
+                    "mountPath": "/redis_config",
+                    "name": "my-config",
+                    "subPath": "redis_config"
                   }
                 ]
               }
@@ -70,8 +71,14 @@
             "volumes": [
               {
                 "configMap": {
-                  "name": "my-config",
-                  "defaultMode": 288
+                  "defaultMode": 288,
+                  "items": [
+                    {
+                      "key": "my_config.txt",
+                      "path": "redis_config"
+                    }
+                  ],
+                  "name": "my-config"
                 },
                 "name": "my-config"
               }

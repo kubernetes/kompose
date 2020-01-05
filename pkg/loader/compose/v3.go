@@ -798,18 +798,12 @@ func checkUnsupportedKeyForV3(composeObject *types.Config) []string {
 	var keysFound []string
 
 	for _, service := range composeObject.Services {
-		//For short syntax, volume mount path must be /, but this will cause pod create fail in kubernetes
-		//So we ignore this attribute
 		for _, tmpConfig := range service.Configs {
-			if tmpConfig.Mode == nil {
-				keysFound = append(keysFound, "short syntax config")
-			} else {
-				if tmpConfig.GID != "" {
-					keysFound = append(keysFound, "long syntax config gid")
-				}
-				if tmpConfig.UID != "" {
-					keysFound = append(keysFound, "long syntax config uid")
-				}
+			if tmpConfig.GID != "" {
+				keysFound = append(keysFound, "long syntax config gid")
+			}
+			if tmpConfig.UID != "" {
+				keysFound = append(keysFound, "long syntax config uid")
 			}
 		}
 
