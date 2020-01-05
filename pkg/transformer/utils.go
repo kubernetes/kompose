@@ -125,6 +125,18 @@ func ConfigLabelsWithNetwork(name string, net []string) map[string]string {
 	//return map[string]string{Selector: name, "Network": net}
 }
 
+// ConfigAllLabels creates labels with service nam and deploy labels
+func ConfigAllLabels(name string, service *kobject.ServiceConfig) map[string]string {
+	base := ConfigLabels(name)
+	if service.DeployLabels != nil {
+		for k, v := range service.DeployLabels {
+			base[k] = v
+		}
+	}
+	return base
+
+}
+
 // ConfigAnnotations configures annotations
 func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 
