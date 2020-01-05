@@ -588,6 +588,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	return nil
 }
 
+// TranslatePodResource config pod resources
 func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTemplateSpec) {
 	// Configure the resource limits
 	if service.MemLimit != 0 || service.CPULimit != 0 {
@@ -623,6 +624,7 @@ func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTempl
 
 }
 
+// GetImagePullPolicy get image pull settings
 func GetImagePullPolicy(name, policy string) (api.PullPolicy, error) {
 	switch policy {
 	case "":
@@ -639,6 +641,7 @@ func GetImagePullPolicy(name, policy string) (api.PullPolicy, error) {
 
 }
 
+// GetRestartPolicy ...
 func GetRestartPolicy(name, restart string) (api.RestartPolicy, error) {
 	switch restart {
 	case "", "always", "any":
@@ -694,7 +697,7 @@ func (k *Kubernetes) RemoveDupObjects(objs *[]runtime.Object) {
 	*objs = result
 }
 
-func resetWorkloadApiVersion(d runtime.Object) runtime.Object {
+func resetWorkloadAPIVersion(d runtime.Object) runtime.Object {
 	data, err := json.Marshal(d)
 	if err == nil {
 		var us runtime.Unstructured
@@ -705,12 +708,9 @@ func resetWorkloadApiVersion(d runtime.Object) runtime.Object {
 				Kind:    d.GetObjectKind().GroupVersionKind().Kind,
 			})
 			return &us
-		} else {
-			return d
 		}
-	} else {
-		return d
 	}
+	return d
 }
 
 // FixWorkloadVersion force reset deployment/daemonset's apiversion to apps/v1
@@ -718,10 +718,10 @@ func (k *Kubernetes) FixWorkloadVersion(objs *[]runtime.Object) {
 	var result []runtime.Object
 	for _, obj := range *objs {
 		if d, ok := obj.(*extensions.Deployment); ok {
-			nd := resetWorkloadApiVersion(d)
+			nd := resetWorkloadAPIVersion(d)
 			result = append(result, nd)
 		} else if d, ok := obj.(*extensions.DaemonSet); ok {
-			nd := resetWorkloadApiVersion(d)
+			nd := resetWorkloadAPIVersion(d)
 			result = append(result, nd)
 		} else {
 			result = append(result, obj)

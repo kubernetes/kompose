@@ -233,7 +233,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 		},
 	}
 
-	update := service.GetOCUpdateStrategy()
+	update := service.GetOSUpdateStrategy()
 	if update != nil {
 		dc.Spec.Strategy = deployapi.DeploymentStrategy{
 			Type:          deployapi.DeploymentStrategyTypeRolling,

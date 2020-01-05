@@ -175,7 +175,7 @@ type Volumes struct {
 	SelectorValue string // Value of the label selector
 }
 
-// GetConfigMapKeyFromMeta...
+// GetConfigMapKeyFromMeta ...
 // given a source name ,find the file and extract the filename which will be act as ConfigMap key
 // return "" if not found
 func (s *ServiceConfig) GetConfigMapKeyFromMeta(name string) (string, error) {
@@ -195,7 +195,7 @@ func (s *ServiceConfig) GetConfigMapKeyFromMeta(name string) (string, error) {
 
 }
 
-// GetUpdateStrategy from compose update_config
+// GetKubernetesUpdateStrategy from compose update_config
 // 1. only apply to Deployment, but the check is not happened here
 // 2. only support `parallelism` and `order`
 // return nil if not support
@@ -222,7 +222,8 @@ func (s *ServiceConfig) GetKubernetesUpdateStrategy() *extensions.RollingUpdateD
 
 }
 
-func (s *ServiceConfig) GetOCUpdateStrategy() *deployapi.RollingDeploymentStrategyParams {
+// GetOSUpdateStrategy ...
+func (s *ServiceConfig) GetOSUpdateStrategy() *deployapi.RollingDeploymentStrategyParams {
 	config := s.DeployUpdateConfig
 	r := deployapi.RollingDeploymentStrategyParams{}
 

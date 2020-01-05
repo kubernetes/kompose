@@ -112,7 +112,7 @@ func ConfigLabels(name string) map[string]string {
 	return map[string]string{Selector: name}
 }
 
-// ConfigLabels configures label and add Network Information in labels
+// ConfigLabelsWithNetwork configures label and add Network Information in labels
 func ConfigLabelsWithNetwork(name string, net []string) map[string]string {
 
 	labels := map[string]string{}
