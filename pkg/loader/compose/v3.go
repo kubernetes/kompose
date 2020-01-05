@@ -351,6 +351,10 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// placement:
 		serviceConfig.Placement = loadV3Placement(composeServiceConfig.Deploy.Placement.Constraints)
 
+		if composeServiceConfig.Deploy.UpdateConfig != nil {
+			serviceConfig.DeployUpdateConfig = *composeServiceConfig.Deploy.UpdateConfig
+		}
+
 		// TODO: Build is not yet supported, see:
 		// https://github.com/docker/cli/blob/master/cli/compose/types/types.go#L9
 		// We will have to *manually* add this / parse.

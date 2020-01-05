@@ -411,6 +411,18 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 	}
 	dc.Spec.Template.Labels = transformer.ConfigLabels(name)
 
+	update := service.GetUpdateStrategy()
+	if update != nil {
+		dc.Spec.Strategy = extensions.DeploymentStrategy{
+			Type: extensions.RollingUpdateDeploymentStrategyType,
+			// client-go -> kubernetes, use client-go as possible
+			RollingUpdate: &extensions.RollingUpdateDeployment{
+				MaxSurge:       update.MaxSurge,
+				MaxUnavailable: update.MaxUnavailable,
+			},
+		}
+	}
+
 	return dc
 }
 

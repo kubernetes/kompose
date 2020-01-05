@@ -20,6 +20,9 @@ import (
 	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/yaml"
 	"github.com/pkg/errors"
+	"github.com/spf13/cast"
+	"k8s.io/client-go/1.4/pkg/apis/extensions"
+	"k8s.io/client-go/1.4/pkg/util/intstr"
 	"k8s.io/kubernetes/pkg/api"
 	"path/filepath"
 )
@@ -114,15 +117,16 @@ type ServiceConfig struct {
 	MemReservation   yaml.MemStringorInt `compose:""`
 	DeployMode       string              `compose:""`
 	// DeployLabels mapping to kubernetes labels
-	DeployLabels map[string]string `compose:""`
-	TmpFs        []string          `compose:"tmpfs"`
-	Dockerfile   string            `compose:"dockerfile"`
-	Replicas     int               `compose:"replicas"`
-	GroupAdd     []int64           `compose:"group_add"`
-	Volumes      []Volumes         `compose:""`
-	Secrets      []dockerCliTypes.ServiceSecretConfig
-	HealthChecks HealthCheck       `compose:""`
-	Placement    map[string]string `compose:""`
+	DeployLabels       map[string]string           `compose:""`
+	DeployUpdateConfig dockerCliTypes.UpdateConfig `compose:""`
+	TmpFs              []string                    `compose:"tmpfs"`
+	Dockerfile         string                      `compose:"dockerfile"`
+	Replicas           int                         `compose:"replicas"`
+	GroupAdd           []int64                     `compose:"group_add"`
+	Volumes            []Volumes                   `compose:""`
+	Secrets            []dockerCliTypes.ServiceSecretConfig
+	HealthChecks       HealthCheck       `compose:""`
+	Placement          map[string]string `compose:""`
 	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
 	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
@@ -186,5 +190,30 @@ func (s *ServiceConfig) GetConfigMapKeyFromMeta(name string) (string, error) {
 	}
 
 	return filepath.Base(config.File), nil
+
+}
+
+// GetUpdateStrategy from compose update_config
+// 1. only apply to Deployment, but the check is not happened here
+// 2. only support `parallelism` and `order`
+// return nil if not support
+func (s *ServiceConfig) GetUpdateStrategy() *extensions.RollingUpdateDeployment {
+	config := s.DeployUpdateConfig
+	r := extensions.RollingUpdateDeployment{}
+	if config.Order == "stop-first" {
+		r.MaxSurge = intstr.FromInt(0)
+		r.MaxUnavailable = intstr.FromString("100%")
+		return &r
+	}
+
+	if config.Order == "start-first" {
+		if config.Parallelism != nil {
+			r.MaxSurge = intstr.FromInt(cast.ToInt(*config.Parallelism))
+		} else {
+			r.MaxSurge = intstr.FromString("100%")
+		}
+		return &r
+	}
+	return nil
 
 }
