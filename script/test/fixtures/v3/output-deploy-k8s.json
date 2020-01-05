@@ -37,6 +37,60 @@
     },
     {
       "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        },
+        "name": "db"
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "db"
+          }
+        },
+        "strategy": {},
+        "template": {
+          "metadata": {
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "db"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "image": "postgres",
+                "imagePullPolicy": "",
+                "name": "db",
+                "resources": {}
+              }
+            ],
+            "nodeSelector": {
+              "beta.kubernetes.io/os": "ubuntu 14.04",
+              "kubernetes.io/hostname": "machine"
+            },
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "apiVersion": "apps/v1",
       "kind": "DaemonSet",
       "metadata": {
         "annotations": {
@@ -81,95 +135,63 @@
       }
     },
     {
-      "kind": "DeploymentConfig",
-      "apiVersion": "v1",
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
       "metadata": {
-        "name": "foo",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "foo"
-        },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.service.type": "headless",
           "kompose.version": "%VERSION%"
-        }
+        },
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "vote"
+        },
+        "name": "vote"
       },
       "spec": {
-        "strategy": {
-          "resources": {}
-        },
-        "triggers": [
-          {
-            "type": "ConfigChange"
-          },
-          {
-            "type": "ImageChange",
-            "imageChangeParams": {
-              "automatic": true,
-              "containerNames": [
-                "foo"
-              ],
-              "from": {
-                "kind": "ImageStreamTag",
-                "name": "foo:latest"
-              }
-            }
-          }
-        ],
-        "replicas": 1,
-        "test": false,
+        "replicas": 2,
         "selector": {
-          "io.kompose.service": "foo"
+          "matchLabels": {
+            "io.kompose.service": "vote"
+          }
+        },
+        "strategy": {
+          "rollingUpdate": {
+            "maxSurge": 0,
+            "maxUnavailable": 2
+          },
+          "type": "RollingUpdate"
         },
         "template": {
           "metadata": {
+            "annotations": {
+              "kompose.cmd": "%CMD%",
+              "kompose.version": "%VERSION%"
+            },
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "foo"
+              "io.kompose.service": "vote"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "foo",
-                "image": " ",
+                "image": "dockersamples/examplevotingapp_vote:before",
+                "imagePullPolicy": "",
+                "name": "vote",
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always"
+            "nodeSelector": {
+              "kubernetes.io/hostname": "machine"
+            },
+            "restartPolicy": "Always",
+            "serviceAccountName": "",
+            "volumes": null
           }
         }
       },
       "status": {}
-    },
-    {
-      "kind": "ImageStream",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "foo",
-        "creationTimestamp": null,
-        "labels": {
-          "io.kompose.service": "foo"
-        }
-      },
-      "spec": {
-        "tags": [
-          {
-            "name": "latest",
-            "annotations": null,
-            "from": {
-              "kind": "DockerImage",
-              "name": "redis"
-            },
-            "generation": null,
-            "importPolicy": {}
-          }
-        ]
-      },
-      "status": {
-        "dockerImageRepository": ""
-      }
     }
   ]
 }

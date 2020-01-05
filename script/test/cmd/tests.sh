@@ -652,12 +652,12 @@ convert::expect_success "$cmd" "/tmp/output-oc.json"
 # Test V3 Support of Docker Compose
 
 # Test deploy mode: global
-cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy-mode.yaml"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-deploy-mode-k8s-template.json" > /tmp/output-k8s.json
+cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-deploy-k8s.json" > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
-cmd="kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy-mode.yaml"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-deploy-mode-os-template.json" > /tmp/output-os.json
+cmd="kompose convert --stdout -j --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/v3/docker-compose-deploy.yaml"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  "$KOMPOSE_ROOT/script/test/fixtures/v3/output-deploy-os.json" > /tmp/output-os.json
 convert::expect_success "$cmd" "/tmp/output-os.json"
 
 # Test support for cpu and memory limits + reservations
@@ -735,29 +735,6 @@ cmd="kompose convert -f $KOMPOSE_ROOT/script/test/fixtures/controller/docker-com
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/controller/output-k8s-rc-template.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
-# Test the `placement` key in v3
-
-# Kubernetes
-cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose.yml"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/placement/output-k8s-template.json > /tmp/output-k8s.json
-convert::expect_success "$cmd" "/tmp/output-k8s.json"
-
-## OpenShift
-cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose.yml"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/placement/output-os-template.json > /tmp/output-os.json
-convert::expect_success "$cmd" "/tmp/output-os.json"
-
-# Test the `placement` key with constraints in array in v3
-
-# Kubernetes
-cmd="kompose convert --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose-array.yml"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/placement/output-k8s-array-template.json > /tmp/output-k8s.json
-convert::expect_success "$cmd" "/tmp/output-k8s.json"
-
-## OpenShift
-cmd="kompose convert --provider=openshift --stdout -j -f $KOMPOSE_ROOT/script/test/fixtures/placement/docker-compose-array.yml"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/placement/output-os-array-template.json > /tmp/output-os.json
-convert::expect_success "$cmd" "/tmp/output-os.json"
 
 # Test the "full example" from https://raw.githubusercontent.com/aanand/compose-file/master/loader/example1.env
 

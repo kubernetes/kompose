@@ -1,0 +1,34 @@
+version: "3.7"
+services:
+  vote: # test placement and update_config
+    image: dockersamples/examplevotingapp_vote:before
+    depends_on:
+      - redis
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [node.hostname == machine]
+      update_config:
+        parallelism: 2
+        delay: 10s
+        order: stop-first
+  db: # test placement
+    image: postgres
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == machine
+          - engine.labels.operatingsystem == ubuntu 14.04
+  foo: # test labels
+    labels:
+      kompose.service.type: headless
+    deploy:
+      mode: global
+      replicas: 6
+      update_config:
+        parallelism: 2
+        delay: 10s
+        order: stop-first
+      labels:
+        com.example.description: "This label will appear on the web service"
+    image: redis

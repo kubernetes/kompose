@@ -19,9 +19,14 @@ package kobject
 import (
 	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/yaml"
+	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/kubernetes/pkg/util/intstr"
 	"path/filepath"
+	"time"
 )
 
 // KomposeObject holds the generic struct of Kompose transformation
@@ -114,15 +119,16 @@ type ServiceConfig struct {
 	MemReservation   yaml.MemStringorInt `compose:""`
 	DeployMode       string              `compose:""`
 	// DeployLabels mapping to kubernetes labels
-	DeployLabels map[string]string `compose:""`
-	TmpFs        []string          `compose:"tmpfs"`
-	Dockerfile   string            `compose:"dockerfile"`
-	Replicas     int               `compose:"replicas"`
-	GroupAdd     []int64           `compose:"group_add"`
-	Volumes      []Volumes         `compose:""`
-	Secrets      []dockerCliTypes.ServiceSecretConfig
-	HealthChecks HealthCheck       `compose:""`
-	Placement    map[string]string `compose:""`
+	DeployLabels       map[string]string           `compose:""`
+	DeployUpdateConfig dockerCliTypes.UpdateConfig `compose:""`
+	TmpFs              []string                    `compose:"tmpfs"`
+	Dockerfile         string                      `compose:"dockerfile"`
+	Replicas           int                         `compose:"replicas"`
+	GroupAdd           []int64                     `compose:"group_add"`
+	Volumes            []Volumes                   `compose:""`
+	Secrets            []dockerCliTypes.ServiceSecretConfig
+	HealthChecks       HealthCheck       `compose:""`
+	Placement          map[string]string `compose:""`
 	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
 	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
@@ -187,4 +193,68 @@ func (s *ServiceConfig) GetConfigMapKeyFromMeta(name string) (string, error) {
 
 	return filepath.Base(config.File), nil
 
+}
+
+// GetUpdateStrategy from compose update_config
+// 1. only apply to Deployment, but the check is not happened here
+// 2. only support `parallelism` and `order`
+// return nil if not support
+func (s *ServiceConfig) GetKubernetesUpdateStrategy() *extensions.RollingUpdateDeployment {
+	config := s.DeployUpdateConfig
+	r := extensions.RollingUpdateDeployment{}
+	if config.Order == "stop-first" {
+		if config.Parallelism != nil {
+			r.MaxUnavailable = intstr.FromInt(cast.ToInt(*config.Parallelism))
+
+		}
+		r.MaxSurge = intstr.FromInt(0)
+		return &r
+	}
+
+	if config.Order == "start-first" {
+		if config.Parallelism != nil {
+			r.MaxSurge = intstr.FromInt(cast.ToInt(*config.Parallelism))
+		}
+		r.MaxUnavailable = intstr.FromInt(0)
+		return &r
+	}
+	return nil
+
+}
+
+func (s *ServiceConfig) GetOCUpdateStrategy() *deployapi.RollingDeploymentStrategyParams {
+	config := s.DeployUpdateConfig
+	r := deployapi.RollingDeploymentStrategyParams{}
+
+	delay := time.Second * 1
+	if config.Delay != 0 {
+		delay = config.Delay
+	}
+
+	interval := cast.ToInt64(delay.Seconds())
+
+	if config.Order == "stop-first" {
+		if config.Parallelism != nil {
+			r.MaxUnavailable = intstr.FromInt(cast.ToInt(*config.Parallelism))
+		}
+		r.MaxSurge = intstr.FromInt(0)
+		r.UpdatePeriodSeconds = &interval
+		return &r
+	}
+
+	if config.Order == "start-first" {
+		if config.Parallelism != nil {
+			r.MaxSurge = intstr.FromInt(cast.ToInt(*config.Parallelism))
+		}
+		r.MaxUnavailable = intstr.FromInt(0)
+		r.UpdatePeriodSeconds = &interval
+		return &r
+	}
+
+	if cast.ToInt64(config.Delay) != 0 {
+		r.UpdatePeriodSeconds = &interval
+		return &r
+	}
+
+	return nil
 }
