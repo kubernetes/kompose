@@ -50,10 +50,14 @@ sudo dnf -y install kompose
 ```
 
 #### macOS
-On macOS you can install latest release via [Homebrew](https://brew.sh):
+On macOS you can install latest release via [Homebrew](https://brew.sh) or [MacPorts](https://www.macports.org/).
 
 ```bash
+# Homebrew
 brew install kompose
+
+# MacPorts
+port install kompose
 ```
 
 #### Windows
