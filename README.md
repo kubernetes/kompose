@@ -34,7 +34,7 @@ Installation methods:
   - [CentOS](/docs/installation.md#centos)
   - [Fedora](/docs/installation.md#fedora)
   - [openSUSE/SLE](/docs/installation.md#opensusesle)
-  - [macOS (Homebrew)](/docs/installation.md#macos)
+  - [macOS (Homebrew and MacPorts)](/docs/installation.md#macos)
   - [Windows](/docs/installation.md#windows)
 
 #### Binary installation
