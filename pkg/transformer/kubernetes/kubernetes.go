@@ -1296,7 +1296,7 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 
 // DefaultClientConfig get default client config.
 // This function is copied from library , we just overrides the apiserver url
-func DefaultClientConfig(flags *pflag.FlagSet) clientcmd.ClientConfig {
+func (k *Kubernetes) DefaultClientConfig(flags *pflag.FlagSet) clientcmd.ClientConfig {
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	// use the standard defaults for this client command
 	// DEPRECATED: remove and replace with something more accurate
@@ -1306,6 +1306,9 @@ func DefaultClientConfig(flags *pflag.FlagSet) clientcmd.ClientConfig {
 
 	clusterDefaults := clientcmd.ClusterDefaults
 	clusterDefaults.Server = "https://127.0.0.1:6443"
+	if k.Opt.Server != "" {
+		clusterDefaults.Server = k.Opt.Server
+	}
 
 	overrides := &clientcmd.ConfigOverrides{ClusterDefaults: clusterDefaults}
 
@@ -1325,7 +1328,7 @@ func (k *Kubernetes) GetKubernetesClient() (*client.Client, string, error) {
 	// generate a new client config
 	flags := pflag.NewFlagSet("", pflag.ContinueOnError)
 	flags.SetNormalizeFunc(utilflag.WarnWordSepNormalizeFunc) // Warn for "_" flags
-	oc := DefaultClientConfig(flags)
+	oc := k.DefaultClientConfig(flags)
 
 	// initialize Kubernetes client
 	factory := cmdutil.NewFactory(oc)

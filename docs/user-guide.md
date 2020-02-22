@@ -131,6 +131,7 @@ po/redis-slave-2504961300-nve7b    1/1           Running       0            4m
 ```
 Note:
 - You must have a running Kubernetes cluster with a pre-configured kubectl context.
+- If you kubernetes api server url is different than `https://127.0.0.1:6443`, you can use the `--server` flag to customize it.
 - Only deployments and services are generated and deployed to Kubernetes. If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead.
 
 ### OpenShift
