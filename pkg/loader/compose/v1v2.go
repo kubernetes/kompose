@@ -278,7 +278,6 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.Pid = composeServiceConfig.Pid
 
 		serviceConfig.Privileged = composeServiceConfig.Privileged
-		serviceConfig.Restart = composeServiceConfig.Restart
 		serviceConfig.User = composeServiceConfig.User
 		serviceConfig.VolumesFrom = composeServiceConfig.VolumesFrom
 		serviceConfig.Stdin = composeServiceConfig.StdinOpen
@@ -286,6 +285,13 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		serviceConfig.MemLimit = composeServiceConfig.MemLimit
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
 		serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod
+
+		// pretty much same as v3
+		serviceConfig.Restart = composeServiceConfig.Restart
+		if serviceConfig.Restart == "unless-stopped" {
+			log.Warnf("Restart policy 'unless-stopped' in service %s is not supported, convert it to 'always'", name)
+			serviceConfig.Restart = "always"
+		}
 
 		if composeServiceConfig.Networks != nil {
 			if len(composeServiceConfig.Networks.Networks) > 0 {
