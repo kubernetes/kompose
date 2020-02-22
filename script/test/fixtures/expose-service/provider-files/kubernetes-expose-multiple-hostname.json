@@ -193,6 +193,7 @@
             "http": {
               "paths": [
                 {
+                  "path": "/home",
                   "backend": {
                     "serviceName": "web",
                     "servicePort": 5000

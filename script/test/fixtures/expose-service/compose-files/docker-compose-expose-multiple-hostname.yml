@@ -5,7 +5,7 @@ web:
   links:
     - redis
   labels:
-    kompose.service.expose: "  batman.example.com ,, batwoman.example.com "
+    kompose.service.expose: "  batman.example.com/home ,, batwoman.example.com "
 redis:
   image: redis:3.0
   ports:
