@@ -40,6 +40,9 @@ var (
 	UpController   string
 	// UpPushImage decides if we should push the docker image
 	UpPushImage bool
+
+	// UpServer allow use to choose different kubernetes server url
+	UpServer string
 )
 
 var upCmd = &cobra.Command{
@@ -69,6 +72,7 @@ var upCmd = &cobra.Command{
 			BuildRepo:          UpBuildRepo,
 			Controller:         strings.ToLower(UpController),
 			IsNamespaceFlag:    cmd.Flags().Lookup("namespace").Changed,
+			Server:             UpServer,
 		}
 
 		// Validate before doing anything else.
@@ -90,6 +94,7 @@ func init() {
 	upCmd.Flags().BoolVar(&UpPushImage, "push-image", true, "If we should push the docker image we built")
 	upCmd.Flags().BoolVar(&StoreManifest, "store-manifest", false, "Store the generated manifest (default false)")
 	upCmd.Flags().StringVar(&UpController, "controller", "", `Set the output controller ("deployment"|"daemonSet"|"replicationController")`)
+	upCmd.Flags().StringVar(&UpServer, "server", "", "kubernetes apiserver url (default https://127.0.0.1:6443)")
 	upCmd.Flags().MarkHidden("insecure-repository")
 	upCmd.Flags().MarkHidden("build-repo")
 	upCmd.Flags().MarkHidden("build-branch")
