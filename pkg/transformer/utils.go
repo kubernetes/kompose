@@ -103,6 +103,16 @@ func ParseVolume(volume string) (name, host, container, mode string, err error) 
 	return
 }
 
+// ParseIngressPath parse path for ingress.
+// eg. example.com/org -> example.com org
+func ParseIngressPath(url string) (string, string) {
+	if strings.Contains(url, "/") {
+		splits := strings.Split(url, "/")
+		return splits[0], "/" + splits[1]
+	}
+	return url, ""
+}
+
 func isPath(substring string) bool {
 	return strings.Contains(substring, "/") || substring == "."
 }

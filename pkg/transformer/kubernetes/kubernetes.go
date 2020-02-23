@@ -462,11 +462,13 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 	}
 
 	for i, host := range hosts {
+		host, p := transformer.ParseIngressPath(host)
 		ingress.Spec.Rules[i] = extensions.IngressRule{
 			IngressRuleValue: extensions.IngressRuleValue{
 				HTTP: &extensions.HTTPIngressRuleValue{
 					Paths: []extensions.HTTPIngressPath{
 						{
+							Path: p,
 							Backend: extensions.IngressBackend{
 								ServiceName: name,
 								ServicePort: intstr.IntOrString{
