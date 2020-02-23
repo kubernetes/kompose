@@ -44,7 +44,7 @@
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.service.expose": "  batman.example.com ,, batwoman.example.com ",
+          "kompose.service.expose": "  batman.example.com/home ,, batwoman.example.com ",
           "kompose.version": "%VERSION%"
         }
       },
@@ -125,7 +125,7 @@
       "metadata": {
         "annotations": {
           "kompose.cmd": "%CMD%",
-          "kompose.service.expose": "  batman.example.com ,, batwoman.example.com ",
+          "kompose.service.expose": "  batman.example.com/home/home ,, batwoman.example.com ",
           "kompose.version": "%VERSION%"
         },
         "creationTimestamp": null,
