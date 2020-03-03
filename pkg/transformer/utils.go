@@ -24,6 +24,7 @@ import (
 	"path"
 	"strings"
 
+	dockerlib "github.com/fsouza/go-dockerclient"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	log "github.com/sirupsen/logrus"
 
@@ -268,6 +269,17 @@ func BuildDockerImage(service kobject.ServiceConfig, name string) error {
 		imageName = service.Image
 	}
 
+	buildargs := []dockerlib.BuildArg{}
+	for envName, envValue := range service.BuildArgs {
+		var value string
+		if envValue == nil {
+			value = os.Getenv(envName)
+		} else {
+			value = *envValue
+		}
+		buildargs = append(buildargs, dockerlib.BuildArg{Name: envName, Value: value})
+	}
+
 	// Connect to the Docker client
 	client, err := docker.Client()
 	if err != nil {
@@ -277,7 +289,7 @@ func BuildDockerImage(service kobject.ServiceConfig, name string) error {
 	// Use the build struct function to build the image
 	// Build the image!
 	build := docker.Build{Client: *client}
-	err = build.BuildImage(imagePath, imageName, service.Dockerfile)
+	err = build.BuildImage(imagePath, imageName, service.Dockerfile, buildargs)
 
 	if err != nil {
 		return err
