@@ -26,7 +26,7 @@ all: bin
 
 .PHONY: bin
 bin:
-	CGO_ENABLED=0 go build ${BUILD_FLAGS} -o kompose main.go
+	CGO_ENABLED=0 GO111MODULE=off go build ${BUILD_FLAGS} -o kompose main.go
 
 .PHONY: install
 install:
