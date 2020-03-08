@@ -45,6 +45,7 @@ var (
 	ConvertDeploymentConfig      bool
 	ConvertReplicas              int
 	ConvertController            string
+	ConvertPushImage             bool
 	ConvertOpt                   kobject.ConvertOptions
 	ConvertYAMLIndent            int
 )
@@ -75,6 +76,7 @@ var convertCmd = &cobra.Command{
 			Build:                       ConvertBuild,
 			BuildRepo:                   ConvertBuildRepo,
 			BuildBranch:                 ConvertBuildBranch,
+			PushImage:                   ConvertPushImage,
 			CreateDeploymentConfig:      ConvertDeploymentConfig,
 			EmptyVols:                   ConvertEmptyVols,
 			Volumes:                     ConvertVolumes,
@@ -130,6 +132,7 @@ func init() {
 
 	// Standard between the two
 	convertCmd.Flags().StringVar(&ConvertBuild, "build", "none", `Set the type of build ("local"|"build-config"(OpenShift only)|"none")`)
+	convertCmd.Flags().BoolVar(&ConvertPushImage, "push-image", true, "If we should push the docker image we built")
 	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into YAML format")
 	convertCmd.Flags().MarkDeprecated("yaml", "YAML is the default format now.")
 	convertCmd.Flags().MarkShorthandDeprecated("y", "YAML is the default format now.")
