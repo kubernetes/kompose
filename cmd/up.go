@@ -94,7 +94,7 @@ func init() {
 	upCmd.Flags().BoolVar(&UpPushImage, "push-image", true, "If we should push the docker image we built")
 	upCmd.Flags().BoolVar(&StoreManifest, "store-manifest", false, "Store the generated manifest (default false)")
 	upCmd.Flags().StringVar(&UpController, "controller", "", `Set the output controller ("deployment"|"daemonSet"|"replicationController")`)
-	upCmd.Flags().StringVar(&UpServer, "server", "", "kubernetes apiserver url (default https://127.0.0.1:6443)")
+	upCmd.Flags().StringVar(&UpServer, "server", "https://127.0.0.1:6443", "kubernetes apiserver url")
 	upCmd.Flags().MarkHidden("insecure-repository")
 	upCmd.Flags().MarkHidden("build-repo")
 	upCmd.Flags().MarkHidden("build-branch")

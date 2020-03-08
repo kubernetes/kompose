@@ -185,6 +185,7 @@ INFO Successfully deleted deployment: frontend
 ```
 Note:
 - You must have a running Kubernetes cluster with a pre-configured kubectl context.
+- If you kubernetes api server url is different than https://127.0.0.1:6443, you can use the --server flag to customize it.
 
 ## Build and Push Docker Images
 

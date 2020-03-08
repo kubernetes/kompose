@@ -29,6 +29,9 @@ var (
 	DownNamespace  string
 	DownController string
 	DownOpt        kobject.ConvertOptions
+
+	// DownServer allow use to choose different kubernetes server url
+	DownServer string
 )
 
 var downCmd = &cobra.Command{
@@ -44,6 +47,7 @@ var downCmd = &cobra.Command{
 			Namespace:       DownNamespace,
 			Controller:      strings.ToLower(DownController),
 			IsNamespaceFlag: cmd.Flags().Lookup("namespace").Changed,
+			Server:          DownServer,
 		}
 
 		// Validate before doing anything else.
@@ -57,5 +61,6 @@ var downCmd = &cobra.Command{
 func init() {
 	downCmd.Flags().StringVar(&DownNamespace, "namespace", "default", " Specify Namespace to deploy your application")
 	downCmd.Flags().StringVar(&DownController, "controller", "", `Set the output controller ("deployment"|"daemonSet"|"replicationController")`)
+	downCmd.Flags().StringVar(&DownServer, "server", "https://127.0.0.1:6443", "kubernetes apiserver url")
 	RootCmd.AddCommand(downCmd)
 }
