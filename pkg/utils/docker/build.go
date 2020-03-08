@@ -71,12 +71,14 @@ func (c *Build) BuildImage(source string, image string, dockerfile string) error
 	}
 
 	// Build it!
-	if err := c.Client.BuildImage(opts); err != nil {
+	err = c.Client.BuildImage(opts)
+	log.Debugf("Image %s build output:\n%s", image, outputBuffer)
+
+	if err != nil {
 		return errors.Wrap(err, "Unable to build image. For more output, use -v or --verbose when converting.")
 	}
 
 	log.Infof("Image '%s' from directory '%s' built successfully", image, path.Base(source))
-	log.Debugf("Image %s build output:\n%s", image, outputBuffer)
 
 	return nil
 }
