@@ -187,6 +187,12 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.expose": "batman.example.com,batwoman.example.com",
+          "kompose.service.expose.tls-secret": "test-secret",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
