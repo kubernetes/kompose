@@ -192,6 +192,11 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.cmd": "%CMD%",
+          "kompose.service.expose": "True",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
