@@ -17,7 +17,7 @@ limitations under the License.
 package openshift
 
 import (
-	kapi "k8s.io/kubernetes/pkg/api"
+	kapi "k8s.io/api"
 	"k8s.io/kubernetes/pkg/runtime"
 	"os"
 	"path/filepath"

@@ -25,8 +25,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	kapi "k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/api/unversioned"
+	kapi "k8s.io/api"
+	"k8s.io/api/unversioned"
 	"k8s.io/kubernetes/pkg/client/unversioned/clientcmd"
 	"k8s.io/kubernetes/pkg/runtime"
 
@@ -47,7 +47,7 @@ import (
 	imageapi "github.com/openshift/origin/pkg/image/api"
 	routeapi "github.com/openshift/origin/pkg/route/api"
 	"github.com/pkg/errors"
-	"k8s.io/kubernetes/pkg/api/meta"
+	"k8s.io/api/meta"
 	"k8s.io/kubernetes/pkg/kubectl"
 	"k8s.io/kubernetes/pkg/labels"
 	"k8s.io/kubernetes/pkg/util/intstr"

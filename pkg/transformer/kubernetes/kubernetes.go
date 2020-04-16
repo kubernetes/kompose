@@ -36,13 +36,13 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	// install kubernetes api
-	_ "k8s.io/kubernetes/pkg/api/install"
-	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
+	_ "k8s.io/api/install"
+	_ "k8s.io/apis/extensions/install"
 
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/api/resource"
-	"k8s.io/kubernetes/pkg/api/unversioned"
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/api"
+	"k8s.io/api/resource"
+	"k8s.io/api/unversioned"
+	"k8s.io/apis/extensions"
 
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 	"k8s.io/kubernetes/pkg/kubectl"
@@ -60,7 +60,7 @@ import (
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
-	"k8s.io/kubernetes/pkg/api/meta"
+	"k8s.io/api/meta"
 	"k8s.io/kubernetes/pkg/labels"
 
 	utilflag "k8s.io/kubernetes/pkg/util/flag"

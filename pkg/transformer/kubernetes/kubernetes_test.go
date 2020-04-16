@@ -19,7 +19,7 @@ package kubernetes
 import (
 	"encoding/json"
 	"fmt"
-	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/api/unversioned"
 	"k8s.io/kubernetes/pkg/runtime"
 	"reflect"
 	"testing"
@@ -30,8 +30,8 @@ import (
 	"github.com/kubernetes/kompose/pkg/transformer"
 
 	"github.com/pkg/errors"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/api"
+	"k8s.io/apis/extensions"
 	"strings"
 )
 

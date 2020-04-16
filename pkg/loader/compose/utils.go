@@ -25,7 +25,7 @@ import (
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
-	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/api"
 )
 
 const (

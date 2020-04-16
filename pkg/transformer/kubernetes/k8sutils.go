@@ -36,16 +36,16 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/api/unversioned"
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/api"
+	"k8s.io/api/unversioned"
+	"k8s.io/apis/extensions"
 	"k8s.io/kubernetes/pkg/runtime"
 
 	"sort"
 
 	deployapi "github.com/openshift/origin/pkg/deploy/api"
 	"github.com/pkg/errors"
-	"k8s.io/kubernetes/pkg/api/resource"
+	"k8s.io/api/resource"
 )
 
 /**

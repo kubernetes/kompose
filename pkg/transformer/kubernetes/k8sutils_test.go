@@ -29,8 +29,8 @@ import (
 	"reflect"
 
 	"github.com/pkg/errors"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/api"
+	"k8s.io/apis/extensions"
 )
 
 /*

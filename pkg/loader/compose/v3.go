@@ -24,7 +24,7 @@ import (
 
 	libcomposeyaml "github.com/docker/libcompose/yaml"
 
-	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/api"
 
 	"github.com/docker/cli/cli/compose/loader"
 	"github.com/docker/cli/cli/compose/types"

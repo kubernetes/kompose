@@ -32,7 +32,7 @@ import (
 	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/api"
 )
 
 // Parse Docker Compose with libcompose (only supports v1 and v2). Eventually we will
