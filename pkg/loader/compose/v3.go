@@ -17,10 +17,11 @@ limitations under the License.
 package compose
 
 import (
-	"github.com/spf13/cast"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/spf13/cast"
 
 	libcomposeyaml "github.com/docker/libcompose/yaml"
 
@@ -135,14 +136,18 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 
 func loadV3Placement(constraints []string) map[string]string {
 	placement := make(map[string]string)
-	errMsg := " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
+	errMsg := " constraints in placement is not supported, only 'node.hostname', 'node.role == worker', 'node.role == manager', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
 	for _, j := range constraints {
 		p := strings.Split(j, " == ")
 		if len(p) < 2 {
 			log.Warn(p[0], errMsg)
 			continue
 		}
-		if p[0] == "node.hostname" {
+		if p[0] == "node.role" && p[1] == "worker" {
+			placement["node-role.kubernetes.io/worker"] = "true"
+		} else if p[0] == "node.role" && p[1] == "manager" {
+			placement["node-role.kubernetes.io/master"] = "true"
+		} else if p[0] == "node.hostname" {
 			placement["kubernetes.io/hostname"] = p[1]
 		} else if p[0] == "engine.labels.operatingsystem" {
 			placement["beta.kubernetes.io/os"] = p[1]

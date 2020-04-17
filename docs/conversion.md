@@ -31,7 +31,7 @@ __Glossary:__
 | deploy                 | -  | -  | ✓  |                                                             |                                                                                                                |
 | deploy: mode           | -  | -  | ✓  |                                                             |                                                                                                                |
 | deploy: replicas       | -  | -  | ✓  | Deployment.Spec.Replicas / DeploymentConfig.Spec.Replicas   |                                                                                                                |
-| deploy: placement      | -  | -  | ✓  | Pod.Spec.NodeSelector                                       |                                                                                                                |
+| deploy: placement      | -  | -  | ✓  | Pod.Spec.NodeSelector                                       |    Supported constraints: `node.hostname`, `node.role == worker`, `node.role == manager`, `engine.labels.operatingsystem` and `node.labels.xxx`                                                                                                         |
 | deploy: update_config  | -  | -  | ✓  | Workload.Spec.Strategy                                      | Deployment / DeploymentConfig                                                                                                               |
 | deploy: resources      | -  | -  | ✓  | Containers.Resources.Limits.Memory / Containers.Resources.Limits.CPU | Support for memory as well as cpu                                                                     |
 | deploy: restart_policy | -  | -  | ✓  | Pod generation                                              | This generated a Pod, see the [user guide on restart](http://kompose.io/user-guide/#restart)                   |
@@ -45,7 +45,7 @@ __Glossary:__
 | entrypoint             | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  | Same as command                                                                                                |
 | env_file               | n  | n  | ✓  |                                                             |                                                                                                                |
 | environment            | ✓  | ✓  | ✓  | Pod.Spec.Container.Env                                      |                                                                                                                |
-| expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports 
+| expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports
 | endpoint_mode          | n  | n  | ✓  |                                                             | If endpoint_mode=vip, the created Service will be forced to set to NodePort type                               |
 | extends                | ✓  | ✓  | ✓  |                                                             | Extends by utilizing the same image supplied                                                                   |
 | external_links         | x  | x  | x  |                                                             | Kubernetes uses a flat-structure for all containers and thus external_links does not have a 1-1 conversion     |
