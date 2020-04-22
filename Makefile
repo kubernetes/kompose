@@ -129,7 +129,6 @@ vendor-update:
 	# a field does not has json tag defined.
 	cp script/vendor-sync/types.go.txt vendor/k8s.io/kubernetes/pkg/api/types.go
 
-
 .PHONY: test-k8s
 test-k8s:
 	./script/test_k8s/test.sh

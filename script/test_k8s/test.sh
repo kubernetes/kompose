@@ -21,6 +21,11 @@ if ! hash kubectl 2>/dev/null; then
   exit 1
 fi
 
+if ! hash kind 2>/dev/null; then
+  echo "ERROR: kind required"
+  exit 1
+fi
+
 # First off, we have to compile the latest binary
 # We *assume* that the binary has already been built
 # make bin

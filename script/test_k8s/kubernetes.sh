@@ -16,40 +16,20 @@ start_k8s() {
     return 1
   fi
 
-  # Uses https://github.com/kubernetes/minikube/tree/master/deploy/docker
-  # In which we have to git clone and create the image..
-  # https://github.com/kubernetes/minikube
-  # Thus we are using a public docker image
+  if [ ! -f /usr/bin/kind ] && [ ! -f /usr/local/bin/kind ]; then
+    echo "No kind bin exists? Please install."
+    return 1
+  fi
 
-  IMAGE=calpicow/localkube-image:v1.5.3
-  docker run -d \
-      --volume=/:/rootfs:ro \
-      --volume=/sys:/sys:rw \
-      --volume=/var/lib/docker:/var/lib/docker:rw \
-      --volume=/var/lib/kubelet:/var/lib/kubelet:rw \
-      --volume=/var/run:/var/run:rw \
-      --net=host \
-      --pid=host \
-      --privileged \
-      --name=minikube \
-      $IMAGE \
-      /localkube start \
-      --apiserver-insecure-address=0.0.0.0 \
-      --apiserver-insecure-port=8080 \
-      --logtostderr=true \
-      --containerized
+  kind create cluster --name kompose-test
 
-  until curl 127.0.0.1:8080 &>/dev/null;
-  do
-      echo ...
-      sleep 1
-  done
+  kubectl cluster-info --context kind-kompose-test
 
   # Set the appropriate .kube/config configuration
-  kubectl config set-cluster dev --server=http://localhost:8080
-  kubectl config set-context dev --cluster=dev --user=default
-  kubectl config use-context dev
-  kubectl config set-credentials default --token=foobar
+  kubectl config set-cluster kind-kompose-test
+  kubectl config use-context kind-kompose-test
+
+  kubectl proxy --port=6443 &
 
   # Debug info:
   # cat ~/.kube/config
@@ -65,16 +45,8 @@ stop_k8s() {
   STOPPING KUBERNETES
   ##########
   "
-  docker rm -f minikube
 
-  # Delete via image name k8s.gcr.io
-  # Delete all containers started (names start with k8s_)
-  # Run twice in-case a container is replicated during that time
-  for run in {0..2}
-  do
-    docker ps -a | grep 'k8s_' | awk '{print $1}' | xargs --no-run-if-empty docker rm -f
-    docker ps -a | grep 'k8s.gcr.io/hyperkube-amd64' | awk '{print $1}' | xargs --no-run-if-empty docker rm -f
-  done
+  kind delete cluster --name kompose-test
 }
 
 wait_k8s() {
@@ -98,32 +70,32 @@ wait_k8s() {
 test_k8s() {
   for f in examples/*.yaml
   do
-    echo -e "\n${RED}kompose up -f $f ${NC}\n"
-    ./kompose up -f $f
+    echo -e "\n${RED}kompose up --server http://127.0.0.1:6443 -f $f ${NC}\n"
+    ./kompose up --server http://127.0.0.1:6443 -f $f
     sleep 2 # Sleep for k8s to catch up to deployment
-    echo -e "\n${RED}kompose down -f $f ${NC}\n"
-    ./kompose down -f $f
+    echo -e "\n${RED}kompose down --server http://127.0.0.1:6443 -f $f ${NC}\n"
+    ./kompose down --server http://127.0.0.1:6443 -f $f
     echo -e "\nTesting controller=daemonset key\n"
-    echo -e "\n${RED}kompose up -f $f --controller=daemonset ${NC}\n"
-    ./kompose up -f $f --controller=daemonset
+    echo -e "\n${RED}kompose up --server http://127.0.0.1:6443 -f $f --controller=daemonset ${NC}\n"
+    ./kompose up --server http://127.0.0.1:6443 -f $f --controller=daemonset
     sleep 2 # Sleep for k8s to catch up to deployment
-    echo -e "\n${RED}kompose down -f $f --controller=daemonset ${NC}\n"
-    ./kompose down -f $f --controller=daemonset
+    echo -e "\n${RED}kompose down --server http://127.0.0.1:6443 -f $f --controller=daemonset ${NC}\n"
+    ./kompose down --server http://127.0.0.1:6443 -f $f --controller=daemonset
     echo -e "\nTesting controller=replicationcontroller key\n"
-    echo -e "\n${RED}kompose up -f $f --controller=replicationcontroller ${NC}\n"
-    ./kompose up -f $f --controller=replicationcontroller
+    echo -e "\n${RED}kompose up --server http://127.0.0.1:6443 -f $f --controller=replicationcontroller ${NC}\n"
+    ./kompose up --server http://127.0.0.1:6443 -f $f --controller=replicationcontroller
     sleep 2 # Sleep for k8s to catch up to deployment
-    echo -e "\n${RED}kompose down -f $f --controller=replicationcontroller ${NC}\n"
-    ./kompose down -f $f --controller=replicationcontroller
+    echo -e "\n${RED}kompose down --server http://127.0.0.1:6443 -f $f --controller=replicationcontroller ${NC}\n"
+    ./kompose down --server http://127.0.0.1:6443 -f $f --controller=replicationcontroller
 
   done
 
   echo -e "\nTesting stdin to kompose\n"
-  echo -e "\n${RED}cat examples/docker-compose.yaml | ./kompose up -f -${NC}\n"
-  cat examples/docker-compose.yaml | ./kompose up -f -
+  echo -e "\n${RED}cat examples/docker-compose.yaml | ./kompose up --server http://127.0.0.1:6443 -f -${NC}\n"
+  cat examples/docker-compose.yaml | ./kompose up --server http://127.0.0.1:6443 -f -
   sleep 2 # Sleep for k8s to catch up to deployment
-  echo -e "\n${RED}cat examples/docker-compose.yaml | ./kompose down -f - ${NC}\n"
-  cat examples/docker-compose.yaml | ./kompose down -f -
+  echo -e "\n${RED}cat examples/docker-compose.yaml | ./kompose down --server http://127.0.0.1:6443 -f - ${NC}\n"
+  cat examples/docker-compose.yaml | ./kompose down --server http://127.0.0.1:6443 -f -
 }
 
 if [[ $1 == "start" ]]; then
