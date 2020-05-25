@@ -21,7 +21,7 @@ __Glossary:__
 | build: args            | n  | n  | n  |                                                             |                                                                                                                |
 | build: cache_from      | -  | -  | n  |                                                             |                                                                                                                |
 | cap_add, cap_drop      | ✓  | ✓  | ✓  | Pod.Spec.Container.SecurityContext.Capabilities.Add/Drop    |                                                                                                                |
-| command                | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  |                                                                                                                |
+| command                | ✓  | ✓  | ✓  | Pod.Spec.Container.Args                                  |                                                                                                                |
 | configs                | n  | n  | ✓  |                                                             |                                                                                                                |
 | configs: short-syntax  | n  | n  | ✓  |                                                             | Only create configMap                                                                                          |
 | configs: long-syntax   | n  | n  | ✓  |                                                             | If target path is /, ignore this and only create configMap                                                     |
@@ -42,7 +42,7 @@ __Glossary:__
 | dns_search             | x  | x  | x  |                                                             | See `dns` key                                                                                                  |
 | domainname             | ✓  | ✓  | ✓  | Pod.Spec.SubDomain                                          |
 | tmpfs                  | ✓  | ✓  | ✓  | Pod.Spec.Containers.Volumes.EmptyDir                        | Creates emptyDirvolume with medium set to Memory & mounts given directory inside container                     |
-| entrypoint             | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  | Same as command                                                                                                |
+| entrypoint             | ✓  | ✓  | ✓  | Pod.Spec.Container.Command                                  |                                                                                                                |
 | env_file               | n  | n  | ✓  |                                                             |                                                                                                                |
 | environment            | ✓  | ✓  | ✓  | Pod.Spec.Container.Env                                      |                                                                                                                |
 | expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports 
