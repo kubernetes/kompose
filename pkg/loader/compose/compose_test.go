@@ -382,7 +382,7 @@ func TestNormalizeNetworkNames(t *testing.T) {
 	for _, testCase := range testCases {
 		returnValue, err := normalizeNetworkNames(testCase.composeNetworkName)
 		if err != nil {
-			t.Log("Unxpected error, got ", err)
+			t.Log("Unexpected error, got ", err)
 		}
 		if returnValue != testCase.normalizedNetworkName {
 			t.Logf("Expected %q, got %q", testCase.normalizedNetworkName, returnValue)
