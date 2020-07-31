@@ -48,6 +48,8 @@ var (
 	ConvertPushImage             bool
 	ConvertOpt                   kobject.ConvertOptions
 	ConvertYAMLIndent            int
+
+	UpBuild string
 )
 
 var convertCmd = &cobra.Command{

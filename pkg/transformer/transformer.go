@@ -25,8 +25,4 @@ import (
 type Transformer interface {
 	// Transform converts KomposeObject to transformer specific objects.
 	Transform(kobject.KomposeObject, kobject.ConvertOptions) ([]runtime.Object, error)
-	// Deploy deploys KomposeObject to provider
-	Deploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) error
-	// Undeploy deletes/undeploys KomposeObject from provider
-	Undeploy(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) []error
 }

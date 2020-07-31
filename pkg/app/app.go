@@ -253,66 +253,8 @@ func Convert(opt kobject.ConvertOptions) {
 	}
 }
 
-// Up brings up deployment, svc.
-func Up(opt kobject.ConvertOptions) {
 
-	validateControllers(&opt)
 
-	// loader parses input from file into komposeObject.
-	l, err := loader.GetLoader(inputFormat)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	komposeObject := kobject.KomposeObject{
-		ServiceConfigs: make(map[string]kobject.ServiceConfig),
-	}
-	komposeObject, err = l.LoadFile(opt.InputFiles)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-
-	// Get the transformer
-	t := getTransformer(opt)
-
-	//Submit objects to provider
-	errDeploy := t.Deploy(komposeObject, opt)
-	if errDeploy != nil {
-		log.Fatalf("Error while deploying application: %s", errDeploy)
-	}
-}
-
-// Down deletes all deployment, svc.
-func Down(opt kobject.ConvertOptions) {
-
-	validateControllers(&opt)
-
-	// loader parses input from file into komposeObject.
-	l, err := loader.GetLoader(inputFormat)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	komposeObject := kobject.KomposeObject{
-		ServiceConfigs: make(map[string]kobject.ServiceConfig),
-	}
-	komposeObject, err = l.LoadFile(opt.InputFiles)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-
-	// Get the transformer
-	t := getTransformer(opt)
-
-	//Remove deployed application
-	errUndeploy := t.Undeploy(komposeObject, opt)
-	if errUndeploy != nil {
-		for _, err = range errUndeploy {
-			log.Fatalf("Error while deleting application: %s", err)
-		}
-	}
-
-}
 
 // Convenience method to return the appropriate Transformer based on
 // what provider we are using.
