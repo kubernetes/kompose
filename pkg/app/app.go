@@ -253,9 +253,6 @@ func Convert(opt kobject.ConvertOptions) {
 	}
 }
 
-
-
-
 // Convenience method to return the appropriate Transformer based on
 // what provider we are using.
 func getTransformer(opt kobject.ConvertOptions) transformer.Transformer {
