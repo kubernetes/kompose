@@ -17,10 +17,11 @@ limitations under the License.
 package compose
 
 import (
-	"github.com/spf13/cast"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/spf13/cast"
 
 	libcomposeyaml "github.com/docker/libcompose/yaml"
 
@@ -310,6 +311,10 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.HostName = composeServiceConfig.Hostname
 		serviceConfig.DomainName = composeServiceConfig.DomainName
 		serviceConfig.Secrets = composeServiceConfig.Secrets
+
+		if composeServiceConfig.StopGracePeriod != nil {
+			serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod.String()
+		}
 
 		parseV3Network(&composeServiceConfig, &serviceConfig, composeObject)
 
@@ -725,9 +730,6 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 		}
 		if service.StdinOpen != tmpOldService.StdinOpen {
 			tmpOldService.StdinOpen = service.StdinOpen
-		}
-		if service.StopGracePeriod != nil {
-			tmpOldService.StopGracePeriod = service.StopGracePeriod
 		}
 		if service.StopSignal != "" {
 			tmpOldService.StopSignal = service.StopSignal

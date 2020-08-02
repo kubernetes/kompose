@@ -367,6 +367,7 @@
           }
         ],
         "restartPolicy": "OnFailure",
+        "terminationGracePeriodSeconds": 20,
         "hostname": "foo",
         "subdomain": "foo.com"
       },
