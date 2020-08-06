@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"k8s.io/kubernetes/pkg/api/meta"
 	"os"
 	"path"
 	"path/filepath"
@@ -674,16 +675,17 @@ func (k *Kubernetes) SortServicesFirst(objs *[]runtime.Object) {
 }
 
 // RemoveDupObjects remove objects that are dups...eg. configmaps from env.
-// since we know for sure that the duplication can only happends on ConfigMap, so
+// since we know for sure that the duplication can only happens on ConfigMap, so
 // this code will looks like this for now.
+// + NetworkPolicy
 func (k *Kubernetes) RemoveDupObjects(objs *[]runtime.Object) {
 	var result []runtime.Object
 	exist := map[string]bool{}
 	for _, obj := range *objs {
-		if us, ok := obj.(*api.ConfigMap); ok {
-			k := us.GroupVersionKind().String() + us.GetNamespace() + us.GetName()
+		if us, ok := obj.(meta.Object); ok {
+			k := obj.GetObjectKind().GroupVersionKind().String() + us.GetNamespace() + us.GetName()
 			if exist[k] {
-				log.Debugf("Remove duplicate configmap: %s", us.GetName())
+				log.Debugf("Remove duplicate resource: %s/%s", obj.GetObjectKind().GroupVersionKind().Kind, us.GetName())
 				continue
 			} else {
 				result = append(result, obj)
