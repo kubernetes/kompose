@@ -1085,8 +1085,9 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 			APIVersion: "v1",
 		},
 		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
+			Name:        name,
+			Labels:      transformer.ConfigLabels(name),
+			Annotations: transformer.ConfigAnnotations(service),
 		},
 		Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 	}

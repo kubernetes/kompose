@@ -157,6 +157,13 @@
           "io.kompose.network/other-other-network": "true",
           "io.kompose.network/some-network": "true",
           "io.kompose.service": "foo"
+        },
+        "annotations": {
+          "com.example.description": "Accounting webapp",
+          "com.example.empty-label": "",
+          "com.example.number": "42",
+          "kompose.cmd": "%CMD%",
+          "kompose.version": "%VERSION%"
         }
       },
       "spec": {

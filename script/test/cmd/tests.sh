@@ -295,15 +295,29 @@ convert::expect_success_and_warning "$cmd" "/tmp/output-os.json" "Unsupported de
 ######
 # Test related to restart options in docker-compose
 # kubernetes test
-convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-no.json"
-convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-onfail.json"
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-no.json" > /tmp/output-k8s.json
+convert::expect_success "$cmd" /tmp/output-k8s.json
+
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-onfail.json" > /tmp/output-k8s.json
+convert::expect_success "$cmd" /tmp/output-k8s.json
+
+# convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-no.json"
+# convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-onfail.json"
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-unless-stopped.yml convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-k8s-restart-unless-stopped.json" > /tmp/output-k8s.json
 convert::expect_success_and_warning "$cmd" /tmp/output-k8s.json
 
 # openshift test
-convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml --provider openshift convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-no.json"
-convert::expect_success "kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml --provider openshift convert --stdout -j" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-onfail.json"
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-no.yml --provider openshift convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-no.json" > /tmp/output-os.json
+convert::expect_success "$cmd" /tmp/output-os.json
+
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-onfail.yml --provider openshift convert --stdout -j"
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-onfail.json" > /tmp/output-os.json
+convert::expect_success  "$cmd" /tmp/output-os.json
+
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/restart-options/docker-compose-restart-unless-stopped.yml --provider openshift convert --stdout -j"
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/restart-options/output-os-restart-unless-stopped.json" > /tmp/output-os.json
 convert::expect_success_and_warning "$cmd" /tmp/output-os.json
