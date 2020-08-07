@@ -11,3 +11,16 @@ services:
       timeout: 1s
       retries: 5
     restart: "unless-stopped"
+  foo:
+    image: foo:latest
+    command: sh -c "echo Hello Foo"
+    networks:
+      app: {}
+      web: {}
+networks:
+  app:
+    external:
+      name: app-network
+  web:
+    external:
+      name: web-network
