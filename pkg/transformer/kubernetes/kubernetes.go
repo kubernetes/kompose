@@ -1072,7 +1072,7 @@ func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*netw
 	np := &networkingv1.NetworkPolicy{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "NetworkPolicy",
-			APIVersion: "extensions/v1beta1",
+			APIVersion: "networking.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: networkName,
