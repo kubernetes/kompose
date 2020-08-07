@@ -12,6 +12,8 @@ replace github.com/xeipuuv/gojsonschema => github.com/xeipuuv/gojsonschema v0.0.
 
 replace github.com/docker/docker => github.com/docker/docker v17.12.0-ce-rc1.0.20180220021536-8e435b8279f2+incompatible
 
+replace golang.org/x/sys => golang.org/x/sys v0.0.0-20190830141801-acfa387b8d69
+
 require (
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/docker/cli v0.0.0-00010101000000-000000000000

@@ -153,8 +153,7 @@ golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
-# golang.org/x/sys v0.0.0-20200622214017-ed371f2e16b4
-golang.org/x/sys/internal/unsafeheader
+# golang.org/x/sys v0.0.0-20200622214017-ed371f2e16b4 => golang.org/x/sys v0.0.0-20190830141801-acfa387b8d69
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/text v0.3.3
