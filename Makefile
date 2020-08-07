@@ -26,7 +26,7 @@ all: bin
 
 .PHONY: bin
 bin:
-	CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -o kompose main.go
+	CGO_ENABLED=0 GO111MODULE=on go build  ${BUILD_FLAGS} -o kompose main.go
 
 .PHONY: install
 install:
@@ -35,11 +35,11 @@ install:
 # kompile kompose for multiple platforms
 .PHONY: cross
 cross:
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-linux-amd64" main.go
-	GOOS=linux GOARCH=arm CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-linux-arm" main.go
-	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-linux-arm64" main.go
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-windows-amd64" main.go
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-darwin-amd64" main.go
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build  ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-linux-amd64" main.go
+	GOOS=linux GOARCH=arm CGO_ENABLED=0 GO111MODULE=on go build  ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-linux-arm" main.go
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 GO111MODULE=on go build  ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-linux-arm64" main.go
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build  ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-windows-amd64" main.go
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build  ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-darwin-amd64" main.go
 
 .PHONY: clean
 clean:
