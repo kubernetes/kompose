@@ -18,6 +18,8 @@ package openshift
 
 import (
 	"fmt"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"os"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -25,19 +27,18 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	kapi "k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/api/unversioned"
-	"k8s.io/kubernetes/pkg/runtime"
+	deployapi "github.com/openshift/api/apps/v1"
+	buildapi "github.com/openshift/api/build/v1"
+	imageapi "github.com/openshift/api/image/v1"
+	routeapi "github.com/openshift/api/route/v1"
+	corev1 "k8s.io/api/core/v1"
+	kapi "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"sort"
 
 	"github.com/kubernetes/kompose/pkg/transformer"
-	buildapi "github.com/openshift/origin/pkg/build/api"
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
-	imageapi "github.com/openshift/origin/pkg/image/api"
-	routeapi "github.com/openshift/origin/pkg/route/api"
+
 	"github.com/pkg/errors"
-	"k8s.io/kubernetes/pkg/util/intstr"
 )
 
 // OpenShift implements Transformer interface and represents OpenShift transformer
@@ -66,29 +67,28 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 	}
 
 	// Retrieve tags and image name for mapping
-	tag := GetImageTag(service.Image)
 
 	var importPolicy imageapi.TagImportPolicy
 	if opt.InsecureRepository {
 		importPolicy = imageapi.TagImportPolicy{Insecure: true}
 	}
 
-	var tags map[string]imageapi.TagReference
+	var tags []imageapi.TagReference
 
 	if service.Build != "" || opt.Build != "build-config" {
-		tags = map[string]imageapi.TagReference{
-			tag: imageapi.TagReference{
-				From: &kapi.ObjectReference{
+		tags = append(tags,
+			imageapi.TagReference{
+				From: &corev1.ObjectReference{
 					Kind: "DockerImage",
 					Name: service.Image,
 				},
 				ImportPolicy: importPolicy,
-			},
-		}
+			})
+
 	}
 
 	is := &imageapi.ImageStream{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: kapi.TypeMeta{
 			Kind:       "ImageStream",
 			APIVersion: "v1",
 		},
@@ -110,7 +110,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 		if *envValue == "\x00" {
 			*envValue = os.Getenv(envName)
 		}
-		envList = append(envList, kapi.EnvVar{Name: envName, Value: *envValue})
+		envList = append(envList, corev1.EnvVar{Name: envName, Value: *envValue})
 	}
 	// Stable sorts data while keeping the original order of equal elements
 	// we need this because envs are not populated in any random order
@@ -121,7 +121,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 	}
 
 	bc := &buildapi.BuildConfig{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: kapi.TypeMeta{
 			Kind:       "BuildConfig",
 			APIVersion: "v1",
 		},
@@ -150,7 +150,7 @@ func initBuildConfig(name string, service kobject.ServiceConfig, repo string, br
 					},
 				},
 				Output: buildapi.BuildOutput{
-					To: &kapi.ObjectReference{
+					To: &corev1.ObjectReference{
 						Kind: "ImageStreamTag",
 						Name: name + ":" + GetImageTag(service.Image),
 					},
@@ -173,7 +173,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 		containerName = []string{service.ContainerName}
 	}
 
-	var podSpec kapi.PodSpec
+	var podSpec corev1.PodSpec
 	if len(service.Configs) > 0 {
 		podSpec = o.InitPodSpecWithConfigMap(name, " ", service)
 	} else {
@@ -181,7 +181,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 	}
 
 	dc := &deployapi.DeploymentConfig{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: kapi.TypeMeta{
 			Kind:       "DeploymentConfig",
 			APIVersion: "v1",
 		},
@@ -193,7 +193,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 			Replicas: int32(replicas),
 			Selector: transformer.ConfigLabels(name),
 			//UniqueLabelKey: p.Name,
-			Template: &kapi.PodTemplateSpec{
+			Template: &corev1.PodTemplateSpec{
 				ObjectMeta: kapi.ObjectMeta{
 					Labels: transformer.ConfigLabels(name),
 				},
@@ -210,7 +210,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 						//Automatic - if new tag is detected - update image update inside the pod template
 						Automatic:      true,
 						ContainerNames: containerName,
-						From: kapi.ObjectReference{
+						From: corev1.ObjectReference{
 							Name: name + ":" + tag,
 							Kind: "ImageStreamTag",
 						},
@@ -234,7 +234,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 
 func (o *OpenShift) initRoute(name string, service kobject.ServiceConfig, port int32) *routeapi.Route {
 	route := &routeapi.Route{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: kapi.TypeMeta{
 			Kind:       "Route",
 			APIVersion: "v1",
 		},
@@ -422,7 +422,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	// sort all object so Services are first
 	o.SortServicesFirst(&allobjects)
 	o.RemoveDupObjects(&allobjects)
-	o.FixWorkloadVersion(&allobjects)
+	// o.FixWorkloadVersion(&allobjects)
 
 	return allobjects, nil
 }

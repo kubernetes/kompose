@@ -2,9 +2,8 @@ package testutils
 
 import (
 	"errors"
-
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/runtime"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // CheckForHeadless is helper function for tests.
@@ -12,7 +11,7 @@ import (
 func CheckForHeadless(objects []runtime.Object) error {
 	serviceCreated := false
 	for _, obj := range objects {
-		if svc, ok := obj.(*api.Service); ok {
+		if svc, ok := obj.(*v1.Service); ok {
 			serviceCreated = true
 			// Check if it is a headless services
 			if svc.Spec.ClusterIP != "None" {

@@ -183,10 +183,6 @@ func setWithProperType(t reflect.Type, key *Key, field reflect.Value, delim stri
 		if vt.Name() == "Duration" {
 			durationVal, err := key.Duration()
 			if err != nil {
-				if intVal, err := key.Int64(); err == nil {
-					field.SetInt(intVal)
-					return nil
-				}
 				return wrapStrictError(err, isStrict)
 			}
 			if isPtr {

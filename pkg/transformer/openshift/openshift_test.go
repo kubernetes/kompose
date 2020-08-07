@@ -17,20 +17,21 @@ limitations under the License.
 package openshift
 
 import (
-	kapi "k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/runtime"
+	deployapi "github.com/openshift/api/apps/v1"
+
+	"k8s.io/apimachinery/pkg/runtime"
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
-
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/testutils"
 	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
 	"github.com/pkg/errors"
+
+	corev1 "k8s.io/api/core/v1"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
@@ -38,7 +39,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		ContainerName: "myfoobarname",
 		Image:         "image",
 		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: kapi.ProtocolTCP}},
+		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: corev1.ProtocolTCP}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
@@ -286,7 +287,7 @@ func TestInitBuildConfig(t *testing.T) {
 	serviceName := "serviceA"
 	repo := "https://git.test.com/org/repo1"
 	branch := "somebranch"
-	buildArgs := []kapi.EnvVar{{Name: "name", Value: "value"}}
+	buildArgs := []corev1.EnvVar{{Name: "name", Value: "value"}}
 	value := "value"
 	testDir := "a/build"
 

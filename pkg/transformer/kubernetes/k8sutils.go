@@ -21,7 +21,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"k8s.io/kubernetes/pkg/api/meta"
+	api "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+
 	"os"
 	"path"
 	"path/filepath"
@@ -37,16 +42,11 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/api/unversioned"
-	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/runtime"
-
+	appsv1 "k8s.io/api/apps/v1"
 	"sort"
 
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	deployapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
-	"k8s.io/kubernetes/pkg/api/resource"
 )
 
 /**
@@ -150,6 +150,18 @@ func getDirName(opt kobject.ConvertOptions) string {
 	return dirName
 }
 
+func objectToRaw(object runtime.Object) runtime.RawExtension {
+	r := runtime.RawExtension{
+		Object: object,
+	}
+
+	bytes, _ := json.Marshal(object)
+	r.Raw = bytes
+
+	return r
+
+}
+
 // PrintList will take the data converted and decide on the commandline attributes given
 func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 
@@ -181,16 +193,18 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		list := &api.List{}
 		// convert objects to versioned and add them to list
 		for _, object := range objects {
-			versionedObject, err := convertToVersion(object, unversioned.GroupVersion{})
+			versionedObject, err := convertToVersion(object, metav1.GroupVersion{})
 			if err != nil {
 				return err
 			}
 
-			list.Items = append(list.Items, versionedObject)
+			list.Items = append(list.Items, objectToRaw(versionedObject))
 
 		}
 		// version list itself
-		listVersion := unversioned.GroupVersion{Group: "", Version: "v1"}
+		listVersion := metav1.GroupVersion{Group: "", Version: "v1"}
+		list.Kind = "List"
+		list.APIVersion = "v1"
 		convertedList, err := convertToVersion(list, listVersion)
 		if err != nil {
 			return err
@@ -217,7 +231,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		var file string
 		// create a separate file for each provider
 		for _, v := range objects {
-			versionedObject, err := convertToVersion(v, unversioned.GroupVersion{})
+			versionedObject, err := convertToVersion(v, metav1.GroupVersion{})
 			if err != nil {
 				return err
 			}
@@ -226,26 +240,26 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 				return err
 			}
 
-			var typeMeta unversioned.TypeMeta
-			var objectMeta api.ObjectMeta
+			var typeMeta metav1.TypeMeta
+			var objectMeta metav1.ObjectMeta
 
-			if us, ok := v.(*runtime.Unstructured); ok {
-				typeMeta = unversioned.TypeMeta{
+			if us, ok := v.(*unstructured.Unstructured); ok {
+				typeMeta = metav1.TypeMeta{
 					Kind:       us.GetKind(),
 					APIVersion: us.GetAPIVersion(),
 				}
-				objectMeta = api.ObjectMeta{
+				objectMeta = metav1.ObjectMeta{
 					Name: us.GetName(),
 				}
 			} else {
 				val := reflect.ValueOf(v).Elem()
 				// Use reflect to access TypeMeta struct inside runtime.Object.
-				// cast it to correct type - unversioned.TypeMeta
-				typeMeta = val.FieldByName("TypeMeta").Interface().(unversioned.TypeMeta)
+				// cast it to correct type - metav1.TypeMeta
+				typeMeta = val.FieldByName("TypeMeta").Interface().(metav1.TypeMeta)
 
 				// Use reflect to access ObjectMeta struct inside runtime.Object.
 				// cast it to correct type - api.ObjectMeta
-				objectMeta = val.FieldByName("ObjectMeta").Interface().(api.ObjectMeta)
+				objectMeta = val.FieldByName("ObjectMeta").Interface().(metav1.ObjectMeta)
 
 			}
 
@@ -321,27 +335,29 @@ func marshalWithIndent(o interface{}, indent int) ([]byte, error) {
 }
 
 // Convert object to versioned object
-// if groupVersion is  empty (unversioned.GroupVersion{}), use version from original object (obj)
-func convertToVersion(obj runtime.Object, groupVersion unversioned.GroupVersion) (runtime.Object, error) {
+// if groupVersion is  empty (metav1.GroupVersion{}), use version from original object (obj)
+func convertToVersion(obj runtime.Object, groupVersion metav1.GroupVersion) (runtime.Object, error) {
 
 	// ignore unstruct object
-	if _, ok := obj.(*runtime.Unstructured); ok {
+	if _, ok := obj.(*unstructured.Unstructured); ok {
 		return obj, nil
 	}
 
-	var version unversioned.GroupVersion
+	return obj, nil
 
-	if groupVersion.Empty() {
-		objectVersion := obj.GetObjectKind().GroupVersionKind()
-		version = unversioned.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
-	} else {
-		version = groupVersion
-	}
-	convertedObject, err := api.Scheme.ConvertToVersion(obj, version)
-	if err != nil {
-		return nil, err
-	}
-	return convertedObject, nil
+	//var version metav1.GroupVersion
+	//
+	//if groupVersion.Empty() {
+	//	objectVersion := obj.GetObjectKind().GroupVersionKind()
+	//	version = metav1.GroupVersion{Group: objectVersion.Group, Version: objectVersion.Version}
+	//} else {
+	//	version = groupVersion
+	//}
+	//convertedObject, err := api.Scheme.ConvertToVersion(obj, version)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return convertedObject, nil
 }
 
 // PortsExist checks if service has ports defined
@@ -500,7 +516,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		//set pid namespace mode
 		if service.Pid != "" {
 			if service.Pid == "host" {
-				podSecurityContext.HostPID = true
+				// podSecurityContext.HostPID = true
 			} else {
 				log.Warningf("Ignoring PID key for service \"%v\". Invalid value \"%v\".", name, service.Pid)
 			}
@@ -567,7 +583,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	}
 
 	// fillObjectMeta fills the metadata with the value calculated from config
-	fillObjectMeta := func(meta *api.ObjectMeta) {
+	fillObjectMeta := func(meta *metav1.ObjectMeta) {
 		meta.Annotations = annotations
 	}
 
@@ -579,8 +595,8 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		}
 		if len(service.Volumes) > 0 {
 			switch objType := obj.(type) {
-			case *extensions.Deployment:
-				objType.Spec.Strategy.Type = extensions.RecreateDeploymentStrategyType
+			case *appsv1.Deployment:
+				objType.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 			case *deployapi.DeploymentConfig:
 				objType.Spec.Strategy.Type = deployapi.DeploymentStrategyTypeRecreate
 			}
@@ -682,7 +698,7 @@ func (k *Kubernetes) RemoveDupObjects(objs *[]runtime.Object) {
 	var result []runtime.Object
 	exist := map[string]bool{}
 	for _, obj := range *objs {
-		if us, ok := obj.(meta.Object); ok {
+		if us, ok := obj.(metav1.Object); ok {
 			k := obj.GetObjectKind().GroupVersionKind().String() + us.GetNamespace() + us.GetName()
 			if exist[k] {
 				log.Debugf("Remove duplicate resource: %s/%s", obj.GetObjectKind().GroupVersionKind().Kind, us.GetName())
@@ -695,39 +711,6 @@ func (k *Kubernetes) RemoveDupObjects(objs *[]runtime.Object) {
 			result = append(result, obj)
 		}
 
-	}
-	*objs = result
-}
-
-func resetWorkloadAPIVersion(d runtime.Object) runtime.Object {
-	data, err := json.Marshal(d)
-	if err == nil {
-		var us runtime.Unstructured
-		if err := json.Unmarshal(data, &us); err == nil {
-			us.SetGroupVersionKind(unversioned.GroupVersionKind{
-				Group:   "apps",
-				Version: "v1",
-				Kind:    d.GetObjectKind().GroupVersionKind().Kind,
-			})
-			return &us
-		}
-	}
-	return d
-}
-
-// FixWorkloadVersion force reset deployment/daemonset's apiversion to apps/v1
-func (k *Kubernetes) FixWorkloadVersion(objs *[]runtime.Object) {
-	var result []runtime.Object
-	for _, obj := range *objs {
-		if d, ok := obj.(*extensions.Deployment); ok {
-			nd := resetWorkloadAPIVersion(d)
-			result = append(result, nd)
-		} else if d, ok := obj.(*extensions.DaemonSet); ok {
-			nd := resetWorkloadAPIVersion(d)
-			result = append(result, nd)
-		} else {
-			result = append(result, obj)
-		}
 	}
 	*objs = result
 }

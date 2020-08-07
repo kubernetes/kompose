@@ -1,4 +1,4 @@
-// Copyright 2017 The Go Authors.  All rights reserved.
+// Copyright 2017 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -23,4 +23,9 @@ const (
 	PAGE_EXECUTE_READ      = 0x20
 	PAGE_EXECUTE_READWRITE = 0x40
 	PAGE_EXECUTE_WRITECOPY = 0x80
+
+	QUOTA_LIMITS_HARDWS_MIN_DISABLE = 0x00000002
+	QUOTA_LIMITS_HARDWS_MIN_ENABLE  = 0x00000001
+	QUOTA_LIMITS_HARDWS_MAX_DISABLE = 0x00000008
+	QUOTA_LIMITS_HARDWS_MAX_ENABLE  = 0x00000004
 )

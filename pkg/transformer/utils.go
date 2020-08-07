@@ -35,7 +35,8 @@ import (
 	"github.com/kubernetes/kompose/pkg/version"
 
 	"github.com/pkg/errors"
-	"k8s.io/kubernetes/pkg/api"
+
+	api "k8s.io/api/core/v1"
 )
 
 // Selector used as labels and selector
