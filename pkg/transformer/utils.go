@@ -156,6 +156,11 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 	for key, value := range service.Annotations {
 		annotations[key] = value
 	}
+
+	if !service.WithKomposeAnnotation {
+		return annotations
+	}
+
 	annotations["kompose.cmd"] = strings.Join(os.Args, " ")
 	versionCmd := exec.Command("kompose", "version")
 	out, err := versionCmd.Output()

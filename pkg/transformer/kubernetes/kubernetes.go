@@ -351,7 +351,7 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 	dc := &appsv1.Deployment{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Deployment",
-			APIVersion: "apps/",
+			APIVersion: "apps/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   name,
@@ -1116,6 +1116,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
+
+		service.WithKomposeAnnotation = opt.WithKomposeAnnotation
 
 		// Must build the images before conversion (got to add service.Image in case 'image' key isn't provided
 		// Check that --build is set to true

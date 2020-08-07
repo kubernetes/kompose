@@ -1,0 +1,237 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "2345",
+            "port": 2345,
+            "targetPort": 2345
+          },
+          {
+            "name": "6379",
+            "port": 6379,
+            "targetPort": 6379
+          },
+          {
+            "name": "6379-udp",
+            "protocol": "UDP",
+            "port": 6379,
+            "targetPort": 6379
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6379",
+            "port": 6379,
+            "targetPort": 6379
+          },
+          {
+            "name": "1234",
+            "protocol": "UDP",
+            "port": 1234,
+            "targetPort": 1235
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Pod",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "foo",
+            "image": "foobar",
+            "ports": [
+              {
+                "containerPort": 2345
+              },
+              {
+                "containerPort": 6379
+              },
+              {
+                "containerPort": 6379,
+                "protocol": "UDP"
+              }
+            ],
+            "env": [
+              {
+                "name": "GITHUB",
+                "value": "surajssd"
+              }
+            ],
+            "resources": {
+              "limits": {
+                "memory": "10e3"
+              }
+            }
+          }
+        ],
+        "restartPolicy": "Never",
+        "securityContext": {
+          "supplementalGroups": [
+            1234
+          ]
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "redis"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "redis:3.0"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "redis"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 6379
+                  },
+                  {
+                    "containerPort": 1235,
+                    "protocol": "UDP"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "10485760e3"
+                  }
+                }
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {
+        "latestVersion": 0,
+        "observedGeneration": 0,
+        "replicas": 0,
+        "updatedReplicas": 0,
+        "availableReplicas": 0,
+        "unavailableReplicas": 0
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        },
+        "tags": [
+          {
+            "name": "",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "redis:3.0"
+            },
+            "generation": null,
+            "importPolicy": {},
+            "referencePolicy": {
+              "type": ""
+            }
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    }
+  ]
+}

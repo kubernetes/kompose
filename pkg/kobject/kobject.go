@@ -74,6 +74,8 @@ type ConvertOptions struct {
 	Server string
 
 	YAMLIndent int
+
+	WithKomposeAnnotation bool
 }
 
 // ServiceConfig holds the basic struct of a container
@@ -136,6 +138,8 @@ type ServiceConfig struct {
 	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
 	ConfigsMetaData map[string]dockerCliTypes.ConfigObjConfig `compose:""`
+
+	WithKomposeAnnotation bool `compose:""`
 }
 
 // HealthCheck the healthcheck configuration for a service

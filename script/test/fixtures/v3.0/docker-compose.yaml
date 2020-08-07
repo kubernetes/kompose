@@ -10,3 +10,4 @@ services:
       interval: 10s
       timeout: 1s
       retries: 5
+    restart: "unless-stopped"

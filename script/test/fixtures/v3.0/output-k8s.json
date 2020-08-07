@@ -13,45 +13,38 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
+          "kompose.service.type": "headless"
         }
       },
       "spec": {
         "ports": [
           {
-            "name": "6379",
-            "port": 6379,
-            "targetPort": 6379
-          },
-          {
-            "name": "1234",
-            "protocol": "UDP",
-            "port": 1234,
-            "targetPort": 1235
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
           }
         ],
         "selector": {
           "io.kompose.service": "redis"
-        }
+        },
+        "clusterIP": "None"
       },
       "status": {
         "loadBalancer": {}
       }
     },
     {
-      "apiVersion": "apps/v1",
       "kind": "Deployment",
+      "apiVersion": "apps/v1",
       "metadata": {
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        },
+        "name": "redis",
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
         },
-        "name": "redis"
+        "annotations": {
+          "kompose.service.type": "headless"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -60,45 +53,38 @@
             "io.kompose.service": "redis"
           }
         },
-        "strategy": {},
         "template": {
           "metadata": {
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
-            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.service.type": "headless"
             }
           },
           "spec": {
             "containers": [
               {
-                "image": "redis:3.0",
-                "imagePullPolicy": "",
                 "name": "redis",
-                "ports": [
-                  {
-                    "containerPort": 6379
+                "image": "redis",
+                "resources": {},
+                "livenessProbe": {
+                  "exec": {
+                    "command": [
+                      "echo \"hello world\""
+                    ]
                   },
-                  {
-                    "containerPort": 1235,
-                    "protocol": "UDP"
-                  }
-                ],
-                "resources": {
-                  "limits": {
-                    "memory": "10485760e3"
-                  }
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
                 }
               }
             ],
-            "restartPolicy": "Always",
-            "serviceAccountName": "",
-            "volumes": null
+            "restartPolicy": "Always"
           }
-        }
+        },
+        "strategy": {}
       },
       "status": {}
     }

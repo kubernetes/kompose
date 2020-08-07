@@ -13,9 +13,7 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.service.type": "headless",
-          "kompose.version": "%VERSION%"
+          "kompose.service.type": "headless"
         }
       },
       "spec": {
@@ -45,9 +43,7 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.service.type": "headless",
-          "kompose.version": "%VERSION%"
+          "kompose.service.type": "headless"
         }
       },
       "spec": {
@@ -95,7 +91,10 @@
                     "command": [
                       "echo \"hello world\""
                     ]
-                  }
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
                 }
               }
             ],
@@ -103,7 +102,14 @@
           }
         }
       },
-      "status": {}
+      "status": {
+        "latestVersion": 0,
+        "observedGeneration": 0,
+        "replicas": 0,
+        "updatedReplicas": 0,
+        "availableReplicas": 0,
+        "unavailableReplicas": 0
+      }
     },
     {
       "kind": "ImageStream",
@@ -116,16 +122,22 @@
         }
       },
       "spec": {
+        "lookupPolicy": {
+          "local": false
+        },
         "tags": [
           {
-            "name": "latest",
+            "name": "",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
               "name": "redis"
             },
             "generation": null,
-            "importPolicy": {}
+            "importPolicy": {},
+            "referencePolicy": {
+              "type": ""
+            }
           }
         ]
       },

@@ -1,0 +1,27 @@
+version: "2"
+
+services:
+  foo:
+    # create a pod
+    image: "foobar"
+    restart: "no"
+    environment:
+      GITHUB: surajssd
+    ports:
+      - "2345"
+      - "6379/tcp"
+      - "6379/udp"
+    mem_limit: 10000
+
+    group_add:
+      - "1234"
+
+  redis:
+    image: redis:3.0
+    ports:
+      - "6379/tcp"
+      - "1234:1235/udp"
+
+    mem_limit: 10000Mb
+
+

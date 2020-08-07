@@ -64,7 +64,7 @@ test-openshift:
 # run commandline tests
 .PHONY: test-cmd
 test-cmd:
-	./script/test/cmd/tests.sh
+	./script/test/cmd/tests_new.sh
 
 # generate commandline tests
 .PHONY: gen-cmd
