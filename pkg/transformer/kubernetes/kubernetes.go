@@ -21,29 +21,25 @@ import (
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/transformer"
-	buildapi "github.com/openshift/origin/pkg/build/api"
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	deployapi "github.com/openshift/api/apps/v1"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	api "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"os"
 	"path"
 	"reflect"
 	"regexp"
 	"strconv"
 
-	// install kubernetes api
-	_ "k8s.io/kubernetes/pkg/api/install"
-	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
+	buildapi "github.com/openshift/api/build/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	networkingv1 "k8s.io/api/networking/v1"
+	networkingv1beta1 "k8s.io/api/networking/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/api/resource"
-	"k8s.io/kubernetes/pkg/api/unversioned"
-	"k8s.io/kubernetes/pkg/apis/extensions"
-
-	"k8s.io/kubernetes/pkg/runtime"
-	"k8s.io/kubernetes/pkg/util/intstr"
-
-	//"k8s.io/kubernetes/pkg/controller/daemon"
 	"sort"
 	"strings"
 
@@ -200,38 +196,14 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 	return pod
 }
 
-// InitRC initializes Kubernetes ReplicationController object
-func (k *Kubernetes) InitRC(name string, service kobject.ServiceConfig, replicas int) *api.ReplicationController {
-	rc := &api.ReplicationController{
-		TypeMeta: unversioned.TypeMeta{
-			Kind:       "ReplicationController",
-			APIVersion: "v1",
-		},
-		ObjectMeta: api.ObjectMeta{
-			Name:   name,
-			Labels: transformer.ConfigLabels(name),
-		},
-		Spec: api.ReplicationControllerSpec{
-			Replicas: int32(replicas),
-			Template: &api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
-					Labels: transformer.ConfigLabels(name),
-				},
-				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
-			},
-		},
-	}
-	return rc
-}
-
 // InitSvc initializes Kubernetes Service object
 func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Service {
 	svc := &api.Service{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "Service",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
@@ -256,11 +228,11 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceCon
 
 	// In order to differentiate files, we append to the name and remove '.env' if applicable from the file name
 	configMap := &api.ConfigMap{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConfigMap",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:   envName,
 			Labels: transformer.ConfigLabels(name + "-" + envName),
 		},
@@ -275,11 +247,11 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceCon
 //   1. volume
 func (k *Kubernetes) IntiConfigMapFromFileOrDir(name, cmName, filePath string, service kobject.ServiceConfig) (*api.ConfigMap, error) {
 	configMap := &api.ConfigMap{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConfigMap",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:   cmName,
 			Labels: transformer.ConfigLabels(name),
 		},
@@ -351,11 +323,11 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 		}
 	}
 	configMap := &api.ConfigMap{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConfigMap",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:   FormatFileName(configMapName),
 			Labels: transformer.ConfigLabels(name),
 		},
@@ -365,7 +337,7 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 }
 
 // InitD initializes Kubernetes Deployment object
-func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas int) *extensions.Deployment {
+func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas int) *appsv1.Deployment {
 
 	var podSpec api.PodSpec
 	if len(service.Configs) > 0 {
@@ -374,22 +346,24 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 		podSpec = k.InitPodSpec(name, service.Image, service.ImagePullSecret)
 	}
 
-	dc := &extensions.Deployment{
-		TypeMeta: unversioned.TypeMeta{
+	rp := int32(replicas)
+
+	dc := &appsv1.Deployment{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "Deployment",
-			APIVersion: "extensions/v1beta1",
+			APIVersion: "apps/v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:   name,
 			Labels: transformer.ConfigAllLabels(name, &service),
 		},
-		Spec: extensions.DeploymentSpec{
-			Replicas: int32(replicas),
-			Selector: &unversioned.LabelSelector{
+		Spec: appsv1.DeploymentSpec{
+			Replicas: &rp,
+			Selector: &metav1.LabelSelector{
 				MatchLabels: transformer.ConfigLabels(name),
 			},
 			Template: api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					//Labels: transformer.ConfigLabels(name),
 					Annotations: transformer.ConfigAnnotations(service),
 				},
@@ -401,8 +375,8 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 
 	update := service.GetKubernetesUpdateStrategy()
 	if update != nil {
-		dc.Spec.Strategy = extensions.DeploymentStrategy{
-			Type:          extensions.RollingUpdateDeploymentStrategyType,
+		dc.Spec.Strategy = appsv1.DeploymentStrategy{
+			Type:          appsv1.RollingUpdateDeploymentStrategyType,
 			RollingUpdate: update,
 		}
 		log.Debugf("Set deployment '%s' rolling update: MaxSurge: %s, MaxUnavailable: %s", name, update.MaxSurge.String(), update.MaxUnavailable.String())
@@ -412,17 +386,17 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 }
 
 // InitDS initializes Kubernetes DaemonSet object
-func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensions.DaemonSet {
-	ds := &extensions.DaemonSet{
-		TypeMeta: unversioned.TypeMeta{
+func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *appsv1.DaemonSet {
+	ds := &appsv1.DaemonSet{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "DaemonSet",
-			APIVersion: "extensions/v1beta1",
+			APIVersion: "apps/v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:   name,
 			Labels: transformer.ConfigAllLabels(name, &service),
 		},
-		Spec: extensions.DaemonSetSpec{
+		Spec: appsv1.DaemonSetSpec{
 			Template: api.PodTemplateSpec{
 				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 			},
@@ -431,34 +405,34 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *extensi
 	return ds
 }
 
-func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *extensions.Ingress {
+func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *networkingv1beta1.Ingress {
 
 	hosts := regexp.MustCompile("[ ,]*,[ ,]*").Split(service.ExposeService, -1)
 
-	ingress := &extensions.Ingress{
-		TypeMeta: unversioned.TypeMeta{
+	ingress := &networkingv1beta1.Ingress{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "Ingress",
 			APIVersion: "extensions/v1beta1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
 			Labels:      transformer.ConfigLabels(name),
 			Annotations: transformer.ConfigAnnotations(service),
 		},
-		Spec: extensions.IngressSpec{
-			Rules: make([]extensions.IngressRule, len(hosts)),
+		Spec: networkingv1beta1.IngressSpec{
+			Rules: make([]networkingv1beta1.IngressRule, len(hosts)),
 		},
 	}
 
 	for i, host := range hosts {
 		host, p := transformer.ParseIngressPath(host)
-		ingress.Spec.Rules[i] = extensions.IngressRule{
-			IngressRuleValue: extensions.IngressRuleValue{
-				HTTP: &extensions.HTTPIngressRuleValue{
-					Paths: []extensions.HTTPIngressPath{
+		ingress.Spec.Rules[i] = networkingv1beta1.IngressRule{
+			IngressRuleValue: networkingv1beta1.IngressRuleValue{
+				HTTP: &networkingv1beta1.HTTPIngressRuleValue{
+					Paths: []networkingv1beta1.HTTPIngressPath{
 						{
 							Path: p,
-							Backend: extensions.IngressBackend{
+							Backend: networkingv1beta1.IngressBackend{
 								ServiceName: name,
 								ServicePort: intstr.IntOrString{
 									IntVal: port,
@@ -475,7 +449,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 	}
 
 	if service.ExposeServiceTLS != "" {
-		ingress.Spec.TLS = []extensions.IngressTLS{
+		ingress.Spec.TLS = []networkingv1beta1.IngressTLS{
 			{
 				Hosts:      hosts,
 				SecretName: service.ExposeServiceTLS,
@@ -498,11 +472,11 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 			}
 			data := []byte(dataString)
 			secret := &api.Secret{
-				TypeMeta: unversioned.TypeMeta{
+				TypeMeta: metav1.TypeMeta{
 					Kind:       "Secret",
 					APIVersion: "v1",
 				},
-				ObjectMeta: api.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:   name,
 					Labels: transformer.ConfigLabels(name),
 				},
@@ -526,11 +500,11 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 	}
 
 	pvc := &api.PersistentVolumeClaim{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "PersistentVolumeClaim",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
@@ -544,7 +518,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 	}
 
 	if len(selectorValue) > 0 {
-		pvc.Spec.Selector = &unversioned.LabelSelector{
+		pvc.Spec.Selector = &metav1.LabelSelector{
 			MatchLabels: transformer.ConfigLabels(selectorValue),
 		}
 	}
@@ -895,7 +869,7 @@ func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
 
 }
 
-// ConfigHostPathVolumeSource config a configmap to use as volume source
+// ConfigConfigMapVolumeSource config a configmap to use as volume source
 func (k *Kubernetes) ConfigConfigMapVolumeSource(cmName string, targetPath string, cm *api.ConfigMap) *api.VolumeSource {
 	s := api.ConfigMapVolumeSource{}
 	s.Name = cmName
@@ -1049,9 +1023,6 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 	if opt.CreateDS || opt.Controller == DaemonSetController {
 		objects = append(objects, k.InitDS(name, service))
 	}
-	if opt.CreateRC || opt.Controller == ReplicationController {
-		objects = append(objects, k.InitRC(name, service, replica))
-	}
 
 	if len(service.EnvFile) > 0 {
 		for _, envFile := range service.EnvFile {
@@ -1080,11 +1051,11 @@ func (k *Kubernetes) createConfigMapFromComposeConfig(name string, opt kobject.C
 // InitPod initializes Kubernetes Pod object
 func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Pod {
 	pod := api.Pod{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "Pod",
 			APIVersion: "v1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
 			Labels:      transformer.ConfigLabels(name),
 			Annotations: transformer.ConfigAnnotations(service),
@@ -1095,25 +1066,25 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 }
 
 // CreateNetworkPolicy initializes Network policy
-func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*extensions.NetworkPolicy, error) {
+func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*networkingv1.NetworkPolicy, error) {
 
 	str := "true"
-	np := &extensions.NetworkPolicy{
-		TypeMeta: unversioned.TypeMeta{
+	np := &networkingv1.NetworkPolicy{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "NetworkPolicy",
 			APIVersion: "extensions/v1beta1",
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name: networkName,
 			//Labels: transformer.ConfigLabels(name)(name),
 		},
-		Spec: extensions.NetworkPolicySpec{
-			PodSelector: unversioned.LabelSelector{
+		Spec: networkingv1.NetworkPolicySpec{
+			PodSelector: metav1.LabelSelector{
 				MatchLabels: map[string]string{"io.kompose.network/" + networkName: str},
 			},
-			Ingress: []extensions.NetworkPolicyIngressRule{{
-				From: []extensions.NetworkPolicyPeer{{
-					PodSelector: &unversioned.LabelSelector{
+			Ingress: []networkingv1.NetworkPolicyIngressRule{{
+				From: []networkingv1.NetworkPolicyPeer{{
+					PodSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{"io.kompose.network/" + networkName: str},
 					},
 				}},
@@ -1145,6 +1116,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object
+
+		service.WithKomposeAnnotation = opt.WithKomposeAnnotation
 
 		// Must build the images before conversion (got to add service.Image in case 'image' key isn't provided
 		// Check that --build is set to true
@@ -1234,30 +1207,21 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
 	k.RemoveDupObjects(&allobjects)
-	k.FixWorkloadVersion(&allobjects)
+	// k.FixWorkloadVersion(&allobjects)
 
 	return allobjects, nil
 }
 
 // UpdateController updates the given object with the given pod template update function and ObjectMeta update function
-func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec) error, updateMeta func(meta *api.ObjectMeta)) (err error) {
+func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*api.PodTemplateSpec) error, updateMeta func(meta *metav1.ObjectMeta)) (err error) {
 	switch t := obj.(type) {
-	case *api.ReplicationController:
-		if t.Spec.Template == nil {
-			t.Spec.Template = &api.PodTemplateSpec{}
-		}
-		err = updateTemplate(t.Spec.Template)
-		if err != nil {
-			return errors.Wrap(err, "updateTemplate failed")
-		}
-		updateMeta(&t.ObjectMeta)
-	case *extensions.Deployment:
+	case *appsv1.Deployment:
 		err = updateTemplate(&t.Spec.Template)
 		if err != nil {
 			return errors.Wrap(err, "updateTemplate failed")
 		}
 		updateMeta(&t.ObjectMeta)
-	case *extensions.DaemonSet:
+	case *appsv1.DaemonSet:
 		err = updateTemplate(&t.Spec.Template)
 		if err != nil {
 			return errors.Wrap(err, "updateTemplate failed")

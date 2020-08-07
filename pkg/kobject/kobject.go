@@ -19,12 +19,12 @@ package kobject
 import (
 	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/yaml"
-	deployapi "github.com/openshift/origin/pkg/deploy/api"
+	deployapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/util/intstr"
+	v1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"path/filepath"
 	"time"
 )
@@ -74,6 +74,8 @@ type ConvertOptions struct {
 	Server string
 
 	YAMLIndent int
+
+	WithKomposeAnnotation bool
 }
 
 // ServiceConfig holds the basic struct of a container
@@ -136,6 +138,8 @@ type ServiceConfig struct {
 	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
 	ConfigsMetaData map[string]dockerCliTypes.ConfigObjConfig `compose:""`
+
+	WithKomposeAnnotation bool `compose:""`
 }
 
 // HealthCheck the healthcheck configuration for a service
@@ -161,7 +165,7 @@ type Ports struct {
 	HostPort      int32
 	ContainerPort int32
 	HostIP        string
-	Protocol      api.Protocol
+	Protocol      corev1.Protocol
 }
 
 // Volumes holds the volume struct of container
@@ -202,23 +206,28 @@ func (s *ServiceConfig) GetConfigMapKeyFromMeta(name string) (string, error) {
 // 1. only apply to Deployment, but the check is not happened here
 // 2. only support `parallelism` and `order`
 // return nil if not support
-func (s *ServiceConfig) GetKubernetesUpdateStrategy() *extensions.RollingUpdateDeployment {
+func (s *ServiceConfig) GetKubernetesUpdateStrategy() *v1.RollingUpdateDeployment {
 	config := s.DeployUpdateConfig
-	r := extensions.RollingUpdateDeployment{}
+	r := v1.RollingUpdateDeployment{}
 	if config.Order == "stop-first" {
 		if config.Parallelism != nil {
-			r.MaxUnavailable = intstr.FromInt(cast.ToInt(*config.Parallelism))
+			v := intstr.FromInt(cast.ToInt(*config.Parallelism))
+			r.MaxUnavailable = &v
 
 		}
-		r.MaxSurge = intstr.FromInt(0)
+
+		v := intstr.FromInt(0)
+		r.MaxSurge = &v
 		return &r
 	}
 
 	if config.Order == "start-first" {
 		if config.Parallelism != nil {
-			r.MaxSurge = intstr.FromInt(cast.ToInt(*config.Parallelism))
+			v := intstr.FromInt(cast.ToInt(*config.Parallelism))
+			r.MaxSurge = &v
 		}
-		r.MaxUnavailable = intstr.FromInt(0)
+		v := intstr.FromInt(0)
+		r.MaxUnavailable = &v
 		return &r
 	}
 	return nil
@@ -239,18 +248,22 @@ func (s *ServiceConfig) GetOSUpdateStrategy() *deployapi.RollingDeploymentStrate
 
 	if config.Order == "stop-first" {
 		if config.Parallelism != nil {
-			r.MaxUnavailable = intstr.FromInt(cast.ToInt(*config.Parallelism))
+			v := intstr.FromInt(cast.ToInt(*config.Parallelism))
+			r.MaxUnavailable = &v
 		}
-		r.MaxSurge = intstr.FromInt(0)
+		*r.MaxSurge = intstr.FromInt(0)
 		r.UpdatePeriodSeconds = &interval
 		return &r
 	}
 
 	if config.Order == "start-first" {
 		if config.Parallelism != nil {
-			r.MaxSurge = intstr.FromInt(cast.ToInt(*config.Parallelism))
+			v := intstr.FromInt(cast.ToInt(*config.Parallelism))
+			r.MaxSurge = &v
 		}
-		r.MaxUnavailable = intstr.FromInt(0)
+
+		v := intstr.FromInt(0)
+		r.MaxUnavailable = &v
 		r.UpdatePeriodSeconds = &interval
 		return &r
 	}

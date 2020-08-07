@@ -5,9 +5,11 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 )
 
 var (
@@ -20,31 +22,37 @@ var (
 
 // Volume represents a volume.
 //
-// See https://goo.gl/FZA4BK for more details.
+// See https://goo.gl/3wgTsd for more details.
 type Volume struct {
-	Name       string `json:"Name" yaml:"Name"`
-	Driver     string `json:"Driver,omitempty" yaml:"Driver,omitempty"`
-	Mountpoint string `json:"Mountpoint,omitempty" yaml:"Mountpoint,omitempty"`
+	Name       string            `json:"Name" yaml:"Name" toml:"Name"`
+	Driver     string            `json:"Driver,omitempty" yaml:"Driver,omitempty" toml:"Driver,omitempty"`
+	Mountpoint string            `json:"Mountpoint,omitempty" yaml:"Mountpoint,omitempty" toml:"Mountpoint,omitempty"`
+	Labels     map[string]string `json:"Labels,omitempty" yaml:"Labels,omitempty" toml:"Labels,omitempty"`
+	Options    map[string]string `json:"Options,omitempty" yaml:"Options,omitempty" toml:"Options,omitempty"`
+	CreatedAt  time.Time         `json:"CreatedAt,omitempty" yaml:"CreatedAt,omitempty" toml:"CreatedAt,omitempty"`
 }
 
 // ListVolumesOptions specify parameters to the ListVolumes function.
 //
-// See https://goo.gl/FZA4BK for more details.
+// See https://goo.gl/3wgTsd for more details.
 type ListVolumesOptions struct {
 	Filters map[string][]string
+	Context context.Context
 }
 
 // ListVolumes returns a list of available volumes in the server.
 //
-// See https://goo.gl/FZA4BK for more details.
+// See https://goo.gl/3wgTsd for more details.
 func (c *Client) ListVolumes(opts ListVolumesOptions) ([]Volume, error) {
-	resp, err := c.do("GET", "/volumes?"+queryString(opts), doOptions{})
+	resp, err := c.do(http.MethodGet, "/volumes?"+queryString(opts), doOptions{
+		context: opts.Context,
+	})
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 	m := make(map[string]interface{})
-	if err := json.NewDecoder(resp.Body).Decode(&m); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&m); err != nil {
 		return nil, err
 	}
 	var volumes []Volume
@@ -64,18 +72,23 @@ func (c *Client) ListVolumes(opts ListVolumesOptions) ([]Volume, error) {
 
 // CreateVolumeOptions specify parameters to the CreateVolume function.
 //
-// See https://goo.gl/pBUbZ9 for more details.
+// See https://goo.gl/qEhmEC for more details.
 type CreateVolumeOptions struct {
 	Name       string
 	Driver     string
 	DriverOpts map[string]string
+	Context    context.Context `json:"-"`
+	Labels     map[string]string
 }
 
 // CreateVolume creates a volume on the server.
 //
-// See https://goo.gl/pBUbZ9 for more details.
+// See https://goo.gl/qEhmEC for more details.
 func (c *Client) CreateVolume(opts CreateVolumeOptions) (*Volume, error) {
-	resp, err := c.do("POST", "/volumes/create", doOptions{data: opts})
+	resp, err := c.do(http.MethodPost, "/volumes/create", doOptions{
+		data:    opts,
+		context: opts.Context,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -89,9 +102,9 @@ func (c *Client) CreateVolume(opts CreateVolumeOptions) (*Volume, error) {
 
 // InspectVolume returns a volume by its name.
 //
-// See https://goo.gl/0g9A6i for more details.
+// See https://goo.gl/GMjsMc for more details.
 func (c *Client) InspectVolume(name string) (*Volume, error) {
-	resp, err := c.do("GET", "/volumes/"+name, doOptions{})
+	resp, err := c.do(http.MethodGet, "/volumes/"+name, doOptions{})
 	if err != nil {
 		if e, ok := err.(*Error); ok && e.Status == http.StatusNotFound {
 			return nil, ErrNoSuchVolume
@@ -108,9 +121,28 @@ func (c *Client) InspectVolume(name string) (*Volume, error) {
 
 // RemoveVolume removes a volume by its name.
 //
-// See https://goo.gl/79GNQz for more details.
+// Deprecated: Use RemoveVolumeWithOptions instead.
 func (c *Client) RemoveVolume(name string) error {
-	resp, err := c.do("DELETE", "/volumes/"+name, doOptions{})
+	return c.RemoveVolumeWithOptions(RemoveVolumeOptions{Name: name})
+}
+
+// RemoveVolumeOptions specify parameters to the RemoveVolumeWithOptions
+// function.
+//
+// See https://goo.gl/nvd6qj for more details.
+type RemoveVolumeOptions struct {
+	Context context.Context
+	Name    string `qs:"-"`
+	Force   bool
+}
+
+// RemoveVolumeWithOptions removes a volume by its name and takes extra
+// parameters.
+//
+// See https://goo.gl/nvd6qj for more details.
+func (c *Client) RemoveVolumeWithOptions(opts RemoveVolumeOptions) error {
+	path := "/volumes/" + opts.Name
+	resp, err := c.do(http.MethodDelete, path+"?"+queryString(opts), doOptions{context: opts.Context})
 	if err != nil {
 		if e, ok := err.(*Error); ok {
 			if e.Status == http.StatusNotFound {
@@ -120,8 +152,41 @@ func (c *Client) RemoveVolume(name string) error {
 				return ErrVolumeInUse
 			}
 		}
-		return nil
+		return err
 	}
 	defer resp.Body.Close()
 	return nil
+}
+
+// PruneVolumesOptions specify parameters to the PruneVolumes function.
+//
+// See https://goo.gl/f9XDem for more details.
+type PruneVolumesOptions struct {
+	Filters map[string][]string
+	Context context.Context
+}
+
+// PruneVolumesResults specify results from the PruneVolumes function.
+//
+// See https://goo.gl/f9XDem for more details.
+type PruneVolumesResults struct {
+	VolumesDeleted []string
+	SpaceReclaimed int64
+}
+
+// PruneVolumes deletes volumes which are unused.
+//
+// See https://goo.gl/f9XDem for more details.
+func (c *Client) PruneVolumes(opts PruneVolumesOptions) (*PruneVolumesResults, error) {
+	path := "/volumes/prune?" + queryString(opts)
+	resp, err := c.do(http.MethodPost, path, doOptions{context: opts.Context})
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var results PruneVolumesResults
+	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
+		return nil, err
+	}
+	return &results, nil
 }

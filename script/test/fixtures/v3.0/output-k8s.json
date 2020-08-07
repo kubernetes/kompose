@@ -1,0 +1,92 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.service.type": "headless"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "headless",
+            "port": 55555,
+            "targetPort": 0
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "redis"
+        },
+        "clusterIP": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "apps/v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.service.type": "headless"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "redis"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.service.type": "headless"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis",
+                "image": "redis",
+                "resources": {},
+                "livenessProbe": {
+                  "exec": {
+                    "command": [
+                      "echo \"hello world\""
+                    ]
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
+                }
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}

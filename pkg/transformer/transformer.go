@@ -18,7 +18,7 @@ package transformer
 
 import (
 	"github.com/kubernetes/kompose/pkg/kobject"
-	"k8s.io/kubernetes/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // Transformer interface  defines transformer that is converting kobject to other resources

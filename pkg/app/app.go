@@ -22,16 +22,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	// install kubernetes api
-	_ "k8s.io/kubernetes/pkg/api/install"
-	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
-
-	// install OpenShift api
-	_ "github.com/openshift/origin/pkg/build/api/install"
-	_ "github.com/openshift/origin/pkg/deploy/api/install"
-	_ "github.com/openshift/origin/pkg/image/api/install"
-	_ "github.com/openshift/origin/pkg/route/api/install"
-
 	"os"
 
 	"github.com/kubernetes/kompose/pkg/kobject"

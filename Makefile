@@ -15,7 +15,7 @@
 
 
 GITCOMMIT := $(shell git rev-parse --short HEAD)
-BUILD_FLAGS := -ldflags="-w -X github.com/kubernetes/kompose/pkg/version.GITCOMMIT=$(GITCOMMIT)"
+BUILD_FLAGS := -ldflags="-w -s -X github.com/kubernetes/kompose/pkg/version.GITCOMMIT=$(GITCOMMIT)"
 PKGS = $(shell glide novendor)
 TEST_IMAGE := kompose/tests:latest
 
@@ -26,7 +26,7 @@ all: bin
 
 .PHONY: bin
 bin:
-	CGO_ENABLED=0 GO111MODULE=off go build ${BUILD_FLAGS} -o kompose main.go
+	CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -o kompose main.go
 
 .PHONY: install
 install:
@@ -35,7 +35,11 @@ install:
 # kompile kompose for multiple platforms
 .PHONY: cross
 cross:
-	CGO_ENABLED=0 gox -osarch="darwin/amd64 linux/amd64 linux/arm linux/arm64 windows/amd64" -output="bin/kompose-{{.OS}}-{{.Arch}}" $(BUILD_FLAGS)
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-linux-amd64" main.go
+	GOOS=linux GOARCH=arm CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-linux-arm" main.go
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-linux-arm64" main.go
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-windows-amd64" main.go
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -mod vendor ${BUILD_FLAGS} -installsuffix cgo  -o "bin/kompose-darwin-amd64" main.go
 
 .PHONY: clean
 clean:
@@ -64,7 +68,7 @@ test-openshift:
 # run commandline tests
 .PHONY: test-cmd
 test-cmd:
-	./script/test/cmd/tests.sh
+	./script/test/cmd/tests_new.sh
 
 # generate commandline tests
 .PHONY: gen-cmd
@@ -77,11 +81,11 @@ validate: gofmt vet lint
 
 .PHONY: vet
 vet:
-	go vet $(PKGS)
+	go vet ./pkg/...
 
 .PHONY: lint
 lint:
-	golint $(PKGS)
+	golint ./pkg/...
 
 .PHONY: gofmt
 gofmt:
@@ -94,15 +98,13 @@ check-vendor:
 
 # Run all tests
 .PHONY: test
-test: bin test-dep check-vendor validate test-unit-cover install test-cmd
+test: bin test-dep  validate test-unit-cover install test-cmd
 
 # Install all the required test-dependencies before executing tests (only valid when running `make test`)
 .PHONY: test-dep
 test-dep:
 	go get github.com/mattn/goveralls
 	go get github.com/modocache/gover
-	go get github.com/Masterminds/glide
-	go get github.com/sgotti/glide-vc
 	go get golang.org/x/lint/golint
 	go get github.com/mitchellh/gox
 
@@ -117,17 +119,6 @@ test-image:
 test-container:
 	docker run -v `pwd`:/opt/tmp/kompose:ro -it $(TEST_IMAGE)
 
-# Update vendoring
-# Vendoring is a bit messy right now
-.PHONY: vendor-update
-vendor-update:
-	glide update --strip-vendor
-	glide-vc --only-code --no-tests
-	find ./vendor/github.com/docker/distribution -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} \;
-	rm -rf vendor/github.com/Sirupsen
-
-	# a field does not has json tag defined.
-	cp script/vendor-sync/types.go.txt vendor/k8s.io/kubernetes/pkg/api/types.go
 
 .PHONY: test-k8s
 test-k8s:

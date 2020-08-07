@@ -209,8 +209,6 @@ func readFile(filename string) (envMap map[string]string, err error) {
 	return Parse(file)
 }
 
-var exportRegex = regexp.MustCompile(`^\s*(?:export\s+)?(.*?)\s*$`)
-
 func parseLine(line string, envMap map[string]string) (key string, value string, err error) {
 	if len(line) == 0 {
 		err = errors.New("zero length string")
@@ -258,21 +256,12 @@ func parseLine(line string, envMap map[string]string) (key string, value string,
 	if strings.HasPrefix(key, "export") {
 		key = strings.TrimPrefix(key, "export")
 	}
-	key = strings.TrimSpace(key)
-
-	key = exportRegex.ReplaceAllString(splitString[0], "$1")
+	key = strings.Trim(key, " ")
 
 	// Parse the value
 	value = parseValue(splitString[1], envMap)
 	return
 }
-
-var (
-	singleQuotesRegex  = regexp.MustCompile(`\A'(.*)'\z`)
-	doubleQuotesRegex  = regexp.MustCompile(`\A"(.*)"\z`)
-	escapeRegex        = regexp.MustCompile(`\\.`)
-	unescapeCharsRegex = regexp.MustCompile(`\\([^$])`)
-)
 
 func parseValue(value string, envMap map[string]string) string {
 
@@ -281,9 +270,11 @@ func parseValue(value string, envMap map[string]string) string {
 
 	// check if we've got quoted values or possible escapes
 	if len(value) > 1 {
-		singleQuotes := singleQuotesRegex.FindStringSubmatch(value)
+		rs := regexp.MustCompile(`\A'(.*)'\z`)
+		singleQuotes := rs.FindStringSubmatch(value)
 
-		doubleQuotes := doubleQuotesRegex.FindStringSubmatch(value)
+		rd := regexp.MustCompile(`\A"(.*)"\z`)
+		doubleQuotes := rd.FindStringSubmatch(value)
 
 		if singleQuotes != nil || doubleQuotes != nil {
 			// pull the quotes off the edges
@@ -292,6 +283,7 @@ func parseValue(value string, envMap map[string]string) string {
 
 		if doubleQuotes != nil {
 			// expand newlines
+			escapeRegex := regexp.MustCompile(`\\.`)
 			value = escapeRegex.ReplaceAllStringFunc(value, func(match string) string {
 				c := strings.TrimPrefix(match, `\`)
 				switch c {
@@ -304,7 +296,8 @@ func parseValue(value string, envMap map[string]string) string {
 				}
 			})
 			// unescape characters
-			value = unescapeCharsRegex.ReplaceAllString(value, "$1")
+			e := regexp.MustCompile(`\\([^$])`)
+			value = e.ReplaceAllString(value, "$1")
 		}
 
 		if singleQuotes == nil {
@@ -315,11 +308,11 @@ func parseValue(value string, envMap map[string]string) string {
 	return value
 }
 
-var expandVarRegex = regexp.MustCompile(`(\\)?(\$)(\()?\{?([A-Z0-9_]+)?\}?`)
-
 func expandVariables(v string, m map[string]string) string {
-	return expandVarRegex.ReplaceAllStringFunc(v, func(s string) string {
-		submatch := expandVarRegex.FindStringSubmatch(s)
+	r := regexp.MustCompile(`(\\)?(\$)(\()?\{?([A-Z0-9_]+)?\}?`)
+
+	return r.ReplaceAllStringFunc(v, func(s string) string {
+		submatch := r.FindStringSubmatch(s)
 
 		if submatch == nil {
 			return s
@@ -334,7 +327,7 @@ func expandVariables(v string, m map[string]string) string {
 }
 
 func isIgnoredLine(line string) bool {
-	trimmedLine := strings.TrimSpace(line)
+	trimmedLine := strings.Trim(line, " \n\t")
 	return len(trimmedLine) == 0 || strings.HasPrefix(trimmedLine, "#")
 }
 

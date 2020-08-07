@@ -50,6 +50,10 @@ var (
 	ConvertYAMLIndent            int
 
 	UpBuild string
+
+	// WithKomposeAnnotation decides if we will add metadata about this convert to resource's annotation.
+	// default is true.
+	WithKomposeAnnotation bool
 )
 
 var convertCmd = &cobra.Command{
@@ -90,6 +94,7 @@ var convertCmd = &cobra.Command{
 			IsReplicaSetFlag:            cmd.Flags().Lookup("replicas").Changed,
 			IsDeploymentConfigFlag:      cmd.Flags().Lookup("deployment-config").Changed,
 			YAMLIndent:                  ConvertYAMLIndent,
+			WithKomposeAnnotation:       WithKomposeAnnotation,
 		}
 
 		// Validate before doing anything else. Use "bundle" if passed in.
@@ -143,6 +148,8 @@ func init() {
 	convertCmd.Flags().StringVarP(&ConvertOut, "out", "o", "", "Specify a file name or directory to save objects to (if path does not exist, a file will be created)")
 	convertCmd.Flags().IntVar(&ConvertReplicas, "replicas", 1, "Specify the number of replicas in the generated resource spec")
 	convertCmd.Flags().StringVar(&ConvertVolumes, "volumes", "persistentVolumeClaim", `Volumes to be generated ("persistentVolumeClaim"|"emptyDir"|"hostPath" | "configMap")`)
+
+	convertCmd.Flags().BoolVar(&WithKomposeAnnotation, "with-kompose-annotation", true, "Add kompose annotations to generated resource")
 
 	// Deprecated commands
 	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")

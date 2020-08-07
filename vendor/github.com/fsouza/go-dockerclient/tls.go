@@ -38,7 +38,7 @@ func tlsDialWithDialer(dialer *net.Dialer, network, addr string, config *tls.Con
 	timeout := dialer.Timeout
 
 	if !dialer.Deadline.IsZero() {
-		deadlineTimeout := dialer.Deadline.Sub(time.Now())
+		deadlineTimeout := time.Until(dialer.Deadline)
 		if timeout == 0 || deadlineTimeout < timeout {
 			timeout = deadlineTimeout
 		}
@@ -68,9 +68,8 @@ func tlsDialWithDialer(dialer *net.Dialer, network, addr string, config *tls.Con
 	// from the hostname we're connecting to.
 	if config.ServerName == "" {
 		// Make a copy to avoid polluting argument or default.
-		c := *config
-		c.ServerName = hostname
-		config = &c
+		config = copyTLSConfig(config)
+		config.ServerName = hostname
 	}
 
 	conn := tls.Client(rawConn, config)
@@ -93,4 +92,26 @@ func tlsDialWithDialer(dialer *net.Dialer, network, addr string, config *tls.Con
 	// This is Docker difference with standard's crypto/tls package: returned a
 	// wrapper which holds both the TLS and raw connections.
 	return &tlsClientCon{conn, rawConn}, nil
+}
+
+// this exists to silent an error message in go vet
+func copyTLSConfig(cfg *tls.Config) *tls.Config {
+	return &tls.Config{
+		Certificates:             cfg.Certificates,
+		CipherSuites:             cfg.CipherSuites,
+		ClientAuth:               cfg.ClientAuth,
+		ClientCAs:                cfg.ClientCAs,
+		ClientSessionCache:       cfg.ClientSessionCache,
+		CurvePreferences:         cfg.CurvePreferences,
+		InsecureSkipVerify:       cfg.InsecureSkipVerify, //nolint:gosec
+		MaxVersion:               cfg.MaxVersion,
+		MinVersion:               cfg.MinVersion,
+		NextProtos:               cfg.NextProtos,
+		PreferServerCipherSuites: cfg.PreferServerCipherSuites,
+		Rand:                     cfg.Rand,
+		RootCAs:                  cfg.RootCAs,
+		ServerName:               cfg.ServerName,
+		SessionTicketKey:         cfg.SessionTicketKey,
+		SessionTicketsDisabled:   cfg.SessionTicketsDisabled,
+	}
 }

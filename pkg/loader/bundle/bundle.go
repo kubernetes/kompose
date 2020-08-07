@@ -24,7 +24,7 @@ import (
 	"reflect"
 	"strings"
 
-	"k8s.io/kubernetes/pkg/api"
+	api "k8s.io/api/core/v1"
 
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"

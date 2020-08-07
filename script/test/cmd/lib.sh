@@ -14,7 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-KOMPOSE_ROOT=$(readlink -f $(dirname "${BASH_SOURCE}")/../../..)
+if type "greadlink" > /dev/null; then
+  KOMPOSE_ROOT=$(greadlink -f $(dirname "${BASH_SOURCE}")/../../..)
+else
+  KOMPOSE_ROOT=$(readlink -f $(dirname "${BASH_SOURCE}")/../../..)
+fi
+
+stat="stat"
+if type "gstat" > /dev/null; then
+  stat="gstat"
+fi
+
 source $KOMPOSE_ROOT/script/test/cmd/globals.sh
 
 # setup all the things needed to run tests
@@ -113,7 +123,7 @@ function convert::expect_success() {
     else convert::print_pass $SUCCESS_MSGS; fi
 
     # check if no warnings are generated? If yes then fail
-    warnings=$(stat -c%s $TEMP_STDERR)
+    warnings=$($stat -c%s $TEMP_STDERR)
     if [ $warnings -ne 0 ]; then convert::print_fail "warnings given: $(cat $TEMP_STDERR)"; EXIT_STATUS=1; fi
 
     convert::teardown

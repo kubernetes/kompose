@@ -622,6 +622,7 @@ type yaml_parser_t struct {
 
 	simple_key_allowed bool                // May a simple key occur at the current position?
 	simple_keys        []yaml_simple_key_t // The stack of simple keys.
+	simple_keys_by_tok map[int]int         // possible simple_key indexes indexed by token_number
 
 	// Parser stuff
 
@@ -785,6 +786,8 @@ type yaml_emitter_t struct {
 	line_comment []byte
 	foot_comment []byte
 	tail_comment []byte
+
+	key_line_comment []byte
 
 	// Dumper stuff
 
