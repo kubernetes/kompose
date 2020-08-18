@@ -28,7 +28,7 @@ sudo mv ./kompose /usr/local/bin/kompose
 
 __Windows:__
 
-Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.19.0/kompose-windows-amd64.exe) and add the binary to your PATH.
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.21.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 #### Go
 
