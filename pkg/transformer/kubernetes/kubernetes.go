@@ -446,14 +446,13 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 		if host != "true" {
 			ingress.Spec.Rules[i].Host = host
 		}
-	}
-
-	if service.ExposeServiceTLS != "" {
-		ingress.Spec.TLS = []networkingv1beta1.IngressTLS{
-			{
-				Hosts:      host,
-				SecretName: service.ExposeServiceTLS,
-			},
+		if service.ExposeServiceTLS != "" {
+			ingress.Spec.TLS = []networkingv1beta1.IngressTLS{
+				{
+					Hosts:      host,
+					SecretName: service.ExposeServiceTLS,
+				},
+			}
 		}
 	}
 
