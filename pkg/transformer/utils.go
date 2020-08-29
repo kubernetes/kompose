@@ -110,7 +110,7 @@ func ParseVolume(volume string) (name, host, container, mode string, err error) 
 func ParseIngressPath(url string) (string, string) {
 	if strings.Contains(url, "/") {
 		splits := strings.Split(url, "/")
-		return splits[0], "/" + splits[1]
+		return splits[0],strings.Join( splits[1:],"/")
 	}
 	return url, ""
 }
