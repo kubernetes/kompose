@@ -26,7 +26,7 @@ jobs:
       run: make bin
 
     - name: Test
-      run: go test -v .
+      run: make test
       
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.1.4
