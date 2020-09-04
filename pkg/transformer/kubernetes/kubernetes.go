@@ -423,7 +423,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 			Rules: make([]networkingv1beta1.IngressRule, len(hosts)),
 		},
 	}
-	tlsHosts := make([]string,len(hosts))
+	tlsHosts := make([]string, len(hosts))
 	for i, host := range hosts {
 		host, p := transformer.ParseIngressPath(host)
 		ingress.Spec.Rules[i] = networkingv1beta1.IngressRule{
@@ -459,7 +459,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 		} else {
 			ingress.Spec.TLS = []networkingv1beta1.IngressTLS{
 				{
-					Hosts:      tlsHosts,
+					Hosts: tlsHosts,
 				},
 			}
 		}
