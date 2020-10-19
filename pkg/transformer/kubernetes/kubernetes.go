@@ -1176,6 +1176,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			if service.ServiceType == "Headless" {
 				svc := k.CreateHeadlessService(name, service, objects)
 				objects = append(objects, svc)
+			} else {
+				log.Warnf("Service %q won't be created because 'ports' is not specified", name)
 			}
 		}
 
