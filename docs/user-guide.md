@@ -99,146 +99,6 @@ INFO OpenShift file "foo-buildconfig.yaml" created
 
 **Note**: If you are manually pushing the Openshift artifacts using ``oc create -f``, you need to ensure that you push the imagestream artifact before the buildconfig artifact, to workaround this Openshift issue: https://github.com/openshift/origin/issues/4518 .
 
-## Kompose Up
-
-Kompose supports a straightforward way to deploy your "composed" application to Kubernetes or OpenShift via `kompose up`.
-
-
-### Kubernetes
-```sh
-$ kompose --file ./examples/docker-guestbook.yml up
-We are going to create Kubernetes deployments and services for your Dockerized application.
-If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead.
-
-INFO Successfully created service: redis-master   
-INFO Successfully created service: redis-slave    
-INFO Successfully created service: frontend       
-INFO Successfully created deployment: redis-master
-INFO Successfully created deployment: redis-slave
-INFO Successfully created deployment: frontend    
-
-Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods' for details.
-
-$ kubectl get deployment,svc,pods
-NAME                               DESIRED       CURRENT       UP-TO-DATE   AVAILABLE   AGE
-deploy/frontend                    1             1             1            1           4m
-deploy/redis-master                1             1             1            1           4m
-deploy/redis-slave                 1             1             1            1           4m
-
-NAME                               CLUSTER-IP    EXTERNAL-IP   PORT(S)      AGE
-svc/frontend                       10.0.174.12   <none>        80/TCP       4m
-svc/kubernetes                     10.0.0.1      <none>        443/TCP      13d
-svc/redis-master                   10.0.202.43   <none>        6379/TCP     4m
-svc/redis-slave                    10.0.1.85     <none>        6379/TCP     4m
-
-NAME                               READY         STATUS        RESTARTS     AGE
-po/frontend-2768218532-cs5t5       1/1           Running       0            4m
-po/redis-master-1432129712-63jn8   1/1           Running       0            4m
-po/redis-slave-2504961300-nve7b    1/1           Running       0            4m
-```
-Note:
-- You must have a running Kubernetes cluster with a pre-configured kubectl context.
-- Only deployments and services are generated and deployed to Kubernetes. If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead.
-
-### OpenShift
-```sh
-$ kompose --file ./examples/docker-guestbook.yml --provider openshift up
-We are going to create OpenShift DeploymentConfigs and Services for your Dockerized application.
-If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead.
-
-INFO Successfully created service: redis-slave    
-INFO Successfully created service: frontend       
-INFO Successfully created service: redis-master   
-INFO Successfully created deployment: redis-slave
-INFO Successfully created ImageStream: redis-slave
-INFO Successfully created deployment: frontend    
-INFO Successfully created ImageStream: frontend   
-INFO Successfully created deployment: redis-master
-INFO Successfully created ImageStream: redis-master
-
-Your application has been deployed to OpenShift. You can run 'oc get dc,svc,is' for details.
-
-$ oc get dc,svc,is
-NAME               REVISION                              DESIRED       CURRENT    TRIGGERED BY
-dc/frontend        0                                     1             0          config,image(frontend:v4)
-dc/redis-master    0                                     1             0          config,image(redis-master:e2e)
-dc/redis-slave     0                                     1             0          config,image(redis-slave:v1)
-NAME               CLUSTER-IP                            EXTERNAL-IP   PORT(S)    AGE
-svc/frontend       172.30.46.64                          <none>        80/TCP     8s
-svc/redis-master   172.30.144.56                         <none>        6379/TCP   8s
-svc/redis-slave    172.30.75.245                         <none>        6379/TCP   8s
-NAME               DOCKER REPO                           TAGS          UPDATED
-is/frontend        172.30.12.200:5000/fff/frontend                     
-is/redis-master    172.30.12.200:5000/fff/redis-master                 
-is/redis-slave     172.30.12.200:5000/fff/redis-slave    v1  
-```
-
-Note:
-- You must have a running OpenShift cluster with a pre-configured `oc` context (`oc login`)
-
-## Kompose Down
-
-Once you have deployed "composed" application to Kubernetes, `$ kompose down` will help you to take the application out by deleting its deployments and services. If you need to remove other resources, use the 'kubectl' command.
-
-```sh
-$ kompose --file docker-guestbook.yml down
-INFO Successfully deleted service: redis-master   
-INFO Successfully deleted deployment: redis-master
-INFO Successfully deleted service: redis-slave    
-INFO Successfully deleted deployment: redis-slave
-INFO Successfully deleted service: frontend       
-INFO Successfully deleted deployment: frontend
-```
-Note:
-- You must have a running Kubernetes cluster with a pre-configured kubectl context.
-
-## Build and Push Docker Images
-
-Kompose supports both building and pushing Docker images. When using the `build` key within your Docker Compose file, your image will:
-
-  - Automatically be built with Docker using the `image` key specified within your file
-  - Be pushed to the correct Docker repository using local credentials (located at `.docker/config`)
-
-Using an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/buildconfig/docker-compose.yml):
-
-```yaml
-version: "2"
-
-services:
-    foo:
-        build: "./build"
-        image: docker.io/foo/bar
-```
-
-Using `kompose up` with a `build` key:
-
-```sh
-$ kompose up
-INFO Build key detected. Attempting to build and push image 'docker.io/foo/bar' 
-INFO Building image 'docker.io/foo/bar' from directory 'build' 
-INFO Image 'docker.io/foo/bar' from directory 'build' built successfully 
-INFO Pushing image 'foo/bar:latest' to registry 'docker.io' 
-INFO Attempting authentication credentials 'https://index.docker.io/v1/ 
-INFO Successfully pushed image 'foo/bar:latest' to registry 'docker.io' 
-INFO We are going to create Kubernetes Deployments, Services and PersistentVolumeClaims for your Dockerized application. If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. 
- 
-INFO Deploying application in "default" namespace 
-INFO Successfully created Service: foo            
-INFO Successfully created Deployment: foo         
-
-Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods,pvc' for details.
-```
-
-In order to disable the functionality, or choose to use BuildConfig generation (with OpenShift) `--build (local|build-config|none)` can be passed.
-
-```sh
-# Disable building/pushing Docker images
-$ kompose up --build none
-
-# Generate Build Config artifacts for OpenShift
-$ kompose up --provider openshift --build build-config
-```
-
 ## Alternative Conversions
 
 The default `kompose` transformation will generate Kubernetes [Deployments](http://kubernetes.io/docs/user-guide/deployments/) and [Services](http://kubernetes.io/docs/user-guide/services/), in yaml format. You have alternative option to generate json with `-j`. Also, you can alternatively generate [Replication Controllers](http://kubernetes.io/docs/user-guide/replication-controller/) objects, [Daemon Sets](http://kubernetes.io/docs/admin/daemons/), or [Helm](https://github.com/helm/helm) charts.
@@ -306,6 +166,7 @@ The currently supported options are:
 |----------------------|-------------------------------------|
 | kompose.service.type | nodeport / clusterip / loadbalancer / headless |
 | kompose.service.expose | true / hostnames (separated by comma) |
+| kompose.service.nodeport.port | port value (string) | 
 | kompose.service.expose.tls-secret | secret name |
 | kompose.volume.size | kubernetes supported volume size |
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
@@ -335,8 +196,9 @@ services:
 ```
 
 - `kompose.service.expose` defines if the service needs to be made accessible from outside the cluster or not. If the value is set to "true", the provider sets the endpoint automatically, and for any other value, the value is set as the hostname. If multiple ports are defined in a service, the first one is chosen to be the exposed.
-    - For the Kubernetes provider, an ingress resource is created and it is assumed that an ingress controller has already been configured. If the value is set to a comma sepatated list, multiple hostnames are supported.
+    - For the Kubernetes provider, an ingress resource is created and it is assumed that an ingress controller has already been configured. If the value is set to a comma sepatated list, multiple hostnames are supported.Hostname with path is also supported.
     - For the OpenShift provider, a route is created.
+- `kompose.service.nodeport.port` defines the port value when service type is `nodeport`, this label should only be set when the service only contains 1 port. Usually kubernetes define a port range for node port values, kompose will not validate this.
 - `kompose.service.expose.tls-secret` provides the name of the TLS secret to use with the Kubernetes ingress controller. This requires kompose.service.expose to be set.
 
 For example:

@@ -61,20 +61,7 @@ INFO Kubernetes file "redis-master-deployment.yaml" created
 INFO Kubernetes file "redis-slave-deployment.yaml" created 
 ```
 
-Alternatively, you can convert and deploy directly to Kubernetes with `kompose up`.
-
-```sh
-$ kompose up
-We are going to create Kubernetes Deployments, Services and PersistentVolumeClaims for your Dockerized application. 
-If you need different kind of resources, use the 'kompose convert' and 'kubectl create -f' commands instead. 
-
-INFO Successfully created Service: redis          
-INFO Successfully created Service: web            
-INFO Successfully created Deployment: redis       
-INFO Successfully created Deployment: web         
-
-Your application has been deployed to Kubernetes. You can run 'kubectl get deployment,svc,pods,pvc' for details.
-```
+Then you can use `kubectl apply` to create these resources in kubernetes.
 
 
 __Access the newly deployed service:__
@@ -170,24 +157,7 @@ INFO OpenShift file "redis-slave-imagestream.yaml" created
 
 Alternatively, you can convert and deploy directly to OpenShift with `kompose up --provider=openshift`.
 
-```sh
-$ kompose up --provider=openshift       
-INFO We are going to create OpenShift DeploymentConfigs, Services and PersistentVolumeClaims for your Dockerized application. 
-If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. 
- 
-INFO Deploying application in "myproject" namespace 
-INFO Successfully created Service: frontend       
-INFO Successfully created Service: redis-master   
-INFO Successfully created Service: redis-slave    
-INFO Successfully created DeploymentConfig: frontend 
-INFO Successfully created ImageStream: frontend   
-INFO Successfully created DeploymentConfig: redis-master 
-INFO Successfully created ImageStream: redis-master 
-INFO Successfully created DeploymentConfig: redis-slave 
-INFO Successfully created ImageStream: redis-slave 
-
-Your application has been deployed to OpenShift. You can run 'oc get dc,svc,is,pvc' for details.
-```
+Then you can use `kubectl apply` to create these resources in OpenShift cluster.
 
 __Access the newly deployed service:__
 
@@ -306,26 +276,7 @@ INFO OpenShift file "redis-slave-deploymentconfig.yaml" created
 INFO OpenShift file "redis-slave-imagestream.yaml" created 
 ```
 
-Alternatively, you can convert and deploy directly to OpenShift with `kompose up --provider=openshift`.
-
-```sh
-$ kompose up --provider=openshift       
-INFO We are going to create OpenShift DeploymentConfigs, Services and PersistentVolumeClaims for your Dockerized application. 
-If you need different kind of resources, use the 'kompose convert' and 'oc create -f' commands instead. 
- 
-INFO Deploying application in "myproject" namespace 
-INFO Successfully created Service: frontend       
-INFO Successfully created Service: redis-master   
-INFO Successfully created Service: redis-slave    
-INFO Successfully created DeploymentConfig: frontend 
-INFO Successfully created ImageStream: frontend   
-INFO Successfully created DeploymentConfig: redis-master 
-INFO Successfully created ImageStream: redis-master 
-INFO Successfully created DeploymentConfig: redis-slave 
-INFO Successfully created ImageStream: redis-slave 
-
-Your application has been deployed to OpenShift. You can run 'oc get dc,svc,is,pvc' for details.
-```
+Then you can use `kubectl apply` to create these resources in OpenShift.
 
 __Access the newly deployed service:__
 
