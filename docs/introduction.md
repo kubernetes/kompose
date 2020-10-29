@@ -9,13 +9,11 @@ Why do developers love it?
 
   - Simplify your development process with Docker Compose and then deploy your containers to a production cluster
   - Convert your `docker-compose.yaml` with one simple command `kompose convert`
-  - Immediately bring up your cluster with `kompose up`
-  - Bring it back down with `kompose down`
 
 ### It's as simple as 1-2-3
 
 1. [Use an example docker-compose.yaml file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose-v3.yaml) or your own
-2. Run `kompose up`
+2. Run `kompose convert`
 3. Run `kubectl apply` and check your Kubernetes cluster for your newly deployed containers!
 
 ```sh
