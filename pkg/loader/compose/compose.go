@@ -169,7 +169,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 	switch version {
 	// Use libcompose for 1 or 2
 	// If blank, it's assumed it's 1 or 2
-	case "", "1", "1.0", "2", "2.0":
+	case "", "1", "1.0", "2", "2.0", "2.1", "2.2":
 		komposeObject, err := parseV1V2(files)
 		if err != nil {
 			return kobject.KomposeObject{}, err
