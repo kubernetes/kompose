@@ -37,14 +37,19 @@ func durationPtr(value time.Duration) *time.Duration {
 	return &value
 }
 
+func durationTypesPtr(value time.Duration) *types.Duration {
+	target := types.Duration(value)
+	return &target
+}
+
 func TestParseHealthCheck(t *testing.T) {
 	helperValue := uint64(2)
 	check := types.HealthCheckConfig{
 		Test:        []string{"CMD-SHELL", "echo", "foobar"},
-		Timeout:     durationPtr(1 * time.Second),
-		Interval:    durationPtr(2 * time.Second),
+		Timeout:     durationTypesPtr(1 * time.Second),
+		Interval:    durationTypesPtr(2 * time.Second),
 		Retries:     &helperValue,
-		StartPeriod: durationPtr(3 * time.Second),
+		StartPeriod: durationTypesPtr(3 * time.Second),
 	}
 
 	// CMD-SHELL or SHELL is included Test within docker/cli, thus we remove the first value in Test

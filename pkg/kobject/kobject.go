@@ -241,7 +241,7 @@ func (s *ServiceConfig) GetOSUpdateStrategy() *deployapi.RollingDeploymentStrate
 
 	delay := time.Second * 1
 	if config.Delay != 0 {
-		delay = config.Delay
+		delay = time.Duration(config.Delay)
 	}
 
 	interval := cast.ToInt64(delay.Seconds())
