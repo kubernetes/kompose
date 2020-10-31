@@ -4,7 +4,7 @@ go 1.13
 
 replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.6.0
 
-replace github.com/docker/libcompose => github.com/docker/libcompose v0.4.1-0.20171025083809-57bd716502dc
+replace github.com/docker/libcompose => github.com/docker/libcompose v0.4.1-0.20180821054414-cfb957a49ca6
 
 replace github.com/docker/cli => github.com/docker/cli v0.0.0-20180529093712-df6e38b81a94
 
@@ -16,7 +16,7 @@ replace golang.org/x/sys => golang.org/x/sys v0.0.0-20190830141801-acfa387b8d69
 
 require (
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
-	github.com/docker/cli v0.0.0-00010101000000-000000000000
+	github.com/docker/cli v0.0.0-20190711175710-5b38d82aa076
 	github.com/docker/libcompose v0.4.0
 	github.com/fatih/structs v1.1.0
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
