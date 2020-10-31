@@ -27,8 +27,11 @@ require (
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/imdario/mergo v0.3.10 // indirect
 	github.com/joho/godotenv v1.3.0
+	github.com/mattn/goveralls v0.0.7 // indirect
+	github.com/mitchellh/gox v1.0.1 // indirect
 	github.com/moby/sys/mount v0.1.1 // indirect
 	github.com/moby/term v0.0.0-20200915141129-7f0af18e79f2 // indirect
+	github.com/modocache/gover v0.0.0-20171022184752-b58185e213c5 // indirect
 	github.com/novln/docker-parser v1.0.0
 	github.com/opencontainers/selinux v1.6.0 // indirect
 	github.com/openshift/api v0.0.0-20200803131051-87466835fcc0
@@ -37,6 +40,7 @@ require (
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
+	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 	gotest.tools/v3 v3.0.3 // indirect
