@@ -224,7 +224,7 @@ __Note:__ A KVM hypervisor must be setup in order to correctly use `minishift` o
 
 __Install Red Hat Development Suite:__
 
-Before we are able to use both `minishift` and `kompose`, DevSuite must be installed. A more concise [installation document is available](https://developers.redhat.com/products/devsuite/hello-world/#fndtn-rhel).
+Before we are able to use both `minishift` and `kompose`, DevSuite must be installed. A more concise [installation document is available](https://developers.redhat.com/products/cdk/hello-world#fndtn-rhel).
 
 Change to root.
 
