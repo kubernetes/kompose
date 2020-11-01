@@ -76,7 +76,7 @@ Head over to [software.opensuse.org for One-Click Installation](https://software
 sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Tumbleweed/Virtualization:containers.repo
 
 #openSUSE Leap 42.3
-sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_42.3/Virtualization:containers.repo
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:/containers/openSUSE_Leap_15.2/Virtualization:containers.repo
 
 #openSUSE Leap 15
 sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_15.0/Virtualization:containers.repo
