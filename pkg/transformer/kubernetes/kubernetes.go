@@ -1154,11 +1154,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		}
 
 		// Generate pod only and nothing more
-		if service.Restart == "no" || service.Restart == "on-failure" {
-			// Error out if Controller Object is specified with restart: 'on-failure'
-			if opt.IsDeploymentFlag || opt.IsDaemonSetFlag || opt.IsReplicationControllerFlag {
-				return nil, errors.New("Controller object cannot be specified with restart: 'on-failure'")
-			}
+		if (service.Restart == "no" || service.Restart == "on-failure") && !opt.IsPodController() {
+			log.Infof("Create kubernetes pod instead of pod controller due to restart policy: %s", service.Restart)
 			pod := k.InitPod(name, service)
 			objects = append(objects, pod)
 		} else {

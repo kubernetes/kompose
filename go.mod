@@ -21,7 +21,6 @@ require (
 	github.com/docker/cli v0.0.0-20190711175710-5b38d82aa076
 	github.com/docker/libcompose v0.4.0
 	github.com/fatih/structs v1.1.0
-	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/fsouza/go-dockerclient v1.6.5
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
