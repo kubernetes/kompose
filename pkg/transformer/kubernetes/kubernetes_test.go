@@ -518,8 +518,8 @@ func TestRestartOnFailure(t *testing.T) {
 		t.Log("Test case:", name)
 		k := Kubernetes{}
 		_, err := k.Transform(test.komposeObject, test.opt)
-		if err == nil {
-			t.Errorf("Expected an error, got %v instead", err)
+		if err != nil {
+			t.Errorf("Expected nil error, got %v instead", err)
 		}
 	}
 }
