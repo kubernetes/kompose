@@ -79,7 +79,7 @@ sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:co
 sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_42.3/Virtualization:containers.repo
 
 #openSUSE Leap 15
-sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_15.0/Virtualization:containers.repo
+sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:/containers/openSUSE_Leap_15.2/Virtualization:containers.repo
 
 #SUSE Linux Enterprise 15
 sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/SLE_15/Virtualization:containers.repo
