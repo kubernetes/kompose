@@ -365,31 +365,40 @@ func (k *Kubernetes) PortsExist(service kobject.ServiceConfig) bool {
 	return len(service.Port) != 0
 }
 
-func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig, objects []runtime.Object) {
+func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig, objects []runtime.Object) []*api.Service {
+	var svcs []*api.Service
 	tcpPorts, udpPorts := k.ConfigLBServicePorts(name, service)
 	if tcpPorts != nil {
-
+		svc := k.initSvcObject(name + "-tcp", service, tcpPorts)
+		svcs = append(svcs, svc)
 	}
+	if udpPorts != nil {
+		svc := k.initSvcObject(name + "-udp", service, udpPorts)
+		svcs = append(svcs, svc)
+	}
+	return svcs
 }
 
-func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, ports []api.ServicePort) {
+func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, ports []api.ServicePort) *api.Service {
 	svc := k.InitSvc(name, service)
 	svc.Spec.Ports = ports
-}
 
+	svc.Spec.Type = api.ServiceType(service.ServiceType)
+
+	// Configure annotations
+	annotations := transformer.ConfigAnnotations(service)
+	svc.ObjectMeta.Annotations = annotations
+
+	return svc
+}
 
 // CreateService creates a k8s service
 func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
 	svc := k.InitSvc(name, service)
 
 	// Configure the service ports.
-	if service.ServiceType == "LoadBalancer" {
-		tcpPorts, udpPorts := k.ConfigLBServicePorts(name, service)
-	} else {
-		servicePorts := k.ConfigServicePorts(name, service)
-		svc.Spec.Ports = servicePorts
-	}
-
+	servicePorts := k.ConfigServicePorts(name, service)
+	svc.Spec.Ports = servicePorts
 
 	if service.ServiceType == "Headless" {
 		svc.Spec.Type = api.ServiceTypeClusterIP

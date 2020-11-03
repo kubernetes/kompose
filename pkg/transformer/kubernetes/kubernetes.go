@@ -577,6 +577,11 @@ func (k *Kubernetes) ConfigLBServicePorts(name string, service kobject.ServiceCo
 			TargetPort: targetPort,
 		}
 
+		// If the default is already TCP, no need to include it.
+		if port.Protocol != api.ProtocolTCP {
+			servicePort.Protocol = port.Protocol
+		}
+
 		if port.Protocol == api.ProtocolTCP {
 			tcpPorts = append(tcpPorts, servicePort)
 		} else {
@@ -1191,12 +1196,19 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		}
 
 		if k.PortsExist(service) {
-			svc := k.CreateService(name, service, objects)
-			objects = append(objects, svc)
-
-			if service.ExposeService != "" {
-				objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+			if service.ServiceType == "LoadBalancer" {
+				svcs := k.CreateLBService(name, service, objects)
+				for _, svc := range svcs {
+					objects = append(objects, svc)
+				}
+			} else {
+				svc := k.CreateService(name, service, objects)
+				objects = append(objects, svc)
+				if service.ExposeService != "" {
+					objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+				}
 			}
+
 		} else {
 			if service.ServiceType == "Headless" {
 				svc := k.CreateHeadlessService(name, service, objects)

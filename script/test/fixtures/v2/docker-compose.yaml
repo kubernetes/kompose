@@ -18,6 +18,8 @@ services:
 
   redis:
     image: redis:3.0
+    labels:
+      kompose.service.type: loadbalancer
     ports:
       - "6379/tcp"
       - "1234:1235/udp"
