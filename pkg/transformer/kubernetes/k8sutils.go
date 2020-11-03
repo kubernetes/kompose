@@ -369,11 +369,11 @@ func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig,
 	var svcs []*api.Service
 	tcpPorts, udpPorts := k.ConfigLBServicePorts(name, service)
 	if tcpPorts != nil {
-		svc := k.initSvcObject(name + "-tcp", service, tcpPorts)
+		svc := k.initSvcObject(name+"-tcp", service, tcpPorts)
 		svcs = append(svcs, svc)
 	}
 	if udpPorts != nil {
-		svc := k.initSvcObject(name + "-udp", service, udpPorts)
+		svc := k.initSvcObject(name+"-udp", service, udpPorts)
 		svcs = append(svcs, svc)
 	}
 	return svcs
