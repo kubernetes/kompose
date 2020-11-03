@@ -365,13 +365,31 @@ func (k *Kubernetes) PortsExist(service kobject.ServiceConfig) bool {
 	return len(service.Port) != 0
 }
 
+func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig, objects []runtime.Object) {
+	tcpPorts, udpPorts := k.ConfigLBServicePorts(name, service)
+	if tcpPorts != nil {
+
+	}
+}
+
+func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, ports []api.ServicePort) {
+	svc := k.InitSvc(name, service)
+	svc.Spec.Ports = ports
+}
+
+
 // CreateService creates a k8s service
 func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
 	svc := k.InitSvc(name, service)
 
 	// Configure the service ports.
-	servicePorts := k.ConfigServicePorts(name, service)
-	svc.Spec.Ports = servicePorts
+	if service.ServiceType == "LoadBalancer" {
+		tcpPorts, udpPorts := k.ConfigLBServicePorts(name, service)
+	} else {
+		servicePorts := k.ConfigServicePorts(name, service)
+		svc.Spec.Ports = servicePorts
+	}
+
 
 	if service.ServiceType == "Headless" {
 		svc.Spec.Type = api.ServiceTypeClusterIP

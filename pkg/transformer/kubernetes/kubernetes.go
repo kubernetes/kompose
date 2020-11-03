@@ -560,12 +560,40 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 	return ports
 }
 
+func (k *Kubernetes) ConfigLBServicePorts(name string, service kobject.ServiceConfig) ([]api.ServicePort, []api.ServicePort) {
+	var tcpPorts []api.ServicePort
+	var udpPorts []api.ServicePort
+	for _, port := range service.Port {
+		if port.HostPort == 0 {
+			port.HostPort = port.ContainerPort
+		}
+		var targetPort intstr.IntOrString
+		targetPort.IntVal = port.ContainerPort
+		targetPort.StrVal = strconv.Itoa(int(port.ContainerPort))
+
+		servicePort := api.ServicePort{
+			Name:       strconv.Itoa(int(port.HostPort)),
+			Port:       port.HostPort,
+			TargetPort: targetPort,
+		}
+
+		if port.Protocol == api.ProtocolTCP {
+			tcpPorts = append(tcpPorts, servicePort)
+		} else {
+			udpPorts = append(udpPorts, servicePort)
+		}
+	}
+	return tcpPorts, udpPorts
+
+}
+
 // ConfigServicePorts configure the container service ports.
 func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
 	seenPorts := make(map[int]struct{}, len(service.Port))
 
 	var servicePort api.ServicePort
+	log.Debugf("fuck ports: %+v", service.Port)
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
 			port.HostPort = port.ContainerPort
