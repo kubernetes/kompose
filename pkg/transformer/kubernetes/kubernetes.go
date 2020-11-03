@@ -1201,6 +1201,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				for _, svc := range svcs {
 					objects = append(objects, svc)
 				}
+				if len(svcs) > 1 {
+					log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
+				}
 			} else {
 				svc := k.CreateService(name, service, objects)
 				objects = append(objects, svc)
