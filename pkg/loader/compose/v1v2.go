@@ -18,13 +18,15 @@ package compose
 
 import (
 	"fmt"
-	"github.com/spf13/cast"
 	"net"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/docker/cli/opts"
+	"github.com/docker/go-connections/nat"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/lookup"
 	"github.com/docker/libcompose/project"
@@ -32,7 +34,7 @@ import (
 	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-
+	"github.com/spf13/cast"
 	api "k8s.io/api/core/v1"
 )
 
@@ -87,102 +89,60 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 // Load ports from compose file
 // also load `expose` here
 func loadPorts(composePorts []string, expose []string) ([]kobject.Ports, error) {
-	ports := []kobject.Ports{}
-	character := ":"
+	kp := []kobject.Ports{}
 	exist := map[string]bool{}
 
-	// For each port listed
-	for _, port := range composePorts {
+	for _, cp := range composePorts {
+		var hostIP string
 
-		// Get the TCP / UDP protocol. Checks to see if it splits in 2 with '/' character.
-		// ex. 15000:15000/tcp
-		// else, set a default protocol of using TCP
-		proto := api.ProtocolTCP
-		protocolCheck := strings.Split(port, "/")
-		if len(protocolCheck) == 2 {
-			if strings.EqualFold("tcp", protocolCheck[1]) {
-				proto = api.ProtocolTCP
-			} else if strings.EqualFold("udp", protocolCheck[1]) {
-				proto = api.ProtocolUDP
-			} else {
-				return nil, fmt.Errorf("invalid protocol %q", protocolCheck[1])
+		if parts := strings.Split(cp, ":"); len(parts) == 3 {
+			if ip := net.ParseIP(parts[0]); ip.To4() == nil && ip.To16() == nil {
+				return nil, fmt.Errorf("%q contains an invalid IPv4 or IPv6 IP address", parts[0])
+			}
+			hostIP = parts[0]
+		}
+
+		np, pbs, err := nat.ParsePortSpecs([]string{cp})
+		if err != nil {
+			return nil, fmt.Errorf("invalid port, error = %v", err)
+		}
+		// Force HostIP value to avoid warning raised by github.com/docker/cli/opts
+		// The opts package will warn if the bindings contains host IP except
+		// 0.0.0.0. However, the message is not useful in this case since the value
+		// should be handled by kompose properly.
+		for _, pb := range pbs {
+			for i, p := range pb {
+				p.HostIP = ""
+				pb[i] = p
 			}
 		}
 
-		// Split up the ports / IP without the "/tcp" or "/udp" appended to it
-		justPorts := strings.Split(protocolCheck[0], character)
-
-		if len(justPorts) == 3 {
-			// ex. 127.0.0.1:80:80
-
-			// Get the IP address
-			hostIP := justPorts[0]
-			ip := net.ParseIP(hostIP)
-			if ip.To4() == nil && ip.To16() == nil {
-				return nil, fmt.Errorf("%q contains an invalid IPv4 or IPv6 IP address", port)
-			}
-
-			// Get the host port
-			hostPortInt, err := strconv.Atoi(justPorts[1])
-			if err != nil {
-				return nil, fmt.Errorf("invalid host port %q valid example: 127.0.0.1:80:80", port)
-			}
-
-			// Get the container port
-			containerPortInt, err := strconv.Atoi(justPorts[2])
-			if err != nil {
-				return nil, fmt.Errorf("invalid container port %q valid example: 127.0.0.1:80:80", port)
-			}
-
-			// Convert to a kobject struct with ports as well as IP
-			ports = append(ports, kobject.Ports{
-				HostPort:      int32(hostPortInt),
-				ContainerPort: int32(containerPortInt),
-				HostIP:        hostIP,
-				Protocol:      proto,
-			})
-
-		} else if len(justPorts) == 2 {
-			// ex. 80:80
-
-			// Get the host port
-			hostPortInt, err := strconv.Atoi(justPorts[0])
-			if err != nil {
-				return nil, fmt.Errorf("invalid host port %q valid example: 80:80", port)
-			}
-
-			// Get the container port
-			containerPortInt, err := strconv.Atoi(justPorts[1])
-			if err != nil {
-				return nil, fmt.Errorf("invalid container port %q valid example: 80:80", port)
-			}
-
-			// Convert to a kobject struct and add to the list of ports
-			ports = append(ports, kobject.Ports{
-				HostPort:      int32(hostPortInt),
-				ContainerPort: int32(containerPortInt),
-				Protocol:      proto,
-			})
-
-		} else {
-			// ex. 80
-
-			containerPortInt, err := strconv.Atoi(justPorts[0])
-			if err != nil {
-				return nil, fmt.Errorf("invalid container port %q valid example: 80", port)
-			}
-			ports = append(ports, kobject.Ports{
-				ContainerPort: int32(containerPortInt),
-				Protocol:      proto,
-			})
+		var ports []string
+		for p := range np {
+			ports = append(ports, string(p))
 		}
+		sort.Strings(ports)
 
+		for _, p := range ports {
+			pc, err := opts.ConvertPortToPortConfig(nat.Port(p), pbs)
+			if err != nil {
+				return nil, fmt.Errorf("invalid port, error = %v", err)
+			}
+			for _, cfg := range pc {
+				kp = append(kp, kobject.Ports{
+					HostPort:      int32(cfg.PublishedPort),
+					ContainerPort: int32(cfg.TargetPort),
+					HostIP:        hostIP,
+					Protocol:      api.Protocol(strings.ToUpper(string(cfg.Protocol))),
+				})
+			}
+		}
 	}
 
 	// load remain expose ports
-	for _, port := range ports {
+	for _, p := range kp {
 		// must use cast...
-		exist[cast.ToString(port.ContainerPort)+string(port.Protocol)] = true
+		exist[cast.ToString(p.ContainerPort)+string(p.Protocol)] = true
 	}
 
 	if expose != nil {
@@ -196,7 +156,7 @@ func loadPorts(composePorts []string, expose []string) ([]kobject.Ports, error) 
 			}
 
 			if !exist[portValue+string(protocol)] {
-				ports = append(ports, kobject.Ports{
+				kp = append(kp, kobject.Ports{
 					ContainerPort: cast.ToInt32(portValue),
 					Protocol:      protocol,
 				})
@@ -204,7 +164,7 @@ func loadPorts(composePorts []string, expose []string) ([]kobject.Ports, error) 
 		}
 	}
 
-	return ports, nil
+	return kp, nil
 }
 
 // Uses libcompose's APIProject type and converts it to a Kompose object for us to understand

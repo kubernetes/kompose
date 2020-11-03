@@ -17,20 +17,20 @@ limitations under the License.
 package compose
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/kubernetes/kompose/pkg/kobject"
-	api "k8s.io/api/core/v1"
 	"time"
 
 	"github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
+	api "k8s.io/api/core/v1"
 )
 
 func durationPtr(value time.Duration) *time.Duration {
@@ -172,6 +172,18 @@ func TestLoadPorts(t *testing.T) {
 		ContainerPort: 80,
 		Protocol:      api.ProtocolTCP,
 	}
+	port5 := []string{"3000-3005"}
+	result5 := kobject.Ports{
+		HostPort:      0,
+		ContainerPort: 3000,
+		Protocol:      api.ProtocolTCP,
+	}
+	port6 := []string{"3000-3005:3000-3005"}
+	result6 := kobject.Ports{
+		HostPort:      3000,
+		ContainerPort: 3000,
+		Protocol:      api.ProtocolTCP,
+	}
 
 	tests := []struct {
 		ports  []string
@@ -181,16 +193,21 @@ func TestLoadPorts(t *testing.T) {
 		{port2, result2},
 		{port3, result3},
 		{port4, result4},
+		{port5, result5},
+		{port6, result6},
 	}
 
 	for _, tt := range tests {
-		result, err := loadPorts(tt.ports, nil)
-		if err != nil {
-			t.Errorf("Unexpected error with loading ports %v", err)
-		}
-		if result[0] != tt.result {
-			t.Errorf("Expected %q, got %q", tt.result, result[0])
-		}
+		t.Run(fmt.Sprintf("%v", tt.ports), func(t *testing.T) {
+			result, err := loadPorts(tt.ports, nil)
+			if err != nil {
+				t.Errorf("Unexpected error with loading ports %v", err)
+			}
+			t.Log(tt.result)
+			if result[0] != tt.result {
+				t.Errorf("Expected %v, got %v", tt.result, result[0])
+			}
+		})
 	}
 }
 
