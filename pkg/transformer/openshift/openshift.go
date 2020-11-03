@@ -405,6 +405,9 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				for _, svc := range svcs {
 					objects = append(objects, svc)
 				}
+				if len(svcs) > 1 {
+					log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
+				}
 			} else {
 				svc := o.CreateService(name, service, objects)
 				objects = append(objects, svc)
