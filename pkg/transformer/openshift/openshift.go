@@ -400,12 +400,20 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		}
 
 		if o.PortsExist(service) {
-			svc := o.CreateService(name, service, objects)
-			objects = append(objects, svc)
+			if service.ServiceType == "LoadBalancer" {
+				svcs := o.CreateLBService(name, service, objects)
+				for _, svc := range svcs {
+					objects = append(objects, svc)
+				}
+			} else {
+				svc := o.CreateService(name, service, objects)
+				objects = append(objects, svc)
 
-			if service.ExposeService != "" {
-				objects = append(objects, o.initRoute(name, service, svc.Spec.Ports[0].Port))
+				if service.ExposeService != "" {
+					objects = append(objects, o.initRoute(name, service, svc.Spec.Ports[0].Port))
+				}
 			}
+
 		} else if service.ServiceType == "Headless" {
 			svc := o.CreateHeadlessService(name, service, objects)
 			objects = append(objects, svc)

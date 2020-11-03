@@ -560,12 +560,45 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 	return ports
 }
 
+func (k *Kubernetes) ConfigLBServicePorts(name string, service kobject.ServiceConfig) ([]api.ServicePort, []api.ServicePort) {
+	var tcpPorts []api.ServicePort
+	var udpPorts []api.ServicePort
+	for _, port := range service.Port {
+		if port.HostPort == 0 {
+			port.HostPort = port.ContainerPort
+		}
+		var targetPort intstr.IntOrString
+		targetPort.IntVal = port.ContainerPort
+		targetPort.StrVal = strconv.Itoa(int(port.ContainerPort))
+
+		servicePort := api.ServicePort{
+			Name:       strconv.Itoa(int(port.HostPort)),
+			Port:       port.HostPort,
+			TargetPort: targetPort,
+		}
+
+		// If the default is already TCP, no need to include it.
+		if port.Protocol != api.ProtocolTCP {
+			servicePort.Protocol = port.Protocol
+		}
+
+		if port.Protocol == api.ProtocolTCP {
+			tcpPorts = append(tcpPorts, servicePort)
+		} else {
+			udpPorts = append(udpPorts, servicePort)
+		}
+	}
+	return tcpPorts, udpPorts
+
+}
+
 // ConfigServicePorts configure the container service ports.
 func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
 	seenPorts := make(map[int]struct{}, len(service.Port))
 
 	var servicePort api.ServicePort
+	log.Debugf("fuck ports: %+v", service.Port)
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
 			port.HostPort = port.ContainerPort
@@ -1163,12 +1196,19 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		}
 
 		if k.PortsExist(service) {
-			svc := k.CreateService(name, service, objects)
-			objects = append(objects, svc)
-
-			if service.ExposeService != "" {
-				objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+			if service.ServiceType == "LoadBalancer" {
+				svcs := k.CreateLBService(name, service, objects)
+				for _, svc := range svcs {
+					objects = append(objects, svc)
+				}
+			} else {
+				svc := k.CreateService(name, service, objects)
+				objects = append(objects, svc)
+				if service.ExposeService != "" {
+					objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+				}
 			}
+
 		} else {
 			if service.ServiceType == "Headless" {
 				svc := k.CreateHeadlessService(name, service, objects)

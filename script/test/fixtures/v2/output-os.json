@@ -44,10 +44,13 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis",
+        "name": "redis-tcp",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis"
+          "io.kompose.service": "redis-tcp"
+        },
+        "annotations": {
+          "kompose.service.type": "loadbalancer"
         }
       },
       "spec": {
@@ -56,7 +59,32 @@
             "name": "6379",
             "port": 6379,
             "targetPort": 6379
-          },
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "redis-tcp"
+        },
+        "type": "LoadBalancer"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis-udp",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis-udp"
+        },
+        "annotations": {
+          "kompose.service.type": "loadbalancer"
+        }
+      },
+      "spec": {
+        "ports": [
           {
             "name": "1234",
             "protocol": "UDP",
@@ -65,8 +93,9 @@
           }
         ],
         "selector": {
-          "io.kompose.service": "redis"
-        }
+          "io.kompose.service": "redis-udp"
+        },
+        "type": "LoadBalancer"
       },
       "status": {
         "loadBalancer": {}
