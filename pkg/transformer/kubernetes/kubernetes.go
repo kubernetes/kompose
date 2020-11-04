@@ -139,8 +139,6 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 	var volumeMounts []api.VolumeMount
 	var volumes []api.Volume
 
-	log.Debugf("Configs in InitPodSpecWithConfigMap: %+v", service.Configs)
-
 	for _, value := range service.Configs {
 		cmVolName := FormatFileName(value.Source)
 		target := value.Target
@@ -598,7 +596,6 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 	seenPorts := make(map[int]struct{}, len(service.Port))
 
 	var servicePort api.ServicePort
-	log.Debugf("Ports in ConfigServicePorts: %+v", service.Port)
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
 			port.HostPort = port.ContainerPort
