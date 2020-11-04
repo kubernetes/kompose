@@ -17,8 +17,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -87,12 +85,10 @@ var RootCmd = &cobra.Command{
 	},
 }
 
-// Execute TODO: comment
-func Execute() {
-	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
-	}
+// Execute executes the root level command.
+// It returns an erorr if any.
+func Execute() error {
+	return RootCmd.Execute()
 }
 
 func init() {

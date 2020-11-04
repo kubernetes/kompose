@@ -16,8 +16,15 @@ limitations under the License.
 
 package main
 
-import "github.com/kubernetes/kompose/cmd"
+import (
+	"log"
+
+	"github.com/kubernetes/kompose/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	if err := cmd.Execute(); err != nil {
+		log.SetFlags(0)
+		log.Fatal(err)
+	}
 }
