@@ -17,14 +17,15 @@ limitations under the License.
 package main
 
 import (
-	"log"
+	"fmt"
+	"os"
 
 	"github.com/kubernetes/kompose/cmd"
 )
 
 func main() {
 	if err := cmd.Execute(); err != nil {
-		log.SetFlags(0)
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }
