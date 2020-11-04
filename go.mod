@@ -19,9 +19,11 @@ replace golang.org/x/sys => golang.org/x/sys v0.0.0-20201029080932-201ba4db2418
 require (
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/docker/cli v0.0.0-20190711175710-5b38d82aa076
+	github.com/docker/go-connections v0.4.0
 	github.com/docker/libcompose v0.4.0
 	github.com/fatih/structs v1.1.0
 	github.com/fsouza/go-dockerclient v1.6.5
+	github.com/google/go-cmp v0.4.0
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/imdario/mergo v0.3.10 // indirect
