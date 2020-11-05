@@ -223,17 +223,18 @@ func TestLoadPorts(t *testing.T) {
 		},
 		{
 			ports:  []string{"80", "3000"},
-			expose: []string{"80"},
+			expose: []string{"80", "8080"},
 			want: []kobject.Ports{
 				{HostPort: 0, ContainerPort: 80, Protocol: api.ProtocolTCP},
 				{HostPort: 0, ContainerPort: 3000, Protocol: api.ProtocolTCP},
+				{HostPort: 0, ContainerPort: 8080, Protocol: api.ProtocolTCP},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("port=%q,expose=%q", tt.ports, tt.expose), func(t *testing.T) {
-			got, err := loadPorts(tt.ports, nil)
+			got, err := loadPorts(tt.ports, tt.expose)
 			if err != nil {
 				t.Fatalf("Unexpected error with loading ports %v", err)
 			}
