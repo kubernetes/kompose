@@ -162,12 +162,24 @@ func objectToRaw(object runtime.Object) runtime.RawExtension {
 
 }
 
+func fileExists(p string) bool {
+	_, err := os.Stat(p)
+	return err == nil
+}
+
 // PrintList will take the data converted and decide on the commandline attributes given
 func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
-
 	var f *os.File
 	dirName := getDirName(opt)
 	log.Debugf("Target Dir: %s", dirName)
+
+	// Create a directory if "out" ends with "/".
+	if !fileExists(opt.OutFile) && strings.HasSuffix(opt.OutFile, "/") {
+		if err := os.MkdirAll(opt.OutFile, os.ModePerm); err != nil {
+			return errors.Wrap(err, "failed to create a directory")
+		}
+		log.Infof("Output directory %q created", opt.OutFile)
+	}
 
 	// Check if output file is a directory
 	isDirVal, err := isDir(opt.OutFile)
