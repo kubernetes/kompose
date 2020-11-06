@@ -89,34 +89,38 @@ func TestLoadV3Volumes(t *testing.T) {
 }
 
 func TestLoadV3Ports(t *testing.T) {
-	port := types.ServicePortConfig{
-		Target:    80,
-		Published: 80,
-		Protocol:  "TCP",
+	for _, tt := range []struct {
+		desc   string
+		ports  []types.ServicePortConfig
+		expose []string
+		want   []kobject.Ports
+	}{
+		{
+			desc:   "ports with expose",
+			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: "TCP"}},
+			expose: []string{"80", "8080"},
+			want: []kobject.Ports{
+				{HostPort: 80, ContainerPort: 80, Protocol: api.Protocol("TCP")},
+				{HostPort: 8080, ContainerPort: 8080, Protocol: api.Protocol("TCP")},
+			},
+		},
+		{
+			desc:   "exposed port including /protocol",
+			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: "TCP"}},
+			expose: []string{"80/udp"},
+			want: []kobject.Ports{
+				{HostPort: 80, ContainerPort: 80, Protocol: api.Protocol("TCP")},
+				{HostPort: 80, ContainerPort: 80, Protocol: api.Protocol("UDP")},
+			},
+		},
+	} {
+		t.Run(tt.desc, func(t *testing.T) {
+			got := loadV3Ports(tt.ports, tt.expose)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("loadV3Ports() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
-	expose := []string{"80", "8080"}
-	ports := []types.ServicePortConfig{port}
-	output := loadV3Ports(ports, expose)
-	expected := kobject.Ports{
-		HostPort:      80,
-		ContainerPort: 80,
-		Protocol:      api.Protocol("TCP"),
-	}
-
-	if output[0] != expected {
-		t.Errorf("Expected %v, got %v", expected, output[0])
-	}
-
-	ep2 := kobject.Ports{
-		HostPort:      8080,
-		ContainerPort: 8080,
-		Protocol:      api.ProtocolTCP,
-	}
-
-	if output[1] != ep2 {
-		t.Errorf("Expected %v, got %v", ep2, output[1])
-	}
-
 }
 
 // Test if service types are parsed properly on user input
@@ -219,17 +223,18 @@ func TestLoadPorts(t *testing.T) {
 		},
 		{
 			ports:  []string{"80", "3000"},
-			expose: []string{"80"},
+			expose: []string{"80", "8080"},
 			want: []kobject.Ports{
 				{HostPort: 0, ContainerPort: 80, Protocol: api.ProtocolTCP},
 				{HostPort: 0, ContainerPort: 3000, Protocol: api.ProtocolTCP},
+				{HostPort: 0, ContainerPort: 8080, Protocol: api.ProtocolTCP},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("port=%q,expose=%q", tt.ports, tt.expose), func(t *testing.T) {
-			got, err := loadPorts(tt.ports, nil)
+			got, err := loadPorts(tt.ports, tt.expose)
 			if err != nil {
 				t.Fatalf("Unexpected error with loading ports %v", err)
 			}
