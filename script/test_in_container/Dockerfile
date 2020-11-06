@@ -17,30 +17,30 @@
 
 FROM registry.centos.org/centos/centos:7
 
-RUN yum install -y epel-release
-RUN yum install -y golang make git jq &&\
+RUN yum -y update && yum -y upgrade && \
+    yum -y install epel-release && \
+    yum -y install gcc make git jq && \
     yum -y clean all
 
 ENV GOPATH="/opt/go" \
+    GOROOT="/usr/local/go" \
+    GOVERSION="1.15.4" \
     # KOMPOSE_TMP_SRC is where kompose source will be mounted from host
     KOMPOSE_TMP_SRC="/opt/tmp/kompose" 
 
-ENV PATH="$PATH:$GOPATH/bin" \
+ENV PATH="$PATH:$GOPATH/bin:$GOROOT/bin" \
     # KOMPOSE_SRC is where kompose source will be copied when container starts (by run.sh script)
     # this is to ensure that we won't write anything to host volume mount
     KOMPOSE_SRC="$GOPATH/src/github.com/kubernetes/kompose"
 
-RUN go get github.com/Masterminds/glide &&\
-    go get github.com/sgotti/glide-vc &&\
-    go get github.com/golang/lint/golint
+WORKDIR /tmp/go
+RUN curl https://storage.googleapis.com/golang/go$GOVERSION.linux-amd64.tar.gz | tar -xz -C /usr/local
+
+RUN go get golang.org/x/lint/golint
 
 WORKDIR $KOMPOSE_SRC
 # This image can be run as any user
 RUN chmod -R ugo+rw $GOPATH
 
-
 COPY run.sh /opt/tools/
 ENTRYPOINT ["/opt/tools/run.sh"]
-
-
-
