@@ -173,7 +173,6 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		if err := os.MkdirAll(opt.OutFile, os.ModePerm); err != nil {
 			return errors.Wrap(err, "failed to create a directory")
 		}
-		log.Printf("Output directory %q created", opt.OutFile)
 	}
 
 	// Check if output file is a directory
