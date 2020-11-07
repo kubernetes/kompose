@@ -22,35 +22,42 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
 	dockerlib "github.com/fsouza/go-dockerclient"
 	"github.com/kubernetes/kompose/pkg/kobject"
-	log "github.com/sirupsen/logrus"
-
-	"path/filepath"
-
 	"github.com/kubernetes/kompose/pkg/utils/docker"
-
 	"github.com/kubernetes/kompose/pkg/version"
-
 	"github.com/pkg/errors"
-
+	log "github.com/sirupsen/logrus"
 	api "k8s.io/api/core/v1"
 )
 
 // Selector used as labels and selector
 const Selector = "io.kompose.service"
 
+// Exists returns true if a file path exists.
+// Otherwise, returns false.
+func Exists(p string) bool {
+	_, err := os.Stat(p)
+	return err == nil
+}
+
 // CreateOutFile creates the file to write to if --out is specified
 func CreateOutFile(out string) (*os.File, error) {
-	var f *os.File
-	var err error
-	if len(out) != 0 {
-		f, err = os.Create(out)
-		if err != nil {
-			return nil, errors.Wrap(err, "error creating file, os.Create failed")
+	if len(out) == 0 {
+		return nil, nil
+	}
+	// Creates directories if "out" contains unexistent directories.
+	if dir := filepath.Dir(out); !Exists(dir) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return nil, errors.Wrap(err, "failed to create directories")
 		}
+	}
+	f, err := os.Create(out)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create file, os.Create failed")
 	}
 	return f, nil
 }
