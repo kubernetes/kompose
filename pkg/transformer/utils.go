@@ -49,7 +49,7 @@ func CreateOutFile(out string) (*os.File, error) {
 	if len(out) == 0 {
 		return nil, nil
 	}
-	// Creates directories if "out" contains unexistent directories.
+	// Creates directories if "out" contains nonexistent directories.
 	if dir := filepath.Dir(out); !Exists(dir) {
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 			return nil, errors.Wrap(err, "failed to create directories")
