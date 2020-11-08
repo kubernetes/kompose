@@ -91,11 +91,6 @@ lint:
 gofmt:
 	./script/check-gofmt.sh
 
-# Checks if there are nested vendor dirs inside Kompose vendor and if vendor was cleaned by glide-vc
-.PHONY: check-vendor
-check-vendor:
-	./script/check-vendor.sh
-
 # Run all tests
 .PHONY: test
 test: bin test-dep  validate test-unit-cover install test-cmd
