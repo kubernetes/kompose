@@ -530,23 +530,6 @@ cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/service-
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/service-label/output-oc.json > /tmp/output-oc.json
 convert::expect_success "$cmd" "/tmp/output-oc.json"
 
-
-######
-# Test the output file behavior of kompose convert
-# Default behavior without -o
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -j" "redis-deployment.json" "redis-service.json" "web-deployment.json" "web-service.json"
-# Behavior with -o <filename>
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o output_file -j" "output_file"
-# Behavior with -o <dirname>
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR -j" "$TEMP_DIR/redis-deployment.json" "$TEMP_DIR/redis-service.json" "$TEMP_DIR/web-deployment.json" "$TEMP_DIR/web-service.json"
-# Behavior with -o <dirname>/<filename>
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR/output_file -j" "$TEMP_DIR/output_file"
-# Behavior with -o <non-existent-dirname>/
-dst=$TEMP_DIR/output_dir/
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $dst -j" "${dst}redis-deployment.json" "${dst}redis-service.json" "${dst}web-deployment.json" "${dst}web-service.json"
-# Behavior with -o <non-existent-dirname>/<filename>
-convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR/output_dir2/output_file -j" "$TEMP_DIR/output_dir2/output_file"
-
 ######
 # Test charts generate with custom dir
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR -j -c" "$TEMP_DIR/Chart.yaml" "$TEMP_DIR/README.md" "$TEMP_DIR/templates/redis-deployment.json" "$TEMP_DIR/templates/redis-service.json" "$TEMP_DIR/templates/web-deployment.json" "$TEMP_DIR/templates/web-service.json"

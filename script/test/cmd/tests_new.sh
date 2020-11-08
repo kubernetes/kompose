@@ -63,5 +63,18 @@ os_output="$KOMPOSE_ROOT/script/test/fixtures/$DIR/output-os.json"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success_and_warning "$os_cmd" "$os_output"
 
-
-
+######
+# Test the output file behavior of kompose convert
+# Default behavior without -o
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -j" "redis-deployment.json" "redis-service.json" "web-deployment.json" "web-service.json"
+# Behavior with -o <filename>
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o output_file -j" "output_file"
+# Behavior with -o <dirname>
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR -j" "$TEMP_DIR/redis-deployment.json" "$TEMP_DIR/redis-service.json" "$TEMP_DIR/web-deployment.json" "$TEMP_DIR/web-service.json"
+# Behavior with -o <dirname>/<filename>
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR/output_file -j" "$TEMP_DIR/output_file"
+# Behavior with -o <non-existent-dirname>/
+dst=$TEMP_DIR/output_dir/
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $dst -j" "${dst}redis-deployment.json" "${dst}redis-service.json" "${dst}web-deployment.json" "${dst}web-service.json"
+# Behavior with -o <non-existent-dirname>/<filename>
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR/output_dir2/output_file -j" "$TEMP_DIR/output_dir2/output_file"
