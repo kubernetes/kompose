@@ -23,7 +23,7 @@ openshift_exit_status=0
 
 convert::start_test "Functional tests on OpenShift"
 
-if [[ -n "${TRAVIS}" ]]; then
+if [[ -n "${CI}" ]]; then
     install_oc_client
 fi
 

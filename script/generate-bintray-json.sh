@@ -3,6 +3,9 @@
 DATE=`date --iso-8601=date`
 TIME=`date --iso-8601=seconds`
 
+# GITHUB_PULL_REQUEST MUST be set by your own hands.
+# See: https://github.com/actions/checkout/issues/58
+
 cat > "./.bintray.json" <<EOF
 {
     "package": {
@@ -22,12 +25,12 @@ cat > "./.bintray.json" <<EOF
         "name": "latest",
         "desc": "Kompose build from master branch",
         "released": "${DATE}",
-        "vcs_tag": "${TRAVIS_COMMIT}",
-        "attributes": [{"name": "TRAVIS_JOB_NUMBER", "values" : ["${TRAVIS_JOB_NUMBER}"], "type": "string"},
-                       {"name": "TRAVIS_JOB_ID", "values" : ["${TRAVIS_JOB_ID}"], "type": "string"},
-                       {"name": "TRAVIS_COMMIT", "values" : ["${TRAVIS_COMMIT}"], "type": "string"},
-                       {"name": "TRAVIS_BRANCH", "values" : ["${TRAVIS_BRANCH}"], "type": "string"},
-                       {"name": "TRAVIS_PULL_REQUEST", "values" : ["${TRAVIS_PULL_REQUEST}"], "type": "string"},
+        "vcs_tag": "${GITHUB_SHA}",
+        "attributes": [{"name": "GITHUB_RUN_NUMBER", "values" : ["${GITHUB_RUN_NUMBER}"], "type": "string"},
+                       {"name": "GITHUB_RUN_ID", "values" : ["${GITHUB_RUN_ID}"], "type": "string"},
+                       {"name": "GITHUB_SHA", "values" : ["${GITHUB_SHA}"], "type": "string"},
+                       {"name": "GITHUB_REF", "values" : ["${GITHUB_REF}"], "type": "string"},
+                       {"name": "GITHUB_PULL_REQUEST", "values" : ["${GITHUB_PULL_REQUEST}"], "type": "string"},
                        {"name": "date", "values" : ["${TIME}"], "type": "date"}],
         "gpgSign": false
     },

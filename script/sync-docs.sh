@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-# Ensures that we run on Travis
-if [ "$TRAVIS_BRANCH" != "master" ] || [ "$BUILD_DOCS" != "yes" ] || [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || [ "$TRAVIS_PULL_REQUEST" != "false" ] ; then
-    echo "Must be: a merged pr on the master branch, BUILD_DOCS=yes, TRAVIS_SECURE_ENV_VARS=false"
-    exit 0
-fi
-
 DOCS_REPO_NAME="kompose"
 DOCS_REPO_URL="git@github.com:kubernetes/kompose.git"
 DOCS_KEY="script/deploy_key"
@@ -82,7 +76,7 @@ git config user.email "$DOCS_EMAIL"
 git add --all
 
 # Check if anything changed, and if it's the case, push to origin/master.
-if git commit -m 'Update docs' -m "Commit: https://github.com/kubernetes/kompose/commit/$TRAVIS_COMMIT" ; then
+if git commit -m 'Update docs' -m "Commit: https://github.com/kubernetes/kompose/commit/$GITHUB_SHA" ; then
   git push
 fi
 
