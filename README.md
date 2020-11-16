@@ -122,8 +122,8 @@ __Chat (Slack):__ We're fairly active on [Slack](http://slack.kubernetes.io#komp
 
 Participation in the Kubernetes community is governed by the [Kubernetes Code of Conduct](code-of-conduct.md).
 
-[Build Status]: https://travis-ci.org/kubernetes/kompose
-[Build Status Widget]: https://travis-ci.org/kubernetes/kompose.svg?branch=master
+[Build Status]: https://github.com/kubernetes/kompose/actions?query=workflow%3A%22Kompose+CI%22
+[Build Status Widget]: https://github.com/kubernetes/kompose/workflows/Kompose%20CI/badge.svg
 [GoDoc]: https://godoc.org/github.com/kubernetes/kompose
 [GoDoc Widget]: https://godoc.org/github.com/kubernetes/kompose?status.svg
 [Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes/kompose/badge.svg?branch=master
