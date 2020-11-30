@@ -139,8 +139,6 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 	var volumeMounts []api.VolumeMount
 	var volumes []api.Volume
 
-	log.Debugf("fuck config: %+v", service.Configs)
-
 	for _, value := range service.Configs {
 		cmVolName := FormatFileName(value.Source)
 		target := value.Target
@@ -566,6 +564,38 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 	}
 
 	return ports
+}
+
+func (k *Kubernetes) ConfigLBServicePorts(name string, service kobject.ServiceConfig) ([]api.ServicePort, []api.ServicePort) {
+	var tcpPorts []api.ServicePort
+	var udpPorts []api.ServicePort
+	for _, port := range service.Port {
+		if port.HostPort == 0 {
+			port.HostPort = port.ContainerPort
+		}
+		var targetPort intstr.IntOrString
+		targetPort.IntVal = port.ContainerPort
+		targetPort.StrVal = strconv.Itoa(int(port.ContainerPort))
+
+		servicePort := api.ServicePort{
+			Name:       strconv.Itoa(int(port.HostPort)),
+			Port:       port.HostPort,
+			TargetPort: targetPort,
+		}
+
+		// If the default is already TCP, no need to include it.
+		if port.Protocol != api.ProtocolTCP {
+			servicePort.Protocol = port.Protocol
+		}
+
+		if port.Protocol == api.ProtocolTCP {
+			tcpPorts = append(tcpPorts, servicePort)
+		} else {
+			udpPorts = append(udpPorts, servicePort)
+		}
+	}
+	return tcpPorts, udpPorts
+
 }
 
 // ConfigServicePorts configure the container service ports.
@@ -1162,11 +1192,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		}
 
 		// Generate pod only and nothing more
-		if service.Restart == "no" || service.Restart == "on-failure" {
-			// Error out if Controller Object is specified with restart: 'on-failure'
-			if opt.IsDeploymentFlag || opt.IsDaemonSetFlag || opt.IsReplicationControllerFlag {
-				return nil, errors.New("Controller object cannot be specified with restart: 'on-failure'")
-			}
+		if (service.Restart == "no" || service.Restart == "on-failure") && !opt.IsPodController() {
+			log.Infof("Create kubernetes pod instead of pod controller due to restart policy: %s", service.Restart)
 			pod := k.InitPod(name, service)
 			objects = append(objects, pod)
 		} else {
@@ -1174,16 +1201,28 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		}
 
 		if k.PortsExist(service) {
-			svc := k.CreateService(name, service, objects)
-			objects = append(objects, svc)
-
-			if service.ExposeService != "" {
-				objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+			if service.ServiceType == "LoadBalancer" {
+				svcs := k.CreateLBService(name, service, objects)
+				for _, svc := range svcs {
+					objects = append(objects, svc)
+				}
+				if len(svcs) > 1 {
+					log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
+				}
+			} else {
+				svc := k.CreateService(name, service, objects)
+				objects = append(objects, svc)
+				if service.ExposeService != "" {
+					objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+				}
 			}
+
 		} else {
 			if service.ServiceType == "Headless" {
 				svc := k.CreateHeadlessService(name, service, objects)
 				objects = append(objects, svc)
+			} else {
+				log.Warnf("Service %q won't be created because 'ports' is not specified", name)
 			}
 		}
 

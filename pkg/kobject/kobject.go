@@ -78,6 +78,11 @@ type ConvertOptions struct {
 	WithKomposeAnnotation bool
 }
 
+// IsPodController indicate if the user want to use a controller
+func (opt *ConvertOptions) IsPodController() bool {
+	return opt.IsDeploymentFlag || opt.IsDaemonSetFlag || opt.IsReplicationControllerFlag || opt.Controller != ""
+}
+
 // ServiceConfig holds the basic struct of a container
 type ServiceConfig struct {
 	ContainerName     string
@@ -241,7 +246,7 @@ func (s *ServiceConfig) GetOSUpdateStrategy() *deployapi.RollingDeploymentStrate
 
 	delay := time.Second * 1
 	if config.Delay != 0 {
-		delay = config.Delay
+		delay = time.Duration(config.Delay)
 	}
 
 	interval := cast.ToInt64(delay.Seconds())

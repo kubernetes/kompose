@@ -25,6 +25,7 @@ function convert::print_msg () {
 }
 
 function install_oc_client () {
+    # TODO: Confirm that this is valid for GitHub Actions.
     # Valid only for Travis
     convert::print_msg "Installing oc client binary ..."
     sudo sed -i 's:DOCKER_OPTS=":DOCKER_OPTS="--insecure-registry 172.30.0.0/16 :g' /etc/default/docker

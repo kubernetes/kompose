@@ -164,10 +164,16 @@ func objectToRaw(object runtime.Object) runtime.RawExtension {
 
 // PrintList will take the data converted and decide on the commandline attributes given
 func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
-
 	var f *os.File
 	dirName := getDirName(opt)
 	log.Debugf("Target Dir: %s", dirName)
+
+	// Create a directory if "out" ends with "/" and does not exist.
+	if !transformer.Exists(opt.OutFile) && strings.HasSuffix(opt.OutFile, "/") {
+		if err := os.MkdirAll(opt.OutFile, os.ModePerm); err != nil {
+			return errors.Wrap(err, "failed to create a directory")
+		}
+	}
 
 	// Check if output file is a directory
 	isDirVal, err := isDir(opt.OutFile)
@@ -182,6 +188,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		if err != nil {
 			return errors.Wrap(err, "transformer.CreateOutFile failed")
 		}
+		log.Printf("Kubernetes file %q created", opt.OutFile)
 		defer f.Close()
 	}
 
@@ -363,6 +370,33 @@ func convertToVersion(obj runtime.Object, groupVersion metav1.GroupVersion) (run
 // PortsExist checks if service has ports defined
 func (k *Kubernetes) PortsExist(service kobject.ServiceConfig) bool {
 	return len(service.Port) != 0
+}
+
+func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig, objects []runtime.Object) []*api.Service {
+	var svcs []*api.Service
+	tcpPorts, udpPorts := k.ConfigLBServicePorts(name, service)
+	if tcpPorts != nil {
+		svc := k.initSvcObject(name+"-tcp", service, tcpPorts)
+		svcs = append(svcs, svc)
+	}
+	if udpPorts != nil {
+		svc := k.initSvcObject(name+"-udp", service, udpPorts)
+		svcs = append(svcs, svc)
+	}
+	return svcs
+}
+
+func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, ports []api.ServicePort) *api.Service {
+	svc := k.InitSvc(name, service)
+	svc.Spec.Ports = ports
+
+	svc.Spec.Type = api.ServiceType(service.ServiceType)
+
+	// Configure annotations
+	annotations := transformer.ConfigAnnotations(service)
+	svc.ObjectMeta.Annotations = annotations
+
+	return svc
 }
 
 // CreateService creates a k8s service

@@ -25,4 +25,4 @@ Note: Code-related PR's require one ACK / LGTM from a maintainer or core contrib
 
 ### Adding dependencies
 
-If your patch depends on new packages, add that package with [`glide`](https://github.com/Masterminds/glide). Follow the [instructions to add a dependency](https://github.com/kubernetes/kompose/blob/master/docs/development.md#glide-glide-vc-and-dependency-management).
+If your patch depends on new packages, make sure that both `go.mod` and `go.sum` are updated properly. Also we recommend you to execute `go mod tidy` before sending a pull request.

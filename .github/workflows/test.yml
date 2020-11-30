@@ -1,0 +1,47 @@
+name: Kompose CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+env:
+  # Avoid noisy outputs like "tput: No value for $TERM and no -T specified"
+  TERM: dumb
+jobs:
+  test:
+    name: Test with ${{ matrix.go }} and CROSS_COMPILE=${{ matrix.cross_compile }}
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        go: [1.13, 1.14]
+        cross_compile: [true, false]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Run tests
+        run: make test
+      - name: Perform cross compile
+        if: ${{ matrix.cross_compile }}
+        run: make cross
+  docs:
+    name: Build docs and Coveralls integration
+    runs-on: ubuntu-18.04
+    needs: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Create .coverprofile for each targeted directory by re:running tests
+        run: make test
+      - name: Collect all .coverprofile files and save it to one file gover.coverprofile
+        run: gover
+      - name: Send coverage
+        run: goveralls -coverprofile=gover.coverprofile -service=github
+        env:
+          # As per https://github.com/mattn/goveralls#github-actions
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: ./script/sync-docs.sh
+        if: ${{ github.ref == 'refs/heads/master' }}

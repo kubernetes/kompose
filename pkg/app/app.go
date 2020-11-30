@@ -31,9 +31,14 @@ import (
 	"github.com/kubernetes/kompose/pkg/transformer/openshift"
 )
 
-const (
-	// DefaultComposeFile name of the file that kompose will use if no file is explicitly set
-	DefaultComposeFile = "docker-compose.yml"
+var (
+	// DefaultComposeFiles is a list of filenames that kompose will use if no file is explicitly set
+	DefaultComposeFiles = []string{
+		"docker-compose.yml",
+		"docker-compose.yaml",
+		"container-compose.yml",
+		"container-compose.yaml",
+	}
 )
 
 const (
@@ -149,17 +154,17 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 // ValidateComposeFile validates the compose file provided for conversion
 func ValidateComposeFile(opt *kobject.ConvertOptions) {
 	if len(opt.InputFiles) == 0 {
-		// Here docker-compose is the input
-		opt.InputFiles = []string{DefaultComposeFile}
-		_, err := os.Stat(DefaultComposeFile)
-		if err != nil {
-			log.Debugf("'%s' not found: %v", DefaultComposeFile, err)
-			opt.InputFiles = []string{"docker-compose.yaml"}
-			_, err = os.Stat("docker-compose.yaml")
+		for _, name := range DefaultComposeFiles {
+			_, err := os.Stat(name)
 			if err != nil {
-				log.Fatalf("No 'docker-compose' file found: %v", err)
+				log.Debugf("'%s' not found: %v", name, err)
+			} else {
+				opt.InputFiles = []string{name}
+				return
 			}
 		}
+
+		log.Fatal("No 'docker-compose' file found")
 	}
 }
 

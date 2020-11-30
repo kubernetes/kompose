@@ -45,10 +45,10 @@ __Linux and macOS:__
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.21.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.22.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.21.0/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.22.0/kompose-darwin-amd64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
@@ -56,9 +56,7 @@ sudo mv ./kompose /usr/local/bin/kompose
 
 __Windows:__
 
-Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.21.0/kompose-windows-amd64.exe) and add the binary to your PATH.
-
-Note: `kompose up` is not supported on windows.
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.22.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 ## Shell autocompletion
 
@@ -124,8 +122,8 @@ __Chat (Slack):__ We're fairly active on [Slack](http://slack.kubernetes.io#komp
 
 Participation in the Kubernetes community is governed by the [Kubernetes Code of Conduct](code-of-conduct.md).
 
-[Build Status]: https://travis-ci.org/kubernetes/kompose
-[Build Status Widget]: https://travis-ci.org/kubernetes/kompose.svg?branch=master
+[Build Status]: https://github.com/kubernetes/kompose/actions?query=workflow%3A%22Kompose+CI%22
+[Build Status Widget]: https://github.com/kubernetes/kompose/workflows/Kompose%20CI/badge.svg
 [GoDoc]: https://godoc.org/github.com/kubernetes/kompose
 [GoDoc Widget]: https://godoc.org/github.com/kubernetes/kompose?status.svg
 [Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes/kompose/badge.svg?branch=master

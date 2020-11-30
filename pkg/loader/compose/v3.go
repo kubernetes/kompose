@@ -189,7 +189,6 @@ func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Por
 	exist := map[string]bool{}
 
 	for _, port := range ports {
-
 		// Convert to a kobject struct with ports
 		// NOTE: V3 doesn't use IP (they utilize Swarm instead for host-networking).
 		// Thus, IP is blank.

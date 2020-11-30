@@ -17,8 +17,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -51,14 +49,14 @@ var (
 
 // RootCmd root level flags and commands
 var RootCmd = &cobra.Command{
-	Use:   "kompose",
-	Short: "A tool helping Docker Compose users move to Kubernetes",
-	Long:  `Kompose is a tool to help users who are familiar with docker-compose move to Kubernetes.`,
+	Use:           "kompose",
+	Short:         "A tool helping Docker Compose users move to Kubernetes",
+	Long:          `Kompose is a tool to help users who are familiar with docker-compose move to Kubernetes.`,
+	SilenceErrors: true,
 	// PersistentPreRun will be "inherited" by all children and ran before *every* command unless
 	// the child has overridden the functionality. This functionality was implemented to check / modify
 	// all global flag calls regardless of app call.
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-
 		// Add extra logging when verbosity is passed
 		if GlobalVerbose {
 			log.SetLevel(log.DebugLevel)
@@ -83,16 +81,13 @@ var RootCmd = &cobra.Command{
 		if provider != "kubernetes" && provider != "openshift" {
 			log.Fatalf("%s is an unsupported provider. Supported providers are: 'kubernetes', 'openshift'.", GlobalProvider)
 		}
-
 	},
 }
 
-// Execute TODO: comment
-func Execute() {
-	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
-	}
+// Execute executes the root level command.
+// It returns an erorr if any.
+func Execute() error {
+	return RootCmd.Execute()
 }
 
 func init() {

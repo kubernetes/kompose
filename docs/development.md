@@ -53,58 +53,16 @@ git push -f origin myfeature
 2. Click the "Compare and pull request" button next to your "myfeature" branch.
 3. Check out the pull request process for more details
 
-## `glide`, `glide-vc` and dependency management
+## Go Modules and dependency management
 
-Kompose uses `glide` to manage dependencies and `glide-vc` to clean vendor directory.
-They are not strictly required for building Kompose but they are required when managing dependencies under the `vendor/` directory.
-If you want to make changes to dependencies please make sure that `glide` and `glide-vc` are installed and are in your `$PATH`.
-
-### Installing glide
-
-There are many ways to build and host golang binaries. Here is an easy way to get utilities like `glide` and `glide-vc` installed:
-
-Ensure that Mercurial and Git are installed on your system. (some of the dependencies use the mercurial source control system).
-Use `apt-get install mercurial git` or `yum install mercurial git` on Linux, or `brew.sh` on OS X, or download them directly.
-
-```console
-go get -u github.com/Masterminds/glide
-go get github.com/sgotti/glide-vc
-```
-
-Check that `glide` and `glide-vc` commands are working.
-
-```console
-glide --version
-glide-vc -h
-```
-
-### Using glide
-
-#### Adding new dependency
-1. Update `glide.yml` file.
-
-  Add new packages or subpackages to `glide.yml` depending if you added whole new package as dependency or
-  just new subpackage.
-
-2. Run `glide update --strip-vendor` to get new dependencies.
-   Then run `glide-vc --only-code --no-tests` to delete all unnecessary files from vendor.
-
-3. Commit updated `glide.yml`, `glide.lock` and `vendor` to git.
-
-
-#### Updating dependencies
-
-1. Set new package version in  `glide.yml` file.
-
-2. Run `glide update --strip-vendor` to update dependencies.
-   Then run `glide-vc --only-code --no-tests` to delete all unnecessary files from vendor.
-
+Kompose uses [Go Modules](https://github.com/golang/go/wiki/Modules) to manage dependencies.
+If you want to make changes to dependencies please make sure that `go.mod` and `go.sum` are updated properly.
 
 ##### Updating Kubernetes and OpenShift
 Kubernetes version depends on what version is OpenShift using.
 OpenShift is using forked Kubernetes to carry some patches.
 Currently it is not possible to use different Kubernetes version from version that OpenShift uses.
-(for more see comments in `glide.yml`)
+(for more see comments in `go.mod`)
 
 ### Adding CLI tests
 

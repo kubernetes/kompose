@@ -146,7 +146,7 @@ docker-compose
     └── web-svc.yaml
 ```
 
-The chart structure is aimed at providing a skeleton for building your Helm charts.
+The chart structure is aimed at providing a skeleton for building your Helm charts. It's compatible with both Helm V2 and Helm V3.
 
 ## Labels
 

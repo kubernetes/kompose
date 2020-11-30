@@ -17,34 +17,40 @@ limitations under the License.
 package compose
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/kubernetes/kompose/pkg/kobject"
-	api "k8s.io/api/core/v1"
 	"time"
 
 	"github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/yaml"
+	"github.com/google/go-cmp/cmp"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
+	api "k8s.io/api/core/v1"
 )
 
 func durationPtr(value time.Duration) *time.Duration {
 	return &value
 }
 
+func durationTypesPtr(value time.Duration) *types.Duration {
+	target := types.Duration(value)
+	return &target
+}
+
 func TestParseHealthCheck(t *testing.T) {
 	helperValue := uint64(2)
 	check := types.HealthCheckConfig{
 		Test:        []string{"CMD-SHELL", "echo", "foobar"},
-		Timeout:     durationPtr(1 * time.Second),
-		Interval:    durationPtr(2 * time.Second),
+		Timeout:     durationTypesPtr(1 * time.Second),
+		Interval:    durationTypesPtr(2 * time.Second),
 		Retries:     &helperValue,
-		StartPeriod: durationPtr(3 * time.Second),
+		StartPeriod: durationTypesPtr(3 * time.Second),
 	}
 
 	// CMD-SHELL or SHELL is included Test within docker/cli, thus we remove the first value in Test
@@ -83,34 +89,38 @@ func TestLoadV3Volumes(t *testing.T) {
 }
 
 func TestLoadV3Ports(t *testing.T) {
-	port := types.ServicePortConfig{
-		Target:    80,
-		Published: 80,
-		Protocol:  "TCP",
+	for _, tt := range []struct {
+		desc   string
+		ports  []types.ServicePortConfig
+		expose []string
+		want   []kobject.Ports
+	}{
+		{
+			desc:   "ports with expose",
+			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: "TCP"}},
+			expose: []string{"80", "8080"},
+			want: []kobject.Ports{
+				{HostPort: 80, ContainerPort: 80, Protocol: api.Protocol("TCP")},
+				{HostPort: 8080, ContainerPort: 8080, Protocol: api.Protocol("TCP")},
+			},
+		},
+		{
+			desc:   "exposed port including /protocol",
+			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: "TCP"}},
+			expose: []string{"80/udp"},
+			want: []kobject.Ports{
+				{HostPort: 80, ContainerPort: 80, Protocol: api.Protocol("TCP")},
+				{HostPort: 80, ContainerPort: 80, Protocol: api.Protocol("UDP")},
+			},
+		},
+	} {
+		t.Run(tt.desc, func(t *testing.T) {
+			got := loadV3Ports(tt.ports, tt.expose)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("loadV3Ports() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
-	expose := []string{"80", "8080"}
-	ports := []types.ServicePortConfig{port}
-	output := loadV3Ports(ports, expose)
-	expected := kobject.Ports{
-		HostPort:      80,
-		ContainerPort: 80,
-		Protocol:      api.Protocol("TCP"),
-	}
-
-	if output[0] != expected {
-		t.Errorf("Expected %v, got %v", expected, output[0])
-	}
-
-	ep2 := kobject.Ports{
-		HostPort:      8080,
-		ContainerPort: 8080,
-		Protocol:      api.ProtocolTCP,
-	}
-
-	if output[1] != ep2 {
-		t.Errorf("Expected %v, got %v", ep2, output[1])
-	}
-
 }
 
 // Test if service types are parsed properly on user input
@@ -142,50 +152,96 @@ func TestHandleServiceType(t *testing.T) {
 
 // Test loading of ports
 func TestLoadPorts(t *testing.T) {
-	port1 := []string{"127.0.0.1:80:80/tcp"}
-	result1 := kobject.Ports{
-		HostIP:        "127.0.0.1",
-		HostPort:      80,
-		ContainerPort: 80,
-		Protocol:      api.ProtocolTCP,
-	}
-	port2 := []string{"80:80/tcp"}
-	result2 := kobject.Ports{
-		HostPort:      80,
-		ContainerPort: 80,
-		Protocol:      api.ProtocolTCP,
-	}
-	port3 := []string{"80:80"}
-	result3 := kobject.Ports{
-		HostPort:      80,
-		ContainerPort: 80,
-		Protocol:      api.ProtocolTCP,
-	}
-	port4 := []string{"80"}
-	result4 := kobject.Ports{
-		HostPort:      0,
-		ContainerPort: 80,
-		Protocol:      api.ProtocolTCP,
-	}
-
 	tests := []struct {
 		ports  []string
-		result kobject.Ports
+		expose []string
+		want   []kobject.Ports
 	}{
-		{port1, result1},
-		{port2, result2},
-		{port3, result3},
-		{port4, result4},
+		{
+			ports: []string{"127.0.0.1:80:80/tcp"},
+			want: []kobject.Ports{
+				{HostIP: "127.0.0.1", HostPort: 80, ContainerPort: 80, Protocol: api.ProtocolTCP},
+			},
+		},
+		{
+			ports: []string{"80:80/tcp"},
+			want: []kobject.Ports{
+				{HostPort: 80, ContainerPort: 80, Protocol: api.ProtocolTCP},
+			},
+		},
+		{
+			ports: []string{"80:80"},
+			want: []kobject.Ports{
+				{HostPort: 80, ContainerPort: 80, Protocol: api.ProtocolTCP},
+			},
+		},
+		{
+			ports: []string{"80"},
+			want: []kobject.Ports{
+				{ContainerPort: 80, Protocol: api.ProtocolTCP},
+			},
+		},
+		{
+			ports: []string{"3000-3005"},
+			want: []kobject.Ports{
+				{ContainerPort: 3000, Protocol: api.ProtocolTCP},
+				{ContainerPort: 3001, Protocol: api.ProtocolTCP},
+				{ContainerPort: 3002, Protocol: api.ProtocolTCP},
+				{ContainerPort: 3003, Protocol: api.ProtocolTCP},
+				{ContainerPort: 3004, Protocol: api.ProtocolTCP},
+				{ContainerPort: 3005, Protocol: api.ProtocolTCP},
+			},
+		},
+		{
+			ports: []string{"3000-3005:5000-5005"},
+			want: []kobject.Ports{
+				{HostPort: 3000, ContainerPort: 5000, Protocol: api.ProtocolTCP},
+				{HostPort: 3001, ContainerPort: 5001, Protocol: api.ProtocolTCP},
+				{HostPort: 3002, ContainerPort: 5002, Protocol: api.ProtocolTCP},
+				{HostPort: 3003, ContainerPort: 5003, Protocol: api.ProtocolTCP},
+				{HostPort: 3004, ContainerPort: 5004, Protocol: api.ProtocolTCP},
+				{HostPort: 3005, ContainerPort: 5005, Protocol: api.ProtocolTCP},
+			},
+		},
+		{
+			ports: []string{"127.0.0.1:3000-3005:5000-5005"},
+			want: []kobject.Ports{
+				{HostIP: "127.0.0.1", HostPort: 3000, ContainerPort: 5000, Protocol: api.ProtocolTCP},
+				{HostIP: "127.0.0.1", HostPort: 3001, ContainerPort: 5001, Protocol: api.ProtocolTCP},
+				{HostIP: "127.0.0.1", HostPort: 3002, ContainerPort: 5002, Protocol: api.ProtocolTCP},
+				{HostIP: "127.0.0.1", HostPort: 3003, ContainerPort: 5003, Protocol: api.ProtocolTCP},
+				{HostIP: "127.0.0.1", HostPort: 3004, ContainerPort: 5004, Protocol: api.ProtocolTCP},
+				{HostIP: "127.0.0.1", HostPort: 3005, ContainerPort: 5005, Protocol: api.ProtocolTCP},
+			},
+		},
+		{
+			ports: []string{"80", "3000"},
+			want: []kobject.Ports{
+				{HostPort: 0, ContainerPort: 80, Protocol: api.ProtocolTCP},
+				{HostPort: 0, ContainerPort: 3000, Protocol: api.ProtocolTCP},
+			},
+		},
+		{
+			ports:  []string{"80", "3000"},
+			expose: []string{"80", "8080"},
+			want: []kobject.Ports{
+				{HostPort: 0, ContainerPort: 80, Protocol: api.ProtocolTCP},
+				{HostPort: 0, ContainerPort: 3000, Protocol: api.ProtocolTCP},
+				{HostPort: 0, ContainerPort: 8080, Protocol: api.ProtocolTCP},
+			},
+		},
 	}
 
 	for _, tt := range tests {
-		result, err := loadPorts(tt.ports, nil)
-		if err != nil {
-			t.Errorf("Unexpected error with loading ports %v", err)
-		}
-		if result[0] != tt.result {
-			t.Errorf("Expected %q, got %q", tt.result, result[0])
-		}
+		t.Run(fmt.Sprintf("port=%q,expose=%q", tt.ports, tt.expose), func(t *testing.T) {
+			got, err := loadPorts(tt.ports, tt.expose)
+			if err != nil {
+				t.Fatalf("Unexpected error with loading ports %v", err)
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("loadPorts() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
 

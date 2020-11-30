@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
+
+## README:
+## This script is ran by running:
+## cd script
+## ./manual-docs-sync.sh
+##
+## This will take all documentation from the /docs folder of the master dir, add jekyll-related-metadata
+## and push to the gh-pages branch.
+
 DOCS_REPO_NAME="kompose"
 DOCS_REPO_URL="git@github.com:kubernetes/kompose.git"
-DOCS_KEY="script/deploy_key"
-DOCS_USER="komposebot"
-DOCS_EMAIL="cdrage+kompose@redhat.com"
 DOCS_BRANCH="gh-pages"
 DOCS_FOLDER="docs"
-
-# decrypt the private key
-openssl aes-256-cbc -K $encrypted_b1c51b116939_key -iv $encrypted_b1c51b116939_iv -in "$DOCS_KEY.enc" -out "$DOCS_KEY" -d
-chmod 600 "$DOCS_KEY"
-eval `ssh-agent -s`
-ssh-add "$DOCS_KEY"
 
 # clone the repo
 git clone "$DOCS_REPO_URL" "$DOCS_REPO_NAME"
@@ -68,15 +68,10 @@ redirect_from:
 done
 cd ..
 
-# add relevant user information
-git config user.name "$DOCS_USER"
-
-# email assigned to @komposebot
-git config user.email "$DOCS_EMAIL"
 git add --all
 
 # Check if anything changed, and if it's the case, push to origin/master.
-if git commit -m 'Update docs' -m "Commit: https://github.com/kubernetes/kompose/commit/$GITHUB_SHA" ; then
+if git commit -m 'Update docs' -m "Synchronize documentation against website" ; then
   git push
 fi
 
