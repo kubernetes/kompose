@@ -1,5 +1,9 @@
 name: Kompose CI
-on: push
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 env:
   # Avoid noisy outputs like "tput: No value for $TERM and no -T specified"
   TERM: dumb
@@ -16,10 +20,6 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
-      - name: Install dependencies
-        run: go get golang.org/x/lint/golint
-      - name: Build a binary
-        run: make bin
       - name: Run tests
         run: make test
       - name: Perform cross compile
@@ -34,8 +34,8 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: 1.14
-      - name: Install dependencies
-        run: make test-dep
+      - name: Create .coverprofile for each targeted directory by re:running tests
+        run: make test
       - name: Collect all .coverprofile files and save it to one file gover.coverprofile
         run: gover
       - name: Send coverage
