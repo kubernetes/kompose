@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Kubernetes + Compose = Kompose
 ## A conversion tool to go from Docker Compose to Kubernetes
 
