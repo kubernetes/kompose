@@ -44,6 +44,18 @@ const (
 	LabelImagePullSecret = "kompose.image-pull-secret"
 	// LabelImagePullPolicy defines Kubernetes PodSpec imagePullPolicy.
 	LabelImagePullPolicy = "kompose.image-pull-policy"
+	// HealthCheckReadinessDisable defines readiness health check disable
+	HealthCheckReadinessDisable = "kompose.service.healthcheck.readiness.disable"
+	// HealthCheckReadinessTest defines readiness health check test
+	HealthCheckReadinessTest = "kompose.service.healthcheck.readiness.test"
+	// HealthCheckReadinessInterval defines readiness health check interval
+	HealthCheckReadinessInterval = "kompose.service.healthcheck.readiness.interval"
+	// HealthCheckReadinessTimeout defines readiness health check timeout
+	HealthCheckReadinessTimeout = "kompose.service.healthcheck.readiness.timeout"
+	// HealthCheckReadinessRetries defines readiness health check retries
+	HealthCheckReadinessRetries = "kompose.service.healthcheck.readiness.retries"
+	// HealthCheckReadinessStartPeriod defines readiness health check start period
+	HealthCheckReadinessStartPeriod = "kompose.service.healthcheck.readiness.start_period"
 
 	// ServiceTypeHeadless ...
 	ServiceTypeHeadless = "Headless"
