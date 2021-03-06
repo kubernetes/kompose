@@ -516,6 +516,10 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 			serviceConfig.ImagePullSecret = value
 		case LabelImagePullPolicy:
 			serviceConfig.ImagePullPolicy = value
+		case HealthCheckLiveness:
+			serviceConfig.HealthChecks.Liveness = cast.ToBool(value)
+		case HealthCheckReadiness:
+			serviceConfig.HealthChecks.Readiness = cast.ToBool(value)
 		default:
 			serviceConfig.Labels[key] = value
 		}

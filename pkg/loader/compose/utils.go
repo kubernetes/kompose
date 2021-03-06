@@ -44,6 +44,10 @@ const (
 	LabelImagePullSecret = "kompose.image-pull-secret"
 	// LabelImagePullPolicy defines Kubernetes PodSpec imagePullPolicy.
 	LabelImagePullPolicy = "kompose.image-pull-policy"
+	// HealthCheckLiveness define if will create a liveness healthcheck
+	HealthCheckLiveness = "kompose.service.healthcheck.liveness"
+	// HealthCheckReadiness Define if will create a readiness healthcheck
+	HealthCheckReadiness = "kompose.service.healthcheck.readiness"
 
 	// ServiceTypeHeadless ...
 	ServiceTypeHeadless = "Headless"

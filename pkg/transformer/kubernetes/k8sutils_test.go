@@ -382,6 +382,38 @@ func TestServiceWithoutPort(t *testing.T) {
 
 }
 
+// TestServiceWithoutPort this tests if Headless Service is created for services without Port.
+func TestServiceWithHealthCheck(t *testing.T) {
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		ServiceType:   "Headless",
+		HealthChecks: kobject.HealthCheck{
+			Test:        []string{"arg1", "arg2"},
+			Timeout:     10,
+			Interval:    5,
+			Retries:     3,
+			StartPeriod: 60,
+			Readiness:   true,
+			Liveness:    true,
+		},
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	if err := testutils.CheckForHealthCheckLivenessAndReadiness(objects); err != nil {
+		t.Error(err)
+	}
+
+}
+
 // Tests if deployment strategy is being set to Recreate when volumes are
 // present
 func TestRecreateStrategyWithVolumesPresent(t *testing.T) {

@@ -532,7 +532,18 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			// to compose. Once the feature has been implemented, this will automatically work
 			probe.InitialDelaySeconds = service.HealthChecks.StartPeriod
 
-			template.Spec.Containers[0].LivenessProbe = &probe
+			// If there is a healthcheck, then at least liveness should be enabled
+			if service.HealthChecks.Liveness == false && service.HealthChecks.Readiness == false {
+				service.HealthChecks.Liveness = true
+			}
+
+			if service.HealthChecks.Liveness == true {
+				template.Spec.Containers[0].LivenessProbe = &probe
+			}
+			if service.HealthChecks.Readiness == true {
+				template.Spec.Containers[0].ReadinessProbe = &probe
+			}
+
 		}
 
 		if service.StopGracePeriod != "" {
