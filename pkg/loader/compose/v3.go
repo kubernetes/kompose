@@ -270,9 +270,17 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 		}
 	}
 
+	if test[0] == "NONE" {
+		disable = true
+		test = test[1:]
+	}
+	if test[0] == "CMD" || test[0] == "CMD-SHELL" {
+		test = test[1:]
+	}
+
 	// Due to docker/cli adding "CMD-SHELL" to the struct, we remove the first element of composeHealthCheck.Test
 	return kobject.HealthCheck{
-		Test:        test[1:],
+		Test:        test,
 		Timeout:     timeout,
 		Interval:    interval,
 		Retries:     retries,
