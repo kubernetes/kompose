@@ -34,6 +34,7 @@ import (
 
 	"fmt"
 
+	shlex "github.com/google/shlex"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -233,7 +234,7 @@ a Kubernetes-compatible format.
 */
 func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error) {
 
-	var test string
+	var test []string
 	var timeout, interval, retries, startPeriod int32
 	var disable bool
 
@@ -242,7 +243,7 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 		case HealthCheckReadinessDisable:
 			disable = cast.ToBool(value)
 		case HealthCheckReadinessTest:
-			test = value
+			test, _ = shlex.Split(value)
 		case HealthCheckReadinessInterval:
 			parse, err := time.ParseDuration(value)
 			if err != nil {
@@ -268,9 +269,7 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 
 	// Due to docker/cli adding "CMD-SHELL" to the struct, we remove the first element of composeHealthCheck.Test
 	return kobject.HealthCheck{
-		Test: types.HealthCheckTest{
-			test,
-		},
+		Test:        test[1:],
 		Timeout:     timeout,
 		Interval:    interval,
 		Retries:     retries,
