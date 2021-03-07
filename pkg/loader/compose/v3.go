@@ -234,7 +234,8 @@ a Kubernetes-compatible format.
 */
 func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error) {
 
-	var test []string
+	// initialize with CMD as default to not break at return (will be ignored if no test is informed)
+	test := []string{"CMD"}
 	var timeout, interval, retries, startPeriod int32
 	var disable bool
 
@@ -243,7 +244,9 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 		case HealthCheckReadinessDisable:
 			disable = cast.ToBool(value)
 		case HealthCheckReadinessTest:
-			test, _ = shlex.Split(value)
+			if len(value) > 0 {
+				test, _ = shlex.Split(value)
+			}
 		case HealthCheckReadinessInterval:
 			parse, err := time.ParseDuration(value)
 			if err != nil {
