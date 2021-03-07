@@ -389,8 +389,8 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 
 		// HealthCheck Readiness
 		var readiness, errReadiness = parseHealthCheckReadiness(*&composeServiceConfig.Labels)
-		if !readiness.Disable {
-			serviceConfig.HealthChecks.Readiness, errReadiness = parseHealthCheckReadiness(*&composeServiceConfig.Labels)
+		if readiness.Test != nil && len(readiness.Test) > 0 && len(readiness.Test[0]) > 0 && !readiness.Disable {
+			serviceConfig.HealthChecks.Readiness = readiness
 			if errReadiness != nil {
 				return kobject.KomposeObject{}, errors.Wrap(errReadiness, "Unable to parse health check")
 			}
