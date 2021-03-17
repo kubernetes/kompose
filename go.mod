@@ -23,10 +23,10 @@ require (
 	github.com/fatih/structs v1.1.0
 	github.com/fsouza/go-dockerclient v1.6.5
 	github.com/google/go-cmp v0.4.0
-	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/imdario/mergo v0.3.10 // indirect
 	github.com/joho/godotenv v1.3.0
-	github.com/mattn/goveralls v0.0.7 // indirect
+	github.com/mattn/goveralls v0.0.8 // indirect
 	github.com/mitchellh/gox v1.0.1 // indirect
 	github.com/moby/sys/mount v0.1.1 // indirect
 	github.com/moby/term v0.0.0-20200915141129-7f0af18e79f2 // indirect
