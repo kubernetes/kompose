@@ -360,6 +360,45 @@ func TestIsDir(t *testing.T) {
 }
 
 // TestServiceWithoutPort this tests if Headless Service is created for services without Port.
+func TestServiceWithHealthCheck(t *testing.T) {
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		ServiceType:   "Headless",
+		HealthChecks: kobject.HealthChecks{
+			Readiness: kobject.HealthCheck{
+				Test:        []string{"arg1", "arg2"},
+				Timeout:     10,
+				Interval:    5,
+				Retries:     3,
+				StartPeriod: 60,
+			},
+			Liveness: kobject.HealthCheck{
+				Test:        []string{"arg1", "arg2"},
+				Timeout:     11,
+				Interval:    6,
+				Retries:     4,
+				StartPeriod: 61,
+			},
+		},
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	if err := testutils.CheckForHealthCheckLivenessAndReadiness(objects); err != nil {
+		t.Error(err)
+	}
+
+}
+
+// TestServiceWithoutPort this tests if Headless Service is created for services without Port.
 func TestServiceWithoutPort(t *testing.T) {
 	service := kobject.ServiceConfig{
 		ContainerName: "name",

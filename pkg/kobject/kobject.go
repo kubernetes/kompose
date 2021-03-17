@@ -137,7 +137,7 @@ type ServiceConfig struct {
 	GroupAdd           []int64                     `compose:"group_add"`
 	Volumes            []Volumes                   `compose:""`
 	Secrets            []dockerCliTypes.ServiceSecretConfig
-	HealthChecks       HealthCheck       `compose:""`
+	HealthChecks       HealthChecks      `compose:""`
 	Placement          map[string]string `compose:""`
 	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
 	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
@@ -145,6 +145,12 @@ type ServiceConfig struct {
 	ConfigsMetaData map[string]dockerCliTypes.ConfigObjConfig `compose:""`
 
 	WithKomposeAnnotation bool `compose:""`
+}
+
+// HealthChecks used to distinguish between liveness and readiness
+type HealthChecks struct {
+	Liveness  HealthCheck
+	Readiness HealthCheck
 }
 
 // HealthCheck the healthcheck configuration for a service

@@ -34,6 +34,7 @@ import (
 
 	"fmt"
 
+	shlex "github.com/google/shlex"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -231,6 +232,66 @@ func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Por
 /* Convert the HealthCheckConfig as designed by Docker to
 a Kubernetes-compatible format.
 */
+func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error) {
+
+	// initialize with CMD as default to not break at return (will be ignored if no test is informed)
+	test := []string{"CMD"}
+	var timeout, interval, retries, startPeriod int32
+	var disable bool
+
+	for key, value := range labels {
+		switch key {
+		case HealthCheckReadinessDisable:
+			disable = cast.ToBool(value)
+		case HealthCheckReadinessTest:
+			if len(value) > 0 {
+				test, _ = shlex.Split(value)
+			}
+		case HealthCheckReadinessInterval:
+			parse, err := time.ParseDuration(value)
+			if err != nil {
+				return kobject.HealthCheck{}, errors.Wrap(err, "unable to parse health check interval variable")
+			}
+			interval = int32(parse.Seconds())
+		case HealthCheckReadinessTimeout:
+			parse, err := time.ParseDuration(value)
+			if err != nil {
+				return kobject.HealthCheck{}, errors.Wrap(err, "unable to parse health check timeout variable")
+			}
+			timeout = int32(parse.Seconds())
+		case HealthCheckReadinessRetries:
+			retries = cast.ToInt32(value)
+		case HealthCheckReadinessStartPeriod:
+			parse, err := time.ParseDuration(value)
+			if err != nil {
+				return kobject.HealthCheck{}, errors.Wrap(err, "unable to parse health check startPeriod variable")
+			}
+			startPeriod = int32(parse.Seconds())
+		}
+	}
+
+	if test[0] == "NONE" {
+		disable = true
+		test = test[1:]
+	}
+	if test[0] == "CMD" || test[0] == "CMD-SHELL" {
+		test = test[1:]
+	}
+
+	// Due to docker/cli adding "CMD-SHELL" to the struct, we remove the first element of composeHealthCheck.Test
+	return kobject.HealthCheck{
+		Test:        test,
+		Timeout:     timeout,
+		Interval:    interval,
+		Retries:     retries,
+		StartPeriod: startPeriod,
+		Disable:     disable,
+	}, nil
+}
+
+/* Convert the HealthCheckConfig as designed by Docker to
+a Kubernetes-compatible format.
+*/
 func parseHealthCheck(composeHealthCheck types.HealthCheckConfig) (kobject.HealthCheck, error) {
 
 	var timeout, interval, retries, startPeriod int32
@@ -327,12 +388,21 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// labels
 		serviceConfig.DeployLabels = composeServiceConfig.Deploy.Labels
 
-		// HealthCheck
+		// HealthCheck Liveness
 		if composeServiceConfig.HealthCheck != nil && !composeServiceConfig.HealthCheck.Disable {
 			var err error
-			serviceConfig.HealthChecks, err = parseHealthCheck(*composeServiceConfig.HealthCheck)
+			serviceConfig.HealthChecks.Liveness, err = parseHealthCheck(*composeServiceConfig.HealthCheck)
 			if err != nil {
 				return kobject.KomposeObject{}, errors.Wrap(err, "Unable to parse health check")
+			}
+		}
+
+		// HealthCheck Readiness
+		var readiness, errReadiness = parseHealthCheckReadiness(*&composeServiceConfig.Labels)
+		if readiness.Test != nil && len(readiness.Test) > 0 && len(readiness.Test[0]) > 0 && !readiness.Disable {
+			serviceConfig.HealthChecks.Readiness = readiness
+			if errReadiness != nil {
+				return kobject.KomposeObject{}, errors.Wrap(errReadiness, "Unable to parse health check")
 			}
 		}
 
