@@ -18,8 +18,9 @@ package docker
 
 import (
 	"bytes"
+
 	dockerlib "github.com/fsouza/go-dockerclient"
-	"github.com/novln/docker-parser"
+	dockerparser "github.com/novln/docker-parser"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )

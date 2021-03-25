@@ -18,27 +18,22 @@ package openshift
 
 import (
 	"fmt"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"os"
+	"sort"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
-
-	log "github.com/sirupsen/logrus"
-
 	deployapi "github.com/openshift/api/apps/v1"
 	buildapi "github.com/openshift/api/build/v1"
 	imageapi "github.com/openshift/api/image/v1"
 	routeapi "github.com/openshift/api/route/v1"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	kapi "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	"sort"
-
-	"github.com/kubernetes/kompose/pkg/transformer"
-
-	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // OpenShift implements Transformer interface and represents OpenShift transformer
