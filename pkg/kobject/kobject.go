@@ -17,6 +17,9 @@ limitations under the License.
 package kobject
 
 import (
+	"path/filepath"
+	"time"
+
 	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 	"github.com/docker/libcompose/yaml"
 	deployapi "github.com/openshift/api/apps/v1"
@@ -25,8 +28,6 @@ import (
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"path/filepath"
-	"time"
 )
 
 // KomposeObject holds the generic struct of Kompose transformation
