@@ -18,36 +18,33 @@ package kubernetes
 
 import (
 	"fmt"
-	"github.com/fatih/structs"
-	"github.com/kubernetes/kompose/pkg/kobject"
-	"github.com/kubernetes/kompose/pkg/transformer"
-	deployapi "github.com/openshift/api/apps/v1"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	api "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"os"
 	"path"
+	"path/filepath"
 	"reflect"
 	"regexp"
-	"strconv"
-
-	buildapi "github.com/openshift/api/build/v1"
-	appsv1 "k8s.io/api/apps/v1"
-	networkingv1 "k8s.io/api/networking/v1"
-	networkingv1beta1 "k8s.io/api/networking/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"sort"
+	"strconv"
 	"strings"
 
-	"path/filepath"
-
+	"github.com/fatih/structs"
+	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
+	"github.com/kubernetes/kompose/pkg/transformer"
+	deployapi "github.com/openshift/api/apps/v1"
+	buildapi "github.com/openshift/api/build/v1"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
+	appsv1 "k8s.io/api/apps/v1"
+	api "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
+	networkingv1beta1 "k8s.io/api/networking/v1beta1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // Kubernetes implements Transformer interface and represents Kubernetes transformer

@@ -17,8 +17,9 @@ limitations under the License.
 package docker
 
 import (
-	"github.com/fsouza/go-dockerclient"
 	"os"
+
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 // Client connects to Docker client on host

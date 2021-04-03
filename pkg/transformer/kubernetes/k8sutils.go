@@ -21,16 +21,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	api "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
-
 	"os"
 	"path"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"text/template"
@@ -39,14 +34,16 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/transformer"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
-
-	appsv1 "k8s.io/api/apps/v1"
-	"sort"
-
 	deployapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
+	appsv1 "k8s.io/api/apps/v1"
+	api "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 /**

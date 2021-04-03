@@ -17,9 +17,6 @@ limitations under the License.
 package openshift
 
 import (
-	deployapi "github.com/openshift/api/apps/v1"
-
-	"k8s.io/apimachinery/pkg/runtime"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -29,9 +26,10 @@ import (
 	"github.com/kubernetes/kompose/pkg/testutils"
 	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
+	deployapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
-
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 func newServiceConfig() kobject.ServiceConfig {
