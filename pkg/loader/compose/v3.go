@@ -195,10 +195,10 @@ func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Por
 			HostPort:      int32(port.Published),
 			ContainerPort: int32(port.Target),
 			HostIP:        "",
-			Protocol:      api.Protocol(strings.ToUpper(string(port.Protocol))),
+			Protocol:      api.Protocol(strings.ToUpper(port.Protocol)),
 		})
 
-		exist[cast.ToString(port.Target)+strings.ToUpper(string(port.Protocol))] = true
+		exist[cast.ToString(port.Target)+strings.ToUpper(port.Protocol)] = true
 	}
 
 	if expose != nil {
