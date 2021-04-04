@@ -111,7 +111,6 @@ home:
 
 // Check if given path is a directory
 func isDir(name string) (bool, error) {
-
 	// Open file to get stat later
 	f, err := os.Open(name)
 	if err != nil {
@@ -156,7 +155,6 @@ func objectToRaw(object runtime.Object) runtime.RawExtension {
 	r.Raw = bytes
 
 	return r
-
 }
 
 // PrintList will take the data converted and decide on the commandline attributes given
@@ -203,7 +201,6 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			}
 
 			list.Items = append(list.Items, objectToRaw(versionedObject))
-
 		}
 		// version list itself
 		listVersion := metav1.GroupVersion{Group: "", Version: "v1"}
@@ -264,7 +261,6 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 				// Use reflect to access ObjectMeta struct inside runtime.Object.
 				// cast it to correct type - api.ObjectMeta
 				objectMeta = val.FieldByName("ObjectMeta").Interface().(metav1.ObjectMeta)
-
 			}
 
 			file, err = transformer.Print(objectMeta.Name, finalDirName, strings.ToLower(typeMeta.Kind), data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
@@ -341,7 +337,6 @@ func marshalWithIndent(o interface{}, indent int) ([]byte, error) {
 // Convert object to versioned object
 // if groupVersion is  empty (metav1.GroupVersion{}), use version from original object (obj)
 func convertToVersion(obj runtime.Object, groupVersion metav1.GroupVersion) (runtime.Object, error) {
-
 	// ignore unstruct object
 	if _, ok := obj.(*unstructured.Unstructured); ok {
 		return obj, nil
@@ -445,7 +440,6 @@ func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceC
 
 // UpdateKubernetesObjects loads configurations to k8s objects
 func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, objects *[]runtime.Object) error {
-
 	// Configure the environment variables.
 	envs, err := k.ConfigEnvs(name, service, opt)
 	if err != nil {
@@ -464,7 +458,6 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		volumes = append(volumes, TmpVolumes...)
 
 		volumesMount = append(volumesMount, TmpVolumesMount...)
-
 	}
 
 	if pvc != nil {
@@ -593,7 +586,6 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			} else {
 				securityContext.RunAsUser = &uid
 			}
-
 		}
 
 		//set capabilities if it is not empty
@@ -692,7 +684,6 @@ func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTempl
 	}
 
 	return
-
 }
 
 // GetImagePullPolicy get image pull settings
@@ -709,7 +700,6 @@ func GetImagePullPolicy(name, policy string) (api.PullPolicy, error) {
 		return "", errors.New("Unknown image-pull-policy " + policy + " for service " + name)
 	}
 	return "", nil
-
 }
 
 // GetRestartPolicy ...
@@ -764,7 +754,6 @@ func (k *Kubernetes) RemoveDupObjects(objs *[]runtime.Object) {
 		} else {
 			result = append(result, obj)
 		}
-
 	}
 	*objs = result
 }
@@ -842,5 +831,4 @@ func FormatFileName(name string) string {
 func FormatContainerName(name string) string {
 	name = strings.Replace(name, "_", "-", -1)
 	return name
-
 }

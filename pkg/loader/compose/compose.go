@@ -42,7 +42,6 @@ type Compose struct {
 // list of all unsupported keys are stored in unsupportedKey variable
 // returns list of unsupported YAML keys from docker-compose
 func checkUnsupportedKey(composeProject *project.Project) []string {
-
 	// list of all unsupported keys for this loader
 	// this is map to make searching for keys easier
 	// to make sure that unsupported key is not going to be reported twice
@@ -132,7 +131,6 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 						if !findUnsupportedLinksFlag {
 							continue
 						}
-
 					}
 
 					keysFound = append(keysFound, yamlTagName)
@@ -146,7 +144,6 @@ func checkUnsupportedKey(composeProject *project.Project) []string {
 
 // LoadFile loads a compose file into KomposeObject
 func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
-
 	// Load the json / yaml file in order to get the version value
 	var version string
 
@@ -185,7 +182,6 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 	default:
 		return kobject.KomposeObject{}, fmt.Errorf("Version %s of Docker Compose is not supported. Please use version 1, 2 or 3", version)
 	}
-
 }
 
 func getVersionFromFile(file string) (string, error) {

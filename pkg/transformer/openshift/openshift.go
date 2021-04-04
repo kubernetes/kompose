@@ -79,7 +79,6 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 				},
 				ImportPolicy: importPolicy,
 			})
-
 	}
 
 	is := &imageapi.ImageStream{
@@ -303,7 +302,6 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		// Check that there's actually a Build key
 		// Lastly, we must have an Image name to continue
 		if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
-
 			// If there's no "image" key, use the name of the container that's built
 			if service.Image == "" {
 				service.Image = name
@@ -326,7 +324,6 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 					log.Fatalf("Unable to push Docker image for service %v: %v", name, err)
 				}
 			}
-
 		}
 
 		// Generate pod only and nothing more
@@ -349,7 +346,6 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			// buildconfig needs to be added to objects after imagestream because of this Openshift bug: https://github.com/openshift/origin/issues/4518
 			// Generate BuildConfig if the parameter has been passed
 			if service.Build != "" && opt.Build == "build-config" {
-
 				// Get the compose file directory
 				composeFileDir, err = transformer.GetComposeFileDir(opt.InputFiles)
 				if err != nil {
@@ -391,7 +387,6 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				// Log what we're doing
 				log.Infof("Buildconfig using %s::%s as source.", buildRepo, buildBranch)
 			}
-
 		}
 
 		if o.PortsExist(service) {
@@ -411,7 +406,6 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 					objects = append(objects, o.initRoute(name, service, svc.Spec.Ports[0].Port))
 				}
 			}
-
 		} else if service.ServiceType == "Headless" {
 			svc := o.CreateHeadlessService(name, service, objects)
 			objects = append(objects, svc)

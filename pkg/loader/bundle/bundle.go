@@ -197,7 +197,6 @@ func (b *Bundle) LoadFile(files []string) (kobject.KomposeObject, error) {
 	}
 
 	for name, service := range bundle.Services {
-
 		serviceConfig := kobject.ServiceConfig{}
 		serviceConfig.Command = service.Command
 		serviceConfig.Args = service.Args

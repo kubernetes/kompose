@@ -24,7 +24,6 @@ import (
 
 // Client connects to Docker client on host
 func Client() (*docker.Client, error) {
-
 	var (
 		err    error
 		client *docker.Client

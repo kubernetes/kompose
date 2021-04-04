@@ -211,7 +211,6 @@ func (s *ServiceConfig) GetConfigMapKeyFromMeta(name string) (string, error) {
 	}
 
 	return filepath.Base(config.File), nil
-
 }
 
 // GetKubernetesUpdateStrategy from compose update_config
@@ -225,7 +224,6 @@ func (s *ServiceConfig) GetKubernetesUpdateStrategy() *v1.RollingUpdateDeploymen
 		if config.Parallelism != nil {
 			v := intstr.FromInt(cast.ToInt(*config.Parallelism))
 			r.MaxUnavailable = &v
-
 		}
 
 		v := intstr.FromInt(0)
@@ -243,7 +241,6 @@ func (s *ServiceConfig) GetKubernetesUpdateStrategy() *v1.RollingUpdateDeploymen
 		return &r
 	}
 	return nil
-
 }
 
 // GetOSUpdateStrategy ...

@@ -44,5 +44,4 @@ func GetLoader(format string) (Loader, error) {
 	}
 
 	return l, nil
-
 }

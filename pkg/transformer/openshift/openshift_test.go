@@ -97,7 +97,6 @@ func TestInitDeploymentConfig(t *testing.T) {
 }
 
 func TestKomposeConvertRoute(t *testing.T) {
-
 	o := OpenShift{}
 	name := "app"
 	sc := newServiceConfig()
@@ -317,7 +316,6 @@ func TestInitBuildConfig(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-
 		bc, err := initBuildConfig(serviceName, test.ServiceConfig, repo, branch)
 		if err != nil {
 			t.Error(errors.Wrap(err, "initBuildConfig failed"))
@@ -366,11 +364,9 @@ func TestServiceWithoutPort(t *testing.T) {
 	if err := testutils.CheckForHeadless(objects); err != nil {
 		t.Error(err)
 	}
-
 }
 
 func TestRestartOnFailure(t *testing.T) {
-
 	service := kobject.ServiceConfig{
 		Restart: "on-failure",
 	}
@@ -398,7 +394,6 @@ func TestRestartOnFailure(t *testing.T) {
 			t.Errorf("Expected an error, got %v instead", err)
 		}
 	}
-
 }
 
 // Tests if deployment strategy is being set to Recreate when volumes are

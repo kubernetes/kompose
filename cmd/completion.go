@@ -36,7 +36,6 @@ Will load the shell completion code.
 
 // Generate the appropriate autocompletion file
 func Generate(cmd *cobra.Command, args []string) error {
-
 	// Check the passed in arguments
 	if len(args) == 0 {
 		return fmt.Errorf("Shell not specified. ex. kompose completion [bash|zsh]")
@@ -70,7 +69,6 @@ func init() {
 	in order to generate ZSH completion support.
 */
 func runCompletionZsh(out io.Writer, kompose *cobra.Command) error {
-
 	zshInitialization := `
 __kompose_bash_source() {
 	alias shopt=':'

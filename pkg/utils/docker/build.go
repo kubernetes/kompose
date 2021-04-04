@@ -40,7 +40,6 @@ and image name and then builds the appropriate image. Tarball is utilized
 in order to make building easier.
 */
 func (c *Build) BuildImage(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg) error {
-
 	log.Infof("Building image '%s' from directory '%s'", image, path.Base(source))
 
 	// Create a temporary file for tarball image packaging

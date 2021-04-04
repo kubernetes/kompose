@@ -108,7 +108,6 @@ var convertCmd = &cobra.Command{
 }
 
 func init() {
-
 	// Automatically grab environment variables
 	viper.AutomaticEnv()
 
