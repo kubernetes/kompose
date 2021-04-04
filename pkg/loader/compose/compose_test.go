@@ -34,10 +34,6 @@ import (
 	api "k8s.io/api/core/v1"
 )
 
-func durationPtr(value time.Duration) *time.Duration {
-	return &value
-}
-
 func durationTypesPtr(value time.Duration) *types.Duration {
 	target := types.Duration(value)
 	return &target
