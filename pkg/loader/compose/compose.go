@@ -180,7 +180,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		}
 		return komposeObject, nil
 	default:
-		return kobject.KomposeObject{}, fmt.Errorf("Version %s of Docker Compose is not supported. Please use version 1, 2 or 3", version)
+		return kobject.KomposeObject{}, fmt.Errorf("version %s of Docker Compose is not supported. Please use version 1, 2 or 3", version)
 	}
 }
 

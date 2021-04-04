@@ -38,10 +38,10 @@ Will load the shell completion code.
 func Generate(cmd *cobra.Command, args []string) error {
 	// Check the passed in arguments
 	if len(args) == 0 {
-		return fmt.Errorf("Shell not specified. ex. kompose completion [bash|zsh]")
+		return fmt.Errorf("shell not specified. ex. kompose completion [bash|zsh]")
 	}
 	if len(args) > 1 {
-		return fmt.Errorf("Too many arguments. Expected only the shell type. ex. kompose completion [bash|zsh]")
+		return fmt.Errorf("too many arguments. Expected only the shell type. ex. kompose completion [bash|zsh]")
 	}
 	shell := args[0]
 

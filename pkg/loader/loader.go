@@ -40,7 +40,7 @@ func GetLoader(format string) (Loader, error) {
 	case "compose":
 		l = new(compose.Compose)
 	default:
-		return nil, fmt.Errorf("Input file format %s is not supported", format)
+		return nil, fmt.Errorf("input file format %s is not supported", format)
 	}
 
 	return l, nil

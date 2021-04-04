@@ -639,7 +639,7 @@ func getV3VolumeLabels(name string, volumes *map[string]types.VolumeConfig) (str
 
 func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*types.Config, error) {
 	if oldCompose == nil || newCompose == nil {
-		return nil, fmt.Errorf("Merge multiple compose error, compose config is nil")
+		return nil, fmt.Errorf("merge multiple compose error, compose config is nil")
 	}
 	oldComposeServiceNameMap := make(map[string]int, len(oldCompose.Services))
 	for index, service := range oldCompose.Services {
