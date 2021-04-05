@@ -8,17 +8,17 @@ linters:
     - bodyclose
     - deadcode
     - depguard
-    - dogsled
-    - errcheck
-    - goconst
+#    - dogsled
+#    - errcheck
+#    - goconst
     - goimports
-    - golint
+#    - golint
     - goprintffuncname
-    - gosimple
+#    - gosimple
     - govet
-    - ineffassign
+#    - ineffassign
     - misspell
-    - nakedret
+#    - nakedret
     - nolintlint
     - rowserrcheck
     - structcheck
