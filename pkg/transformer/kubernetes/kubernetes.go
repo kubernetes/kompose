@@ -85,7 +85,6 @@ func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, u
 		for _, f := range s.Fields() {
 			// Check if given key is among unsupported keys, and skip it if we already saw this key
 			if alreadySaw, ok := unsupportedKey[f.Name()]; ok && !alreadySaw {
-
 				if f.IsExported() && !f.IsZero() {
 					// IsZero returns false for empty array/slice ([])
 					// this check if field is Slice, and then it checks its size
@@ -108,7 +107,6 @@ func (k *Kubernetes) CheckUnsupportedKey(komposeObject *kobject.KomposeObject, u
 
 // InitPodSpec creates the pod specification
 func (k *Kubernetes) InitPodSpec(name string, image string, pullSecret string) api.PodSpec {
-
 	if image == "" {
 		image = name
 	}
@@ -175,7 +173,6 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 				SubPath:   subPath,
 			})
 		volumes = append(volumes, cmVol)
-
 	}
 
 	pod := api.PodSpec{
@@ -211,7 +208,6 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 
 // InitConfigMapForEnv initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
-
 	envs, err := GetEnvsFromFile(envFile, opt)
 	if err != nil {
 		log.Fatalf("Unable to retrieve env file: %s", err)
@@ -333,7 +329,6 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 
 // InitD initializes Kubernetes Deployment object
 func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas int) *appsv1.Deployment {
-
 	var podSpec api.PodSpec
 	if len(service.Configs) > 0 {
 		podSpec = k.InitPodSpecWithConfigMap(name, service.Image, service)
@@ -401,7 +396,6 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *appsv1.
 }
 
 func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *networkingv1beta1.Ingress {
-
 	hosts := regexp.MustCompile("[ ,]*,[ ,]*").Split(service.ExposeService, -1)
 
 	ingress := &networkingv1beta1.Ingress{
@@ -492,7 +486,6 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 		}
 	}
 	return objects, nil
-
 }
 
 // CreatePVC initializes PersistentVolumeClaim
@@ -557,7 +550,6 @@ func (k *Kubernetes) ConfigPorts(name string, service kobject.ServiceConfig) []a
 			})
 		}
 		exist[string(port.ContainerPort)+string(port.Protocol)] = true
-
 	}
 
 	return ports
@@ -592,7 +584,6 @@ func (k *Kubernetes) ConfigLBServicePorts(name string, service kobject.ServiceCo
 		}
 	}
 	return tcpPorts, udpPorts
-
 }
 
 // ConfigServicePorts configure the container service ports.
@@ -793,7 +784,6 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	var count int
 	//iterating over array of `Vols` struct as it contains all necessary information about volumes
 	for _, volume := range service.Volumes {
-
 		// check if ro/rw mode is defined, default rw
 		readonly := len(volume.Mode) > 0 && volume.Mode == "ro"
 
@@ -842,7 +832,6 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 					volMount.SubPath = volsource.ConfigMap.Items[0].Path
 				}
 			}
-
 		} else {
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
 			if volume.VFrom == "" {
@@ -866,7 +855,6 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 
 				PVCs = append(PVCs, createdPVC)
 			}
-
 		}
 		volumeMounts = append(volumeMounts, volMount)
 
@@ -880,7 +868,6 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		if len(volume.Host) > 0 && (!useHostPath && !useConfigMap) {
 			log.Warningf("Volume mount on the host %q isn't supported - ignoring path on the host", volume.Host)
 		}
-
 	}
 
 	return volumeMounts, volumes, PVCs, cms, nil
@@ -894,14 +881,12 @@ func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
 		return &api.VolumeSource{
 			EmptyDir: &api.EmptyDirVolumeSource{Medium: api.StorageMediumMemory},
 		}
-
 	}
 
 	//if key is volume
 	return &api.VolumeSource{
 		EmptyDir: &api.EmptyDirVolumeSource{},
 	}
-
 }
 
 // ConfigConfigMapVolumeSource config a configmap to use as volume source
@@ -925,7 +910,6 @@ func (k *Kubernetes) ConfigConfigMapVolumeSource(cmName string, targetPath strin
 	return &api.VolumeSource{
 		ConfigMap: &s,
 	}
-
 }
 
 // ConfigHostPathVolumeSource is a helper function to create a HostPath api.VolumeSource
@@ -956,7 +940,6 @@ func (k *Kubernetes) ConfigPVCVolumeSource(name string, readonly bool) *api.Volu
 
 // ConfigEnvs configures the environment variables.
 func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]api.EnvVar, error) {
-
 	envs := transformer.EnvSort{}
 
 	keysFromEnvFile := make(map[string]bool)
@@ -965,11 +948,9 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt 
 	// already specified
 
 	if len(service.EnvFile) > 0 {
-
 		// Load each env_file
 
 		for _, file := range service.EnvFile {
-
 			envName := FormatEnvName(file)
 
 			// Load environment variables from file
@@ -1003,7 +984,6 @@ func (k *Kubernetes) ConfigEnvs(name string, service kobject.ServiceConfig, opt 
 				Value: v.Value,
 			})
 		}
-
 	}
 
 	// Stable sorts data while keeping the original order of equal elements
@@ -1033,7 +1013,6 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 		} else if opt.Controller != "daemonset" {
 			log.Warnf("Global deploy mode service is best converted to daemonset, now it convert to %s", opt.Controller)
 		}
-
 	}
 
 	//Resolve labels first
@@ -1102,7 +1081,6 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 
 // CreateNetworkPolicy initializes Network policy
 func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*networkingv1.NetworkPolicy, error) {
-
 	str := "true"
 	np := &networkingv1.NetworkPolicy{
 		TypeMeta: metav1.TypeMeta{
@@ -1133,7 +1111,6 @@ func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*netw
 // Transform maps komposeObject to k8s objects
 // returns object that are already sorted in the way that Services are first
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) ([]runtime.Object, error) {
-
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 
@@ -1160,7 +1137,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		// Check that there's actually a Build key
 		// Lastly, we must have an Image name to continue
 		if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
-
 			// If there's no "image" key, use the name of the container that's built
 			if service.Image == "" {
 				service.Image = name
@@ -1213,7 +1189,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
 				}
 			}
-
 		} else {
 			if service.ServiceType == "Headless" {
 				svc := k.CreateHeadlessService(name, service, objects)
@@ -1229,9 +1204,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		}
 
 		if len(service.Network) > 0 {
-
 			for _, net := range service.Network {
-
 				log.Infof("Network %s is detected at Source, shall be converted to equivalent NetworkPolicy at Destination", net)
 				np, err := k.CreateNetworkPolicy(name, net)
 
@@ -1239,13 +1212,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					return nil, errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)
 				}
 				objects = append(objects, np)
-
 			}
-
 		}
 
 		allobjects = append(allobjects, objects...)
-
 	}
 
 	// sort all object so Services are first

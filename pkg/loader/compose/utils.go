@@ -168,5 +168,4 @@ func ReadFile(fileName string) ([]byte, error) {
 		return StdinData, nil
 	}
 	return ioutil.ReadFile(fileName)
-
 }

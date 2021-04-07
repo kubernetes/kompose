@@ -54,7 +54,6 @@ var inputFormat = "compose"
 
 // ValidateFlags validates all command line flags
 func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobject.ConvertOptions) {
-
 	// Check to see if the "file" has changed from the default flag value
 	isFileSet := cmd.Flags().Lookup("file").Changed
 
@@ -169,7 +168,6 @@ func ValidateComposeFile(opt *kobject.ConvertOptions) {
 }
 
 func validateControllers(opt *kobject.ConvertOptions) {
-
 	singleOutput := len(opt.OutFile) != 0 || opt.OutFile == "-" || opt.ToStdout
 	if opt.Provider == ProviderKubernetes {
 		// create deployment by default if no controller has been set
@@ -191,7 +189,6 @@ func validateControllers(opt *kobject.ConvertOptions) {
 				log.Fatalf("Error: only one kind of Kubernetes resource can be generated when --out or --stdout is specified")
 			}
 		}
-
 	} else if opt.Provider == ProviderOpenshift {
 		// create deploymentconfig by default if no controller has been set
 		if !opt.CreateDeploymentConfig {
@@ -214,7 +211,6 @@ func validateControllers(opt *kobject.ConvertOptions) {
 
 // Convert transforms docker compose or dab file to k8s objects
 func Convert(opt kobject.ConvertOptions) {
-
 	validateControllers(&opt)
 
 	// loader parses input from file into komposeObject.

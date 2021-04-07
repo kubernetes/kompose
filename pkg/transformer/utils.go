@@ -133,7 +133,6 @@ func ConfigLabels(name string) map[string]string {
 
 // ConfigLabelsWithNetwork configures label and add Network Information in labels
 func ConfigLabelsWithNetwork(name string, net []string) map[string]string {
-
 	labels := map[string]string{}
 	labels[Selector] = name
 
@@ -153,12 +152,10 @@ func ConfigAllLabels(name string, service *kobject.ServiceConfig) map[string]str
 		}
 	}
 	return base
-
 }
 
 // ConfigAnnotations configures annotations
 func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
-
 	annotations := map[string]string{}
 	for key, value := range service.Annotations {
 		annotations[key] = value
@@ -173,7 +170,6 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 	out, err := versionCmd.Output()
 	if err != nil {
 		errors.Wrap(err, "Failed to get kompose version")
-
 	}
 	annotations["kompose.version"] = strings.Trim(string(out), " \n")
 
@@ -205,7 +201,7 @@ func Print(name, path string, trailing string, data []byte, toStdout, generateJS
 	} else {
 		// Write content separately to each file
 		file = filepath.Join(path, file)
-		if err := ioutil.WriteFile(file, []byte(data), 0644); err != nil {
+		if err := ioutil.WriteFile(file, data, 0644); err != nil {
 			return "", errors.Wrap(err, "Failed to write %s: "+trailing)
 		}
 		log.Printf("%s file %q created", formatProviderName(provider), file)
@@ -313,7 +309,6 @@ func BuildDockerImage(service kobject.ServiceConfig, name string) error {
 
 // PushDockerImage pushes docker image
 func PushDockerImage(service kobject.ServiceConfig, serviceName string) error {
-
 	log.Debugf("Pushing Docker image '%s'", service.Image)
 
 	// Don't do anything if service.Image is blank, but at least WARN about it

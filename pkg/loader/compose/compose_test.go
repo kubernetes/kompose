@@ -34,10 +34,6 @@ import (
 	api "k8s.io/api/core/v1"
 )
 
-func durationPtr(value time.Duration) *time.Duration {
-	return &value
-}
-
 func durationTypesPtr(value time.Duration) *types.Duration {
 	target := types.Duration(value)
 	return &target
@@ -85,7 +81,6 @@ func TestLoadV3Volumes(t *testing.T) {
 	if output[0] != expected {
 		t.Errorf("Expected %s, got %s", expected, output[0])
 	}
-
 }
 
 func TestLoadV3Ports(t *testing.T) {
@@ -400,7 +395,6 @@ func TestUnsupportedKeys(t *testing.T) {
 			t.Errorf("ERROR: Expecting unsupported keys: ['%s']. Got: ['%s']", strings.Join(test.expectedUnsupportedKeys, "', '"), strings.Join(keys, "', '"))
 		}
 	}
-
 }
 
 func TestNormalizeServiceNames(t *testing.T) {
@@ -463,14 +457,11 @@ func TestCheckLabelsPorts(t *testing.T) {
 		err = checkLabelsPorts(testcase.noOfPort, testcase.labels, testcase.svcName)
 		if testcase.expectError && err == nil {
 			t.Log("Expected error, got ", err)
-
 		}
-
 	}
 }
 
 func TestCheckPlacementCustomLabels(t *testing.T) {
-
 	placement := types.Placement{
 		Constraints: []string{
 			"node.labels.something == anything",
@@ -484,5 +475,4 @@ func TestCheckPlacementCustomLabels(t *testing.T) {
 	if output["something"] != expected["something"] {
 		t.Errorf("Expected %s, got %s", expected, output)
 	}
-
 }

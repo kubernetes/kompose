@@ -60,7 +60,6 @@ func buildEnvironment() (map[string]string, error) {
 // v3 of Docker Compose into a suitable format. In this case, whatever is returned
 // by docker/cli's ServiceConfig
 func parseV3(files []string) (kobject.KomposeObject, error) {
-
 	// In order to get V3 parsing to work, we have to go through some preliminary steps
 	// for us to hack up github.com/docker/cli in order to correctly convert to a kobject.KomposeObject
 
@@ -163,7 +162,6 @@ func loadV3Placement(constraints []string) map[string]string {
 // TODO: Refactor it similar to loadV3Ports
 // See: https://docs.docker.com/compose/compose-file/#long-syntax-3
 func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
-
 	var volArray []string
 	for _, vol := range volumes {
 		// There will *always* be Source when parsing
@@ -197,11 +195,10 @@ func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Por
 			HostPort:      int32(port.Published),
 			ContainerPort: int32(port.Target),
 			HostIP:        "",
-			Protocol:      api.Protocol(strings.ToUpper(string(port.Protocol))),
+			Protocol:      api.Protocol(strings.ToUpper(port.Protocol)),
 		})
 
-		exist[cast.ToString(port.Target)+strings.ToUpper(string(port.Protocol))] = true
-
+		exist[cast.ToString(port.Target)+strings.ToUpper(port.Protocol)] = true
 	}
 
 	if expose != nil {
@@ -233,7 +230,6 @@ func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Por
 a Kubernetes-compatible format.
 */
 func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error) {
-
 	// initialize with CMD as default to not break at return (will be ignored if no test is informed)
 	test := []string{"CMD"}
 	var timeout, interval, retries, startPeriod int32
@@ -293,7 +289,6 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 a Kubernetes-compatible format.
 */
 func parseHealthCheck(composeHealthCheck types.HealthCheckConfig) (kobject.HealthCheck, error) {
-
 	var timeout, interval, retries, startPeriod int32
 
 	// Here we convert the timeout from 1h30s (example) to 36030 seconds.
@@ -336,7 +331,6 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig) (kobject.Healt
 }
 
 func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.KomposeObject, error) {
-
 	// Step 1. Initialize what's going to be returned
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
@@ -348,7 +342,6 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 	// Here we "clean up" the service configuration so we return something that includes
 	// all relevant information as well as avoid the unsupported keys as well.
 	for _, composeServiceConfig := range composeObject.Services {
-
 		// Standard import
 		// No need to modify before importation
 		name := composeServiceConfig.Name
@@ -500,7 +493,6 @@ func parseV3Network(composeServiceConfig *types.ServiceConfig, serviceConfig *ko
 
 func parseV3Resources(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) error {
 	if (composeServiceConfig.Deploy.Resources != types.Resources{}) {
-
 		// memory:
 		// TODO: Refactor yaml.MemStringorInt in kobject.go to int64
 		// cpu:
@@ -533,7 +525,6 @@ func parseV3Resources(composeServiceConfig *types.ServiceConfig, serviceConfig *
 		}
 	}
 	return nil
-
 }
 
 func parseV3Environment(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) {
@@ -648,7 +639,7 @@ func getV3VolumeLabels(name string, volumes *map[string]types.VolumeConfig) (str
 
 func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*types.Config, error) {
 	if oldCompose == nil || newCompose == nil {
-		return nil, fmt.Errorf("Merge multiple compose error, compose config is nil")
+		return nil, fmt.Errorf("merge multiple compose error, compose config is nil")
 	}
 	oldComposeServiceNameMap := make(map[string]int, len(oldCompose.Services))
 	for index, service := range oldCompose.Services {
@@ -895,7 +886,6 @@ func checkUnsupportedKeyForV3(composeObject *types.Config) []string {
 
 		if service.CredentialSpec.Registry != "" || service.CredentialSpec.File != "" {
 			keysFound = append(keysFound, "credential_spec")
-
 		}
 	}
 

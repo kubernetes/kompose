@@ -28,7 +28,6 @@ func GetImageTag(image string) string {
 		return p[1]
 	}
 	return "latest"
-
 }
 
 // GetAbsBuildContext returns build context relative to project root dir

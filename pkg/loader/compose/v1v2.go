@@ -41,7 +41,6 @@ import (
 // Parse Docker Compose with libcompose (only supports v1 and v2). Eventually we will
 // switch to using only libcompose once v3 is supported.
 func parseV1V2(files []string) (kobject.KomposeObject, error) {
-
 	// Gather the appropriate context for parsing
 	context := &project.Context{}
 	context.ComposeFiles = files
@@ -169,7 +168,6 @@ func loadPorts(composePorts []string, expose []string) ([]kobject.Ports, error) 
 
 // Uses libcompose's APIProject type and converts it to a Kompose object for us to understand
 func libComposeToKomposeMapping(composeObject *project.Project) (kobject.KomposeObject, error) {
-
 	// Initialize what's going to be returned
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
@@ -336,7 +334,6 @@ func retrieveVolume(svcName string, komposeObject kobject.KomposeObject) (volume
 					cv.PVCName = dv.PVCName
 				}
 				volume = append(volume, cv)
-
 			}
 			// iterating over dependent volumes
 			for _, dv := range dVols {
@@ -366,7 +363,6 @@ func checkVolDependent(dv kobject.Volumes, volume []kobject.Volumes) bool {
 		}
 	}
 	return true
-
 }
 
 // ParseVols parse volumes
@@ -409,7 +405,6 @@ func getGroupAdd(group []string) ([]int64, error) {
 			return nil, errors.Wrap(err, "unable to get group_add key")
 		}
 		groupAdd = append(groupAdd, int64(j))
-
 	}
 	return groupAdd, nil
 }

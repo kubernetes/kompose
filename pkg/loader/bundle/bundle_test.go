@@ -83,5 +83,4 @@ func TestUnsupportedKeys(t *testing.T) {
 			t.Errorf("ERROR: Expecting unsupported keys: ['%s']. Got: ['%s']", strings.Join(test.expectedUnsupportedKeys, "', '"), strings.Join(keys, "', '"))
 		}
 	}
-
 }

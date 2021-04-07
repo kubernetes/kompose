@@ -34,7 +34,6 @@ import (
 	Test the creation of a service
 */
 func TestCreateService(t *testing.T) {
-
 	// An example service
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
@@ -78,7 +77,6 @@ func TestCreateService(t *testing.T) {
 Test the creation of a service with a memory limit and reservation
 */
 func TestCreateServiceWithMemLimit(t *testing.T) {
-
 	// An example service
 	service := kobject.ServiceConfig{
 		ContainerName:  "name",
@@ -131,7 +129,6 @@ func TestCreateServiceWithMemLimit(t *testing.T) {
 Test the creation of a service with a cpu limit and reservation
 */
 func TestCreateServiceWithCPULimit(t *testing.T) {
-
 	// An example service
 	service := kobject.ServiceConfig{
 		ContainerName:  "name",
@@ -185,7 +182,6 @@ func TestCreateServiceWithCPULimit(t *testing.T) {
 	The expected result is that Kompose will set user in PodSpec
 */
 func TestCreateServiceWithServiceUser(t *testing.T) {
-
 	// An example service
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
@@ -226,7 +222,6 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 			}
 		}
 	}
-
 }
 
 func TestTransformWithPid(t *testing.T) {
@@ -392,7 +387,6 @@ func TestServiceWithHealthCheck(t *testing.T) {
 	if err := testutils.CheckForHealthCheckLivenessAndReadiness(objects); err != nil {
 		t.Error(err)
 	}
-
 }
 
 // TestServiceWithoutPort this tests if Headless Service is created for services without Port.
@@ -415,7 +409,6 @@ func TestServiceWithoutPort(t *testing.T) {
 	if err := testutils.CheckForHeadless(objects); err != nil {
 		t.Error(err)
 	}
-
 }
 
 // Tests if deployment strategy is being set to Recreate when volumes are

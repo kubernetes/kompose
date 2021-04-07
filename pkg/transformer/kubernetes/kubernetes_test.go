@@ -216,7 +216,6 @@ func checkMeta(config kobject.ServiceConfig, meta metav1.ObjectMeta, expectedNam
 }
 
 func TestKomposeConvertIngress(t *testing.T) {
-
 	testCases := map[string]struct {
 		komposeObject kobject.KomposeObject
 		opt           kobject.ConvertOptions
@@ -227,7 +226,6 @@ func TestKomposeConvertIngress(t *testing.T) {
 	}
 
 	for name, test := range testCases {
-
 		var expectedHost string
 
 		t.Log("Test case:", name)
@@ -267,7 +265,6 @@ func TestKomposeConvertIngress(t *testing.T) {
 				}
 				if ing.Spec.Rules[0].Host != expectedHost {
 					t.Errorf("Expected Rules[0].Host to be %s, got %s instead", expectedHost, ing.Spec.Rules[0].Host)
-
 				}
 			}
 		}
@@ -332,10 +329,8 @@ func TestKomposeConvert(t *testing.T) {
 							t.Errorf("Expected %d replicas, got %d", replicas, d.Spec.Replicas)
 						}
 					} else {
-
 						if (int)(*d.Spec.Replicas) != newServiceConfig().Replicas {
 							t.Errorf("Expected %d replicas, got %d", newServiceConfig().Replicas, d.Spec.Replicas)
-
 						}
 					}
 					foundD = true
@@ -365,18 +360,14 @@ func TestKomposeConvert(t *testing.T) {
 									t.Errorf("Expected %d replicas, got %d", replicas, d.Spec.Replicas)
 								}
 							} else {
-
 								if (int)(*d.Spec.Replicas) != newServiceConfig().Replicas {
 									t.Errorf("Expected %d replicas, got %d", newServiceConfig().Replicas, d.Spec.Replicas)
-
 								}
 							}
 							foundD = true
 						}
-
 					}
 				}
-
 			}
 			if test.opt.CreateDS {
 				if ds, ok := obj.(*appsv1.DaemonSet); ok {
@@ -413,11 +404,8 @@ func TestKomposeConvert(t *testing.T) {
 							}
 							foundDS = true
 						}
-
 					}
-
 				}
-
 			}
 
 			// TODO: k8s & openshift transformer is now separated; either separate the test or combine the transformer
@@ -481,7 +469,6 @@ func TestConvertRestartOptions(t *testing.T) {
 
 		for _, obj := range objs {
 			if pod, ok := obj.(*api.Pod); ok {
-
 				if pod.Spec.RestartPolicy != test.restartPolicy {
 					t.Errorf("Expected restartPolicy as %s, got %#v", test.restartPolicy, pod.Spec.RestartPolicy)
 				}
@@ -493,7 +480,6 @@ func TestConvertRestartOptions(t *testing.T) {
 }
 
 func TestRestartOnFailure(t *testing.T) {
-
 	kobjectWithRestartOnFailure := newKomposeObject()
 	serviceConfig := kobjectWithRestartOnFailure.ServiceConfigs["app"]
 	serviceConfig.Restart = "on-failure"
@@ -538,7 +524,6 @@ func TestConfigTmpfs(t *testing.T) {
 	if resultVolumeMount[0].Name != "foo-tmpfs0" || resultVolume[0].EmptyDir.Medium != "Memory" {
 		t.Fatalf("Tmpfs not found")
 	}
-
 }
 
 func TestConfigCapabilities(t *testing.T) {
