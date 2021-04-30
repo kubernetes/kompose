@@ -369,7 +369,15 @@ func (k *Kubernetes) InitD(name string, service kobject.ServiceConfig, replicas 
 			Type:          appsv1.RollingUpdateDeploymentStrategyType,
 			RollingUpdate: update,
 		}
-		log.Debugf("Set deployment '%s' rolling update: MaxSurge: %s, MaxUnavailable: %s", name, update.MaxSurge.String(), update.MaxUnavailable.String())
+		ms := ""
+		if update.MaxSurge != nil {
+			ms = update.MaxSurge.String()
+		}
+		mu := ""
+		if update.MaxUnavailable != nil {
+			mu = update.MaxUnavailable.String()
+		}
+		log.Debugf("Set deployment '%s' rolling update: MaxSurge: %s, MaxUnavailable: %s", name, ms, mu)
 	}
 
 	return dc
