@@ -835,7 +835,6 @@ func FormatContainerName(name string) string {
 	return name
 }
 
-
 // FormatResourceName generate a valid k8s resource name
 func FormatResourceName(name string) string {
 	return strings.ToLower(strings.Replace(name, "_", "-", -1))
