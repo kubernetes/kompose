@@ -183,7 +183,9 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		if err != nil {
 			return errors.Wrap(err, "transformer.CreateOutFile failed")
 		}
-		log.Printf("Kubernetes file %q created", opt.OutFile)
+		if len(opt.OutFile) != 0 {
+			log.Printf("Kubernetes file %q created", opt.OutFile)
+		}
 		defer f.Close()
 	}
 
@@ -831,4 +833,9 @@ func FormatFileName(name string) string {
 func FormatContainerName(name string) string {
 	name = strings.Replace(name, "_", "-", -1)
 	return name
+}
+
+// FormatResourceName generate a valid k8s resource name
+func FormatResourceName(name string) string {
+	return strings.ToLower(strings.Replace(name, "_", "-", -1))
 }
