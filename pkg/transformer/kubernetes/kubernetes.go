@@ -482,7 +482,7 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 					APIVersion: "v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:   name,
+					Name:   FormatResourceName(name),
 					Labels: transformer.ConfigLabels(name),
 				},
 				Type: api.SecretTypeOpaque,
