@@ -747,6 +747,9 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 		}
 		if len(service.Labels) != 0 {
 			// merge the 2 sets of values
+			if tmpOldService.Labels == nil {
+				tmpOldService.Labels = make(map[string]string)
+			}
 			for k, v := range service.Labels {
 				tmpOldService.Labels[k] = v
 			}
