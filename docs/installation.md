@@ -1,3 +1,10 @@
+---
+layout: default
+permalink: /installation/
+redirect_from: 
+  - /docs/installation.md/
+---
+
 # Installation
 
 We have multiple ways to install Kompose. Our preferred method is downloading the binary from the latest GitHub release.

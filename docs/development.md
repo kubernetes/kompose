@@ -1,3 +1,10 @@
+---
+layout: default
+permalink: /development/
+redirect_from: 
+  - /docs/development.md/
+---
+
 # Development Guide
 
 ## Building Kompose

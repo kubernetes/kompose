@@ -26,8 +26,11 @@ require (
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/imdario/mergo v0.3.10 // indirect
 	github.com/joho/godotenv v1.3.0
+	github.com/mattn/goveralls v0.0.8 // indirect
+	github.com/mitchellh/gox v1.0.1 // indirect
 	github.com/moby/sys/mount v0.1.1 // indirect
 	github.com/moby/term v0.0.0-20200915141129-7f0af18e79f2 // indirect
+	github.com/modocache/gover v0.0.0-20171022184752-b58185e213c5 // indirect
 	github.com/novln/docker-parser v1.0.0
 	github.com/openshift/api v0.0.0-20200803131051-87466835fcc0
 	github.com/pkg/errors v0.9.1
@@ -35,6 +38,7 @@ require (
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
+	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
