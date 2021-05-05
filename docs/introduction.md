@@ -21,7 +21,7 @@ $ wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/dock
 
 $ kompose convert
 
-$ kubectl apply -f *.yaml
+$ kubectl apply -f .
 
 $ kubectl get po
 NAME                            READY     STATUS              RESTARTS   AGE
