@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"os"
 	"path"
 	"path/filepath"
@@ -509,6 +510,15 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 				probe.Handler = api.Handler{
 					Exec: &api.ExecAction{
 						Command: service.HealthChecks.Liveness.Test,
+					},
+				}
+
+			} else if !reflect.ValueOf(service.HealthChecks.Liveness.HttpPath).IsZero() &&
+				!reflect.ValueOf(service.HealthChecks.Liveness.HttpPort).IsZero() {
+				probe.Handler = api.Handler{
+					HTTPGet: &api.HTTPGetAction{
+						Path: service.HealthChecks.Liveness.HttpPath,
+						Port: intstr.FromInt(int(service.HealthChecks.Liveness.HttpPort)),
 					},
 				}
 			} else {
