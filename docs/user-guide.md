@@ -165,6 +165,13 @@ The currently supported options are:
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
 | kompose.image-pull-policy | kubernetes pods imagePullPolicy |
 | kompose.image-pull-secret | kubernetes secret name for imagePullSecrets |
+| kompose.service.healthcheck.readiness.test | kubernetes readiness exec command |
+| kompose.service.healthcheck.readiness.interval | kubernetes readiness interval value |
+| kompose.service.healthcheck.readiness.timeout | kubernetes readiness timeout value |
+| kompose.service.healthcheck.readiness.retries | kubernetes readiness retries value |
+| kompose.service.healthcheck.readiness.start_period | kubernetes readiness start_period |
+| kompose.service.healthcheck.liveness.http_get_path | kubernetes liveness httpGet path |
+| kompose.service.healthcheck.liveness.http_get_port | kubernetes liveness httpGet port |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -288,6 +295,42 @@ services:
     labels:
       kompose.image-pull-policy: "Never"
 ```
+
+
+For example:
+
+```yaml
+version: '2'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.service.healthcheck.liveness.http_get_path: /health/ping
+      kompose.service.healthcheck.liveness.http_get_port: 8080
+    healthcheck:
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+```
+
+- `kompose.service.healthcheck.liveness` defines Kubernetes [liveness HttpRequest](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-a-liveness-http-request), If you use healthcheck without liveness labels, have to define `test` in healcheck it's work to Kubernetes [liveness command](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-readiness-probes)
+
+For example:
+
+```yaml
+version: '2'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.service.healthcheck.readiness.test: CMD curl -f "http://localhost:8080/health/ping"
+      kompose.service.healthcheck.readiness.interval: 10s
+      kompose.service.healthcheck.readiness.timeout: 10s
+      kompose.service.healthcheck.readiness.retries: 3
+      kompose.service.healthcheck.readiness.start_period: 30s
+```
+- `kompose.service.healthcheck.readiness` defines Kubernetes [readiness](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-readiness-probes)
 
 ## Restart
 

@@ -164,6 +164,8 @@ type HealthCheck struct {
 	Retries     int32
 	StartPeriod int32
 	Disable     bool
+	HTTPPath    string
+	HTTPPort    int32
 }
 
 // EnvVar holds the environment variable struct of a container

@@ -288,8 +288,11 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 /* Convert the HealthCheckConfig as designed by Docker to
 a Kubernetes-compatible format.
 */
-func parseHealthCheck(composeHealthCheck types.HealthCheckConfig) (kobject.HealthCheck, error) {
+func parseHealthCheck(composeHealthCheck types.HealthCheckConfig, labels types.Labels) (kobject.HealthCheck, error) {
 	var timeout, interval, retries, startPeriod int32
+	var test []string
+	var httpPort int32
+	var httpPath string
 
 	// Here we convert the timeout from 1h30s (example) to 36030 seconds.
 	if composeHealthCheck.Timeout != nil {
@@ -320,9 +323,24 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig) (kobject.Healt
 		startPeriod = int32(parse.Seconds())
 	}
 
+	if composeHealthCheck.Test != nil {
+		test = composeHealthCheck.Test[1:]
+	}
+
+	for key, value := range labels {
+		switch key {
+		case HealthCheckLivenessHTTPGetPath:
+			httpPath = value
+		case HealthCheckLivenessHTTPGetPort:
+			httpPort = cast.ToInt32(value)
+		}
+	}
+
 	// Due to docker/cli adding "CMD-SHELL" to the struct, we remove the first element of composeHealthCheck.Test
 	return kobject.HealthCheck{
-		Test:        composeHealthCheck.Test[1:],
+		Test:        test,
+		HTTPPath:    httpPath,
+		HTTPPort:    httpPort,
 		Timeout:     timeout,
 		Interval:    interval,
 		Retries:     retries,
@@ -384,7 +402,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// HealthCheck Liveness
 		if composeServiceConfig.HealthCheck != nil && !composeServiceConfig.HealthCheck.Disable {
 			var err error
-			serviceConfig.HealthChecks.Liveness, err = parseHealthCheck(*composeServiceConfig.HealthCheck)
+			serviceConfig.HealthChecks.Liveness, err = parseHealthCheck(*composeServiceConfig.HealthCheck, *&composeServiceConfig.Labels)
 			if err != nil {
 				return kobject.KomposeObject{}, errors.Wrap(err, "Unable to parse health check")
 			}

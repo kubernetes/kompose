@@ -57,7 +57,39 @@ func TestParseHealthCheck(t *testing.T) {
 		Retries:     2,
 		StartPeriod: 3,
 	}
-	output, err := parseHealthCheck(check)
+	output, err := parseHealthCheck(check, nil)
+	if err != nil {
+		t.Errorf("Unable to convert HealthCheckConfig: %s", err)
+	}
+
+	if !reflect.DeepEqual(output, expected) {
+		t.Errorf("Structs are not equal, expected: %v, output: %v", expected, output)
+	}
+}
+
+func TestParseHttpHealthCheck(t *testing.T) {
+	helperValue := uint64(2)
+	check := types.HealthCheckConfig{
+		Timeout:     durationTypesPtr(1 * time.Second),
+		Interval:    durationTypesPtr(2 * time.Second),
+		Retries:     &helperValue,
+		StartPeriod: durationTypesPtr(3 * time.Second),
+	}
+	label := types.Labels{
+		HealthCheckLivenessHTTPGetPath: "ping",
+		HealthCheckLivenessHTTPGetPort: "80",
+	}
+
+	// CMD-SHELL or SHELL is included Test within docker/cli, thus we remove the first value in Test
+	expected := kobject.HealthCheck{
+		HTTPPath:    "ping",
+		HTTPPort:    80,
+		Timeout:     1,
+		Interval:    2,
+		Retries:     2,
+		StartPeriod: 3,
+	}
+	output, err := parseHealthCheck(check, label)
 	if err != nil {
 		t.Errorf("Unable to convert HealthCheckConfig: %s", err)
 	}

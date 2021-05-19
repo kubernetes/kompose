@@ -44,6 +44,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 /**
@@ -509,6 +510,14 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 				probe.Handler = api.Handler{
 					Exec: &api.ExecAction{
 						Command: service.HealthChecks.Liveness.Test,
+					},
+				}
+			} else if !reflect.ValueOf(service.HealthChecks.Liveness.HTTPPath).IsZero() &&
+				!reflect.ValueOf(service.HealthChecks.Liveness.HTTPPort).IsZero() {
+				probe.Handler = api.Handler{
+					HTTPGet: &api.HTTPGetAction{
+						Path: service.HealthChecks.Liveness.HTTPPath,
+						Port: intstr.FromInt(int(service.HealthChecks.Liveness.HTTPPort)),
 					},
 				}
 			} else {
