@@ -56,10 +56,10 @@ const (
 	HealthCheckReadinessRetries = "kompose.service.healthcheck.readiness.retries"
 	// HealthCheckReadinessStartPeriod defines readiness health check start period
 	HealthCheckReadinessStartPeriod = "kompose.service.healthcheck.readiness.start_period"
-	// HealthCheckLivenessHttpGetPath defines liveness health check HttpGet path
-	HealthCheckLivenessHttpGetPath = "kompose.service.healthcheck.liveness.http_get_path"
-	// HealthCheckLivenessHttpGetPort defines liveness health check HttpGet port
-	HealthCheckLivenessHttpGetPort = "kompose.service.healthcheck.liveness.http_get_port"
+	// HealthCheckLivenessHTTPGetPath defines liveness health check HttpGet path
+	HealthCheckLivenessHTTPGetPath = "kompose.service.healthcheck.liveness.http_get_path"
+	// HealthCheckLivenessHTTPGetPort defines liveness health check HttpGet port
+	HealthCheckLivenessHTTPGetPort = "kompose.service.healthcheck.liveness.http_get_port"
 
 	// ServiceTypeHeadless ...
 	ServiceTypeHeadless = "Headless"

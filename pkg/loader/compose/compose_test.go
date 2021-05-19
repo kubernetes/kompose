@@ -76,14 +76,14 @@ func TestParseHttpHealthCheck(t *testing.T) {
 		StartPeriod: durationTypesPtr(3 * time.Second),
 	}
 	label := types.Labels{
-		HealthCheckLivenessHttpGetPath: "ping",
-		HealthCheckLivenessHttpGetPort: "80",
+		HealthCheckLivenessHTTPGetPath: "ping",
+		HealthCheckLivenessHTTPGetPort: "80",
 	}
 
 	// CMD-SHELL or SHELL is included Test within docker/cli, thus we remove the first value in Test
 	expected := kobject.HealthCheck{
-		HttpPath:    "ping",
-		HttpPort:    80,
+		HTTPPath:    "ping",
+		HTTPPort:    80,
 		Timeout:     1,
 		Interval:    2,
 		Retries:     2,

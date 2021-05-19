@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"os"
 	"path"
 	"path/filepath"
@@ -45,6 +44,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 /**
@@ -512,13 +512,12 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 						Command: service.HealthChecks.Liveness.Test,
 					},
 				}
-
-			} else if !reflect.ValueOf(service.HealthChecks.Liveness.HttpPath).IsZero() &&
-				!reflect.ValueOf(service.HealthChecks.Liveness.HttpPort).IsZero() {
+			} else if !reflect.ValueOf(service.HealthChecks.Liveness.HTTPPath).IsZero() &&
+				!reflect.ValueOf(service.HealthChecks.Liveness.HTTPPort).IsZero() {
 				probe.Handler = api.Handler{
 					HTTPGet: &api.HTTPGetAction{
-						Path: service.HealthChecks.Liveness.HttpPath,
-						Port: intstr.FromInt(int(service.HealthChecks.Liveness.HttpPort)),
+						Path: service.HealthChecks.Liveness.HTTPPath,
+						Port: intstr.FromInt(int(service.HealthChecks.Liveness.HTTPPort)),
 					},
 				}
 			} else {

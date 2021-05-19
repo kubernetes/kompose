@@ -329,9 +329,9 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig, labels types.L
 
 	for key, value := range labels {
 		switch key {
-		case HealthCheckLivenessHttpGetPath:
+		case HealthCheckLivenessHTTPGetPath:
 			httpPath = value
-		case HealthCheckLivenessHttpGetPort:
+		case HealthCheckLivenessHTTPGetPort:
 			httpPort = cast.ToInt32(value)
 		}
 	}
@@ -339,8 +339,8 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig, labels types.L
 	// Due to docker/cli adding "CMD-SHELL" to the struct, we remove the first element of composeHealthCheck.Test
 	return kobject.HealthCheck{
 		Test:        test,
-		HttpPath:    httpPath,
-		HttpPort:    httpPort,
+		HTTPPath:    httpPath,
+		HTTPPort:    httpPort,
 		Timeout:     timeout,
 		Interval:    interval,
 		Retries:     retries,
