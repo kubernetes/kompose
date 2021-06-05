@@ -37,7 +37,7 @@ then
 echo "index.md already contains Jekyll format"
 else
 # Remove ".md" from the name
-name=${index::-3}
+name=${index%".md"}
 echo "Adding Jekyll file format to $index"
 jekyll="---
 layout: default
@@ -54,7 +54,7 @@ for filename in *.md; do
     echo "$filename already contains Jekyll format"
     else
     # Remove ".md" from the name
-    name=${filename::-3}
+    name=${filename%".md"}
     echo "Adding Jekyll file format to $filename"
     jekyll="---
 layout: default
