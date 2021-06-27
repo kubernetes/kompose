@@ -453,7 +453,7 @@ func TestNormalizeNetworkNames(t *testing.T) {
 		composeNetworkName    string
 		normalizedNetworkName string
 	}{
-		{"foo_bar", "foobar"},
+		{"foo_bar", "foo-bar"},
 		{"foo", "foo"},
 		{"FOO", "foo"},
 		{"foo.bar", "foo.bar"},
