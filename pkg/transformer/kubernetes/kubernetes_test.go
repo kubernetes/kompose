@@ -556,6 +556,12 @@ func TestMultipleContainersInPod(t *testing.T) {
 		if containerName != nil {
 			config.ContainerName = *containerName
 		}
+		config.Volumes = []kobject.Volumes{
+			{
+				VolumeName: "mountVolume",
+				MountPath:  "/data",
+			},
+		}
 		return config
 	}
 
@@ -621,9 +627,13 @@ func TestMultipleContainersInPod(t *testing.T) {
 				}
 				if container, ok := nameSet[test.expectedNames[0]]; !ok {
 					t.Errorf("Expected %v returned, got %v", test.expectedNames[0], container.Name)
+				} else if len(container.VolumeMounts) != 1 {
+					t.Errorf("Expected %v returned, got %v", 1, len(container.VolumeMounts))
 				}
 				if container, ok := nameSet[test.expectedNames[1]]; !ok {
 					t.Errorf("Expected %v returned, got %v", test.expectedNames[1], container.Name)
+				} else if len(container.VolumeMounts) != 1 {
+					t.Errorf("Expected %v returned, got %v", 1, len(container.VolumeMounts))
 				}
 			}
 		}

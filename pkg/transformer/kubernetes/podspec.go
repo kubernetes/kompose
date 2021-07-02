@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"strconv"
 
+	mapset "github.com/deckarep/golang-set"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -167,16 +168,50 @@ func SecurityContext(name string, service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
+func SetVolumeNames(volumes []api.Volume) mapset.Set {
+	set := mapset.NewSet()
+	for _, volume := range volumes {
+		set.Add(volume.Name)
+	}
+	return set
+}
+
 func SetVolumes(volumes []api.Volume) PodSpecOption {
 	return func(podSpec *PodSpec) {
-		podSpec.Volumes = append(podSpec.Volumes, volumes...)
+		volumesSet := SetVolumeNames(volumes)
+		containerVolumesSet := SetVolumeNames(podSpec.Volumes)
+		for diffVolumeName := range volumesSet.Difference(containerVolumesSet).Iter() {
+			for _, volume := range volumes {
+				if volume.Name == diffVolumeName {
+					podSpec.Volumes = append(podSpec.Volumes, volume)
+					break
+				}
+			}
+		}
 	}
+}
+
+func SetVolumeMountPaths(volumesMount []api.VolumeMount) mapset.Set {
+	set := mapset.NewSet()
+	for _, volumeMount := range volumesMount {
+		set.Add(volumeMount.MountPath)
+	}
+	return set
 }
 
 func SetVolumeMounts(volumesMount []api.VolumeMount) PodSpecOption {
 	return func(podSpec *PodSpec) {
+		volumesMountSet := SetVolumeMountPaths(volumesMount)
 		for i := range podSpec.Containers {
-			podSpec.Containers[i].VolumeMounts = append(podSpec.Containers[i].VolumeMounts, volumesMount...)
+			containerVolumeMountsSet := SetVolumeMountPaths(podSpec.Containers[i].VolumeMounts)
+			for diffVolumeMountPath := range volumesMountSet.Difference(containerVolumeMountsSet).Iter() {
+				for _, volumeMount := range volumesMount {
+					if volumeMount.MountPath == diffVolumeMountPath {
+						podSpec.Containers[i].VolumeMounts = append(podSpec.Containers[i].VolumeMounts, volumeMount)
+						break
+					}
+				}
+			}
 		}
 	}
 }

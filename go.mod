@@ -17,6 +17,7 @@ replace github.com/containerd/containerd => github.com/containerd/containerd v1.
 replace golang.org/x/sys => golang.org/x/sys v0.0.0-20201029080932-201ba4db2418
 
 require (
+	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/docker/cli v0.0.0-20190711175710-5b38d82aa076
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/libcompose v0.4.0
