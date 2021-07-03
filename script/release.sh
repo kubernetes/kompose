@@ -97,20 +97,21 @@ init_sync() {
 }
 
 replaceversion() {
+  # sed command has changed for mac usage
   echo "Replaced version in pkg/version/version.go"
-  sed -i "s/$1/$2/g" pkg/version/version.go
+  sed -i "" "s/$1/$2/g" pkg/version/version.go
 
   echo "Replaced version in README.md"
-  sed -i "s/$1/$2/g" README.md
+  sed -i "" "s/$1/$2/g" README.md
 
   echo "Replaced version in docs/installation.md"
-  sed -i "s/$1/$2/g" docs/installation.md
+  sed -i "" "s/$1/$2/g" docs/installation.md
 
   echo "Replaced version in docs/introduction.md"
-  sed -i "s/$1/$2/g" docs/introduction.md
+  sed -i "" "s/$1/$2/g" docs/introduction.md
 
   echo "Replaced version in build/VERSION"
-  sed -i "s/$1/$2/g" build/VERSION
+  sed -i "" "s/$1/$2/g" build/VERSION
 }
 
 changelog() {
