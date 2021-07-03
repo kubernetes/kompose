@@ -77,6 +77,8 @@ type ConvertOptions struct {
 	YAMLIndent int
 
 	WithKomposeAnnotation bool
+
+	MultipleContainerMode bool
 }
 
 // IsPodController indicate if the user want to use a controller
@@ -84,8 +86,11 @@ func (opt *ConvertOptions) IsPodController() bool {
 	return opt.IsDeploymentFlag || opt.IsDaemonSetFlag || opt.IsReplicationControllerFlag || opt.Controller != ""
 }
 
+type ServiceConfigGroup []ServiceConfig
+
 // ServiceConfig holds the basic struct of a container
 type ServiceConfig struct {
+	Name              string
 	ContainerName     string
 	Image             string              `compose:"image"`
 	Environment       []EnvVar            `compose:"environment"`

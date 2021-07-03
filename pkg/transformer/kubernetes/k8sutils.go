@@ -33,6 +33,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/kubernetes/kompose/pkg/transformer"
 	deployapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
@@ -440,11 +441,44 @@ func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceC
 
 	return svc
 }
+func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, objects *[]runtime.Object, podSpec PodSpec) error {
+	// Configure annotations
+	annotations := transformer.ConfigAnnotations(service)
+
+	// fillTemplate fills the pod template with the value calculated from config
+	fillTemplate := func(template *api.PodTemplateSpec) error {
+		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
+		template.Spec = podSpec.Get()
+		return nil
+	}
+
+	// fillObjectMeta fills the metadata with the value calculated from config
+	fillObjectMeta := func(meta *metav1.ObjectMeta) {
+		meta.Annotations = annotations
+	}
+
+	// update supported controller
+	for _, obj := range *objects {
+		err := k.UpdateController(obj, fillTemplate, fillObjectMeta)
+		if err != nil {
+			return errors.Wrap(err, "k.UpdateController failed")
+		}
+		if len(service.Volumes) > 0 {
+			switch objType := obj.(type) {
+			case *appsv1.Deployment:
+				objType.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
+			case *deployapi.DeploymentConfig:
+				objType.Spec.Strategy.Type = deployapi.DeploymentStrategyTypeRecreate
+			}
+		}
+	}
+	return nil
+}
 
 // UpdateKubernetesObjects loads configurations to k8s objects
 func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, objects *[]runtime.Object) error {
 	// Configure the environment variables.
-	envs, err := k.ConfigEnvs(name, service, opt)
+	envs, err := ConfigEnvs(name, service, opt)
 	if err != nil {
 		return errors.Wrap(err, "Unable to load env variables")
 	}
@@ -479,10 +513,10 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	}
 
 	// Configure the container ports.
-	ports := k.ConfigPorts(name, service)
+	ports := ConfigPorts(name, service)
 
 	// Configure capabilities
-	capabilities := k.ConfigCapabilities(service)
+	capabilities := ConfigCapabilities(service)
 
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
@@ -660,6 +694,20 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		}
 	}
 	return nil
+}
+
+// KomposeObjectToServiceConfigGroupMapping returns the service config group by name
+func KomposeObjectToServiceConfigGroupMapping(komposeObject kobject.KomposeObject) map[string]kobject.ServiceConfigGroup {
+	serviceConfigGroup := make(map[string]kobject.ServiceConfigGroup)
+	for name, service := range komposeObject.ServiceConfigs {
+		if group_id, ok := service.Labels[compose.LabelServiceGroup]; ok {
+			service.Name = name
+			serviceConfigGroup[group_id] = append(serviceConfigGroup[group_id], service)
+		} else {
+			serviceConfigGroup[name] = append(serviceConfigGroup[name], service)
+		}
+	}
+	return serviceConfigGroup
 }
 
 // TranslatePodResource config pod resources
