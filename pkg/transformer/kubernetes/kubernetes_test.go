@@ -546,12 +546,12 @@ func TestConfigCapabilities(t *testing.T) {
 }
 
 func TestMultipleContainersInPod(t *testing.T) {
-	group_name := "pod_group"
+	groupName := "pod_group"
 	containerName := ""
 
 	createConfig := func(name string, containerName *string) kobject.ServiceConfig {
 		config := newServiceConfig()
-		config.Labels = map[string]string{compose.LabelServiceGroup: group_name}
+		config.Labels = map[string]string{compose.LabelServiceGroup: groupName}
 		config.Name = name
 		if containerName != nil {
 			config.ContainerName = *containerName
@@ -610,13 +610,13 @@ func TestMultipleContainersInPod(t *testing.T) {
 		// Check results
 		for _, obj := range objs {
 			if svc, ok := obj.(*api.Service); ok {
-				if svc.Name != group_name {
-					t.Errorf("Expected %v returned, got %v", group_name, svc.Name)
+				if svc.Name != groupName {
+					t.Errorf("Expected %v returned, got %v", groupName, svc.Name)
 				}
 			}
 			if deployment, ok := obj.(*appsv1.Deployment); ok {
-				if deployment.Name != group_name {
-					t.Errorf("Expected %v returned, got %v", group_name, deployment.Name)
+				if deployment.Name != groupName {
+					t.Errorf("Expected %v returned, got %v", groupName, deployment.Name)
 				}
 				if len(deployment.Spec.Template.Spec.Containers) != 2 {
 					t.Errorf("Expected %d returned, got %d", 2, len(deployment.Spec.Template.Spec.Containers))

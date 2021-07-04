@@ -700,9 +700,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 func KomposeObjectToServiceConfigGroupMapping(komposeObject kobject.KomposeObject) map[string]kobject.ServiceConfigGroup {
 	serviceConfigGroup := make(map[string]kobject.ServiceConfigGroup)
 	for name, service := range komposeObject.ServiceConfigs {
-		if group_id, ok := service.Labels[compose.LabelServiceGroup]; ok {
+		if groupID, ok := service.Labels[compose.LabelServiceGroup]; ok {
 			service.Name = name
-			serviceConfigGroup[group_id] = append(serviceConfigGroup[group_id], service)
+			serviceConfigGroup[groupID] = append(serviceConfigGroup[groupID], service)
 		} else {
 			serviceConfigGroup[name] = append(serviceConfigGroup[name], service)
 		}
