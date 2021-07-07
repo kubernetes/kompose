@@ -158,6 +158,7 @@ The currently supported options are:
 | Key                  | Value                               |
 |----------------------|-------------------------------------|
 | kompose.service.type | nodeport / clusterip / loadbalancer / headless |
+| kompose.service.group | name to group the containers contained in a single pod |
 | kompose.service.expose | true / hostnames (separated by comma) |
 | kompose.service.nodeport.port | port value (string) | 
 | kompose.service.expose.tls-secret | secret name |
@@ -193,6 +194,28 @@ services:
     container_name: foobar
     labels: 
       kompose.service.type: nodeport
+```
+
+ - `kompose.service.group` defines the group of containers included in a single pod.
+
+For example:
+
+```yaml
+version: "3"
+
+services:
+  nginx:
+    image: nginx
+    depends_on:
+      - logs
+    labels: 
+      - kompose.service.group=sidecar
+
+  logs:
+    image: busybox
+    command: ["tail -f /var/log/nginx/access.log"]
+    labels: 
+      - kompose.service.group=sidecar
 ```
 
 - `kompose.service.expose` defines if the service needs to be made accessible from outside the cluster or not. If the value is set to "true", the provider sets the endpoint automatically, and for any other value, the value is set as the hostname. If multiple ports are defined in a service, the first one is chosen to be the exposed.
