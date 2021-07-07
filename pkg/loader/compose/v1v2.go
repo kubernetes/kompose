@@ -256,7 +256,14 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 			if len(composeServiceConfig.Networks.Networks) > 0 {
 				for _, value := range composeServiceConfig.Networks.Networks {
 					if value.Name != "default" {
-						serviceConfig.Network = append(serviceConfig.Network, value.RealName)
+						nomalizedNetworkName, err := normalizeNetworkNames(value.RealName)
+						if err != nil {
+							return kobject.KomposeObject{}, errors.Wrap(err, "Error trying to normalize network names")
+						}
+						if nomalizedNetworkName != value.RealName {
+							log.Warnf("Network name in docker-compose has been changed from %q to %q", value.RealName, nomalizedNetworkName)
+						}
+						serviceConfig.Network = append(serviceConfig.Network, nomalizedNetworkName)
 					}
 				}
 			}
