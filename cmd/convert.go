@@ -54,6 +54,10 @@ var (
 	// WithKomposeAnnotation decides if we will add metadata about this convert to resource's annotation.
 	// default is true.
 	WithKomposeAnnotation bool
+
+	// MultipleContainerMode which enables creating multi containers in a single pod is a developping function.
+	// default is false
+	MultipleContainerMode bool
 )
 
 var convertCmd = &cobra.Command{
@@ -95,6 +99,7 @@ var convertCmd = &cobra.Command{
 			IsDeploymentConfigFlag:      cmd.Flags().Lookup("deployment-config").Changed,
 			YAMLIndent:                  ConvertYAMLIndent,
 			WithKomposeAnnotation:       WithKomposeAnnotation,
+			MultipleContainerMode:       MultipleContainerMode,
 		}
 
 		// Validate before doing anything else. Use "bundle" if passed in.
@@ -124,6 +129,7 @@ func init() {
 	convertCmd.Flags().MarkHidden("daemon-set")
 	convertCmd.Flags().MarkHidden("replication-controller")
 	convertCmd.Flags().MarkHidden("deployment")
+	convertCmd.Flags().BoolVar(&MultipleContainerMode, "multiple-container-mode", false, "Create multiple containers grouped by 'kompose.service.group' label")
 
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")

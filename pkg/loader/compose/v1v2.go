@@ -178,6 +178,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 	// all relevant information as well as avoid the unsupported keys as well.
 	for name, composeServiceConfig := range composeObject.ServiceConfigs.All() {
 		serviceConfig := kobject.ServiceConfig{}
+		serviceConfig.Name = name
 		serviceConfig.Image = composeServiceConfig.Image
 		serviceConfig.Build = composeServiceConfig.Build.Context
 		newName := normalizeContainerNames(composeServiceConfig.ContainerName)

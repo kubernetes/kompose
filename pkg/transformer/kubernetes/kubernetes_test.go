@@ -24,6 +24,7 @@ import (
 	"testing"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/kubernetes/kompose/pkg/transformer"
 	deployapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
@@ -535,12 +536,106 @@ func TestConfigCapabilities(t *testing.T) {
 		"ConfigCapsNoAddDrop":   {kobject.ServiceConfig{CapAdd: nil, CapDrop: nil}, api.Capabilities{Add: []api.Capability{}, Drop: []api.Capability{}}},
 	}
 
-	k := Kubernetes{}
 	for name, test := range testCases {
 		t.Log("Test case:", name)
-		result := k.ConfigCapabilities(test.service)
+		result := ConfigCapabilities(test.service)
 		if !reflect.DeepEqual(result.Add, test.result.Add) || !reflect.DeepEqual(result.Drop, test.result.Drop) {
 			t.Errorf("Not expected result for ConfigCapabilities")
+		}
+	}
+}
+
+func TestMultipleContainersInPod(t *testing.T) {
+	groupName := "pod_group"
+	containerName := ""
+
+	createConfig := func(name string, containerName *string) kobject.ServiceConfig {
+		config := newServiceConfig()
+		config.Labels = map[string]string{compose.LabelServiceGroup: groupName}
+		config.Name = name
+		if containerName != nil {
+			config.ContainerName = *containerName
+		}
+		config.Volumes = []kobject.Volumes{
+			{
+				VolumeName: "mountVolume",
+				MountPath:  "/data",
+			},
+		}
+		return config
+	}
+
+	testCases := map[string]struct {
+		komposeObject   kobject.KomposeObject
+		opt             kobject.ConvertOptions
+		expectedNumObjs int
+		expectedNames   []string
+	}{
+		"Converted multiple containers": {
+			kobject.KomposeObject{
+				ServiceConfigs: map[string]kobject.ServiceConfig{
+					"app1": createConfig("app1", &containerName),
+					"app2": createConfig("app2", &containerName),
+				},
+			}, kobject.ConvertOptions{MultipleContainerMode: true}, 2, []string{"app1", "app2"}},
+		"Converted multiple containers to Deployments (D)": {
+			kobject.KomposeObject{
+				ServiceConfigs: map[string]kobject.ServiceConfig{
+					"app1": createConfig("app1", &containerName),
+					"app2": createConfig("app2", &containerName),
+				},
+			}, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true}, 3, []string{"app1", "app2"}},
+		"Converted multiple containers (ContainerName are nil) to Deployments (D)": {
+			kobject.KomposeObject{
+				ServiceConfigs: map[string]kobject.ServiceConfig{
+					"app1": createConfig("app1", nil),
+					"app2": createConfig("app2", nil),
+				},
+			}, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true}, 3, []string{"name", "name"}},
+		// TODO: add more tests
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		k := Kubernetes{}
+		// Run Transform
+		objs, err := k.Transform(test.komposeObject, test.opt)
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
+		if len(objs) != test.expectedNumObjs {
+			t.Errorf("Expected %d objects returned, got %d", test.expectedNumObjs, len(objs))
+		}
+
+		// Check results
+		for _, obj := range objs {
+			if svc, ok := obj.(*api.Service); ok {
+				if svc.Name != groupName {
+					t.Errorf("Expected %v returned, got %v", groupName, svc.Name)
+				}
+			}
+			if deployment, ok := obj.(*appsv1.Deployment); ok {
+				if deployment.Name != groupName {
+					t.Errorf("Expected %v returned, got %v", groupName, deployment.Name)
+				}
+				if len(deployment.Spec.Template.Spec.Containers) != 2 {
+					t.Errorf("Expected %d returned, got %d", 2, len(deployment.Spec.Template.Spec.Containers))
+				}
+				nameSet := make(map[string]api.Container)
+				for _, container := range deployment.Spec.Template.Spec.Containers {
+					nameSet[container.Name] = container
+				}
+				if container, ok := nameSet[test.expectedNames[0]]; !ok {
+					t.Errorf("Expected %v returned, got %v", test.expectedNames[0], container.Name)
+				} else if len(container.VolumeMounts) != 1 {
+					t.Errorf("Expected %v returned, got %v", 1, len(container.VolumeMounts))
+				}
+				if container, ok := nameSet[test.expectedNames[1]]; !ok {
+					t.Errorf("Expected %v returned, got %v", test.expectedNames[1], container.Name)
+				} else if len(container.VolumeMounts) != 1 {
+					t.Errorf("Expected %v returned, got %v", 1, len(container.VolumeMounts))
+				}
+			}
 		}
 	}
 }

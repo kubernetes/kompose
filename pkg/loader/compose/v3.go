@@ -364,6 +364,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// No need to modify before importation
 		name := composeServiceConfig.Name
 		serviceConfig := kobject.ServiceConfig{}
+		serviceConfig.Name = name
 		serviceConfig.Image = composeServiceConfig.Image
 		serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
 		serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
