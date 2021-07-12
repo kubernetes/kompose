@@ -17,7 +17,6 @@
 # Constants. Enter relevant repo information here.
 UPSTREAM_REPO="kubernetes"
 CLI="kompose"
-GITPATH="$GOPATH/src/github.com/kubernetes/kompose"
 
 usage() {
   echo "This will prepare $CLI for release!"
@@ -36,11 +35,6 @@ usage() {
 }
 
 requirements() {
-
-  if [ "$PWD" != "$GITPATH" ]; then
-    echo "ERROR: Must be in the $GITPATH directory"
-    exit 0
-  fi
 
   if ! hash git 2>/dev/null; then
     echo "ERROR: No git."
