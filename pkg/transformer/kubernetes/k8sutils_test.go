@@ -24,6 +24,7 @@ import (
 	"testing"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
+	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/kubernetes/kompose/pkg/testutils"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
@@ -484,6 +485,34 @@ func TestDurationStrToSecondsInt(t *testing.T) {
 		}
 		if test.out != nil && result != nil && *test.out != *result {
 			t.Errorf("Case '%v' for TestDurationStrToSecondsInt fail, Expected '%v' , got '%v'", name, *test.out, *result)
+		}
+	}
+}
+
+func TestServiceWithServiceAccount(t *testing.T) {
+	assertServiceAccountName := "my-service"
+
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Port:          []kobject.Ports{{HostPort: 55555}},
+		Labels:        map[string]string{compose.LabelServiceAccountName: assertServiceAccountName},
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	for _, obj := range objects {
+		if deployment, ok := obj.(*appsv1.Deployment); ok {
+			if deployment.Spec.Template.Spec.ServiceAccountName != assertServiceAccountName {
+				t.Errorf("Expected %v returned, got %v", assertServiceAccountName, deployment.Spec.Template.Spec.ServiceAccountName)
+			}
 		}
 	}
 }

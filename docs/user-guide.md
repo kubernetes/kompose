@@ -244,6 +244,19 @@ services:
      - "6379"
 ```
 
+- `kompose.service.accountname` defines the service account name to provide the credential info of the pod.
+
+For example:
+
+```yaml
+version: '3.4'
+services:
+  app:
+    image: python
+    labels:
+      kompose.service.accountname: "my-service"
+```
+
 - `kompose.image-pull-secret` defines a kubernetes secret name for imagePullSecrets podspec field.
 This secret will be used for pulling private images.
 For example:
