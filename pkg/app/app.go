@@ -146,7 +146,7 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 	}
 
 	if opt.Volumes != "persistentVolumeClaim" && opt.Volumes != "emptyDir" && opt.Volumes != "hostPath" && opt.Volumes != "configMap" {
-		log.Fatal("Unknown Volume type: ", opt.Volumes, ", possible values are: persistentVolumeClaim, configMap and emptyDir")
+		log.Fatal("Unknown Volume type: ", opt.Volumes, ", possible values are: persistentVolumeClaim, hostPath, configMap and emptyDir")
 	}
 }
 
