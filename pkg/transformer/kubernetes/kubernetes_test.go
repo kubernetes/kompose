@@ -38,6 +38,7 @@ import (
 
 func newServiceConfig() kobject.ServiceConfig {
 	return kobject.ServiceConfig{
+		Name:          "app",
 		ContainerName: "name",
 		Image:         "image",
 		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
