@@ -143,8 +143,8 @@ func init() {
 	convertCmd.Flags().MarkHidden("build-branch")
 
 	// Standard between the two
-	convertCmd.Flags().StringVar(&ConvertBuild, "build", "local", `Set the type of build ("local"|"build-config"(OpenShift only)|"none")`)
-	convertCmd.Flags().BoolVar(&ConvertPushImage, "push-image", true, "If we should push the docker image we built")
+	convertCmd.Flags().StringVar(&ConvertBuild, "build", "none", `Set the type of build ("local"|"build-config"(OpenShift only)|"none")`)
+	convertCmd.Flags().BoolVar(&ConvertPushImage, "push-image", false, "If we should push the docker image we built")
 	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into YAML format")
 	convertCmd.Flags().MarkDeprecated("yaml", "YAML is the default format now.")
 	convertCmd.Flags().MarkShorthandDeprecated("y", "YAML is the default format now.")
