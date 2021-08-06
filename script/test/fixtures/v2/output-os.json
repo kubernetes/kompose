@@ -172,7 +172,7 @@
           }
         ],
         "selector": {
-          "io.kompose.service": "redis-tcp"
+          "io.kompose.service": "redis"
         },
         "type": "LoadBalancer"
       },
@@ -203,7 +203,7 @@
           }
         ],
         "selector": {
-          "io.kompose.service": "redis-udp"
+          "io.kompose.service": "redis"
         },
         "type": "LoadBalancer"
       },

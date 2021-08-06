@@ -199,8 +199,9 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
+		// The selector uses the service.Name, which must be consistent with workloads label
 		Spec: api.ServiceSpec{
-			Selector: transformer.ConfigLabels(name),
+			Selector: transformer.ConfigLabels(service.Name),
 		},
 	}
 	return svc
