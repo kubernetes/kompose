@@ -845,7 +845,9 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
 			if volume.VFrom == "" {
 				defaultSize := PVCRequestSize
-
+				if k.Opt.PVCRequestSize != "" {
+					defaultSize = k.Opt.PVCRequestSize
+				}
 				if len(volume.PVCSize) > 0 {
 					defaultSize = volume.PVCSize
 				} else {
