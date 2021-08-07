@@ -33,6 +33,7 @@ var (
 	ConvertBuildBranch           string
 	ConvertBuild                 string
 	ConvertVolumes               string
+	ConvertPVCRequestSize        string
 	ConvertChart                 bool
 	ConvertDeployment            bool
 	ConvertDaemonSet             bool
@@ -90,6 +91,7 @@ var convertCmd = &cobra.Command{
 			CreateDeploymentConfig:      ConvertDeploymentConfig,
 			EmptyVols:                   ConvertEmptyVols,
 			Volumes:                     ConvertVolumes,
+			PVCRequestSize:              ConvertPVCRequestSize,
 			InsecureRepository:          ConvertInsecureRepo,
 			IsDeploymentFlag:            cmd.Flags().Lookup("deployment").Changed,
 			IsDaemonSetFlag:             cmd.Flags().Lookup("daemon-set").Changed,
@@ -153,6 +155,7 @@ func init() {
 	convertCmd.Flags().StringVarP(&ConvertOut, "out", "o", "", "Specify a file name or directory to save objects to (if path does not exist, a file will be created)")
 	convertCmd.Flags().IntVar(&ConvertReplicas, "replicas", 1, "Specify the number of replicas in the generated resource spec")
 	convertCmd.Flags().StringVar(&ConvertVolumes, "volumes", "persistentVolumeClaim", `Volumes to be generated ("persistentVolumeClaim"|"emptyDir"|"hostPath" | "configMap")`)
+	convertCmd.Flags().StringVar(&ConvertPVCRequestSize, "pvc-request-size", "", `Specify the size of pvc storage requests in the generated resource spec`)
 
 	convertCmd.Flags().BoolVar(&WithKomposeAnnotation, "with-kompose-annotation", true, "Add kompose annotations to generated resource")
 

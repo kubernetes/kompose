@@ -58,6 +58,7 @@ type ConvertOptions struct {
 	StoreManifest               bool
 	EmptyVols                   bool
 	Volumes                     string
+	PVCRequestSize              string
 	InsecureRepository          bool
 	Replicas                    int
 	InputFiles                  []string
