@@ -78,3 +78,7 @@ dst=$TEMP_DIR/output_dir/
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $dst -j" "${dst}redis-deployment.json" "${dst}redis-service.json" "${dst}web-deployment.json" "${dst}web-service.json"
 # Behavior with -o <non-existent-dirname>/<filename>
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/redis-example/docker-compose.yml convert -o $TEMP_DIR/output_dir2/output_file -j" "$TEMP_DIR/output_dir2/output_file"
+
+#TEST the pvc-request-size command parameter
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/pvc-request-size/docker-compose.yml convert -o $TEMP_DIR/output_dir2/output-k8s.json -j --pvc-request-size=300Mi" "$TEMP_DIR/output_dir2/output-k8s.json"
+convert::check_artifacts_generated "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/pvc-request-size/docker-compose.yml convert -o $TEMP_DIR/output_dir2/output-os.json -j --pvc-request-size=300Mi" "$TEMP_DIR/output_dir2/output-os.json"

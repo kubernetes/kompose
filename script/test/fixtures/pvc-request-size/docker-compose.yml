@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  redis:
+    restart: always
+    image: sameersbn/redis:latest
+    command:
+      - --loglevel warning
+    volumes:
+      - /srv/docker/gitlab/redis:/var/lib/redis
+    ports:
+      - "6379"
+
+  postgresql:
+    restart: always
+    image: sameersbn/postgresql:9.5-3
+    volumes:
+      - /srv/docker/gitlab/postgresql:/var/lib/postgresql
+    environment:
+      - DB_USER=gitlab
+      - DB_PASS=password
+      - DB_NAME=gitlabhq_production
+      - DB_EXTENSION=pg_trgm
+    ports:
+      - "5432"
+    labels:
+      kompose.volume.size: 200Mi
