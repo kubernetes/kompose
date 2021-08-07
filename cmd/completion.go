@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -46,21 +47,60 @@ func Generate(cmd *cobra.Command, args []string) error {
 	shell := args[0]
 
 	// Generate bash through cobra if selected
-	if shell == "bash" {
+	switch shell {
+	case "bash":
 		return cmd.Root().GenBashCompletion(os.Stdout)
-
-		// Generate zsh with the appropriate conversion as well as bash inclusion
-	} else if shell == "zsh" {
+	case "zsh":
 		return runCompletionZsh(os.Stdout, cmd.Root())
-
-		// Else, return an error.
-	} else {
-		return fmt.Errorf("not a compatible shell, bash and zsh are only supported")
+	case "fish":
+		return runCompletionFish(os.Stdout, cmd.Root())
+	default:
+		return fmt.Errorf("not a compatible shell, bash, zsh and fish are only supported")
 	}
 }
 
 func init() {
 	RootCmd.AddCommand(completion)
+}
+
+/*
+	This piece copied from
+	https://github.com/rsteube/carapace/blob/master/internal/fish/snippet.go
+	in order to generate fish completion support.
+*/
+func runCompletionFish(out io.Writer, kompose *cobra.Command) error {
+	executable := func() string {
+		if exe, err := os.Executable(); err != nil {
+			return "echo"
+		} else {
+			return filepath.Base(exe)
+		}
+	}()
+	fishInitialization := fmt.Sprintf(`function _%v_quote_suffix
+  if not commandline -cp | xargs echo 2>/dev/null >/dev/null
+    if commandline -cp | sed 's/$/"/'| xargs echo 2>/dev/null >/dev/null
+      echo '"'
+    else if commandline -cp | sed "s/\$/'/"| xargs echo 2>/dev/null >/dev/null
+      echo "'"
+    end
+  else 
+    echo ""
+  end
+end
+function _%v_callback
+  commandline -cp | sed "s/\$/"(_%v_quote_suffix)"/" | sed "s/ \$/ ''/" | xargs %v _carapace fish _
+end
+complete -c %v -f
+complete -c '%v' -f -a '(_%v_callback)' -r
+`, kompose.Name(), kompose.Name(), kompose.Name(), executable, kompose.Name(), kompose.Name(), kompose.Name())
+
+	out.Write([]byte(fishInitialization))
+
+	buf := new(bytes.Buffer)
+	kompose.GenBashCompletion(buf)
+	out.Write(buf.Bytes())
+
+	return nil
 }
 
 /*
