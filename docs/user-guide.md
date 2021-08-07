@@ -257,7 +257,7 @@ services:
       kompose.image-pull-secret: "example-kubernetes-secret"
 ```
 
-- `kompose.volume.size` defines the requests storage's size in the PersistentVolumeClaim
+- `kompose.volume.size` defines the requests storage's size in the PersistentVolumeClaim, or you can use command line parameter `--pvc-request-size`
 
 For example:
 
