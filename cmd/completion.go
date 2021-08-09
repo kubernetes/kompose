@@ -3,12 +3,10 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"io"
-	"os"
-	"path/filepath"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"io"
+	"os"
 )
 
 var completion = &cobra.Command{
@@ -16,10 +14,11 @@ var completion = &cobra.Command{
 	Short: "Output shell completion code",
 	Long: `Generates shell completion code.
 
-Auto completion supports both bash and zsh. Output is to STDOUT.
+Auto completion supports bash, zsh and fish. Output is to STDOUT.
 
 source <(kompose completion bash)
 source <(kompose completion zsh)
+kompose completion fish | source
 
 Will load the shell completion code.
 	`,
@@ -39,15 +38,14 @@ Will load the shell completion code.
 func Generate(cmd *cobra.Command, args []string) error {
 	// Check the passed in arguments
 	if len(args) == 0 {
-		return fmt.Errorf("shell not specified. ex. kompose completion [bash|zsh]")
+		return fmt.Errorf("shell not specified. ex. kompose completion [bash|zsh|fish]")
 	}
 	if len(args) > 1 {
-		return fmt.Errorf("too many arguments. Expected only the shell type. ex. kompose completion [bash|zsh]")
+		return fmt.Errorf("too many arguments. Expected only the shell type. ex. kompose completion [bash|zsh|fish]")
 	}
-	shell := args[0]
 
 	// Generate bash through cobra if selected
-	switch shell {
+	switch args[0] {
 	case "bash":
 		return cmd.Root().GenBashCompletion(os.Stdout)
 	case "zsh":
@@ -64,42 +62,18 @@ func init() {
 }
 
 /*
-	This piece copied from
-	https://github.com/rsteube/carapace/blob/master/internal/fish/snippet.go
-	in order to generate fish completion support.
-*/
+	Fish shell auto-completion support
+ */
 func runCompletionFish(out io.Writer, kompose *cobra.Command) error {
-	executable := func() string {
-		if exe, err := os.Executable(); err != nil {
-			return "echo"
-		} else {
-			return filepath.Base(exe)
-		}
-	}()
-	fishInitialization := fmt.Sprintf(`function _%v_quote_suffix
-  if not commandline -cp | xargs echo 2>/dev/null >/dev/null
-    if commandline -cp | sed 's/$/"/'| xargs echo 2>/dev/null >/dev/null
-      echo '"'
-    else if commandline -cp | sed "s/\$/'/"| xargs echo 2>/dev/null >/dev/null
-      echo "'"
-    end
-  else 
-    echo ""
-  end
-end
-function _%v_callback
-  commandline -cp | sed "s/\$/"(_%v_quote_suffix)"/" | sed "s/ \$/ ''/" | xargs %v _carapace fish _
-end
-complete -c %v -f
-complete -c '%v' -f -a '(_%v_callback)' -r
-`, kompose.Name(), kompose.Name(), kompose.Name(), executable, kompose.Name(), kompose.Name(), kompose.Name())
+	kompose.GenFishCompletion(out,true)
 
+	fishInitialization := `
+set -l commands  "completion convert help version"
+complete -c kompose -f
+complete -c kompose -n "not __fish_seen_subcommand_from $commands" -a $commands
+complete -c kompose -n "__fish_seen_subcommand_from completion" -a "bash zsh fish"
+`
 	out.Write([]byte(fishInitialization))
-
-	buf := new(bytes.Buffer)
-	kompose.GenBashCompletion(buf)
-	out.Write(buf.Bytes())
-
 	return nil
 }
 
