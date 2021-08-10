@@ -86,12 +86,12 @@ convert::check_artifacts_generated "kompose --provider=openshift -f $KOMPOSE_ROO
 ######
 # Test the path of build image
 # Test build v2 absolute compose file
-convert::check_artifacts_generated "kompose --build local -f $KOMPOSE_ROOT/script/test_in_openshift/compose-files/buildconfig/docker-compose.yml convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
+convert::check_artifacts_generated "kompose --build local -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose.yml convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
 # Test build v2 relative compose file
-relative_path=$(realpath --relative-to="$PWD" "$KOMPOSE_ROOT/script/test_in_openshift/compose-files/buildconfig/docker-compose.yml")
+relative_path=$(realpath --relative-to="$PWD" "$KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose.yml")
 convert::check_artifacts_generated "kompose --build local -f $relative_path convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
 # Test build v3 absolute compose file with context
-convert::check_artifacts_generated "kompose --build local -f $KOMPOSE_ROOT/script/test_in_openshift/compose-files/buildconfig-relative-dirs/docker/docker-compose-build-image.yml convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
+convert::check_artifacts_generated "kompose --build local -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose-v3.yml convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
 # Test build v3 absolute compose file with context
-relative_path=$(realpath --relative-to="$PWD" "$KOMPOSE_ROOT/script/test_in_openshift/compose-files/buildconfig-relative-dirs/docker/docker-compose-build-image.yml")
+relative_path=$(realpath --relative-to="$PWD" "$KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose-v3.yml")
 convert::check_artifacts_generated "kompose --build local -f $relative_path convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
