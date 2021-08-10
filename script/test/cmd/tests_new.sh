@@ -92,6 +92,6 @@ relative_path=$(realpath --relative-to="$PWD" "$KOMPOSE_ROOT/script/test/fixture
 convert::check_artifacts_generated "kompose --build local -f $relative_path convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
 # Test build v3 absolute compose file with context
 convert::check_artifacts_generated "kompose --build local -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose-v3.yml convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
-# Test build v3 absolute compose file with context
+# Test build v3 relative compose file with context
 relative_path=$(realpath --relative-to="$PWD" "$KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose-v3.yml")
 convert::check_artifacts_generated "kompose --build local -f $relative_path convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
