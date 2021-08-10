@@ -17,6 +17,9 @@ limitations under the License.
 package compose
 
 import (
+	"fmt"
+	"os"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -29,10 +32,6 @@ import (
 
 	"github.com/docker/cli/cli/compose/loader"
 	"github.com/docker/cli/cli/compose/types"
-
-	"os"
-
-	"fmt"
 
 	shlex "github.com/google/shlex"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -444,7 +443,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// TODO: Build is not yet supported, see:
 		// https://github.com/docker/cli/blob/master/cli/compose/types/types.go#L9
 		// We will have to *manually* add this / parse.
-		serviceConfig.Build = composeServiceConfig.Build.Context
+		serviceConfig.Build = resolveV3Context(composeObject.Filename, composeServiceConfig.Build.Context)
 		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
 		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
 		serviceConfig.BuildLabels = composeServiceConfig.Build.Labels
@@ -488,6 +487,21 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 	handleV3Volume(&komposeObject, &composeObject.Volumes)
 
 	return komposeObject, nil
+}
+
+// resolveV3Context resolves build context like v2 does, see:
+// https://github.com/docker/libcompose/blob/master/config/merge_v2.go#L155
+func resolveV3Context(inFile string, context string) string {
+	if context == "" {
+		return ""
+	}
+
+	current := path.Dir(inFile)
+	if context != "." {
+		current = path.Join(current, context)
+	}
+
+	return current
 }
 
 func parseV3Network(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig, composeObject *types.Config) {
