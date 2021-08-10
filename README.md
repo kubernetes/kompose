@@ -68,6 +68,9 @@ source <(kompose completion bash)
 
 # Zsh (add to .zshrc for persistence)
 source <(kompose completion zsh)
+
+# Fish autocompletion
+kompose completion fish | source
 ```
 
 ## Development and building of Kompose
