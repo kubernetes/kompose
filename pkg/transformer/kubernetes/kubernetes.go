@@ -1167,12 +1167,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 
 				// Push the built image to the repo!
-				if opt.PushImage {
-					log.Infof("Push image enabled. Attempting to push image '%s'", service.Image)
-					err = transformer.PushDockerImage(service, name)
-					if err != nil {
-						return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
-					}
+				err = transformer.PushDockerImageWithOpt(service, name, opt)
+				if err != nil {
+					return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
 				}
 			}
 
@@ -1316,12 +1313,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 
 				// Push the built image to the repo!
-				if opt.PushImage {
-					log.Infof("Push image enabled. Attempting to push image '%s'", service.Image)
-					err = transformer.PushDockerImage(service, name)
-					if err != nil {
-						return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
-					}
+				err = transformer.PushDockerImageWithOpt(service, name, opt)
+				if err != nil {
+					return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
 				}
 			}
 
