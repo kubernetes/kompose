@@ -390,6 +390,30 @@ If the Docker Compose file has service name with `_` or `.` in it (eg.`web_servi
 
 Please note that changing service name might break some `docker-compose` files.
 
+## Build and push image
+
+If the Docker Compose file has `build` or `build:context, build:dockerfile` keys, build will run when `--build` specified.
+
+And Image will push to *docker.io* (default) when `--push-image=true` specified.
+
+It is possible to push to custom registry by `--push-image-registry` argument, which will override the registry from image name. 
+
+### Authentication on registry
+
+Kompose use the docker authentication from file `$DOCKER_CONFIG/config.json`, `$HOME/.docker/config.json` and `$HOME/.dockercfg` after `docker login`.
+
+**This only works fine on Linux but macOS.**
+
+Kompose would get nothing but authentication failure from config file for using `"credsStore": "osxkeychain"` on macOS after `docker login`.
+
+However, there is approach to push successfully on macOS, by not using `osxkeychain` for `credsStore`. To disable `osxkeychain`:
+* remove `credsStore` from `config.json` file, and `docker login` again.
+* for some docker desktop version, there is a setting `Securely store Docker logins in macOS keychain`, which should be unchecked. Then restart docker desktop if needed, and `docker login` again.
+
+Now `config.json` should contain base64 encoded passwords, then push image should success. Working, but not safe though! Use it at your own risks.
+
+For Windows, there is also `credsStore` which is `wincred`. Technically it will fail on authentication like macOS does, but you can try approach above like macOS too.   
+
 ## Docker Compose Versions
 
 Kompose supports Docker Compose versions: 1, 2 and 3. We have limited support on versions 2.1 and 3.2 due to their experimental nature.
