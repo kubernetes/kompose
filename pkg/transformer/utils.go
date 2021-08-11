@@ -262,8 +262,9 @@ func BuildDockerImage(service kobject.ServiceConfig, name string) error {
 
 	log.Debug("Build image working dir is: ", wd)
 
+	log.Debug("Build image service build is: ", service.Build)
 	// Get the appropriate image source and name
-	imagePath := path.Join(wd, path.Base(service.Build))
+	imagePath := service.Build
 	if !path.IsAbs(service.Build) {
 		imagePath = path.Join(wd, service.Build)
 	}
