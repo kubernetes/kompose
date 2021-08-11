@@ -640,3 +640,15 @@ func TestMultipleContainersInPod(t *testing.T) {
 		}
 	}
 }
+
+func TestCreatePVC(t *testing.T) {
+	storageClassName := "custom-storage-class-name"
+	k := Kubernetes{}
+	result, err := k.CreatePVC("", "", PVCRequestSize, "", storageClassName)
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.CreatePVC failed"))
+	}
+	if *result.Spec.StorageClassName != storageClassName {
+		t.Errorf("Expected %s returned, got %s", storageClassName, *result.Spec.StorageClassName)
+	}
+}

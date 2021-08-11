@@ -664,7 +664,7 @@ func getV3VolumeLabels(name string, volumes *map[string]types.VolumeConfig) (str
 				size = value
 			} else if key == "kompose.volume.selector" {
 				selector = value
-			} else if key == "kompose.volume.storageClassName" {
+			} else if key == "kompose.volume.storage-class-name" {
 				storageClassName = value
 			}
 		}

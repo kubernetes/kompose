@@ -163,6 +163,7 @@ The currently supported options are:
 | kompose.service.nodeport.port | port value (string) | 
 | kompose.service.expose.tls-secret | secret name |
 | kompose.volume.size | kubernetes supported volume size |
+| kompose.volume.storage-class-name | kubernetes supported volume storageClassName |
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
 | kompose.image-pull-policy | kubernetes pods imagePullPolicy |
 | kompose.image-pull-secret | kubernetes secret name for imagePullSecrets |
@@ -271,6 +272,19 @@ services:
       kompose.volume.size: 1Gi
     volumes:
       - db-data:/var/lib/postgresql/data
+```
+
+- `kompose.volume.storage-class-name` defines the requests storage's size in the PersistentVolumeClaim, or you can use command line parameter `--pvc-request-size`.
+  The priority follow label (kompose.volume.size) > command parameter(--pvc-request-size) > defaultSize (100Mi)
+
+For example:
+
+```yaml
+version: '3'
+volumes:
+  volume:
+    labels:
+      kompose.volume.storage-class-name: custom-storage-class-name
 ```
 
 - `kompose.controller.type` defines which controller type should convert for this service

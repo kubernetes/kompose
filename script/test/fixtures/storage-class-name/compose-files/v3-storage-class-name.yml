@@ -1,0 +1,13 @@
+version: "3"
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - volume:/tmp/volume
+
+volumes:
+  volume:
+    labels:
+      kompose.volume.storage-class-name: custom-storage-class-name
