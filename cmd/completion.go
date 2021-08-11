@@ -15,10 +15,11 @@ var completion = &cobra.Command{
 	Short: "Output shell completion code",
 	Long: `Generates shell completion code.
 
-Auto completion supports both bash and zsh. Output is to STDOUT.
+Auto completion supports bash, zsh and fish. Output is to STDOUT.
 
 source <(kompose completion bash)
 source <(kompose completion zsh)
+kompose completion fish | source
 
 Will load the shell completion code.
 	`,
@@ -38,29 +39,43 @@ Will load the shell completion code.
 func Generate(cmd *cobra.Command, args []string) error {
 	// Check the passed in arguments
 	if len(args) == 0 {
-		return fmt.Errorf("shell not specified. ex. kompose completion [bash|zsh]")
+		return fmt.Errorf("shell not specified. ex. kompose completion [bash|zsh|fish]")
 	}
 	if len(args) > 1 {
-		return fmt.Errorf("too many arguments. Expected only the shell type. ex. kompose completion [bash|zsh]")
+		return fmt.Errorf("too many arguments. Expected only the shell type. ex. kompose completion [bash|zsh|fish]")
 	}
-	shell := args[0]
 
 	// Generate bash through cobra if selected
-	if shell == "bash" {
+	switch args[0] {
+	case "bash":
 		return cmd.Root().GenBashCompletion(os.Stdout)
-
-		// Generate zsh with the appropriate conversion as well as bash inclusion
-	} else if shell == "zsh" {
+	case "zsh":
 		return runCompletionZsh(os.Stdout, cmd.Root())
-
-		// Else, return an error.
-	} else {
-		return fmt.Errorf("not a compatible shell, bash and zsh are only supported")
+	case "fish":
+		return runCompletionFish(os.Stdout, cmd.Root())
+	default:
+		return fmt.Errorf("not a compatible shell, bash, zsh and fish are only supported")
 	}
 }
 
 func init() {
 	RootCmd.AddCommand(completion)
+}
+
+/*
+	Fish shell auto-completion support
+*/
+func runCompletionFish(out io.Writer, kompose *cobra.Command) error {
+	kompose.GenFishCompletion(out, true)
+
+	fishInitialization := `
+set -l commands  "completion convert help version"
+complete -c kompose -f
+complete -c kompose -n "not __fish_seen_subcommand_from $commands" -a $commands
+complete -c kompose -n "__fish_seen_subcommand_from completion" -a "bash zsh fish"
+`
+	out.Write([]byte(fishInitialization))
+	return nil
 }
 
 /*
