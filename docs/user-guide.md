@@ -396,23 +396,21 @@ If the Docker Compose file has `build` or `build:context, build:dockerfile` keys
 
 And Image will push to *docker.io* (default) when `--push-image=true` specified.
 
-It is possible to push to custom registry by `--push-image-registry` argument, which will override the registry from image name. 
+It is possible to push to custom registry by specify `--push-image-registry`, which will override the registry from image name. 
 
 ### Authentication on registry
 
-Kompose use the docker authentication from file `$DOCKER_CONFIG/config.json`, `$HOME/.docker/config.json` and `$HOME/.dockercfg` after `docker login`.
+Kompose uses the docker authentication from file `$DOCKER_CONFIG/config.json`, `$HOME/.docker/config.json`, and `$HOME/.dockercfg` after `docker login`.
 
-**This only works fine on Linux but macOS.**
+**This only works fine on Linux but macOS would fail when using `"credsStore": "osxkeychain"`.**
 
-Kompose would get nothing but authentication failure from config file for using `"credsStore": "osxkeychain"` on macOS after `docker login`.
-
-However, there is approach to push successfully on macOS, by not using `osxkeychain` for `credsStore`. To disable `osxkeychain`:
+However, there is an approach to push successfully on macOS, by not using `osxkeychain` for `credsStore`. To disable `osxkeychain`:
 * remove `credsStore` from `config.json` file, and `docker login` again.
-* for some docker desktop version, there is a setting `Securely store Docker logins in macOS keychain`, which should be unchecked. Then restart docker desktop if needed, and `docker login` again.
+* for some docker desktop versions, there is a setting `Securely store Docker logins in macOS keychain`, which should be unchecked. Then restart docker desktop if needed, and `docker login` again.
 
-Now `config.json` should contain base64 encoded passwords, then push image should success. Working, but not safe though! Use it at your own risks.
+Now `config.json` should contain base64 encoded passwords, then push image should succeed. Working, but not safe though! Use it at your risk.
 
-For Windows, there is also `credsStore` which is `wincred`. Technically it will fail on authentication like macOS does, but you can try approach above like macOS too.   
+For Windows, there is also `credsStore` which is `wincred`. Technically it will fail on authentication as macOS does, but you can try the approach above like macOS too.   
 
 ## Docker Compose Versions
 
