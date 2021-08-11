@@ -63,9 +63,9 @@ func init() {
 
 /*
 	Fish shell auto-completion support
- */
+*/
 func runCompletionFish(out io.Writer, kompose *cobra.Command) error {
-	kompose.GenFishCompletion(out,true)
+	kompose.GenFishCompletion(out, true)
 
 	fishInitialization := `
 set -l commands  "completion convert help version"
