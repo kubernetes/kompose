@@ -98,8 +98,7 @@ convert::check_artifacts_generated "kompose --build local -f $relative_path conv
 
 #####
 # Test the build config with push image
-# Default behavior with push image disabled
+# see tests_push_image.sh for local push test
+# Should warn when push image disabled
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose-build-no-image.yml -o $TEMP_DIR/output_file convert --build=local --push-image-registry=whatever"
 convert::expect_warning "$cmd" "Push image registry 'whatever' is specified but push image is disabled, skipping pushing to repository"
-# TODO Push image to docker.io as default. Then verify push success
-# TODO Push image to a private registry. Then verify push success

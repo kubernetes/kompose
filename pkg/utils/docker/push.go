@@ -18,7 +18,6 @@ package docker
 
 import (
 	"bytes"
-	"strings"
 
 	dockerlib "github.com/fsouza/go-dockerclient"
 	"github.com/pkg/errors"
@@ -53,11 +52,8 @@ func (c *Push) PushImage(image Image) error {
 	credentials, err := dockerlib.NewAuthConfigurationsFromDockerCfg()
 	if err != nil {
 		log.Warn(errors.Wrap(err, "Unable to retrieve .docker/config.json authentication details. Check that 'docker login' works successfully on the command line."))
-	}
-
-	// Handle legacy docker registry address
-	if strings.Contains(image.Registry, "docker.io") {
-		image.Registry = "https://index.docker.io/v1/"
+	} else {
+		handleDockerRegistry(credentials)
 	}
 
 	// Find the authentication matched to registry
@@ -65,7 +61,10 @@ func (c *Push) PushImage(image Image) error {
 	if !ok {
 		// Fallback to unauthenticated access in case if no auth credentials are retrieved
 		log.Infof("Authentication credential of registry '%s' is not found. Will try push without authentication.", image.Registry)
-		auth = dockerlib.AuthConfiguration{}
+		// Header X-Registry-Auth is required
+		// Or API error (400): Bad parameters and missing X-Registry-Auth: EOF will throw
+		// Just to make not empty struct
+		auth = dockerlib.AuthConfiguration{Username: "docker"}
 	}
 
 	log.Debugf("Pushing image with options %+v", options)
@@ -78,4 +77,19 @@ func (c *Push) PushImage(image Image) error {
 	log.Debugf("Image '%+v' push output:\n%s", image, outputBuffer)
 	log.Infof("Successfully pushed image '%s' to registry '%s'", image.Name, image.Registry)
 	return nil
+}
+
+// handleDockerRegistry adapt legacy docker registry address
+// After docker login to docker.io, there must be https://index.docker.io/v1/ in config.json of authentication
+// Reference: https://docs.docker.com/engine/api/v1.23/
+//     > However (for legacy reasons) the “official” Docker, Inc. hosted registry
+//     > must be specified with both a “https://” prefix and a “/v1/” suffix
+//     > even though Docker will prefer to use the v2 registry API.
+func handleDockerRegistry(auth *dockerlib.AuthConfigurations) {
+	const address = "docker.io"
+	const legacyAddress = "https://index.docker.io/v1/"
+
+	if legacyAddressConfig, ok := auth.Configs[legacyAddress]; ok {
+		auth.Configs[address] = legacyAddressConfig
+	}
 }
