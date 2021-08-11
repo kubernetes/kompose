@@ -638,12 +638,13 @@ func handleV3Volume(komposeObject *kobject.KomposeObject, volumes *map[string]ty
 			errors.Wrap(err, "could not retrieve vvolume")
 		}
 		for volName, vol := range vols {
-			size, selector := getV3VolumeLabels(vol.VolumeName, volumes)
-			if len(size) > 0 || len(selector) > 0 {
+			size, selector, storageClassName := getV3VolumeLabels(vol.VolumeName, volumes)
+			if len(size) > 0 || len(selector) > 0 || len(storageClassName) > 0 {
 				// We can't assign value to struct field in map while iterating over it, so temporary variable `temp` is used here
 				var temp = vols[volName]
 				temp.PVCSize = size
 				temp.SelectorValue = selector
+				temp.StorageClassName = storageClassName
 				vols[volName] = temp
 			}
 		}
@@ -654,8 +655,8 @@ func handleV3Volume(komposeObject *kobject.KomposeObject, volumes *map[string]ty
 	}
 }
 
-func getV3VolumeLabels(name string, volumes *map[string]types.VolumeConfig) (string, string) {
-	size, selector := "", ""
+func getV3VolumeLabels(name string, volumes *map[string]types.VolumeConfig) (string, string, string) {
+	size, selector, storageClassName := "", "", ""
 
 	if volume, ok := (*volumes)[name]; ok {
 		for key, value := range volume.Labels {
@@ -663,11 +664,13 @@ func getV3VolumeLabels(name string, volumes *map[string]types.VolumeConfig) (str
 				size = value
 			} else if key == "kompose.volume.selector" {
 				selector = value
+			} else if key == "kompose.volume.storageClassName" {
+				storageClassName = value
 			}
 		}
 	}
 
-	return size, selector
+	return size, selector, storageClassName
 }
 
 func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*types.Config, error) {

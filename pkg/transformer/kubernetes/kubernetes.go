@@ -498,7 +498,7 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 }
 
 // CreatePVC initializes PersistentVolumeClaim
-func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorValue string) (*api.PersistentVolumeClaim, error) {
+func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorValue string, storageClassName string) (*api.PersistentVolumeClaim, error) {
 	volSize, err := resource.ParseQuantity(size)
 	if err != nil {
 		return nil, errors.Wrap(err, "resource.ParseQuantity failed, Error parsing size")
@@ -519,6 +519,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 					api.ResourceStorage: volSize,
 				},
 			},
+			StorageClassName: &storageClassName,
 		},
 	}
 
@@ -858,7 +859,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 					}
 				}
 
-				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue)
+				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue, volume.StorageClassName)
 
 				if err != nil {
 					return nil, nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
