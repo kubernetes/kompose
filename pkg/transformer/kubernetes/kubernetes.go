@@ -1261,6 +1261,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					TerminationGracePeriodSeconds(name, service),
 				)
 
+				if serviceAccountName, ok := service.Labels[compose.LabelServiceAccountName]; ok {
+					podSpec.Append(ServiceAccountName(serviceAccountName))
+				}
+
 				err = k.UpdateKubernetesObjectsMultipleContainers(name, service, opt, &objects, podSpec)
 				if err != nil {
 					return nil, errors.Wrap(err, "Error transforming Kubernetes objects")

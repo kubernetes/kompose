@@ -640,3 +640,60 @@ func TestMultipleContainersInPod(t *testing.T) {
 		}
 	}
 }
+
+func TestServiceAccountNameOnMultipleContainers(t *testing.T) {
+	groupName := "pod_group"
+	serviceAccountName := "my-service"
+
+	createConfigs := func(labels map[string]string) map[string]kobject.ServiceConfig {
+		createConfig := func(name string) kobject.ServiceConfig {
+			config := newServiceConfig()
+			config.Labels = map[string]string{compose.LabelServiceGroup: groupName}
+			for k, v := range labels {
+				config.Labels[k] = v
+			}
+			config.Name = name
+			config.ContainerName = ""
+			config.Volumes = []kobject.Volumes{
+				{
+					VolumeName: "mountVolume",
+					MountPath:  "/data",
+				},
+			}
+			return config
+		}
+		return map[string]kobject.ServiceConfig{"app1": createConfig("app1"), "app2": createConfig("app2")}
+	}
+
+	testCases := map[string]struct {
+		komposeObject      kobject.KomposeObject
+		expectedLabelNames []string
+	}{
+		"Converted multiple containers with ServiceAccountName": {
+			kobject.KomposeObject{
+				ServiceConfigs: createConfigs(map[string]string{compose.LabelServiceAccountName: serviceAccountName}),
+			}, []string{serviceAccountName}},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		k := Kubernetes{}
+		// Run Transform
+		objs, err := k.Transform(test.komposeObject, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true})
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
+
+		// Check results
+		for _, obj := range objs {
+			if deployment, ok := obj.(*appsv1.Deployment); ok {
+				if deployment.Name != groupName {
+					t.Errorf("Expected %v returned, got %v", groupName, deployment.Name)
+				}
+				if deployment.Spec.Template.Spec.ServiceAccountName != serviceAccountName {
+					t.Errorf("Expected %v returned, got %v", serviceAccountName, deployment.Spec.Template.Spec.ServiceAccountName)
+				}
+			}
+		}
+	}
+}
