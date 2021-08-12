@@ -19,6 +19,7 @@ package kubernetes
 import (
 	"encoding/json"
 	"fmt"
+	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 	"reflect"
 	"strings"
 	"testing"
@@ -38,30 +39,32 @@ import (
 
 func newServiceConfig() kobject.ServiceConfig {
 	return kobject.ServiceConfig{
-		Name:          "app",
-		ContainerName: "name",
-		Image:         "image",
-		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456}, kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolUDP}},
-		Command:       []string{"cmd"},
-		WorkingDir:    "dir",
-		Args:          []string{"arg1", "arg2"},
-		VolList:       []string{"/tmp/volume"},
-		Network:       []string{"network1", "network2"}, // supported
-		Labels:        nil,
-		Annotations:   map[string]string{"abc": "def"},
-		CPUQuota:      1, // not supported
-		CapAdd:        []string{"cap_add"},
-		CapDrop:       []string{"cap_drop"},
-		Expose:        []string{"expose"}, // not supported
-		Privileged:    true,
-		Restart:       "always",
-		Stdin:         true,
-		Tty:           true,
-		TmpFs:         []string{"/tmp"},
-		Replicas:      2,
-		Volumes:       []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
-		GroupAdd:      []int64{1003, 1005},
+		Name:            "app",
+		ContainerName:   "name",
+		Image:           "image",
+		Environment:     []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
+		Port:            []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456}, kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: api.ProtocolUDP}},
+		Command:         []string{"cmd"},
+		WorkingDir:      "dir",
+		Args:            []string{"arg1", "arg2"},
+		VolList:         []string{"/tmp/volume"},
+		Network:         []string{"network1", "network2"}, // supported
+		Labels:          nil,
+		Annotations:     map[string]string{"abc": "def"},
+		CPUQuota:        1, // not supported
+		CapAdd:          []string{"cap_add"},
+		CapDrop:         []string{"cap_drop"},
+		Expose:          []string{"expose"}, // not supported
+		Privileged:      true,
+		Restart:         "always",
+		ImagePullSecret: "regcred",
+		Stdin:           true,
+		Tty:             true,
+		TmpFs:           []string{"/tmp"},
+		Replicas:        2,
+		Volumes:         []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
+		GroupAdd:        []int64{1003, 1005},
+		Configs:         []dockerCliTypes.ServiceConfigObjConfig{{Source: "hello", Target: "/etc/world"}},
 	}
 }
 
@@ -182,6 +185,9 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 	}
 	if config.Tty != template.Spec.Containers[0].TTY {
 		return fmt.Errorf("Found different values for TTY: %#v vs. %#v", config.Tty, template.Spec.Containers[0].TTY)
+	}
+	if config.ImagePullSecret != template.Spec.ImagePullSecrets[0].Name {
+		return fmt.Errorf("Found different values for ImagePullSecrets: %#v vs. %#v", config.ImagePullSecret, template.Spec.ImagePullSecrets[0].Name)
 	}
 	return nil
 }
