@@ -245,6 +245,19 @@ services:
      - "6379"
 ```
 
+- `kompose.serviceaccount-name` defines the service account name to provide the credential info of the pod.
+
+For example:
+
+```yaml
+version: '3.4'
+services:
+  app:
+    image: python
+    labels:
+      kompose.serviceaccount-name: "my-service"
+```
+
 - `kompose.image-pull-secret` defines a kubernetes secret name for imagePullSecrets podspec field.
 This secret will be used for pulling private images.
 For example:
@@ -402,6 +415,28 @@ If the Docker Compose file has a volume specified for a service, the Deployment 
 If the Docker Compose file has service name with `_` or `.` in it (eg.`web_service` or `web.service`), then it will be replaced by `-` and the service name will be renamed accordingly (eg.`web-service`). Kompose does this because "Kubernetes" doesn't allow `_` in object name.
 
 Please note that changing service name might break some `docker-compose` files.
+
+## Build and push image
+
+If the Docker Compose file has `build` or `build:context, build:dockerfile` keys, build will run when `--build` specified.
+
+And Image will push to *docker.io* (default) when `--push-image=true` specified.
+
+It is possible to push to custom registry by specify `--push-image-registry`, which will override the registry from image name. 
+
+### Authentication on registry
+
+Kompose uses the docker authentication from file `$DOCKER_CONFIG/config.json`, `$HOME/.docker/config.json`, and `$HOME/.dockercfg` after `docker login`.
+
+**This only works fine on Linux but macOS would fail when using `"credsStore": "osxkeychain"`.**
+
+However, there is an approach to push successfully on macOS, by not using `osxkeychain` for `credsStore`. To disable `osxkeychain`:
+* remove `credsStore` from `config.json` file, and `docker login` again.
+* for some docker desktop versions, there is a setting `Securely store Docker logins in macOS keychain`, which should be unchecked. Then restart docker desktop if needed, and `docker login` again.
+
+Now `config.json` should contain base64 encoded passwords, then push image should succeed. Working, but not safe though! Use it at your risk.
+
+For Windows, there is also `credsStore` which is `wincred`. Technically it will fail on authentication as macOS does, but you can try the approach above like macOS too.   
 
 ## Docker Compose Versions
 

@@ -15,7 +15,7 @@ __Glossary:__
 
 | Keys                   | V1 | V2 | V3 | Kubernetes / OpenShift                                      | Notes                                                                                                          |
 |------------------------|----|----|----|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| build                  | ✓  | ✓  | ✓  |                                                             | Builds/Pushes to Docker repository. See `--build` parameter                                                    |
+| build                  | ✓  | ✓  | ✓  |                                                             | Builds/Pushes to Docker repository. See [user guide on build and push image](https://kompose.io/user-guide/#build-and-push-image) |                                                    |
 | build: context         | ✓  | ✓  | ✓  |                                                             |                                                                                                                |
 | build: dockerfile      | ✓  | ✓  | ✓  |                                                             |                                                                                                                |
 | build: args            | n  | n  | n  |                                                             |                                                                                                                |

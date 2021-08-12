@@ -308,26 +308,47 @@ func BuildDockerImage(service kobject.ServiceConfig, name string) error {
 	return nil
 }
 
-// PushDockerImage pushes docker image
-func PushDockerImage(service kobject.ServiceConfig, serviceName string) error {
-	log.Debugf("Pushing Docker image '%s'", service.Image)
+// PushDockerImageWithOpt pushes docker image
+func PushDockerImageWithOpt(service kobject.ServiceConfig, serviceName string, opt kobject.ConvertOptions) error {
+	if !opt.PushImage {
+		// Don't do anything if registry is specified but push is disabled, just WARN about it
+		if opt.PushImageRegistry != "" {
+			log.Warnf("Push image registry '%s' is specified but push image is disabled, skipping pushing to repository", opt.PushImageRegistry)
+		}
+		return nil
+	}
+
+	log.Infof("Push image is enabled. Attempting to push image '%s'", service.Image)
 
 	// Don't do anything if service.Image is blank, but at least WARN about it
-	// lse, let's push the image
+	// else, let's push the image
 	if service.Image == "" {
 		log.Warnf("No image name has been passed for service %s, skipping pushing to repository", serviceName)
 		return nil
 	}
 
-	// Connect to the Docker client
+	image, err := docker.ParseImage(service.Image, opt.PushImageRegistry)
+	if err != nil {
+		return err
+	}
+
 	client, err := docker.Client()
 	if err != nil {
 		return err
 	}
 
-	push := docker.Push{Client: *client}
-	err = push.PushImage(service.Image)
+	if opt.PushImageRegistry != "" {
+		log.Info("Push image registry is specified. Tag the image into registry firstly.")
+		tag := docker.Tag{Client: *client}
+		err = tag.TagImage(image)
 
+		if err != nil {
+			return err
+		}
+	}
+
+	push := docker.Push{Client: *client}
+	err = push.PushImage(image)
 	if err != nil {
 		return err
 	}

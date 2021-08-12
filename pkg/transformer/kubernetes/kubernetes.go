@@ -1168,12 +1168,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 
 				// Push the built image to the repo!
-				if opt.PushImage {
-					log.Infof("Push image enabled. Attempting to push image '%s'", service.Image)
-					err = transformer.PushDockerImage(service, name)
-					if err != nil {
-						return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
-					}
+				err = transformer.PushDockerImageWithOpt(service, name, opt)
+				if err != nil {
+					return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
 				}
 			}
 
@@ -1265,6 +1262,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					TerminationGracePeriodSeconds(name, service),
 				)
 
+				if serviceAccountName, ok := service.Labels[compose.LabelServiceAccountName]; ok {
+					podSpec.Append(ServiceAccountName(serviceAccountName))
+				}
+
 				err = k.UpdateKubernetesObjectsMultipleContainers(name, service, opt, &objects, podSpec)
 				if err != nil {
 					return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
@@ -1317,12 +1318,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 
 				// Push the built image to the repo!
-				if opt.PushImage {
-					log.Infof("Push image enabled. Attempting to push image '%s'", service.Image)
-					err = transformer.PushDockerImage(service, name)
-					if err != nil {
-						return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
-					}
+				err = transformer.PushDockerImageWithOpt(service, name, opt)
+				if err != nil {
+					return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
 				}
 			}
 

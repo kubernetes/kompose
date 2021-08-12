@@ -670,6 +670,10 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			template.Spec.Subdomain = service.DomainName
 		}
 
+		if serviceAccountName, ok := service.Labels[compose.LabelServiceAccountName]; ok {
+			template.Spec.ServiceAccountName = serviceAccountName
+		}
+
 		return nil
 	}
 
