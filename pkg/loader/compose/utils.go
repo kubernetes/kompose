@@ -41,7 +41,7 @@ const (
 	// LabelServiceExposeTLSSecret provides the name of the TLS secret to use with the Kubernetes ingress controller
 	LabelServiceExposeTLSSecret = "kompose.service.expose.tls-secret"
 	// LabelServiceAccountName defines the service account name to provide the credential info of the pod.
-	LabelServiceAccountName = "kompose.service.accountname"
+	LabelServiceAccountName = "kompose.serviceaccount-name"
 	// LabelControllerType defines the type of controller to be created
 	LabelControllerType = "kompose.controller.type"
 	// LabelImagePullSecret defines a secret name for kubernetes ImagePullSecrets

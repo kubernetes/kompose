@@ -244,7 +244,7 @@ services:
      - "6379"
 ```
 
-- `kompose.service.accountname` defines the service account name to provide the credential info of the pod.
+- `kompose.serviceaccount-name` defines the service account name to provide the credential info of the pod.
 
 For example:
 
@@ -254,7 +254,7 @@ services:
   app:
     image: python
     labels:
-      kompose.service.accountname: "my-service"
+      kompose.serviceaccount-name: "my-service"
 ```
 
 - `kompose.image-pull-secret` defines a kubernetes secret name for imagePullSecrets podspec field.
