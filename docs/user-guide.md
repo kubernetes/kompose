@@ -274,8 +274,7 @@ services:
       - db-data:/var/lib/postgresql/data
 ```
 
-- `kompose.volume.storage-class-name` defines the requests storage's size in the PersistentVolumeClaim, or you can use command line parameter `--pvc-request-size`.
-  The priority follow label (kompose.volume.size) > command parameter(--pvc-request-size) > defaultSize (100Mi)
+- `kompose.volume.storage-class-name` defines the requests storage's class name in the PersistentVolumeClaim.
 
 For example:
 

@@ -475,11 +475,6 @@ cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/compose-fil
 sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/image-pull-policy/provider-files/kubernetes-v3-image-pull-policy.json > /tmp/output-k8s.json
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
-# Test related to kompose.volume.storage-class-name label in docker compose file to ensure storageClassName are populated properly.
-# Kubernetes Test
-cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/storage-class-name/compose-files/v3-storage-class-name.yml convert --stdout -j"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/storage-class-name/provider-files/kubernetes-v3-storage-class-name.json > /tmp/output-k8s.json
-convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 # Test the change in the service name
 # Kubernetes Test

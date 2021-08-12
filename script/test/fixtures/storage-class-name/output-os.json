@@ -1,0 +1,175 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "nginx",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "80",
+            "port": 80,
+            "targetPort": 80
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "nginx"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "nginx",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate",
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "nginx"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "nginx:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "nginx"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "nginx"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "volume",
+                "persistentVolumeClaim": {
+                  "claimName": "volume"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "nginx",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 80
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "volume",
+                    "mountPath": "/tmp/volume"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {
+        "latestVersion": 0,
+        "observedGeneration": 0,
+        "replicas": 0,
+        "updatedReplicas": 0,
+        "availableReplicas": 0,
+        "unavailableReplicas": 0
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "nginx",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "nginx"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        },
+        "tags": [
+          {
+            "name": "",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "nginx"
+            },
+            "generation": null,
+            "importPolicy": {},
+            "referencePolicy": {
+              "type": ""
+            }
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "volume",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "volume"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        },
+        "storageClassName": "custom-storage-class-name"
+      },
+      "status": {}
+    }
+  ]
+}
