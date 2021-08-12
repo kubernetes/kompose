@@ -52,6 +52,7 @@ type ConvertOptions struct {
 	BuildBranch                 string
 	Build                       string
 	PushImage                   bool
+	PushImageRegistry           string
 	CreateChart                 bool
 	GenerateYaml                bool
 	GenerateJSON                bool

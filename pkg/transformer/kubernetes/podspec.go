@@ -340,6 +340,12 @@ func ReadinessProbe(service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
+func ServiceAccountName(serviceAccountName string) PodSpecOption {
+	return func(podSpec *PodSpec) {
+		podSpec.ServiceAccountName = serviceAccountName
+	}
+}
+
 func (podSpec *PodSpec) Append(ops ...PodSpecOption) *PodSpec {
 	for _, option := range ops {
 		option(podSpec)

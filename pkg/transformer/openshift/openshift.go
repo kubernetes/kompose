@@ -318,11 +318,9 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 
 			// Push the built container to the repo!
-			if opt.PushImage {
-				err = transformer.PushDockerImage(service, name)
-				if err != nil {
-					log.Fatalf("Unable to push Docker image for service %v: %v", name, err)
-				}
+			err = transformer.PushDockerImageWithOpt(service, name, opt)
+			if err != nil {
+				log.Fatalf("Unable to push Docker image for service %v: %v", name, err)
 			}
 		}
 
