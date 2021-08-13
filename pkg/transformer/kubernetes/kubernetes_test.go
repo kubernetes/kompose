@@ -64,7 +64,8 @@ func newServiceConfig() kobject.ServiceConfig {
 		Replicas:        2,
 		Volumes:         []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
 		GroupAdd:        []int64{1003, 1005},
-		Configs:         []dockerCliTypes.ServiceConfigObjConfig{{Source: "hello", Target: "/etc/world"}},
+		Configs:         []dockerCliTypes.ServiceConfigObjConfig{{Source: "config", Target: "/etc/world"}},
+		ConfigsMetaData: map[string]dockerCliTypes.ConfigObjConfig{"config": dockerCliTypes.ConfigObjConfig{Name: "myconfig", File: "kubernetes_test.go"}},
 	}
 }
 
@@ -166,7 +167,7 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 	if !equalStringSlice(config.Args, container.Args) {
 		return fmt.Errorf("Found different container args: %#v vs. %#v", config.Args, container.Args)
 	}
-	if len(template.Spec.Volumes) == 0 || len(template.Spec.Volumes[0].Name) == 0 || template.Spec.Volumes[0].VolumeSource.PersistentVolumeClaim == nil {
+	if len(template.Spec.Volumes) == 0 || len(template.Spec.Volumes[0].Name) == 0 || template.Spec.Volumes[0].VolumeSource.PersistentVolumeClaim == nil && template.Spec.Volumes[0].ConfigMap == nil {
 		return fmt.Errorf("Found incorrect volumes: %v vs. %#v", config.Volumes, template.Spec.Volumes)
 	}
 	// We only set controller labels here and k8s server will take care of other defaults, such as selectors
@@ -287,12 +288,12 @@ func TestKomposeConvert(t *testing.T) {
 		expectedNumObjs int
 	}{
 		// objects generated are deployment, service nework policies (2) and pvc
-		"Convert to Deployments (D)":                  {newKomposeObject(), kobject.ConvertOptions{CreateD: true, Replicas: replicas, IsReplicaSetFlag: true}, 5},
-		"Convert to Deployments (D) with v3 replicas": {newKomposeObject(), kobject.ConvertOptions{CreateD: true}, 5},
-		"Convert to DaemonSets (DS)":                  {newKomposeObject(), kobject.ConvertOptions{CreateDS: true}, 5},
+		"Convert to Deployments (D)":                  {newKomposeObject(), kobject.ConvertOptions{CreateD: true, Replicas: replicas, IsReplicaSetFlag: true}, 6},
+		"Convert to Deployments (D) with v3 replicas": {newKomposeObject(), kobject.ConvertOptions{CreateD: true}, 6},
+		"Convert to DaemonSets (DS)":                  {newKomposeObject(), kobject.ConvertOptions{CreateDS: true}, 6},
 		// objects generated are deployment, daemonset, ReplicationController, service and pvc
-		"Convert to D, DS, and RC":                  {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true, Replicas: replicas, IsReplicaSetFlag: true}, 6},
-		"Convert to D, DS, and RC with v3 replicas": {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true}, 6},
+		"Convert to D, DS, and RC":                  {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true, Replicas: replicas, IsReplicaSetFlag: true}, 7},
+		"Convert to D, DS, and RC with v3 replicas": {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true}, 7},
 		// TODO: add more tests
 	}
 
@@ -584,21 +585,21 @@ func TestMultipleContainersInPod(t *testing.T) {
 					"app1": createConfig("app1", &containerName),
 					"app2": createConfig("app2", &containerName),
 				},
-			}, kobject.ConvertOptions{MultipleContainerMode: true}, 2, []string{"app1", "app2"}},
+			}, kobject.ConvertOptions{MultipleContainerMode: true}, 3, []string{"app1", "app2"}},
 		"Converted multiple containers to Deployments (D)": {
 			kobject.KomposeObject{
 				ServiceConfigs: map[string]kobject.ServiceConfig{
 					"app1": createConfig("app1", &containerName),
 					"app2": createConfig("app2", &containerName),
 				},
-			}, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true}, 3, []string{"app1", "app2"}},
+			}, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true}, 4, []string{"app1", "app2"}},
 		"Converted multiple containers (ContainerName are nil) to Deployments (D)": {
 			kobject.KomposeObject{
 				ServiceConfigs: map[string]kobject.ServiceConfig{
 					"app1": createConfig("app1", nil),
 					"app2": createConfig("app2", nil),
 				},
-			}, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true}, 3, []string{"name", "name"}},
+			}, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true}, 4, []string{"name", "name"}},
 		// TODO: add more tests
 	}
 
