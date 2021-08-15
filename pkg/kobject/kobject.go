@@ -201,7 +201,6 @@ type Volumes struct {
 	PVCName          string // name of PVC
 	PVCSize          string // PVC size
 	SelectorValue    string // Value of the label selector
-	StorageClassName string // storage class name
 }
 
 // GetConfigMapKeyFromMeta ...

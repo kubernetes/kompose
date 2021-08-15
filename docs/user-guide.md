@@ -293,10 +293,13 @@ For example:
 
 ```yaml
 version: '3'
-volumes:
-  volume:
+services:
+  db:
+    image: postgres:10.1
     labels:
       kompose.volume.storage-class-name: custom-storage-class-name
+    volumes:
+      - db-data:/var/lib/postgresql/data
 ```
 
 - `kompose.controller.type` defines which controller type should convert for this service

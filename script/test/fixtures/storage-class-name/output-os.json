@@ -11,6 +11,9 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "nginx"
+        },
+        "annotations": {
+          "kompose.volume.storage-class-name": "custom-storage-class-name"
         }
       },
       "spec": {
@@ -37,6 +40,9 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "nginx"
+        },
+        "annotations": {
+          "kompose.volume.storage-class-name": "custom-storage-class-name"
         }
       },
       "spec": {
@@ -77,9 +83,9 @@
           "spec": {
             "volumes": [
               {
-                "name": "volume",
+                "name": "nginx-claim0",
                 "persistentVolumeClaim": {
-                  "claimName": "volume"
+                  "claimName": "nginx-claim0"
                 }
               }
             ],
@@ -95,8 +101,8 @@
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "name": "volume",
-                    "mountPath": "/tmp/volume"
+                    "name": "nginx-claim0",
+                    "mountPath": "/etc/nginx/nginx.conf"
                   }
                 ]
               }
@@ -152,10 +158,10 @@
       "kind": "PersistentVolumeClaim",
       "apiVersion": "v1",
       "metadata": {
-        "name": "volume",
+        "name": "nginx-claim0",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "volume"
+          "io.kompose.service": "nginx-claim0"
         }
       },
       "spec": {

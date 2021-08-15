@@ -519,7 +519,6 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 					api.ResourceStorage: volSize,
 				},
 			},
-			StorageClassName: &storageClassName,
 		},
 	}
 
@@ -534,6 +533,11 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 	} else {
 		pvc.Spec.AccessModes = []api.PersistentVolumeAccessMode{api.ReadWriteOnce}
 	}
+
+	if len(storageClassName)>0 {
+		pvc.Spec.StorageClassName=&storageClassName
+	}
+
 	return pvc, nil
 }
 
@@ -845,6 +849,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		} else {
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
 			if volume.VFrom == "" {
+				var storageClassName string
 				defaultSize := PVCRequestSize
 				if k.Opt.PVCRequestSize != "" {
 					defaultSize = k.Opt.PVCRequestSize
@@ -855,11 +860,14 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 					for key, value := range service.Labels {
 						if key == "kompose.volume.size" {
 							defaultSize = value
+						} else if key == "kompose.volume.storage-class-name" {
+							storageClassName=value
 						}
 					}
 				}
 
-				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue, volume.StorageClassName)
+
+				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue, storageClassName)
 
 				if err != nil {
 					return nil, nil, nil, nil, errors.Wrap(err, "k.CreatePVC failed")
