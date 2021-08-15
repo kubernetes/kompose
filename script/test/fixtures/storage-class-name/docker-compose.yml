@@ -1,0 +1,10 @@
+version: "3"
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    labels:
+      kompose.volume.storage-class-name: custom-storage-class-name
+    volumes:
+      - /etc/nginx/nginx.conf

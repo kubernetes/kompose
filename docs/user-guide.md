@@ -163,6 +163,7 @@ The currently supported options are:
 | kompose.service.nodeport.port | port value (string) | 
 | kompose.service.expose.tls-secret | secret name |
 | kompose.volume.size | kubernetes supported volume size |
+| kompose.volume.storage-class-name | kubernetes supported volume storageClassName |
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
 | kompose.image-pull-policy | kubernetes pods imagePullPolicy |
 | kompose.image-pull-secret | kubernetes secret name for imagePullSecrets |
@@ -282,6 +283,21 @@ services:
     image: postgres:10.1
     labels:
       kompose.volume.size: 1Gi
+    volumes:
+      - db-data:/var/lib/postgresql/data
+```
+
+- `kompose.volume.storage-class-name` defines the requests storage's class name in the PersistentVolumeClaim.
+
+For example:
+
+```yaml
+version: '3'
+services:
+  db:
+    image: postgres:10.1
+    labels:
+      kompose.volume.storage-class-name: custom-storage-class-name
     volumes:
       - db-data:/var/lib/postgresql/data
 ```

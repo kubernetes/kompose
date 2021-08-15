@@ -102,3 +102,7 @@ convert::check_artifacts_generated "kompose --build local -f $relative_path conv
 # Should warn when push image disabled
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/docker-compose-build-no-image.yml -o $TEMP_DIR/output_file convert --build=local --push-image-registry=whatever"
 convert::expect_warning "$cmd" "Push image registry 'whatever' is specified but push image is disabled, skipping pushing to repository"
+
+#TEST the kompose.volume.storage-class-name label
+convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/storage-class-name/docker-compose.yml convert -o $TEMP_DIR/output-k8s.json -j" "$TEMP_DIR/output-k8s.json"
+convert::check_artifacts_generated "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/storage-class-name/docker-compose.yml convert -o $TEMP_DIR/output-os.json -j" "$TEMP_DIR/output-os.json"
