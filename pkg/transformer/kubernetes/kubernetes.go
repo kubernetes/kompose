@@ -534,8 +534,8 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 		pvc.Spec.AccessModes = []api.PersistentVolumeAccessMode{api.ReadWriteOnce}
 	}
 
-	if len(storageClassName)>0 {
-		pvc.Spec.StorageClassName=&storageClassName
+	if len(storageClassName) > 0 {
+		pvc.Spec.StorageClassName = &storageClassName
 	}
 
 	return pvc, nil
@@ -861,11 +861,10 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 						if key == "kompose.volume.size" {
 							defaultSize = value
 						} else if key == "kompose.volume.storage-class-name" {
-							storageClassName=value
+							storageClassName = value
 						}
 					}
 				}
-
 
 				createdPVC, err := k.CreatePVC(volumeName, volume.Mode, defaultSize, volume.SelectorValue, storageClassName)
 
