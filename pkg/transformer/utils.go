@@ -64,6 +64,13 @@ func CreateOutFile(out string) (*os.File, error) {
 
 // ParseVolume parses a given volume, which might be [name:][host:]container[:access_mode]
 func ParseVolume(volume string) (name, host, container, mode string, err error) {
+	if containWindowsPath(volume) {
+		return parseWindowsVolume(volume)
+	}
+	return parseVolume(volume)
+}
+
+func parseVolume(volume string) (name, host, container, mode string, err error) {
 	separator := ":"
 
 	// Parse based on ":"
@@ -110,6 +117,88 @@ func ParseVolume(volume string) (name, host, container, mode string, err error) 
 		return
 	}
 	return
+}
+
+// parseVolume parses window volume.
+// example: windows host mount to windows container
+// volume = dataVolumeName:C:\Users\Data:D:\config:rw
+// it can be parsed:
+// name=dataVolumeName, host=C:\Users\Data, container=D:\config, mode=rw
+// example: windows host mount to linux container
+// volume = dataVolumeName:C:\Users\Data:/etc/config:rw
+// it can be parsed:
+// name=dataVolumeName, host=C:\Users\Data, container=/etc/config, mode=rw
+func parseWindowsVolume(volume string) (name, host, container, mode string, err error) {
+	var (
+		buffer, volumePaths []string
+		volumeStrings       = strings.Split(volume, ":")
+	)
+
+	// extract path and leave order
+	for _, fragment := range volumeStrings {
+		switch {
+		case containWindowsPath(fragment):
+			if len(buffer) == 0 {
+				err = fmt.Errorf("invalid windows volume %s", volume)
+				return
+			}
+
+			driveLetter := buffer[len(buffer)-1]
+			if len(driveLetter) != 1 {
+				err = fmt.Errorf("invalid windows volume %s", volume)
+				return
+			}
+			volumePaths = append(volumePaths, driveLetter+":"+fragment)
+			buffer = buffer[:len(buffer)-1]
+
+		case isPath(fragment):
+			volumePaths = append(volumePaths, fragment)
+		default:
+			buffer = append(buffer, fragment)
+		}
+	}
+
+	// set name and mode if exist
+	if len(buffer) == 1 {
+		if volumeStrings[0] == buffer[0] {
+			name = buffer[0]
+		} else if volumeStrings[len(volumeStrings)-1] == buffer[0] {
+			mode = buffer[0]
+		}
+	} else if len(buffer) == 2 {
+		name = buffer[0]
+		mode = buffer[1]
+	} else if len(buffer) > 2 {
+		err = fmt.Errorf("invalid windows volume %s", volume)
+		return
+	}
+
+	// Support in pass time
+	// Check to see if :Z or :z exists. We do not support SELinux relabeling at the moment.
+	// See https://github.com/kubernetes/kompose/issues/176
+	// Otherwise, check to see if "rw" or "ro" has been passed
+	if mode == "z" || mode == "Z" {
+		log.Warnf("Volume mount \"%s\" will be mounted without labeling support. :z or :Z not supported", volume)
+		mode = ""
+	}
+
+	// Set host and container if exist
+	if len(volumePaths) == 1 {
+		container = volumePaths[0]
+	} else if len(volumePaths) == 2 {
+		host = volumePaths[0]
+		container = volumePaths[1]
+	} else {
+		err = fmt.Errorf("invalid windows volume %s", volume)
+		return
+	}
+	return
+}
+
+// containWindowsPath check whether it contains windows path.
+// windows path's separator is "\"
+func containWindowsPath(substring string) bool {
+	return strings.Contains(substring, "\\")
 }
 
 // ParseIngressPath parse path for ingress.
