@@ -45,10 +45,10 @@ func TestZParseVolumeLabeling(t *testing.T) {
 
 	_, _, _, mode, err = ParseVolume(windowVolumeTestCase)
 	if err != nil {
-		t.Errorf("In test case %q, returned unexpected error %v", testCase, err)
+		t.Errorf("In test case %q, returned unexpected error %v", windowVolumeTestCase, err)
 	}
 	if mode != "" {
-		t.Errorf("In test case %q, returned mode %s, expected \"\"", testCase, mode)
+		t.Errorf("In test case %q, returned mode %s, expected \"\"", windowVolumeTestCase, mode)
 	}
 }
 

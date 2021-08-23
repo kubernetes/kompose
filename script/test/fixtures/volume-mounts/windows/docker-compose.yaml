@@ -1,0 +1,8 @@
+version: '3.4'
+services:
+  db:
+    image: nginx:latest
+    ports:
+      - "80"
+    volumes:
+      - C:\Users\data_sux:D:\config:rw
