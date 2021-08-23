@@ -19,10 +19,11 @@ package kubernetes
 import (
 	"encoding/json"
 	"fmt"
-	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 	"reflect"
 	"strings"
 	"testing"
+
+	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
