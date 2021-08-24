@@ -106,3 +106,12 @@ convert::expect_warning "$cmd" "Push image registry 'whatever' is specified but 
 #TEST the kompose.volume.storage-class-name label
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/storage-class-name/docker-compose.yml convert -o $TEMP_DIR/output-k8s.json -j" "$TEMP_DIR/output-k8s.json"
 convert::check_artifacts_generated "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/storage-class-name/docker-compose.yml convert -o $TEMP_DIR/output-os.json -j" "$TEMP_DIR/output-os.json"
+
+# TEST the windows volume
+# windows host path to windows container
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/docker-compose.yaml convert --stdout -j --with-kompose-annotation=false"
+os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/docker-compose.yaml convert --stdout -j --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/output-k8s.json"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/output-os.json"
+convert::expect_success "$k8s_cmd" "$k8s_output"
+convert::expect_success "$os_cmd" "$os_output"

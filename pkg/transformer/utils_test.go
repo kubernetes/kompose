@@ -34,12 +34,211 @@ func TestFormatProviderName(t *testing.T) {
 // When passing "z" or "Z" we expect "" back.
 func TestZParseVolumeLabeling(t *testing.T) {
 	testCase := "/foobar:/foobar:Z"
+	windowVolumeTestCase := "C:\\foobar:/foobar:Z"
 	_, _, _, mode, err := ParseVolume(testCase)
 	if err != nil {
 		t.Errorf("In test case %q, returned unexpected error %v", testCase, err)
 	}
 	if mode != "" {
 		t.Errorf("In test case %q, returned mode %s, expected \"\"", testCase, mode)
+	}
+
+	_, _, _, mode, err = ParseVolume(windowVolumeTestCase)
+	if err != nil {
+		t.Errorf("In test case %q, returned unexpected error %v", windowVolumeTestCase, err)
+	}
+	if mode != "" {
+		t.Errorf("In test case %q, returned mode %s, expected \"\"", windowVolumeTestCase, mode)
+	}
+}
+
+func TestParseWindowsVolumeMountLinuxContainer(t *testing.T) {
+	name := "datavolume"
+	windowsHosts := "C:\\Users"
+	linuxContainer := "/etc/configs/"
+	mode := "rw"
+
+	tests := []struct {
+		test, volume, name, host, container, mode string
+	}{
+		{
+			"name:host:container:mode",
+			fmt.Sprintf("%s:%s:%s:%s", name, windowsHosts, linuxContainer, mode),
+			name,
+			windowsHosts,
+			linuxContainer,
+			mode,
+		},
+		{
+			"host:container:mode",
+			fmt.Sprintf("%s:%s:%s", windowsHosts, linuxContainer, mode),
+			"",
+			windowsHosts,
+			linuxContainer,
+			mode,
+		},
+		{
+			"name:container:mode",
+			fmt.Sprintf("%s:%s:%s", name, linuxContainer, mode),
+			name,
+			"",
+			linuxContainer,
+			mode,
+		},
+		{
+			"name:host:container",
+			fmt.Sprintf("%s:%s:%s", name, windowsHosts, linuxContainer),
+			name,
+			windowsHosts,
+			linuxContainer,
+			"",
+		},
+		{
+			"host:container",
+			fmt.Sprintf("%s:%s", windowsHosts, linuxContainer),
+			"",
+			windowsHosts,
+			linuxContainer,
+			"",
+		},
+		{
+			"container:mode",
+			fmt.Sprintf("%s:%s", linuxContainer, mode),
+			"",
+			"",
+			linuxContainer,
+			mode,
+		},
+		{
+			"name:container",
+			fmt.Sprintf("%s:%s", name, linuxContainer),
+			name,
+			"",
+			linuxContainer,
+			"",
+		},
+		{
+			"container",
+			fmt.Sprintf("%s", linuxContainer),
+			"",
+			"",
+			linuxContainer,
+			"",
+		},
+	}
+
+	for _, test := range tests {
+		name, host, container, mode, err := ParseVolume(test.volume)
+		if err != nil {
+			t.Errorf("In test case %q, returned unexpected error %v", test.test, err)
+		}
+		if name != test.name {
+			t.Errorf("In test case %q, returned volume name %s, expected %s", test.test, name, test.name)
+		}
+		if host != test.host {
+			t.Errorf("In test case %q, returned host path %s, expected %s", test.test, host, test.host)
+		}
+		if container != test.container {
+			t.Errorf("In test case %q, returned container path %s, expected %s", test.test, container, test.container)
+		}
+		if mode != test.mode {
+			t.Errorf("In test case %q, returned access mode %s, expected %s", test.test, mode, test.mode)
+		}
+	}
+}
+
+func TestParseWindowsVolumeMountWindowsContainer(t *testing.T) {
+	name := "datavolume"
+	windowsHosts := "C:\\Users"
+	windowsContainer := "D:\\Users"
+	mode := "rw"
+
+	tests := []struct {
+		test, volume, name, host, container, mode string
+	}{
+		{
+			"name:host:container:mode",
+			fmt.Sprintf("%s:%s:%s:%s", name, windowsHosts, windowsContainer, mode),
+			name,
+			windowsHosts,
+			windowsContainer,
+			mode,
+		},
+		{
+			"host:container:mode",
+			fmt.Sprintf("%s:%s:%s", windowsHosts, windowsContainer, mode),
+			"",
+			windowsHosts,
+			windowsContainer,
+			mode,
+		},
+		{
+			"name:container:mode",
+			fmt.Sprintf("%s:%s:%s", name, windowsContainer, mode),
+			name,
+			"",
+			windowsContainer,
+			mode,
+		},
+		{
+			"name:host:container",
+			fmt.Sprintf("%s:%s:%s", name, windowsHosts, windowsContainer),
+			name,
+			windowsHosts,
+			windowsContainer,
+			"",
+		},
+		{
+			"host:container",
+			fmt.Sprintf("%s:%s", windowsHosts, windowsContainer),
+			"",
+			windowsHosts,
+			windowsContainer,
+			"",
+		},
+		{
+			"container:mode",
+			fmt.Sprintf("%s:%s", windowsContainer, mode),
+			"",
+			"",
+			windowsContainer,
+			mode,
+		},
+		{
+			"name:container",
+			fmt.Sprintf("%s:%s", name, windowsContainer),
+			name,
+			"",
+			windowsContainer,
+			"",
+		},
+		{
+			"container",
+			fmt.Sprintf("%s", windowsContainer),
+			"",
+			"",
+			windowsContainer,
+			"",
+		},
+	}
+
+	for _, test := range tests {
+		name, host, container, mode, err := ParseVolume(test.volume)
+		if err != nil {
+			t.Errorf("In test case %q, returned unexpected error %v", test.test, err)
+		}
+		if name != test.name {
+			t.Errorf("In test case %q, returned volume name %s, expected %s", test.test, name, test.name)
+		}
+		if host != test.host {
+			t.Errorf("In test case %q, returned host path %s, expected %s", test.test, host, test.host)
+		}
+		if container != test.container {
+			t.Errorf("In test case %q, returned container path %s, expected %s", test.test, container, test.container)
+		}
+		if mode != test.mode {
+			t.Errorf("In test case %q, returned access mode %s, expected %s", test.test, mode, test.mode)
+		}
 	}
 }
 
