@@ -109,6 +109,9 @@ convert::check_artifacts_generated "kompose --provider=openshift -f $KOMPOSE_ROO
 
 # TEST the windows volume
 # windows host path to windows container
-k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/docker-compose.yml convert --stdout -j --with-kompose-annotation=false"
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/docker-compose.yaml convert --stdout -j --with-kompose-annotation=false"
+os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/docker-compose.yaml convert --stdout -j --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/output-k8s.json"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/output-os.json"
 convert::expect_success "$k8s_cmd" "$k8s_output"
+convert::expect_success "$os_cmd" "$os_output"
