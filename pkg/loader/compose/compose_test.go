@@ -502,9 +502,26 @@ func TestCheckPlacementCustomLabels(t *testing.T) {
 	}
 	output := loadV3Placement(placement.Constraints)
 
-	expected := map[string]string{"something": "anything"}
+	expected := []api.NodeSelectorRequirement{
+		{Key: "something", Operator: api.NodeSelectorOpIn, Values: []string{"anything"}},
+		{Key: "monitor", Operator: api.NodeSelectorOpNotIn, Values: []string{"xxx"}},
+	}
 
-	if output["something"] != expected["something"] {
-		t.Errorf("Expected %s, got %s", expected, output)
+	if len(output) != len(expected) {
+		t.Errorf("len is not equal, expected %d, got %d", len(expected), len(output))
+	}
+	for i := range output {
+		if output[i].Key != expected[i].Key {
+			t.Errorf("key is not equal, expected %s, got %s", expected[i].Key, output[i].Key)
+		}
+		if output[i].Operator != expected[i].Operator {
+			t.Errorf("operator is not equal, expected %s, got %s", expected[i].Operator, output[i].Operator)
+		}
+		if len(output[i].Values) != len(expected[i].Values) {
+			t.Errorf("values len is not equal, expected %d, got %d", len(expected[i].Values), len(output[i].Values) )
+		}
+		if len(output[i].Values) > 0 && output[i].Values[0] != expected[i].Values[0] {
+			t.Errorf("value is not equal, expected %s, got %s", expected[i].Values, output[i].Values)
+		}
 	}
 }

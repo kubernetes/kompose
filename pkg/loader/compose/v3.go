@@ -33,7 +33,7 @@ import (
 	"github.com/docker/cli/cli/compose/loader"
 	"github.com/docker/cli/cli/compose/types"
 
-	shlex "github.com/google/shlex"
+	"github.com/google/shlex"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -133,25 +133,40 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 	return komposeObject, nil
 }
 
-func loadV3Placement(constraints []string) map[string]string {
-	placement := make(map[string]string)
+func loadV3Placement(constraints []string) []api.NodeSelectorRequirement {
+	var placement []api.NodeSelectorRequirement
+	equal, notEqual := " == ", " != "
 	errMsg := " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
 	for _, j := range constraints {
-		p := strings.Split(j, " == ")
+		operator := equal
+		if strings.Contains(j, notEqual) {
+			operator = notEqual
+		}
+		p := strings.Split(j, operator)
 		if len(p) < 2 {
 			log.Warn(p[0], errMsg)
 			continue
 		}
+
+		r := api.NodeSelectorRequirement{}
 		if p[0] == "node.hostname" {
-			placement["kubernetes.io/hostname"] = p[1]
+			r.Key = "kubernetes.io/hostname"
 		} else if p[0] == "engine.labels.operatingsystem" {
-			placement["beta.kubernetes.io/os"] = p[1]
+			r.Key = "beta.kubernetes.io/os"
 		} else if strings.HasPrefix(p[0], "node.labels.") {
 			label := strings.TrimPrefix(p[0], "node.labels.")
-			placement[label] = p[1]
+			r.Key = label
 		} else {
 			log.Warn(p[0], errMsg)
+			continue
 		}
+		r.Values = []string{p[1]}
+		if operator == equal {
+			r.Operator = api.NodeSelectorOpIn
+		} else {
+			r.Operator = api.NodeSelectorOpNotIn
+		}
+		placement = append(placement, r)
 	}
 	return placement
 }

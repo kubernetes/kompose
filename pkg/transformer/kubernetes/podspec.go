@@ -48,7 +48,19 @@ func AddContainer(service kobject.ServiceConfig, opt kobject.ConvertOptions) Pod
 			Stdin:      service.Stdin,
 			TTY:        service.Tty,
 		})
-		podSpec.NodeSelector = service.Placement
+
+		podSpec.Affinity = &api.Affinity{
+			NodeAffinity: &api.NodeAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: &api.NodeSelector{
+					NodeSelectorTerms: []api.NodeSelectorTerm{
+						{
+							MatchExpressions: service.Placement,
+						},
+					},
+				},
+			},
+		}
+
 	}
 }
 
