@@ -137,16 +137,16 @@ type ServiceConfig struct {
 	MemReservation    yaml.MemStringorInt `compose:""`
 	DeployMode        string              `compose:""`
 	// DeployLabels mapping to kubernetes labels
-	DeployLabels       map[string]string                    `compose:""`
-	DeployUpdateConfig dockerCliTypes.UpdateConfig          `compose:""`
-	TmpFs              []string                             `compose:"tmpfs"`
-	Dockerfile         string                               `compose:"dockerfile"`
-	Replicas           int                                  `compose:"replicas"`
-	GroupAdd           []int64                              `compose:"group_add"`
-	Volumes            []Volumes                            `compose:""`
+	DeployLabels       map[string]string           `compose:""`
+	DeployUpdateConfig dockerCliTypes.UpdateConfig `compose:""`
+	TmpFs              []string                    `compose:"tmpfs"`
+	Dockerfile         string                      `compose:"dockerfile"`
+	Replicas           int                         `compose:"replicas"`
+	GroupAdd           []int64                     `compose:"group_add"`
+	Volumes            []Volumes                   `compose:""`
 	Secrets            []dockerCliTypes.ServiceSecretConfig
-	HealthChecks       HealthChecks                         `compose:""`
-	Placement          []corev1.NodeSelectorRequirement     `compose:""`
+	HealthChecks       HealthChecks `compose:""`
+	Placement          Placement    `compose:""`
 	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
 	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
@@ -201,6 +201,18 @@ type Volumes struct {
 	PVCName       string // name of PVC
 	PVCSize       string // PVC size
 	SelectorValue string // Value of the label selector
+}
+
+// Placement holds the placement struct of container
+type Placement struct {
+	Constraints []Constraint
+}
+
+// Constraint holds the constraint struct in the Placement of the container
+type Constraint struct {
+	Key      string
+	Operator corev1.NodeSelectorOperator
+	Value    string
 }
 
 // GetConfigMapKeyFromMeta ...

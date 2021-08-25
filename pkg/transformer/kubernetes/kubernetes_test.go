@@ -554,6 +554,49 @@ func TestConfigCapabilities(t *testing.T) {
 	}
 }
 
+func TestConfigAffinity(t *testing.T) {
+	testCases := map[string]struct {
+		service kobject.ServiceConfig
+		result  *api.Affinity
+	}{
+		"ConfigAffinity": {
+			service: kobject.ServiceConfig{
+				Placement: kobject.Placement{
+					Constraints: []kobject.Constraint{
+						{"foo", api.NodeSelectorOpIn, "bar"},
+						{"baz", api.NodeSelectorOpNotIn, "qux"}},
+				},
+			},
+			result: &api.Affinity{
+				NodeAffinity: &api.NodeAffinity{
+					RequiredDuringSchedulingIgnoredDuringExecution: &api.NodeSelector{
+						NodeSelectorTerms: []api.NodeSelectorTerm{
+							{
+								MatchExpressions: []api.NodeSelectorRequirement{
+									{"foo", api.NodeSelectorOpIn, []string{"bar"}},
+									{"baz", api.NodeSelectorOpNotIn, []string{"qux"}},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"ConfigAffinity (nil)": {
+			kobject.ServiceConfig{},
+			nil,
+		},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		result := ConfigAffinity(test.service)
+		if !reflect.DeepEqual(result, test.result) {
+			t.Errorf("Not expected result for ConfigAffinity")
+		}
+	}
+}
+
 func TestMultipleContainersInPod(t *testing.T) {
 	groupName := "pod_group"
 	containerName := ""

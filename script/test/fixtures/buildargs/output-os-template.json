@@ -145,7 +145,7 @@
         },
         "resources": {},
         "postCommit": {},
-        "nodeSelector": null
+        "affinity": null
       },
       "status": {
         "lastVersion": 0
@@ -297,7 +297,7 @@
         },
         "resources": {},
         "postCommit": {},
-        "nodeSelector": null
+        "affinity": null
       },
       "status": {
         "lastVersion": 0

@@ -500,28 +500,27 @@ func TestCheckPlacementCustomLabels(t *testing.T) {
 			"node.labels.monitor != xxx",
 		},
 	}
-	output := loadV3Placement(placement.Constraints)
+	output := loadV3Placement(placement)
 
-	expected := []api.NodeSelectorRequirement{
-		{Key: "something", Operator: api.NodeSelectorOpIn, Values: []string{"anything"}},
-		{Key: "monitor", Operator: api.NodeSelectorOpNotIn, Values: []string{"xxx"}},
+	expected := kobject.Placement{
+		Constraints: []kobject.Constraint{
+			{Key: "something", Operator: api.NodeSelectorOpIn, Value: "anything"},
+			{Key: "monitor", Operator: api.NodeSelectorOpNotIn, Value: "xxx"},
+		},
 	}
 
-	if len(output) != len(expected) {
-		t.Errorf("len is not equal, expected %d, got %d", len(expected), len(output))
+	if len(output.Constraints) != len(expected.Constraints) {
+		t.Errorf("len is not equal, expected %d, got %d", len(expected.Constraints), len(output.Constraints))
 	}
-	for i := range output {
-		if output[i].Key != expected[i].Key {
-			t.Errorf("key is not equal, expected %s, got %s", expected[i].Key, output[i].Key)
+	for i := range output.Constraints {
+		if output.Constraints[i].Key != expected.Constraints[i].Key {
+			t.Errorf("key is not equal, expected %s, got %s", expected.Constraints[i].Key, output.Constraints[i].Key)
 		}
-		if output[i].Operator != expected[i].Operator {
-			t.Errorf("operator is not equal, expected %s, got %s", expected[i].Operator, output[i].Operator)
+		if output.Constraints[i].Operator != expected.Constraints[i].Operator {
+			t.Errorf("operator is not equal, expected %s, got %s", expected.Constraints[i].Operator, output.Constraints[i].Operator)
 		}
-		if len(output[i].Values) != len(expected[i].Values) {
-			t.Errorf("values len is not equal, expected %d, got %d", len(expected[i].Values), len(output[i].Values) )
-		}
-		if len(output[i].Values) > 0 && output[i].Values[0] != expected[i].Values[0] {
-			t.Errorf("value is not equal, expected %s, got %s", expected[i].Values, output[i].Values)
+		if output.Constraints[i].Value != expected.Constraints[i].Value {
+			t.Errorf("value is not equal, expected %s, got %s", expected.Constraints[i].Value, output.Constraints[i].Value)
 		}
 	}
 }

@@ -133,11 +133,11 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 	return komposeObject, nil
 }
 
-func loadV3Placement(constraints []string) []api.NodeSelectorRequirement {
-	var placement []api.NodeSelectorRequirement
+func loadV3Placement(placement types.Placement) kobject.Placement {
+	komposePlacement := kobject.Placement{}
 	equal, notEqual := " == ", " != "
 	errMsg := " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
-	for _, j := range constraints {
+	for _, j := range placement.Constraints {
 		operator := equal
 		if strings.Contains(j, notEqual) {
 			operator = notEqual
@@ -148,27 +148,27 @@ func loadV3Placement(constraints []string) []api.NodeSelectorRequirement {
 			continue
 		}
 
-		r := api.NodeSelectorRequirement{}
+		constraint := kobject.Constraint{}
 		if p[0] == "node.hostname" {
-			r.Key = "kubernetes.io/hostname"
+			constraint.Key = "kubernetes.io/hostname"
 		} else if p[0] == "engine.labels.operatingsystem" {
-			r.Key = "beta.kubernetes.io/os"
+			constraint.Key = "beta.kubernetes.io/os"
 		} else if strings.HasPrefix(p[0], "node.labels.") {
 			label := strings.TrimPrefix(p[0], "node.labels.")
-			r.Key = label
+			constraint.Key = label
 		} else {
 			log.Warn(p[0], errMsg)
 			continue
 		}
-		r.Values = []string{p[1]}
+		constraint.Value = p[1]
 		if operator == equal {
-			r.Operator = api.NodeSelectorOpIn
+			constraint.Operator = api.NodeSelectorOpIn
 		} else {
-			r.Operator = api.NodeSelectorOpNotIn
+			constraint.Operator = api.NodeSelectorOpNotIn
 		}
-		placement = append(placement, r)
+		komposePlacement.Constraints = append(komposePlacement.Constraints, constraint)
 	}
-	return placement
+	return komposePlacement
 }
 
 // Convert the Docker Compose v3 volumes to []string (the old way)
@@ -449,7 +449,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		}
 
 		// placement:
-		serviceConfig.Placement = loadV3Placement(composeServiceConfig.Deploy.Placement.Constraints)
+		serviceConfig.Placement = loadV3Placement(composeServiceConfig.Deploy.Placement)
 
 		if composeServiceConfig.Deploy.UpdateConfig != nil {
 			serviceConfig.DeployUpdateConfig = *composeServiceConfig.Deploy.UpdateConfig

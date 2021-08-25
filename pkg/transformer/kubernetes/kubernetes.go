@@ -1020,6 +1020,37 @@ func ConfigEnvs(name string, service kobject.ServiceConfig, opt kobject.ConvertO
 	return envs, nil
 }
 
+// ConfigAffinity configures the Affinity.
+func ConfigAffinity(service kobject.ServiceConfig) *api.Affinity {
+	constraintsLen := len(service.Placement.Constraints)
+	if constraintsLen == 0 {
+		return nil
+	}
+	matches := make([]api.NodeSelectorRequirement, 0, constraintsLen)
+	for _, constraint := range service.Placement.Constraints {
+		r := api.NodeSelectorRequirement{
+			Key:      constraint.Key,
+			Operator: constraint.Operator,
+			Values:   []string{constraint.Value},
+		}
+		matches = append(matches, r)
+	}
+
+	affinity := &api.Affinity{
+		NodeAffinity: &api.NodeAffinity{
+			RequiredDuringSchedulingIgnoredDuringExecution: &api.NodeSelector{
+				NodeSelectorTerms: []api.NodeSelectorTerm{
+					{
+						MatchExpressions: matches,
+					},
+				},
+			},
+		},
+	}
+
+	return affinity
+}
+
 // CreateKubernetesObjects generates a Kubernetes artifact for each input type service
 func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
 	var objects []runtime.Object
