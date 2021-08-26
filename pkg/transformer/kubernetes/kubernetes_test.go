@@ -563,8 +563,8 @@ func TestConfigAffinity(t *testing.T) {
 			service: kobject.ServiceConfig{
 				Placement: kobject.Placement{
 					Constraints: []kobject.Constraint{
-						{"foo", api.NodeSelectorOpIn, "bar"},
-						{"baz", api.NodeSelectorOpNotIn, "qux"}},
+						{Key: "foo", Operator: api.NodeSelectorOpIn, Value: "bar"},
+						{Key: "baz", Operator: api.NodeSelectorOpNotIn, Value: "qux"}},
 				},
 			},
 			result: &api.Affinity{
@@ -573,8 +573,8 @@ func TestConfigAffinity(t *testing.T) {
 						NodeSelectorTerms: []api.NodeSelectorTerm{
 							{
 								MatchExpressions: []api.NodeSelectorRequirement{
-									{"foo", api.NodeSelectorOpIn, []string{"bar"}},
-									{"baz", api.NodeSelectorOpNotIn, []string{"qux"}},
+									{Key: "foo", Operator: api.NodeSelectorOpIn, Values: []string{"bar"}},
+									{Key: "baz", Operator: api.NodeSelectorOpNotIn, Values: []string{"qux"}},
 								},
 							},
 						},
