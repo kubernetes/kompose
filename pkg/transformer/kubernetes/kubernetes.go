@@ -1022,33 +1022,39 @@ func ConfigEnvs(name string, service kobject.ServiceConfig, opt kobject.ConvertO
 
 // ConfigAffinity configures the Affinity.
 func ConfigAffinity(service kobject.ServiceConfig) *api.Affinity {
-	constraintsLen := len(service.Placement.Constraints)
-	if constraintsLen == 0 {
+	positiveConstraints := configConstrains(service.Placement.PositiveConstraints, api.NodeSelectorOpIn)
+	negativeConstraints := configConstrains(service.Placement.NegativeConstraints, api.NodeSelectorOpNotIn)
+	if len(positiveConstraints) == 0 && len(negativeConstraints) == 0 {
 		return nil
 	}
-	matches := make([]api.NodeSelectorRequirement, 0, constraintsLen)
-	for _, constraint := range service.Placement.Constraints {
-		r := api.NodeSelectorRequirement{
-			Key:      constraint.Key,
-			Operator: constraint.Operator,
-			Values:   []string{constraint.Value},
-		}
-		matches = append(matches, r)
-	}
-
-	affinity := &api.Affinity{
+	return &api.Affinity{
 		NodeAffinity: &api.NodeAffinity{
 			RequiredDuringSchedulingIgnoredDuringExecution: &api.NodeSelector{
 				NodeSelectorTerms: []api.NodeSelectorTerm{
 					{
-						MatchExpressions: matches,
+						MatchExpressions: append(positiveConstraints, negativeConstraints...),
 					},
 				},
 			},
 		},
 	}
+}
 
-	return affinity
+func configConstrains(constrains map[string]string, operator api.NodeSelectorOperator) []api.NodeSelectorRequirement {
+	constraintsLen := len(constrains)
+	rs := make([]api.NodeSelectorRequirement, 0, constraintsLen)
+	if constraintsLen == 0 {
+		return rs
+	}
+	for k, v := range constrains {
+		r := api.NodeSelectorRequirement{
+			Key:      k,
+			Operator: operator,
+			Values:   []string{v},
+		}
+		rs = append(rs, r)
+	}
+	return rs
 }
 
 // CreateKubernetesObjects generates a Kubernetes artifact for each input type service

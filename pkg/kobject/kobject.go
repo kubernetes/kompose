@@ -205,14 +205,8 @@ type Volumes struct {
 
 // Placement holds the placement struct of container
 type Placement struct {
-	Constraints []Constraint
-}
-
-// Constraint holds the constraint struct in the Placement of the container
-type Constraint struct {
-	Key      string
-	Operator corev1.NodeSelectorOperator
-	Value    string
+	PositiveConstraints map[string]string
+	NegativeConstraints map[string]string
 }
 
 // GetConfigMapKeyFromMeta ...

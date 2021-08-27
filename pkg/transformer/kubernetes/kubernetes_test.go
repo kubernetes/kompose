@@ -562,9 +562,12 @@ func TestConfigAffinity(t *testing.T) {
 		"ConfigAffinity": {
 			service: kobject.ServiceConfig{
 				Placement: kobject.Placement{
-					Constraints: []kobject.Constraint{
-						{Key: "foo", Operator: api.NodeSelectorOpIn, Value: "bar"},
-						{Key: "baz", Operator: api.NodeSelectorOpNotIn, Value: "qux"}},
+					PositiveConstraints: map[string]string{
+						"foo": "bar",
+					},
+					NegativeConstraints: map[string]string{
+						"baz": "qux",
+					},
 				},
 			},
 			result: &api.Affinity{

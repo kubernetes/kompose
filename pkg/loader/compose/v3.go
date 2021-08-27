@@ -134,7 +134,10 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 }
 
 func loadV3Placement(placement types.Placement) kobject.Placement {
-	komposePlacement := kobject.Placement{}
+	komposePlacement := kobject.Placement{
+		PositiveConstraints: make(map[string]string),
+		NegativeConstraints: make(map[string]string),
+	}
 	equal, notEqual := " == ", " != "
 	errMsg := " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
 	for _, j := range placement.Constraints {
@@ -148,25 +151,23 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 			continue
 		}
 
-		constraint := kobject.Constraint{}
+		var key string
 		if p[0] == "node.hostname" {
-			constraint.Key = "kubernetes.io/hostname"
+			key = "kubernetes.io/hostname"
 		} else if p[0] == "engine.labels.operatingsystem" {
-			constraint.Key = "beta.kubernetes.io/os"
+			key = "beta.kubernetes.io/os"
 		} else if strings.HasPrefix(p[0], "node.labels.") {
-			label := strings.TrimPrefix(p[0], "node.labels.")
-			constraint.Key = label
+			key = strings.TrimPrefix(p[0], "node.labels.")
 		} else {
 			log.Warn(p[0], errMsg)
 			continue
 		}
-		constraint.Value = p[1]
+
 		if operator == equal {
-			constraint.Operator = api.NodeSelectorOpIn
-		} else {
-			constraint.Operator = api.NodeSelectorOpNotIn
+			komposePlacement.PositiveConstraints[key] = p[1]
+		} else if operator == notEqual {
+			komposePlacement.NegativeConstraints[key] = p[1]
 		}
-		komposePlacement.Constraints = append(komposePlacement.Constraints, constraint)
 	}
 	return komposePlacement
 }

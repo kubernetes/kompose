@@ -503,24 +503,26 @@ func TestCheckPlacementCustomLabels(t *testing.T) {
 	output := loadV3Placement(placement)
 
 	expected := kobject.Placement{
-		Constraints: []kobject.Constraint{
-			{Key: "something", Operator: api.NodeSelectorOpIn, Value: "anything"},
-			{Key: "monitor", Operator: api.NodeSelectorOpNotIn, Value: "xxx"},
+		PositiveConstraints: map[string]string{
+			"something": "anything",
+		},
+		NegativeConstraints: map[string]string{
+			"monitor": "xxx",
 		},
 	}
 
-	if len(output.Constraints) != len(expected.Constraints) {
-		t.Errorf("len is not equal, expected %d, got %d", len(expected.Constraints), len(output.Constraints))
+	checkConstraints(t, "positive", output.PositiveConstraints, expected.PositiveConstraints)
+	checkConstraints(t, "negative", output.NegativeConstraints, expected.NegativeConstraints)
+}
+
+func checkConstraints(t *testing.T, caseName string, output, expected map[string]string) {
+	t.Log("Test case:", caseName)
+	if len(output) != len(expected) {
+		t.Errorf("constraints len is not equal, expected %d, got %d", len(expected), len(output))
 	}
-	for i := range output.Constraints {
-		if output.Constraints[i].Key != expected.Constraints[i].Key {
-			t.Errorf("key is not equal, expected %s, got %s", expected.Constraints[i].Key, output.Constraints[i].Key)
-		}
-		if output.Constraints[i].Operator != expected.Constraints[i].Operator {
-			t.Errorf("operator is not equal, expected %s, got %s", expected.Constraints[i].Operator, output.Constraints[i].Operator)
-		}
-		if output.Constraints[i].Value != expected.Constraints[i].Value {
-			t.Errorf("value is not equal, expected %s, got %s", expected.Constraints[i].Value, output.Constraints[i].Value)
+	for key := range output {
+		if output[key] != expected[key] {
+			t.Errorf("%s constraint is not equal, expected %s, got %s", key, expected[key], output[key])
 		}
 	}
 }

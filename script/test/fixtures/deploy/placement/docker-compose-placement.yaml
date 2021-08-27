@@ -1,0 +1,13 @@
+version: "3"
+services:
+  redis:
+    image: redis
+    ports:
+      - "6379"
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == machine
+          - engine.labels.operatingsystem == ubuntu 14.04
+          - node.labels.foo != bar
+          - baz != qux
