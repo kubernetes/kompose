@@ -500,11 +500,29 @@ func TestCheckPlacementCustomLabels(t *testing.T) {
 			"node.labels.monitor != xxx",
 		},
 	}
-	output := loadV3Placement(placement.Constraints)
+	output := loadV3Placement(placement)
 
-	expected := map[string]string{"something": "anything"}
+	expected := kobject.Placement{
+		PositiveConstraints: map[string]string{
+			"something": "anything",
+		},
+		NegativeConstraints: map[string]string{
+			"monitor": "xxx",
+		},
+	}
 
-	if output["something"] != expected["something"] {
-		t.Errorf("Expected %s, got %s", expected, output)
+	checkConstraints(t, "positive", output.PositiveConstraints, expected.PositiveConstraints)
+	checkConstraints(t, "negative", output.NegativeConstraints, expected.NegativeConstraints)
+}
+
+func checkConstraints(t *testing.T, caseName string, output, expected map[string]string) {
+	t.Log("Test case:", caseName)
+	if len(output) != len(expected) {
+		t.Errorf("constraints len is not equal, expected %d, got %d", len(expected), len(output))
+	}
+	for key := range output {
+		if output[key] != expected[key] {
+			t.Errorf("%s constraint is not equal, expected %s, got %s", key, expected[key], output[key])
+		}
 	}
 }

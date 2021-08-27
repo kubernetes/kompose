@@ -92,9 +92,32 @@
               }
             ],
             "restartPolicy": "Always",
-            "nodeSelector": {
-              "beta.kubernetes.io/os": "ubuntu 14.04",
-              "kubernetes.io/hostname": "machine"
+            "affinity": {
+              "nodeAffinity": {
+                "requiredDuringSchedulingIgnoredDuringExecution": {
+                  "nodeSelectorTerms": [
+                    {
+                      "matchExpressions": [
+                        {
+                          "key": "kubernetes.io/hostname",
+                          "operator": "In",
+                          "values": ["machine"]
+                        },
+                        {
+                          "key": "beta.kubernetes.io/os",
+                          "operator": "In",
+                          "values": ["ubuntu 14.04"]
+                        },
+                        {
+                          "key": "foo",
+                          "operator": "NotIn",
+                          "values": ["bar"]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
             }
           }
         }
@@ -334,8 +357,22 @@
               }
             ],
             "restartPolicy": "Always",
-            "nodeSelector": {
-              "kubernetes.io/hostname": "machine"
+            "affinity": {
+              "nodeAffinity": {
+                "requiredDuringSchedulingIgnoredDuringExecution": {
+                  "nodeSelectorTerms": [
+                    {
+                      "matchExpressions": [
+                        {
+                          "key": "kubernetes.io/hostname",
+                          "operator": "In",
+                          "values": ["machine"]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
             }
           }
         }

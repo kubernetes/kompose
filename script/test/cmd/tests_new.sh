@@ -115,3 +115,12 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/output-k8s.
 os_output="$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/output-os.json"
 convert::expect_success "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
+
+# TEST the placement
+# should convert placement to affinity
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/deploy/placement/docker-compose-placement.yaml convert --stdout -j --with-kompose-annotation=false"
+os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/deploy/placement/docker-compose-placement.yaml convert --stdout -j --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/deploy/placement/output-placement-k8s.json"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/deploy/placement/output-placement-os.json"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
+convert::expect_success_and_warning "$os_cmd" "$os_output"

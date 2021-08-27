@@ -19,6 +19,7 @@ services:
         constraints:
           - node.hostname == machine
           - engine.labels.operatingsystem == ubuntu 14.04
+          - node.labels.foo != bar
   foo: # test labels
     labels:
       kompose.service.type: headless

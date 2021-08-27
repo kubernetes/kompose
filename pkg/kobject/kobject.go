@@ -145,8 +145,8 @@ type ServiceConfig struct {
 	GroupAdd           []int64                     `compose:"group_add"`
 	Volumes            []Volumes                   `compose:""`
 	Secrets            []dockerCliTypes.ServiceSecretConfig
-	HealthChecks       HealthChecks      `compose:""`
-	Placement          map[string]string `compose:""`
+	HealthChecks       HealthChecks `compose:""`
+	Placement          Placement    `compose:""`
 	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
 	Configs []dockerCliTypes.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
@@ -201,6 +201,12 @@ type Volumes struct {
 	PVCName       string // name of PVC
 	PVCSize       string // PVC size
 	SelectorValue string // Value of the label selector
+}
+
+// Placement holds the placement struct of container
+type Placement struct {
+	PositiveConstraints map[string]string
+	NegativeConstraints map[string]string
 }
 
 // GetConfigMapKeyFromMeta ...
