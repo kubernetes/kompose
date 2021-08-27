@@ -324,7 +324,6 @@ func initConfigMapData(configMap *api.ConfigMap, data map[string]string) {
 
 	configMap.Data = stringData
 	configMap.BinaryData = binData
-
 }
 
 //InitConfigMapFromFile initializes a ConfigMap object
