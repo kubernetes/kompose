@@ -117,3 +117,7 @@ test-container:
 .PHONY: test-k8s
 test-k8s:
 	./script/test_k8s/test.sh
+
+.PHONY: golangci-lint
+golangci-lint:
+	golangci-lint run -c .golangci.yml
