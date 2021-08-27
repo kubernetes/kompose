@@ -132,4 +132,4 @@ os_cmd="kompose  --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/conf
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-k8s.json"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-os.json"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
-convert::expect_success_and_warning "$os_cmd" "$os_output"
+convert::expect_success "$os_cmd" "$os_output"
