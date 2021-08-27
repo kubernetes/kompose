@@ -5,3 +5,7 @@ services:
     volumes:
       - ./tls:/etc/tls
       - ./tls/a.key:/etc/test-a-key.key
+  db:
+    image: mysql
+    volumes:
+      - ./configs.tar:/data/configs.tar
