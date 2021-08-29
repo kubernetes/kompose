@@ -4,8 +4,8 @@
   "metadata": {},
   "items": [
     {
-      "kind": "Deployment",
-      "apiVersion": "apps/v1",
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
       "metadata": {
         "name": "db",
         "creationTimestamp": null,
@@ -14,11 +14,32 @@
         }
       },
       "spec": {
-        "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "io.kompose.service": "db"
+        "strategy": {
+          "type": "Recreate",
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "db"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "db:latest"
+              }
+            }
           }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "db"
         },
         "template": {
           "metadata": {
@@ -45,7 +66,7 @@
             "containers": [
               {
                 "name": "db",
-                "image": "mysql",
+                "image": " ",
                 "resources": {},
                 "volumeMounts": [
                   {
@@ -58,12 +79,50 @@
             ],
             "restartPolicy": "Always"
           }
-        },
-        "strategy": {
-          "type": "Recreate"
         }
       },
-      "status": {}
+      "status": {
+        "latestVersion": 0,
+        "observedGeneration": 0,
+        "replicas": 0,
+        "updatedReplicas": 0,
+        "availableReplicas": 0,
+        "unavailableReplicas": 0
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "db",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        },
+        "tags": [
+          {
+            "name": "",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "mysql"
+            },
+            "generation": null,
+            "importPolicy": {},
+            "referencePolicy": {
+              "type": ""
+            }
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
     },
     {
       "kind": "ConfigMap",
@@ -83,8 +142,8 @@
       }
     },
     {
-      "kind": "Deployment",
-      "apiVersion": "apps/v1",
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
       "metadata": {
         "name": "web",
         "creationTimestamp": null,
@@ -93,11 +152,32 @@
         }
       },
       "spec": {
-        "replicas": 1,
-        "selector": {
-          "matchLabels": {
-            "io.kompose.service": "web"
+        "strategy": {
+          "type": "Recreate",
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "web"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "web:latest"
+              }
+            }
           }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "web"
         },
         "template": {
           "metadata": {
@@ -130,7 +210,7 @@
             "containers": [
               {
                 "name": "web",
-                "image": "nginx",
+                "image": " ",
                 "resources": {},
                 "volumeMounts": [
                   {
@@ -147,12 +227,50 @@
             ],
             "restartPolicy": "Always"
           }
-        },
-        "strategy": {
-          "type": "Recreate"
         }
       },
-      "status": {}
+      "status": {
+        "latestVersion": 0,
+        "observedGeneration": 0,
+        "replicas": 0,
+        "updatedReplicas": 0,
+        "availableReplicas": 0,
+        "unavailableReplicas": 0
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        },
+        "tags": [
+          {
+            "name": "",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "nginx"
+            },
+            "generation": null,
+            "importPolicy": {},
+            "referencePolicy": {
+              "type": ""
+            }
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
     },
     {
       "kind": "ConfigMap",

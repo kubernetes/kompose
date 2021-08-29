@@ -527,7 +527,7 @@ sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/f
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 cmd="kompose --provider openshift -f $KOMPOSE_ROOT/script/test/fixtures/service-label/docker-compose.yaml convert --stdout -j"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/service-label/output-oc.json > /tmp/output-oc.json
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g"  $KOMPOSE_ROOT/script/test/fixtures/service-label/output-os.json > /tmp/output-os.json
 convert::expect_success "$cmd" "/tmp/output-oc.json"
 
 ######
@@ -645,7 +645,7 @@ sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/f
 convert::expect_success "$cmd" "/tmp/output-k8s.json"
 
 cmd="kompose convert --stdout --provider=openshift -j --volumes=configMap -f $KOMPOSE_ROOT/script/test/fixtures/configmap-volume/docker-compose.yml"
-sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-oc.json" >  /tmp/output-oc.json
+sed -e "s;%VERSION%;$version;g" -e "s;%CMD%;$cmd;g" "$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-oc.json" >  /tmp/output-os.json
 convert::expect_success "$cmd" "/tmp/output-oc.json"
 
 

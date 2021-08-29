@@ -17,6 +17,7 @@ limitations under the License.
 package kubernetes
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -27,6 +28,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/godoc/util"
 
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -280,7 +283,7 @@ func (k *Kubernetes) IntiConfigMapFromFileOrDir(name, cmName, filePath string, s
 				dataMap[file.Name()] = data
 			}
 		}
-		configMap.Data = dataMap
+		initConfigMapData(configMap, dataMap)
 
 	case mode.IsRegular():
 		// do file stuff
@@ -306,15 +309,29 @@ func useSubPathMount(cm *api.ConfigMap) bool {
 	return true
 }
 
+func initConfigMapData(configMap *api.ConfigMap, data map[string]string) {
+	stringData := map[string]string{}
+	binData := map[string][]byte{}
+
+	for k, v := range data {
+		isText := util.IsText([]byte(v))
+		if isText {
+			stringData[k] = v
+		} else {
+			binData[k] = []byte(base64.StdEncoding.EncodeToString([]byte(v)))
+		}
+	}
+
+	configMap.Data = stringData
+	configMap.BinaryData = binData
+}
+
 //InitConfigMapFromFile initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceConfig, fileName string) *api.ConfigMap {
 	content, err := GetContentFromFile(fileName)
 	if err != nil {
 		log.Fatalf("Unable to retrieve file: %s", err)
 	}
-
-	dataMap := make(map[string]string)
-	dataMap[filepath.Base(fileName)] = content
 
 	configMapName := ""
 	for key, tmpConfig := range service.ConfigsMetaData {
@@ -331,8 +348,10 @@ func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceC
 			Name:   FormatFileName(configMapName),
 			Labels: transformer.ConfigLabels(name),
 		},
-		Data: dataMap,
 	}
+
+	data := map[string]string{filepath.Base(fileName): content}
+	initConfigMapData(configMap, data)
 	return configMap
 }
 
@@ -923,6 +942,9 @@ func (k *Kubernetes) ConfigConfigMapVolumeSource(cmName string, targetPath strin
 	if useSubPathMount(cm) {
 		var keys []string
 		for k := range cm.Data {
+			keys = append(keys, k)
+		}
+		for k := range cm.BinaryData {
 			keys = append(keys, k)
 		}
 		key := keys[0]
