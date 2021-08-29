@@ -156,20 +156,15 @@ func loadEnvVars(service Service) ([]kobject.EnvVar, error) {
 func loadPorts(service Service) ([]kobject.Ports, error) {
 	ports := []kobject.Ports{}
 	for _, port := range service.Ports {
-		var p api.Protocol
-		switch port.Protocol {
-		default:
-			p = api.ProtocolTCP
-		case "TCP":
-			p = api.ProtocolTCP
-		case "UDP":
-			p = api.ProtocolUDP
-		}
-		ports = append(ports, kobject.Ports{
+		komposePorts := kobject.Ports{
 			HostPort:      int32(port.Port),
 			ContainerPort: int32(port.Port),
-			Protocol:      p,
-		})
+			Protocol:      port.Protocol,
+		}
+		if protocol := api.Protocol(port.Protocol); protocol != api.ProtocolTCP && protocol != api.ProtocolUDP {
+			komposePorts.Protocol = string(api.ProtocolTCP)
+		}
+		ports = append(ports, komposePorts)
 	}
 	return ports, nil
 }

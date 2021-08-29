@@ -124,20 +124,20 @@ func TestLoadV3Ports(t *testing.T) {
 	}{
 		{
 			desc:   "ports with expose",
-			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: "TCP"}},
+			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: string(api.ProtocolTCP)}},
 			expose: []string{"80", "8080"},
 			want: []kobject.Ports{
-				{HostPort: 80, ContainerPort: 80, Protocol: api.Protocol("TCP")},
-				{HostPort: 8080, ContainerPort: 8080, Protocol: api.Protocol("TCP")},
+				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 8080, ContainerPort: 8080, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
 			desc:   "exposed port including /protocol",
-			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: "TCP"}},
+			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: string(api.ProtocolTCP)}},
 			expose: []string{"80/udp"},
 			want: []kobject.Ports{
-				{HostPort: 80, ContainerPort: 80, Protocol: api.Protocol("TCP")},
-				{HostPort: 80, ContainerPort: 80, Protocol: api.Protocol("UDP")},
+				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolUDP)},
 			},
 		},
 	} {
@@ -187,74 +187,74 @@ func TestLoadPorts(t *testing.T) {
 		{
 			ports: []string{"127.0.0.1:80:80/tcp"},
 			want: []kobject.Ports{
-				{HostIP: "127.0.0.1", HostPort: 80, ContainerPort: 80, Protocol: api.ProtocolTCP},
+				{HostIP: "127.0.0.1", HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
 			ports: []string{"80:80/tcp"},
 			want: []kobject.Ports{
-				{HostPort: 80, ContainerPort: 80, Protocol: api.ProtocolTCP},
+				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
 			ports: []string{"80:80"},
 			want: []kobject.Ports{
-				{HostPort: 80, ContainerPort: 80, Protocol: api.ProtocolTCP},
+				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
 			ports: []string{"80"},
 			want: []kobject.Ports{
-				{ContainerPort: 80, Protocol: api.ProtocolTCP},
+				{ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
 			ports: []string{"3000-3005"},
 			want: []kobject.Ports{
-				{ContainerPort: 3000, Protocol: api.ProtocolTCP},
-				{ContainerPort: 3001, Protocol: api.ProtocolTCP},
-				{ContainerPort: 3002, Protocol: api.ProtocolTCP},
-				{ContainerPort: 3003, Protocol: api.ProtocolTCP},
-				{ContainerPort: 3004, Protocol: api.ProtocolTCP},
-				{ContainerPort: 3005, Protocol: api.ProtocolTCP},
+				{ContainerPort: 3000, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 3001, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 3002, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 3003, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 3004, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 3005, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
 			ports: []string{"3000-3005:5000-5005"},
 			want: []kobject.Ports{
-				{HostPort: 3000, ContainerPort: 5000, Protocol: api.ProtocolTCP},
-				{HostPort: 3001, ContainerPort: 5001, Protocol: api.ProtocolTCP},
-				{HostPort: 3002, ContainerPort: 5002, Protocol: api.ProtocolTCP},
-				{HostPort: 3003, ContainerPort: 5003, Protocol: api.ProtocolTCP},
-				{HostPort: 3004, ContainerPort: 5004, Protocol: api.ProtocolTCP},
-				{HostPort: 3005, ContainerPort: 5005, Protocol: api.ProtocolTCP},
+				{HostPort: 3000, ContainerPort: 5000, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 3001, ContainerPort: 5001, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 3002, ContainerPort: 5002, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 3003, ContainerPort: 5003, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 3004, ContainerPort: 5004, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 3005, ContainerPort: 5005, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
 			ports: []string{"127.0.0.1:3000-3005:5000-5005"},
 			want: []kobject.Ports{
-				{HostIP: "127.0.0.1", HostPort: 3000, ContainerPort: 5000, Protocol: api.ProtocolTCP},
-				{HostIP: "127.0.0.1", HostPort: 3001, ContainerPort: 5001, Protocol: api.ProtocolTCP},
-				{HostIP: "127.0.0.1", HostPort: 3002, ContainerPort: 5002, Protocol: api.ProtocolTCP},
-				{HostIP: "127.0.0.1", HostPort: 3003, ContainerPort: 5003, Protocol: api.ProtocolTCP},
-				{HostIP: "127.0.0.1", HostPort: 3004, ContainerPort: 5004, Protocol: api.ProtocolTCP},
-				{HostIP: "127.0.0.1", HostPort: 3005, ContainerPort: 5005, Protocol: api.ProtocolTCP},
+				{HostIP: "127.0.0.1", HostPort: 3000, ContainerPort: 5000, Protocol: string(api.ProtocolTCP)},
+				{HostIP: "127.0.0.1", HostPort: 3001, ContainerPort: 5001, Protocol: string(api.ProtocolTCP)},
+				{HostIP: "127.0.0.1", HostPort: 3002, ContainerPort: 5002, Protocol: string(api.ProtocolTCP)},
+				{HostIP: "127.0.0.1", HostPort: 3003, ContainerPort: 5003, Protocol: string(api.ProtocolTCP)},
+				{HostIP: "127.0.0.1", HostPort: 3004, ContainerPort: 5004, Protocol: string(api.ProtocolTCP)},
+				{HostIP: "127.0.0.1", HostPort: 3005, ContainerPort: 5005, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
 			ports: []string{"80", "3000"},
 			want: []kobject.Ports{
-				{HostPort: 0, ContainerPort: 80, Protocol: api.ProtocolTCP},
-				{HostPort: 0, ContainerPort: 3000, Protocol: api.ProtocolTCP},
+				{HostPort: 0, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 0, ContainerPort: 3000, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
 			ports:  []string{"80", "3000"},
 			expose: []string{"80", "8080"},
 			want: []kobject.Ports{
-				{HostPort: 0, ContainerPort: 80, Protocol: api.ProtocolTCP},
-				{HostPort: 0, ContainerPort: 3000, Protocol: api.ProtocolTCP},
-				{HostPort: 0, ContainerPort: 8080, Protocol: api.ProtocolTCP},
+				{HostPort: 0, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 0, ContainerPort: 3000, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 0, ContainerPort: 8080, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 	}
