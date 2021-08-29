@@ -574,23 +574,19 @@ func ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort
 	exist := map[string]bool{}
 	for _, port := range service.Port {
 		// temp use as an id
-		if exist[string(port.ContainerPort)+string(port.Protocol)] {
+		if exist[string(port.ContainerPort)+port.Protocol] {
 			continue
 		}
-		// If the default is already TCP, no need to include it.
-		if port.Protocol == api.ProtocolTCP {
-			ports = append(ports, api.ContainerPort{
-				ContainerPort: port.ContainerPort,
-				HostIP:        port.HostIP,
-			})
-		} else {
-			ports = append(ports, api.ContainerPort{
-				ContainerPort: port.ContainerPort,
-				Protocol:      port.Protocol,
-				HostIP:        port.HostIP,
-			})
+		containerPort := api.ContainerPort{
+			ContainerPort: port.ContainerPort,
+			HostIP:        port.HostIP,
 		}
-		exist[string(port.ContainerPort)+string(port.Protocol)] = true
+		// If the default is already TCP, no need to include protocol.
+		if protocol := api.Protocol(port.Protocol); protocol != api.ProtocolTCP {
+			containerPort.Protocol = protocol
+		}
+		ports = append(ports, containerPort)
+		exist[string(port.ContainerPort)+port.Protocol] = true
 	}
 
 	return ports
@@ -613,14 +609,11 @@ func (k *Kubernetes) ConfigLBServicePorts(name string, service kobject.ServiceCo
 			TargetPort: targetPort,
 		}
 
-		// If the default is already TCP, no need to include it.
-		if port.Protocol != api.ProtocolTCP {
-			servicePort.Protocol = port.Protocol
-		}
-
-		if port.Protocol == api.ProtocolTCP {
+		if protocol := api.Protocol(port.Protocol); protocol == api.ProtocolTCP {
+			// If the default is already TCP, no need to include protocol.
 			tcpPorts = append(tcpPorts, servicePort)
 		} else {
+			servicePort.Protocol = protocol
 			udpPorts = append(udpPorts, servicePort)
 		}
 	}
@@ -649,7 +642,7 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 			if service.ServiceType == string(api.ServiceTypeLoadBalancer) {
 				log.Fatalf("Service %s of type LoadBalancer cannot use TCP and UDP for the same port", name)
 			}
-			name = fmt.Sprintf("%s-%s", name, strings.ToLower(string(port.Protocol)))
+			name = fmt.Sprintf("%s-%s", name, strings.ToLower(port.Protocol))
 		}
 
 		servicePort = api.ServicePort{
@@ -662,9 +655,9 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 			servicePort.NodePort = service.NodePortPort
 		}
 
-		// If the default is already TCP, no need to include it.
-		if port.Protocol != api.ProtocolTCP {
-			servicePort.Protocol = port.Protocol
+		// If the default is already TCP, no need to include protocol.
+		if protocol := api.Protocol(port.Protocol); protocol != api.ProtocolTCP {
+			servicePort.Protocol = protocol
 		}
 
 		servicePorts = append(servicePorts, servicePort)

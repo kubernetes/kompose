@@ -26,7 +26,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 	v1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
@@ -91,6 +90,7 @@ func (opt *ConvertOptions) IsPodController() bool {
 type ServiceConfigGroup []ServiceConfig
 
 // ServiceConfig holds the basic struct of a container
+// which should not introduce any kubernetes specific struct
 type ServiceConfig struct {
 	Name              string
 	ContainerName     string
@@ -186,7 +186,7 @@ type Ports struct {
 	HostPort      int32
 	ContainerPort int32
 	HostIP        string
-	Protocol      corev1.Protocol
+	Protocol      string // Upper string
 }
 
 // Volumes holds the volume struct of container

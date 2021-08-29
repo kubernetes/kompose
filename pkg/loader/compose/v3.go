@@ -210,30 +210,30 @@ func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Por
 			HostPort:      int32(port.Published),
 			ContainerPort: int32(port.Target),
 			HostIP:        "",
-			Protocol:      api.Protocol(strings.ToUpper(port.Protocol)),
+			Protocol:      strings.ToUpper(port.Protocol),
 		})
 
-		exist[cast.ToString(port.Target)+strings.ToUpper(port.Protocol)] = true
+		exist[cast.ToString(port.Target)+port.Protocol] = true
 	}
 
 	if expose != nil {
 		for _, port := range expose {
 			portValue := port
-			protocol := api.ProtocolTCP
+			protocol := string(api.ProtocolTCP)
 			if strings.Contains(portValue, "/") {
 				splits := strings.Split(port, "/")
 				portValue = splits[0]
-				protocol = api.Protocol(strings.ToUpper(splits[1]))
+				protocol = splits[1]
 			}
 
-			if exist[portValue+string(protocol)] {
+			if exist[portValue+protocol] {
 				continue
 			}
 			komposePorts = append(komposePorts, kobject.Ports{
 				HostPort:      cast.ToInt32(portValue),
 				ContainerPort: cast.ToInt32(portValue),
 				HostIP:        "",
-				Protocol:      protocol,
+				Protocol:      strings.ToUpper(protocol),
 			})
 		}
 	}
