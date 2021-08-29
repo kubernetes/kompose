@@ -642,7 +642,7 @@ func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConf
 			if service.ServiceType == string(api.ServiceTypeLoadBalancer) {
 				log.Fatalf("Service %s of type LoadBalancer cannot use TCP and UDP for the same port", name)
 			}
-			name = fmt.Sprintf("%s-%s", name, strings.ToLower(string(port.Protocol)))
+			name = fmt.Sprintf("%s-%s", name, strings.ToLower(port.Protocol))
 		}
 
 		servicePort = api.ServicePort{
