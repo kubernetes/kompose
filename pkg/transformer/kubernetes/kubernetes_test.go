@@ -614,6 +614,15 @@ func TestConfigAffinity(t *testing.T) {
 				},
 			},
 		},
+		"ConfigAffinity (global service)": {
+			service: kobject.ServiceConfig{
+				DeployMode: "global",
+				Placement: kobject.Placement{
+					Preferences: []string{"zone"},
+				},
+			},
+			result: nil,
+		},
 		"ConfigAffinity (nil)": {
 			kobject.ServiceConfig{},
 			nil,

@@ -1060,7 +1060,8 @@ func ConfigAffinity(service kobject.ServiceConfig) *api.Affinity {
 	}
 	// Config preferences
 	// Convert preferences to preferredDuringSchedulingIgnoredDuringExecution
-	if preferencesLen := len(service.Placement.Preferences); preferencesLen > 0 {
+	// Placement preferences are ignored for global services
+	if preferencesLen := len(service.Placement.Preferences); preferencesLen > 0 && service.DeployMode != "global" {
 		preferences := make([]api.PreferredSchedulingTerm, 0, preferencesLen)
 		for i, p := range service.Placement.Preferences {
 			preferences = append(preferences, api.PreferredSchedulingTerm{
