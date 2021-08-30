@@ -91,7 +91,31 @@
                       ]
                     }
                   ]
-                }
+                },
+                "preferredDuringSchedulingIgnoredDuringExecution": [
+                  {
+                    "weight": 2,
+                    "preference": {
+                      "matchExpressions": [
+                        {
+                          "key": "zone",
+                          "operator": "Exists"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "weight": 1,
+                    "preference": {
+                      "matchExpressions": [
+                        {
+                          "key": "ssd",
+                          "operator": "Exists"
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
             }
           }

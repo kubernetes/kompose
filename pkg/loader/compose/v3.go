@@ -138,8 +138,10 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 		PositiveConstraints: make(map[string]string),
 		NegativeConstraints: make(map[string]string),
 	}
+
+	// Convert constraints
 	equal, notEqual := " == ", " != "
-	errMsg := " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
+	constraintsErrMsg := " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
 	for _, j := range placement.Constraints {
 		operator := equal
 		if strings.Contains(j, notEqual) {
@@ -147,7 +149,7 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 		}
 		p := strings.Split(j, operator)
 		if len(p) < 2 {
-			log.Warn(p[0], errMsg)
+			log.Warn(p[0], constraintsErrMsg)
 			continue
 		}
 
@@ -159,7 +161,7 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 		} else if strings.HasPrefix(p[0], "node.labels.") {
 			key = strings.TrimPrefix(p[0], "node.labels.")
 		} else {
-			log.Warn(p[0], errMsg)
+			log.Warn(p[0], constraintsErrMsg)
 			continue
 		}
 
@@ -168,6 +170,17 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 		} else if operator == notEqual {
 			komposePlacement.NegativeConstraints[key] = p[1]
 		}
+	}
+
+	// Convert preferences
+	preferencesErrMsg := " preferences in placement is not supported, only 'node.labels.xxx'(ex: node.labels.something == anything) is supported as a preferences "
+	for _, p := range placement.Preferences {
+		if !strings.HasPrefix(p.Spread, "node.labels.") {
+			log.Warn(p.Spread, preferencesErrMsg)
+			continue
+		}
+		label := strings.TrimPrefix(p.Spread, "node.labels.")
+		komposePlacement.Preferences = append(komposePlacement.Preferences, label)
 	}
 	return komposePlacement
 }

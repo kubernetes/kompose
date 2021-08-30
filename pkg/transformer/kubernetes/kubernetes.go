@@ -1040,22 +1040,55 @@ func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]ap
 
 // ConfigAffinity configures the Affinity.
 func ConfigAffinity(service kobject.ServiceConfig) *api.Affinity {
+	var affinity *api.Affinity
+	// Config constraints
+	// Convert constraints to requiredDuringSchedulingIgnoredDuringExecution
 	positiveConstraints := configConstrains(service.Placement.PositiveConstraints, api.NodeSelectorOpIn)
 	negativeConstraints := configConstrains(service.Placement.NegativeConstraints, api.NodeSelectorOpNotIn)
-	if len(positiveConstraints) == 0 && len(negativeConstraints) == 0 {
-		return nil
-	}
-	return &api.Affinity{
-		NodeAffinity: &api.NodeAffinity{
-			RequiredDuringSchedulingIgnoredDuringExecution: &api.NodeSelector{
-				NodeSelectorTerms: []api.NodeSelectorTerm{
-					{
-						MatchExpressions: append(positiveConstraints, negativeConstraints...),
+	if len(positiveConstraints) != 0 || len(negativeConstraints) != 0 {
+		affinity = &api.Affinity{
+			NodeAffinity: &api.NodeAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: &api.NodeSelector{
+					NodeSelectorTerms: []api.NodeSelectorTerm{
+						{
+							MatchExpressions: append(positiveConstraints, negativeConstraints...),
+						},
 					},
 				},
 			},
-		},
+		}
 	}
+	// Config preferences
+	// Convert preferences to preferredDuringSchedulingIgnoredDuringExecution
+	if preferencesLen := len(service.Placement.Preferences); preferencesLen > 0 {
+		preferences := make([]api.PreferredSchedulingTerm, 0, preferencesLen)
+		for i, p := range service.Placement.Preferences {
+			preferences = append(preferences, api.PreferredSchedulingTerm{
+				// According to the order of preferences, the weight decreases in order
+				// The minimum value is 1
+				Weight: int32(preferencesLen - i),
+				Preference: api.NodeSelectorTerm{
+					MatchExpressions: []api.NodeSelectorRequirement{
+						{
+							Key:      p,
+							Operator: api.NodeSelectorOpExists,
+						},
+					},
+				},
+			})
+		}
+
+		if affinity == nil {
+			return &api.Affinity{
+				NodeAffinity: &api.NodeAffinity{
+					PreferredDuringSchedulingIgnoredDuringExecution: preferences,
+				},
+			}
+		}
+		affinity.NodeAffinity.PreferredDuringSchedulingIgnoredDuringExecution = preferences
+	}
+
+	return affinity
 }
 
 func configConstrains(constrains map[string]string, operator api.NodeSelectorOperator) []api.NodeSelectorRequirement {

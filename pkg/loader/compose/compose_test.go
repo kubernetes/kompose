@@ -499,6 +499,11 @@ func TestCheckPlacementCustomLabels(t *testing.T) {
 			"node.labels.something == anything",
 			"node.labels.monitor != xxx",
 		},
+		Preferences: []types.PlacementPreferences{
+			{Spread: "node.labels.zone"},
+			{Spread: "foo"},
+			{Spread: "node.labels.ssd"},
+		},
 	}
 	output := loadV3Placement(placement)
 
@@ -509,10 +514,22 @@ func TestCheckPlacementCustomLabels(t *testing.T) {
 		NegativeConstraints: map[string]string{
 			"monitor": "xxx",
 		},
+		Preferences: []string{
+			"zone", "ssd",
+		},
 	}
 
 	checkConstraints(t, "positive", output.PositiveConstraints, expected.PositiveConstraints)
 	checkConstraints(t, "negative", output.NegativeConstraints, expected.NegativeConstraints)
+
+	if len(output.Preferences) != len(expected.Preferences) {
+		t.Errorf("preferences len is not equal, expected %d, got %d", len(expected.Preferences), len(output.Preferences))
+	}
+	for i := range output.Preferences {
+		if output.Preferences[i] != expected.Preferences[i] {
+			t.Errorf("preference is not equal, expected %s, got %s", expected.Preferences[i], output.Preferences[i])
+		}
+	}
 }
 
 func checkConstraints(t *testing.T, caseName string, output, expected map[string]string) {

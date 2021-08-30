@@ -576,6 +576,9 @@ func TestConfigAffinity(t *testing.T) {
 					NegativeConstraints: map[string]string{
 						"baz": "qux",
 					},
+					Preferences: []string{
+						"zone", "ssd",
+					},
 				},
 			},
 			result: &api.Affinity{
@@ -586,6 +589,24 @@ func TestConfigAffinity(t *testing.T) {
 								MatchExpressions: []api.NodeSelectorRequirement{
 									{Key: "foo", Operator: api.NodeSelectorOpIn, Values: []string{"bar"}},
 									{Key: "baz", Operator: api.NodeSelectorOpNotIn, Values: []string{"qux"}},
+								},
+							},
+						},
+					},
+					PreferredDuringSchedulingIgnoredDuringExecution: []api.PreferredSchedulingTerm{
+						{
+							Weight: 2,
+							Preference: api.NodeSelectorTerm{
+								MatchExpressions: []api.NodeSelectorRequirement{
+									{Key: "zone", Operator: api.NodeSelectorOpExists, Values: nil},
+								},
+							},
+						},
+						{
+							Weight: 1,
+							Preference: api.NodeSelectorTerm{
+								MatchExpressions: []api.NodeSelectorRequirement{
+									{Key: "ssd", Operator: api.NodeSelectorOpExists, Values: nil},
 								},
 							},
 						},
