@@ -18,6 +18,20 @@ GITCOMMIT := $(shell git rev-parse --short HEAD)
 BUILD_FLAGS := -ldflags="-w -s -X github.com/kubernetes/kompose/pkg/version.GITCOMMIT=$(GITCOMMIT)"
 TEST_IMAGE := kompose/tests:latest
 
+# go-get-tool will 'go get' any package $2 and install it to $1.
+PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+define go-get-tool
+@[ -f $(1) ] || { \
+set -e ;\
+TMP_DIR=$$(mktemp -d) ;\
+cd $$TMP_DIR ;\
+go mod init tmp ;\
+echo "Downloading $(2)" ;\
+GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
+rm -rf $$TMP_DIR ;\
+}
+endef
+
 default: bin
 
 .PHONY: all
@@ -118,6 +132,13 @@ test-container:
 test-k8s:
 	./script/test_k8s/test.sh
 
+GOLANGCI_LINT = $(shell pwd)/bin/golangci-lint
+.PHONY: install-golangci-lint
+install-golangci-lint:
+# golangci-lint version must consistent with github CI
+# ref: ./.github/workflows/golangci-lint.yml
+	$(call go-get-tool,$(GOLANGCI_LINT),github.com/golangci/golangci-lint/cmd/golangci-lint@v1.32.2)
+
 .PHONY: golangci-lint
-golangci-lint:
-	golangci-lint run -c .golangci.yml
+golangci-lint: install-golangci-lint
+	$(GOLANGCI_LINT) run -c .golangci.yml --timeout 5m
