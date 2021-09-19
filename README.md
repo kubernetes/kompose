@@ -86,15 +86,19 @@ __Steps:__
 ```console
 $ git clone https://github.com/kubernetes/kompose.git $GOPATH/src/github.com/kubernetes/kompose
 ```
-2. Build with `make`
+2. Change directory to the cloned repo.
+```console
+cd $GOPATH/src/github.com/kubernetes/kompose
+```
+3. Build with `make`
 ```console
 $ make bin
 ```
-3. Or build with `go`
+4. Or build with `go`
 ```console
 $ go build -o kompose main.go
 ```
-4. Test your changes
+5. Test your changes
 ```console
 $ make test
 ```
