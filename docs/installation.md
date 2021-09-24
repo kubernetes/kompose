@@ -49,6 +49,15 @@ Kompose is in Fedora 24, 25 and 26 repositories. You can install it just like an
 sudo dnf -y install kompose
 ```
 
+#### Ubuntu/Debian
+
+A deb package is released for compose. Download latest package in the assets in [github releases](https://github.com/kubernetes/kompose/releases).
+
+```bash
+wget https://github.com/kubernetes/kompose/releases/download/v1.24.0/kompose_1.24.0_amd64.deb # Replace 1.24.0 with latest tag
+sudo apt install ./kompose_1.24.0_amd64.deb
+```
+
 #### macOS
 On macOS you can install latest release via [Homebrew](https://brew.sh) or [MacPorts](https://www.macports.org/).
 
