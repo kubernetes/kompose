@@ -20,7 +20,6 @@ import (
 	"fmt"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
-	"github.com/kubernetes/kompose/pkg/loader/bundle"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 )
 
@@ -32,16 +31,8 @@ type Loader interface {
 
 // GetLoader returns loader for given format
 func GetLoader(format string) (Loader, error) {
-	var l Loader
-
-	switch format {
-	case "bundle":
-		l = new(bundle.Bundle)
-	case "compose":
-		l = new(compose.Compose)
-	default:
+	if format != "compose" {
 		return nil, fmt.Errorf("input file format %s is not supported", format)
 	}
-
-	return l, nil
+	return new(compose.Compose), nil
 }

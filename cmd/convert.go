@@ -106,8 +106,7 @@ var convertCmd = &cobra.Command{
 			MultipleContainerMode:       MultipleContainerMode,
 		}
 
-		// Validate before doing anything else. Use "bundle" if passed in.
-		app.ValidateFlags(GlobalBundle, args, cmd, &ConvertOpt)
+		app.ValidateFlags(args, cmd, &ConvertOpt)
 		app.ValidateComposeFile(&ConvertOpt)
 	},
 	Run: func(cmd *cobra.Command, args []string) {

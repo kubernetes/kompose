@@ -39,7 +39,6 @@ func (errorOnWarningHook) Fire(entry *log.Entry) error {
 
 // TODO: comment
 var (
-	GlobalBundle           string
 	GlobalProvider         string
 	GlobalVerbose          bool
 	GlobalSuppressWarnings bool
@@ -95,10 +94,5 @@ func init() {
 	RootCmd.PersistentFlags().BoolVar(&GlobalSuppressWarnings, "suppress-warnings", false, "Suppress all warnings")
 	RootCmd.PersistentFlags().BoolVar(&GlobalErrorOnWarning, "error-on-warning", false, "Treat any warning as an error")
 	RootCmd.PersistentFlags().StringArrayVarP(&GlobalFiles, "file", "f", []string{}, "Specify an alternative compose file")
-	RootCmd.PersistentFlags().StringVarP(&GlobalBundle, "bundle", "b", "", "Specify a Distributed Application Bundle (DAB) file")
 	RootCmd.PersistentFlags().StringVar(&GlobalProvider, "provider", "kubernetes", "Specify a provider. Kubernetes or OpenShift.")
-
-	// Mark DAB / bundle as deprecated, see issue: https://github.com/kubernetes/kompose/issues/390
-	// As DAB is still EXPERIMENTAL
-	RootCmd.PersistentFlags().MarkDeprecated("bundle", "DAB / Bundle is deprecated, see: https://github.com/kubernetes/kompose/issues/390")
 }
