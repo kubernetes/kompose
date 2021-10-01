@@ -43,7 +43,6 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	api "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
-	networkingv1beta1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -431,36 +430,43 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *appsv1.
 	return ds
 }
 
-func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *networkingv1beta1.Ingress {
+func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *networkingv1.Ingress {
 	hosts := regexp.MustCompile("[ ,]*,[ ,]*").Split(service.ExposeService, -1)
 
-	ingress := &networkingv1beta1.Ingress{
+	ingress := &networkingv1.Ingress{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Ingress",
-			APIVersion: "extensions/v1beta1",
+			APIVersion: "networking.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
 			Labels:      transformer.ConfigLabels(name),
 			Annotations: transformer.ConfigAnnotations(service),
 		},
-		Spec: networkingv1beta1.IngressSpec{
-			Rules: make([]networkingv1beta1.IngressRule, len(hosts)),
+		Spec: networkingv1.IngressSpec{
+			Rules: make([]networkingv1.IngressRule, len(hosts)),
 		},
 	}
 	tlsHosts := make([]string, len(hosts))
+	pathType := networkingv1.PathTypePrefix
 	for i, host := range hosts {
 		host, p := transformer.ParseIngressPath(host)
-		ingress.Spec.Rules[i] = networkingv1beta1.IngressRule{
-			IngressRuleValue: networkingv1beta1.IngressRuleValue{
-				HTTP: &networkingv1beta1.HTTPIngressRuleValue{
-					Paths: []networkingv1beta1.HTTPIngressPath{
+		if p == "" {
+			p = "/"
+		}
+		ingress.Spec.Rules[i] = networkingv1.IngressRule{
+			IngressRuleValue: networkingv1.IngressRuleValue{
+				HTTP: &networkingv1.HTTPIngressRuleValue{
+					Paths: []networkingv1.HTTPIngressPath{
 						{
-							Path: p,
-							Backend: networkingv1beta1.IngressBackend{
-								ServiceName: name,
-								ServicePort: intstr.IntOrString{
-									IntVal: port,
+							Path:     p,
+							PathType: &pathType,
+							Backend: networkingv1.IngressBackend{
+								Service: &networkingv1.IngressServiceBackend{
+									Name: name,
+									Port: networkingv1.ServiceBackendPort{
+										Number: port,
+									},
 								},
 							},
 						},
@@ -475,14 +481,14 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 	}
 	if service.ExposeServiceTLS != "" {
 		if service.ExposeServiceTLS != "true" {
-			ingress.Spec.TLS = []networkingv1beta1.IngressTLS{
+			ingress.Spec.TLS = []networkingv1.IngressTLS{
 				{
 					Hosts:      tlsHosts,
 					SecretName: service.ExposeServiceTLS,
 				},
 			}
 		} else {
-			ingress.Spec.TLS = []networkingv1beta1.IngressTLS{
+			ingress.Spec.TLS = []networkingv1.IngressTLS{
 				{
 					Hosts: tlsHosts,
 				},
