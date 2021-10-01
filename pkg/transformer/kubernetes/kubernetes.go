@@ -459,7 +459,7 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 				HTTP: &networkingv1.HTTPIngressRuleValue{
 					Paths: []networkingv1.HTTPIngressPath{
 						{
-							Path: p,
+							Path:     p,
 							PathType: &pathType,
 							Backend: networkingv1.IngressBackend{
 								Service: &networkingv1.IngressServiceBackend{
