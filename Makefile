@@ -111,10 +111,10 @@ test: bin test-dep  validate test-unit-cover install test-cmd
 # Install all the required test-dependencies before executing tests (only valid when running `make test`)
 .PHONY: test-dep
 test-dep:
-	go get github.com/mattn/goveralls
-	go get github.com/modocache/gover
-	go get golang.org/x/lint/golint
-	go get github.com/mitchellh/gox
+	go install github.com/mattn/goveralls
+	go install github.com/modocache/gover
+	go install golang.org/x/lint/golint
+	go install github.com/mitchellh/gox
 
 
 # build docker image that is used for running all test locally
