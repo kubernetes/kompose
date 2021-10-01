@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        go: [1.13, 1.14]
+        go: [1.16, 1.17]
         cross_compile: [true, false]
     steps:
       - uses: actions/checkout@v2
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.16
       - name: Create .coverprofile for each targeted directory by re:running tests
         run: make test
       - name: Collect all .coverprofile files and save it to one file gover.coverprofile
