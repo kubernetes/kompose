@@ -9,7 +9,7 @@
 
 ## Loader
 
-Loader reads input file (now `kompose` supports [Docker Compose](https://docs.docker.com/compose) v1, v2 and [Docker Distributed Application Bundle](https://blog.docker.com/2016/06/docker-app-bundle/) file) and converts it to KomposeObject.
+Loader reads input file (now `kompose` supports [Docker Compose](https://docs.docker.com/compose) v1, v2 and converts it to KomposeObject.
 
 Loader is represented by a Loader interface:
  
@@ -19,10 +19,9 @@ type Loader interface {
 }
 ```
 
-Every loader “implementation” should be placed into `kompose/pkg/loader` (like compose & bundle). More input formats will be supported in future. You can take a look for more details at:
+Every loader “implementation” should be placed into `kompose/pkg/loader` (like compose). More input formats will be supported in future. You can take a look for more details at:
 
 * [kompose/pkg/loader](https://github.com/kubernetes/kompose/tree/master/pkg/loader)
-* [kompose/pkg/loader/bundle](https://github.com/kubernetes/kompose/tree/master/pkg/loader/bundle)
 * [kompose/pkg/loader/compose](https://github.com/kubernetes/kompose/tree/master/pkg/loader/compose)
 
 ## KomposeObject

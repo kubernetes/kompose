@@ -53,10 +53,7 @@ const (
 var inputFormat = "compose"
 
 // ValidateFlags validates all command line flags
-func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobject.ConvertOptions) {
-	// Check to see if the "file" has changed from the default flag value
-	isFileSet := cmd.Flags().Lookup("file").Changed
-
+func ValidateFlags(args []string, cmd *cobra.Command, opt *kobject.ConvertOptions) {
 	if opt.OutFile == "-" {
 		opt.ToStdout = true
 		opt.OutFile = ""
@@ -125,16 +122,6 @@ func ValidateFlags(bundle string, args []string, cmd *cobra.Command, opt *kobjec
 
 	if opt.Replicas < 0 {
 		log.Fatalf("Error: --replicas cannot be negative")
-	}
-
-	if len(bundle) > 0 {
-		inputFormat = "bundle"
-		log.Fatalf("DAB / bundle (--bundle | -b) is no longer supported. See issue: https://github.com/kubernetes/kompose/issues/390")
-		opt.InputFiles = []string{bundle}
-	}
-
-	if len(bundle) > 0 && isFileSet {
-		log.Fatalf("Error: 'compose' file and 'dab' file cannot be specified at the same time")
 	}
 
 	if len(args) != 0 {
