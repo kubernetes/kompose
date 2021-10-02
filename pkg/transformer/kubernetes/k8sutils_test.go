@@ -61,7 +61,7 @@ func TestCreateService(t *testing.T) {
 		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
 	}
 	k := Kubernetes{}
-	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	_, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
 	if err != nil {
 		t.Error(errors.Wrap(err, "k.Transform failed"))
 	}
