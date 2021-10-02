@@ -67,7 +67,7 @@ func TestCreateService(t *testing.T) {
 	}
 
 	// Test the creation of the service
-	svc := k.CreateService("foo", service, objects)
+	svc := k.CreateService("foo", service)
 
 	if svc.Spec.Ports[0].Port != 123 {
 		t.Errorf("Expected port 123 upon conversion, actual %d", svc.Spec.Ports[0].Port)
