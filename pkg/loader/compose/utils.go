@@ -156,7 +156,7 @@ func normalizeVolumes(svcName string) string {
 
 func normalizeNetworkNames(netName string) (string, error) {
 	netval := strings.ToLower(strings.Replace(netName, "_", "-", -1))
-	regString := ("[^A-Za-z0-9.-]+")
+	regString := "[^A-Za-z0-9.-]+"
 	reg, err := regexp.Compile(regString)
 	if err != nil {
 		return "", err

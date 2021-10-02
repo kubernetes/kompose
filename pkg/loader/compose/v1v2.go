@@ -231,7 +231,7 @@ func libComposeToKomposeMapping(composeObject *project.Project) (kobject.Kompose
 		}
 
 		// convert compose labels to annotations
-		serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
+		serviceConfig.Annotations = composeServiceConfig.Labels
 		serviceConfig.CPUQuota = int64(composeServiceConfig.CPUQuota)
 		serviceConfig.CapAdd = composeServiceConfig.CapAdd
 		serviceConfig.CapDrop = composeServiceConfig.CapDrop

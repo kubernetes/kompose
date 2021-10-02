@@ -55,10 +55,6 @@ type Kubernetes struct {
 	Opt kobject.ConvertOptions
 }
 
-// TIMEOUT is how long we'll wait for the termination of kubernetes resource to be successful
-// used when undeploying resources from kubernetes
-const TIMEOUT = 300
-
 // PVCRequestSize (Persistent Volume Claim) has default size
 const PVCRequestSize = "100Mi"
 
@@ -67,8 +63,6 @@ const (
 	DeploymentController = "deployment"
 	// DaemonSetController is controller type for DaemonSet
 	DaemonSetController = "daemonset"
-	// ReplicationController is controller type for  ReplicationController
-	ReplicationController = "replicationcontroller"
 )
 
 // CheckUnsupportedKey checks if given komposeObject contains
@@ -218,7 +212,7 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 }
 
 // InitConfigMapForEnv initializes a ConfigMap object
-func (k *Kubernetes) InitConfigMapForEnv(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
+func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
 	envs, err := GetEnvsFromFile(envFile, opt)
 	if err != nil {
 		log.Fatalf("Unable to retrieve env file: %s", err)
@@ -575,7 +569,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 }
 
 // ConfigPorts configures the container ports.
-func ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort {
+func ConfigPorts(service kobject.ServiceConfig) []api.ContainerPort {
 	ports := []api.ContainerPort{}
 	exist := map[string]bool{}
 	for _, port := range service.Port {
@@ -598,7 +592,7 @@ func ConfigPorts(name string, service kobject.ServiceConfig) []api.ContainerPort
 	return ports
 }
 
-func (k *Kubernetes) ConfigLBServicePorts(name string, service kobject.ServiceConfig) ([]api.ServicePort, []api.ServicePort) {
+func (k *Kubernetes) ConfigLBServicePorts(service kobject.ServiceConfig) ([]api.ServicePort, []api.ServicePort) {
 	var tcpPorts []api.ServicePort
 	var udpPorts []api.ServicePort
 	for _, port := range service.Port {
@@ -627,7 +621,7 @@ func (k *Kubernetes) ConfigLBServicePorts(name string, service kobject.ServiceCo
 }
 
 // ConfigServicePorts configure the container service ports.
-func (k *Kubernetes) ConfigServicePorts(name string, service kobject.ServiceConfig) []api.ServicePort {
+func (k *Kubernetes) ConfigServicePorts(service kobject.ServiceConfig) []api.ServicePort {
 	servicePorts := []api.ServicePort{}
 	seenPorts := make(map[int]struct{}, len(service.Port))
 
@@ -987,7 +981,7 @@ func (k *Kubernetes) ConfigPVCVolumeSource(name string, readonly bool) *api.Volu
 }
 
 // ConfigEnvs configures the environment variables.
-func ConfigEnvs(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]api.EnvVar, error) {
+func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]api.EnvVar, error) {
 	envs := transformer.EnvSort{}
 
 	keysFromEnvFile := make(map[string]bool)
@@ -1112,7 +1106,7 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 	}
 
 	if len(service.Configs) > 0 {
-		objects = k.createConfigMapFromComposeConfig(name, opt, service, objects)
+		objects = k.createConfigMapFromComposeConfig(name, service, objects)
 	}
 
 	if opt.CreateD || opt.Controller == DeploymentController {
@@ -1125,7 +1119,7 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 
 	if len(service.EnvFile) > 0 {
 		for _, envFile := range service.EnvFile {
-			configMap := k.InitConfigMapForEnv(name, service, opt, envFile)
+			configMap := k.InitConfigMapForEnv(name, opt, envFile)
 			objects = append(objects, configMap)
 		}
 	}
@@ -1133,7 +1127,7 @@ func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.Servic
 	return objects
 }
 
-func (k *Kubernetes) createConfigMapFromComposeConfig(name string, opt kobject.ConvertOptions, service kobject.ServiceConfig, objects []runtime.Object) []runtime.Object {
+func (k *Kubernetes) createConfigMapFromComposeConfig(name string, service kobject.ServiceConfig, objects []runtime.Object) []runtime.Object {
 	for _, config := range service.Configs {
 		currentConfigName := config.Source
 		currentConfigObj := service.ConfigsMetaData[currentConfigName]
@@ -1165,7 +1159,7 @@ func (k *Kubernetes) InitPod(name string, service kobject.ServiceConfig) *api.Po
 }
 
 // CreateNetworkPolicy initializes Network policy
-func (k *Kubernetes) CreateNetworkPolicy(name string, networkName string) (*networkingv1.NetworkPolicy, error) {
+func (k *Kubernetes) CreateNetworkPolicy(networkName string) (*networkingv1.NetworkPolicy, error) {
 	str := "true"
 	np := &networkingv1.NetworkPolicy{
 		TypeMeta: metav1.TypeMeta{
@@ -1264,7 +1258,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 				if k.PortsExist(service) {
 					if service.ServiceType == "LoadBalancer" {
-						svcs := k.CreateLBService(name, service, objects)
+						svcs := k.CreateLBService(name, service)
 						for _, svc := range svcs {
 							objects = append(objects, svc)
 						}
@@ -1272,7 +1266,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 							log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
 						}
 					} else {
-						svc := k.CreateService(name, service, objects)
+						svc := k.CreateService(name, service)
 						objects = append(objects, svc)
 						if service.ExposeService != "" {
 							objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
@@ -1280,7 +1274,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					}
 				} else {
 					if service.ServiceType == "Headless" {
-						svc := k.CreateHeadlessService(name, service, objects)
+						svc := k.CreateHeadlessService(name, service)
 						objects = append(objects, svc)
 					} else {
 						log.Warnf("Service %q won't be created because 'ports' is not specified", name)
@@ -1322,7 +1316,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 
 				podSpec.Append(
-					SetPorts(name, service),
+					SetPorts(service),
 					ImagePullPolicy(name, service),
 					RestartPolicy(name, service),
 					SecurityContext(name, service),
@@ -1339,7 +1333,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					podSpec.Append(ServiceAccountName(serviceAccountName))
 				}
 
-				err = k.UpdateKubernetesObjectsMultipleContainers(name, service, opt, &objects, podSpec)
+				err = k.UpdateKubernetesObjectsMultipleContainers(name, service, &objects, podSpec)
 				if err != nil {
 					return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 				}
@@ -1348,7 +1342,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			if len(service.Network) > 0 {
 				for _, net := range service.Network {
 					log.Infof("Network %s is detected at Source, shall be converted to equivalent NetworkPolicy at Destination", net)
-					np, err := k.CreateNetworkPolicy(name, net)
+					np, err := k.CreateNetworkPolicy(net)
 
 					if err != nil {
 						return nil, errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)
@@ -1408,7 +1402,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 			if k.PortsExist(service) {
 				if service.ServiceType == "LoadBalancer" {
-					svcs := k.CreateLBService(name, service, objects)
+					svcs := k.CreateLBService(name, service)
 					for _, svc := range svcs {
 						objects = append(objects, svc)
 					}
@@ -1416,7 +1410,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 						log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
 					}
 				} else {
-					svc := k.CreateService(name, service, objects)
+					svc := k.CreateService(name, service)
 					objects = append(objects, svc)
 					if service.ExposeService != "" {
 						objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
@@ -1424,7 +1418,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 			} else {
 				if service.ServiceType == "Headless" {
-					svc := k.CreateHeadlessService(name, service, objects)
+					svc := k.CreateHeadlessService(name, service)
 					objects = append(objects, svc)
 				} else {
 					log.Warnf("Service %q won't be created because 'ports' is not specified", name)
@@ -1439,7 +1433,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			if len(service.Network) > 0 {
 				for _, net := range service.Network {
 					log.Infof("Network %s is detected at Source, shall be converted to equivalent NetworkPolicy at Destination", net)
-					np, err := k.CreateNetworkPolicy(name, net)
+					np, err := k.CreateNetworkPolicy(net)
 
 					if err != nil {
 						return nil, errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)

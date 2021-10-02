@@ -382,7 +382,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		serviceConfig.Name = name
 		serviceConfig.Image = composeServiceConfig.Image
 		serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
-		serviceConfig.Annotations = map[string]string(composeServiceConfig.Labels)
+		serviceConfig.Annotations = composeServiceConfig.Labels
 		serviceConfig.CapAdd = composeServiceConfig.CapAdd
 		serviceConfig.CapDrop = composeServiceConfig.CapDrop
 		serviceConfig.Expose = composeServiceConfig.Expose

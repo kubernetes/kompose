@@ -322,7 +322,7 @@ func (env EnvSort) Less(i, j int) bool {
 	return env[i].Name < env[j].Name
 }
 
-// swaps the elements with indexes i and j.
+// Swap swaps the elements with indexes i and j.
 func (env EnvSort) Swap(i, j int) {
 	env[i], env[j] = env[j], env[i]
 }

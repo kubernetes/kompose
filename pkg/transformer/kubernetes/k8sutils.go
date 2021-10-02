@@ -199,7 +199,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		list := &api.List{}
 		// convert objects to versioned and add them to list
 		for _, object := range objects {
-			versionedObject, err := convertToVersion(object, metav1.GroupVersion{})
+			versionedObject, err := convertToVersion(object)
 			if err != nil {
 				return err
 			}
@@ -207,10 +207,9 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			list.Items = append(list.Items, objectToRaw(versionedObject))
 		}
 		// version list itself
-		listVersion := metav1.GroupVersion{Group: "", Version: "v1"}
 		list.Kind = "List"
 		list.APIVersion = "v1"
-		convertedList, err := convertToVersion(list, listVersion)
+		convertedList, err := convertToVersion(list)
 		if err != nil {
 			return err
 		}
@@ -236,7 +235,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 		var file string
 		// create a separate file for each provider
 		for _, v := range objects {
-			versionedObject, err := convertToVersion(v, metav1.GroupVersion{})
+			versionedObject, err := convertToVersion(v)
 			if err != nil {
 				return err
 			}
@@ -340,7 +339,7 @@ func marshalWithIndent(o interface{}, indent int) ([]byte, error) {
 
 // Convert object to versioned object
 // if groupVersion is  empty (metav1.GroupVersion{}), use version from original object (obj)
-func convertToVersion(obj runtime.Object, groupVersion metav1.GroupVersion) (runtime.Object, error) {
+func convertToVersion(obj runtime.Object) (runtime.Object, error) {
 	// ignore unstruct object
 	if _, ok := obj.(*unstructured.Unstructured); ok {
 		return obj, nil
@@ -368,9 +367,9 @@ func (k *Kubernetes) PortsExist(service kobject.ServiceConfig) bool {
 	return len(service.Port) != 0
 }
 
-func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig, objects []runtime.Object) []*api.Service {
+func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig) []*api.Service {
 	var svcs []*api.Service
-	tcpPorts, udpPorts := k.ConfigLBServicePorts(name, service)
+	tcpPorts, udpPorts := k.ConfigLBServicePorts(service)
 	if tcpPorts != nil {
 		svc := k.initSvcObject(name+"-tcp", service, tcpPorts)
 		svcs = append(svcs, svc)
@@ -396,11 +395,11 @@ func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, p
 }
 
 // CreateService creates a k8s service
-func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
+func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig) *api.Service {
 	svc := k.InitSvc(name, service)
 
 	// Configure the service ports.
-	servicePorts := k.ConfigServicePorts(name, service)
+	servicePorts := k.ConfigServicePorts(service)
 	svc.Spec.Ports = servicePorts
 
 	if service.ServiceType == "Headless" {
@@ -422,10 +421,10 @@ func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig, o
 // and without Service Pods can't find each other using DNS names.
 // Instead of regular Kubernetes Service we create Headless Service. DNS of such service points directly to Pod IP address.
 // You can find more about Headless Services in Kubernetes documentation https://kubernetes.io/docs/user-guide/services/#headless-services
-func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceConfig, objects []runtime.Object) *api.Service {
+func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceConfig) *api.Service {
 	svc := k.InitSvc(name, service)
 
-	servicePorts := []api.ServicePort{}
+	var servicePorts []api.ServicePort
 	// Configure a dummy port: https://github.com/kubernetes/kubernetes/issues/32766.
 	servicePorts = append(servicePorts, api.ServicePort{
 		Name: "headless",
@@ -441,7 +440,7 @@ func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceC
 
 	return svc
 }
-func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, objects *[]runtime.Object, podSpec PodSpec) error {
+func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, service kobject.ServiceConfig, objects *[]runtime.Object, podSpec PodSpec) error {
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
 
@@ -478,7 +477,7 @@ func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, serv
 // UpdateKubernetesObjects loads configurations to k8s objects
 func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, objects *[]runtime.Object) error {
 	// Configure the environment variables.
-	envs, err := ConfigEnvs(name, service, opt)
+	envs, err := ConfigEnvs(service, opt)
 	if err != nil {
 		return errors.Wrap(err, "Unable to load env variables")
 	}
@@ -513,7 +512,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	}
 
 	// Configure the container ports.
-	ports := ConfigPorts(name, service)
+	ports := ConfigPorts(service)
 
 	// Configure capabilities
 	capabilities := ConfigCapabilities(service)

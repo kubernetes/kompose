@@ -33,7 +33,7 @@ func AddContainer(service kobject.ServiceConfig, opt kobject.ConvertOptions) Pod
 			name = FormatContainerName(service.ContainerName)
 		}
 
-		envs, err := ConfigEnvs(name, service, opt)
+		envs, err := ConfigEnvs(service, opt)
 		if err != nil {
 			panic("Unable to load env variables")
 		}
@@ -53,16 +53,6 @@ func AddContainer(service kobject.ServiceConfig, opt kobject.ConvertOptions) Pod
 	}
 }
 
-func ImagePullSecrets(pullSecret string) PodSpecOption {
-	return func(podSpec *PodSpec) {
-		podSpec.ImagePullSecrets = append(podSpec.ImagePullSecrets,
-			api.LocalObjectReference{
-				Name: pullSecret,
-			},
-		)
-	}
-}
-
 func TerminationGracePeriodSeconds(name string, service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		var err error
@@ -75,7 +65,7 @@ func TerminationGracePeriodSeconds(name string, service kobject.ServiceConfig) P
 	}
 }
 
-// Configure the resource limits
+// ResourcesLimits Configure the resource limits
 func ResourcesLimits(service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		if service.MemLimit != 0 || service.CPULimit != 0 {
@@ -96,7 +86,7 @@ func ResourcesLimits(service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
-// Configure the resource requests
+// ResourcesRequests Configure the resource requests
 func ResourcesRequests(service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		if service.MemReservation != 0 || service.CPUReservation != 0 {
@@ -117,7 +107,7 @@ func ResourcesRequests(service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
-// Configure SecurityContext
+// SecurityContext Configure SecurityContext
 func SecurityContext(name string, service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		// Configure resource reservations
@@ -217,11 +207,11 @@ func SetVolumeMounts(volumesMount []api.VolumeMount) PodSpecOption {
 	}
 }
 
-// Configure ports
-func SetPorts(name string, service kobject.ServiceConfig) PodSpecOption {
+// SetPorts Configure ports
+func SetPorts(service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		// Configure the container ports.
-		ports := ConfigPorts(name, service)
+		ports := ConfigPorts(service)
 
 		for i := range podSpec.Containers {
 			podSpec.Containers[i].Ports = ports
@@ -229,7 +219,7 @@ func SetPorts(name string, service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
-// Configure the image pull policy
+// ImagePullPolicy Configure the image pull policy
 func ImagePullPolicy(name string, service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		if policy, err := GetImagePullPolicy(name, service.ImagePullPolicy); err != nil {
@@ -242,7 +232,7 @@ func ImagePullPolicy(name string, service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
-// Configure the container restart policy.
+// RestartPolicy Configure the container restart policy.
 func RestartPolicy(name string, service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		if restart, err := GetRestartPolicy(name, service.Restart); err != nil {
