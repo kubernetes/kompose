@@ -367,6 +367,19 @@ func (k *Kubernetes) PortsExist(service kobject.ServiceConfig) bool {
 	return len(service.Port) != 0
 }
 
+func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, ports []api.ServicePort) *api.Service {
+	svc := k.InitSvc(name, service)
+	svc.Spec.Ports = ports
+
+	svc.Spec.Type = api.ServiceType(service.ServiceType)
+
+	// Configure annotations
+	annotations := transformer.ConfigAnnotations(service)
+	svc.ObjectMeta.Annotations = annotations
+
+	return svc
+}
+
 func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig) []*api.Service {
 	var svcs []*api.Service
 	tcpPorts, udpPorts := k.ConfigLBServicePorts(service)
@@ -379,19 +392,6 @@ func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig)
 		svcs = append(svcs, svc)
 	}
 	return svcs
-}
-
-func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, ports []api.ServicePort) *api.Service {
-	svc := k.InitSvc(name, service)
-	svc.Spec.Ports = ports
-
-	svc.Spec.Type = api.ServiceType(service.ServiceType)
-
-	// Configure annotations
-	annotations := transformer.ConfigAnnotations(service)
-	svc.ObjectMeta.Annotations = annotations
-
-	return svc
 }
 
 // CreateService creates a k8s service
@@ -797,7 +797,7 @@ func (k *Kubernetes) SortServicesFirst(objs *[]runtime.Object) {
 }
 
 // RemoveDupObjects remove objects that are dups...eg. configmaps from env.
-// since we know for sure that the duplication can only happens on ConfigMap, so
+// since we know for sure that the duplication can only happen on ConfigMap, so
 // this code will looks like this for now.
 // + NetworkPolicy
 func (k *Kubernetes) RemoveDupObjects(objs *[]runtime.Object) {

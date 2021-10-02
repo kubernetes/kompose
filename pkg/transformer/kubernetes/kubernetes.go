@@ -1187,6 +1187,81 @@ func (k *Kubernetes) CreateNetworkPolicy(networkName string) (*networkingv1.Netw
 	return np, nil
 }
 
+func buildServiceImage(opt kobject.ConvertOptions, service kobject.ServiceConfig, name string) error {
+	// Must build the images before conversion (got to add service.Image in case 'image' key isn't provided
+	// Check that --build is set to true
+	// Check to see if there is an InputFile (required!) before we build the container
+	// Check that there's actually a Build key
+	// Lastly, we must have an Image name to continue
+	if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
+		// If there's no "image" key, use the name of the container that's built
+		if service.Image == "" {
+			service.Image = name
+		}
+
+		if service.Image == "" {
+			return fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
+		}
+
+		log.Infof("Build key detected. Attempting to build image '%s'", service.Image)
+
+		// Build the image!
+		err := transformer.BuildDockerImage(service, name)
+		if err != nil {
+			return errors.Wrapf(err, "Unable to build Docker image for service %v", name)
+		}
+
+		// Push the built image to the repo!
+		err = transformer.PushDockerImageWithOpt(service, name, opt)
+		if err != nil {
+			return errors.Wrapf(err, "Unable to push Docker image for service %v", name)
+		}
+	}
+	return nil
+}
+
+func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.ServiceConfig, name string, objects []runtime.Object) {
+	if k.PortsExist(service) {
+		if service.ServiceType == "LoadBalancer" {
+			svcs := k.CreateLBService(name, service)
+			for _, svc := range svcs {
+				objects = append(objects, svc)
+			}
+			if len(svcs) > 1 {
+				log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
+			}
+		} else {
+			svc := k.CreateService(name, service)
+			objects = append(objects, svc)
+			if service.ExposeService != "" {
+				objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+			}
+		}
+	} else {
+		if service.ServiceType == "Headless" {
+			svc := k.CreateHeadlessService(name, service)
+			objects = append(objects, svc)
+		} else {
+			log.Warnf("Service %q won't be created because 'ports' is not specified", name)
+		}
+	}
+}
+
+func (k *Kubernetes) configNetworkPolicyForService(service kobject.ServiceConfig, name string, objects []runtime.Object) error {
+	if len(service.Network) > 0 {
+		for _, net := range service.Network {
+			log.Infof("Network %s is detected at Source, shall be converted to equivalent NetworkPolicy at Destination", net)
+			np, err := k.CreateNetworkPolicy(net)
+
+			if err != nil {
+				return errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)
+			}
+			objects = append(objects, np)
+		}
+	}
+	return nil
+}
+
 // Transform maps komposeObject to k8s objects
 // returns object that are already sorted in the way that Services are first
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) ([]runtime.Object, error) {
@@ -1206,46 +1281,17 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	if opt.MultipleContainerMode {
 		komposeObjectToServiceConfigGroupMapping := KomposeObjectToServiceConfigGroupMapping(komposeObject)
 		for name, group := range komposeObjectToServiceConfigGroupMapping {
-			service := komposeObject.ServiceConfigs[name]
 			var objects []runtime.Object
-
-			service.WithKomposeAnnotation = opt.WithKomposeAnnotation
-
-			// Must build the images before conversion (got to add service.Image in case 'image' key isn't provided
-			// Check that --build is set to true
-			// Check to see if there is an InputFile (required!) before we build the container
-			// Check that there's actually a Build key
-			// Lastly, we must have an Image name to continue
-			if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
-				// If there's no "image" key, use the name of the container that's built
-				if service.Image == "" {
-					service.Image = name
-				}
-
-				if service.Image == "" {
-					return nil, fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
-				}
-
-				log.Infof("Build key detected. Attempting to build image '%s'", service.Image)
-
-				// Build the image!
-				err := transformer.BuildDockerImage(service, name)
-				if err != nil {
-					return nil, errors.Wrapf(err, "Unable to build Docker image for service %v", name)
-				}
-
-				// Push the built image to the repo!
-				err = transformer.PushDockerImageWithOpt(service, name, opt)
-				if err != nil {
-					return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
-				}
-			}
-
 			podSpec := PodSpec{}
 
 			// added a container
 			for _, service := range group {
+				service.WithKomposeAnnotation = opt.WithKomposeAnnotation
 				podSpec.Append(AddContainer(service, opt))
+
+				if err := buildServiceImage(opt, service, service.Name); err != nil {
+					return nil, err
+				}
 
 				// Generate pod only and nothing more
 				if (service.Restart == "no" || service.Restart == "on-failure") && !opt.IsPodController() {
@@ -1256,30 +1302,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					objects = k.CreateKubernetesObjects(name, service, opt)
 				}
 
-				if k.PortsExist(service) {
-					if service.ServiceType == "LoadBalancer" {
-						svcs := k.CreateLBService(name, service)
-						for _, svc := range svcs {
-							objects = append(objects, svc)
-						}
-						if len(svcs) > 1 {
-							log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
-						}
-					} else {
-						svc := k.CreateService(name, service)
-						objects = append(objects, svc)
-						if service.ExposeService != "" {
-							objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
-						}
-					}
-				} else {
-					if service.ServiceType == "Headless" {
-						svc := k.CreateHeadlessService(name, service)
-						objects = append(objects, svc)
-					} else {
-						log.Warnf("Service %q won't be created because 'ports' is not specified", name)
-					}
-				}
+				k.configKubeServiceAndIngressForService(service, name, objects)
 
 				// Configure the container volumes.
 				volumesMount, volumes, pvc, cms, err := k.ConfigVolumes(name, service)
@@ -1337,17 +1360,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				if err != nil {
 					return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 				}
-			}
 
-			if len(service.Network) > 0 {
-				for _, net := range service.Network {
-					log.Infof("Network %s is detected at Source, shall be converted to equivalent NetworkPolicy at Destination", net)
-					np, err := k.CreateNetworkPolicy(net)
-
-					if err != nil {
-						return nil, errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)
-					}
-					objects = append(objects, np)
+				if err = k.configNetworkPolicyForService(service, service.Name, objects); err != nil {
+					return nil, err
 				}
 			}
 
@@ -1361,34 +1376,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 			service.WithKomposeAnnotation = opt.WithKomposeAnnotation
 
-			// Must build the images before conversion (got to add service.Image in case 'image' key isn't provided
-			// Check that --build is set to true
-			// Check to see if there is an InputFile (required!) before we build the container
-			// Check that there's actually a Build key
-			// Lastly, we must have an Image name to continue
-			if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
-				// If there's no "image" key, use the name of the container that's built
-				if service.Image == "" {
-					service.Image = name
-				}
-
-				if service.Image == "" {
-					return nil, fmt.Errorf("image key required within build parameters in order to build and push service '%s'", name)
-				}
-
-				log.Infof("Build key detected. Attempting to build image '%s'", service.Image)
-
-				// Build the image!
-				err := transformer.BuildDockerImage(service, name)
-				if err != nil {
-					return nil, errors.Wrapf(err, "Unable to build Docker image for service %v", name)
-				}
-
-				// Push the built image to the repo!
-				err = transformer.PushDockerImageWithOpt(service, name, opt)
-				if err != nil {
-					return nil, errors.Wrapf(err, "Unable to push Docker image for service %v", name)
-				}
+			if err := buildServiceImage(opt, service, name); err != nil {
+				return nil, err
 			}
 
 			// Generate pod only and nothing more
@@ -1400,48 +1389,16 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				objects = k.CreateKubernetesObjects(name, service, opt)
 			}
 
-			if k.PortsExist(service) {
-				if service.ServiceType == "LoadBalancer" {
-					svcs := k.CreateLBService(name, service)
-					for _, svc := range svcs {
-						objects = append(objects, svc)
-					}
-					if len(svcs) > 1 {
-						log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
-					}
-				} else {
-					svc := k.CreateService(name, service)
-					objects = append(objects, svc)
-					if service.ExposeService != "" {
-						objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
-					}
-				}
-			} else {
-				if service.ServiceType == "Headless" {
-					svc := k.CreateHeadlessService(name, service)
-					objects = append(objects, svc)
-				} else {
-					log.Warnf("Service %q won't be created because 'ports' is not specified", name)
-				}
-			}
+			k.configKubeServiceAndIngressForService(service, name, objects)
 
 			err := k.UpdateKubernetesObjects(name, service, opt, &objects)
 			if err != nil {
 				return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 			}
 
-			if len(service.Network) > 0 {
-				for _, net := range service.Network {
-					log.Infof("Network %s is detected at Source, shall be converted to equivalent NetworkPolicy at Destination", net)
-					np, err := k.CreateNetworkPolicy(net)
-
-					if err != nil {
-						return nil, errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)
-					}
-					objects = append(objects, np)
-				}
+			if err := k.configNetworkPolicyForService(service, name, objects); err != nil {
+				return nil, err
 			}
-
 			allobjects = append(allobjects, objects...)
 		}
 	}
