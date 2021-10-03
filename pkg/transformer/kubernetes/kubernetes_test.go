@@ -693,7 +693,7 @@ func TestServiceAccountNameOnMultipleContainers(t *testing.T) {
 
 	createConfigs := func(labels map[string]string) map[string]kobject.ServiceConfig {
 		createConfig := func(name string) kobject.ServiceConfig {
-			config := newServiceConfig()
+			config := newSimpleServiceConfig()
 			config.Labels = map[string]string{compose.LabelServiceGroup: groupName}
 			for k, v := range labels {
 				config.Labels[k] = v
@@ -725,7 +725,7 @@ func TestServiceAccountNameOnMultipleContainers(t *testing.T) {
 		t.Log("Test case:", name)
 		k := Kubernetes{}
 		// Run Transform
-		objs, err := k.Transform(test.komposeObject, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true})
+		objs, err := k.Transform(test.komposeObject, kobject.ConvertOptions{ServiceGroupMode: "label", CreateD: true})
 		if err != nil {
 			t.Error(errors.Wrap(err, "k.Transform failed"))
 		}
