@@ -371,6 +371,8 @@ func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, p
 	svc := k.InitSvc(name, service)
 	// special case, only for loaderbalancer type
 	svc.Name = name
+	svc.Spec.Selector = transformer.ConfigLabels(service.Name)
+
 	svc.Spec.Ports = ports
 	svc.Spec.Type = api.ServiceType(service.ServiceType)
 
