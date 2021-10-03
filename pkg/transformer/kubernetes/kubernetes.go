@@ -1290,12 +1290,15 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 			// if using volume group, the name here will be a volume config string. reset to the first service name
 			if opt.ServiceGroupMode == "volume" {
-				var names []string
-				for _, svc := range group {
-					names = append(names, svc.Name)
+				if opt.ServiceGroupName != "" {
+					name = opt.ServiceGroupName
+				} else {
+					var names []string
+					for _, svc := range group {
+						names = append(names, svc.Name)
+					}
+					name = strings.Join(names, "-")
 				}
-				// TODO: set to first service or combined...
-				name = strings.Join(names, "-")
 			}
 
 			// added a container

@@ -182,6 +182,7 @@ func SetVolumeMountPaths(volumesMount []api.VolumeMount) mapset.Set {
 	for _, volumeMount := range volumesMount {
 		set.Add(volumeMount.MountPath)
 	}
+
 	return set
 }
 

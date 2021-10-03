@@ -62,6 +62,7 @@ var (
 	MultipleContainerMode bool
 
 	ServiceGroupMode string
+	ServiceGroupName string
 )
 
 var convertCmd = &cobra.Command{
@@ -107,6 +108,7 @@ var convertCmd = &cobra.Command{
 			WithKomposeAnnotation:       WithKomposeAnnotation,
 			MultipleContainerMode:       MultipleContainerMode,
 			ServiceGroupMode:            ServiceGroupMode,
+			ServiceGroupName:            ServiceGroupName,
 		}
 
 		if ServiceGroupMode == "" && MultipleContainerMode {
@@ -141,6 +143,7 @@ func init() {
 	convertCmd.Flags().MarkHidden("deployment")
 	convertCmd.Flags().BoolVar(&MultipleContainerMode, "multiple-container-mode", false, "Create multiple containers grouped by 'kompose.service.group' label")
 	convertCmd.Flags().StringVar(&ServiceGroupMode, "service-group-mode", "", "Group multiple service to create single workload by `label`(`kompose.service.group`) or `volume`(shared volumes)")
+	convertCmd.Flags().StringVar(&ServiceGroupName, "service-group-name", "", "Using with --service-group-mode=volume to specific a final service name for the group")
 	convertCmd.Flags().MarkDeprecated("multiple-container-mode", "use --service-group-mode=label")
 
 	// OpenShift only
@@ -194,6 +197,7 @@ Kubernetes Flags:
   -c, --chart                    Create a Helm chart for converted objects
       --controller               Set the output controller ("deployment"|"daemonSet"|"replicationController")
       --service-group-mode       Group multiple service to create single workload by "label"("kompose.service.group") or "volume"(shared volumes)
+      --service-group-name       Using with --service-group-mode=volume to specific a final service name for the group
 
 OpenShift Flags:
       --build-branch             Specify repository branch to use for buildconfig (default is current branch name)

@@ -70,6 +70,14 @@ func newServiceConfig() kobject.ServiceConfig {
 	}
 }
 
+func newSimpleServiceConfig() kobject.ServiceConfig {
+	return kobject.ServiceConfig{
+		Name:          "app",
+		ContainerName: "name",
+		Image:         "image",
+	}
+}
+
 func newKomposeObject() kobject.KomposeObject {
 	return kobject.KomposeObject{
 		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newServiceConfig()},
@@ -602,15 +610,13 @@ func TestConfigAffinity(t *testing.T) {
 
 func TestMultipleContainersInPod(t *testing.T) {
 	groupName := "pod_group"
-	containerName := ""
 
-	createConfig := func(name string, containerName *string) kobject.ServiceConfig {
-		config := newServiceConfig()
-		config.Network = nil
+	createConfig := func(name string, containerName string) kobject.ServiceConfig {
+		config := newSimpleServiceConfig()
 		config.Labels = map[string]string{compose.LabelServiceGroup: groupName}
 		config.Name = name
-		if containerName != nil {
-			config.ContainerName = *containerName
+		if containerName != "" {
+			config.ContainerName = containerName
 		}
 		config.Volumes = []kobject.Volumes{
 			{
@@ -627,28 +633,13 @@ func TestMultipleContainersInPod(t *testing.T) {
 		expectedNumObjs int
 		expectedNames   []string
 	}{
-		"Converted multiple containers": {
-			kobject.KomposeObject{
-				ServiceConfigs: map[string]kobject.ServiceConfig{
-					"app1": createConfig("app1", &containerName),
-					"app2": createConfig("app2", &containerName),
-				},
-			}, kobject.ConvertOptions{MultipleContainerMode: true}, 3, []string{"app1", "app2"}},
 		"Converted multiple containers to Deployments (D)": {
 			kobject.KomposeObject{
 				ServiceConfigs: map[string]kobject.ServiceConfig{
-					"app1": createConfig("app1", &containerName),
-					"app2": createConfig("app2", &containerName),
+					"app1": createConfig("app1", "app1"),
+					"app2": createConfig("app2", "app2"),
 				},
-			}, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true}, 4, []string{"app1", "app2"}},
-		"Converted multiple containers (ContainerName are nil) to Deployments (D)": {
-			kobject.KomposeObject{
-				ServiceConfigs: map[string]kobject.ServiceConfig{
-					"app1": createConfig("app1", nil),
-					"app2": createConfig("app2", nil),
-				},
-			}, kobject.ConvertOptions{MultipleContainerMode: true, CreateD: true}, 4, []string{"name", "name"}},
-		// TODO: add more tests
+			}, kobject.ConvertOptions{ServiceGroupMode: "label", CreateD: true}, 2, []string{"app1", "app2"}},
 	}
 
 	for name, test := range testCases {
