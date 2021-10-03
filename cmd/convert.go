@@ -60,6 +60,8 @@ var (
 	// MultipleContainerMode which enables creating multi containers in a single pod is a developping function.
 	// default is false
 	MultipleContainerMode bool
+
+	ServiceGroupMode string
 )
 
 var convertCmd = &cobra.Command{
@@ -104,6 +106,11 @@ var convertCmd = &cobra.Command{
 			YAMLIndent:                  ConvertYAMLIndent,
 			WithKomposeAnnotation:       WithKomposeAnnotation,
 			MultipleContainerMode:       MultipleContainerMode,
+			ServiceGroupMode:            ServiceGroupMode,
+		}
+
+		if ServiceGroupMode == "" && MultipleContainerMode {
+			ConvertOpt.ServiceGroupMode = "label"
 		}
 
 		app.ValidateFlags(args, cmd, &ConvertOpt)
@@ -133,6 +140,8 @@ func init() {
 	convertCmd.Flags().MarkHidden("replication-controller")
 	convertCmd.Flags().MarkHidden("deployment")
 	convertCmd.Flags().BoolVar(&MultipleContainerMode, "multiple-container-mode", false, "Create multiple containers grouped by 'kompose.service.group' label")
+	convertCmd.Flags().StringVar(&ServiceGroupMode, "service-group-mode", "", "Group multiple service to create single workload by `label`(`kompose.service.group`) or `volume`(shared volumes)")
+	convertCmd.Flags().MarkDeprecated("multiple-container-mode", "use --service-group-mode=label")
 
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
@@ -182,15 +191,13 @@ Available Commands:{{range .Commands}}{{if .IsAvailableCommand}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{ if .HasAvailableLocalFlags}}
 
 Kubernetes Flags:
-      --daemon-set               Generate a Kubernetes daemonset object (deprecated, use --controller instead)
-  -d, --deployment               Generate a Kubernetes deployment object (deprecated, use --controller instead)
   -c, --chart                    Create a Helm chart for converted objects
-      --replication-controller   Generate a Kubernetes replication controller object (deprecated, use --controller instead)
+      --controller               Set the output controller ("deployment"|"daemonSet"|"replicationController")
+      --service-group-mode       Group multiple service to create single workload by "label"("kompose.service.group") or "volume"(shared volumes)
 
 OpenShift Flags:
       --build-branch             Specify repository branch to use for buildconfig (default is current branch name)
       --build-repo               Specify source repository for buildconfig (default is current branch's remote url)
-      --deployment-config        Generate an OpenShift deployment config object
       --insecure-repository      Specify to use insecure docker repository while generating Openshift image stream object
 
 Flags:

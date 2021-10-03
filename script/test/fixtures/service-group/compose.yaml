@@ -1,0 +1,28 @@
+version: "3.5"
+
+services:
+  librenms:
+    image: librenms/librenms:latest
+    container_name: librenms
+    hostname: librenms
+    ports:
+      - target: 8000
+        published: 8000
+        protocol: tcp
+    volumes:
+      - "./librenms:/data"
+    environment:
+      - "TZ=${TZ}"
+    restart: always
+
+  dispatcher:
+    image: librenms/dispatcher:latest
+    container_name: dispatcher
+    hostname: dispatcher
+    depends_on:
+      - librenms
+    volumes:
+      - "./librenms:/data"
+    environment:
+      - "TZ=${TZ}"
+    restart: always

@@ -141,3 +141,9 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/expose/output-k8s.json"
 ocp_output="$KOMPOSE_ROOT/script/test/fixtures/expose/output-ocp.json"
 convert::expect_success "$k8s_cmd" "$k8s_output"
 convert::expect_success "$ocp_cmd" "$ocp_output"
+
+
+# test service group by volume, not support openshift for now
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/service-group/compose.yaml convert --stdout -j --with-kompose-annotation=false --service-group-mode=volume"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/service-group/output-k8s.json"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
