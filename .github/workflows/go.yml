@@ -5,6 +5,9 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+env:
+  # Avoid noisy outputs like "tput: No value for $TERM and no -T specified"
+  TERM: dumb
 
 jobs:
 
@@ -25,8 +28,6 @@ jobs:
     - name: Build
       run: make bin
 
-    - name: Test
-      run: make test
       
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.1.4

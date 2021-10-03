@@ -80,6 +80,8 @@ type ConvertOptions struct {
 	WithKomposeAnnotation bool
 
 	MultipleContainerMode bool
+	ServiceGroupMode      string
+	ServiceGroupName      string
 }
 
 // IsPodController indicate if the user want to use a controller
@@ -153,6 +155,7 @@ type ServiceConfig struct {
 	ConfigsMetaData map[string]dockerCliTypes.ConfigObjConfig `compose:""`
 
 	WithKomposeAnnotation bool `compose:""`
+	InGroup               bool
 }
 
 // HealthChecks used to distinguish between liveness and readiness
@@ -187,6 +190,11 @@ type Ports struct {
 	ContainerPort int32
 	HostIP        string
 	Protocol      string // Upper string
+}
+
+// ID returns an unique id for this port settings, to avoid conflict
+func (port *Ports) ID() string {
+	return string(port.ContainerPort) + port.Protocol
 }
 
 // Volumes holds the volume struct of container

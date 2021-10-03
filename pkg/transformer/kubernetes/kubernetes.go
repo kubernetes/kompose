@@ -106,7 +106,6 @@ func (k *Kubernetes) InitPodSpec(name string, image string, pullSecret string) a
 	if image == "" {
 		image = name
 	}
-
 	pod := api.PodSpec{
 		Containers: []api.Container{
 			{
@@ -193,6 +192,8 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 }
 
 // InitSvc initializes Kubernetes Service object
+// The created service name will = ServiceConfig.Name, but the selector may be not.
+// If this service is grouped, the selector may be another name = name
 func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Service {
 	svc := &api.Service{
 		TypeMeta: metav1.TypeMeta{
@@ -200,12 +201,12 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   name,
+			Name:   service.Name,
 			Labels: transformer.ConfigLabels(name),
 		},
 		// The selector uses the service.Name, which must be consistent with workloads label
 		Spec: api.ServiceSpec{
-			Selector: transformer.ConfigLabels(service.Name),
+			Selector: transformer.ConfigLabels(name),
 		},
 	}
 	return svc
@@ -570,11 +571,10 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 
 // ConfigPorts configures the container ports.
 func ConfigPorts(service kobject.ServiceConfig) []api.ContainerPort {
-	ports := []api.ContainerPort{}
+	var ports []api.ContainerPort
 	exist := map[string]bool{}
 	for _, port := range service.Port {
-		// temp use as an id
-		if exist[string(port.ContainerPort)+port.Protocol] {
+		if exist[port.ID()] {
 			continue
 		}
 		containerPort := api.ContainerPort{
@@ -586,7 +586,7 @@ func ConfigPorts(service kobject.ServiceConfig) []api.ContainerPort {
 			containerPort.Protocol = protocol
 		}
 		ports = append(ports, containerPort)
-		exist[string(port.ContainerPort)+port.Protocol] = true
+		exist[port.ID()] = true
 	}
 
 	return ports
@@ -831,6 +831,9 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			} else {
 				volumeName = volume.PVCName
 			}
+			// to support service group bases on volume, we need use the new group name to replace the origin service name
+			// in volume name. For normal service, this should have no effect
+			volumeName = strings.Replace(volumeName, service.Name, name, 1)
 			count++
 		} else {
 			volumeName = volume.VolumeName
@@ -1242,7 +1245,7 @@ func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.Servi
 			svc := k.CreateHeadlessService(name, service)
 			*objects = append(*objects, svc)
 		} else {
-			log.Warnf("Service %q won't be created because 'ports' is not specified", name)
+			log.Warnf("Service %q won't be created because 'ports' is not specified", service.Name)
 		}
 	}
 }
@@ -1278,30 +1281,50 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		}
 	}
 
-	if opt.MultipleContainerMode {
-		komposeObjectToServiceConfigGroupMapping := KomposeObjectToServiceConfigGroupMapping(komposeObject)
+	if opt.ServiceGroupMode != "" {
+		log.Debugf("Service group mode is: %s", opt.ServiceGroupMode)
+		komposeObjectToServiceConfigGroupMapping := KomposeObjectToServiceConfigGroupMapping(&komposeObject, opt)
 		for name, group := range komposeObjectToServiceConfigGroupMapping {
 			var objects []runtime.Object
 			podSpec := PodSpec{}
 
+			// if using volume group, the name here will be a volume config string. reset to the first service name
+			if opt.ServiceGroupMode == "volume" {
+				if opt.ServiceGroupName != "" {
+					name = opt.ServiceGroupName
+				} else {
+					var names []string
+					for _, svc := range group {
+						names = append(names, svc.Name)
+					}
+					name = strings.Join(names, "-")
+				}
+			}
+
 			// added a container
+			// ports conflict check between services
+			portsUses := map[string]bool{}
+
 			for _, service := range group {
+				// first do ports check
+				ports := ConfigPorts(service)
+				for _, port := range ports {
+					key := string(port.ContainerPort) + string(port.Protocol)
+					if portsUses[key] {
+						return nil, fmt.Errorf("detect ports conflict when group services, service: %s, port: %d", service.Name, port.ContainerPort)
+					}
+					portsUses[key] = true
+				}
+
+				log.Infof("Group Service %s to [%s]", service.Name, name)
 				service.WithKomposeAnnotation = opt.WithKomposeAnnotation
 				podSpec.Append(AddContainer(service, opt))
 
 				if err := buildServiceImage(opt, service, service.Name); err != nil {
 					return nil, err
 				}
-
-				// Generate pod only and nothing more
-				if (service.Restart == "no" || service.Restart == "on-failure") && !opt.IsPodController() {
-					log.Infof("Create kubernetes pod instead of pod controller due to restart policy: %s", service.Restart)
-					pod := k.InitPod(name, service)
-					objects = append(objects, pod)
-				} else {
-					objects = k.CreateWorkloadAndConfigMapObjects(name, service, opt)
-				}
-
+				// override..
+				objects = append(objects, k.CreateWorkloadAndConfigMapObjects(name, service, opt)...)
 				k.configKubeServiceAndIngressForService(service, name, &objects)
 
 				// Configure the container volumes.
@@ -1309,19 +1332,16 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				if err != nil {
 					return nil, errors.Wrap(err, "k.ConfigVolumes failed")
 				}
+				// Configure Tmpfs
+				if len(service.TmpFs) > 0 {
+					TmpVolumesMount, TmpVolumes := k.ConfigTmpfs(name, service)
+					volumes = append(volumes, TmpVolumes...)
+					volumesMount = append(volumesMount, TmpVolumesMount...)
+				}
 				podSpec.Append(
 					SetVolumeMounts(volumesMount),
 					SetVolumes(volumes),
 				)
-
-				// Configure Tmpfs
-				if len(service.TmpFs) > 0 {
-					TmpVolumesMount, TmpVolumes := k.ConfigTmpfs(name, service)
-
-					volumes = append(volumes, TmpVolumes...)
-
-					volumesMount = append(volumesMount, TmpVolumesMount...)
-				}
 
 				if pvc != nil {
 					// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`
@@ -1368,39 +1388,44 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 			allobjects = append(allobjects, objects...)
 		}
-	} else {
-		sortedKeys := SortedKeys(komposeObject)
-		for _, name := range sortedKeys {
-			service := komposeObject.ServiceConfigs[name]
-			var objects []runtime.Object
+	}
+	sortedKeys := SortedKeys(komposeObject)
+	for _, name := range sortedKeys {
+		service := komposeObject.ServiceConfigs[name]
 
-			service.WithKomposeAnnotation = opt.WithKomposeAnnotation
-
-			if err := buildServiceImage(opt, service, name); err != nil {
-				return nil, err
-			}
-
-			// Generate pod only and nothing more
-			if (service.Restart == "no" || service.Restart == "on-failure") && !opt.IsPodController() {
-				log.Infof("Create kubernetes pod instead of pod controller due to restart policy: %s", service.Restart)
-				pod := k.InitPod(name, service)
-				objects = append(objects, pod)
-			} else {
-				objects = k.CreateWorkloadAndConfigMapObjects(name, service, opt)
-			}
-
-			k.configKubeServiceAndIngressForService(service, name, &objects)
-
-			err := k.UpdateKubernetesObjects(name, service, opt, &objects)
-			if err != nil {
-				return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
-			}
-
-			if err := k.configNetworkPolicyForService(service, name, &objects); err != nil {
-				return nil, err
-			}
-			allobjects = append(allobjects, objects...)
+		// if service belongs to a group, we already processed it
+		if service.InGroup {
+			continue
 		}
+
+		var objects []runtime.Object
+
+		service.WithKomposeAnnotation = opt.WithKomposeAnnotation
+
+		if err := buildServiceImage(opt, service, name); err != nil {
+			return nil, err
+		}
+
+		// Generate pod only and nothing more
+		if (service.Restart == "no" || service.Restart == "on-failure") && !opt.IsPodController() {
+			log.Infof("Create kubernetes pod instead of pod controller due to restart policy: %s", service.Restart)
+			pod := k.InitPod(name, service)
+			objects = append(objects, pod)
+		} else {
+			objects = k.CreateWorkloadAndConfigMapObjects(name, service, opt)
+		}
+
+		k.configKubeServiceAndIngressForService(service, name, &objects)
+
+		err := k.UpdateKubernetesObjects(name, service, opt, &objects)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
+		}
+
+		if err := k.configNetworkPolicyForService(service, name, &objects); err != nil {
+			return nil, err
+		}
+		allobjects = append(allobjects, objects...)
 	}
 
 	// sort all object so Services are first

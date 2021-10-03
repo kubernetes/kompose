@@ -369,8 +369,11 @@ func (k *Kubernetes) PortsExist(service kobject.ServiceConfig) bool {
 
 func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, ports []api.ServicePort) *api.Service {
 	svc := k.InitSvc(name, service)
-	svc.Spec.Ports = ports
+	// special case, only for loaderbalancer type
+	svc.Name = name
+	svc.Spec.Selector = transformer.ConfigLabels(service.Name)
 
+	svc.Spec.Ports = ports
 	svc.Spec.Type = api.ServiceType(service.ServiceType)
 
 	// Configure annotations
@@ -520,9 +523,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 
 	// fillTemplate fills the pod template with the value calculated from config
 	fillTemplate := func(template *api.PodTemplateSpec) error {
-		if len(service.ContainerName) > 0 {
-			template.Spec.Containers[0].Name = FormatContainerName(service.ContainerName)
-		}
+		template.Spec.Containers[0].Name = GetContainerName(service)
 		template.Spec.Containers[0].Env = envs
 		template.Spec.Containers[0].Command = service.Command
 		template.Spec.Containers[0].Args = service.Args
@@ -697,17 +698,51 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	return nil
 }
 
-// KomposeObjectToServiceConfigGroupMapping returns the service config group by name
-func KomposeObjectToServiceConfigGroupMapping(komposeObject kobject.KomposeObject) map[string]kobject.ServiceConfigGroup {
+// getServiceVolumesID create a unique id for the service's volume mounts
+func getServiceVolumesID(service kobject.ServiceConfig) string {
+	id := ""
+	for _, v := range service.VolList {
+		id += v
+	}
+	return id
+}
+
+// getServiceGroupID ...
+// return empty string should mean this service should go alone
+func getServiceGroupID(service kobject.ServiceConfig, mode string) string {
+	if mode == "label" {
+		return service.Labels[compose.LabelServiceGroup]
+	}
+	if mode == "volume" {
+		return getServiceVolumesID(service)
+	}
+	return ""
+}
+
+// KomposeObjectToServiceConfigGroupMapping returns the service config group by name or by volume
+// This group function works as following
+// 1. Support two mode
+//   (1): label: use a custom label, the service that contains it will be merged to one workload.
+//   (2): volume: the service that share to exactly same volume config will be merged to one workload. If use pvc, only
+//                 create one for this group.
+// 2. If service containers restart policy and no workload argument provide and it's restart policy looks like a pod, then
+//    this service should generate a pod. If group mode specified, it should be grouped and ignore the restart policy.
+// 3. If group mode specified, port conflict between services in one group will be ignored, and multiple service should be created.
+// 4. If `volume` group mode specified, we don't have an appropriate name for this combined service, use the first one for now.
+//    A warn/info message should be printed to let the user know.
+func KomposeObjectToServiceConfigGroupMapping(komposeObject *kobject.KomposeObject, opt kobject.ConvertOptions) map[string]kobject.ServiceConfigGroup {
 	serviceConfigGroup := make(map[string]kobject.ServiceConfigGroup)
+
 	for name, service := range komposeObject.ServiceConfigs {
-		if groupID, ok := service.Labels[compose.LabelServiceGroup]; ok {
+		groupID := getServiceGroupID(service, opt.ServiceGroupMode)
+		if groupID != "" {
 			service.Name = name
+			service.InGroup = true
 			serviceConfigGroup[groupID] = append(serviceConfigGroup[groupID], service)
-		} else {
-			serviceConfigGroup[name] = append(serviceConfigGroup[name], service)
+			komposeObject.ServiceConfigs[name] = service
 		}
 	}
+
 	return serviceConfigGroup
 }
 
@@ -890,6 +925,14 @@ func FormatFileName(name string) string {
 //FormatContainerName format Container name
 func FormatContainerName(name string) string {
 	name = strings.Replace(name, "_", "-", -1)
+	return name
+}
+
+func GetContainerName(service kobject.ServiceConfig) string {
+	name := service.Name
+	if len(service.ContainerName) > 0 {
+		name = FormatContainerName(service.ContainerName)
+	}
 	return name
 }
 

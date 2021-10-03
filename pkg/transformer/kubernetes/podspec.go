@@ -21,16 +21,11 @@ type PodSpecOption func(*PodSpec)
 
 func AddContainer(service kobject.ServiceConfig, opt kobject.ConvertOptions) PodSpecOption {
 	return func(podSpec *PodSpec) {
-		name := service.Name
+		name := GetContainerName(service)
 		image := service.Image
 
 		if image == "" {
 			image = name
-		}
-
-		// do not override in openshift case?
-		if len(service.ContainerName) > 0 {
-			name = FormatContainerName(service.ContainerName)
 		}
 
 		envs, err := ConfigEnvs(service, opt)
@@ -187,6 +182,7 @@ func SetVolumeMountPaths(volumesMount []api.VolumeMount) mapset.Set {
 	for _, volumeMount := range volumesMount {
 		set.Add(volumeMount.MountPath)
 	}
+
 	return set
 }
 
@@ -214,7 +210,9 @@ func SetPorts(service kobject.ServiceConfig) PodSpecOption {
 		ports := ConfigPorts(service)
 
 		for i := range podSpec.Containers {
-			podSpec.Containers[i].Ports = ports
+			if GetContainerName(service) == podSpec.Containers[i].Name {
+				podSpec.Containers[i].Ports = ports
+			}
 		}
 	}
 }
