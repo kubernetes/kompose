@@ -369,8 +369,9 @@ func (k *Kubernetes) PortsExist(service kobject.ServiceConfig) bool {
 
 func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, ports []api.ServicePort) *api.Service {
 	svc := k.InitSvc(name, service)
+	// special case, only for loaderbalancer type
+	svc.Name = name
 	svc.Spec.Ports = ports
-
 	svc.Spec.Type = api.ServiceType(service.ServiceType)
 
 	// Configure annotations
