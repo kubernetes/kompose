@@ -490,9 +490,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	// Configure Tmpfs
 	if len(service.TmpFs) > 0 {
 		TmpVolumesMount, TmpVolumes := k.ConfigTmpfs(name, service)
-
 		volumes = append(volumes, TmpVolumes...)
-
 		volumesMount = append(volumesMount, TmpVolumesMount...)
 	}
 

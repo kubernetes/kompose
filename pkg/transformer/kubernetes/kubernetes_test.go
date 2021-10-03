@@ -606,6 +606,7 @@ func TestMultipleContainersInPod(t *testing.T) {
 
 	createConfig := func(name string, containerName *string) kobject.ServiceConfig {
 		config := newServiceConfig()
+		config.Network = nil
 		config.Labels = map[string]string{compose.LabelServiceGroup: groupName}
 		config.Name = name
 		if containerName != nil {
