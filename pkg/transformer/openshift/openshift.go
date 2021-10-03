@@ -44,10 +44,6 @@ type OpenShift struct {
 	kubernetes.Kubernetes
 }
 
-// TIMEOUT is how long we'll wait for the termination of OpenShift resource to be successful
-// used when undeploying resources from OpenShift
-const TIMEOUT = 300
-
 // list of all unsupported keys for this transformer
 // Keys are names of variables in kobject struct.
 // this is map to make searching for keys easier
@@ -333,7 +329,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			pod := o.InitPod(name, service)
 			objects = append(objects, pod)
 		} else {
-			objects = o.CreateKubernetesObjects(name, service, opt)
+			objects = o.CreateWorkloadAndConfigMapObjects(name, service, opt)
 
 			if opt.CreateDeploymentConfig {
 				objects = append(objects, o.initDeploymentConfig(name, service, replica)) // OpenShift DeploymentConfigs
@@ -389,7 +385,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 
 		if o.PortsExist(service) {
 			if service.ServiceType == "LoadBalancer" {
-				svcs := o.CreateLBService(name, service, objects)
+				svcs := o.CreateLBService(name, service)
 				for _, svc := range svcs {
 					objects = append(objects, svc)
 				}
@@ -397,7 +393,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 					log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
 				}
 			} else {
-				svc := o.CreateService(name, service, objects)
+				svc := o.CreateService(name, service)
 				objects = append(objects, svc)
 
 				if service.ExposeService != "" {
@@ -405,7 +401,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				}
 			}
 		} else if service.ServiceType == "Headless" {
-			svc := o.CreateHeadlessService(name, service, objects)
+			svc := o.CreateHeadlessService(name, service)
 			objects = append(objects, svc)
 		}
 

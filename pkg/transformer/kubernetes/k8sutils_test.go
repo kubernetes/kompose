@@ -61,13 +61,13 @@ func TestCreateService(t *testing.T) {
 		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
 	}
 	k := Kubernetes{}
-	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	_, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
 	if err != nil {
 		t.Error(errors.Wrap(err, "k.Transform failed"))
 	}
 
 	// Test the creation of the service
-	svc := k.CreateService("foo", service, objects)
+	svc := k.CreateService("foo", service)
 
 	if svc.Spec.Ports[0].Port != 123 {
 		t.Errorf("Expected port 123 upon conversion, actual %d", svc.Spec.Ports[0].Port)
