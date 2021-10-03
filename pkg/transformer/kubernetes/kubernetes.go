@@ -1220,34 +1220,34 @@ func buildServiceImage(opt kobject.ConvertOptions, service kobject.ServiceConfig
 	return nil
 }
 
-func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.ServiceConfig, name string, objects []runtime.Object) {
+func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.ServiceConfig, name string, objects *[]runtime.Object) {
 	if k.PortsExist(service) {
 		if service.ServiceType == "LoadBalancer" {
 			svcs := k.CreateLBService(name, service)
 			for _, svc := range svcs {
-				objects = append(objects, svc)
+				*objects = append(*objects, svc)
 			}
 			if len(svcs) > 1 {
 				log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
 			}
 		} else {
 			svc := k.CreateService(name, service)
-			objects = append(objects, svc)
+			*objects = append(*objects, svc)
 			if service.ExposeService != "" {
-				objects = append(objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
+				*objects = append(*objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
 			}
 		}
 	} else {
 		if service.ServiceType == "Headless" {
 			svc := k.CreateHeadlessService(name, service)
-			objects = append(objects, svc)
+			*objects = append(*objects, svc)
 		} else {
 			log.Warnf("Service %q won't be created because 'ports' is not specified", name)
 		}
 	}
 }
 
-func (k *Kubernetes) configNetworkPolicyForService(service kobject.ServiceConfig, name string, objects []runtime.Object) error {
+func (k *Kubernetes) configNetworkPolicyForService(service kobject.ServiceConfig, name string, objects *[]runtime.Object) error {
 	if len(service.Network) > 0 {
 		for _, net := range service.Network {
 			log.Infof("Network %s is detected at Source, shall be converted to equivalent NetworkPolicy at Destination", net)
@@ -1256,7 +1256,7 @@ func (k *Kubernetes) configNetworkPolicyForService(service kobject.ServiceConfig
 			if err != nil {
 				return errors.Wrapf(err, "Unable to create Network Policy for network %v for service %v", net, name)
 			}
-			objects = append(objects, np)
+			*objects = append(*objects, np)
 		}
 	}
 	return nil
@@ -1302,7 +1302,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					objects = k.CreateKubernetesObjects(name, service, opt)
 				}
 
-				k.configKubeServiceAndIngressForService(service, name, objects)
+				k.configKubeServiceAndIngressForService(service, name, &objects)
 
 				// Configure the container volumes.
 				volumesMount, volumes, pvc, cms, err := k.ConfigVolumes(name, service)
@@ -1361,7 +1361,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 				}
 
-				if err = k.configNetworkPolicyForService(service, service.Name, objects); err != nil {
+				if err = k.configNetworkPolicyForService(service, service.Name, &objects); err != nil {
 					return nil, err
 				}
 			}
@@ -1389,14 +1389,14 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				objects = k.CreateKubernetesObjects(name, service, opt)
 			}
 
-			k.configKubeServiceAndIngressForService(service, name, objects)
+			k.configKubeServiceAndIngressForService(service, name, &objects)
 
 			err := k.UpdateKubernetesObjects(name, service, opt, &objects)
 			if err != nil {
 				return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 			}
 
-			if err := k.configNetworkPolicyForService(service, name, objects); err != nil {
+			if err := k.configNetworkPolicyForService(service, name, &objects); err != nil {
 				return nil, err
 			}
 			allobjects = append(allobjects, objects...)
