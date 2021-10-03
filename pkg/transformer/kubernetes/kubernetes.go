@@ -1072,8 +1072,8 @@ func configConstrains(constrains map[string]string, operator api.NodeSelectorOpe
 	return rs
 }
 
-// CreateKubernetesObjects generates a Kubernetes artifact for each input type service
-func (k *Kubernetes) CreateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
+// CreateWorkloadAndConfigMapObjects generates a Kubernetes artifact for each input type service
+func (k *Kubernetes) CreateWorkloadAndConfigMapObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
 	var objects []runtime.Object
 	var replica int
 
@@ -1299,7 +1299,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					pod := k.InitPod(name, service)
 					objects = append(objects, pod)
 				} else {
-					objects = k.CreateKubernetesObjects(name, service, opt)
+					objects = k.CreateWorkloadAndConfigMapObjects(name, service, opt)
 				}
 
 				k.configKubeServiceAndIngressForService(service, name, &objects)
@@ -1386,7 +1386,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				pod := k.InitPod(name, service)
 				objects = append(objects, pod)
 			} else {
-				objects = k.CreateKubernetesObjects(name, service, opt)
+				objects = k.CreateWorkloadAndConfigMapObjects(name, service, opt)
 			}
 
 			k.configKubeServiceAndIngressForService(service, name, &objects)

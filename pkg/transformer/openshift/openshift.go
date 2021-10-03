@@ -329,7 +329,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			pod := o.InitPod(name, service)
 			objects = append(objects, pod)
 		} else {
-			objects = o.CreateKubernetesObjects(name, service, opt)
+			objects = o.CreateWorkloadAndConfigMapObjects(name, service, opt)
 
 			if opt.CreateDeploymentConfig {
 				objects = append(objects, o.initDeploymentConfig(name, service, replica)) // OpenShift DeploymentConfigs
