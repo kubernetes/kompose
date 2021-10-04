@@ -4,8 +4,6 @@ go 1.13
 
 replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.6.0
 
-replace github.com/docker/libcompose => github.com/docker/libcompose v0.4.1-0.20190808084053-143e0f3f1ab9
-
 replace github.com/docker/cli => github.com/docker/cli v20.10.0-beta1.0.20201029214301-1d20b15adc38+incompatible
 
 replace github.com/xeipuuv/gojsonschema => github.com/xeipuuv/gojsonschema v1.2.1-0.20201027075954-b076d39a02e5
@@ -17,29 +15,26 @@ replace github.com/containerd/containerd => github.com/containerd/containerd v1.
 replace golang.org/x/sys => golang.org/x/sys v0.0.0-20201029080932-201ba4db2418
 
 require (
+	github.com/compose-spec/compose-go v1.0.2
 	github.com/deckarep/golang-set v1.7.1
 	github.com/docker/cli v0.0.0-20190711175710-5b38d82aa076
 	github.com/docker/go-connections v0.4.0
-	github.com/docker/libcompose v0.4.0
 	github.com/fatih/structs v1.1.0
 	github.com/fsouza/go-dockerclient v1.6.5
-	github.com/google/go-cmp v0.4.0
+	github.com/google/go-cmp v0.5.5
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
-	github.com/imdario/mergo v0.3.10 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/moby/sys/mount v0.1.1 // indirect
 	github.com/moby/term v0.0.0-20200915141129-7f0af18e79f2 // indirect
 	github.com/novln/docker-parser v1.0.0
 	github.com/openshift/api v0.0.0-20200803131051-87466835fcc0
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
 	golang.org/x/tools v0.1.1
-	gopkg.in/yaml.v2 v2.3.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
-	gotest.tools/v3 v3.0.3 // indirect
 	k8s.io/api v0.19.0-rc.2
 	k8s.io/apimachinery v0.19.0-rc.2
 )

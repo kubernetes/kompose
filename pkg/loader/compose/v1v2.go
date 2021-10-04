@@ -19,71 +19,17 @@ package compose
 import (
 	"fmt"
 	"net"
-	"os"
-	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/docker/cli/opts"
 	"github.com/docker/go-connections/nat"
-	"github.com/docker/libcompose/config"
-	"github.com/docker/libcompose/lookup"
-	"github.com/docker/libcompose/project"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
 	api "k8s.io/api/core/v1"
 )
-
-// Parse Docker Compose with libcompose (only supports v1 and v2). Eventually we will
-// switch to using only libcompose once v3 is supported.
-func parseV1V2(files []string) (kobject.KomposeObject, error) {
-	// Gather the appropriate context for parsing
-	context := &project.Context{}
-	context.ComposeFiles = files
-
-	if context.ResourceLookup == nil {
-		context.ResourceLookup = &lookup.FileResourceLookup{}
-	}
-
-	if context.EnvironmentLookup == nil {
-		cwd, err := os.Getwd()
-		if err != nil {
-			return kobject.KomposeObject{}, nil
-		}
-		context.EnvironmentLookup = &lookup.ComposableEnvLookup{
-			Lookups: []config.EnvironmentLookup{
-				&lookup.EnvfileLookup{
-					Path: filepath.Join(cwd, ".env"),
-				},
-				&lookup.OsEnvLookup{},
-			},
-		}
-	}
-
-	// Load the context and let's start parsing
-	composeObject := project.NewProject(context, nil, nil)
-	err := composeObject.Parse()
-	if err != nil {
-		return kobject.KomposeObject{}, errors.Wrap(err, "composeObject.Parse() failed, Failed to load compose file")
-	}
-
-	noSupKeys := checkUnsupportedKey(composeObject)
-	for _, keyName := range noSupKeys {
-		log.Warningf("Unsupported %s key - ignoring", keyName)
-	}
-
-	// Map the parsed struct to a struct we understand (kobject)
-	komposeObject, err := libComposeToKomposeMapping(composeObject)
-	if err != nil {
-		return kobject.KomposeObject{}, err
-	}
-
-	return komposeObject, nil
-}
 
 // Load ports from compose file
 // also load `expose` here
@@ -164,143 +110,6 @@ func loadPorts(composePorts []string, expose []string) ([]kobject.Ports, error) 
 	}
 
 	return kp, nil
-}
-
-// Uses libcompose's APIProject type and converts it to a Kompose object for us to understand
-func libComposeToKomposeMapping(composeObject *project.Project) (kobject.KomposeObject, error) {
-	// Initialize what's going to be returned
-	komposeObject := kobject.KomposeObject{
-		ServiceConfigs: make(map[string]kobject.ServiceConfig),
-		LoadedFrom:     "compose",
-	}
-
-	// Here we "clean up" the service configuration so we return something that includes
-	// all relevant information as well as avoid the unsupported keys as well.
-	for name, composeServiceConfig := range composeObject.ServiceConfigs.All() {
-		serviceConfig := kobject.ServiceConfig{}
-		serviceConfig.Name = name
-		serviceConfig.Image = composeServiceConfig.Image
-		serviceConfig.Build = composeServiceConfig.Build.Context
-		newName := normalizeContainerNames(composeServiceConfig.ContainerName)
-		serviceConfig.ContainerName = newName
-		if newName != composeServiceConfig.ContainerName {
-			log.Infof("Container name in service %q has been changed from %q to %q", name, composeServiceConfig.ContainerName, newName)
-		}
-		serviceConfig.Command = composeServiceConfig.Entrypoint
-		serviceConfig.HostName = composeServiceConfig.Hostname
-		serviceConfig.DomainName = composeServiceConfig.DomainName
-		serviceConfig.Args = composeServiceConfig.Command
-		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
-		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
-		serviceConfig.Expose = composeServiceConfig.Expose
-
-		envs := loadEnvVars(composeServiceConfig.Environment)
-		serviceConfig.Environment = envs
-
-		// Validate dockerfile path
-		if filepath.IsAbs(serviceConfig.Dockerfile) {
-			log.Fatalf("%q defined in service %q is an absolute path, it must be a relative path.", serviceConfig.Dockerfile, name)
-		}
-
-		// load ports, same as v3, we also load `expose`
-		ports, err := loadPorts(composeServiceConfig.Ports, serviceConfig.Expose)
-		if err != nil {
-			return kobject.KomposeObject{}, errors.Wrap(err, "loadPorts failed. "+name+" failed to load ports from compose file")
-		}
-		serviceConfig.Port = ports
-
-		serviceConfig.WorkingDir = composeServiceConfig.WorkingDir
-
-		if composeServiceConfig.Volumes != nil {
-			for _, volume := range composeServiceConfig.Volumes.Volumes {
-				v := volume.String()
-				serviceConfig.VolList = append(serviceConfig.VolList, v)
-			}
-		}
-
-		// canonical "Custom Labels" handler
-		// Labels used to influence conversion of kompose will be handled
-		// from here for docker-compose. Each loader will have such handler.
-		if err := parseKomposeLabels(composeServiceConfig.Labels, &serviceConfig); err != nil {
-			return kobject.KomposeObject{}, err
-		}
-
-		err = checkLabelsPorts(len(serviceConfig.Port), composeServiceConfig.Labels[LabelServiceType], name)
-		if err != nil {
-			return kobject.KomposeObject{}, errors.Wrap(err, "kompose.service.type can't be set if service doesn't expose any ports.")
-		}
-
-		// convert compose labels to annotations
-		serviceConfig.Annotations = composeServiceConfig.Labels
-		serviceConfig.CPUQuota = int64(composeServiceConfig.CPUQuota)
-		serviceConfig.CapAdd = composeServiceConfig.CapAdd
-		serviceConfig.CapDrop = composeServiceConfig.CapDrop
-		serviceConfig.Pid = composeServiceConfig.Pid
-
-		serviceConfig.Privileged = composeServiceConfig.Privileged
-		serviceConfig.User = composeServiceConfig.User
-		serviceConfig.VolumesFrom = composeServiceConfig.VolumesFrom
-		serviceConfig.Stdin = composeServiceConfig.StdinOpen
-		serviceConfig.Tty = composeServiceConfig.Tty
-		serviceConfig.MemLimit = composeServiceConfig.MemLimit
-		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
-		serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod
-
-		// pretty much same as v3
-		serviceConfig.Restart = composeServiceConfig.Restart
-		if serviceConfig.Restart == "unless-stopped" {
-			log.Warnf("Restart policy 'unless-stopped' in service %s is not supported, convert it to 'always'", name)
-			serviceConfig.Restart = "always"
-		}
-
-		if composeServiceConfig.Networks != nil {
-			if len(composeServiceConfig.Networks.Networks) > 0 {
-				for _, value := range composeServiceConfig.Networks.Networks {
-					if value.Name != "default" {
-						nomalizedNetworkName, err := normalizeNetworkNames(value.RealName)
-						if err != nil {
-							return kobject.KomposeObject{}, errors.Wrap(err, "Error trying to normalize network names")
-						}
-						if nomalizedNetworkName != value.RealName {
-							log.Warnf("Network name in docker-compose has been changed from %q to %q", value.RealName, nomalizedNetworkName)
-						}
-						serviceConfig.Network = append(serviceConfig.Network, nomalizedNetworkName)
-					}
-				}
-			}
-		}
-		// Get GroupAdd, group should be mentioned in gid format but not the group name
-		groupAdd, err := getGroupAdd(composeServiceConfig.GroupAdd)
-		if err != nil {
-			return kobject.KomposeObject{}, errors.Wrap(err, "GroupAdd should be mentioned in gid format, not a group name")
-		}
-		serviceConfig.GroupAdd = groupAdd
-
-		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
-		if normalizeServiceNames(name) != name {
-			log.Infof("Service name in docker-compose has been changed from %q to %q", name, normalizeServiceNames(name))
-		}
-	}
-
-	// This will handle volume at earlier stage itself, it will resolves problems occurred due to `volumes_from` key
-	handleVolume(&komposeObject)
-
-	return komposeObject, nil
-}
-
-// This function will retrieve volumes for each service, as well as it will parse volume information and store it in Volumes struct
-func handleVolume(komposeObject *kobject.KomposeObject) {
-	for name := range komposeObject.ServiceConfigs {
-		// retrieve volumes of service
-		vols, err := retrieveVolume(name, *komposeObject)
-		if err != nil {
-			errors.Wrap(err, "could not retrieve volume")
-		}
-		// We can't assign value to struct field in map while iterating over it, so temporary variable `temp` is used here
-		var temp = komposeObject.ServiceConfigs[name]
-		temp.Volumes = vols
-		komposeObject.ServiceConfigs[name] = temp
-	}
 }
 
 func checkLabelsPorts(noOfPort int, labels string, svcName string) error {
@@ -402,17 +211,4 @@ func getVol(toFind kobject.Volumes, Vols []kobject.Volumes) (bool, kobject.Volum
 		}
 	}
 	return false, kobject.Volumes{}
-}
-
-// getGroupAdd will return group in int64 format
-func getGroupAdd(group []string) ([]int64, error) {
-	var groupAdd []int64
-	for _, i := range group {
-		j, err := strconv.Atoi(i)
-		if err != nil {
-			return nil, errors.Wrap(err, "unable to get group_add key")
-		}
-		groupAdd = append(groupAdd, int64(j))
-	}
-	return groupAdd, nil
 }

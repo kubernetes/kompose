@@ -17,7 +17,6 @@ limitations under the License.
 package compose
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"strconv"
@@ -26,12 +25,8 @@ import (
 
 	"github.com/spf13/cast"
 
-	libcomposeyaml "github.com/docker/libcompose/yaml"
-
+	compose "github.com/compose-spec/compose-go/types"
 	api "k8s.io/api/core/v1"
-
-	"github.com/docker/cli/cli/compose/loader"
-	"github.com/docker/cli/cli/compose/types"
 
 	"github.com/google/shlex"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -39,101 +34,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// converts os.Environ() ([]string) to map[string]string
-// based on https://github.com/docker/cli/blob/5dd30732a23bbf14db1c64d084ae4a375f592cfa/cli/command/stack/deploy_composefile.go#L143
-func buildEnvironment() (map[string]string, error) {
-	env := os.Environ()
-	result := make(map[string]string, len(env))
-	for _, s := range env {
-		// if value is empty, s is like "K=", not "K".
-		if !strings.Contains(s, "=") {
-			return result, errors.Errorf("unexpected environment %q", s)
-		}
-		kv := strings.SplitN(s, "=", 2)
-		result[kv[0]] = kv[1]
-	}
-	return result, nil
-}
-
-// The purpose of this is not to deploy, but to be able to parse
-// v3 of Docker Compose into a suitable format. In this case, whatever is returned
-// by docker/cli's ServiceConfig
-func parseV3(files []string) (kobject.KomposeObject, error) {
-	// In order to get V3 parsing to work, we have to go through some preliminary steps
-	// for us to hack up github.com/docker/cli in order to correctly convert to a kobject.KomposeObject
-
-	// Gather the working directory
-	workingDir, err := getComposeFileDir(files)
-	if err != nil {
-		return kobject.KomposeObject{}, err
-	}
-
-	// get environment variables
-	env, err := buildEnvironment()
-	if err != nil {
-		return kobject.KomposeObject{}, errors.Wrap(err, "cannot build environment variables")
-	}
-
-	var config *types.Config
-	for _, file := range files {
-		// Load and then parse the YAML first!
-		loadedFile, err := ReadFile(file)
-		if err != nil {
-			return kobject.KomposeObject{}, err
-		}
-
-		// Parse the Compose File
-		parsedComposeFile, err := loader.ParseYAML(loadedFile)
-		if err != nil {
-			return kobject.KomposeObject{}, err
-		}
-
-		// Config file
-		configFile := types.ConfigFile{
-			Filename: file,
-			Config:   parsedComposeFile,
-		}
-
-		// Config details
-		configDetails := types.ConfigDetails{
-			WorkingDir:  workingDir,
-			ConfigFiles: []types.ConfigFile{configFile},
-			Environment: env,
-		}
-
-		// Actual config
-		// We load it in order to retrieve the parsed output configuration!
-		// This will output a github.com/docker/cli ServiceConfig
-		// Which is similar to our version of ServiceConfig
-		currentConfig, err := loader.Load(configDetails)
-		if err != nil {
-			return kobject.KomposeObject{}, err
-		}
-		if config == nil {
-			config = currentConfig
-		} else {
-			config, err = mergeComposeObject(config, currentConfig)
-			if err != nil {
-				return kobject.KomposeObject{}, err
-			}
-		}
-	}
-
-	noSupKeys := checkUnsupportedKeyForV3(config)
-	for _, keyName := range noSupKeys {
-		log.Warningf("Unsupported %s key - ignoring", keyName)
-	}
-
-	// Finally, we convert the object from docker/cli's ServiceConfig to our appropriate one
-	komposeObject, err := dockerComposeToKomposeMapping(config)
-	if err != nil {
-		return kobject.KomposeObject{}, err
-	}
-
-	return komposeObject, nil
-}
-
-func loadV3Placement(placement types.Placement) kobject.Placement {
+func loadV3Placement(placement compose.Placement) kobject.Placement {
 	komposePlacement := kobject.Placement{
 		PositiveConstraints: make(map[string]string),
 		NegativeConstraints: make(map[string]string),
@@ -176,7 +77,7 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 // TODO: Check to see if it's a "bind" or "volume". Ignore for now.
 // TODO: Refactor it similar to loadV3Ports
 // See: https://docs.docker.com/compose/compose-file/#long-syntax-3
-func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
+func loadV3Volumes(volumes []compose.ServiceVolumeConfig) []string {
 	var volArray []string
 	for _, vol := range volumes {
 		// There will *always* be Source when parsing
@@ -197,7 +98,7 @@ func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
 
 // Convert Docker Compose v3 ports to kobject.Ports
 // expose ports will be treated as TCP ports
-func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Ports {
+func loadV3Ports(ports []compose.ServicePortConfig, expose []string) []kobject.Ports {
 	komposePorts := []kobject.Ports{}
 
 	exist := map[string]bool{}
@@ -244,7 +145,7 @@ func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Por
 /* Convert the HealthCheckConfig as designed by Docker to
 a Kubernetes-compatible format.
 */
-func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error) {
+func parseHealthCheckReadiness(labels compose.Labels) (kobject.HealthCheck, error) {
 	// initialize with CMD as default to not break at return (will be ignored if no test is informed)
 	test := []string{"CMD"}
 	var timeout, interval, retries, startPeriod int32
@@ -303,7 +204,7 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 /* Convert the HealthCheckConfig as designed by Docker to
 a Kubernetes-compatible format.
 */
-func parseHealthCheck(composeHealthCheck types.HealthCheckConfig, labels types.Labels) (kobject.HealthCheck, error) {
+func parseHealthCheck(composeHealthCheck compose.HealthCheckConfig, labels compose.Labels) (kobject.HealthCheck, error) {
 	var timeout, interval, retries, startPeriod int32
 	var test []string
 	var httpPort int32
@@ -363,18 +264,18 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig, labels types.L
 	}, nil
 }
 
-func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.KomposeObject, error) {
+func dockerComposeToKomposeMapping(project *compose.Project) (kobject.KomposeObject, error) {
 	// Step 1. Initialize what's going to be returned
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 		LoadedFrom:     "compose",
-		Secrets:        composeObject.Secrets,
+		Secrets:        project.Secrets,
 	}
 
 	// Step 2. Parse through the object and convert it to kobject.KomposeObject!
 	// Here we "clean up" the service configuration so we return something that includes
 	// all relevant information as well as avoid the unsupported keys as well.
-	for _, composeServiceConfig := range composeObject.Services {
+	for _, composeServiceConfig := range project.Services {
 		// Standard import
 		// No need to modify before importation
 		name := composeServiceConfig.Name
@@ -403,17 +304,19 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 			serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod.String()
 		}
 
-		parseV3Network(&composeServiceConfig, &serviceConfig, composeObject)
+		parseV3Network(&composeServiceConfig, &serviceConfig, project)
 
 		if err := parseV3Resources(&composeServiceConfig, &serviceConfig); err != nil {
 			return kobject.KomposeObject{}, err
 		}
 
-		// Deploy keys
-		// mode:
-		serviceConfig.DeployMode = composeServiceConfig.Deploy.Mode
-		// labels
-		serviceConfig.DeployLabels = composeServiceConfig.Deploy.Labels
+		if composeServiceConfig.Deploy != nil {
+			// Deploy keys
+			// mode:
+			serviceConfig.DeployMode = composeServiceConfig.Deploy.Mode
+			// labels
+			serviceConfig.DeployLabels = composeServiceConfig.Deploy.Labels
+		}
 
 		// HealthCheck Liveness
 		if composeServiceConfig.HealthCheck != nil && !composeServiceConfig.HealthCheck.Disable {
@@ -436,7 +339,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// restart-policy: deploy.restart_policy.condition will rewrite restart option
 		// see: https://docs.docker.com/compose/compose-file/#restart_policy
 		serviceConfig.Restart = composeServiceConfig.Restart
-		if composeServiceConfig.Deploy.RestartPolicy != nil {
+		if composeServiceConfig.Deploy != nil && composeServiceConfig.Deploy.RestartPolicy != nil {
 			serviceConfig.Restart = composeServiceConfig.Deploy.RestartPolicy.Condition
 		}
 		if serviceConfig.Restart == "unless-stopped" {
@@ -445,24 +348,28 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		}
 
 		// replicas:
-		if composeServiceConfig.Deploy.Replicas != nil {
+		if composeServiceConfig.Deploy != nil && composeServiceConfig.Deploy.Replicas != nil {
 			serviceConfig.Replicas = int(*composeServiceConfig.Deploy.Replicas)
 		}
 
 		// placement:
-		serviceConfig.Placement = loadV3Placement(composeServiceConfig.Deploy.Placement)
+		if composeServiceConfig.Deploy != nil {
+			serviceConfig.Placement = loadV3Placement(composeServiceConfig.Deploy.Placement)
+		}
 
-		if composeServiceConfig.Deploy.UpdateConfig != nil {
+		if composeServiceConfig.Deploy != nil && composeServiceConfig.Deploy.UpdateConfig != nil {
 			serviceConfig.DeployUpdateConfig = *composeServiceConfig.Deploy.UpdateConfig
 		}
 
 		// TODO: Build is not yet supported, see:
 		// https://github.com/docker/cli/blob/master/cli/compose/types/types.go#L9
 		// We will have to *manually* add this / parse.
-		serviceConfig.Build = resolveV3Context(composeObject.Filename, composeServiceConfig.Build.Context)
-		serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
-		serviceConfig.BuildArgs = composeServiceConfig.Build.Args
-		serviceConfig.BuildLabels = composeServiceConfig.Build.Labels
+		if composeServiceConfig.Build != nil {
+			serviceConfig.Build = resolveV3Context(project.WorkingDir, composeServiceConfig.Build.Context)
+			serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
+			serviceConfig.BuildArgs = composeServiceConfig.Build.Args
+			serviceConfig.BuildLabels = composeServiceConfig.Build.Labels
+		}
 
 		// env
 		parseV3Environment(&composeServiceConfig, &serviceConfig)
@@ -492,44 +399,42 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		}
 
 		serviceConfig.Configs = composeServiceConfig.Configs
-		serviceConfig.ConfigsMetaData = composeObject.Configs
-		if composeServiceConfig.Deploy.EndpointMode == "vip" {
+		serviceConfig.ConfigsMetaData = project.Configs
+		if composeServiceConfig.Deploy != nil && composeServiceConfig.Deploy.EndpointMode == "vip" {
 			serviceConfig.ServiceType = string(api.ServiceTypeNodePort)
 		}
 		// Final step, add to the array!
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
 	}
 
-	handleV3Volume(&komposeObject, &composeObject.Volumes)
+	handleV3Volume(&komposeObject, &project.Volumes)
 
 	return komposeObject, nil
 }
 
-// resolveV3Context resolves build context like v2 does, see:
-// https://github.com/docker/libcompose/blob/master/config/merge_v2.go#L155
-func resolveV3Context(inFile string, context string) string {
+// resolveV3Context resolves build context
+func resolveV3Context(wd string, context string) string {
 	if context == "" {
 		return ""
 	}
 
-	current := path.Dir(inFile)
 	if context != "." {
-		current = path.Join(current, context)
+		context = path.Join(wd, context)
 	}
 
-	return current
+	return context
 }
 
-func parseV3Network(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig, composeObject *types.Config) {
+func parseV3Network(composeServiceConfig *compose.ServiceConfig, serviceConfig *kobject.ServiceConfig, project *compose.Project) {
 	if len(composeServiceConfig.Networks) == 0 {
-		if defaultNetwork, ok := composeObject.Networks["default"]; ok {
+		if defaultNetwork, ok := project.Networks["default"]; ok {
 			serviceConfig.Network = append(serviceConfig.Network, defaultNetwork.Name)
 		}
 	} else {
 		var alias = ""
 		for key := range composeServiceConfig.Networks {
 			alias = key
-			netName := composeObject.Networks[alias].Name
+			netName := project.Networks[alias].Name
 			// if Network Name Field is empty in the docker-compose definition
 			// we will use the alias name defined in service config file
 			if netName == "" {
@@ -540,10 +445,12 @@ func parseV3Network(composeServiceConfig *types.ServiceConfig, serviceConfig *ko
 	}
 }
 
-func parseV3Resources(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) error {
-	if (composeServiceConfig.Deploy.Resources != types.Resources{}) {
+func parseV3Resources(composeServiceConfig *compose.ServiceConfig, serviceConfig *kobject.ServiceConfig) error {
+	if composeServiceConfig.Deploy == nil {
+		return nil
+	}
+	if composeServiceConfig.Deploy.Resources.Limits != nil || composeServiceConfig.Deploy.Resources.Reservations != nil {
 		// memory:
-		// TODO: Refactor yaml.MemStringorInt in kobject.go to int64
 		// cpu:
 		// convert to k8s format, for example: 0.5 = 500m
 		// See: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
@@ -551,7 +458,7 @@ func parseV3Resources(composeServiceConfig *types.ServiceConfig, serviceConfig *
 
 		// Since Deploy.Resources.Limits does not initialize, we must check type Resources before continuing
 		if composeServiceConfig.Deploy.Resources.Limits != nil {
-			serviceConfig.MemLimit = libcomposeyaml.MemStringorInt(composeServiceConfig.Deploy.Resources.Limits.MemoryBytes)
+			serviceConfig.MemLimit = int64(composeServiceConfig.Deploy.Resources.Limits.MemoryBytes)
 
 			if composeServiceConfig.Deploy.Resources.Limits.NanoCPUs != "" {
 				cpuLimit, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Limits.NanoCPUs, 64)
@@ -562,7 +469,7 @@ func parseV3Resources(composeServiceConfig *types.ServiceConfig, serviceConfig *
 			}
 		}
 		if composeServiceConfig.Deploy.Resources.Reservations != nil {
-			serviceConfig.MemReservation = libcomposeyaml.MemStringorInt(composeServiceConfig.Deploy.Resources.Reservations.MemoryBytes)
+			serviceConfig.MemReservation = int64(composeServiceConfig.Deploy.Resources.Reservations.MemoryBytes)
 
 			if composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs != "" {
 				cpuReservation, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs, 64)
@@ -576,7 +483,7 @@ func parseV3Resources(composeServiceConfig *types.ServiceConfig, serviceConfig *
 	return nil
 }
 
-func parseV3Environment(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) {
+func parseV3Environment(composeServiceConfig *compose.ServiceConfig, serviceConfig *kobject.ServiceConfig) {
 	// Gather the environment values
 	// DockerCompose uses map[string]*string while we use []string
 	// So let's convert that using this hack
@@ -646,7 +553,7 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 	return nil
 }
 
-func handleV3Volume(komposeObject *kobject.KomposeObject, volumes *map[string]types.VolumeConfig) {
+func handleV3Volume(komposeObject *kobject.KomposeObject, volumes *compose.Volumes) {
 	for name := range komposeObject.ServiceConfigs {
 		// retrieve volumes of service
 		vols, err := retrieveVolume(name, *komposeObject)
@@ -670,7 +577,7 @@ func handleV3Volume(komposeObject *kobject.KomposeObject, volumes *map[string]ty
 	}
 }
 
-func getV3VolumeLabels(name string, volumes *map[string]types.VolumeConfig) (string, string) {
+func getV3VolumeLabels(name string, volumes *compose.Volumes) (string, string) {
 	size, selector := "", ""
 
 	if volume, ok := (*volumes)[name]; ok {
@@ -686,247 +593,14 @@ func getV3VolumeLabels(name string, volumes *map[string]types.VolumeConfig) (str
 	return size, selector
 }
 
-func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*types.Config, error) {
-	if oldCompose == nil || newCompose == nil {
-		return nil, fmt.Errorf("merge multiple compose error, compose config is nil")
-	}
-	oldComposeServiceNameMap := make(map[string]int, len(oldCompose.Services))
-	for index, service := range oldCompose.Services {
-		oldComposeServiceNameMap[service.Name] = index
-	}
-
-	for _, service := range newCompose.Services {
-		index := 0
-		if tmpIndex, ok := oldComposeServiceNameMap[service.Name]; !ok {
-			oldCompose.Services = append(oldCompose.Services, service)
-			continue
-		} else {
-			index = tmpIndex
-		}
-		tmpOldService := oldCompose.Services[index]
-		if service.Build.Dockerfile != "" {
-			tmpOldService.Build = service.Build
-		}
-		if len(service.CapAdd) != 0 {
-			tmpOldService.CapAdd = service.CapAdd
-		}
-		if len(service.CapDrop) != 0 {
-			tmpOldService.CapDrop = service.CapDrop
-		}
-		if service.CgroupParent != "" {
-			tmpOldService.CgroupParent = service.CgroupParent
-		}
-		if len(service.Command) != 0 {
-			tmpOldService.Command = service.Command
-		}
-		if len(service.Configs) != 0 {
-			tmpOldService.Configs = service.Configs
-		}
-		if service.ContainerName != "" {
-			tmpOldService.ContainerName = service.ContainerName
-		}
-		if service.CredentialSpec.File != "" || service.CredentialSpec.Registry != "" {
-			tmpOldService.CredentialSpec = service.CredentialSpec
-		}
-		if len(service.DependsOn) != 0 {
-			tmpOldService.DependsOn = service.DependsOn
-		}
-		if service.Deploy.Mode != "" {
-			tmpOldService.Deploy = service.Deploy
-		}
-		if service.Deploy.Resources.Limits != nil {
-			tmpOldService.Deploy.Resources.Limits = service.Deploy.Resources.Limits
-		}
-
-		if service.Deploy.Resources.Reservations != nil {
-			tmpOldService.Deploy.Resources.Reservations = service.Deploy.Resources.Reservations
-		}
-
-		if len(service.Devices) != 0 {
-			// merge the 2 sets of values
-			// TODO: need to merge the sets based on target values
-			// Not implemented yet as we don't convert devices to k8s anyway
-			tmpOldService.Devices = service.Devices
-		}
-		if len(service.DNS) != 0 {
-			// concat the 2 sets of values
-			tmpOldService.DNS = append(tmpOldService.DNS, service.DNS...)
-		}
-		if len(service.DNSSearch) != 0 {
-			// concat the 2 sets of values
-			tmpOldService.DNSSearch = append(tmpOldService.DNSSearch, service.DNSSearch...)
-		}
-		if service.DomainName != "" {
-			tmpOldService.DomainName = service.DomainName
-		}
-		if len(service.Entrypoint) != 0 {
-			tmpOldService.Entrypoint = service.Entrypoint
-		}
-		if len(service.Environment) != 0 {
-			// merge the 2 sets of values
-			for k, v := range service.Environment {
-				tmpOldService.Environment[k] = v
-			}
-		}
-		if len(service.EnvFile) != 0 {
-			tmpOldService.EnvFile = service.EnvFile
-		}
-		if len(service.Expose) != 0 {
-			// concat the 2 sets of values
-			tmpOldService.Expose = append(tmpOldService.Expose, service.Expose...)
-		}
-		if len(service.ExternalLinks) != 0 {
-			// concat the 2 sets of values
-			tmpOldService.ExternalLinks = append(tmpOldService.ExternalLinks, service.ExternalLinks...)
-		}
-		if len(service.ExtraHosts) != 0 {
-			tmpOldService.ExtraHosts = service.ExtraHosts
-		}
-		if service.Hostname != "" {
-			tmpOldService.Hostname = service.Hostname
-		}
-		if service.HealthCheck != nil {
-			tmpOldService.HealthCheck = service.HealthCheck
-		}
-		if service.Image != "" {
-			tmpOldService.Image = service.Image
-		}
-		if service.Ipc != "" {
-			tmpOldService.Ipc = service.Ipc
-		}
-		if len(service.Labels) != 0 {
-			// merge the 2 sets of values
-			if tmpOldService.Labels == nil {
-				tmpOldService.Labels = make(map[string]string)
-			}
-			for k, v := range service.Labels {
-				tmpOldService.Labels[k] = v
-			}
-		}
-		if len(service.Links) != 0 {
-			tmpOldService.Links = service.Links
-		}
-		if service.Logging != nil {
-			tmpOldService.Logging = service.Logging
-		}
-		if service.MacAddress != "" {
-			tmpOldService.MacAddress = service.MacAddress
-		}
-		if service.NetworkMode != "" {
-			tmpOldService.NetworkMode = service.NetworkMode
-		}
-		if len(service.Networks) != 0 {
-			tmpOldService.Networks = service.Networks
-		}
-		if service.Pid != "" {
-			tmpOldService.Pid = service.Pid
-		}
-		if len(service.Ports) != 0 {
-			// concat the 2 sets of values
-			tmpOldService.Ports = append(tmpOldService.Ports, service.Ports...)
-		}
-		if service.Privileged != tmpOldService.Privileged {
-			tmpOldService.Privileged = service.Privileged
-		}
-		if service.ReadOnly != tmpOldService.ReadOnly {
-			tmpOldService.ReadOnly = service.ReadOnly
-		}
-		if service.Restart != "" {
-			tmpOldService.Restart = service.Restart
-		}
-		if len(service.Secrets) != 0 {
-			tmpOldService.Secrets = service.Secrets
-		}
-		if len(service.SecurityOpt) != 0 {
-			tmpOldService.SecurityOpt = service.SecurityOpt
-		}
-		if service.StdinOpen != tmpOldService.StdinOpen {
-			tmpOldService.StdinOpen = service.StdinOpen
-		}
-		if service.StopSignal != "" {
-			tmpOldService.StopSignal = service.StopSignal
-		}
-		if len(service.Tmpfs) != 0 {
-			// concat the 2 sets of values
-			tmpOldService.Tmpfs = append(tmpOldService.Tmpfs, service.Tmpfs...)
-		}
-		if service.Tty != tmpOldService.Tty {
-			tmpOldService.Tty = service.Tty
-		}
-		if len(service.Ulimits) != 0 {
-			tmpOldService.Ulimits = service.Ulimits
-		}
-		if service.User != "" {
-			tmpOldService.User = service.User
-		}
-		if len(service.Volumes) != 0 {
-			// merge the 2 sets of values
-
-			// Store volumes by Target
-			volumeConfigsMap := make(map[string]types.ServiceVolumeConfig)
-			// map is not iterated in the same order.
-			// but why only this code cause test error?
-			var keys []string
-
-			// populate the older values
-			for _, volConfig := range tmpOldService.Volumes {
-				volumeConfigsMap[volConfig.Target] = volConfig
-				keys = append(keys, volConfig.Target)
-			}
-			// add the new values, overriding as needed
-			for _, volConfig := range service.Volumes {
-				if _, ok := volumeConfigsMap[volConfig.Target]; !ok {
-					keys = append(keys, volConfig.Target)
-				}
-				volumeConfigsMap[volConfig.Target] = volConfig
-			}
-
-			// get the new list of volume configs
-			var volumes []types.ServiceVolumeConfig
-
-			for _, key := range keys {
-				volumes = append(volumes, volumeConfigsMap[key])
-			}
-
-			tmpOldService.Volumes = volumes
-		}
-		if service.WorkingDir != "" {
-			tmpOldService.WorkingDir = service.WorkingDir
-		}
-		oldCompose.Services[index] = tmpOldService
-	}
-
-	// Merge the networks information
-	for idx, network := range newCompose.Networks {
-		oldCompose.Networks[idx] = network
-	}
-
-	// Merge the volumes information
-	for idx, volume := range newCompose.Volumes {
-		oldCompose.Volumes[idx] = volume
-	}
-
-	// Merge the secrets information
-	for idx, secret := range newCompose.Secrets {
-		oldCompose.Secrets[idx] = secret
-	}
-
-	// Merge the configs information
-	for idx, config := range newCompose.Configs {
-		oldCompose.Configs[idx] = config
-	}
-
-	return oldCompose, nil
-}
-
-func checkUnsupportedKeyForV3(composeObject *types.Config) []string {
-	if composeObject == nil {
+func checkUnsupportedKeyForV3(project *compose.Project) []string {
+	if project == nil {
 		return []string{}
 	}
 
 	var keysFound []string
 
-	for _, service := range composeObject.Services {
+	for _, service := range project.Services {
 		for _, tmpConfig := range service.Configs {
 			if tmpConfig.GID != "" {
 				keysFound = append(keysFound, "long syntax config gid")
@@ -936,12 +610,12 @@ func checkUnsupportedKeyForV3(composeObject *types.Config) []string {
 			}
 		}
 
-		if service.CredentialSpec.Registry != "" || service.CredentialSpec.File != "" {
+		if service.CredentialSpec != nil {
 			keysFound = append(keysFound, "credential_spec")
 		}
 	}
 
-	for _, config := range composeObject.Configs {
+	for _, config := range project.Configs {
 		if config.External.External {
 			keysFound = append(keysFound, "external config")
 		}

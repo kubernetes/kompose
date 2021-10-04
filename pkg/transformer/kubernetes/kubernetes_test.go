@@ -19,11 +19,10 @@ package kubernetes
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/compose-spec/compose-go/types"
 	"reflect"
 	"strings"
 	"testing"
-
-	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
@@ -65,8 +64,8 @@ func newServiceConfig() kobject.ServiceConfig {
 		Replicas:        2,
 		Volumes:         []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
 		GroupAdd:        []int64{1003, 1005},
-		Configs:         []dockerCliTypes.ServiceConfigObjConfig{{Source: "config", Target: "/etc/world"}},
-		ConfigsMetaData: map[string]dockerCliTypes.ConfigObjConfig{"config": dockerCliTypes.ConfigObjConfig{Name: "myconfig", File: "kubernetes_test.go"}},
+		Configs:         []types.ServiceConfigObjConfig{{Source: "config", Target: "/etc/world"}},
+		ConfigsMetaData: map[string]types.ConfigObjConfig{"config": types.ConfigObjConfig{Name: "myconfig", File: "kubernetes_test.go"}},
 	}
 }
 
