@@ -165,7 +165,7 @@ type HealthChecks struct {
 }
 
 // HealthCheck the healthcheck configuration for a service
-// "StartPeriod" is not yet added to compose, see:
+// "StartPeriod" was added to v3.4 of the compose, see:
 // https://github.com/docker/cli/issues/116
 type HealthCheck struct {
 	Test        []string
@@ -176,6 +176,7 @@ type HealthCheck struct {
 	Disable     bool
 	HTTPPath    string
 	HTTPPort    int32
+	TCPPort     int32
 }
 
 // EnvVar holds the environment variable struct of a container

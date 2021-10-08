@@ -352,41 +352,96 @@ func TestIsDir(t *testing.T) {
 	}
 }
 
-// TestServiceWithoutPort this tests if Headless Service is created for services without Port.
+// TestServiceWithHealthCheck this tests if Headless Service is created for services with HealthCheck.
 func TestServiceWithHealthCheck(t *testing.T) {
-	service := kobject.ServiceConfig{
-		ContainerName: "name",
-		Image:         "image",
-		ServiceType:   "Headless",
-		HealthChecks: kobject.HealthChecks{
-			Readiness: kobject.HealthCheck{
-				Test:        []string{"arg1", "arg2"},
-				Timeout:     10,
-				Interval:    5,
-				Retries:     3,
-				StartPeriod: 60,
+	testCases := map[string]struct {
+		service kobject.ServiceConfig
+	}{
+		"Exec": {
+			service: kobject.ServiceConfig{
+				ContainerName: "name",
+				Image:         "image",
+				ServiceType:   "Headless",
+				HealthChecks: kobject.HealthChecks{
+					Readiness: kobject.HealthCheck{
+						Test:        []string{"arg1", "arg2"},
+						Timeout:     10,
+						Interval:    5,
+						Retries:     3,
+						StartPeriod: 60,
+					},
+					Liveness: kobject.HealthCheck{
+						Test:        []string{"arg1", "arg2"},
+						Timeout:     11,
+						Interval:    6,
+						Retries:     4,
+						StartPeriod: 61,
+					},
+				},
 			},
-			Liveness: kobject.HealthCheck{
-				Test:        []string{"arg1", "arg2"},
-				Timeout:     11,
-				Interval:    6,
-				Retries:     4,
-				StartPeriod: 61,
+		},
+		"HTTPGet": {
+			service: kobject.ServiceConfig{
+				ContainerName: "name",
+				Image:         "image",
+				ServiceType:   "Headless",
+				HealthChecks: kobject.HealthChecks{
+					Readiness: kobject.HealthCheck{
+						HTTPPath:    "/health",
+						HTTPPort:    8080,
+						Timeout:     10,
+						Interval:    5,
+						Retries:     3,
+						StartPeriod: 60,
+					},
+					Liveness: kobject.HealthCheck{
+						HTTPPath:    "/ready",
+						HTTPPort:    8080,
+						Timeout:     11,
+						Interval:    6,
+						Retries:     4,
+						StartPeriod: 61,
+					},
+				},
+			},
+		},
+		"TCPSocket": {
+			service: kobject.ServiceConfig{
+				ContainerName: "name",
+				Image:         "image",
+				ServiceType:   "Headless",
+				HealthChecks: kobject.HealthChecks{
+					Readiness: kobject.HealthCheck{
+						TCPPort:     8080,
+						Timeout:     10,
+						Interval:    5,
+						Retries:     3,
+						StartPeriod: 60,
+					},
+					Liveness: kobject.HealthCheck{
+						TCPPort:     8080,
+						Timeout:     11,
+						Interval:    6,
+						Retries:     4,
+						StartPeriod: 61,
+					},
+				},
 			},
 		},
 	}
 
-	komposeObject := kobject.KomposeObject{
-		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
-	}
-	k := Kubernetes{}
-
-	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
-	if err != nil {
-		t.Error(errors.Wrap(err, "k.Transform failed"))
-	}
-	if err := testutils.CheckForHealthCheckLivenessAndReadiness(objects); err != nil {
-		t.Error(err)
+	for _, testCase := range testCases {
+		k := Kubernetes{}
+		komposeObject := kobject.KomposeObject{
+			ServiceConfigs: map[string]kobject.ServiceConfig{"app": testCase.service},
+		}
+		objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
+		if err := testutils.CheckForHealthCheckLivenessAndReadiness(objects); err != nil {
+			t.Error(err)
+		}
 	}
 }
 

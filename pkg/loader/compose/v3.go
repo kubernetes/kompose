@@ -245,9 +245,9 @@ func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Por
 a Kubernetes-compatible format.
 */
 func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error) {
-	// initialize with CMD as default to not break at return (will be ignored if no test is informed)
-	test := []string{"CMD"}
-	var timeout, interval, retries, startPeriod int32
+	var test []string
+	var httpPath string
+	var httpPort, tcpPort, timeout, interval, retries, startPeriod int32
 	var disable bool
 
 	for key, value := range labels {
@@ -258,6 +258,12 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 			if len(value) > 0 {
 				test, _ = shlex.Split(value)
 			}
+		case HealthCheckReadinessHTTPGetPath:
+			httpPath = value
+		case HealthCheckReadinessHTTPGetPort:
+			httpPort = cast.ToInt32(value)
+		case HealthCheckReadinessTCPPort:
+			tcpPort = cast.ToInt32(value)
 		case HealthCheckReadinessInterval:
 			parse, err := time.ParseDuration(value)
 			if err != nil {
@@ -281,17 +287,22 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 		}
 	}
 
-	if test[0] == "NONE" {
-		disable = true
-		test = test[1:]
-	}
-	if test[0] == "CMD" || test[0] == "CMD-SHELL" {
-		test = test[1:]
+	if len(test) > 0 {
+		if test[0] == "NONE" {
+			disable = true
+			test = test[1:]
+		}
+		// Due to docker/cli adding "CMD-SHELL" to the struct, we remove the first element of composeHealthCheck.Test
+		if test[0] == "CMD" || test[0] == "CMD-SHELL" {
+			test = test[1:]
+		}
 	}
 
-	// Due to docker/cli adding "CMD-SHELL" to the struct, we remove the first element of composeHealthCheck.Test
 	return kobject.HealthCheck{
 		Test:        test,
+		HTTPPath:    httpPath,
+		HTTPPort:    httpPort,
+		TCPPort:     tcpPort,
 		Timeout:     timeout,
 		Interval:    interval,
 		Retries:     retries,
@@ -304,9 +315,8 @@ func parseHealthCheckReadiness(labels types.Labels) (kobject.HealthCheck, error)
 a Kubernetes-compatible format.
 */
 func parseHealthCheck(composeHealthCheck types.HealthCheckConfig, labels types.Labels) (kobject.HealthCheck, error) {
-	var timeout, interval, retries, startPeriod int32
+	var httpPort, tcpPort, timeout, interval, retries, startPeriod int32
 	var test []string
-	var httpPort int32
 	var httpPath string
 
 	// Here we convert the timeout from 1h30s (example) to 36030 seconds.
@@ -348,12 +358,15 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig, labels types.L
 			httpPath = value
 		case HealthCheckLivenessHTTPGetPort:
 			httpPort = cast.ToInt32(value)
+		case HealthCheckLivenessTCPPort:
+			tcpPort = cast.ToInt32(value)
 		}
 	}
 
 	// Due to docker/cli adding "CMD-SHELL" to the struct, we remove the first element of composeHealthCheck.Test
 	return kobject.HealthCheck{
 		Test:        test,
+		TCPPort:     tcpPort,
 		HTTPPath:    httpPath,
 		HTTPPort:    httpPort,
 		Timeout:     timeout,

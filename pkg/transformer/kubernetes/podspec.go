@@ -261,39 +261,9 @@ func DomainName(service kobject.ServiceConfig) PodSpecOption {
 func LivenessProbe(service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		// Configure the HealthCheck
-		// We check to see if it's blank
-		if !reflect.DeepEqual(service.HealthChecks.Liveness, kobject.HealthCheck{}) {
-			probe := api.Probe{}
-
-			if len(service.HealthChecks.Liveness.Test) > 0 {
-				probe.Handler = api.Handler{
-					Exec: &api.ExecAction{
-						Command: service.HealthChecks.Liveness.Test,
-					},
-				}
-			} else if !reflect.ValueOf(service.HealthChecks.Liveness.HTTPPath).IsZero() &&
-				!reflect.ValueOf(service.HealthChecks.Liveness.HTTPPort).IsZero() {
-				probe.Handler = api.Handler{
-					HTTPGet: &api.HTTPGetAction{
-						Path: service.HealthChecks.Liveness.HTTPPath,
-						Port: intstr.FromInt(int(service.HealthChecks.Liveness.HTTPPort)),
-					},
-				}
-			} else {
-				panic(errors.New("Health check must contain a command"))
-			}
-
-			probe.TimeoutSeconds = service.HealthChecks.Liveness.Timeout
-			probe.PeriodSeconds = service.HealthChecks.Liveness.Interval
-			probe.FailureThreshold = service.HealthChecks.Liveness.Retries
-
-			// See issue: https://github.com/docker/cli/issues/116
-			// StartPeriod has been added to docker/cli however, it is not yet added
-			// to compose. Once the feature has been implemented, this will automatically work
-			probe.InitialDelaySeconds = service.HealthChecks.Liveness.StartPeriod
-
+		if probe, ok := configProbe(service.HealthChecks.Liveness); ok {
 			for i := range podSpec.Containers {
-				podSpec.Containers[i].LivenessProbe = &probe
+				podSpec.Containers[i].LivenessProbe = probe
 			}
 		}
 	}
@@ -301,32 +271,52 @@ func LivenessProbe(service kobject.ServiceConfig) PodSpecOption {
 
 func ReadinessProbe(service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
-		if !reflect.DeepEqual(service.HealthChecks.Readiness, kobject.HealthCheck{}) {
-			probeHealthCheckReadiness := api.Probe{}
-			if len(service.HealthChecks.Readiness.Test) > 0 {
-				probeHealthCheckReadiness.Handler = api.Handler{
-					Exec: &api.ExecAction{
-						Command: service.HealthChecks.Readiness.Test,
-					},
-				}
-			} else {
-				panic(errors.New("Health check must contain a command"))
-			}
-
-			probeHealthCheckReadiness.TimeoutSeconds = service.HealthChecks.Readiness.Timeout
-			probeHealthCheckReadiness.PeriodSeconds = service.HealthChecks.Readiness.Interval
-			probeHealthCheckReadiness.FailureThreshold = service.HealthChecks.Readiness.Retries
-
-			// See issue: https://github.com/docker/cli/issues/116
-			// StartPeriod has been added to docker/cli however, it is not yet added
-			// to compose. Once the feature has been implemented, this will automatically work
-			probeHealthCheckReadiness.InitialDelaySeconds = service.HealthChecks.Readiness.StartPeriod
-
+		if probe, ok := configProbe(service.HealthChecks.Readiness); ok {
 			for i := range podSpec.Containers {
-				podSpec.Containers[i].ReadinessProbe = &probeHealthCheckReadiness
+				podSpec.Containers[i].ReadinessProbe = probe
 			}
 		}
 	}
+}
+
+func configProbe(healthCheck kobject.HealthCheck) (*api.Probe, bool) {
+	probe := api.Probe{}
+	// We check to see if it's blank
+	if reflect.DeepEqual(healthCheck, kobject.HealthCheck{}) {
+		return nil, false
+	}
+
+	if len(healthCheck.Test) > 0 {
+		probe.Handler = api.Handler{
+			Exec: &api.ExecAction{
+				Command: healthCheck.Test,
+			},
+		}
+	} else if !reflect.ValueOf(healthCheck.HTTPPath).IsZero() && !reflect.ValueOf(healthCheck.HTTPPort).IsZero() {
+		probe.Handler = api.Handler{
+			HTTPGet: &api.HTTPGetAction{
+				Path: healthCheck.HTTPPath,
+				Port: intstr.FromInt(int(healthCheck.HTTPPort)),
+			},
+		}
+	} else if !reflect.ValueOf(healthCheck.TCPPort).IsZero() {
+		probe.Handler = api.Handler{
+			TCPSocket: &api.TCPSocketAction{
+				Port: intstr.FromInt(int(healthCheck.TCPPort)),
+			},
+		}
+	} else {
+		panic(errors.New("Health check must contain a command"))
+	}
+
+	probe.TimeoutSeconds = healthCheck.Timeout
+	probe.PeriodSeconds = healthCheck.Interval
+	probe.FailureThreshold = healthCheck.Retries
+
+	// See issue: https://github.com/docker/cli/issues/116
+	// StartPeriod has been added to v3.4 of the compose
+	probe.InitialDelaySeconds = healthCheck.StartPeriod
+	return &probe, true
 }
 
 func ServiceAccountName(serviceAccountName string) PodSpecOption {

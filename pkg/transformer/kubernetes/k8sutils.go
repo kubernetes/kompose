@@ -45,7 +45,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 /**
@@ -534,61 +533,11 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Volumes = append(template.Spec.Volumes, volumes...)
 		template.Spec.Affinity = ConfigAffinity(service)
 		// Configure the HealthCheck
-		// We check to see if it's blank
-		if !reflect.DeepEqual(service.HealthChecks.Liveness, kobject.HealthCheck{}) {
-			probe := api.Probe{}
-
-			if len(service.HealthChecks.Liveness.Test) > 0 {
-				probe.Handler = api.Handler{
-					Exec: &api.ExecAction{
-						Command: service.HealthChecks.Liveness.Test,
-					},
-				}
-			} else if !reflect.ValueOf(service.HealthChecks.Liveness.HTTPPath).IsZero() &&
-				!reflect.ValueOf(service.HealthChecks.Liveness.HTTPPort).IsZero() {
-				probe.Handler = api.Handler{
-					HTTPGet: &api.HTTPGetAction{
-						Path: service.HealthChecks.Liveness.HTTPPath,
-						Port: intstr.FromInt(int(service.HealthChecks.Liveness.HTTPPort)),
-					},
-				}
-			} else {
-				return errors.New("Health check must contain a command")
-			}
-
-			probe.TimeoutSeconds = service.HealthChecks.Liveness.Timeout
-			probe.PeriodSeconds = service.HealthChecks.Liveness.Interval
-			probe.FailureThreshold = service.HealthChecks.Liveness.Retries
-
-			// See issue: https://github.com/docker/cli/issues/116
-			// StartPeriod has been added to docker/cli however, it is not yet added
-			// to compose. Once the feature has been implemented, this will automatically work
-			probe.InitialDelaySeconds = service.HealthChecks.Liveness.StartPeriod
-
-			template.Spec.Containers[0].LivenessProbe = &probe
+		if probe, ok := configProbe(service.HealthChecks.Liveness); ok {
+			template.Spec.Containers[0].LivenessProbe = probe
 		}
-		if !reflect.DeepEqual(service.HealthChecks.Readiness, kobject.HealthCheck{}) {
-			probeHealthCheckReadiness := api.Probe{}
-			if len(service.HealthChecks.Readiness.Test) > 0 {
-				probeHealthCheckReadiness.Handler = api.Handler{
-					Exec: &api.ExecAction{
-						Command: service.HealthChecks.Readiness.Test,
-					},
-				}
-			} else {
-				return errors.New("Health check must contain a command")
-			}
-
-			probeHealthCheckReadiness.TimeoutSeconds = service.HealthChecks.Readiness.Timeout
-			probeHealthCheckReadiness.PeriodSeconds = service.HealthChecks.Readiness.Interval
-			probeHealthCheckReadiness.FailureThreshold = service.HealthChecks.Readiness.Retries
-
-			// See issue: https://github.com/docker/cli/issues/116
-			// StartPeriod has been added to docker/cli however, it is not yet added
-			// to compose. Once the feature has been implemented, this will automatically work
-			probeHealthCheckReadiness.InitialDelaySeconds = service.HealthChecks.Readiness.StartPeriod
-
-			template.Spec.Containers[0].ReadinessProbe = &probeHealthCheckReadiness
+		if probe, ok := configProbe(service.HealthChecks.Readiness); ok {
+			template.Spec.Containers[0].ReadinessProbe = probe
 		}
 
 		if service.StopGracePeriod != "" {

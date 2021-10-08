@@ -41,61 +41,157 @@ func durationTypesPtr(value time.Duration) *types.Duration {
 
 func TestParseHealthCheck(t *testing.T) {
 	helperValue := uint64(2)
-	check := types.HealthCheckConfig{
-		Test:        []string{"CMD-SHELL", "echo", "foobar"},
-		Timeout:     durationTypesPtr(1 * time.Second),
-		Interval:    durationTypesPtr(2 * time.Second),
-		Retries:     &helperValue,
-		StartPeriod: durationTypesPtr(3 * time.Second),
+	type input struct {
+		healthCheck types.HealthCheckConfig
+		labels types.Labels
+	}
+	testCases := map[string]struct {
+		input input
+		expected kobject.HealthCheck
+	}{
+		"Exec": {
+			input: input{
+				healthCheck: types.HealthCheckConfig{
+					Test:        []string{"CMD-SHELL", "echo", "foobar"},
+					Timeout:     durationTypesPtr(1 * time.Second),
+					Interval:    durationTypesPtr(2 * time.Second),
+					Retries:     &helperValue,
+					StartPeriod: durationTypesPtr(3 * time.Second),
+				},
+			},
+			// CMD-SHELL or SHELL is included Test within docker/cli, thus we remove the first value in Test
+			expected: kobject.HealthCheck{
+				Test:        []string{"echo", "foobar"},
+				Timeout:     1,
+				Interval:    2,
+				Retries:     2,
+				StartPeriod: 3,
+			},
+		},
+		"HTTPGet": {
+			input: input{
+				healthCheck: types.HealthCheckConfig{
+					Timeout:     durationTypesPtr(1 * time.Second),
+					Interval:    durationTypesPtr(2 * time.Second),
+					Retries:     &helperValue,
+					StartPeriod: durationTypesPtr(3 * time.Second),
+				},
+				labels:      types.Labels{
+					"kompose.service.healthcheck.liveness.http_get_path": "/health",
+					"kompose.service.healthcheck.liveness.http_get_port": "8080",
+				},
+			},
+			expected: kobject.HealthCheck{
+				HTTPPath:    "/health",
+				HTTPPort:    8080,
+				Timeout:     1,
+				Interval:    2,
+				Retries:     2,
+				StartPeriod: 3,
+			},
+		},
+		"TCPSocket": {
+			input: input{
+				healthCheck: types.HealthCheckConfig{
+					Timeout:     durationTypesPtr(1 * time.Second),
+					Interval:    durationTypesPtr(2 * time.Second),
+					Retries:     &helperValue,
+					StartPeriod: durationTypesPtr(3 * time.Second),
+				},
+				labels:      types.Labels{
+					"kompose.service.healthcheck.liveness.tcp_port": "8080",
+				},
+			},
+			expected: kobject.HealthCheck{
+				TCPPort:     8080,
+				Timeout:     1,
+				Interval:    2,
+				Retries:     2,
+				StartPeriod: 3,
+			},
+		},
 	}
 
-	// CMD-SHELL or SHELL is included Test within docker/cli, thus we remove the first value in Test
-	expected := kobject.HealthCheck{
-		Test:        []string{"echo", "foobar"},
-		Timeout:     1,
-		Interval:    2,
-		Retries:     2,
-		StartPeriod: 3,
-	}
-	output, err := parseHealthCheck(check, nil)
-	if err != nil {
-		t.Errorf("Unable to convert HealthCheckConfig: %s", err)
-	}
+	for name, testCase := range testCases {
+		t.Log("Test case:", name)
+		output, err := parseHealthCheck(testCase.input.healthCheck, testCase.input.labels)
+		if err != nil {
+			t.Errorf("Unable to convert HealthCheckConfig: %s", err)
+		}
 
-	if !reflect.DeepEqual(output, expected) {
-		t.Errorf("Structs are not equal, expected: %v, output: %v", expected, output)
+		if !reflect.DeepEqual(output, testCase.expected) {
+			t.Errorf("Structs are not equal, expected: %v, output: %v", testCase.expected, output)
+		}
 	}
 }
 
-func TestParseHttpHealthCheck(t *testing.T) {
-	helperValue := uint64(2)
-	check := types.HealthCheckConfig{
-		Timeout:     durationTypesPtr(1 * time.Second),
-		Interval:    durationTypesPtr(2 * time.Second),
-		Retries:     &helperValue,
-		StartPeriod: durationTypesPtr(3 * time.Second),
-	}
-	label := types.Labels{
-		HealthCheckLivenessHTTPGetPath: "ping",
-		HealthCheckLivenessHTTPGetPort: "80",
+func TestParseHealthCheckReadiness(t *testing.T) {
+	testCases := map[string]struct {
+		input types.Labels
+		expected kobject.HealthCheck
+	}{
+		"Exec": {
+			input: types.Labels{
+				"kompose.service.healthcheck.readiness.test": "echo foobar",
+				"kompose.service.healthcheck.readiness.timeout": "1s",
+				"kompose.service.healthcheck.readiness.interval": "2s",
+				"kompose.service.healthcheck.readiness.retries": "2",
+				"kompose.service.healthcheck.readiness.start_period": "3s",
+			},
+			expected: kobject.HealthCheck{
+				Test:        []string{"echo", "foobar"},
+				Timeout:     1,
+				Interval:    2,
+				Retries:     2,
+				StartPeriod: 3,
+			},
+		},
+		"HTTPGet": {
+			input: types.Labels{
+				"kompose.service.healthcheck.readiness.http_get_path": "/ready",
+				"kompose.service.healthcheck.readiness.http_get_port": "8080",
+				"kompose.service.healthcheck.readiness.timeout": "1s",
+				"kompose.service.healthcheck.readiness.interval": "2s",
+				"kompose.service.healthcheck.readiness.retries": "2",
+				"kompose.service.healthcheck.readiness.start_period": "3s",
+			},
+			expected: kobject.HealthCheck{
+				HTTPPath:    "/ready",
+				HTTPPort:    8080,
+				Timeout:     1,
+				Interval:    2,
+				Retries:     2,
+				StartPeriod: 3,
+			},
+		},
+		"TCPSocket": {
+			input: types.Labels{
+				"kompose.service.healthcheck.readiness.tcp_port": "8080",
+				"kompose.service.healthcheck.readiness.timeout": "1s",
+				"kompose.service.healthcheck.readiness.interval": "2s",
+				"kompose.service.healthcheck.readiness.retries": "2",
+				"kompose.service.healthcheck.readiness.start_period": "3s",
+			},
+			expected: kobject.HealthCheck{
+				TCPPort:     8080,
+				Timeout:     1,
+				Interval:    2,
+				Retries:     2,
+				StartPeriod: 3,
+			},
+		},
 	}
 
-	// CMD-SHELL or SHELL is included Test within docker/cli, thus we remove the first value in Test
-	expected := kobject.HealthCheck{
-		HTTPPath:    "ping",
-		HTTPPort:    80,
-		Timeout:     1,
-		Interval:    2,
-		Retries:     2,
-		StartPeriod: 3,
-	}
-	output, err := parseHealthCheck(check, label)
-	if err != nil {
-		t.Errorf("Unable to convert HealthCheckConfig: %s", err)
-	}
+	for name, testCase := range testCases {
+		t.Log("Test case:", name)
+		output, err := parseHealthCheckReadiness(testCase.input)
+		if err != nil {
+			t.Errorf("Unable to convert HealthCheckConfig: %s", err)
+		}
 
-	if !reflect.DeepEqual(output, expected) {
-		t.Errorf("Structs are not equal, expected: %v, output: %v", expected, output)
+		if !reflect.DeepEqual(output, testCase.expected) {
+			t.Errorf("Structs are not equal, expected: %v, output: %v", testCase.expected, output)
+		}
 	}
 }
 
