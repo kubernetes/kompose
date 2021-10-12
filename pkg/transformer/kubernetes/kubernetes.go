@@ -1231,7 +1231,7 @@ func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.Servi
 				*objects = append(*objects, svc)
 			}
 			if len(svcs) > 1 {
-				log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalander type")
+				log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalancer type")
 			}
 		} else {
 			svc := k.CreateService(name, service)
