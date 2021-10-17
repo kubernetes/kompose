@@ -1,0 +1,85 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Deployment",
+      "apiVersion": "apps/v1",
+      "metadata": {
+        "name": "bar",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "bar"
+        }
+      },
+      "spec": {
+        "replicas": 99,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "bar"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "bar"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "bar",
+                "image": "bar",
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "apps/v1",
+      "metadata": {
+        "name": "foo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "foo"
+        }
+      },
+      "spec": {
+        "replicas": 3,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "foo"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "foo"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "foo",
+                "image": "foo",
+                "resources": {}
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}
