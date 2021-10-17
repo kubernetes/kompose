@@ -147,3 +147,11 @@ convert::expect_success "$ocp_cmd" "$ocp_output"
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/service-group/compose.yaml convert --stdout -j --with-kompose-annotation=false --service-group-mode=volume"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/service-group/output-k8s.json"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
+
+# test merge multiple compose files
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/multiple-files/first.yaml -f $KOMPOSE_ROOT/script/test/fixtures/multiple-files/second.yaml convert --stdout -j --with-kompose-annotation=false"
+ocp_cmd="kompose  --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/multiple-files/first.yaml -f $KOMPOSE_ROOT/script/test/fixtures/multiple-files/second.yaml convert --stdout -j --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/multiple-files/output-k8s.json"
+ocp_output="$KOMPOSE_ROOT/script/test/fixtures/multiple-files/output-ocp.json"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
+convert::expect_success "$ocp_cmd" "$ocp_output"

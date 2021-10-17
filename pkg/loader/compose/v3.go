@@ -741,6 +741,9 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 		if service.Deploy.Resources.Reservations != nil {
 			tmpOldService.Deploy.Resources.Reservations = service.Deploy.Resources.Reservations
 		}
+		if service.Deploy.Replicas != nil {
+			tmpOldService.Deploy.Replicas = service.Deploy.Replicas
+		}
 
 		if len(service.Devices) != 0 {
 			// merge the 2 sets of values
@@ -748,6 +751,7 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 			// Not implemented yet as we don't convert devices to k8s anyway
 			tmpOldService.Devices = service.Devices
 		}
+
 		if len(service.DNS) != 0 {
 			// concat the 2 sets of values
 			tmpOldService.DNS = append(tmpOldService.DNS, service.DNS...)
@@ -791,6 +795,7 @@ func mergeComposeObject(oldCompose *types.Config, newCompose *types.Config) (*ty
 		if service.Image != "" {
 			tmpOldService.Image = service.Image
 		}
+
 		if service.Ipc != "" {
 			tmpOldService.Ipc = service.Ipc
 		}
