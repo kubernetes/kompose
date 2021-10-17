@@ -13,9 +13,7 @@
           "io.kompose.service": "redis"
         },
         "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.service.type": "headless",
-          "kompose.version": "%VERSION%"
+          "kompose.service.type": "headless"
         }
       },
       "spec": {
@@ -43,10 +41,6 @@
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "web"
-        },
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
         }
       },
       "spec": {
@@ -66,19 +60,17 @@
       }
     },
     {
-      "apiVersion": "apps/v1",
       "kind": "Deployment",
+      "apiVersion": "apps/v1",
       "metadata": {
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.service.type": "headless",
-          "kompose.version": "%VERSION%"
-        },
+        "name": "redis",
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "redis"
         },
-        "name": "redis"
+        "annotations": {
+          "kompose.service.type": "headless"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -87,49 +79,40 @@
             "io.kompose.service": "redis"
           }
         },
-        "strategy": {},
         "template": {
           "metadata": {
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.service.type": "headless",
-              "kompose.version": "%VERSION%"
-            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.service.type": "headless"
             }
           },
           "spec": {
             "containers": [
               {
-                "image": "redis",
-                "imagePullPolicy": "",
                 "name": "redis",
+                "image": "redis",
                 "resources": {}
               }
             ],
-            "restartPolicy": "Always",
-            "serviceAccountName": "",
-            "volumes": null
+            "restartPolicy": "Always"
           }
-        }
+        },
+        "strategy": {}
       },
       "status": {}
     },
     {
-      "apiVersion": "apps/v1",
       "kind": "Deployment",
+      "apiVersion": "apps/v1",
       "metadata": {
-        "annotations": {
-          "kompose.cmd": "%CMD%",
-          "kompose.version": "%VERSION%"
-        },
+        "name": "web",
         "creationTimestamp": null,
         "labels": {
           "io.kompose.service": "web"
-        },
-        "name": "web"
+        }
       },
       "spec": {
         "replicas": 1,
@@ -138,30 +121,28 @@
             "io.kompose.service": "web"
           }
         },
-        "strategy": {
-          "type": "Recreate"
-        },
         "template": {
           "metadata": {
-            "annotations": {
-              "kompose.cmd": "%CMD%",
-              "kompose.version": "%VERSION%"
-            },
             "creationTimestamp": null,
             "labels": {
               "io.kompose.service": "web"
             }
           },
           "spec": {
+            "volumes": [
+              {
+                "name": "code-volume",
+                "emptyDir": {}
+              }
+            ],
             "containers": [
               {
+                "name": "web",
+                "image": "flask_web",
                 "args": [
                   "python",
                   "app.py"
                 ],
-                "image": "flask_web",
-                "imagePullPolicy": "",
-                "name": "web",
                 "ports": [
                   {
                     "containerPort": 5000
@@ -170,21 +151,17 @@
                 "resources": {},
                 "volumeMounts": [
                   {
-                    "mountPath": "/code",
-                    "name": "web-empty0"
+                    "name": "code-volume",
+                    "mountPath": "/code"
                   }
                 ]
               }
             ],
-            "restartPolicy": "Always",
-            "serviceAccountName": "",
-            "volumes": [
-              {
-                "emptyDir": {},
-                "name": "web-empty0"
-              }
-            ]
+            "restartPolicy": "Always"
           }
+        },
+        "strategy": {
+          "type": "Recreate"
         }
       },
       "status": {}

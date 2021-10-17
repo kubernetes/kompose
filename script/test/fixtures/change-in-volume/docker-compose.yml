@@ -6,10 +6,13 @@ services:
     ports:
      - "5000:5000"
     volumes:
-     - .:/code
+     - code_volume:/code
     links:
      - redis
   redis:
     image: redis
     labels:
       kompose.service.type: headless
+
+volumes:
+  code_volume:
