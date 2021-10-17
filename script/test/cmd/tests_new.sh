@@ -134,6 +134,22 @@ os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-os.json"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
 
+# Test that emptyDir works
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml convert --with-kompose-annotation=false --stdout -j --volumes emptyDir"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s-empty-vols-template.json"
+os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml convert --with-kompose-annotation=false --stdout -j --volumes emptyDir"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-os-empty-vols-template.json"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
+convert::expect_success_and_warning "$os_cmd" "$os_output"
+
+# Test that emptyvols works
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml convert --with-kompose-annotation=false --stdout -j --emptyvols"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s-empty-vols-template.json"
+os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml convert --with-kompose-annotation=false --stdout -j --emptyvols"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-os-empty-vols-template.json"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
+convert::expect_success_and_warning "$os_cmd" "$os_output"
+
 # test service expose
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/expose/compose.yaml convert --stdout -j --with-kompose-annotation=false"
 ocp_cmd="kompose  --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/expose/compose.yaml convert --stdout -j --with-kompose-annotation=false"
