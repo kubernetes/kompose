@@ -576,9 +576,6 @@ func TestConfigAffinity(t *testing.T) {
 					NegativeConstraints: map[string]string{
 						"baz": "qux",
 					},
-					Preferences: []string{
-						"zone", "ssd",
-					},
 				},
 			},
 			result: &api.Affinity{
@@ -593,37 +590,10 @@ func TestConfigAffinity(t *testing.T) {
 							},
 						},
 					},
-					PreferredDuringSchedulingIgnoredDuringExecution: []api.PreferredSchedulingTerm{
-						{
-							Weight: 2,
-							Preference: api.NodeSelectorTerm{
-								MatchExpressions: []api.NodeSelectorRequirement{
-									{Key: "zone", Operator: api.NodeSelectorOpExists, Values: nil},
-								},
-							},
-						},
-						{
-							Weight: 1,
-							Preference: api.NodeSelectorTerm{
-								MatchExpressions: []api.NodeSelectorRequirement{
-									{Key: "ssd", Operator: api.NodeSelectorOpExists, Values: nil},
-								},
-							},
-						},
-					},
 				},
 			},
 		},
-		"ConfigAffinity (global service)": {
-			service: kobject.ServiceConfig{
-				DeployMode: "global",
-				Placement: kobject.Placement{
-					Preferences: []string{"zone"},
-				},
-			},
-			result: nil,
-		},
-		"ConfigAffinity (nil)": {
+		"ConfigTopologySpreadConstraint (nil)": {
 			kobject.ServiceConfig{},
 			nil,
 		},
@@ -634,6 +604,53 @@ func TestConfigAffinity(t *testing.T) {
 		result := ConfigAffinity(test.service)
 		if !reflect.DeepEqual(result, test.result) {
 			t.Errorf("Not expected result for ConfigAffinity")
+		}
+	}
+}
+
+func TestConfigTopologySpreadConstraints(t *testing.T) {
+	testCases := map[string]struct {
+		service kobject.ServiceConfig
+		result  []api.TopologySpreadConstraint
+	}{
+		"ConfigTopologySpreadConstraint": {
+			service: kobject.ServiceConfig{
+				Placement: kobject.Placement{
+					Preferences: []string{
+						"zone", "ssd",
+					},
+				},
+			},
+			result: []api.TopologySpreadConstraint{
+				{
+					MaxSkew:           2,
+					TopologyKey:       "zone",
+					WhenUnsatisfiable: api.ScheduleAnyway,
+					LabelSelector: &metav1.LabelSelector{
+						MatchExpressions: []metav1.LabelSelectorRequirement{
+							{Key: "zone", Operator: metav1.LabelSelectorOpExists},
+						},
+					},
+				},
+				{
+					MaxSkew:           1,
+					TopologyKey:       "ssd",
+					WhenUnsatisfiable: api.ScheduleAnyway,
+					LabelSelector: &metav1.LabelSelector{
+						MatchExpressions: []metav1.LabelSelectorRequirement{
+							{Key: "ssd", Operator: metav1.LabelSelectorOpExists},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		result := ConfigTopologySpreadConstraints(test.service)
+		if !reflect.DeepEqual(result, test.result) {
+			t.Errorf("Not expected result for ConfigTopologySpreadConstraints")
 		}
 	}
 }

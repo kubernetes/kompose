@@ -533,6 +533,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].TTY = service.Tty
 		template.Spec.Volumes = append(template.Spec.Volumes, volumes...)
 		template.Spec.Affinity = ConfigAffinity(service)
+		template.Spec.TopologySpreadConstraints = ConfigTopologySpreadConstraints(service)
 		// Configure the HealthCheck
 		// We check to see if it's blank
 		if !reflect.DeepEqual(service.HealthChecks.Liveness, kobject.HealthCheck{}) {

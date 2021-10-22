@@ -137,6 +137,7 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 	komposePlacement := kobject.Placement{
 		PositiveConstraints: make(map[string]string),
 		NegativeConstraints: make(map[string]string),
+		Preferences:         make([]string, 0, len(placement.Preferences)),
 	}
 
 	// Convert constraints
