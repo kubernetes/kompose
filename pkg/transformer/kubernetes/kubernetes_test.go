@@ -593,7 +593,7 @@ func TestConfigAffinity(t *testing.T) {
 				},
 			},
 		},
-		"ConfigTopologySpreadConstraint (nil)": {
+		"ConfigAffinity (nil)": {
 			kobject.ServiceConfig{},
 			nil,
 		},
