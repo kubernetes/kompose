@@ -43,10 +43,10 @@ func TestParseHealthCheck(t *testing.T) {
 	helperValue := uint64(2)
 	type input struct {
 		healthCheck types.HealthCheckConfig
-		labels types.Labels
+		labels      types.Labels
 	}
 	testCases := map[string]struct {
-		input input
+		input    input
 		expected kobject.HealthCheck
 	}{
 		"Exec": {
@@ -76,7 +76,7 @@ func TestParseHealthCheck(t *testing.T) {
 					Retries:     &helperValue,
 					StartPeriod: durationTypesPtr(3 * time.Second),
 				},
-				labels:      types.Labels{
+				labels: types.Labels{
 					"kompose.service.healthcheck.liveness.http_get_path": "/health",
 					"kompose.service.healthcheck.liveness.http_get_port": "8080",
 				},
@@ -98,7 +98,7 @@ func TestParseHealthCheck(t *testing.T) {
 					Retries:     &helperValue,
 					StartPeriod: durationTypesPtr(3 * time.Second),
 				},
-				labels:      types.Labels{
+				labels: types.Labels{
 					"kompose.service.healthcheck.liveness.tcp_port": "8080",
 				},
 			},
@@ -127,15 +127,15 @@ func TestParseHealthCheck(t *testing.T) {
 
 func TestParseHealthCheckReadiness(t *testing.T) {
 	testCases := map[string]struct {
-		input types.Labels
+		input    types.Labels
 		expected kobject.HealthCheck
 	}{
 		"Exec": {
 			input: types.Labels{
-				"kompose.service.healthcheck.readiness.test": "echo foobar",
-				"kompose.service.healthcheck.readiness.timeout": "1s",
-				"kompose.service.healthcheck.readiness.interval": "2s",
-				"kompose.service.healthcheck.readiness.retries": "2",
+				"kompose.service.healthcheck.readiness.test":         "echo foobar",
+				"kompose.service.healthcheck.readiness.timeout":      "1s",
+				"kompose.service.healthcheck.readiness.interval":     "2s",
+				"kompose.service.healthcheck.readiness.retries":      "2",
 				"kompose.service.healthcheck.readiness.start_period": "3s",
 			},
 			expected: kobject.HealthCheck{
@@ -150,10 +150,10 @@ func TestParseHealthCheckReadiness(t *testing.T) {
 			input: types.Labels{
 				"kompose.service.healthcheck.readiness.http_get_path": "/ready",
 				"kompose.service.healthcheck.readiness.http_get_port": "8080",
-				"kompose.service.healthcheck.readiness.timeout": "1s",
-				"kompose.service.healthcheck.readiness.interval": "2s",
-				"kompose.service.healthcheck.readiness.retries": "2",
-				"kompose.service.healthcheck.readiness.start_period": "3s",
+				"kompose.service.healthcheck.readiness.timeout":       "1s",
+				"kompose.service.healthcheck.readiness.interval":      "2s",
+				"kompose.service.healthcheck.readiness.retries":       "2",
+				"kompose.service.healthcheck.readiness.start_period":  "3s",
 			},
 			expected: kobject.HealthCheck{
 				HTTPPath:    "/ready",
@@ -166,10 +166,10 @@ func TestParseHealthCheckReadiness(t *testing.T) {
 		},
 		"TCPSocket": {
 			input: types.Labels{
-				"kompose.service.healthcheck.readiness.tcp_port": "8080",
-				"kompose.service.healthcheck.readiness.timeout": "1s",
-				"kompose.service.healthcheck.readiness.interval": "2s",
-				"kompose.service.healthcheck.readiness.retries": "2",
+				"kompose.service.healthcheck.readiness.tcp_port":     "8080",
+				"kompose.service.healthcheck.readiness.timeout":      "1s",
+				"kompose.service.healthcheck.readiness.interval":     "2s",
+				"kompose.service.healthcheck.readiness.retries":      "2",
 				"kompose.service.healthcheck.readiness.start_period": "3s",
 			},
 			expected: kobject.HealthCheck{
