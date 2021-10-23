@@ -1066,7 +1066,8 @@ func ConfigTopologySpreadConstraints(service kobject.ServiceConfig) []api.Topolo
 	constraints := make([]api.TopologySpreadConstraint, 0, preferencesLen)
 
 	// Placement preferences are ignored for global services
-	if preferencesLen == 0 || service.DeployMode == "global" {
+	if service.DeployMode == "global" {
+		log.Warnf("Ignore placement preferences for global service %s", service.Name)
 		return constraints
 	}
 
