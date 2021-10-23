@@ -1,5 +1,69 @@
 # Changelog
 
+## [v1.25.0](https://github.com/kubernetes/kompose/tree/v1.25.0) (2021-10-23)
+
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.24.0...v1.25.0)
+
+**Closed issues:**
+
+- convert with multiple docker-compose files fails [\#1444](https://github.com/kubernetes/kompose/issues/1444)
+- Missing exe extension for windows release [\#1433](https://github.com/kubernetes/kompose/issues/1433)
+- is version of golangci-lint consistent with it github-ci [\#1422](https://github.com/kubernetes/kompose/issues/1422)
+- compatability issue with 64-bit version of windows [\#1415](https://github.com/kubernetes/kompose/issues/1415)
+- Kompose generated network YAML cannot be applied because there are o matches for kind "NetworkPolicy" in version "extensions/v1beta1"  [\#1408](https://github.com/kubernetes/kompose/issues/1408)
+- docker-compose 3.8 [\#1396](https://github.com/kubernetes/kompose/issues/1396)
+- 'Support for readinessProbe' is not include Kompose 1.22.0 [\#1384](https://github.com/kubernetes/kompose/issues/1384)
+- Is it possible to push image to custom container registry? [\#1369](https://github.com/kubernetes/kompose/issues/1369)
+- Windows Binaries for 1.22 not updated correctly [\#1347](https://github.com/kubernetes/kompose/issues/1347)
+- Provide sha256 checksums as Assets instead of strings in a HTML table  [\#1311](https://github.com/kubernetes/kompose/issues/1311)
+- \[BUG\] Kompose doesn't read config from URL [\#1291](https://github.com/kubernetes/kompose/issues/1291)
+- kompose secrets file location [\#1280](https://github.com/kubernetes/kompose/issues/1280)
+- kompose convert Volume mount on the host  isn't supported [\#1271](https://github.com/kubernetes/kompose/issues/1271)
+- Dotfile path \(e.g ./envs/./production/.envs\) errors/is not supported in Kompose [\#1240](https://github.com/kubernetes/kompose/issues/1240)
+- Create route for openshift - targert port should be a string [\#1184](https://github.com/kubernetes/kompose/issues/1184)
+- Support yaml anchors [\#1155](https://github.com/kubernetes/kompose/issues/1155)
+- Support for ipv6 ports annotations [\#1136](https://github.com/kubernetes/kompose/issues/1136)
+- Change Chart.yaml attribute version when converted to helm [\#1127](https://github.com/kubernetes/kompose/issues/1127)
+- HostPath volumes File/Directory detection [\#1113](https://github.com/kubernetes/kompose/issues/1113)
+- error decoding 'Ports': No port specified: ::\<empty\> [\#1104](https://github.com/kubernetes/kompose/issues/1104)
+- Names based on the helm chart name [\#1098](https://github.com/kubernetes/kompose/issues/1098)
+- Issues with volume mounts in docker-compose.yml [\#1097](https://github.com/kubernetes/kompose/issues/1097)
+- volumeMounts and subPath - how to convert named volumes [\#1096](https://github.com/kubernetes/kompose/issues/1096)
+- How do I use a service account? [\#1088](https://github.com/kubernetes/kompose/issues/1088)
+- openshift route with edge termination [\#1085](https://github.com/kubernetes/kompose/issues/1085)
+- Convert version 3.5 of Docker Compose is not supported [\#1058](https://github.com/kubernetes/kompose/issues/1058)
+- Kubernetes multiple volumeMounts with subPath and 1 configmap volume - onle 1 volumeMount works [\#1005](https://github.com/kubernetes/kompose/issues/1005)
+- when to support this parameter build: args? [\#1004](https://github.com/kubernetes/kompose/issues/1004)
+- FATA services.xxx.ports.0 must be a string or number [\#986](https://github.com/kubernetes/kompose/issues/986)
+- Remove status field in the generated yaml [\#975](https://github.com/kubernetes/kompose/issues/975)
+- Unable to kompose up my django container from windows or azure cloudshell. [\#966](https://github.com/kubernetes/kompose/issues/966)
+- Create Rolling updates using Kompose tool [\#965](https://github.com/kubernetes/kompose/issues/965)
+- Support ubuntu's snap package format [\#964](https://github.com/kubernetes/kompose/issues/964)
+- kompose up is not able to mount configmap volume [\#962](https://github.com/kubernetes/kompose/issues/962)
+- Remove RC from supported workload [\#947](https://github.com/kubernetes/kompose/issues/947)
+- depends\_on with conditions [\#939](https://github.com/kubernetes/kompose/issues/939)
+- extended env\_file capability to in-docker-compose.yml substitutions [\#909](https://github.com/kubernetes/kompose/issues/909)
+- Allow specifying imagePullSecret [\#897](https://github.com/kubernetes/kompose/issues/897)
+- Add support for "scratch space" volumes [\#850](https://github.com/kubernetes/kompose/issues/850)
+- Do not generate empty services [\#823](https://github.com/kubernetes/kompose/issues/823)
+- add support for `kompose update` [\#822](https://github.com/kubernetes/kompose/issues/822)
+
+**Merged pull requests:**
+
+- Add cmd tests for emptyvols and emptyDir [\#1447](https://github.com/kubernetes/kompose/pull/1447) ([sbs2001](https://github.com/sbs2001))
+- Fix merge compose file's replicas error [\#1446](https://github.com/kubernetes/kompose/pull/1446) ([hangyan](https://github.com/hangyan))
+- Remove bundle test and it's fixtures [\#1443](https://github.com/kubernetes/kompose/pull/1443) ([sbs2001](https://github.com/sbs2001))
+- fix typo: loadbalander -\> loadbalancer [\#1442](https://github.com/kubernetes/kompose/pull/1442) ([kevmo314](https://github.com/kevmo314))
+- Fix typo in empty volume warning [\#1441](https://github.com/kubernetes/kompose/pull/1441) ([sbs2001](https://github.com/sbs2001))
+- Support group service by shared volumes [\#1439](https://github.com/kubernetes/kompose/pull/1439) ([hangyan](https://github.com/hangyan))
+- Refactor [\#1438](https://github.com/kubernetes/kompose/pull/1438) ([hangyan](https://github.com/hangyan))
+- Update golang versions in ci [\#1437](https://github.com/kubernetes/kompose/pull/1437) ([hangyan](https://github.com/hangyan))
+- Upgrade Ingress apiversion [\#1436](https://github.com/kubernetes/kompose/pull/1436) ([hangyan](https://github.com/hangyan))
+- Remove code for parsing DAB files [\#1435](https://github.com/kubernetes/kompose/pull/1435) ([sbs2001](https://github.com/sbs2001))
+- Document debian package [\#1432](https://github.com/kubernetes/kompose/pull/1432) ([sbs2001](https://github.com/sbs2001))
+- Add instruction to change directory to cloned repo while building. [\#1430](https://github.com/kubernetes/kompose/pull/1430) ([sbs2001](https://github.com/sbs2001))
+- Add install golangci-lint to project dir of bin [\#1428](https://github.com/kubernetes/kompose/pull/1428) ([aiyijing](https://github.com/aiyijing))
+
 ## [v1.24.0](https://github.com/kubernetes/kompose/tree/v1.24.0) (2021-08-29)
 
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.23.0...v1.24.0)
@@ -19,6 +83,7 @@
 
 **Merged pull requests:**
 
+- 1.24.0 Release [\#1424](https://github.com/kubernetes/kompose/pull/1424) ([hangyan](https://github.com/hangyan))
 - Fix misuse in struct kobject.ServiceConfig.Port [\#1423](https://github.com/kubernetes/kompose/pull/1423) ([ichxxx](https://github.com/ichxxx))
 - Add local golangci-lint [\#1420](https://github.com/kubernetes/kompose/pull/1420) ([aiyijing](https://github.com/aiyijing))
 - Add support for negated placement constraint [\#1419](https://github.com/kubernetes/kompose/pull/1419) ([ichxxx](https://github.com/ichxxx))
