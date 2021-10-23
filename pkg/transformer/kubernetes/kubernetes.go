@@ -63,6 +63,8 @@ const (
 	DeploymentController = "deployment"
 	// DaemonSetController is controller type for DaemonSet
 	DaemonSetController = "daemonset"
+	// StatefulStateController is controller type for StatefulSet
+	StatefulStateController = "statefulset"
 )
 
 // CheckUnsupportedKey checks if given komposeObject contains
@@ -420,6 +422,31 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *appsv1.
 			Template: api.PodTemplateSpec{
 				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 			},
+		},
+	}
+	return ds
+}
+
+func (k *Kubernetes) InitSS(name string, service kobject.ServiceConfig, replicas int) *appsv1.StatefulSet {
+	rp := int32(replicas)
+	ds := &appsv1.StatefulSet{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "StatefulSet",
+			APIVersion: "apps/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   name,
+			Labels: transformer.ConfigAllLabels(name, &service),
+		},
+		Spec: appsv1.StatefulSetSpec{
+			Replicas: &rp,
+			Template: api.PodTemplateSpec{
+				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
+			},
+			Selector: &metav1.LabelSelector{
+				MatchLabels: transformer.ConfigLabels(name),
+			},
+			ServiceName: service.Name,
 		},
 	}
 	return ds
@@ -1120,6 +1147,10 @@ func (k *Kubernetes) CreateWorkloadAndConfigMapObjects(name string, service kobj
 		objects = append(objects, k.InitDS(name, service))
 	}
 
+	if opt.Controller == StatefulStateController {
+		objects = append(objects, k.InitSS(name, service, replica))
+	}
+
 	if len(service.EnvFile) > 0 {
 		for _, envFile := range service.EnvFile {
 			configMap := k.InitConfigMapForEnv(name, opt, envFile)
@@ -1280,7 +1311,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			allobjects = append(allobjects, item)
 		}
 	}
-
 	if opt.ServiceGroupMode != "" {
 		log.Debugf("Service group mode is: %s", opt.ServiceGroupMode)
 		komposeObjectToServiceConfigGroupMapping := KomposeObjectToServiceConfigGroupMapping(&komposeObject, opt)
@@ -1444,6 +1474,12 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 		}
 		updateMeta(&t.ObjectMeta)
 	case *appsv1.DaemonSet:
+		err = updateTemplate(&t.Spec.Template)
+		if err != nil {
+			return errors.Wrap(err, "updateTemplate failed")
+		}
+		updateMeta(&t.ObjectMeta)
+	case *appsv1.StatefulSet:
 		err = updateTemplate(&t.Spec.Template)
 		if err != nil {
 			return errors.Wrap(err, "updateTemplate failed")
