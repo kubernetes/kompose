@@ -644,6 +644,8 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 				persistentVolumeClaims := make([]api.PersistentVolumeClaim, len(pvc))
 				for i, persistentVolumeClaim := range pvc {
 					persistentVolumeClaims[i] = *persistentVolumeClaim
+					persistentVolumeClaims[i].APIVersion = ""
+					persistentVolumeClaims[i].Kind = ""
 				}
 				objType.Spec.VolumeClaimTemplates = persistentVolumeClaims
 			}
