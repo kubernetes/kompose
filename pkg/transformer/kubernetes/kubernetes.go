@@ -1078,10 +1078,7 @@ func ConfigTopologySpreadConstraints(service kobject.ServiceConfig) []api.Topolo
 			TopologyKey:       p,
 			WhenUnsatisfiable: api.ScheduleAnyway,
 			LabelSelector: &metav1.LabelSelector{
-				MatchExpressions: []metav1.LabelSelectorRequirement{{
-					Key:      p,
-					Operator: metav1.LabelSelectorOpExists,
-				}},
+				MatchLabels: transformer.ConfigLabels(service.Name),
 			},
 		})
 	}

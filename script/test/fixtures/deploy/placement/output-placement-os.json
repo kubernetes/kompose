@@ -126,12 +126,9 @@
                 "topologyKey": "zone",
                 "whenUnsatisfiable": "ScheduleAnyway",
                 "labelSelector": {
-                  "matchExpressions": [
-                    {
-                      "key": "zone",
-                      "operator": "Exists"
-                    }
-                  ]
+                  "matchLabels": {
+                    "io.kompose.service": "redis"
+                  }
                 }
               },
               {
@@ -139,12 +136,9 @@
                 "topologyKey": "ssd",
                 "whenUnsatisfiable": "ScheduleAnyway",
                 "labelSelector": {
-                  "matchExpressions": [
-                    {
-                      "key": "ssd",
-                      "operator": "Exists"
-                    }
-                  ]
+                  "matchLabels": {
+                    "io.kompose.service": "redis"
+                  }
                 }
               }
             ]
