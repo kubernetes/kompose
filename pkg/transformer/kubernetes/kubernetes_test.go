@@ -609,12 +609,14 @@ func TestConfigAffinity(t *testing.T) {
 }
 
 func TestConfigTopologySpreadConstraints(t *testing.T) {
+	serviceName := "app"
 	testCases := map[string]struct {
 		service kobject.ServiceConfig
 		result  []api.TopologySpreadConstraint
 	}{
 		"ConfigTopologySpreadConstraint": {
 			service: kobject.ServiceConfig{
+				Name: serviceName,
 				Placement: kobject.Placement{
 					Preferences: []string{
 						"zone", "ssd",
@@ -627,9 +629,7 @@ func TestConfigTopologySpreadConstraints(t *testing.T) {
 					TopologyKey:       "zone",
 					WhenUnsatisfiable: api.ScheduleAnyway,
 					LabelSelector: &metav1.LabelSelector{
-						MatchExpressions: []metav1.LabelSelectorRequirement{
-							{Key: "zone", Operator: metav1.LabelSelectorOpExists},
-						},
+						MatchLabels: transformer.ConfigLabels(serviceName),
 					},
 				},
 				{
@@ -637,9 +637,7 @@ func TestConfigTopologySpreadConstraints(t *testing.T) {
 					TopologyKey:       "ssd",
 					WhenUnsatisfiable: api.ScheduleAnyway,
 					LabelSelector: &metav1.LabelSelector{
-						MatchExpressions: []metav1.LabelSelectorRequirement{
-							{Key: "ssd", Operator: metav1.LabelSelectorOpExists},
-						},
+						MatchLabels: transformer.ConfigLabels(serviceName),
 					},
 				},
 			},
