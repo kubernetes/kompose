@@ -533,12 +533,8 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Volumes = append(template.Spec.Volumes, volumes...)
 		template.Spec.Affinity = ConfigAffinity(service)
 		// Configure the HealthCheck
-		if probe, ok := configProbe(service.HealthChecks.Liveness); ok {
-			template.Spec.Containers[0].LivenessProbe = probe
-		}
-		if probe, ok := configProbe(service.HealthChecks.Readiness); ok {
-			template.Spec.Containers[0].ReadinessProbe = probe
-		}
+		template.Spec.Containers[0].LivenessProbe = configProbe(service.HealthChecks.Liveness)
+		template.Spec.Containers[0].ReadinessProbe = configProbe(service.HealthChecks.Readiness)
 
 		if service.StopGracePeriod != "" {
 			template.Spec.TerminationGracePeriodSeconds, err = DurationStrToSecondsInt(service.StopGracePeriod)

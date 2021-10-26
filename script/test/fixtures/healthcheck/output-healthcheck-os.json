@@ -13,6 +13,7 @@
           "io.kompose.service": "mongo"
         },
         "annotations": {
+          "kompose.service.group": "my-group",
           "kompose.service.healthcheck.liveness.tcp_port": "8080",
           "kompose.service.healthcheck.readiness.interval": "10s",
           "kompose.service.healthcheck.readiness.retries": "5",
@@ -30,6 +31,40 @@
         ],
         "selector": {
           "io.kompose.service": "mongo"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mysql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mysql"
+        },
+        "annotations": {
+          "kompose.service.group": "my-group",
+          "kompose.service.healthcheck.liveness.tcp_port": "8081",
+          "kompose.service.healthcheck.readiness.interval": "11s",
+          "kompose.service.healthcheck.readiness.retries": "6",
+          "kompose.service.healthcheck.readiness.tcp_port": "9091",
+          "kompose.service.healthcheck.readiness.timeout": "2s"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "3306",
+            "port": 3306,
+            "targetPort": 3306
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "mysql"
         }
       },
       "status": {
@@ -113,6 +148,7 @@
           "io.kompose.service": "mongo"
         },
         "annotations": {
+          "kompose.service.group": "my-group",
           "kompose.service.healthcheck.liveness.tcp_port": "8080",
           "kompose.service.healthcheck.readiness.interval": "10s",
           "kompose.service.healthcheck.readiness.retries": "5",
@@ -209,6 +245,126 @@
             "from": {
               "kind": "DockerImage",
               "name": "mongo"
+            },
+            "generation": null,
+            "importPolicy": {},
+            "referencePolicy": {
+              "type": ""
+            }
+          }
+        ]
+      },
+      "status": {
+        "dockerImageRepository": ""
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mysql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mysql"
+        },
+        "annotations": {
+          "kompose.service.group": "my-group",
+          "kompose.service.healthcheck.liveness.tcp_port": "8081",
+          "kompose.service.healthcheck.readiness.interval": "11s",
+          "kompose.service.healthcheck.readiness.retries": "6",
+          "kompose.service.healthcheck.readiness.tcp_port": "9091",
+          "kompose.service.healthcheck.readiness.timeout": "2s"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "mysql"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "mysql:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "io.kompose.service": "mysql"
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "mysql"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "mysql",
+                "image": " ",
+                "ports": [
+                  {
+                    "containerPort": 3306
+                  }
+                ],
+                "resources": {},
+                "livenessProbe": {
+                  "tcpSocket": {
+                    "port": 8081
+                  },
+                  "timeoutSeconds": 2,
+                  "periodSeconds": 11,
+                  "failureThreshold": 6
+                }
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        }
+      },
+      "status": {
+        "latestVersion": 0,
+        "observedGeneration": 0,
+        "replicas": 0,
+        "updatedReplicas": 0,
+        "availableReplicas": 0,
+        "unavailableReplicas": 0
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mysql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "mysql"
+        }
+      },
+      "spec": {
+        "lookupPolicy": {
+          "local": false
+        },
+        "tags": [
+          {
+            "name": "",
+            "annotations": null,
+            "from": {
+              "kind": "DockerImage",
+              "name": "mysql"
             },
             "generation": null,
             "importPolicy": {},

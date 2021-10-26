@@ -25,6 +25,8 @@ import (
 
 	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 
+	v1 "k8s.io/api/core/v1"
+
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/kubernetes/kompose/pkg/transformer"
@@ -738,6 +740,86 @@ func TestServiceAccountNameOnMultipleContainers(t *testing.T) {
 				}
 				if deployment.Spec.Template.Spec.ServiceAccountName != serviceAccountName {
 					t.Errorf("Expected %v returned, got %v", serviceAccountName, deployment.Spec.Template.Spec.ServiceAccountName)
+				}
+			}
+		}
+	}
+}
+
+func TestHealthCheckOnMultipleContainers(t *testing.T) {
+	groupName := "pod_group"
+
+	createHealthCheck := func(TCPPort int32) kobject.HealthCheck {
+		return kobject.HealthCheck{
+			TCPPort: TCPPort,
+		}
+	}
+
+	createConfig := func(name string, livenessTCPPort, readinessTCPPort int32) kobject.ServiceConfig {
+		config := newSimpleServiceConfig()
+		config.Labels = map[string]string{compose.LabelServiceGroup: groupName}
+		config.Name = name
+		config.ContainerName = name
+		config.HealthChecks.Liveness = createHealthCheck(livenessTCPPort)
+		config.HealthChecks.Readiness = createHealthCheck(readinessTCPPort)
+		return config
+	}
+
+	testCases := map[string]struct {
+		komposeObject      kobject.KomposeObject
+		opt                kobject.ConvertOptions
+		expectedContainers []v1.Container
+	}{
+		"Converted multiple containers to Deployments": {
+			kobject.KomposeObject{
+				ServiceConfigs: map[string]kobject.ServiceConfig{
+					"app1": createConfig("app1", 8081, 9091),
+					"app2": createConfig("app2", 8082, 9092),
+				},
+			},
+			kobject.ConvertOptions{ServiceGroupMode: "label", CreateD: true},
+			[]v1.Container{
+				{
+					Name:           "app1",
+					LivenessProbe:  configProbe(createHealthCheck(8081)),
+					ReadinessProbe: configProbe(createHealthCheck(9091)),
+				},
+				{
+					Name:           "app2",
+					LivenessProbe:  configProbe(createHealthCheck(8082)),
+					ReadinessProbe: configProbe(createHealthCheck(9092)),
+				},
+			},
+		},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		k := Kubernetes{}
+		// Run Transform
+		objs, err := k.Transform(test.komposeObject, test.opt)
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
+
+		// Check results
+		for _, obj := range objs {
+			if deployment, ok := obj.(*appsv1.Deployment); ok {
+				if len(deployment.Spec.Template.Spec.Containers) != len(test.expectedContainers) {
+					t.Errorf("Containers len is not equal, expected %d, got %d",
+						len(deployment.Spec.Template.Spec.Containers), len(test.expectedContainers))
+				}
+				for i, result := range deployment.Spec.Template.Spec.Containers {
+					expected := test.expectedContainers[i]
+					if result.Name != expected.Name {
+						t.Errorf("Container %d: Name expected %v returned, got %v", i, expected.Name, result.Name)
+					}
+					if !reflect.DeepEqual(result.LivenessProbe, expected.LivenessProbe) {
+						t.Errorf("Container %d: LivenessProbe expected %v returned, got %v", i, expected.LivenessProbe, result.LivenessProbe)
+					}
+					if !reflect.DeepEqual(result.ReadinessProbe, expected.ReadinessProbe) {
+						t.Errorf("Container %d: ReadinessProbe expected %v returned, got %v", i, expected.ReadinessProbe, result.ReadinessProbe)
+					}
 				}
 			}
 		}

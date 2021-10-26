@@ -34,14 +34,16 @@ func AddContainer(service kobject.ServiceConfig, opt kobject.ConvertOptions) Pod
 		}
 
 		podSpec.Containers = append(podSpec.Containers, api.Container{
-			Name:       name,
-			Image:      image,
-			Env:        envs,
-			Command:    service.Command,
-			Args:       service.Args,
-			WorkingDir: service.WorkingDir,
-			Stdin:      service.Stdin,
-			TTY:        service.Tty,
+			Name:           name,
+			Image:          image,
+			Env:            envs,
+			Command:        service.Command,
+			Args:           service.Args,
+			WorkingDir:     service.WorkingDir,
+			Stdin:          service.Stdin,
+			TTY:            service.Tty,
+			LivenessProbe:  configProbe(service.HealthChecks.Liveness),
+			ReadinessProbe: configProbe(service.HealthChecks.Readiness),
 		})
 
 		podSpec.Affinity = ConfigAffinity(service)
@@ -258,32 +260,11 @@ func DomainName(service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
-func LivenessProbe(service kobject.ServiceConfig) PodSpecOption {
-	return func(podSpec *PodSpec) {
-		// Configure the HealthCheck
-		if probe, ok := configProbe(service.HealthChecks.Liveness); ok {
-			for i := range podSpec.Containers {
-				podSpec.Containers[i].LivenessProbe = probe
-			}
-		}
-	}
-}
-
-func ReadinessProbe(service kobject.ServiceConfig) PodSpecOption {
-	return func(podSpec *PodSpec) {
-		if probe, ok := configProbe(service.HealthChecks.Readiness); ok {
-			for i := range podSpec.Containers {
-				podSpec.Containers[i].ReadinessProbe = probe
-			}
-		}
-	}
-}
-
-func configProbe(healthCheck kobject.HealthCheck) (*api.Probe, bool) {
+func configProbe(healthCheck kobject.HealthCheck) *api.Probe {
 	probe := api.Probe{}
-	// We check to see if it's blank
-	if reflect.DeepEqual(healthCheck, kobject.HealthCheck{}) {
-		return nil, false
+	// We check to see if it's blank or disable
+	if reflect.DeepEqual(healthCheck, kobject.HealthCheck{}) || healthCheck.Disable {
+		return nil
 	}
 
 	if len(healthCheck.Test) > 0 {
@@ -316,7 +297,7 @@ func configProbe(healthCheck kobject.HealthCheck) (*api.Probe, bool) {
 	// See issue: https://github.com/docker/cli/issues/116
 	// StartPeriod has been added to v3.4 of the compose
 	probe.InitialDelaySeconds = healthCheck.StartPeriod
-	return &probe, true
+	return &probe
 }
 
 func ServiceAccountName(serviceAccountName string) PodSpecOption {

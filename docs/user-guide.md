@@ -167,6 +167,7 @@ The currently supported options are:
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
 | kompose.image-pull-policy | kubernetes pods imagePullPolicy |
 | kompose.image-pull-secret | kubernetes secret name for imagePullSecrets |
+| kompose.service.healthcheck.readiness.disable | kubernetes readiness disable |
 | kompose.service.healthcheck.readiness.test | kubernetes readiness exec command |
 | kompose.service.healthcheck.readiness.http_get_path | kubernetes readiness httpGet path |
 | kompose.service.healthcheck.readiness.http_get_port | kubernetes readiness httpGet port |

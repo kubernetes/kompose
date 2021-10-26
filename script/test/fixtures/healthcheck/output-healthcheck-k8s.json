@@ -10,9 +10,10 @@
         "name": "mongo",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "mongo"
+          "io.kompose.service": "my-group"
         },
         "annotations": {
+          "kompose.service.group": "my-group",
           "kompose.service.healthcheck.liveness.tcp_port": "8080",
           "kompose.service.healthcheck.readiness.interval": "10s",
           "kompose.service.healthcheck.readiness.retries": "5",
@@ -29,7 +30,41 @@
           }
         ],
         "selector": {
-          "io.kompose.service": "mongo"
+          "io.kompose.service": "my-group"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mysql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "my-group"
+        },
+        "annotations": {
+          "kompose.service.group": "my-group",
+          "kompose.service.healthcheck.liveness.tcp_port": "8081",
+          "kompose.service.healthcheck.readiness.interval": "11s",
+          "kompose.service.healthcheck.readiness.retries": "6",
+          "kompose.service.healthcheck.readiness.tcp_port": "9091",
+          "kompose.service.healthcheck.readiness.timeout": "2s"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "3306",
+            "port": 3306,
+            "targetPort": 3306
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "my-group"
         }
       },
       "status": {
@@ -107,33 +142,35 @@
       "kind": "Deployment",
       "apiVersion": "apps/v1",
       "metadata": {
-        "name": "mongo",
+        "name": "my-group",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "mongo"
+          "io.kompose.service": "my-group"
         },
         "annotations": {
-          "kompose.service.healthcheck.liveness.tcp_port": "8080",
-          "kompose.service.healthcheck.readiness.interval": "10s",
-          "kompose.service.healthcheck.readiness.retries": "5",
-          "kompose.service.healthcheck.readiness.tcp_port": "9090",
-          "kompose.service.healthcheck.readiness.timeout": "1s"
+          "kompose.service.group": "my-group",
+          "kompose.service.healthcheck.liveness.tcp_port": "8081",
+          "kompose.service.healthcheck.readiness.interval": "11s",
+          "kompose.service.healthcheck.readiness.retries": "6",
+          "kompose.service.healthcheck.readiness.tcp_port": "9091",
+          "kompose.service.healthcheck.readiness.timeout": "2s"
         }
       },
       "spec": {
         "replicas": 1,
         "selector": {
           "matchLabels": {
-            "io.kompose.service": "mongo"
+            "io.kompose.service": "my-group"
           }
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "mongo"
+              "io.kompose.service": "my-group"
             },
             "annotations": {
+              "kompose.service.group": "my-group",
               "kompose.service.healthcheck.liveness.tcp_port": "8080",
               "kompose.service.healthcheck.readiness.interval": "10s",
               "kompose.service.healthcheck.readiness.retries": "5",
@@ -159,6 +196,24 @@
                   "timeoutSeconds": 1,
                   "periodSeconds": 10,
                   "failureThreshold": 5
+                }
+              },
+              {
+                "name": "mysql",
+                "image": "mysql",
+                "ports": [
+                  {
+                    "containerPort": 3306
+                  }
+                ],
+                "resources": {},
+                "livenessProbe": {
+                  "tcpSocket": {
+                    "port": 8081
+                  },
+                  "timeoutSeconds": 2,
+                  "periodSeconds": 11,
+                  "failureThreshold": 6
                 }
               }
             ],

@@ -44,8 +44,26 @@ services:
       timeout: 1s
       retries: 5
     labels:
+      kompose.service.group: "my-group"
       kompose.service.healthcheck.liveness.tcp_port: 8080
       kompose.service.healthcheck.readiness.tcp_port: 9090
       kompose.service.healthcheck.readiness.interval: 10s
       kompose.service.healthcheck.readiness.timeout: 1s
       kompose.service.healthcheck.readiness.retries: 5
+
+  # test multiple service merge
+  mysql:
+    image: mysql
+    ports:
+      - "3306"
+    healthcheck:
+      interval: 11s
+      timeout: 2s
+      retries: 6
+    labels:
+      kompose.service.group: "my-group"
+      kompose.service.healthcheck.liveness.tcp_port: 8081
+      kompose.service.healthcheck.readiness.tcp_port: 9091
+      kompose.service.healthcheck.readiness.interval: 11s
+      kompose.service.healthcheck.readiness.timeout: 2s
+      kompose.service.healthcheck.readiness.retries: 6
