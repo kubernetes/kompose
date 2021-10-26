@@ -25,8 +25,6 @@ import (
 
 	dockerCliTypes "github.com/docker/cli/cli/compose/types"
 
-	v1 "k8s.io/api/core/v1"
-
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/kubernetes/kompose/pkg/transformer"
@@ -768,7 +766,7 @@ func TestHealthCheckOnMultipleContainers(t *testing.T) {
 	testCases := map[string]struct {
 		komposeObject      kobject.KomposeObject
 		opt                kobject.ConvertOptions
-		expectedContainers []v1.Container
+		expectedContainers []api.Container
 	}{
 		"Converted multiple containers to Deployments": {
 			kobject.KomposeObject{
@@ -778,7 +776,7 @@ func TestHealthCheckOnMultipleContainers(t *testing.T) {
 				},
 			},
 			kobject.ConvertOptions{ServiceGroupMode: "label", CreateD: true},
-			[]v1.Container{
+			[]api.Container{
 				{
 					Name:           "app1",
 					LivenessProbe:  configProbe(createHealthCheck(8081)),
