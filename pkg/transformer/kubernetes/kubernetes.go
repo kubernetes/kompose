@@ -1443,6 +1443,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			objects = k.CreateWorkloadAndConfigMapObjects(name, service, opt)
 		}
 
+		if opt.Controller == StatefulStateController {
+			service.ServiceType = "Headless"
+		}
 		k.configKubeServiceAndIngressForService(service, name, &objects)
 
 		err := k.UpdateKubernetesObjects(name, service, opt, &objects)
