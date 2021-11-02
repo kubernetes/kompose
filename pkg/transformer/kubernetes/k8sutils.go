@@ -530,7 +530,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].VolumeMounts = append(template.Spec.Containers[0].VolumeMounts, volumesMount...)
 		template.Spec.Containers[0].Stdin = service.Stdin
 		template.Spec.Containers[0].TTY = service.Tty
-		if opt.Controller != StatefulStateController {
+		if opt.Controller != StatefulStateController || opt.Volumes == "configMap" {
 			template.Spec.Volumes = append(template.Spec.Volumes, volumes...)
 		}
 		template.Spec.Affinity = ConfigAffinity(service)
@@ -641,6 +641,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 				objType.Spec.Strategy.Type = deployapi.DeploymentStrategyTypeRecreate
 			case *appsv1.StatefulSet:
 				// embed all PVCs inside the StatefulSet object
+				if opt.Volumes == "configMap" {
+					break
+				}
 				persistentVolumeClaims := make([]api.PersistentVolumeClaim, len(pvc))
 				for i, persistentVolumeClaim := range pvc {
 					persistentVolumeClaims[i] = *persistentVolumeClaim

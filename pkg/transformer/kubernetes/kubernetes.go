@@ -428,6 +428,12 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *appsv1.
 }
 
 func (k *Kubernetes) InitSS(name string, service kobject.ServiceConfig, replicas int) *appsv1.StatefulSet {
+	var podSpec api.PodSpec
+	if len(service.Configs) > 0 {
+		podSpec = k.InitPodSpecWithConfigMap(name, service.Image, service)
+	} else {
+		podSpec = k.InitPodSpec(name, service.Image, service.ImagePullSecret)
+	}
 	rp := int32(replicas)
 	ds := &appsv1.StatefulSet{
 		TypeMeta: metav1.TypeMeta{
@@ -441,7 +447,7 @@ func (k *Kubernetes) InitSS(name string, service kobject.ServiceConfig, replicas
 		Spec: appsv1.StatefulSetSpec{
 			Replicas: &rp,
 			Template: api.PodTemplateSpec{
-				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
+				Spec: podSpec,
 			},
 			Selector: &metav1.LabelSelector{
 				MatchLabels: transformer.ConfigLabels(name),
