@@ -196,6 +196,14 @@
                   "timeoutSeconds": 1,
                   "periodSeconds": 10,
                   "failureThreshold": 5
+                },
+                "readinessProbe": {
+                  "tcpSocket": {
+                    "port": 9090
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
                 }
               },
               {
@@ -210,6 +218,14 @@
                 "livenessProbe": {
                   "tcpSocket": {
                     "port": 8081
+                  },
+                  "timeoutSeconds": 2,
+                  "periodSeconds": 11,
+                  "failureThreshold": 6
+                },
+                "readinessProbe": {
+                  "tcpSocket": {
+                    "port": 9091
                   },
                   "timeoutSeconds": 2,
                   "periodSeconds": 11,
@@ -280,6 +296,15 @@
                 "livenessProbe": {
                   "httpGet": {
                     "path": "/health",
+                    "port": 8080
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
+                },
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/ready",
                     "port": 8080
                   },
                   "timeoutSeconds": 1,
