@@ -142,7 +142,6 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 
 	// Convert constraints
 	equal, notEqual := " == ", " != "
-	constraintsErrMsg := " constraints in placement is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported as a constraint "
 	for _, j := range placement.Constraints {
 		operator := equal
 		if strings.Contains(j, notEqual) {
@@ -150,19 +149,13 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 		}
 		p := strings.Split(j, operator)
 		if len(p) < 2 {
-			log.Warn(p[0], constraintsErrMsg)
+			log.Warnf("Failed to parse placement constraints %s, the correct format is 'label == xxx'", j)
 			continue
 		}
 
-		var key string
-		if p[0] == "node.hostname" {
-			key = "kubernetes.io/hostname"
-		} else if p[0] == "engine.labels.operatingsystem" {
-			key = "beta.kubernetes.io/os"
-		} else if strings.HasPrefix(p[0], "node.labels.") {
-			key = strings.TrimPrefix(p[0], "node.labels.")
-		} else {
-			log.Warn(p[0], constraintsErrMsg)
+		key, err := convertDockerLabel(p[0])
+		if err != nil {
+			log.Warn("Ignore placement constraints: ", err.Error())
 			continue
 		}
 
@@ -174,16 +167,32 @@ func loadV3Placement(placement types.Placement) kobject.Placement {
 	}
 
 	// Convert preferences
-	preferencesErrMsg := " preferences in placement is not supported, only 'node.labels.xxx'(ex: node.labels.something == anything) is supported as a preferences "
 	for _, p := range placement.Preferences {
-		if !strings.HasPrefix(p.Spread, "node.labels.") {
-			log.Warn(p.Spread, preferencesErrMsg)
+		// Spread is the only supported strategy currently
+		label, err := convertDockerLabel(p.Spread)
+		if err != nil {
+			log.Warn("Ignore placement preferences: ", err.Error())
 			continue
 		}
-		label := strings.TrimPrefix(p.Spread, "node.labels.")
 		komposePlacement.Preferences = append(komposePlacement.Preferences, label)
 	}
 	return komposePlacement
+}
+
+// Convert docker label to k8s label
+func convertDockerLabel(dockerLabel string) (string, error) {
+	switch dockerLabel {
+	case "node.hostname":
+		return "kubernetes.io/hostname", nil
+	case "engine.labels.operatingsystem":
+		return "kubernetes.io/os", nil
+	default:
+		if strings.HasPrefix(dockerLabel, "node.labels.") {
+			return strings.TrimPrefix(dockerLabel, "node.labels."), nil
+		}
+	}
+	errMsg := fmt.Sprint(dockerLabel, " is not supported, only 'node.hostname', 'engine.labels.operatingsystem' and 'node.labels.xxx' (ex: node.labels.something == anything) is supported")
+	return "", errors.New(errMsg)
 }
 
 // Convert the Docker Compose v3 volumes to []string (the old way)

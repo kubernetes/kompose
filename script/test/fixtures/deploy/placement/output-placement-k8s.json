@@ -81,7 +81,7 @@
                           ]
                         },
                         {
-                          "key": "beta.kubernetes.io/os",
+                          "key": "kubernetes.io/os",
                           "operator": "In",
                           "values": [
                             "ubuntu 14.04"
