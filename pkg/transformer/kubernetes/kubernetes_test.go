@@ -766,7 +766,7 @@ func TestHealthCheckOnMultipleContainers(t *testing.T) {
 	testCases := map[string]struct {
 		komposeObject      kobject.KomposeObject
 		opt                kobject.ConvertOptions
-		expectedContainers []api.Container
+		expectedContainers map[string]api.Container
 	}{
 		"Converted multiple containers to Deployments": {
 			kobject.KomposeObject{
@@ -776,14 +776,12 @@ func TestHealthCheckOnMultipleContainers(t *testing.T) {
 				},
 			},
 			kobject.ConvertOptions{ServiceGroupMode: "label", CreateD: true},
-			[]api.Container{
-				{
-					Name:           "app1",
+			map[string]api.Container{
+				"app1": {
 					LivenessProbe:  configProbe(createHealthCheck(8081)),
 					ReadinessProbe: configProbe(createHealthCheck(9091)),
 				},
-				{
-					Name:           "app2",
+				"app2": {
 					LivenessProbe:  configProbe(createHealthCheck(8082)),
 					ReadinessProbe: configProbe(createHealthCheck(9092)),
 				},
@@ -807,16 +805,16 @@ func TestHealthCheckOnMultipleContainers(t *testing.T) {
 					t.Errorf("Containers len is not equal, expected %d, got %d",
 						len(deployment.Spec.Template.Spec.Containers), len(test.expectedContainers))
 				}
-				for i, result := range deployment.Spec.Template.Spec.Containers {
-					expected := test.expectedContainers[i]
-					if result.Name != expected.Name {
-						t.Errorf("Container %d: Name expected %v returned, got %v", i, expected.Name, result.Name)
+				for _, result := range deployment.Spec.Template.Spec.Containers {
+					expected, ok := test.expectedContainers[result.Name]
+					if !ok {
+						t.Errorf("Container %s doesn't expected", result.Name)
 					}
 					if !reflect.DeepEqual(result.LivenessProbe, expected.LivenessProbe) {
-						t.Errorf("Container %d: LivenessProbe expected %v returned, got %v", i, expected.LivenessProbe, result.LivenessProbe)
+						t.Errorf("Container %s: LivenessProbe expected %v returned, got %v", result.Name, expected.LivenessProbe, result.LivenessProbe)
 					}
 					if !reflect.DeepEqual(result.ReadinessProbe, expected.ReadinessProbe) {
-						t.Errorf("Container %d: ReadinessProbe expected %v returned, got %v", i, expected.ReadinessProbe, result.ReadinessProbe)
+						t.Errorf("Container %s: ReadinessProbe expected %v returned, got %v", result.Name, expected.ReadinessProbe, result.ReadinessProbe)
 					}
 				}
 			}
