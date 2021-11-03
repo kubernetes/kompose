@@ -1363,8 +1363,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					ImagePullPolicy(name, service),
 					RestartPolicy(name, service),
 					SecurityContext(name, service),
-					LivenessProbe(service),
-					ReadinessProbe(service),
 					HostName(service),
 					DomainName(service),
 					ResourcesLimits(service),

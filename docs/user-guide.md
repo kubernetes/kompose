@@ -167,13 +167,18 @@ The currently supported options are:
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
 | kompose.image-pull-policy | kubernetes pods imagePullPolicy |
 | kompose.image-pull-secret | kubernetes secret name for imagePullSecrets |
+| kompose.service.healthcheck.readiness.disable | kubernetes readiness disable |
 | kompose.service.healthcheck.readiness.test | kubernetes readiness exec command |
+| kompose.service.healthcheck.readiness.http_get_path | kubernetes readiness httpGet path |
+| kompose.service.healthcheck.readiness.http_get_port | kubernetes readiness httpGet port |
+| kompose.service.healthcheck.readiness.tcp_port | kubernetes readiness tcpSocket port |
 | kompose.service.healthcheck.readiness.interval | kubernetes readiness interval value |
 | kompose.service.healthcheck.readiness.timeout | kubernetes readiness timeout value |
 | kompose.service.healthcheck.readiness.retries | kubernetes readiness retries value |
 | kompose.service.healthcheck.readiness.start_period | kubernetes readiness start_period |
 | kompose.service.healthcheck.liveness.http_get_path | kubernetes liveness httpGet path |
 | kompose.service.healthcheck.liveness.http_get_port | kubernetes liveness httpGet port |
+| kompose.service.healthcheck.liveness.tcp_port | kubernetes liveness tcpSocket port |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 

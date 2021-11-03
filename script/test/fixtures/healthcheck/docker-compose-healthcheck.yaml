@@ -1,0 +1,69 @@
+version: "3.3"
+services:
+  # test exec
+  redis:
+    image: redis
+    ports:
+      - "6379"
+    healthcheck:
+      test: echo "liveness"
+      interval: 10s
+      timeout: 1s
+      retries: 5
+    labels:
+      kompose.service.healthcheck.readiness.test: echo "liveness"
+      kompose.service.healthcheck.readiness.interval: 10s
+      kompose.service.healthcheck.readiness.timeout: 1s
+      kompose.service.healthcheck.readiness.retries: 5
+
+  # test http get
+  postgresql:
+    image: postgresql
+    ports:
+      - "5432"
+    healthcheck:
+      interval: 10s
+      timeout: 1s
+      retries: 5
+    labels:
+      kompose.service.healthcheck.liveness.http_get_path: /health
+      kompose.service.healthcheck.liveness.http_get_port: 8080
+      kompose.service.healthcheck.readiness.http_get_path: /ready
+      kompose.service.healthcheck.readiness.http_get_port: 8080
+      kompose.service.healthcheck.readiness.interval: 10s
+      kompose.service.healthcheck.readiness.timeout: 1s
+      kompose.service.healthcheck.readiness.retries: 5
+
+  # test tcp socket
+  mongo:
+    image: mongo
+    ports:
+      - "27017"
+    healthcheck:
+      interval: 10s
+      timeout: 1s
+      retries: 5
+    labels:
+      kompose.service.group: "my-group"
+      kompose.service.healthcheck.liveness.tcp_port: 8080
+      kompose.service.healthcheck.readiness.tcp_port: 9090
+      kompose.service.healthcheck.readiness.interval: 10s
+      kompose.service.healthcheck.readiness.timeout: 1s
+      kompose.service.healthcheck.readiness.retries: 5
+
+  # test multiple service merge
+  mysql:
+    image: mysql
+    ports:
+      - "3306"
+    healthcheck:
+      interval: 11s
+      timeout: 2s
+      retries: 6
+    labels:
+      kompose.service.group: "my-group"
+      kompose.service.healthcheck.liveness.tcp_port: 8081
+      kompose.service.healthcheck.readiness.tcp_port: 9091
+      kompose.service.healthcheck.readiness.interval: 11s
+      kompose.service.healthcheck.readiness.timeout: 2s
+      kompose.service.healthcheck.readiness.retries: 6

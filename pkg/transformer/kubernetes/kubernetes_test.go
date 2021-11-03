@@ -744,6 +744,84 @@ func TestServiceAccountNameOnMultipleContainers(t *testing.T) {
 	}
 }
 
+func TestHealthCheckOnMultipleContainers(t *testing.T) {
+	groupName := "pod_group"
+
+	createHealthCheck := func(TCPPort int32) kobject.HealthCheck {
+		return kobject.HealthCheck{
+			TCPPort: TCPPort,
+		}
+	}
+
+	createConfig := func(name string, livenessTCPPort, readinessTCPPort int32) kobject.ServiceConfig {
+		config := newSimpleServiceConfig()
+		config.Labels = map[string]string{compose.LabelServiceGroup: groupName}
+		config.Name = name
+		config.ContainerName = name
+		config.HealthChecks.Liveness = createHealthCheck(livenessTCPPort)
+		config.HealthChecks.Readiness = createHealthCheck(readinessTCPPort)
+		return config
+	}
+
+	testCases := map[string]struct {
+		komposeObject      kobject.KomposeObject
+		opt                kobject.ConvertOptions
+		expectedContainers map[string]api.Container
+	}{
+		"Converted multiple containers to Deployments": {
+			kobject.KomposeObject{
+				ServiceConfigs: map[string]kobject.ServiceConfig{
+					"app1": createConfig("app1", 8081, 9091),
+					"app2": createConfig("app2", 8082, 9092),
+				},
+			},
+			kobject.ConvertOptions{ServiceGroupMode: "label", CreateD: true},
+			map[string]api.Container{
+				"app1": {
+					LivenessProbe:  configProbe(createHealthCheck(8081)),
+					ReadinessProbe: configProbe(createHealthCheck(9091)),
+				},
+				"app2": {
+					LivenessProbe:  configProbe(createHealthCheck(8082)),
+					ReadinessProbe: configProbe(createHealthCheck(9092)),
+				},
+			},
+		},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		k := Kubernetes{}
+		// Run Transform
+		objs, err := k.Transform(test.komposeObject, test.opt)
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
+
+		// Check results
+		for _, obj := range objs {
+			if deployment, ok := obj.(*appsv1.Deployment); ok {
+				if len(deployment.Spec.Template.Spec.Containers) != len(test.expectedContainers) {
+					t.Errorf("Containers len is not equal, expected %d, got %d",
+						len(deployment.Spec.Template.Spec.Containers), len(test.expectedContainers))
+				}
+				for _, result := range deployment.Spec.Template.Spec.Containers {
+					expected, ok := test.expectedContainers[result.Name]
+					if !ok {
+						t.Errorf("Container %s doesn't expected", result.Name)
+					}
+					if !reflect.DeepEqual(result.LivenessProbe, expected.LivenessProbe) {
+						t.Errorf("Container %s: LivenessProbe expected %v returned, got %v", result.Name, expected.LivenessProbe, result.LivenessProbe)
+					}
+					if !reflect.DeepEqual(result.ReadinessProbe, expected.ReadinessProbe) {
+						t.Errorf("Container %s: ReadinessProbe expected %v returned, got %v", result.Name, expected.ReadinessProbe, result.ReadinessProbe)
+					}
+				}
+			}
+		}
+	}
+}
+
 func TestCreatePVC(t *testing.T) {
 	storageClassName := "custom-storage-class-name"
 	k := Kubernetes{}

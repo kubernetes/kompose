@@ -1,0 +1,401 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mongo",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "my-group"
+        },
+        "annotations": {
+          "kompose.service.group": "my-group",
+          "kompose.service.healthcheck.liveness.tcp_port": "8080",
+          "kompose.service.healthcheck.readiness.interval": "10s",
+          "kompose.service.healthcheck.readiness.retries": "5",
+          "kompose.service.healthcheck.readiness.tcp_port": "9090",
+          "kompose.service.healthcheck.readiness.timeout": "1s"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "27017",
+            "port": 27017,
+            "targetPort": 27017
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "my-group"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "mysql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "my-group"
+        },
+        "annotations": {
+          "kompose.service.group": "my-group",
+          "kompose.service.healthcheck.liveness.tcp_port": "8081",
+          "kompose.service.healthcheck.readiness.interval": "11s",
+          "kompose.service.healthcheck.readiness.retries": "6",
+          "kompose.service.healthcheck.readiness.tcp_port": "9091",
+          "kompose.service.healthcheck.readiness.timeout": "2s"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "3306",
+            "port": 3306,
+            "targetPort": 3306
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "my-group"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "postgresql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "postgresql"
+        },
+        "annotations": {
+          "kompose.service.healthcheck.liveness.http_get_path": "/health",
+          "kompose.service.healthcheck.liveness.http_get_port": "8080",
+          "kompose.service.healthcheck.readiness.http_get_path": "/ready",
+          "kompose.service.healthcheck.readiness.http_get_port": "8080",
+          "kompose.service.healthcheck.readiness.interval": "10s",
+          "kompose.service.healthcheck.readiness.retries": "5",
+          "kompose.service.healthcheck.readiness.timeout": "1s"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "5432",
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "postgresql"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.service.healthcheck.readiness.interval": "10s",
+          "kompose.service.healthcheck.readiness.retries": "5",
+          "kompose.service.healthcheck.readiness.test": "echo \"liveness\"",
+          "kompose.service.healthcheck.readiness.timeout": "1s"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6379",
+            "port": 6379,
+            "targetPort": 6379
+          }
+        ],
+        "selector": {
+          "io.kompose.service": "redis"
+        }
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "apps/v1",
+      "metadata": {
+        "name": "my-group",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "my-group"
+        },
+        "annotations": {
+          "kompose.service.group": "my-group",
+          "kompose.service.healthcheck.liveness.tcp_port": "8081",
+          "kompose.service.healthcheck.readiness.interval": "11s",
+          "kompose.service.healthcheck.readiness.retries": "6",
+          "kompose.service.healthcheck.readiness.tcp_port": "9091",
+          "kompose.service.healthcheck.readiness.timeout": "2s"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "my-group"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "my-group"
+            },
+            "annotations": {
+              "kompose.service.group": "my-group",
+              "kompose.service.healthcheck.liveness.tcp_port": "8080",
+              "kompose.service.healthcheck.readiness.interval": "10s",
+              "kompose.service.healthcheck.readiness.retries": "5",
+              "kompose.service.healthcheck.readiness.tcp_port": "9090",
+              "kompose.service.healthcheck.readiness.timeout": "1s"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "mongo",
+                "image": "mongo",
+                "ports": [
+                  {
+                    "containerPort": 27017
+                  }
+                ],
+                "resources": {},
+                "livenessProbe": {
+                  "tcpSocket": {
+                    "port": 8080
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
+                },
+                "readinessProbe": {
+                  "tcpSocket": {
+                    "port": 9090
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
+                }
+              },
+              {
+                "name": "mysql",
+                "image": "mysql",
+                "ports": [
+                  {
+                    "containerPort": 3306
+                  }
+                ],
+                "resources": {},
+                "livenessProbe": {
+                  "tcpSocket": {
+                    "port": 8081
+                  },
+                  "timeoutSeconds": 2,
+                  "periodSeconds": 11,
+                  "failureThreshold": 6
+                },
+                "readinessProbe": {
+                  "tcpSocket": {
+                    "port": 9091
+                  },
+                  "timeoutSeconds": 2,
+                  "periodSeconds": 11,
+                  "failureThreshold": 6
+                }
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "apps/v1",
+      "metadata": {
+        "name": "postgresql",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "postgresql"
+        },
+        "annotations": {
+          "kompose.service.healthcheck.liveness.http_get_path": "/health",
+          "kompose.service.healthcheck.liveness.http_get_port": "8080",
+          "kompose.service.healthcheck.readiness.http_get_path": "/ready",
+          "kompose.service.healthcheck.readiness.http_get_port": "8080",
+          "kompose.service.healthcheck.readiness.interval": "10s",
+          "kompose.service.healthcheck.readiness.retries": "5",
+          "kompose.service.healthcheck.readiness.timeout": "1s"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "postgresql"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "postgresql"
+            },
+            "annotations": {
+              "kompose.service.healthcheck.liveness.http_get_path": "/health",
+              "kompose.service.healthcheck.liveness.http_get_port": "8080",
+              "kompose.service.healthcheck.readiness.http_get_path": "/ready",
+              "kompose.service.healthcheck.readiness.http_get_port": "8080",
+              "kompose.service.healthcheck.readiness.interval": "10s",
+              "kompose.service.healthcheck.readiness.retries": "5",
+              "kompose.service.healthcheck.readiness.timeout": "1s"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "postgresql",
+                "image": "postgresql",
+                "ports": [
+                  {
+                    "containerPort": 5432
+                  }
+                ],
+                "resources": {},
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8080
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
+                },
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/ready",
+                    "port": 8080
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
+                }
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "apps/v1",
+      "metadata": {
+        "name": "redis",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "redis"
+        },
+        "annotations": {
+          "kompose.service.healthcheck.readiness.interval": "10s",
+          "kompose.service.healthcheck.readiness.retries": "5",
+          "kompose.service.healthcheck.readiness.test": "echo \"liveness\"",
+          "kompose.service.healthcheck.readiness.timeout": "1s"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "redis"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "redis"
+            },
+            "annotations": {
+              "kompose.service.healthcheck.readiness.interval": "10s",
+              "kompose.service.healthcheck.readiness.retries": "5",
+              "kompose.service.healthcheck.readiness.test": "echo \"liveness\"",
+              "kompose.service.healthcheck.readiness.timeout": "1s"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "redis",
+                "image": "redis",
+                "ports": [
+                  {
+                    "containerPort": 6379
+                  }
+                ],
+                "resources": {},
+                "livenessProbe": {
+                  "exec": {
+                    "command": [
+                      "echo \"liveness\""
+                    ]
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
+                },
+                "readinessProbe": {
+                  "exec": {
+                    "command": [
+                      "echo",
+                      "liveness"
+                    ]
+                  },
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "failureThreshold": 5
+                }
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {}
+      },
+      "status": {}
+    }
+  ]
+}
