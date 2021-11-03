@@ -179,3 +179,11 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/healthcheck/output-healthcheck-k8
 os_output="$KOMPOSE_ROOT/script/test/fixtures/healthcheck/output-healthcheck-os.json"
 convert::expect_success "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
+
+# test statefulset
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/statefulset/docker-compose.yaml convert --stdout -j --with-kompose-annotation=false --controller statefulset"
+ocp_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/statefulset/docker-compose.yaml convert --stdout -j --with-kompose-annotation=false --controller statefulset"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/statefulset/output-k8s.json"
+ocp_output="$KOMPOSE_ROOT/script/test/fixtures/statefulset/output-os.json"
+convert::expect_success "$k8s_cmd" "$k8s_output"
+convert::expect_success "$ocp_cmd" "$ocp_output"
