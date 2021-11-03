@@ -94,7 +94,7 @@ INFO OpenShift file "foo-buildconfig.yaml" created
 
 ## Alternative Conversions
 
-The default `kompose` transformation will generate Kubernetes [Deployments](http://kubernetes.io/docs/user-guide/deployments/) and [Services](http://kubernetes.io/docs/user-guide/services/), in yaml format. You have alternative option to generate json with `-j`. Also, you can alternatively generate [Replication Controllers](http://kubernetes.io/docs/user-guide/replication-controller/) objects, [Daemon Sets](http://kubernetes.io/docs/admin/daemons/), or [Helm](https://github.com/helm/helm) charts.
+The default `kompose` transformation will generate Kubernetes [Deployments](http://kubernetes.io/docs/user-guide/deployments/) and [Services](http://kubernetes.io/docs/user-guide/services/), in yaml format. You have alternative option to generate json with `-j`. Also, you can alternatively generate [Replication Controllers](http://kubernetes.io/docs/user-guide/replication-controller/) objects, [Daemon Sets](http://kubernetes.io/docs/admin/daemons/), [Statefulset](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/) or [Helm](https://github.com/helm/helm) charts.
 
 ```sh
 $ kompose convert -j
@@ -124,6 +124,17 @@ INFO Kubernetes file "web-daemonset.yaml" created
 ```
 
 The `*-daemonset.yaml` files contain the Daemon Set objects
+
+```sh
+$ kompose convert --controller statefulset
+INFO Kubernetes file "db-service.yaml" created    
+INFO Kubernetes file "wordpress-service.yaml" created 
+INFO Kubernetes file "db-statefulset.yaml" created 
+INFO Kubernetes file "wordpress-statefulset.yaml" created 
+```
+
+The `*statefulset-.yaml` files contain the Statefulset objects.
+
 
 If you want to generate a Chart to be used with [Helm](https://github.com/kubernetes/helm) simply do:
 
