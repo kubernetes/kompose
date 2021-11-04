@@ -303,7 +303,9 @@ func TestKomposeConvert(t *testing.T) {
 		// objects generated are deployment, daemonset, ReplicationController, service and pvc
 		"Convert to D, DS, and RC":                  {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true, Replicas: replicas, IsReplicaSetFlag: true}, 7},
 		"Convert to D, DS, and RC with v3 replicas": {newKomposeObject(), kobject.ConvertOptions{CreateD: true, CreateDS: true, CreateRC: true}, 7},
-		// TODO: add more tests
+		// objects generated are statefulset
+		"Convert to SS with replicas ":   {newKomposeObject(), kobject.ConvertOptions{Controller: StatefulStateController, Replicas: replicas, IsReplicaSetFlag: true}, 5},
+		"Convert to SS without replicas": {newKomposeObject(), kobject.ConvertOptions{Controller: StatefulStateController}, 5},
 	}
 
 	for name, test := range testCases {
@@ -318,7 +320,7 @@ func TestKomposeConvert(t *testing.T) {
 			t.Errorf("Expected %d objects returned, got %d", test.expectedNumObjs, len(objs))
 		}
 
-		var foundSVC, foundD, foundDS, foundDC bool
+		var foundSVC, foundD, foundDS, foundDC, foundSS bool
 		name := "app"
 		labels := transformer.ConfigLabels(name)
 		config := test.komposeObject.ServiceConfigs[name]
@@ -334,6 +336,7 @@ func TestKomposeConvert(t *testing.T) {
 				}
 				foundSVC = true
 			}
+
 			if test.opt.CreateD {
 				if d, ok := obj.(*appsv1.Deployment); ok {
 					if err := checkPodTemplate(config, d.Spec.Template, labelsWithNetwork); err != nil {
@@ -426,6 +429,60 @@ func TestKomposeConvert(t *testing.T) {
 				}
 			}
 
+			if test.opt.Controller == StatefulStateController {
+				if ss, ok := obj.(*appsv1.StatefulSet); ok {
+					if err := checkPodTemplate(config, ss.Spec.Template, labelsWithNetwork); err != nil {
+						t.Errorf("%v", err)
+					}
+					if err := checkMeta(config, ss.ObjectMeta, name, true); err != nil {
+						t.Errorf("%v", err)
+					}
+					if test.opt.IsReplicaSetFlag {
+						if (int)(*ss.Spec.Replicas) != replicas {
+							t.Errorf("Expected %d replicas, got %d", replicas, ss.Spec.Replicas)
+						}
+					} else {
+						if (int)(*ss.Spec.Replicas) != newServiceConfig().Replicas {
+							t.Errorf("Expected %d replicas, got %d", newServiceConfig().Replicas, ss.Spec.Replicas)
+						}
+					}
+					foundSS = true
+				}
+
+				if u, ok := obj.(*unstructured.Unstructured); ok {
+					if u.GetKind() == "Statefulset" {
+						u.SetGroupVersionKind(schema.GroupVersionKind{
+							Group:   "apps",
+							Version: "v1",
+							Kind:    "Statefulset",
+						})
+						data, err := json.Marshal(u)
+						if err != nil {
+							t.Errorf("%v", err)
+						}
+						var d appsv1.Deployment
+						if err := json.Unmarshal(data, &d); err == nil {
+							if err := checkPodTemplate(config, d.Spec.Template, labelsWithNetwork); err != nil {
+								t.Errorf("%v", err)
+							}
+							if err := checkMeta(config, d.ObjectMeta, name, true); err != nil {
+								t.Errorf("%v", err)
+							}
+							if test.opt.IsReplicaSetFlag {
+								if (int)(*d.Spec.Replicas) != replicas {
+									t.Errorf("Expected %d replicas, got %d", replicas, d.Spec.Replicas)
+								}
+							} else {
+								if (int)(*d.Spec.Replicas) != newServiceConfig().Replicas {
+									t.Errorf("Expected %d replicas, got %d", newServiceConfig().Replicas, d.Spec.Replicas)
+								}
+							}
+							foundSS = true
+						}
+					}
+				}
+			}
+
 			// TODO: k8s & openshift transformer is now separated; either separate the test or combine the transformer
 			if test.opt.CreateDeploymentConfig {
 				if dc, ok := obj.(*deployapi.DeploymentConfig); ok {
@@ -455,6 +512,9 @@ func TestKomposeConvert(t *testing.T) {
 			t.Errorf("Expected create Daemon Set: %v, found Daemon Set: %v", test.opt.CreateDS, foundDS)
 		}
 
+		if test.opt.Controller == StatefulStateController && !foundSS {
+			t.Errorf("Expected create StatefulStateController")
+		}
 		if test.opt.CreateDeploymentConfig != foundDC {
 			t.Errorf("Expected create Deployment Config: %v, found Deployment Config: %v", test.opt.CreateDeploymentConfig, foundDC)
 		}

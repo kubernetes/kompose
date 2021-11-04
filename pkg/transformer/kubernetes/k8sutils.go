@@ -496,7 +496,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		volumesMount = append(volumesMount, TmpVolumesMount...)
 	}
 
-	if pvc != nil {
+	if pvc != nil && opt.Controller != StatefulStateController {
 		// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`
 		// because the type of objects and pvc is different, but when doing append
 		// one element at a time it gets converted to runtime.Object for objects slice
@@ -530,7 +530,9 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].VolumeMounts = append(template.Spec.Containers[0].VolumeMounts, volumesMount...)
 		template.Spec.Containers[0].Stdin = service.Stdin
 		template.Spec.Containers[0].TTY = service.Tty
-		template.Spec.Volumes = append(template.Spec.Volumes, volumes...)
+		if opt.Controller != StatefulStateController || opt.Volumes == "configMap" {
+			template.Spec.Volumes = append(template.Spec.Volumes, volumes...)
+		}
 		template.Spec.Affinity = ConfigAffinity(service)
 		// Configure the HealthCheck
 		template.Spec.Containers[0].LivenessProbe = configProbe(service.HealthChecks.Liveness)
@@ -637,6 +639,18 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 				objType.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 			case *deployapi.DeploymentConfig:
 				objType.Spec.Strategy.Type = deployapi.DeploymentStrategyTypeRecreate
+			case *appsv1.StatefulSet:
+				// embed all PVCs inside the StatefulSet object
+				if opt.Volumes == "configMap" {
+					break
+				}
+				persistentVolumeClaims := make([]api.PersistentVolumeClaim, len(pvc))
+				for i, persistentVolumeClaim := range pvc {
+					persistentVolumeClaims[i] = *persistentVolumeClaim
+					persistentVolumeClaims[i].APIVersion = ""
+					persistentVolumeClaims[i].Kind = ""
+				}
+				objType.Spec.VolumeClaimTemplates = persistentVolumeClaims
 			}
 		}
 	}
