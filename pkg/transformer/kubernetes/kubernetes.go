@@ -29,8 +29,6 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/tools/godoc/util"
-
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
@@ -40,6 +38,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
+	"golang.org/x/tools/godoc/util"
 	appsv1 "k8s.io/api/apps/v1"
 	api "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
@@ -1073,22 +1072,52 @@ func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]ap
 
 // ConfigAffinity configures the Affinity.
 func ConfigAffinity(service kobject.ServiceConfig) *api.Affinity {
+	var affinity *api.Affinity
+	// Config constraints
+	// Convert constraints to requiredDuringSchedulingIgnoredDuringExecution
 	positiveConstraints := configConstrains(service.Placement.PositiveConstraints, api.NodeSelectorOpIn)
 	negativeConstraints := configConstrains(service.Placement.NegativeConstraints, api.NodeSelectorOpNotIn)
-	if len(positiveConstraints) == 0 && len(negativeConstraints) == 0 {
-		return nil
-	}
-	return &api.Affinity{
-		NodeAffinity: &api.NodeAffinity{
-			RequiredDuringSchedulingIgnoredDuringExecution: &api.NodeSelector{
-				NodeSelectorTerms: []api.NodeSelectorTerm{
-					{
-						MatchExpressions: append(positiveConstraints, negativeConstraints...),
+	if len(positiveConstraints) != 0 || len(negativeConstraints) != 0 {
+		affinity = &api.Affinity{
+			NodeAffinity: &api.NodeAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: &api.NodeSelector{
+					NodeSelectorTerms: []api.NodeSelectorTerm{
+						{
+							MatchExpressions: append(positiveConstraints, negativeConstraints...),
+						},
 					},
 				},
 			},
-		},
+		}
 	}
+	return affinity
+}
+
+// ConfigTopologySpreadConstraints configures the TopologySpreadConstraints.
+func ConfigTopologySpreadConstraints(service kobject.ServiceConfig) []api.TopologySpreadConstraint {
+	preferencesLen := len(service.Placement.Preferences)
+	constraints := make([]api.TopologySpreadConstraint, 0, preferencesLen)
+
+	// Placement preferences are ignored for global services
+	if service.DeployMode == "global" {
+		log.Warnf("Ignore placement preferences for global service %s", service.Name)
+		return constraints
+	}
+
+	for i, p := range service.Placement.Preferences {
+		constraints = append(constraints, api.TopologySpreadConstraint{
+			// According to the order of preferences, the MaxSkew decreases in order
+			// The minimum value is 1
+			MaxSkew:           int32(preferencesLen - i),
+			TopologyKey:       p,
+			WhenUnsatisfiable: api.ScheduleAnyway,
+			LabelSelector: &metav1.LabelSelector{
+				MatchLabels: transformer.ConfigLabels(service.Name),
+			},
+		})
+	}
+
+	return constraints
 }
 
 func configConstrains(constrains map[string]string, operator api.NodeSelectorOperator) []api.NodeSelectorRequirement {
@@ -1404,6 +1433,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					ResourcesLimits(service),
 					ResourcesRequests(service),
 					TerminationGracePeriodSeconds(name, service),
+					TopologySpreadConstraints(service),
 				)
 
 				if serviceAccountName, ok := service.Labels[compose.LabelServiceAccountName]; ok {

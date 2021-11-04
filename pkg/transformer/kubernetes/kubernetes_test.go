@@ -668,6 +668,51 @@ func TestConfigAffinity(t *testing.T) {
 	}
 }
 
+func TestConfigTopologySpreadConstraints(t *testing.T) {
+	serviceName := "app"
+	testCases := map[string]struct {
+		service kobject.ServiceConfig
+		result  []api.TopologySpreadConstraint
+	}{
+		"ConfigTopologySpreadConstraint": {
+			service: kobject.ServiceConfig{
+				Name: serviceName,
+				Placement: kobject.Placement{
+					Preferences: []string{
+						"zone", "ssd",
+					},
+				},
+			},
+			result: []api.TopologySpreadConstraint{
+				{
+					MaxSkew:           2,
+					TopologyKey:       "zone",
+					WhenUnsatisfiable: api.ScheduleAnyway,
+					LabelSelector: &metav1.LabelSelector{
+						MatchLabels: transformer.ConfigLabels(serviceName),
+					},
+				},
+				{
+					MaxSkew:           1,
+					TopologyKey:       "ssd",
+					WhenUnsatisfiable: api.ScheduleAnyway,
+					LabelSelector: &metav1.LabelSelector{
+						MatchLabels: transformer.ConfigLabels(serviceName),
+					},
+				},
+			},
+		},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		result := ConfigTopologySpreadConstraints(test.service)
+		if !reflect.DeepEqual(result, test.result) {
+			t.Errorf("Not expected result for ConfigTopologySpreadConstraints")
+		}
+	}
+}
+
 func TestMultipleContainersInPod(t *testing.T) {
 	groupName := "pod_group"
 

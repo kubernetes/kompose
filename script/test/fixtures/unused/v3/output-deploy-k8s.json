@@ -89,7 +89,7 @@
                           "values": ["machine"]
                         },
                         {
-                          "key": "beta.kubernetes.io/os",
+                          "key": "kubernetes.io/oss",
                           "operator": "In",
                           "values": ["ubuntu 14.04"]
                         },

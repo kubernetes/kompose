@@ -96,24 +96,52 @@
                         {
                           "key": "kubernetes.io/hostname",
                           "operator": "In",
-                          "values": ["machine"]
+                          "values": [
+                            "machine"
+                          ]
                         },
                         {
-                          "key": "beta.kubernetes.io/os",
+                          "key": "kubernetes.io/os",
                           "operator": "In",
-                          "values": ["ubuntu 14.04"]
+                          "values": [
+                            "ubuntu 14.04"
+                          ]
                         },
                         {
                           "key": "foo",
                           "operator": "NotIn",
-                          "values": ["bar"]
+                          "values": [
+                            "bar"
+                          ]
                         }
                       ]
                     }
                   ]
                 }
               }
-            }
+            },
+            "topologySpreadConstraints": [
+              {
+                "maxSkew": 2,
+                "topologyKey": "zone",
+                "whenUnsatisfiable": "ScheduleAnyway",
+                "labelSelector": {
+                  "matchLabels": {
+                    "io.kompose.service": "redis"
+                  }
+                }
+              },
+              {
+                "maxSkew": 1,
+                "topologyKey": "ssd",
+                "whenUnsatisfiable": "ScheduleAnyway",
+                "labelSelector": {
+                  "matchLabels": {
+                    "io.kompose.service": "redis"
+                  }
+                }
+              }
+            ]
           }
         }
       },

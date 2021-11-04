@@ -306,6 +306,12 @@ func ServiceAccountName(serviceAccountName string) PodSpecOption {
 	}
 }
 
+func TopologySpreadConstraints(service kobject.ServiceConfig) PodSpecOption {
+	return func(podSpec *PodSpec) {
+		podSpec.TopologySpreadConstraints = ConfigTopologySpreadConstraints(service)
+	}
+}
+
 func (podSpec *PodSpec) Append(ops ...PodSpecOption) *PodSpec {
 	for _, option := range ops {
 		option(podSpec)

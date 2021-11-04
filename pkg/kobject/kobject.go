@@ -216,6 +216,7 @@ type Volumes struct {
 type Placement struct {
 	PositiveConstraints map[string]string
 	NegativeConstraints map[string]string
+	Preferences         []string
 }
 
 // GetConfigMapKeyFromMeta ...

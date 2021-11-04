@@ -534,6 +534,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			template.Spec.Volumes = append(template.Spec.Volumes, volumes...)
 		}
 		template.Spec.Affinity = ConfigAffinity(service)
+		template.Spec.TopologySpreadConstraints = ConfigTopologySpreadConstraints(service)
 		// Configure the HealthCheck
 		template.Spec.Containers[0].LivenessProbe = configProbe(service.HealthChecks.Liveness)
 		template.Spec.Containers[0].ReadinessProbe = configProbe(service.HealthChecks.Readiness)

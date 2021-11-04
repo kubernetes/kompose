@@ -1,4 +1,4 @@
-version: "3"
+version: "3.3"
 services:
   redis:
     image: redis
@@ -11,3 +11,7 @@ services:
           - engine.labels.operatingsystem == ubuntu 14.04
           - node.labels.foo != bar
           - baz != qux
+        preferences:
+          - spread: node.labels.zone
+          - spread: foo
+          - spread: node.labels.ssd
