@@ -1,0 +1,15 @@
+version: "3"
+services:
+  web:
+    image: nginx
+    volumes:
+      - ./tls:/etc/tls
+      - ./tls/a.key:/etc/test-a-key.key
+    labels:
+      kompose.volume.type: configMap
+  db:
+    image: mysql
+    volumes:
+      - ./configs.tar:/data/configs.tar
+    labels:
+      kompose.volume.type: configMap

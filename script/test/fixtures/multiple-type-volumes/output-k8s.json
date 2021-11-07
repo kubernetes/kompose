@@ -1,0 +1,200 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "Deployment",
+      "apiVersion": "apps/v1",
+      "metadata": {
+        "name": "db",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db"
+        },
+        "annotations": {
+          "kompose.volume.type": "persistentVolumeClaim"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "db"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "db"
+            },
+            "annotations": {
+              "kompose.volume.type": "persistentVolumeClaim"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "db-data",
+                "persistentVolumeClaim": {
+                  "claimName": "db-data"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "db",
+                "image": "mysql",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "db-data",
+                    "mountPath": "/var/lib/mysql"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "db-data",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "db-data"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "100Mi"
+          }
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "Deployment",
+      "apiVersion": "apps/v1",
+      "metadata": {
+        "name": "web",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        },
+        "annotations": {
+          "kompose.volume.type": "configMap"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "io.kompose.service": "web"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "io.kompose.service": "web"
+            },
+            "annotations": {
+              "kompose.volume.type": "configMap"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "web-cm0",
+                "configMap": {
+                  "name": "web-cm0"
+                }
+              },
+              {
+                "name": "web-cm1",
+                "configMap": {
+                  "name": "web-cm1",
+                  "items": [
+                    {
+                      "key": "a.key",
+                      "path": "test-a-key.key"
+                    }
+                  ]
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "web",
+                "image": "nginx",
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name": "web-cm0",
+                    "mountPath": "/etc/tls"
+                  },
+                  {
+                    "name": "web-cm1",
+                    "mountPath": "/etc/test-a-key.key",
+                    "subPath": "test-a-key.key"
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Always"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        }
+      },
+      "status": {}
+    },
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web-cm0",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        }
+      },
+      "data": {
+        "a.crt": "test-crt-data...",
+        "a.key": "test-key-data...."
+      }
+    },
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "web-cm1",
+        "creationTimestamp": null,
+        "labels": {
+          "io.kompose.service": "web"
+        },
+        "annotations": {
+          "use-subpath": "true"
+        }
+      },
+      "data": {
+        "a.key": "test-key-data...."
+      }
+    }
+  ]
+}
