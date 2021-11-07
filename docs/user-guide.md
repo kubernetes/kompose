@@ -175,6 +175,7 @@ The currently supported options are:
 | kompose.service.expose.tls-secret | secret name |
 | kompose.volume.size | kubernetes supported volume size |
 | kompose.volume.storage-class-name | kubernetes supported volume storageClassName |
+| kompose.volume.type | use k8s volume type, eg "configMap", "persistentVolumeClaim", "emptyDir", "hostPath" |
 | kompose.controller.type | deployment / daemonset / replicationcontroller |
 | kompose.image-pull-policy | kubernetes pods imagePullPolicy |
 | kompose.image-pull-secret | kubernetes secret name for imagePullSecrets |
