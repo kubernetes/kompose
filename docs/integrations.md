@@ -1,3 +1,10 @@
+---
+layout: default
+permalink: /integrations/
+redirect_from: 
+  - /docs/integrations.md/
+---
+
 # Integrations
 
 * TOC

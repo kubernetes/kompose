@@ -1,3 +1,10 @@
+---
+layout: default
+permalink: /conversion/
+redirect_from: 
+  - /docs/conversion.md/
+---
+
 # Conversion Matrix
 
 This document outlines all possible conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts. This covers *major* versions of Docker Compose such as 1, 2 and 3.
