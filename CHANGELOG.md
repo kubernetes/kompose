@@ -1,8 +1,32 @@
 # Changelog
 
-## [v1.25.0](https://github.com/kubernetes/kompose/tree/v1.25.0) (2021-10-23)
+## [v1.26.0](https://github.com/kubernetes/kompose/tree/v1.26.0) (2021-11-13)
 
-[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.24.0...v1.25.0)
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.25...v1.26.0)
+
+**Closed issues:**
+
+- checksums don't match on `v1.25` for `kompose-linux-amd64` [\#1454](https://github.com/kubernetes/kompose/issues/1454)
+- StatefulSet Controller [\#1429](https://github.com/kubernetes/kompose/issues/1429)
+- HTTP/TCP liveness/readiness probe generation [\#1427](https://github.com/kubernetes/kompose/issues/1427)
+- Support the platform of darwin/arm64？ [\#1416](https://github.com/kubernetes/kompose/issues/1416)
+- Support multiple types of volumes [\#1400](https://github.com/kubernetes/kompose/issues/1400)
+- --build that requires private registry does not authenticate [\#1387](https://github.com/kubernetes/kompose/issues/1387)
+- Add StatefulSet [\#698](https://github.com/kubernetes/kompose/issues/698)
+- support adding kompose label for bundle file [\#276](https://github.com/kubernetes/kompose/issues/276)
+
+**Merged pull requests:**
+
+- Infer storage type using label [\#1456](https://github.com/kubernetes/kompose/pull/1456) ([sbs2001](https://github.com/sbs2001))
+- Add make rule for darwin arm64 in cross target [\#1455](https://github.com/kubernetes/kompose/pull/1455) ([sbs2001](https://github.com/sbs2001))
+- Add initial support for statefulset controller. [\#1452](https://github.com/kubernetes/kompose/pull/1452) ([sbs2001](https://github.com/sbs2001))
+- Update windows bin name [\#1451](https://github.com/kubernetes/kompose/pull/1451) ([hangyan](https://github.com/hangyan))
+- Support tcp/http liveness/readiness probe [\#1449](https://github.com/kubernetes/kompose/pull/1449) ([ichxxx](https://github.com/ichxxx))
+- Add support for placement preferences docker-compose v3.3+ [\#1425](https://github.com/kubernetes/kompose/pull/1425) ([ichxxx](https://github.com/ichxxx))
+
+## [v1.25](https://github.com/kubernetes/kompose/tree/v1.25) (2021-10-23)
+
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.24.0...v1.25)
 
 **Closed issues:**
 
@@ -17,7 +41,6 @@
 - Windows Binaries for 1.22 not updated correctly [\#1347](https://github.com/kubernetes/kompose/issues/1347)
 - Provide sha256 checksums as Assets instead of strings in a HTML table  [\#1311](https://github.com/kubernetes/kompose/issues/1311)
 - \[BUG\] Kompose doesn't read config from URL [\#1291](https://github.com/kubernetes/kompose/issues/1291)
-- kompose secrets file location [\#1280](https://github.com/kubernetes/kompose/issues/1280)
 - kompose convert Volume mount on the host  isn't supported [\#1271](https://github.com/kubernetes/kompose/issues/1271)
 - Dotfile path \(e.g ./envs/./production/.envs\) errors/is not supported in Kompose [\#1240](https://github.com/kubernetes/kompose/issues/1240)
 - Create route for openshift - targert port should be a string [\#1184](https://github.com/kubernetes/kompose/issues/1184)
@@ -50,6 +73,7 @@
 
 **Merged pull requests:**
 
+- 1.25 Release [\#1450](https://github.com/kubernetes/kompose/pull/1450) ([hangyan](https://github.com/hangyan))
 - Add cmd tests for emptyvols and emptyDir [\#1447](https://github.com/kubernetes/kompose/pull/1447) ([sbs2001](https://github.com/sbs2001))
 - Fix merge compose file's replicas error [\#1446](https://github.com/kubernetes/kompose/pull/1446) ([hangyan](https://github.com/hangyan))
 - Remove bundle test and it's fixtures [\#1443](https://github.com/kubernetes/kompose/pull/1443) ([sbs2001](https://github.com/sbs2001))
@@ -350,7 +374,6 @@
 - panic: interface conversion: interface {} is nil, not map\[string\]interface {} [\#1129](https://github.com/kubernetes/kompose/issues/1129)
 - Add Support for docker-compose 3.4 [\#1125](https://github.com/kubernetes/kompose/issues/1125)
 - Support kompose up build with no push [\#1105](https://github.com/kubernetes/kompose/issues/1105)
-- Proposal: Use the docker-compose network as kubernetes namespace [\#1066](https://github.com/kubernetes/kompose/issues/1066)
 - Support for secrets [\#296](https://github.com/kubernetes/kompose/issues/296)
 
 **Merged pull requests:**
