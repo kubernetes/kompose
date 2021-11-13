@@ -17,6 +17,7 @@ limitations under the License.
 package app
 
 import (
+	"fmt"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -132,8 +133,12 @@ func ValidateFlags(args []string, cmd *cobra.Command, opt *kobject.ConvertOption
 		log.Fatalf("YAML and JSON format cannot be provided at the same time")
 	}
 
-	if opt.Volumes != "persistentVolumeClaim" && opt.Volumes != "emptyDir" && opt.Volumes != "hostPath" && opt.Volumes != "configMap" {
-		log.Fatal("Unknown Volume type: ", opt.Volumes, ", possible values are: persistentVolumeClaim, hostPath, configMap and emptyDir")
+	if _, ok := kubernetes.ValidVolumeSet[opt.Volumes]; !ok {
+		validVolumesTypes := make([]string, 0)
+		for validVolumeType := range kubernetes.ValidVolumeSet {
+			validVolumesTypes = append(validVolumesTypes, fmt.Sprintf("'%s'", validVolumeType))
+		}
+		log.Fatal("Unknown Volume type: ", opt.Volumes, ", possible values are: ", strings.Join(validVolumesTypes, " "))
 	}
 }
 

@@ -57,6 +57,8 @@ type Kubernetes struct {
 // PVCRequestSize (Persistent Volume Claim) has default size
 const PVCRequestSize = "100Mi"
 
+var ValidVolumeSet = map[string]struct{}{"emptyDir": {}, "hostPath": {}, "configMap": {}, "persistentVolumeClaim": {}}
+
 const (
 	// DeploymentController is controller type for Deployment
 	DeploymentController = "deployment"
@@ -837,9 +839,18 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	useEmptyVolumes := k.Opt.EmptyVols
 	useHostPath := k.Opt.Volumes == "hostPath"
 	useConfigMap := k.Opt.Volumes == "configMap"
-
 	if k.Opt.Volumes == "emptyDir" {
 		useEmptyVolumes = true
+	}
+
+	// Override volume type if specified in service labels.
+	if vt, ok := service.Labels["kompose.volume.type"]; ok {
+		if _, okk := ValidVolumeSet[vt]; !okk {
+			return nil, nil, nil, nil, fmt.Errorf("invalid volume type %s specified in label 'kompose.volume.type' in service %s", vt, service.Name)
+		}
+		useEmptyVolumes = vt == "emptyDir"
+		useHostPath = vt == "hostPath"
+		useConfigMap = vt == "configMap"
 	}
 
 	// config volumes from secret if present
@@ -852,7 +863,6 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	for _, volume := range service.Volumes {
 		// check if ro/rw mode is defined, default rw
 		readonly := len(volume.Mode) > 0 && volume.Mode == "ro"
-
 		if volume.VolumeName == "" {
 			if useEmptyVolumes {
 				volumeName = strings.Replace(volume.PVCName, "claim", "empty", 1)

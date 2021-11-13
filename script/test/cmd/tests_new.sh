@@ -134,6 +134,14 @@ os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-os.json"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
 
+# test configmap volume using service label
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-volume/docker-compose-withlabel.yml convert --stdout -j --with-kompose-annotation=false"
+os_cmd="kompose  --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/configmap-volume/docker-compose-withlabel.yml convert --stdout -j --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-k8s-withlabel.json"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-os-withlabel.json"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
+convert::expect_success "$os_cmd" "$os_output"
+
 # Test that emptyDir works
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml convert --with-kompose-annotation=false --stdout -j --volumes emptyDir"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s-empty-vols-template.json"
@@ -187,3 +195,11 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/statefulset/output-k8s.json"
 ocp_output="$KOMPOSE_ROOT/script/test/fixtures/statefulset/output-os.json"
 convert::expect_success "$k8s_cmd" "$k8s_output"
 convert::expect_success "$ocp_cmd" "$ocp_output"
+
+# test specifying volume type using service label
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/docker-compose.yaml convert --stdout -j --with-kompose-annotation=false"
+os_cmd="kompose  --provider=openshift -f  $KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/docker-compose.yaml  convert --stdout -j --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/output-k8s.json"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/output-os.json"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
+convert::expect_success "$os_cmd" "$os_output"
