@@ -1,3 +1,10 @@
+---
+layout: default
+permalink: /maven-example/
+redirect_from: 
+  - /docs/maven-example.md/
+---
+
 # Fabric8 Maven Plugin + Kompose:
 Let's deploy a Springboot Java application with Docker Compose file using Fabric8 Maven Plugin to Kubernetes or OpenShift.
 
