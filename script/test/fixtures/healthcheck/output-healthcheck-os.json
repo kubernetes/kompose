@@ -248,7 +248,7 @@
         },
         "tags": [
           {
-            "name": "",
+            "name": "latest",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
@@ -376,7 +376,7 @@
         },
         "tags": [
           {
-            "name": "",
+            "name": "latest",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
@@ -507,7 +507,7 @@
         },
         "tags": [
           {
-            "name": "",
+            "name": "latest",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
@@ -638,7 +638,7 @@
         },
         "tags": [
           {
-            "name": "",
+            "name": "latest",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
