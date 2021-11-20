@@ -56,9 +56,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 	if service.Image == "" {
 		service.Image = name
 	}
-
 	// Retrieve tags and image name for mapping
-
 	var importPolicy imageapi.TagImportPolicy
 	if opt.InsecureRepository {
 		importPolicy = imageapi.TagImportPolicy{Insecure: true}
@@ -74,6 +72,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 					Name: service.Image,
 				},
 				ImportPolicy: importPolicy,
+				Name:         GetImageTag(service.Image),
 			})
 	}
 
