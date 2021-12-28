@@ -106,6 +106,21 @@ sudo zypper refresh
 sudo zypper install kompose
 ```
 
+#### NixOS
+
+To install from [Nixpkgs](https://github.com/NixOS/nixpkgs), use [nix-env](https://nixos.org/manual/nix/stable/command-ref/nix-env.html).
+
+```bash
+nix-env --install -A nixpkgs.kompose
+```
+
+To run `kompose` without installing it, use [nix-shell](https://nixos.org/manual/nix/stable/command-ref/nix-shell.html).
+
+```bash
+nix-shell -p kompose --run "kompose convert"
+```
+
+
 #### Docker
 
 You can build an image from the offical repo for [Docker](https://docs.docker.com/engine/reference/commandline/build/) or [Podman](https://docs.podman.io/en/latest/markdown/podman-build.1.html):
