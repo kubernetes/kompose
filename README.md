@@ -37,6 +37,7 @@ Installation methods:
   - [Ubuntu/Debian](/docs/installation.md#ubuntudebian)
   - [macOS (Homebrew and MacPorts)](/docs/installation.md#macos)
   - [Windows](/docs/installation.md#windows)
+  - [Docker](/docs/installation.md#docker)
 
 #### Binary installation
 

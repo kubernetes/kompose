@@ -105,3 +105,17 @@ and install the package:
 sudo zypper refresh
 sudo zypper install kompose
 ```
+
+#### Docker
+
+You can build an image from the offical repo for [Docker](https://docs.docker.com/engine/reference/commandline/build/) or [Podman](https://docs.podman.io/en/latest/markdown/podman-build.1.html):
+
+```bash
+docker build -t kompose https://github.com/kubernetes/kompose.git
+```
+
+To run the built image against the current directory, run the following command:
+
+```bash
+docker run --rm -it -v $PWD:/opt kompose sh -c "cd /opt && kompose convert"
+```
