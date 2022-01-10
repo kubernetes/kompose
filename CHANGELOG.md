@@ -1,5 +1,21 @@
 # Changelog
 
+## [v1.26.1](https://github.com/kubernetes/kompose/tree/v1.26.1) (2022-01-10)
+
+[Full Changelog](https://github.com/kubernetes/kompose/compare/v1.26.0...v1.26.1)
+
+**Closed issues:**
+
+- convert with provider openshift creates imagestream.yml with no spec.tags.name since 1.22+ [\#1457](https://github.com/kubernetes/kompose/issues/1457)
+- Latest release is not semver [\#1453](https://github.com/kubernetes/kompose/issues/1453)
+- Cannot kubectl create deployment.yaml files after kompose convert [\#1391](https://github.com/kubernetes/kompose/issues/1391)
+- kompose secrets file location [\#1280](https://github.com/kubernetes/kompose/issues/1280)
+
+**Merged pull requests:**
+
+- Added more installation instructions [\#1468](https://github.com/kubernetes/kompose/pull/1468) ([Arian-D](https://github.com/Arian-D))
+- Fix ImageStream tags in openshift provider mode [\#1461](https://github.com/kubernetes/kompose/pull/1461) ([sbs2001](https://github.com/sbs2001))
+
 ## [v1.26.0](https://github.com/kubernetes/kompose/tree/v1.26.0) (2021-11-13)
 
 [Full Changelog](https://github.com/kubernetes/kompose/compare/v1.25...v1.26.0)
@@ -17,6 +33,7 @@
 
 **Merged pull requests:**
 
+- 1.26.0 Release [\#1460](https://github.com/kubernetes/kompose/pull/1460) ([hangyan](https://github.com/hangyan))
 - Infer storage type using label [\#1456](https://github.com/kubernetes/kompose/pull/1456) ([sbs2001](https://github.com/sbs2001))
 - Add make rule for darwin arm64 in cross target [\#1455](https://github.com/kubernetes/kompose/pull/1455) ([sbs2001](https://github.com/sbs2001))
 - Add initial support for statefulset controller. [\#1452](https://github.com/kubernetes/kompose/pull/1452) ([sbs2001](https://github.com/sbs2001))
@@ -311,7 +328,6 @@
 - Environment variables of multiple docker-compose are not merged [\#1081](https://github.com/kubernetes/kompose/issues/1081)
 - Duplicate container ports if different host ports point to same container port [\#1070](https://github.com/kubernetes/kompose/issues/1070)
 - Convert mounted directories into configmaps [\#1060](https://github.com/kubernetes/kompose/issues/1060)
-- Cannot kompose up [\#969](https://github.com/kubernetes/kompose/issues/969)
 - Kompose doesn't find dockerfile with context . [\#944](https://github.com/kubernetes/kompose/issues/944)
 - Local volumes \(from host\) via conversion [\#855](https://github.com/kubernetes/kompose/issues/855)
 - Update development.md with relevant details regarding CI [\#748](https://github.com/kubernetes/kompose/issues/748)
@@ -403,7 +419,7 @@
 - kompose.image-pull-secret label not recognized by MicroK8s 1.14 [\#1146](https://github.com/kubernetes/kompose/issues/1146)
 - redis-slave not found [\#1143](https://github.com/kubernetes/kompose/issues/1143)
 - FATA Error while deploying application: deployments.extensions "cache" already exists [\#1138](https://github.com/kubernetes/kompose/issues/1138)
-- `container_name` was not converted to a valid identifier [\#1135](https://github.com/kubernetes/kompose/issues/1135)
+- `container\_name` was not converted to a valid identifier [\#1135](https://github.com/kubernetes/kompose/issues/1135)
 - Upgrade Deployment and DaemonSet [\#1133](https://github.com/kubernetes/kompose/issues/1133)
 - Trivial converted service is not reachable [\#1128](https://github.com/kubernetes/kompose/issues/1128)
 -  repository 'https://src.fedoraproject.org/cgit/rpms/kompose.git/' not found [\#1126](https://github.com/kubernetes/kompose/issues/1126)
@@ -795,7 +811,6 @@
 - Update conversion doc for env\_file [\#875](https://github.com/kubernetes/kompose/pull/875) ([cdrage](https://github.com/cdrage))
 - Adding `--controller` flag in `up` & `down` [\#868](https://github.com/kubernetes/kompose/pull/868) ([surajnarwade](https://github.com/surajnarwade))
 - Added support for build key in v3 [\#846](https://github.com/kubernetes/kompose/pull/846) ([surajnarwade](https://github.com/surajnarwade))
-- Fixed kompose build failure [\#837](https://github.com/kubernetes/kompose/pull/837) ([surajnarwade](https://github.com/surajnarwade))
 
 ## [v1.5.0](https://github.com/kubernetes/kompose/tree/v1.5.0) (2017-11-21)
 
@@ -851,6 +866,7 @@
 - Update version number in introduction.md [\#841](https://github.com/kubernetes/kompose/pull/841) ([cdrage](https://github.com/cdrage))
 - Update getting started guide docs [\#840](https://github.com/kubernetes/kompose/pull/840) ([cdrage](https://github.com/cdrage))
 - Fix the cpu limits and requests in generated deployment file [\#838](https://github.com/kubernetes/kompose/pull/838) ([denverdino](https://github.com/denverdino))
+- Fixed kompose build failure [\#837](https://github.com/kubernetes/kompose/pull/837) ([surajnarwade](https://github.com/surajnarwade))
 - Update vendoring for logrus and gojsonschema changes [\#835](https://github.com/kubernetes/kompose/pull/835) ([cdrage](https://github.com/cdrage))
 - Add Getting Started guide, adds Minishift tutorial [\#834](https://github.com/kubernetes/kompose/pull/834) ([cdrage](https://github.com/cdrage))
 - Updated vendoring [\#828](https://github.com/kubernetes/kompose/pull/828) ([surajnarwade](https://github.com/surajnarwade))
@@ -941,7 +957,7 @@
 - Add author to Kompose UI [\#742](https://github.com/kubernetes/kompose/pull/742) ([JadCham](https://github.com/JadCham))
 - Update installation instructions [\#741](https://github.com/kubernetes/kompose/pull/741) ([cdrage](https://github.com/cdrage))
 - Update integrations links [\#740](https://github.com/kubernetes/kompose/pull/740) ([cdrage](https://github.com/cdrage))
--  Added support for `group_add` key [\#739](https://github.com/kubernetes/kompose/pull/739) ([surajnarwade](https://github.com/surajnarwade))
+-  Added support for `group\_add` key [\#739](https://github.com/kubernetes/kompose/pull/739) ([surajnarwade](https://github.com/surajnarwade))
 - Add CPU limit, CPU Reservation and Memory Reservation [\#738](https://github.com/kubernetes/kompose/pull/738) ([cdrage](https://github.com/cdrage))
 - Add integration doc [\#736](https://github.com/kubernetes/kompose/pull/736) ([cdrage](https://github.com/cdrage))
 - Add Windows instructions to installation.md [\#735](https://github.com/kubernetes/kompose/pull/735) ([cdrage](https://github.com/cdrage))
@@ -1202,6 +1218,7 @@
 - Update the readme with tarball and installation instructions [\#507](https://github.com/kubernetes/kompose/pull/507) ([cdrage](https://github.com/cdrage))
 - Removed Duplicate line\(build\) from compose.go [\#504](https://github.com/kubernetes/kompose/pull/504) ([surajnarwade](https://github.com/surajnarwade))
 - Ignore the /bin folder [\#503](https://github.com/kubernetes/kompose/pull/503) ([cdrage](https://github.com/cdrage))
+- 0.4.0 release [\#502](https://github.com/kubernetes/kompose/pull/502) ([cdrage](https://github.com/cdrage))
 - Sync changes from master to gh-pages on each merge request [\#500](https://github.com/kubernetes/kompose/pull/500) ([cdrage](https://github.com/cdrage))
 - Added dockerfile key support [\#499](https://github.com/kubernetes/kompose/pull/499) ([surajnarwade](https://github.com/surajnarwade))
 - Add rpm packaging [\#495](https://github.com/kubernetes/kompose/pull/495) ([cdrage](https://github.com/cdrage))
@@ -1217,7 +1234,7 @@
 
 - Update unsupported keys in kompose.io user guide [\#479](https://github.com/kubernetes/kompose/issues/479)
 - Adding `networks:` results in a panic [\#478](https://github.com/kubernetes/kompose/issues/478)
-- `volumes_from` is supported construct but conversion doc says opposite [\#476](https://github.com/kubernetes/kompose/issues/476)
+- `volumes\_from` is supported construct but conversion doc says opposite [\#476](https://github.com/kubernetes/kompose/issues/476)
 - Panics parsing volume config [\#471](https://github.com/kubernetes/kompose/issues/471)
 - Error with unsupported keys not showing up in warnings [\#456](https://github.com/kubernetes/kompose/issues/456)
 - Separate key:"value" pairs in kobject.go [\#452](https://github.com/kubernetes/kompose/issues/452)
@@ -1232,7 +1249,6 @@
 
 **Merged pull requests:**
 
-- 0.4.0 release [\#502](https://github.com/kubernetes/kompose/pull/502) ([cdrage](https://github.com/cdrage))
 - do not fail if there is a golint violation [\#498](https://github.com/kubernetes/kompose/pull/498) ([kadel](https://github.com/kadel))
 - travis-ci: send report to coveralls in after\_success section [\#497](https://github.com/kubernetes/kompose/pull/497) ([kadel](https://github.com/kadel))
 - Add install instruction for MacOS X \(using brew\) [\#492](https://github.com/kubernetes/kompose/pull/492) ([kadel](https://github.com/kadel))
@@ -1303,7 +1319,7 @@
 
 - error: Could not unmarshal '\<nil\>' to type \<nil\> [\#388](https://github.com/kubernetes/kompose/issues/388)
 - add support for mem\_limit in kompose [\#364](https://github.com/kubernetes/kompose/issues/364)
-- cmd tests written after `convert::files_exist` does not pass [\#361](https://github.com/kubernetes/kompose/issues/361)
+- cmd tests written after `convert::files\_exist` does not pass [\#361](https://github.com/kubernetes/kompose/issues/361)
 - disable coveralls.io comments [\#358](https://github.com/kubernetes/kompose/issues/358)
 - support for stdin\_open and tty keys [\#344](https://github.com/kubernetes/kompose/issues/344)
 - fix unit tests that cause warnings [\#343](https://github.com/kubernetes/kompose/issues/343)
@@ -1318,7 +1334,7 @@
 - Unable to run cmd tests under Debian. [\#309](https://github.com/kubernetes/kompose/issues/309)
 - Default to YAML output [\#306](https://github.com/kubernetes/kompose/issues/306)
 - kompose 0.1.2 fails to parse key-only variables in environment section, does work with lists but generates invalid k8s resources [\#303](https://github.com/kubernetes/kompose/issues/303)
-- When using `container_name` in docker-compose problems with dc and imagestreams [\#301](https://github.com/kubernetes/kompose/issues/301)
+- When using `container\_name` in docker-compose problems with dc and imagestreams [\#301](https://github.com/kubernetes/kompose/issues/301)
 - make `script/godep-restore.sh` more verbose [\#300](https://github.com/kubernetes/kompose/issues/300)
 - no test/check for Godeps.json health [\#299](https://github.com/kubernetes/kompose/issues/299)
 - `script/godep-restore.sh` is failing on master [\#298](https://github.com/kubernetes/kompose/issues/298)
@@ -1411,7 +1427,6 @@
 - Update main.go path [\#266](https://github.com/kubernetes/kompose/pull/266) ([procrypt](https://github.com/procrypt))
 - Fix license headers, This closes \#223 [\#262](https://github.com/kubernetes/kompose/pull/262) ([sebgoa](https://github.com/sebgoa))
 - Modify command in initializing unit tests [\#261](https://github.com/kubernetes/kompose/pull/261) ([cdrage](https://github.com/cdrage))
-- update CHANGELOG [\#260](https://github.com/kubernetes/kompose/pull/260) ([ngtuna](https://github.com/ngtuna))
 - Add `go vet`,  and `gofmt` tests. [\#259](https://github.com/kubernetes/kompose/pull/259) ([kadel](https://github.com/kadel))
 - CreatePVC: correct setting of read/only access [\#249](https://github.com/kubernetes/kompose/pull/249) ([dustymabe](https://github.com/dustymabe))
 - Tests for CreateService and annotations [\#246](https://github.com/kubernetes/kompose/pull/246) ([cdrage](https://github.com/cdrage))
@@ -1450,6 +1465,7 @@
 
 **Merged pull requests:**
 
+- update CHANGELOG [\#260](https://github.com/kubernetes/kompose/pull/260) ([ngtuna](https://github.com/ngtuna))
 - v0.1.2 [\#258](https://github.com/kubernetes/kompose/pull/258) ([ngtuna](https://github.com/ngtuna))
 - binary-cross build [\#257](https://github.com/kubernetes/kompose/pull/257) ([ngtuna](https://github.com/ngtuna))
 - Match case with API objects when printing to terminal [\#254](https://github.com/kubernetes/kompose/pull/254) ([dustymabe](https://github.com/dustymabe))
@@ -1476,20 +1492,6 @@
 - upgrade libcompose [\#195](https://github.com/kubernetes/kompose/pull/195) ([ngtuna](https://github.com/ngtuna))
 - support for volumes\_from docker-compose construct [\#190](https://github.com/kubernetes/kompose/pull/190) ([surajssd](https://github.com/surajssd))
 - Configure service types [\#189](https://github.com/kubernetes/kompose/pull/189) ([procrypt](https://github.com/procrypt))
-- Create PVC object for docker-compose volumes [\#186](https://github.com/kubernetes/kompose/pull/186) ([surajssd](https://github.com/surajssd))
-- Update .dsb references to .dab [\#184](https://github.com/kubernetes/kompose/pull/184) ([cdrage](https://github.com/cdrage))
-- Update README + Docker Compose Bundle references [\#183](https://github.com/kubernetes/kompose/pull/183) ([cdrage](https://github.com/cdrage))
-- --provider global flag for kompose [\#182](https://github.com/kubernetes/kompose/pull/182) ([surajssd](https://github.com/surajssd))
-- Changed version tag to reflect the tip of the branch [\#180](https://github.com/kubernetes/kompose/pull/180) ([cab105](https://github.com/cab105))
-- Add .gitignore for Go files + compiled Kompose file [\#178](https://github.com/kubernetes/kompose/pull/178) ([cdrage](https://github.com/cdrage))
-- support -o - to stdout [\#172](https://github.com/kubernetes/kompose/pull/172) ([ngtuna](https://github.com/ngtuna))
-- remove executable perms from docs [\#171](https://github.com/kubernetes/kompose/pull/171) ([dustymabe](https://github.com/dustymabe))
-- Make --dab/--bundle global flag [\#168](https://github.com/kubernetes/kompose/pull/168) ([kadel](https://github.com/kadel))
-- Prepare up/down for other providers [\#166](https://github.com/kubernetes/kompose/pull/166) ([kadel](https://github.com/kadel))
-- kompose up - Get namespace from kubeconfig [\#164](https://github.com/kubernetes/kompose/pull/164) ([kadel](https://github.com/kadel))
-- OpenShift - generate DeploymentConfig with ImageStream [\#160](https://github.com/kubernetes/kompose/pull/160) ([kadel](https://github.com/kadel))
-- Add port protocol handing for docker-compose. [\#159](https://github.com/kubernetes/kompose/pull/159) ([kadel](https://github.com/kadel))
-- Added flag `--suppress-warnings`, `--verbose`, `--error-on-warning` global flags [\#111](https://github.com/kubernetes/kompose/pull/111) ([surajssd](https://github.com/surajssd))
 
 ## [v0.1.1](https://github.com/kubernetes/kompose/tree/v0.1.1) (2016-10-06)
 
@@ -1511,6 +1513,23 @@
 - Generate ImageStream for every image in DeploymentConfig [\#145](https://github.com/kubernetes/kompose/issues/145)
 - godep save ./... : cannot find package "k8s.io/kubernetes/pkg/apis/authentication.k8s.io" [\#117](https://github.com/kubernetes/kompose/issues/117)
 - Add flags for sliencing warning and for treating warnings as error [\#100](https://github.com/kubernetes/kompose/issues/100)
+
+**Merged pull requests:**
+
+- Create PVC object for docker-compose volumes [\#186](https://github.com/kubernetes/kompose/pull/186) ([surajssd](https://github.com/surajssd))
+- Update .dsb references to .dab [\#184](https://github.com/kubernetes/kompose/pull/184) ([cdrage](https://github.com/cdrage))
+- Update README + Docker Compose Bundle references [\#183](https://github.com/kubernetes/kompose/pull/183) ([cdrage](https://github.com/cdrage))
+- --provider global flag for kompose [\#182](https://github.com/kubernetes/kompose/pull/182) ([surajssd](https://github.com/surajssd))
+- Changed version tag to reflect the tip of the branch [\#180](https://github.com/kubernetes/kompose/pull/180) ([cab105](https://github.com/cab105))
+- Add .gitignore for Go files + compiled Kompose file [\#178](https://github.com/kubernetes/kompose/pull/178) ([cdrage](https://github.com/cdrage))
+- support -o - to stdout [\#172](https://github.com/kubernetes/kompose/pull/172) ([ngtuna](https://github.com/ngtuna))
+- remove executable perms from docs [\#171](https://github.com/kubernetes/kompose/pull/171) ([dustymabe](https://github.com/dustymabe))
+- Make --dab/--bundle global flag [\#168](https://github.com/kubernetes/kompose/pull/168) ([kadel](https://github.com/kadel))
+- Prepare up/down for other providers [\#166](https://github.com/kubernetes/kompose/pull/166) ([kadel](https://github.com/kadel))
+- kompose up - Get namespace from kubeconfig [\#164](https://github.com/kubernetes/kompose/pull/164) ([kadel](https://github.com/kadel))
+- OpenShift - generate DeploymentConfig with ImageStream [\#160](https://github.com/kubernetes/kompose/pull/160) ([kadel](https://github.com/kadel))
+- Add port protocol handing for docker-compose. [\#159](https://github.com/kubernetes/kompose/pull/159) ([kadel](https://github.com/kadel))
+- Added flag `--suppress-warnings`, `--verbose`, `--error-on-warning` global flags [\#111](https://github.com/kubernetes/kompose/pull/111) ([surajssd](https://github.com/surajssd))
 
 ## [v0.1.0](https://github.com/kubernetes/kompose/tree/v0.1.0) (2016-09-09)
 
@@ -1588,7 +1607,7 @@
 - Should we support converting to Replica Sets? [\#63](https://github.com/kubernetes/kompose/issues/63)
 - `targetPort` is 0 in a converted service definition [\#60](https://github.com/kubernetes/kompose/issues/60)
 - docker-compose service with no ports is mapped to k8s svc with no ports [\#58](https://github.com/kubernetes/kompose/issues/58)
-- `depends_on` is not supported [\#57](https://github.com/kubernetes/kompose/issues/57)
+- `depends\_on` is not supported [\#57](https://github.com/kubernetes/kompose/issues/57)
 - Environment Variable substitution not working [\#56](https://github.com/kubernetes/kompose/issues/56)
 - update README for bundles, compose v2 [\#54](https://github.com/kubernetes/kompose/issues/54)
 - Consider changing `--from-bundles` \(bool\) to `--bundle-file` \(string\) [\#53](https://github.com/kubernetes/kompose/issues/53)
