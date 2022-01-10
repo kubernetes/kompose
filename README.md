@@ -35,8 +35,10 @@ Installation methods:
   - [Fedora](/docs/installation.md#fedora)
   - [openSUSE/SLE](/docs/installation.md#opensusesle)
   - [Ubuntu/Debian](/docs/installation.md#ubuntudebian)
+  - [NixOS](/docs/installation.md#nixos)
   - [macOS (Homebrew and MacPorts)](/docs/installation.md#macos)
   - [Windows](/docs/installation.md#windows)
+  - [Docker](/docs/installation.md#docker)
 
 #### Binary installation
 
