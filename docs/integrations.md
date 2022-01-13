@@ -1,8 +1,10 @@
 ---
 layout: default
 permalink: /integrations/
+title: Integrations
 redirect_from: 
   - /docs/integrations.md/
+  - /docs/integrations/
 ---
 
 # Integrations

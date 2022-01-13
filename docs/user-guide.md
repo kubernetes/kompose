@@ -1,8 +1,10 @@
 ---
 layout: default
 permalink: /user-guide/
+title: User Guide
 redirect_from: 
   - /docs/user-guide.md/
+  - /docs/user-guide/
 ---
 
 # User Guide

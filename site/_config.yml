@@ -1,0 +1,21 @@
+title: Kompose
+name: Kompose
+email: foo@gmail.com
+github_page: https://github.com/kubernetes/kompose
+slack_page: https://slack.k8s.io
+description: >- # this means to ignore newlines until "baseurl:"
+  Convert your Docker Compose file to Kubernetes or OpenShift
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
+year: 2022
+
+# Google Analytics number (starts with UA?)
+analytics: 12345
+
+instagram: https://www.instagram.com
+facebook: https://www.facebook.com
+
+# Build settings
+theme: minima
+plugins:
+  - jekyll-feed

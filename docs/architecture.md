@@ -1,8 +1,10 @@
 ---
 layout: default
 permalink: /architecture/
+title: Architecture
 redirect_from: 
   - /docs/architecture.md/
+  - /docs/architecture/
 ---
 
 # Architecture and Internal Design

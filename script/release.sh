@@ -99,9 +99,7 @@ replaceversion() {
 
   echo "Replaced version in docs/installation.md"
   sed -i "s/$1/$2/g" docs/installation.md || gsed -i "s/$1/$2/g" docs/installation.md
-
-  echo "Replaced version in docs/introduction.md"
-  sed -i "s/$1/$2/g" docs/introduction.md || gsed -i "s/$1/$2/g" docs/introduction.md
+  sed -i "s/$1/$2/g" site/docs/installation.md || gsed -i "s/$1/$2/g" site/docs/installation.md
 
   echo "Replaced version in build/VERSION"
   sed -i "s/$1/$2/g" build/VERSION || gsed -i "s/$1/$2/g" build/VERSION

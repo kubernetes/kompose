@@ -1,8 +1,10 @@
 ---
 layout: default
 permalink: /maven-example/
+title: Maven Example
 redirect_from: 
   - /docs/maven-example.md/
+  - /docs/maven-example/
 ---
 
 # Fabric8 Maven Plugin + Kompose:

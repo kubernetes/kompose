@@ -9,6 +9,10 @@ bin
 /docker-compose.yml
 changes.txt
 
+# Ignore built site
+site/_site/
+site/.jekyll-cache/
+
 #
 # GO SPECIFIC
 #
