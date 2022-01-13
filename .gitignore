@@ -10,8 +10,8 @@ bin
 changes.txt
 
 # Ignore built site
-site/_site/
-site/.jekyll-cache/
+docs/_site/
+docs/.jekyll-cache/
 
 #
 # GO SPECIFIC
