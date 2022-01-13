@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<whtml lang="en">
+  <head>
+
+    <!-- Metadata -->
+    <meta charset="utf-8">
+    <title>{{ site.title }} - {{ page.title }}</title>
+    <meta name="title" content="{{ site.title }} - {{ page.title }}">
+
+    {% include meta.html %}
+
+  </head>
+  <body>
+    <div class="wrapper">
+
+      {% include navbar.html %}
+
+      <div id="main" class="main">
+        <div class="first"><!-- Hero Section-->
+          <div class="container">
+            <div class="row">
+              <div class="hero-content wow fadeIn">
+                <div class="hero-content-inner">
+                  <div class="style markdown-body">
+                    {{ content }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="questions flex-out align-center wow fadeIn">
+              <p>
+              </p>
+            </div>
+          </div>
+
+        </div><!-- Hero End -->
+      </div>
+
+
+      {% include footer.html %}
+
+    </div> <!-- Main -->
+
+
+    <!-- Jquery and Js Plugins -->
+    <script src="/assets/js/jquery-2.1.1.js"></script>
+    <script src="/assets/js/popper.min.js"></script>
+    <script src="/assets/js/jquery.validate.min.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins.js"></script>
+    <script src="/assets/js/menu.js"></script>
+    <script src="/assets/js/custom.js"></script>
+    <script>
+      $('.navbar-nav>li>a').on('click', function(){
+
+        $('.navbar-collapse').collapse('hide');
+
+      });
+    </script>
+  </body>
+</html>

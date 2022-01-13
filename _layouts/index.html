@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <!-- Metadata -->
+    <meta charset="utf-8">
+    <title>{{ site.title }} - {{ site.description }}</title>
+    <meta name="title" content="{{ site.title }} - {{ site.description }}">
+
+    {% include meta.html %}
+
+  </head>
+  <body>
+    <div class="wrapper">
+
+      {% include navbar.html %}
+
+      <div id="main" class="main">
+        <div class="first home-3"><!-- Hero Section-->
+            <div class="questions flex-out align-center wow fadeIn">
+              <p>
+              An official Kubernetes project, located at <a href="https://github.com/kubernetes/kompose" target="_blank">github.com/kubernetes/kompose</a>
+              </p>
+            </div>
+          <div class="container">
+            <div class="row">
+              <div class="col-md-5">
+                <div class="hero-content wow fadeIn">
+                  <div class="hero-content-inner">
+                    <h4>Go from Docker Compose to Kubernetes</h4>
+                    <h1>Kompose</h1>
+                    <p>
+                    Kompose is a conversion tool for Docker Compose to container orchestrators such as Kubernetes (or OpenShift).
+
+                    </p>
+                    <a class="btn-action" href="/installation">Installation</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-7 markdown-body code-example">
+                  {{ content }}
+              </div>
+            </div>
+
+          </div>
+
+        </div><!-- Hero End -->
+
+        <div id="what" class="what home-3"><!-- Hero Section-->
+          <div class="container">
+            <div class="flex-intro align-center wow fadeIn">
+              <h2>Get started on Kubernetes immediately</h2>
+              <p>
+              So easy your human companion could do it too!
+              </p>
+            </div>
+            <div class="row">
+
+              <div class="col-md-7">
+                <div class="hero-img loop-video">
+                  <video class="embed-responsive drone-video" autoplay loop muted>
+                    <source src="assets/video/cat.webm" type="video/webm" />
+                  </video>
+                </div>
+              </div>
+
+              <div class="col-md-5">
+                <div class="hero-content wow fadeIn">
+                  <div class="hero-content-inner">
+                    <p>
+                    Why do cats (and developers) like Kompose?
+                    <br>
+                    <br>
+                    Developers love to simplify their development environment with Docker Compose.
+                    <br>
+                    <br>
+                    With Kompose, you can now push the same file to a production container orchestrator!
+                    <br>
+                    <br>
+                    You only need two commands: <b>kompose convert</b> and <b>kubectl apply</b>
+                    </p>
+                    <a class="btn-action" href="/getting-started">Getting Started</a>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+
+          </div>
+        </div><!-- Hero End -->
+
+        <div id="date" class="home home-3"><!-- Hero Section-->
+          <div class="container">
+            <div class="flex-intro align-center wow fadeIn">
+              <h2>Built for container engineers</h2>
+              <p>
+              Our conversions are not always 1-1 from Docker Compose to Kubernetes, but we will help get you 99% of the way there!
+              </p>
+            </div>
+            <div class="row">
+
+              <div class="col-md-5">
+                <div class="hero-content wow fadeIn">
+                  <div class="hero-content-inner">
+                    <h4>The awesome features</h4>
+                    <p>
+                    • Compatibility with multiple versions of Docker Compose
+                    <br>
+                    • A <a href="/conversion">conversion matrix</a> that outlines all compatible values and versions
+                    <br>
+                    • An in-depth <a href="/user-guide">user guide</a> to use advanced features such as LoadBalancer, Service and TLS
+                    <br>
+                    • <a href="/user-guide#labels">Labels</a> that provide the extra 1% needed to get to 1-1 conversion
+                    </p>
+                    <a class="btn-action" href="/user-guide">User Guide</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-7">
+                <div class="hero-img loop-video">
+                  <video class="embed-responsive drone-video" autoplay loop muted>
+                    <source src="assets/video/coding.webm" type="video/webm" />
+                  </video>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div><!-- Hero End -->
+
+      </div>
+
+
+      {% include footer.html %}
+
+    </div> <!-- Main -->
+
+
+    <!-- Jquery and Js Plugins -->
+    <script src="assets/js/jquery-2.1.1.js"></script>
+    <script src="assets/js/popper.min.js"></script>
+    <script src="assets/js/jquery.validate.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/plugins.js"></script>
+    <script src="assets/js/menu.js"></script>
+    <script src="assets/js/custom.js"></script>
+    <script>
+      $('.navbar-nav>li>a').on('click', function(){
+
+        $('.navbar-collapse').collapse('hide');
+
+      });
+    </script>
+  </body>
+</html>
