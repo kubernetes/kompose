@@ -12,6 +12,8 @@ changes.txt
 # Ignore built site
 docs/_site/
 docs/.jekyll-cache/
+docs/.git/
+docs/.gitignore
 
 #
 # GO SPECIFIC
