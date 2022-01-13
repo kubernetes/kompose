@@ -1,0 +1,288 @@
+I"XE<h1 id="getting-started">Getting Started</h1>
+
+<ul id="markdown-toc">
+  <li><a href="#getting-started" id="markdown-toc-getting-started">Getting Started</a>    <ul>
+      <li><a href="#minikube-and-kompose" id="markdown-toc-minikube-and-kompose">Minikube and Kompose</a></li>
+      <li><a href="#minishift-and-kompose" id="markdown-toc-minishift-and-kompose">Minishift and Kompose</a></li>
+      <li><a href="#rhel-and-kompose" id="markdown-toc-rhel-and-kompose">RHEL and Kompose</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p>This is how you’ll get started with Kompose!</p>
+
+<p>There are three different guides depending on your container orchestrator as well as operating system.</p>
+
+<p>For beginners and the most compatibility, follow the <em>Minikube and Kompose</em> guide.</p>
+
+<h2 id="minikube-and-kompose">Minikube and Kompose</h2>
+
+<p>In this guide, we’ll deploy a sample <code class="highlighter-rouge">docker-compose.yaml</code> file to a Kubernetes cluster.</p>
+
+<p>Requirements:</p>
+<ul>
+  <li><a href="https://github.com/kubernetes/minikube">minikube</a></li>
+  <li><a href="https://github.com/kubernetes/kompose">kompose</a></li>
+</ul>
+
+<p><strong>Start <code class="highlighter-rouge">minikube</code>:</strong></p>
+
+<p>If you don’t already have a Kubernetes cluster running, <a href="https://github.com/kubernetes/minikube">minikube</a> is the best way to get started.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minikube start
+Starting <span class="nb">local </span>Kubernetes v1.7.5 cluster...
+Starting VM...
+Getting VM IP address...
+Moving files into cluster...
+Setting up certs...
+Connecting to cluster...
+Setting up kubeconfig...
+Starting cluster components...
+Kubectl is now configured to use the cluster
+</code></pre></div></div>
+
+<p><strong>Download an <a href="https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml">example Docker Compose file</a>, or use your own:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml
+</code></pre></div></div>
+
+<p><strong>Convert your Docker Compose file to Kubernetes:</strong></p>
+
+<p>Run <code class="highlighter-rouge">kompose convert</code> in the same directory as your <code class="highlighter-rouge">docker-compose.yaml</code> file.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kompose convert                           
+INFO Kubernetes file <span class="s2">"frontend-service.yaml"</span> created         
+INFO Kubernetes file <span class="s2">"redis-master-service.yaml"</span> created     
+INFO Kubernetes file <span class="s2">"redis-slave-service.yaml"</span> created      
+INFO Kubernetes file <span class="s2">"frontend-deployment.yaml"</span> created      
+INFO Kubernetes file <span class="s2">"redis-master-deployment.yaml"</span> created  
+INFO Kubernetes file <span class="s2">"redis-slave-deployment.yaml"</span> created 
+</code></pre></div></div>
+
+<p>Then you can use <code class="highlighter-rouge">kubectl apply</code> to create these resources in kubernetes.</p>
+
+<p><strong>Access the newly deployed service:</strong></p>
+
+<p>Now that your service has been deployed, let’s access it.</p>
+
+<p>If you’re using <code class="highlighter-rouge">minikube</code> you may access it via the <code class="highlighter-rouge">minikube service</code> command.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minikube service frontend
+</code></pre></div></div>
+
+<p>Otherwise, use <code class="highlighter-rouge">kubectl</code> to see what IP the service is using:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kubectl describe svc frontend
+Name:                   frontend
+Namespace:              default
+Labels:                 <span class="nv">service</span><span class="o">=</span>frontend
+Selector:               <span class="nv">service</span><span class="o">=</span>frontend
+Type:                   LoadBalancer
+IP:                     10.0.0.183
+LoadBalancer Ingress:   123.45.67.89
+Port:                   80      80/TCP
+NodePort:               80      31144/TCP
+Endpoints:              172.17.0.4:80
+Session Affinity:       None
+No events.
+
+</code></pre></div></div>
+
+<p>Note: If you’re using a cloud provider, your IP will be listed next to <code class="highlighter-rouge">LoadBalancer Ingress</code>.</p>
+
+<p>If you have yet to expose your service (for example, within GCE), use the command:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl expose deployment frontend <span class="nt">--type</span><span class="o">=</span><span class="s2">"LoadBalancer"</span> 
+</code></pre></div></div>
+
+<p>To check functionality, you may also <code class="highlighter-rouge">curl</code> the URL.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl http://123.45.67.89
+</code></pre></div></div>
+
+<h2 id="minishift-and-kompose">Minishift and Kompose</h2>
+
+<p>In this guide, we’ll deploy a sample <code class="highlighter-rouge">docker-compose.yaml</code> file to an OpenShift cluster.</p>
+
+<p>Requirements:</p>
+<ul>
+  <li><a href="https://github.com/minishift/minishift">minishift</a></li>
+  <li><a href="https://github.com/kubernetes/kompose">kompose</a></li>
+  <li>An OpenShift route created</li>
+</ul>
+
+<p><strong>Note:</strong> The service will NOT be accessible until you create an OpenShift route with <code class="highlighter-rouge">oc expose</code>. You must also have a virtualization environment setup. By default, <code class="highlighter-rouge">minishift</code> uses KVM.</p>
+
+<p><strong>Start <code class="highlighter-rouge">minishift</code>:</strong></p>
+
+<p><a href="https://github.com/minishift/minishift">Minishift</a> is a tool that helps run OpenShift locally using a single-node cluster inside of a VM. Similar to <a href="https://github.com/kubernetes/minikube">minikube</a>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minishift start
+Starting <span class="nb">local </span>OpenShift cluster using <span class="s1">'kvm'</span> hypervisor...
+<span class="nt">--</span> Checking OpenShift client ... OK
+<span class="nt">--</span> Checking Docker client ... OK
+<span class="nt">--</span> Checking Docker version ... OK
+<span class="nt">--</span> Checking <span class="k">for </span>existing OpenShift container ... OK
+...
+</code></pre></div></div>
+
+<p><strong>Download an <a href="https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml">example Docker Compose file</a>, or use your own:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml
+</code></pre></div></div>
+
+<p><strong>Convert your Docker Compose file to OpenShift:</strong></p>
+
+<p>Run <code class="highlighter-rouge">kompose convert --provider=openshift</code> in the same directory as your <code class="highlighter-rouge">docker-compose.yaml</code> file.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kompose convert <span class="nt">--provider</span><span class="o">=</span>openshift
+INFO OpenShift file <span class="s2">"frontend-service.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-master-service.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-slave-service.yaml"</span> created 
+INFO OpenShift file <span class="s2">"frontend-deploymentconfig.yaml"</span> created 
+INFO OpenShift file <span class="s2">"frontend-imagestream.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-master-deploymentconfig.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-master-imagestream.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-slave-deploymentconfig.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-slave-imagestream.yaml"</span> created 
+</code></pre></div></div>
+
+<p>Then you can use <code class="highlighter-rouge">kubectl apply</code> to create these resources in OpenShift cluster.</p>
+
+<p><strong>Access the newly deployed service:</strong></p>
+
+<p>After deployment, you must create an OpenShift route in order to access the service.</p>
+
+<p>If you’re using <code class="highlighter-rouge">minishift</code>, you’ll use a combination of <code class="highlighter-rouge">oc</code> and <code class="highlighter-rouge">minishift</code> commands to access the service.</p>
+
+<p>Create a route for the <code class="highlighter-rouge">frontend</code> service using <code class="highlighter-rouge">oc</code>:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>oc expose service/frontend
+route <span class="s2">"frontend"</span> exposed
+</code></pre></div></div>
+
+<p>Access the <code class="highlighter-rouge">frontend</code> service with <code class="highlighter-rouge">minishift</code>:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minishift openshift service frontend <span class="nt">--namespace</span><span class="o">=</span>myproject
+Opening the service myproject/frontend <span class="k">in </span>the default browser...
+</code></pre></div></div>
+
+<p>You can also access the GUI interface of OpenShift for an overview of the deployed containers:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minishift console
+Opening the OpenShift Web console <span class="k">in </span>the default browser...
+</code></pre></div></div>
+
+<h2 id="rhel-and-kompose">RHEL and Kompose</h2>
+
+<p>In this guide, we’ll deploy a sample <code class="highlighter-rouge">docker-compose.yaml</code> file using both RHEL (Red Hat Enterprise Linux) and OpenShift.</p>
+
+<p>Requirements:</p>
+<ul>
+  <li>Red Hat Enterprise Linux 7.4</li>
+  <li><a href="https://developers.redhat.com/products/devsuite/overview/">Red Hat Development Suite</a>
+    <ul>
+      <li>Which includes:</li>
+      <li><a href="https://github.com/minishift/minishift">minishift</a></li>
+      <li><a href="https://github.com/kubernetes/kompose">kompose</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>Note:</strong> A KVM hypervisor must be setup in order to correctly use <code class="highlighter-rouge">minishift</code> on RHEL. You can set it up via the <a href="https://access.redhat.com/documentation/en-us/red_hat_container_development_kit/3.1/html-single/getting_started_guide/index#setup-virtualization">CDK Documentation</a> under “Set up your virtualization environment”.</p>
+
+<p><strong>Install Red Hat Development Suite:</strong></p>
+
+<p>Before we are able to use both <code class="highlighter-rouge">minishift</code> and <code class="highlighter-rouge">kompose</code>, DevSuite must be installed. A more concise <a href="https://developers.redhat.com/products/cdk/hello-world#fndtn-rhel">installation document is available</a>.</p>
+
+<p>Change to root.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>su -
+</code></pre></div></div>
+
+<p>Enable the Red Hat Developer Tools software repository.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>subscription-manager repos <span class="nt">--enable</span> rhel-7-server-devtools-rpms
+<span class="nv">$ </span>subscription-manager repos <span class="nt">--enable</span> rhel-server-rhscl-7-rpms
+</code></pre></div></div>
+
+<p>Add the Red Hat Developer Tools key to your system.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cd</span> /etc/pki/rpm-gpg
+<span class="nv">$ </span>wget <span class="nt">-O</span> RPM-GPG-KEY-redhat-devel https://www.redhat.com/security/data/a5787476.txt
+<span class="nv">$ </span>rpm <span class="nt">--import</span> RPM-GPG-KEY-redhat-devel
+</code></pre></div></div>
+
+<p>Install Red Hat Development Suite and Kompose.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>yum <span class="nb">install </span>rh-devsuite kompose <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p><strong>Start <code class="highlighter-rouge">minishift</code>:</strong></p>
+
+<p>Before we begin, we must do a few preliminary steps setting up <code class="highlighter-rouge">minishift</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>su -
+<span class="nv">$ </span><span class="nb">ln</span> <span class="nt">-s</span> /var/lib/cdk-minishift-3.0.0/minishift /usr/bin/minishift
+<span class="nv">$ </span>minishift setup-cdk <span class="nt">--force</span> <span class="nt">--default-vm-driver</span><span class="o">=</span><span class="s2">"kvm"</span>
+<span class="nv">$ </span><span class="nb">ln</span> <span class="nt">-s</span> /home/<span class="si">$(</span><span class="nb">whoami</span><span class="si">)</span>/.minishift/cache/oc/v3.5.5.8/oc /usr/bin/oc
+</code></pre></div></div>
+
+<p>Now we may start <code class="highlighter-rouge">minishift</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minishift start
+Starting <span class="nb">local </span>OpenShift cluster using <span class="s1">'kvm'</span> hypervisor...
+<span class="nt">--</span> Checking OpenShift client ... OK
+<span class="nt">--</span> Checking Docker client ... OK
+<span class="nt">--</span> Checking Docker version ... OK
+<span class="nt">--</span> Checking <span class="k">for </span>existing OpenShift container ... OK
+...
+</code></pre></div></div>
+
+<p><strong>Download an <a href="https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml">example Docker Compose file</a>, or use your own:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml
+</code></pre></div></div>
+
+<p><strong>Convert your Docker Compose file to OpenShift:</strong></p>
+
+<p>Run <code class="highlighter-rouge">kompose convert --provider=openshift</code> in the same directory as your <code class="highlighter-rouge">docker-compose.yaml</code> file.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>kompose convert <span class="nt">--provider</span><span class="o">=</span>openshift
+INFO OpenShift file <span class="s2">"frontend-service.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-master-service.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-slave-service.yaml"</span> created 
+INFO OpenShift file <span class="s2">"frontend-deploymentconfig.yaml"</span> created 
+INFO OpenShift file <span class="s2">"frontend-imagestream.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-master-deploymentconfig.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-master-imagestream.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-slave-deploymentconfig.yaml"</span> created 
+INFO OpenShift file <span class="s2">"redis-slave-imagestream.yaml"</span> created 
+</code></pre></div></div>
+
+<p>Then you can use <code class="highlighter-rouge">kubectl apply</code> to create these resources in OpenShift.</p>
+
+<p><strong>Access the newly deployed service:</strong></p>
+
+<p>After deployment, you must create an OpenShift route in order to access the service.</p>
+
+<p>If you’re using <code class="highlighter-rouge">minishift</code>, you’ll use a combination of <code class="highlighter-rouge">oc</code> and <code class="highlighter-rouge">minishift</code> commands to access the service.</p>
+
+<p>Create a route for the <code class="highlighter-rouge">frontend</code> service using <code class="highlighter-rouge">oc</code>:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>oc expose service/frontend
+route <span class="s2">"frontend"</span> exposed
+</code></pre></div></div>
+
+<p>Access the <code class="highlighter-rouge">frontend</code> service with <code class="highlighter-rouge">minishift</code>:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minishift openshift service frontend <span class="nt">--namespace</span><span class="o">=</span>myproject
+Opening the service myproject/frontend <span class="k">in </span>the default browser...
+</code></pre></div></div>
+
+<p>You can also access the GUI interface of OpenShift for an overview of the deployed containers:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minishift console
+Opening the OpenShift Web console <span class="k">in </span>the default browser...
+</code></pre></div></div>
+:ET

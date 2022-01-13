@@ -1,0 +1,132 @@
+I") <h1 id="installation">Installation</h1>
+
+<ul id="markdown-toc">
+  <li><a href="#installation" id="markdown-toc-installation">Installation</a>    <ul>
+      <li><a href="#github-release" id="markdown-toc-github-release">GitHub release</a></li>
+      <li><a href="#go" id="markdown-toc-go">Go</a></li>
+      <li><a href="#centos" id="markdown-toc-centos">CentOS</a></li>
+      <li><a href="#fedora" id="markdown-toc-fedora">Fedora</a></li>
+      <li><a href="#ubuntudebian" id="markdown-toc-ubuntudebian">Ubuntu/Debian</a></li>
+      <li><a href="#macos" id="markdown-toc-macos">macOS</a></li>
+      <li><a href="#windows" id="markdown-toc-windows">Windows</a></li>
+      <li><a href="#opensusesle" id="markdown-toc-opensusesle">openSUSE/SLE</a></li>
+      <li><a href="#nixos" id="markdown-toc-nixos">NixOS</a></li>
+      <li><a href="#docker" id="markdown-toc-docker">Docker</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p>We have multiple ways to install Kompose. Our preferred method is downloading the binary from the latest GitHub release.</p>
+
+<h2 id="github-release">GitHub release</h2>
+
+<p>Kompose is released via GitHub on a three-week cycle, you can see all current releases on the <a href="https://github.com/kubernetes/kompose/releases">GitHub release page</a>.</p>
+
+<p><strong>Linux and macOS:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Linux</span>
+curl <span class="nt">-L</span> https://github.com/kubernetes/kompose/releases/download/v1.26.1/kompose-linux-amd64 <span class="nt">-o</span> kompose
+
+<span class="c"># macOS</span>
+curl <span class="nt">-L</span> https://github.com/kubernetes/kompose/releases/download/v1.26.1/kompose-darwin-amd64 <span class="nt">-o</span> kompose
+
+<span class="nb">chmod</span> +x kompose
+<span class="nb">sudo mv</span> ./kompose /usr/local/bin/kompose
+</code></pre></div></div>
+
+<p><strong>Windows:</strong></p>
+
+<p>Download from <a href="https://github.com/kubernetes/kompose/releases/download/v1.26.1/kompose-windows-amd64.exe">GitHub</a> and add the binary to your PATH.</p>
+
+<h2 id="go">Go</h2>
+
+<p>Installing using <code class="highlighter-rouge">go get</code> pulls from the master branch with the latest development changes.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>go get <span class="nt">-u</span> github.com/kubernetes/kompose
+</code></pre></div></div>
+
+<h2 id="centos">CentOS</h2>
+
+<p>Kompose is in <a href="https://fedoraproject.org/wiki/EPEL">EPEL</a> CentOS repository.
+If you don’t have <a href="https://fedoraproject.org/wiki/EPEL">EPEL</a> repository already installed and enabled you can do it by running  <code class="highlighter-rouge">sudo yum install epel-release</code></p>
+
+<p>If you have <a href="https://fedoraproject.org/wiki/EPEL">EPEL</a> enabled in your system, you can install Kompose like any other package.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>yum <span class="nt">-y</span> <span class="nb">install </span>kompose
+</code></pre></div></div>
+
+<h2 id="fedora">Fedora</h2>
+<p>Kompose is in Fedora 24, 25 and 26 repositories. You can install it just like any other package.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>dnf <span class="nt">-y</span> <span class="nb">install </span>kompose
+</code></pre></div></div>
+
+<h2 id="ubuntudebian">Ubuntu/Debian</h2>
+
+<p>A deb package is released for compose. Download latest package in the assets in <a href="https://github.com/kubernetes/kompose/releases">github releases</a>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://github.com/kubernetes/kompose/releases/download/v1.26.1/kompose_1.26.1_amd64.deb <span class="c"># Replace 1.26.1 with latest tag</span>
+<span class="nb">sudo </span>apt <span class="nb">install</span> ./kompose_1.26.1_amd64.deb
+</code></pre></div></div>
+
+<h2 id="macos">macOS</h2>
+<p>On macOS you can install latest release via <a href="https://brew.sh">Homebrew</a> or <a href="https://www.macports.org/">MacPorts</a>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Homebrew</span>
+brew <span class="nb">install </span>kompose
+
+<span class="c"># MacPorts</span>
+port <span class="nb">install </span>kompose
+</code></pre></div></div>
+
+<h2 id="windows">Windows</h2>
+<p>Kompose can be installed via <a href="https://chocolatey.org/packages/kubernetes-kompose">Chocolatey</a></p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">choco install kubernetes-kompose
+</span></code></pre></div></div>
+
+<h2 id="opensusesle">openSUSE/SLE</h2>
+<p>Kompose is available in the official Virtualization:containers repository for openSUSE Tumbleweed, Leap 15, Leap 42.3 and SUSE Linux Enterprise 15.</p>
+
+<p>Head over to <a href="https://software.opensuse.org//download.html?project=Virtualization%3Acontainers&amp;package=kompose">software.opensuse.org for One-Click Installation</a> or add the repository manually:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#openSUSE Tumbleweed</span>
+<span class="nb">sudo </span>zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Tumbleweed/Virtualization:containers.repo
+
+<span class="c">#openSUSE Leap 42.3</span>
+<span class="nb">sudo </span>zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_42.3/Virtualization:containers.repo
+
+<span class="c">#openSUSE Leap 15</span>
+<span class="nb">sudo </span>zypper addrepo https://download.opensuse.org/repositories/Virtualization:/containers/openSUSE_Leap_15.2/Virtualization:containers.repo
+
+<span class="c">#SUSE Linux Enterprise 15</span>
+<span class="nb">sudo </span>zypper addrepo https://download.opensuse.org/repositories/Virtualization:/containers/SLE_15_SP1/Virtualization:containers.repo
+</code></pre></div></div>
+<p>and install the package:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>zypper refresh
+<span class="nb">sudo </span>zypper <span class="nb">install </span>kompose
+</code></pre></div></div>
+
+<h2 id="nixos">NixOS</h2>
+
+<p>To install from <a href="https://github.com/NixOS/nixpkgs">Nixpkgs</a>, use <a href="https://nixos.org/manual/nix/stable/command-ref/nix-env.html">nix-env</a>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nix-env <span class="nt">--install</span> <span class="nt">-A</span> nixpkgs.kompose
+</code></pre></div></div>
+
+<p>To run <code class="highlighter-rouge">kompose</code> without installing it, use <a href="https://nixos.org/manual/nix/stable/command-ref/nix-shell.html">nix-shell</a>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nix-shell <span class="nt">-p</span> kompose <span class="nt">--run</span> <span class="s2">"kompose convert"</span>
+</code></pre></div></div>
+
+<h2 id="docker">Docker</h2>
+
+<p>You can build an image from the offical repo for <a href="https://docs.docker.com/engine/reference/commandline/build/">Docker</a> or <a href="https://docs.podman.io/en/latest/markdown/podman-build.1.html">Podman</a>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">-t</span> kompose https://github.com/kubernetes/kompose.git
+</code></pre></div></div>
+
+<p>To run the built image against the current directory, run the following command:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">--rm</span> <span class="nt">-it</span> <span class="nt">-v</span> <span class="nv">$PWD</span>:/opt kompose sh <span class="nt">-c</span> <span class="s2">"cd /opt &amp;&amp; kompose convert"</span>
+</code></pre></div></div>
+:ET

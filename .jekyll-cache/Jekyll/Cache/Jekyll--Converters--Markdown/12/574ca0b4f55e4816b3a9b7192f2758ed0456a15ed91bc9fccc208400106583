@@ -1,0 +1,82 @@
+I"�<h1 id="fabric8-maven-plugin--kompose">Fabric8 Maven Plugin + Kompose:</h1>
+<p>Let’s deploy a Springboot Java application with Docker Compose file using Fabric8 Maven Plugin to Kubernetes or OpenShift.</p>
+
+<h5 id="requirements">Requirements</h5>
+<ul>
+  <li>Linux or MacOS or Windows</li>
+  <li>JDK 1.7+ - <a href="http://openjdk.java.net/install/">JDK Quick Installation Guide</a></li>
+  <li>Maven 3.x+ - <a href="http://www.baeldung.com/install-maven-on-windows-linux-mac">Maven Installation Guide</a></li>
+  <li>Kompose - <a href="/docs/installation.md">Kompose Installation Guide</a></li>
+</ul>
+
+<p><strong>1. Clone the example project from GitHub</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git clone https://github.com/piyush1594/kompose-maven-example.git
+</code></pre></div></div>
+
+<p>Change current directory to <code class="highlighter-rouge">kompose-maven-example</code> directory.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cd </span>kompose-maven-example
+</code></pre></div></div>
+
+<p><strong>2. Add Fabric8 Maven Plugin to your project</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>mvn io.fabric8:fabric8-maven-plugin:3.5.28:setup
+</code></pre></div></div>
+
+<p>Add the Fabric8 Maven Plugin configuration to <code class="highlighter-rouge">pom.xml</code> of project. <code class="highlighter-rouge">pom.xml</code> is manifest or deployment descriptor file of a maven project.</p>
+
+<p><strong>3. Install Kompose through Maven</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>mvn fabric8:install
+</code></pre></div></div>
+
+<p>This command installs the <code class="highlighter-rouge">kompose</code> on the host.</p>
+
+<p><strong>4. Configure Fabric8 Maven Plugin to use a Docker Compose file</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;plugin&gt;
+  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+  &lt;artifactId&gt;fabric8-maven-plugin&lt;/artifactId&gt;
+  &lt;configuration&gt;
+    &lt;composeFile&gt;path <span class="k">for </span>docker compose file&lt;/composeFile&gt;
+  &lt;/configuration&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;resource&lt;/goal&gt;
+        &lt;goal&gt;build&lt;/goal&gt;
+      &lt;/goals&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;
+</code></pre></div></div>
+
+<p>Add the <code class="highlighter-rouge">&lt;configuration&gt;</code> and <code class="highlighter-rouge">&lt;executions&gt;</code> sections to <code class="highlighter-rouge">pom.xml</code> as shown in above <code class="highlighter-rouge">pom.xml</code> snippet. Update the <code class="highlighter-rouge">&lt;composeFile&gt;</code> to provide the relative path of Docker Compose file from <code class="highlighter-rouge">pom.xml</code></p>
+
+<p><strong>5. Deploy application on Kubernetes or OpenShift</strong></p>
+
+<p>Make sure that Kubernetes/OpenShift cluster or Minikube/minishift is running. In case, if anything of this is not running, you can run minishift to test this application by using following command.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minishift start
+</code></pre></div></div>
+
+<p>Below command deploys this application on Kubernetes or OpenShift.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>mvn fabric8:deploy  
+</code></pre></div></div>
+
+<p>Now that your service has been deployed, let’s access it by querying <code class="highlighter-rouge">pod</code>, <code class="highlighter-rouge">service</code> from Kubernetes or OpenShift.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>oc get pods
+NAME                                    READY     STATUS      RESTARTS   AGE
+springboot-docker-compose-1-xl0vb       1/1       Running     0          5m
+springboot-docker-compose-s2i-1-build   0/1       Completed   0          7m
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>oc get svc
+NAME                        CLUSTER-IP       EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+springboot-docker-compose   172.30.205.137   &lt;none&gt;        8080/TCP   6m
+</code></pre></div></div>
+
+<p>Let’s access the Springboot service.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>minishift openshift service <span class="nt">--in-browser</span> springboot-docker-compose
+Created the new window <span class="k">in </span>existing browser session.
+</code></pre></div></div>
+
+<p>It will open your application endpoint in default browser.</p>
+
+<p><img src="/docs/images/kompose-maven-output-diagram.png" alt="Output-Diagram" /></p>
+:ET
