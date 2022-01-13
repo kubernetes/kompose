@@ -1,8 +1,10 @@
 ---
 layout: default
 permalink: /getting-started/
+title: Getting Started
 redirect_from: 
   - /docs/getting-started.md/
+  - /docs/getting-started/
 ---
 
 # Getting Started
@@ -154,8 +156,6 @@ INFO OpenShift file "redis-master-imagestream.yaml" created
 INFO OpenShift file "redis-slave-deploymentconfig.yaml" created 
 INFO OpenShift file "redis-slave-imagestream.yaml" created 
 ```
-
-Alternatively, you can convert and deploy directly to OpenShift with `kompose up --provider=openshift`.
 
 Then you can use `kubectl apply` to create these resources in OpenShift cluster.
 
