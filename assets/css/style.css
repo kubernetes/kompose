@@ -3704,3 +3704,7 @@ font-family: "Open Sans";
   color: #fff !important;
   font-size:13px;
 }
+
+.highlight {
+  background: #fff !important;
+}
