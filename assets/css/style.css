@@ -421,7 +421,7 @@ body {
 }
 
 .first {
-  padding: 110px 10px 75px 0 !important;
+  padding: 110px 0 75px 0 !important;
 	background: #F7F7F8;
 }
 
@@ -3679,19 +3679,19 @@ font-family: "Open Sans";
   background: #F7F7F8;
 }
 
-	.markdown-body {
-		box-sizing: border-box;
-		min-width: 200px;
-		max-width: 980px;
-		margin: 0 auto;
-		padding: 45px;
-	}
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
 
-	@media (max-width: 767px) {
-		.markdown-body {
-			padding: 15px;
-		}
-	}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
 
 .code-example {
   margin: 0;

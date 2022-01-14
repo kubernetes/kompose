@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <title>{{ site.title }} - {{ page.title }}</title>
     <meta name="title" content="{{ site.title }} - {{ page.title }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     {% include meta.html %}
 
@@ -19,13 +20,9 @@
         <div class="first"><!-- Hero Section-->
           <div class="container">
             <div class="row">
-              <div class="hero-content wow fadeIn">
-                <div class="hero-content-inner">
-                  <div class="style markdown-body">
+                  <div class="markdown-body">
                     {{ content }}
                   </div>
-                </div>
-              </div>
             </div>
 
             <div class="questions flex-out align-center wow fadeIn">
