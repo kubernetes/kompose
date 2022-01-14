@@ -9,11 +9,13 @@ bin
 /docker-compose.yml
 changes.txt
 
-# Ignore built site
+# Ignore site documents / when switching branches
 docs/_site/
 docs/.jekyll-cache/
 docs/.git/
 docs/.gitignore
+_site/
+.jekyll-cache/
 
 #
 # GO SPECIFIC
