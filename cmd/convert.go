@@ -63,6 +63,12 @@ var (
 
 	ServiceGroupMode string
 	ServiceGroupName string
+
+	// SecretsAsFiles forces secrets to result in files inside a container instead of symlinked directories containing
+	// files of the same name. This reproduces the behavior of file-based secrets in docker-compose and should probably
+	// be the default for kompose, but we must keep compatibility with the previous behavior.
+	// See https://github.com/kubernetes/kompose/issues/1280 for more details.
+	SecretsAsFiles bool
 )
 
 var convertCmd = &cobra.Command{
@@ -109,6 +115,7 @@ var convertCmd = &cobra.Command{
 			MultipleContainerMode:       MultipleContainerMode,
 			ServiceGroupMode:            ServiceGroupMode,
 			ServiceGroupName:            ServiceGroupName,
+			SecretsAsFiles:              SecretsAsFiles,
 		}
 
 		if ServiceGroupMode == "" && MultipleContainerMode {
@@ -145,6 +152,7 @@ func init() {
 	convertCmd.Flags().StringVar(&ServiceGroupMode, "service-group-mode", "", "Group multiple service to create single workload by `label`(`kompose.service.group`) or `volume`(shared volumes)")
 	convertCmd.Flags().StringVar(&ServiceGroupName, "service-group-name", "", "Using with --service-group-mode=volume to specific a final service name for the group")
 	convertCmd.Flags().MarkDeprecated("multiple-container-mode", "use --service-group-mode=label")
+	convertCmd.Flags().BoolVar(&SecretsAsFiles, "secrets-as-files", false, "Always convert docker-compose secrets into files instead of symlinked directories.")
 
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")

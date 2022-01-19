@@ -82,6 +82,7 @@ type ConvertOptions struct {
 	MultipleContainerMode bool
 	ServiceGroupMode      string
 	ServiceGroupName      string
+	SecretsAsFiles        bool
 }
 
 // IsPodController indicate if the user want to use a controller

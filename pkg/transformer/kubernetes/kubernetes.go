@@ -29,6 +29,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/docker/cli/cli/compose/types"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
@@ -751,7 +752,7 @@ func (k *Kubernetes) ConfigTmpfs(name string, service kobject.ServiceConfig) ([]
 // In kubernetes' Secret resource, it has a data structure like a map[string]bytes, every key will act like the file name
 // when mount to a container. This is the part that missing in compose. So we will create a single key secret from compose
 // config and the key's name will be the secret's name, it's value is the file content.
-// compose'secret can only be mounted at `/run/secrets`, so we will hardcoded this.
+// compose's secret can only be mounted at `/run/secrets`, so this will be hardcoded.
 func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceConfig) ([]api.VolumeMount, []api.Volume) {
 	var volumeMounts []api.VolumeMount
 	var volumes []api.Volume
@@ -764,35 +765,11 @@ func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceCon
 				log.Warnf("Ignore gid in secrets for service: %s", name)
 			}
 
-			var itemPath string // should be the filename
-			var mountPath = ""  // should be the directory
-			// if is used the short-syntax
-			if secretConfig.Target == "" {
-				// the secret path (mountPath) should be inside the default directory /run/secrets
-				mountPath = "/run/secrets/" + secretConfig.Source
-				// the itemPath should be the source itself
-				itemPath = secretConfig.Source
+			var secretItemPath, secretMountPath, secretSubPath string
+			if k.Opt.SecretsAsFiles {
+				secretItemPath, secretMountPath, secretSubPath = k.getSecretPaths(secretConfig)
 			} else {
-				// if is the long-syntax, i should get the last part of path and consider it the filename
-				pathSplitted := strings.Split(secretConfig.Target, "/")
-				lastPart := pathSplitted[len(pathSplitted)-1]
-
-				// if the filename (lastPart) and the target is the same
-				if lastPart == secretConfig.Target {
-					// the secret path should be the source (it need to be inside a directory and only the filename was given)
-					mountPath = secretConfig.Source
-				} else {
-					// should then get the target without the filename (lastPart)
-					mountPath = mountPath + strings.TrimSuffix(secretConfig.Target, "/"+lastPart) // menos ultima parte
-				}
-
-				// if the target isn't absolute path
-				if strings.HasPrefix(secretConfig.Target, "/") == false {
-					// concat the default secret directory
-					mountPath = "/run/secrets/" + mountPath
-				}
-
-				itemPath = lastPart
+				secretItemPath, secretMountPath, secretSubPath = k.getSecretPathsLegacy(secretConfig)
 			}
 
 			volSource := api.VolumeSource{
@@ -800,7 +777,7 @@ func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceCon
 					SecretName: secretConfig.Source,
 					Items: []api.KeyToPath{{
 						Key:  secretConfig.Source,
-						Path: itemPath,
+						Path: secretItemPath,
 					}},
 				},
 			}
@@ -818,12 +795,82 @@ func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceCon
 
 			volMount := api.VolumeMount{
 				Name:      vol.Name,
-				MountPath: mountPath,
+				MountPath: secretMountPath,
+				SubPath:   secretSubPath,
 			}
 			volumeMounts = append(volumeMounts, volMount)
 		}
 	}
 	return volumeMounts, volumes
+}
+
+func (k *Kubernetes) getSecretPaths(secretConfig types.ServiceSecretConfig) (secretItemPath, secretMountPath, secretSubPath string) {
+	// Default secretConfig.Target to secretConfig.Source, just in case user was using short secret syntax or
+	// otherwise did not define a specific target
+	target := secretConfig.Target
+	if target == "" {
+		target = secretConfig.Source
+	}
+
+	// If target is an absolute path, set that as the MountPath
+	if strings.HasPrefix(secretConfig.Target, "/") {
+		secretMountPath = target
+	} else {
+		// If target is a relative path, prefix with "/run/secrets/" to replicate what docker-compose would do
+		secretMountPath = "/run/secrets/" + target
+	}
+
+	// Set subPath to the target filename. this ensures that we end up with a file at our MountPath instead
+	// of a directory with symlinks (see https://stackoverflow.com/a/68332231)
+	splitPath := strings.Split(target, "/")
+	secretFilename := splitPath[len(splitPath)-1]
+
+	// `secretItemPath` and `secretSubPath` have to be the same as `secretFilename` to ensure we create a file with
+	// that name at `secretMountPath`, instead of a directory containing a symlink to the actual file.
+	secretItemPath = secretFilename
+	secretSubPath = secretFilename
+
+	return secretItemPath, secretMountPath, secretSubPath
+}
+
+func (k *Kubernetes) getSecretPathsLegacy(secretConfig types.ServiceSecretConfig) (secretItemPath, secretMountPath, secretSubPath string) {
+	// The old way of setting secret paths. It resulted in files being placed in incorrect locations when compared to
+	// docker-compose results, but some people might depend on this behavior so this is kept here for compatibility.
+	// See https://github.com/kubernetes/kompose/issues/1280 for more details.
+
+	var itemPath string // should be the filename
+	var mountPath = ""  // should be the directory
+	// if is used the short-syntax
+	if secretConfig.Target == "" {
+		// the secret path (mountPath) should be inside the default directory /run/secrets
+		mountPath = "/run/secrets/" + secretConfig.Source
+		// the itemPath should be the source itself
+		itemPath = secretConfig.Source
+	} else {
+		// if is the long-syntax, i should get the last part of path and consider it the filename
+		pathSplitted := strings.Split(secretConfig.Target, "/")
+		lastPart := pathSplitted[len(pathSplitted)-1]
+
+		// if the filename (lastPart) and the target is the same
+		if lastPart == secretConfig.Target {
+			// the secret path should be the source (it need to be inside a directory and only the filename was given)
+			mountPath = secretConfig.Source
+		} else {
+			// should then get the target without the filename (lastPart)
+			mountPath = mountPath + strings.TrimSuffix(secretConfig.Target, "/"+lastPart) // menos ultima parte
+		}
+
+		// if the target isn't absolute path
+		if strings.HasPrefix(secretConfig.Target, "/") == false {
+			// concat the default secret directory
+			mountPath = "/run/secrets/" + mountPath
+		}
+
+		itemPath = lastPart
+	}
+
+	secretSubPath = "" // We didn't set a SubPath in legacy behavior
+	return itemPath, mountPath, ""
 }
 
 // ConfigVolumes configure the container volumes.
