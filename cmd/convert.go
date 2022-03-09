@@ -66,7 +66,7 @@ var (
 )
 
 var convertCmd = &cobra.Command{
-	Use:   "convert [file]",
+	Use:   "convert",
 	Short: "Convert a Docker Compose file",
 	PreRun: func(cmd *cobra.Command, args []string) {
 
