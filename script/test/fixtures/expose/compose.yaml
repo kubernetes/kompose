@@ -7,6 +7,7 @@ web:
   labels:
     kompose.service.expose: "batman.example.com/dev,batwoman.example.com"
     kompose.service.expose.tls-secret: "test-secret"
+    kompose.service.expose.ingress-class-name: "nginx"
 redis:
   image: redis:3.0
   ports:

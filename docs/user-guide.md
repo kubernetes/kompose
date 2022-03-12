@@ -182,6 +182,7 @@ The currently supported options are:
 | kompose.service.expose | true / hostnames (separated by comma) |
 | kompose.service.nodeport.port | port value (string) | 
 | kompose.service.expose.tls-secret | secret name |
+| kompose.service.expose.ingress-class-name | ingress class name |
 | kompose.volume.size | kubernetes supported volume size |
 | kompose.volume.storage-class-name | kubernetes supported volume storageClassName |
 | kompose.volume.type | use k8s volume type, eg "configMap", "persistentVolumeClaim", "emptyDir", "hostPath" |
@@ -250,6 +251,7 @@ services:
     - For the OpenShift provider, a route is created.
 - `kompose.service.nodeport.port` defines the port value when service type is `nodeport`, this label should only be set when the service only contains 1 port. Usually kubernetes define a port range for node port values, kompose will not validate this.
 - `kompose.service.expose.tls-secret` provides the name of the TLS secret to use with the Kubernetes ingress controller. This requires kompose.service.expose to be set.
+- `kompose.service.expose.ingress-class-name` provides the name of ingress class to use with the Kubernetes ingress controller. This requires kompose.service.
 
 For example:
 
@@ -265,6 +267,7 @@ services:
     labels:
       kompose.service.expose: "counter.example.com,foobar.example.com"
       kompose.service.expose.tls-secret: "example-secret"
+      kompose.service.expose.ingress-class-name: "nginx"
   redis:
     image: redis:3.0
     ports:

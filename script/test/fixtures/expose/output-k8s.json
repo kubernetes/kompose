@@ -40,6 +40,7 @@
         },
         "annotations": {
           "kompose.service.expose": "batman.example.com/dev,batwoman.example.com",
+          "kompose.service.expose.ingress-class-name": "nginx",
           "kompose.service.expose.tls-secret": "test-secret"
         }
       },
@@ -114,6 +115,7 @@
         },
         "annotations": {
           "kompose.service.expose": "batman.example.com/dev,batwoman.example.com",
+          "kompose.service.expose.ingress-class-name": "nginx",
           "kompose.service.expose.tls-secret": "test-secret"
         }
       },
@@ -132,6 +134,7 @@
             },
             "annotations": {
               "kompose.service.expose": "batman.example.com/dev,batwoman.example.com",
+              "kompose.service.expose.ingress-class-name": "nginx",
               "kompose.service.expose.tls-secret": "test-secret"
             }
           },
@@ -166,10 +169,12 @@
         },
         "annotations": {
           "kompose.service.expose": "batman.example.com/dev,batwoman.example.com",
+          "kompose.service.expose.ingress-class-name": "nginx",
           "kompose.service.expose.tls-secret": "test-secret"
         }
       },
       "spec": {
+        "ingressClassName": "nginx",
         "tls": [
           {
             "hosts": [
