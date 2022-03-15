@@ -82,7 +82,7 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                  "redis"
+                "redis"
               ],
               "from": {
                 "kind": "ImageStreamTag",
@@ -145,7 +145,7 @@
         },
         "tags": [
           {
-            "name": "latest",
+            "name": "3.0",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
@@ -190,7 +190,7 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                  "web"
+                "web"
               ],
               "from": {
                 "kind": "ImageStreamTag",
