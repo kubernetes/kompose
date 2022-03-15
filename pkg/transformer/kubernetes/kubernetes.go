@@ -525,6 +525,10 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 		}
 	}
 
+	if service.ExposeServiceIngressClassName != nil {
+		ingress.Spec.IngressClassName = service.ExposeServiceIngressClassName
+	}
+
 	return ingress
 }
 

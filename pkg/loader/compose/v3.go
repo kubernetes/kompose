@@ -658,6 +658,8 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 			serviceConfig.NodePortPort = cast.ToInt32(value)
 		case LabelServiceExposeTLSSecret:
 			serviceConfig.ExposeServiceTLS = value
+		case LabelServiceExposeIngressClassName:
+			serviceConfig.ExposeServiceIngressClassName = &value
 		case LabelImagePullSecret:
 			serviceConfig.ImagePullSecret = value
 		case LabelImagePullPolicy:
@@ -669,6 +671,10 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 
 	if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceTLS != "" {
 		return errors.New("kompose.service.expose.tls-secret was specified without kompose.service.expose")
+	}
+
+	if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceIngressClassName != nil {
+		return errors.New("kompose.service.expose.ingress-class-name was specified without kompose.service.expose")
 	}
 
 	if serviceConfig.ServiceType != string(api.ServiceTypeNodePort) && serviceConfig.NodePortPort != 0 {

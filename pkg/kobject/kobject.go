@@ -94,50 +94,51 @@ type ServiceConfigGroup []ServiceConfig
 // ServiceConfig holds the basic struct of a container
 // which should not introduce any kubernetes specific struct
 type ServiceConfig struct {
-	Name              string
-	ContainerName     string
-	Image             string              `compose:"image"`
-	Environment       []EnvVar            `compose:"environment"`
-	EnvFile           []string            `compose:"env_file"`
-	Port              []Ports             `compose:"ports"`
-	Command           []string            `compose:"command"`
-	WorkingDir        string              `compose:""`
-	DomainName        string              `compose:"domainname"`
-	HostName          string              `compose:"hostname"`
-	Args              []string            `compose:"args"`
-	VolList           []string            `compose:"volumes"`
-	Network           []string            `compose:"network"`
-	Labels            map[string]string   `compose:"labels"`
-	Annotations       map[string]string   `compose:""`
-	CPUSet            string              `compose:"cpuset"`
-	CPUShares         int64               `compose:"cpu_shares"`
-	CPUQuota          int64               `compose:"cpu_quota"`
-	CPULimit          int64               `compose:""`
-	CPUReservation    int64               `compose:""`
-	CapAdd            []string            `compose:"cap_add"`
-	CapDrop           []string            `compose:"cap_drop"`
-	Expose            []string            `compose:"expose"`
-	ImagePullPolicy   string              `compose:"kompose.image-pull-policy"`
-	Pid               string              `compose:"pid"`
-	Privileged        bool                `compose:"privileged"`
-	Restart           string              `compose:"restart"`
-	User              string              `compose:"user"`
-	VolumesFrom       []string            `compose:"volumes_from"`
-	ServiceType       string              `compose:"kompose.service.type"`
-	NodePortPort      int32               `compose:"kompose.service.nodeport.port"`
-	StopGracePeriod   string              `compose:"stop_grace_period"`
-	Build             string              `compose:"build"`
-	BuildArgs         map[string]*string  `compose:"build-args"`
-	ExposeService     string              `compose:"kompose.service.expose"`
-	ExposeServicePath string              `compose:"kompose.service.expose.path"`
-	BuildLabels       map[string]string   `compose:"build-labels"`
-	ExposeServiceTLS  string              `compose:"kompose.service.expose.tls-secret"`
-	ImagePullSecret   string              `compose:"kompose.image-pull-secret"`
-	Stdin             bool                `compose:"stdin_open"`
-	Tty               bool                `compose:"tty"`
-	MemLimit          yaml.MemStringorInt `compose:"mem_limit"`
-	MemReservation    yaml.MemStringorInt `compose:""`
-	DeployMode        string              `compose:""`
+	Name                          string
+	ContainerName                 string
+	Image                         string              `compose:"image"`
+	Environment                   []EnvVar            `compose:"environment"`
+	EnvFile                       []string            `compose:"env_file"`
+	Port                          []Ports             `compose:"ports"`
+	Command                       []string            `compose:"command"`
+	WorkingDir                    string              `compose:""`
+	DomainName                    string              `compose:"domainname"`
+	HostName                      string              `compose:"hostname"`
+	Args                          []string            `compose:"args"`
+	VolList                       []string            `compose:"volumes"`
+	Network                       []string            `compose:"network"`
+	Labels                        map[string]string   `compose:"labels"`
+	Annotations                   map[string]string   `compose:""`
+	CPUSet                        string              `compose:"cpuset"`
+	CPUShares                     int64               `compose:"cpu_shares"`
+	CPUQuota                      int64               `compose:"cpu_quota"`
+	CPULimit                      int64               `compose:""`
+	CPUReservation                int64               `compose:""`
+	CapAdd                        []string            `compose:"cap_add"`
+	CapDrop                       []string            `compose:"cap_drop"`
+	Expose                        []string            `compose:"expose"`
+	ImagePullPolicy               string              `compose:"kompose.image-pull-policy"`
+	Pid                           string              `compose:"pid"`
+	Privileged                    bool                `compose:"privileged"`
+	Restart                       string              `compose:"restart"`
+	User                          string              `compose:"user"`
+	VolumesFrom                   []string            `compose:"volumes_from"`
+	ServiceType                   string              `compose:"kompose.service.type"`
+	NodePortPort                  int32               `compose:"kompose.service.nodeport.port"`
+	StopGracePeriod               string              `compose:"stop_grace_period"`
+	Build                         string              `compose:"build"`
+	BuildArgs                     map[string]*string  `compose:"build-args"`
+	ExposeService                 string              `compose:"kompose.service.expose"`
+	ExposeServicePath             string              `compose:"kompose.service.expose.path"`
+	BuildLabels                   map[string]string   `compose:"build-labels"`
+	ExposeServiceTLS              string              `compose:"kompose.service.expose.tls-secret"`
+	ExposeServiceIngressClassName *string             `compose:"kompose.service.expose.ingress-class-name"`
+	ImagePullSecret               string              `compose:"kompose.image-pull-secret"`
+	Stdin                         bool                `compose:"stdin_open"`
+	Tty                           bool                `compose:"tty"`
+	MemLimit                      yaml.MemStringorInt `compose:"mem_limit"`
+	MemReservation                yaml.MemStringorInt `compose:""`
+	DeployMode                    string              `compose:""`
 	// DeployLabels mapping to kubernetes labels
 	DeployLabels       map[string]string           `compose:""`
 	DeployUpdateConfig dockerCliTypes.UpdateConfig `compose:""`
