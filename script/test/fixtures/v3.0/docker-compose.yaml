@@ -17,7 +17,9 @@ services:
     networks:
       app: {}
       web: {}
+      normalized_network: {}
 networks:
+  normalized_network:
   app:
     external:
       name: app-network

@@ -55,6 +55,7 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.network/app-network": "true",
+              "io.kompose.network/normalized-network": "true",
               "io.kompose.network/web-network": "true",
               "io.kompose.service": "foo"
             }
@@ -99,6 +100,34 @@
                 "podSelector": {
                   "matchLabels": {
                     "io.kompose.network/app-network": "true"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "NetworkPolicy",
+      "apiVersion": "networking.k8s.io/v1",
+      "metadata": {
+        "name": "normalized-network",
+        "creationTimestamp": null
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "io.kompose.network/normalized-network": "true"
+          }
+        },
+        "ingress": [
+          {
+            "from": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "io.kompose.network/normalized-network": "true"
                   }
                 }
               }

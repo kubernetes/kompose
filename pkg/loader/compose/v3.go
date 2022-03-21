@@ -439,7 +439,9 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 			serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod.String()
 		}
 
-		parseV3Network(&composeServiceConfig, &serviceConfig, composeObject)
+		if err := parseV3Network(&composeServiceConfig, &serviceConfig, composeObject); err != nil {
+			return kobject.KomposeObject{}, err
+		}
 
 		if err := parseV3Resources(&composeServiceConfig, &serviceConfig); err != nil {
 			return kobject.KomposeObject{}, err
@@ -556,24 +558,37 @@ func resolveV3Context(inFile string, context string) string {
 	return current
 }
 
-func parseV3Network(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig, composeObject *types.Config) {
+func parseV3Network(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig, composeObject *types.Config) error {
 	if len(composeServiceConfig.Networks) == 0 {
 		if defaultNetwork, ok := composeObject.Networks["default"]; ok {
-			serviceConfig.Network = append(serviceConfig.Network, defaultNetwork.Name)
+			normalizedNetworkName, err := normalizeNetworkNames(defaultNetwork.Name)
+			if err != nil {
+				return errors.Wrap(err, "Unable to normalize network name")
+			}
+			serviceConfig.Network = append(serviceConfig.Network, normalizedNetworkName)
 		}
 	} else {
 		var alias = ""
 		for key := range composeServiceConfig.Networks {
 			alias = key
 			netName := composeObject.Networks[alias].Name
+
 			// if Network Name Field is empty in the docker-compose definition
 			// we will use the alias name defined in service config file
 			if netName == "" {
 				netName = alias
 			}
-			serviceConfig.Network = append(serviceConfig.Network, netName)
+
+			normalizedNetworkName, err := normalizeNetworkNames(netName)
+			if err != nil {
+				return errors.Wrap(err, "Unable to normalize network name")
+			}
+
+			serviceConfig.Network = append(serviceConfig.Network, normalizedNetworkName)
 		}
 	}
+
+	return nil
 }
 
 func parseV3Resources(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) error {
