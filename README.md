@@ -63,17 +63,17 @@ Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v
 
 ## Shell autocompletion
 
-We support Bash, Zsh and Fish autocompletion.
+We support Bash, Zsh and Fish autocompletion. See help docs to enable it in each shell.
 
 ```sh
-# Bash (add to .bashrc for persistence)
-source <(kompose completion bash)
+# Bash
+kompose completion bash --help
 
-# Zsh (add to .zshrc for persistence)
-source <(kompose completion zsh)
+# Zsh
+kompose completion zsh --help
 
-# Fish autocompletion
-kompose completion fish | source
+# Fish
+kompose completion fish --help
 ```
 
 ## Development and building of Kompose
