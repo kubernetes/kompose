@@ -75,6 +75,7 @@
             "creationTimestamp": null,
             "labels": {
               "io.kompose.network/app-network": "true",
+              "io.kompose.network/normalized-network": "true",
               "io.kompose.network/web-network": "true",
               "io.kompose.service": "foo"
             }
