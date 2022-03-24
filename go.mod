@@ -14,7 +14,7 @@ replace github.com/docker/docker => github.com/docker/docker v20.10.0-beta1.0.20
 
 replace github.com/containerd/containerd => github.com/containerd/containerd v1.4.1-0.20201030150014-3662dc4c0b12
 
-replace golang.org/x/sys => golang.org/x/sys v0.0.0-20201029080932-201ba4db2418
+replace golang.org/x/sys => golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8
 
 require (
 	github.com/deckarep/golang-set v1.7.1
