@@ -23,7 +23,7 @@ require (
 	github.com/docker/libcompose v0.4.0
 	github.com/fatih/structs v1.1.0
 	github.com/fsouza/go-dockerclient v1.6.5
-	github.com/google/go-cmp v0.4.0
+	github.com/google/go-cmp v0.5.5
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/imdario/mergo v0.3.10 // indirect
 	github.com/joho/godotenv v1.3.0
@@ -36,10 +36,10 @@ require (
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.1
-	golang.org/x/tools v0.1.1
-	gopkg.in/yaml.v2 v2.3.0
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	golang.org/x/tools v0.1.5
+	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	gotest.tools/v3 v3.0.3 // indirect
-	k8s.io/api v0.19.0-rc.2
-	k8s.io/apimachinery v0.19.0-rc.2
+	k8s.io/api v0.23.5
+	k8s.io/apimachinery v0.23.5
 )

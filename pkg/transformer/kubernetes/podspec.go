@@ -268,20 +268,20 @@ func configProbe(healthCheck kobject.HealthCheck) *api.Probe {
 	}
 
 	if len(healthCheck.Test) > 0 {
-		probe.Handler = api.Handler{
+		probe.ProbeHandler = api.ProbeHandler{
 			Exec: &api.ExecAction{
 				Command: healthCheck.Test,
 			},
 		}
 	} else if !reflect.ValueOf(healthCheck.HTTPPath).IsZero() && !reflect.ValueOf(healthCheck.HTTPPort).IsZero() {
-		probe.Handler = api.Handler{
+		probe.ProbeHandler = api.ProbeHandler{
 			HTTPGet: &api.HTTPGetAction{
 				Path: healthCheck.HTTPPath,
 				Port: intstr.FromInt(int(healthCheck.HTTPPort)),
 			},
 		}
 	} else if !reflect.ValueOf(healthCheck.TCPPort).IsZero() {
-		probe.Handler = api.Handler{
+		probe.ProbeHandler = api.ProbeHandler{
 			TCPSocket: &api.TCPSocketAction{
 				Port: intstr.FromInt(int(healthCheck.TCPPort)),
 			},
