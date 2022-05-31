@@ -24,6 +24,8 @@ replace github.com/miekg/dns => github.com/miekg/dns v1.1.49
 
 replace github.com/docker/distribution => github.com/docker/distribution v2.8.1+incompatible
 
+replace github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt v3.2.2+incompatible
+
 require (
 	github.com/containerd/containerd v1.6.4 // indirect
 	github.com/deckarep/golang-set v1.7.1
