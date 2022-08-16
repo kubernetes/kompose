@@ -513,7 +513,6 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 
 	// Configure the container ports.
 	ports := ConfigPorts(service)
-
 	// Configure capabilities
 	capabilities := ConfigCapabilities(service)
 

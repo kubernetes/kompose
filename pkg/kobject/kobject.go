@@ -18,6 +18,7 @@ package kobject
 
 import (
 	"path/filepath"
+	"strconv"
 	"time"
 
 	dockerCliTypes "github.com/docker/cli/cli/compose/types"
@@ -196,7 +197,7 @@ type Ports struct {
 
 // ID returns an unique id for this port settings, to avoid conflict
 func (port *Ports) ID() string {
-	return string(port.ContainerPort) + port.Protocol
+	return strconv.Itoa(int(port.ContainerPort)) + port.Protocol
 }
 
 // Volumes holds the volume struct of container
