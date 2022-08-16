@@ -44,7 +44,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		ContainerName:   "name",
 		Image:           "image",
 		Environment:     []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:            []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456}, kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(api.ProtocolUDP)}},
+		Port:            []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456}, kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(api.ProtocolUDP)}, kobject.Ports{HostPort: 55564, ContainerPort: 55564}, kobject.Ports{HostPort: 55563, ContainerPort: 55563}},
 		Command:         []string{"cmd"},
 		WorkingDir:      "dir",
 		Args:            []string{"arg1", "arg2"},
@@ -119,6 +119,7 @@ func equalPorts(kobjectPorts []kobject.Ports, k8sPorts []api.ContainerPort) bool
 		return false
 	}
 	for _, port := range kobjectPorts {
+		fmt.Println(port)
 		found := false
 		for _, k8sPort := range k8sPorts {
 			// FIXME: HostPort should be copied to container port

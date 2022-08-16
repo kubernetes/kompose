@@ -90,7 +90,6 @@ func parseV1V2(files []string) (kobject.KomposeObject, error) {
 func loadPorts(composePorts []string, expose []string) ([]kobject.Ports, error) {
 	kp := []kobject.Ports{}
 	exist := map[string]bool{}
-
 	for _, cp := range composePorts {
 		var hostIP string
 

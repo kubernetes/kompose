@@ -222,7 +222,6 @@ func loadV3Volumes(volumes []types.ServiceVolumeConfig) []string {
 // expose ports will be treated as TCP ports
 func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Ports {
 	komposePorts := []kobject.Ports{}
-
 	exist := map[string]bool{}
 
 	for _, port := range ports {
@@ -235,7 +234,6 @@ func loadV3Ports(ports []types.ServicePortConfig, expose []string) []kobject.Por
 			HostIP:        "",
 			Protocol:      strings.ToUpper(port.Protocol),
 		})
-
 		exist[cast.ToString(port.Target)+port.Protocol] = true
 	}
 

@@ -210,7 +210,6 @@ func SetPorts(service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		// Configure the container ports.
 		ports := ConfigPorts(service)
-
 		for i := range podSpec.Containers {
 			if GetContainerName(service) == podSpec.Containers[i].Name {
 				podSpec.Containers[i].Ports = ports

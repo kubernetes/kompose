@@ -1436,7 +1436,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 						objects = append(objects, c)
 					}
 				}
-
 				podSpec.Append(
 					SetPorts(service),
 					ImagePullPolicy(name, service),
@@ -1492,17 +1491,14 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		} else {
 			objects = k.CreateWorkloadAndConfigMapObjects(name, service, opt)
 		}
-
 		if opt.Controller == StatefulStateController {
 			service.ServiceType = "Headless"
 		}
 		k.configKubeServiceAndIngressForService(service, name, &objects)
-
 		err := k.UpdateKubernetesObjects(name, service, opt, &objects)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 		}
-
 		if err := k.configNetworkPolicyForService(service, name, &objects); err != nil {
 			return nil, err
 		}
@@ -1513,7 +1509,6 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	k.SortServicesFirst(&allobjects)
 	k.RemoveDupObjects(&allobjects)
 	// k.FixWorkloadVersion(&allobjects)
-
 	return allobjects, nil
 }
 
