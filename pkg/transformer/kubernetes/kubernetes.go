@@ -420,6 +420,9 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *appsv1.
 			Labels: transformer.ConfigAllLabels(name, &service),
 		},
 		Spec: appsv1.DaemonSetSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: transformer.ConfigLabels(name),
+			},
 			Template: api.PodTemplateSpec{
 				Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
 			},
