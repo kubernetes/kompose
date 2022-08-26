@@ -89,25 +89,9 @@ choco install kubernetes-kompose
 ```
 
 ## openSUSE/SLE
-Kompose is available in the official Virtualization:containers repository for openSUSE Tumbleweed, Leap 15, Leap 42.3 and SUSE Linux Enterprise 15.
+Kompose is available in the official repositories of openSUSE Tumbleweed and in openSUSE Leap starting with 15.2. On SUSE Linux Enterprise Server 15 SP2 - and following - you can install kompose from [PackageHub](https://packagehub.suse.com/). Please refer to the SUSE documentation on how to activate [PackageHub](https://packagehub.suse.com/) on your SUSE Linux Enterprise distribution.
 
-Head over to [software.opensuse.org for One-Click Installation](https://software.opensuse.org//download.html?project=Virtualization%3Acontainers&package=kompose) or add the repository manually:
 ```bash
-#openSUSE Tumbleweed
-sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Tumbleweed/Virtualization:containers.repo
-
-#openSUSE Leap 42.3
-sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Leap_42.3/Virtualization:containers.repo
-
-#openSUSE Leap 15
-sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:/containers/openSUSE_Leap_15.2/Virtualization:containers.repo
-
-#SUSE Linux Enterprise 15
-sudo zypper addrepo https://download.opensuse.org/repositories/Virtualization:/containers/SLE_15_SP1/Virtualization:containers.repo
-```
-and install the package:
-```bash
-sudo zypper refresh
 sudo zypper install kompose
 ```
 
