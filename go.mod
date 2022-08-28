@@ -12,11 +12,11 @@ replace github.com/xeipuuv/gojsonschema => github.com/xeipuuv/gojsonschema v1.2.
 
 replace github.com/docker/docker => github.com/docker/docker v20.10.0-beta1.0.20201030232932-c2cc352355d4+incompatible
 
-replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.4
+replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.6
 
 replace github.com/opencontainers/runc => github.com/opencontainers/runc v1.1.2
 
-replace golang.org/x/sys => golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8
+replace golang.org/x/sys => golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
 
 replace k8s.io/kubernetes => k8s.io/kubernetes v1.24.1
 
@@ -25,6 +25,10 @@ replace github.com/miekg/dns => github.com/miekg/dns v1.1.49
 replace github.com/docker/distribution => github.com/docker/distribution v2.8.1+incompatible
 
 replace github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt v3.2.2+incompatible
+
+replace github.com/emicklei/go-restful => github.com/emicklei/go-restful v2.16.0+incompatible
+
+replace golang.org/x/crypto => golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d
 
 require (
 	github.com/containerd/containerd v1.6.4 // indirect
