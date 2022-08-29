@@ -203,3 +203,7 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/output-k8s.
 os_output="$KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/output-os.json"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
+
+
+
+exit $EXIT_STATUS
