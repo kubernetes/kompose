@@ -399,8 +399,9 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkMeta(config, ds.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
-					if ds.Spec.Selector != nil && len(ds.Spec.Selector.MatchLabels) > 0 {
-						t.Errorf("Expect selector be unset, got: %#v", ds.Spec.Selector)
+					if ds.Spec.Selector != nil && len(ds.Spec.Selector.MatchLabels) != 1 {
+						// https://github.com/kubernetes/kompose/pull/578
+						t.Errorf("There should be only one selector ('io.kompose.service'), got: %#v", ds.Spec.Selector)
 					}
 					foundDS = true
 				}
