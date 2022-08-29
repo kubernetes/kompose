@@ -91,15 +91,11 @@ gen-cmd:
 
 # run all validation tests
 .PHONY: validate
-validate: gofmt vet lint
+validate: gofmt vet
 
 .PHONY: vet
 vet:
 	go vet ./pkg/...
-
-.PHONY: lint
-lint:
-	golint ./pkg/...
 
 .PHONY: gofmt
 gofmt:
@@ -107,7 +103,7 @@ gofmt:
 
 # Run all tests
 .PHONY: test
-test: bin test-dep  validate test-unit-cover install test-cmd
+test: bin test-dep validate test-unit-cover install test-cmd
 
 # Install all the required test-dependencies before executing tests (only valid when running `make test`)
 .PHONY: test-dep
