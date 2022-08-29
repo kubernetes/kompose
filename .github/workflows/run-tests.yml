@@ -1,4 +1,4 @@
-name: Kompose CI
+name: Unit and Integration tests
 on:
   push:
     branches:
@@ -9,22 +9,21 @@ env:
   TERM: dumb
 jobs:
   test:
-    name: Test with ${{ matrix.go }} and CROSS_COMPILE=${{ matrix.cross_compile }}
-    runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        go: [1.16, 1.17]
-        cross_compile: [true, false]
+    name: Test with ${{ matrix.go }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: ${{ matrix.go }}
-      - name: Run tests
+          go-version: 1.17
+      - name: run tests
         run: make test
-      - name: Perform cross compile
-        if: ${{ matrix.cross_compile }}
-        run: make cross
+      - name: Send coverage
+        run: goveralls -coverprofile=gover.coverprofile -service=github
+        env:
+          # As per https://github.com/mattn/goveralls#github-actions
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   docs:
     name: Build docs and Coveralls integration
     runs-on: ubuntu-18.04
@@ -38,10 +37,6 @@ jobs:
         run: make test
       - name: Collect all .coverprofile files and save it to one file gover.coverprofile
         run: gover
-      - name: Send coverage
-        run: goveralls -coverprofile=gover.coverprofile -service=github
-        env:
-          # As per https://github.com/mattn/goveralls#github-actions
-          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - run: ./script/sync-docs.sh
         if: ${{ github.ref == 'refs/heads/master' }}

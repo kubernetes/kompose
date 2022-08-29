@@ -1,0 +1,21 @@
+name: Sync docs
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+env:
+  # Avoid noisy outputs like "tput: No value for $TERM and no -T specified"
+  TERM: dumb
+jobs:
+  docs:
+    name: Build docs and Coveralls integration
+    runs-on: ubuntu-18.04
+    needs: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - run: ./script/sync-docs.sh
+        if: ${{ github.ref == 'refs/heads/master' }}
