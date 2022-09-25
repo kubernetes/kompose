@@ -769,7 +769,6 @@ func TestContainersWithSpecialName(t *testing.T) {
 				}
 			}
 			if deployment, ok := obj.(*appsv1.Deployment); ok {
-				fmt.Printf("Number of containers equal to %v\n", len(deployment.Spec.Template.Spec.Containers))
 				if deployment.Name != groupName {
 					t.Errorf("Expected %v returned, got %v", groupName, deployment.Name)
 				}
