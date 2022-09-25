@@ -78,6 +78,9 @@ func newSimpleServiceConfig() kobject.ServiceConfig {
 	}
 }
 
+/* In this function the name of the service and the name of the container 
+ are special, since they contain '_'.
+*/
 func newSimpleServiceConfigWithSpecialName() kobject.ServiceConfig {
 	return kobject.ServiceConfig{
 		Name:          "random_name",
@@ -722,6 +725,10 @@ func TestConfigTopologySpreadConstraints(t *testing.T) {
 	}
 }
 
+/*
+This test aims to check that containers with names containing '_', are actually
+formated to have a name that contains '-' instead of '_'
+*/
 func TestContainersWithSpecialName(t *testing.T) {
 	groupName := "pod_group"
 
