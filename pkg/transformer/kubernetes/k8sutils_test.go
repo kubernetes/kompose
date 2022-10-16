@@ -572,7 +572,6 @@ func TestServiceWithServiceAccount(t *testing.T) {
 	}
 }
 
-
 func TestArgsInterpolation(t *testing.T) {
 	// An example service
 	service := kobject.ServiceConfig{
@@ -598,7 +597,7 @@ func TestArgsInterpolation(t *testing.T) {
 	for _, obj := range objects {
 		if deployment, ok := obj.(*appsv1.Deployment); ok {
 			args := deployment.Spec.Template.Spec.Containers[0].Args[0]
-			if args  != expectedArgs[0] {
+			if args != expectedArgs[0] {
 				t.Errorf("Expected args %v upon conversion, actual %v", expectedArgs, args)
 			}
 		}
