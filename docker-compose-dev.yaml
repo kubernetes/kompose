@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  kompose:
+    container_name: kompose
+    build:
+      context: .
+      dockerfile: DockerfileDev
+    volumes:
+    - /Users/ahmedgrati/projects/kompose:/root/
+    
