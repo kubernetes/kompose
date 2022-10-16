@@ -105,7 +105,9 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 		// We load it in order to retrieve the parsed output configuration!
 		// This will output a github.com/docker/cli ServiceConfig
 		// Which is similar to our version of ServiceConfig
-		currentConfig, err := loader.Load(configDetails)
+		currentConfig, err := loader.Load(configDetails, func(options *loader.Options) {
+			options.SkipInterpolation = true
+		})
 		if err != nil {
 			return kobject.KomposeObject{}, err
 		}
@@ -129,7 +131,6 @@ func parseV3(files []string) (kobject.KomposeObject, error) {
 	if err != nil {
 		return kobject.KomposeObject{}, err
 	}
-
 	return komposeObject, nil
 }
 
