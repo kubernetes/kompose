@@ -30,6 +30,7 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"regexp"
 
 	"github.com/joho/godotenv"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -524,7 +525,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].Name = GetContainerName(service)
 		template.Spec.Containers[0].Env = envs
 		template.Spec.Containers[0].Command = service.Command
-		template.Spec.Containers[0].Args = service.Args
+		template.Spec.Containers[0].Args = GetContainerArgs(service)
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
 		template.Spec.Containers[0].VolumeMounts = append(template.Spec.Containers[0].VolumeMounts, volumesMount...)
 		template.Spec.Containers[0].Stdin = service.Stdin
@@ -898,4 +899,16 @@ func GetContainerName(service kobject.ServiceConfig) string {
 // FormatResourceName generate a valid k8s resource name
 func FormatResourceName(name string) string {
 	return strings.ToLower(strings.Replace(name, "_", "-", -1))
+}
+
+// GetContainerArgs update the interpolation of env variables if exists.
+// example: [curl, $PROTOCOL://$DOMAIN] => [curl, $(PROTOCOL)://$(DOMAIN)]
+func GetContainerArgs(service kobject.ServiceConfig) []string {
+	var args []string
+	re := regexp.MustCompile(`\$([a-zA-Z0-9]*)`)
+	for _, arg := range service.Args {
+		arg = re.ReplaceAllString(arg, `$($1)`)
+		args = append(args, arg)
+	}
+	return args
 }
