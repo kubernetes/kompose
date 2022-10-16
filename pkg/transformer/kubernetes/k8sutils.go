@@ -891,9 +891,9 @@ func FormatContainerName(name string) string {
 func GetContainerName(service kobject.ServiceConfig) string {
 	name := service.Name
 	if len(service.ContainerName) > 0 {
-		name = service.ContainerName
+		name = FormatContainerName(service.ContainerName)
 	}
-	return FormatContainerName(name)
+	return name
 }
 
 // FormatResourceName generate a valid k8s resource name

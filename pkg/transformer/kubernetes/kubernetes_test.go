@@ -78,17 +78,6 @@ func newSimpleServiceConfig() kobject.ServiceConfig {
 	}
 }
 
-/* In this function the name of the service and the name of the container 
- are special, since they contain '_'.
-*/
-func newSimpleServiceConfigWithSpecialName() kobject.ServiceConfig {
-	return kobject.ServiceConfig{
-		Name:          "random_name",
-		ContainerName: "random_name",
-		Image:         "nginx",
-	}
-}
-
 func newKomposeObject() kobject.KomposeObject {
 	return kobject.KomposeObject{
 		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newServiceConfig()},
@@ -720,75 +709,6 @@ func TestConfigTopologySpreadConstraints(t *testing.T) {
 		result := ConfigTopologySpreadConstraints(test.service)
 		if !reflect.DeepEqual(result, test.result) {
 			t.Errorf("Not expected result for ConfigTopologySpreadConstraints")
-		}
-	}
-}
-
-/*
-This test aims to check that containers with names containing '_', are actually
-formated to have a name that contains '-' instead of '_'
-*/
-func TestContainersWithSpecialName(t *testing.T) {
-	groupName := "pod_group"
-
-	createConfig := func(name string, containerName string) kobject.ServiceConfig {
-		config := newSimpleServiceConfigWithSpecialName()
-		config.Labels = map[string]string{compose.LabelServiceGroup: groupName}
-		config.Name = name
-		if containerName != "" {
-			config.ContainerName = containerName
-		}
-		return config
-	}
-
-	testCases := map[string]struct {
-		komposeObject   kobject.KomposeObject
-		opt             kobject.ConvertOptions
-		expectedNumObjs int
-		expectedNames   []string
-	}{
-		"Converted multiple containers with special names to Deployments (D)": {
-			kobject.KomposeObject{
-				ServiceConfigs: map[string]kobject.ServiceConfig{
-					"random_name": createConfig("random_name", "random_name"),
-				},
-			}, kobject.ConvertOptions{ServiceGroupMode: "label", CreateD: true}, 1, []string{"random-name"}},
-	}
-
-	for name, test := range testCases {
-		t.Log("Test case:", name)
-		k := Kubernetes{}
-		// Run Transform
-		objs, err := k.Transform(test.komposeObject, test.opt)
-		if err != nil {
-			t.Error(errors.Wrap(err, "k.Transform failed"))
-		}
-		if len(objs) != test.expectedNumObjs {
-			t.Errorf("Expected %d objects returned, got %d", test.expectedNumObjs, len(objs))
-		}
-
-		// Check results
-		for _, obj := range objs {
-			if svc, ok := obj.(*api.Service); ok {
-				if svc.Name != groupName {
-					t.Errorf("Expected %v returned, got %v", groupName, svc.Name)
-				}
-			}
-			if deployment, ok := obj.(*appsv1.Deployment); ok {
-				if deployment.Name != groupName {
-					t.Errorf("Expected %v returned, got %v", groupName, deployment.Name)
-				}
-				if len(deployment.Spec.Template.Spec.Containers) != 1 {
-					t.Errorf("Expected %d returned, got %d", 1, len(deployment.Spec.Template.Spec.Containers))
-				}
-				nameSet := make(map[string]api.Container)
-				for _, container := range deployment.Spec.Template.Spec.Containers {
-					nameSet[container.Name] = container
-				}
-				if container, ok := nameSet[test.expectedNames[0]]; !ok {
-					t.Errorf("Expected %v returned, got %v", test.expectedNames[0], container.Name)
-				}
-			}
 		}
 	}
 }
