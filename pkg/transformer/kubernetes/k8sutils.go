@@ -25,12 +25,12 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"text/template"
 	"time"
-	"regexp"
 
 	"github.com/joho/godotenv"
 	"github.com/kubernetes/kompose/pkg/kobject"
