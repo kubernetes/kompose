@@ -18,9 +18,12 @@ package docker
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
+	"strconv"
 	"strings"
 
 	dockerlib "github.com/fsouza/go-dockerclient"
@@ -35,13 +38,36 @@ type Build struct {
 }
 
 /*
-BuildImage builds a Docker image via the Docker API. Takes the source directory
-and image name and then builds the appropriate image. Tarball is utilized
+BuildImage builds a Docker image via the Docker API or Docker CLI.
+Takes the source directory and image name and then builds the appropriate image. Tarball is utilized
 in order to make building easier.
+
+if the KOMPOSE_DOCKER_CLI_BUILD is '1', then we will use the docker CLI to build the image
 */
 func (c *Build) BuildImage(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg) error {
 	log.Infof("Building image '%s' from directory '%s'", image, path.Base(source))
 
+	outputBuffer := bytes.NewBuffer(nil)
+	var err error
+
+	if usecli, _ := strconv.ParseBool(os.Getenv("KOMPOSE_DOCKER_CLI_BUILD")); usecli {
+		err = buildDockerCli(source, image, dockerfile, buildargs, outputBuffer)
+	} else {
+		err = c.buildDockerClient(source, image, dockerfile, buildargs, outputBuffer)
+	}
+
+	log.Debugf("Image %s build output:\n%s", image, outputBuffer)
+
+	if err != nil {
+		return errors.Wrap(err, "Unable to build image. For more output, use -v or --verbose when converting.")
+	}
+
+	log.Infof("Image '%s' from directory '%s' built successfully", image, path.Base(source))
+
+	return nil
+}
+
+func (c *Build) buildDockerClient(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg, outputBuffer *bytes.Buffer) error {
 	// Create a temporary file for tarball image packaging
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "kompose-image-build-")
 	if err != nil {
@@ -62,7 +88,6 @@ func (c *Build) BuildImage(source string, image string, dockerfile string, build
 	}
 
 	// Let's create all the options for the image building.
-	outputBuffer := bytes.NewBuffer(nil)
 	opts := dockerlib.BuildImageOptions{
 		Name:         image,
 		InputStream:  tarballSource,
@@ -72,14 +97,27 @@ func (c *Build) BuildImage(source string, image string, dockerfile string, build
 	}
 
 	// Build it!
-	err = c.Client.BuildImage(opts)
-	log.Debugf("Image %s build output:\n%s", image, outputBuffer)
+	return c.Client.BuildImage(opts)
+}
 
-	if err != nil {
-		return errors.Wrap(err, "Unable to build image. For more output, use -v or --verbose when converting.")
+func buildDockerCli(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg, outputBuffer *bytes.Buffer) error {
+	args := []string{"build", "-t", image}
+
+	if dockerfile != "" {
+		args = append(args, "-f", dockerfile)
 	}
 
-	log.Infof("Image '%s' from directory '%s' built successfully", image, path.Base(source))
+	for _, buildarg := range buildargs {
+		args = append(args, "--build-arg", fmt.Sprintf("%s=%s", buildarg.Name, buildarg.Value))
+	}
 
-	return nil
+	args = append(args, source)
+
+	cmd := exec.Command("docker", args...)
+	cmd.Stdout = outputBuffer
+	cmd.Stderr = outputBuffer
+
+	log.Debugf("Image %s build calling command %v", image, cmd)
+
+	return cmd.Run()
 }
