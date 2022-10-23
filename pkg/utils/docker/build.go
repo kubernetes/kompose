@@ -42,7 +42,7 @@ BuildImage builds a Docker image via the Docker API or Docker CLI.
 Takes the source directory and image name and then builds the appropriate image. Tarball is utilized
 in order to make building easier.
 
-if the KOMPOSE_DOCKER_CLI_BUILD is '1', then we will use the docker CLI to build the image
+if the DOCKER_BUILDKIT is '1', then we will use the docker CLI to build the image
 */
 func (c *Build) BuildImage(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg) error {
 	log.Infof("Building image '%s' from directory '%s'", image, path.Base(source))
@@ -50,7 +50,7 @@ func (c *Build) BuildImage(source string, image string, dockerfile string, build
 	outputBuffer := bytes.NewBuffer(nil)
 	var err error
 
-	if usecli, _ := strconv.ParseBool(os.Getenv("KOMPOSE_DOCKER_CLI_BUILD")); usecli {
+	if usecli, _ := strconv.ParseBool(os.Getenv("DOCKER_BUILDKIT")); usecli {
 		err = buildDockerCli(source, image, dockerfile, buildargs, outputBuffer)
 	} else {
 		err = c.buildDockerClient(source, image, dockerfile, buildargs, outputBuffer)
