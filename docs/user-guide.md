@@ -474,4 +474,4 @@ For Windows, there is also `credsStore` which is `wincred`. Technically it will 
 
 Kompose supports Docker Compose versions: 1, 2 and 3. We have limited support on versions 2.1 and 3.2 due to their experimental nature.
 
-A full list on compatibility between all three versions is listed in our [conversion document](/docs/conversion.md) including a list of all incompatible Docker Compose keys.
+A full list on compatibility between all three versions is listed in our [conversion document](/conversion) including a list of all incompatible Docker Compose keys.
