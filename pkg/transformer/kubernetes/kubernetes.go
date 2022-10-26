@@ -128,7 +128,7 @@ func (k *Kubernetes) InitPodSpec(name string, image string, pullSecret string) a
 	return pod
 }
 
-// InitPodSpecWithConfigMap creates the pod specification
+//InitPodSpecWithConfigMap creates the pod specification
 func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service kobject.ServiceConfig) api.PodSpec {
 	var volumeMounts []api.VolumeMount
 	var volumes []api.Volume
@@ -245,7 +245,7 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions
 
 // IntiConfigMapFromFileOrDir will create a configmap from dir or file
 // usage:
-//  1. volume
+//   1. volume
 func (k *Kubernetes) IntiConfigMapFromFileOrDir(name, cmName, filePath string, service kobject.ServiceConfig) (*api.ConfigMap, error) {
 	configMap := &api.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
@@ -324,7 +324,7 @@ func initConfigMapData(configMap *api.ConfigMap, data map[string]string) {
 	configMap.BinaryData = binData
 }
 
-// InitConfigMapFromFile initializes a ConfigMap object
+//InitConfigMapFromFile initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceConfig, fileName string) *api.ConfigMap {
 	content, err := GetContentFromFile(fileName)
 	if err != nil {
@@ -708,7 +708,7 @@ func (k *Kubernetes) ConfigServicePorts(service kobject.ServiceConfig) []api.Ser
 	return servicePorts
 }
 
-// ConfigCapabilities configure POSIX capabilities that can be added or removed to a container
+//ConfigCapabilities configure POSIX capabilities that can be added or removed to a container
 func ConfigCapabilities(service kobject.ServiceConfig) *api.Capabilities {
 	capsAdd := []api.Capability{}
 	capsDrop := []api.Capability{}
@@ -1012,7 +1012,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 }
 
 // ConfigEmptyVolumeSource is helper function to create an EmptyDir api.VolumeSource
-// either for Tmpfs or for emptyvolumes
+//either for Tmpfs or for emptyvolumes
 func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
 	//if key is tmpfs
 	if key == "tmpfs" {
