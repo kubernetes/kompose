@@ -571,3 +571,30 @@ func TestServiceWithServiceAccount(t *testing.T) {
 		}
 	}
 }
+
+func TestCreateServiceWithSpecialName(t *testing.T) {
+	
+	service := kobject.ServiceConfig{
+		ContainerName: "front_end",
+		Image:         "nginx",
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	expectedContainerName := "front-end"
+	for _, obj := range objects {
+		if deploy, ok := obj.(*appsv1.Deployment); ok {
+			containerName := deploy.Spec.Template.Spec.Containers[0].Name
+			if containerName != "front-end"{
+				t.Errorf("Error while transforming container name. Expected %s Got %s", expectedContainerName, containerName)
+			}
+		}
+	}
+}
