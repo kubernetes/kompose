@@ -182,6 +182,7 @@ The currently supported options are:
 | kompose.service.expose | true / hostnames (separated by comma) |
 | kompose.service.nodeport.port | port value (string) | 
 | kompose.service.expose.tls-secret | secret name |
+| kompose.service.expose.ingress-class-name | ingress class name |
 | kompose.volume.size | kubernetes supported volume size |
 | kompose.volume.storage-class-name | kubernetes supported volume storageClassName |
 | kompose.volume.type | use k8s volume type, eg "configMap", "persistentVolumeClaim", "emptyDir", "hostPath" |
