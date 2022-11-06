@@ -398,6 +398,9 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkMeta(config, ds.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
+					if ds.Spec.Selector == nil || len(ds.Spec.Selector.MatchLabels) == 0 {
+						t.Errorf("Expect selector be set, got: %#v", ds.Spec.Selector)
+					}
 					foundDS = true
 				}
 
@@ -491,6 +494,9 @@ func TestKomposeConvert(t *testing.T) {
 					}
 					if (int)(dc.Spec.Replicas) != replicas {
 						t.Errorf("Expected %d replicas, got %d", replicas, dc.Spec.Replicas)
+					}
+					if len(dc.Spec.Selector) < 0 {
+						t.Errorf("Expect selector be set, got: %#v", dc.Spec.Selector)
 					}
 					foundDC = true
 				}
