@@ -119,7 +119,6 @@ func equalPorts(kobjectPorts []kobject.Ports, k8sPorts []api.ContainerPort) bool
 		return false
 	}
 	for _, port := range kobjectPorts {
-		fmt.Println(port)
 		found := false
 		for _, k8sPort := range k8sPorts {
 			// FIXME: HostPort should be copied to container port
@@ -399,8 +398,8 @@ func TestKomposeConvert(t *testing.T) {
 					if err := checkMeta(config, ds.ObjectMeta, name, true); err != nil {
 						t.Errorf("%v", err)
 					}
-					if ds.Spec.Selector != nil && len(ds.Spec.Selector.MatchLabels) > 0 {
-						t.Errorf("Expect selector be unset, got: %#v", ds.Spec.Selector)
+					if ds.Spec.Selector == nil || len(ds.Spec.Selector.MatchLabels) == 0 {
+						t.Errorf("Expect selector be set, got: %#v", ds.Spec.Selector)
 					}
 					foundDS = true
 				}
@@ -496,8 +495,8 @@ func TestKomposeConvert(t *testing.T) {
 					if (int)(dc.Spec.Replicas) != replicas {
 						t.Errorf("Expected %d replicas, got %d", replicas, dc.Spec.Replicas)
 					}
-					if len(dc.Spec.Selector) > 0 {
-						t.Errorf("Expect selector be unset, got: %#v", dc.Spec.Selector)
+					if len(dc.Spec.Selector) < 0 {
+						t.Errorf("Expect selector be set, got: %#v", dc.Spec.Selector)
 					}
 					foundDC = true
 				}

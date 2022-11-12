@@ -33,7 +33,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/libcompose v0.4.0
 	github.com/fatih/structs v1.1.0
-	github.com/fsouza/go-dockerclient v1.7.11
+	github.com/fsouza/go-dockerclient v1.6.6
 	github.com/google/go-cmp v0.5.8
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/joho/godotenv v1.3.0
