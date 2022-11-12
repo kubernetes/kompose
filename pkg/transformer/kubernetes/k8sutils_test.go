@@ -573,7 +573,6 @@ func TestServiceWithServiceAccount(t *testing.T) {
 }
 
 func TestCreateServiceWithSpecialName(t *testing.T) {
-
 	service := kobject.ServiceConfig{
 		ContainerName: "front_end",
 		Image:         "nginx",
