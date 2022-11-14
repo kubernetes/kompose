@@ -444,6 +444,8 @@ func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceC
 
 	return svc
 }
+
+// The UpdateKubernetesObjectsMultipleContainers method updates the kubernetes objects with the necessary data
 func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, service kobject.ServiceConfig, objects *[]runtime.Object, podSpec PodSpec) error {
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
@@ -596,18 +598,18 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
 
 		// Configure the image pull policy
-		if policy, err := GetImagePullPolicy(name, service.ImagePullPolicy); err != nil {
+		policy, err := GetImagePullPolicy(name, service.ImagePullPolicy)
+		if err != nil {
 			return err
-		} else {
-			template.Spec.Containers[0].ImagePullPolicy = policy
 		}
+		template.Spec.Containers[0].ImagePullPolicy = policy
 
 		// Configure the container restart policy.
-		if restart, err := GetRestartPolicy(name, service.Restart); err != nil {
+		restart, err := GetRestartPolicy(name, service.Restart)
+		if err != nil {
 			return err
-		} else {
-			template.Spec.RestartPolicy = restart
 		}
+		template.Spec.RestartPolicy = restart
 
 		// Configure hostname/domain_name settings
 		if service.HostName != "" {
@@ -889,6 +891,7 @@ func FormatContainerName(name string) string {
 	return name
 }
 
+// GetContainerName returns the name of the container, from the service config object
 func GetContainerName(service kobject.ServiceConfig) string {
 	name := service.Name
 	if len(service.ContainerName) > 0 {
