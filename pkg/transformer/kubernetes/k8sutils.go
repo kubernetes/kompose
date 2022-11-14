@@ -383,6 +383,7 @@ func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, p
 	return svc
 }
 
+// CreateLBService creates a k8s Load Balancer Service
 func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig) []*api.Service {
 	var svcs []*api.Service
 	tcpPorts, udpPorts := k.ConfigLBServicePorts(service)
