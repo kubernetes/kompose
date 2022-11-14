@@ -967,7 +967,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			if useSubPathMount(cm) {
 				volMount.SubPath = volsource.ConfigMap.Items[0].Path
 			}
-			
+
 		} else {
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
 			if volume.VFrom == "" {
