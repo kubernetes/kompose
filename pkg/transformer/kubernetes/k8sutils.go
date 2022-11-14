@@ -445,7 +445,7 @@ func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceC
 	return svc
 }
 
-// The UpdateKubernetesObjectsMultipleContainers method updates the kubernetes objects with the necessary data
+// UpdateKubernetesObjectsMultipleContainers method updates the kubernetes objects with the necessary data
 func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, service kobject.ServiceConfig, objects *[]runtime.Object, podSpec PodSpec) error {
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)

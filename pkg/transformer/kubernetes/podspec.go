@@ -13,12 +13,15 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+// PodSpec holds the spec of k8s pod.
 type PodSpec struct {
 	api.PodSpec
 }
 
+// PodSpecOption holds the function to apply on a PodSpec
 type PodSpecOption func(*PodSpec)
 
+// AddContainer method is responsible for adding a new container to a k8s Pod.
 func AddContainer(service kobject.ServiceConfig, opt kobject.ConvertOptions) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		name := GetContainerName(service)
@@ -50,6 +53,7 @@ func AddContainer(service kobject.ServiceConfig, opt kobject.ConvertOptions) Pod
 	}
 }
 
+// TerminationGracePeriodSeconds method is responsible for attributing the grace period seconds option to a pod
 func TerminationGracePeriodSeconds(name string, service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		var err error

@@ -58,6 +58,7 @@ type Kubernetes struct {
 // PVCRequestSize (Persistent Volume Claim) has default size
 const PVCRequestSize = "100Mi"
 
+// ValidVolumeSet has the different types of valid volumes
 var ValidVolumeSet = map[string]struct{}{"emptyDir": {}, "hostPath": {}, "configMap": {}, "persistentVolumeClaim": {}}
 
 const (
@@ -432,6 +433,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *appsv1.
 	return ds
 }
 
+// InitSS method initialize a stateful set
 func (k *Kubernetes) InitSS(name string, service kobject.ServiceConfig, replicas int) *appsv1.StatefulSet {
 	var podSpec api.PodSpec
 	if len(service.Configs) > 0 {
@@ -634,6 +636,7 @@ func ConfigPorts(service kobject.ServiceConfig) []api.ContainerPort {
 	return ports
 }
 
+// ConfigLBServicePorts method configure the ports of the k8s Load Balancer Service
 func (k *Kubernetes) ConfigLBServicePorts(service kobject.ServiceConfig) ([]api.ServicePort, []api.ServicePort) {
 	var tcpPorts []api.ServicePort
 	var udpPorts []api.ServicePort
@@ -954,17 +957,17 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			volsource = source
 		} else if useConfigMap {
 			log.Debugf("Use configmap volume")
-
-			if cm, err := k.IntiConfigMapFromFileOrDir(name, volumeName, volume.Host, service); err != nil {
+			cm, err := k.IntiConfigMapFromFileOrDir(name, volumeName, volume.Host, service)
+			if err != nil {
 				return nil, nil, nil, nil, err
-			} else {
-				cms = append(cms, cm)
-				volsource = k.ConfigConfigMapVolumeSource(volumeName, volume.Container, cm)
-
-				if useSubPathMount(cm) {
-					volMount.SubPath = volsource.ConfigMap.Items[0].Path
-				}
 			}
+			cms = append(cms, cm)
+			volsource = k.ConfigConfigMapVolumeSource(volumeName, volume.Container, cm)
+
+			if useSubPathMount(cm) {
+				volMount.SubPath = volsource.ConfigMap.Items[0].Path
+			}
+			
 		} else {
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
 			if volume.VFrom == "" {
