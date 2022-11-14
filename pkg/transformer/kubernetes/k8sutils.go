@@ -682,15 +682,15 @@ func getServiceGroupID(service kobject.ServiceConfig, mode string) string {
 
 // KomposeObjectToServiceConfigGroupMapping returns the service config group by name or by volume
 // This group function works as following
-// 1. Support two mode
-//   (1): label: use a custom label, the service that contains it will be merged to one workload.
-//   (2): volume: the service that share to exactly same volume config will be merged to one workload. If use pvc, only
-//                 create one for this group.
-// 2. If service containers restart policy and no workload argument provide and it's restart policy looks like a pod, then
-//    this service should generate a pod. If group mode specified, it should be grouped and ignore the restart policy.
-// 3. If group mode specified, port conflict between services in one group will be ignored, and multiple service should be created.
-// 4. If `volume` group mode specified, we don't have an appropriate name for this combined service, use the first one for now.
-//    A warn/info message should be printed to let the user know.
+//  1. Support two mode
+//     (1): label: use a custom label, the service that contains it will be merged to one workload.
+//     (2): volume: the service that share to exactly same volume config will be merged to one workload. If use pvc, only
+//     create one for this group.
+//  2. If service containers restart policy and no workload argument provide and it's restart policy looks like a pod, then
+//     this service should generate a pod. If group mode specified, it should be grouped and ignore the restart policy.
+//  3. If group mode specified, port conflict between services in one group will be ignored, and multiple service should be created.
+//  4. If `volume` group mode specified, we don't have an appropriate name for this combined service, use the first one for now.
+//     A warn/info message should be printed to let the user know.
 func KomposeObjectToServiceConfigGroupMapping(komposeObject *kobject.KomposeObject, opt kobject.ConvertOptions) map[string]kobject.ServiceConfigGroup {
 	serviceConfigGroup := make(map[string]kobject.ServiceConfigGroup)
 
@@ -883,7 +883,7 @@ func FormatFileName(name string) string {
 	return strings.Replace(file, "_", "-", -1)
 }
 
-//FormatContainerName format Container name
+// FormatContainerName format Container name
 func FormatContainerName(name string) string {
 	name = strings.Replace(name, "_", "-", -1)
 	return name
@@ -892,9 +892,9 @@ func FormatContainerName(name string) string {
 func GetContainerName(service kobject.ServiceConfig) string {
 	name := service.Name
 	if len(service.ContainerName) > 0 {
-		name = FormatContainerName(service.ContainerName)
+		name = service.ContainerName
 	}
-	return name
+	return FormatContainerName(name)
 }
 
 // FormatResourceName generate a valid k8s resource name
