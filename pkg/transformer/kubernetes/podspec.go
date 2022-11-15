@@ -160,6 +160,7 @@ func SecurityContext(name string, service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
+// SetVolumeNames method return a set of volume names
 func SetVolumeNames(volumes []api.Volume) mapset.Set {
 	set := mapset.NewSet()
 	for _, volume := range volumes {
@@ -168,6 +169,7 @@ func SetVolumeNames(volumes []api.Volume) mapset.Set {
 	return set
 }
 
+// SetVolumes method returns a method that adds the volumes to the pod spec
 func SetVolumes(volumes []api.Volume) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		volumesSet := SetVolumeNames(volumes)
@@ -183,6 +185,7 @@ func SetVolumes(volumes []api.Volume) PodSpecOption {
 	}
 }
 
+// SetVolumeMountPaths method returns a set of volumes mount path
 func SetVolumeMountPaths(volumesMount []api.VolumeMount) mapset.Set {
 	set := mapset.NewSet()
 	for _, volumeMount := range volumesMount {
@@ -192,6 +195,7 @@ func SetVolumeMountPaths(volumesMount []api.VolumeMount) mapset.Set {
 	return set
 }
 
+// SetVolumeMounts returns a function which adds the volume mounts option to the pod spec
 func SetVolumeMounts(volumesMount []api.VolumeMount) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		volumesMountSet := SetVolumeMountPaths(volumesMount)
@@ -246,6 +250,7 @@ func RestartPolicy(name string, service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
+// HostName configure the host name of a pod
 func HostName(service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		// Configure hostname/domain_name settings
@@ -255,6 +260,7 @@ func HostName(service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
+// DomainName configure the domain name of a pod
 func DomainName(service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		if service.DomainName != "" {
@@ -303,18 +309,21 @@ func configProbe(healthCheck kobject.HealthCheck) *api.Probe {
 	return &probe
 }
 
+// ServiceAccountName is responsible for setting the service account name to the pod spec
 func ServiceAccountName(serviceAccountName string) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		podSpec.ServiceAccountName = serviceAccountName
 	}
 }
 
+// TopologySpreadConstraints is responsible for setting the topology spread constraints to the pod spec
 func TopologySpreadConstraints(service kobject.ServiceConfig) PodSpecOption {
 	return func(podSpec *PodSpec) {
 		podSpec.TopologySpreadConstraints = ConfigTopologySpreadConstraints(service)
 	}
 }
 
+// Append is responsible for adding the pod spec options to the particular pod
 func (podSpec *PodSpec) Append(ops ...PodSpecOption) *PodSpec {
 	for _, option := range ops {
 		option(podSpec)
@@ -322,6 +331,7 @@ func (podSpec *PodSpec) Append(ops ...PodSpecOption) *PodSpec {
 	return podSpec
 }
 
+// Get is responsible for returning the pod spec of a particular pod
 func (podSpec *PodSpec) Get() api.PodSpec {
 	return podSpec.PodSpec
 }
