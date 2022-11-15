@@ -27,6 +27,7 @@ type Tag struct {
 	Client dockerlib.Client
 }
 
+// TagImage function is responsible for tagging the docker image
 func (c *Tag) TagImage(image Image) error {
 	options := dockerlib.TagImageOptions{
 		Tag:  image.Tag,
