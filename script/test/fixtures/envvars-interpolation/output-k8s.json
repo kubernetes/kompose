@@ -1,0 +1,68 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "./kompose convert -f script/test/fixtures/envvars-interpolation/docker-compose.yaml -v -o json",
+                    "kompose.version": "1.26.1 (HEAD)"
+                },
+                "creationTimestamp": null,
+                "labels": {
+                    "io.kompose.service": "myservice"
+                },
+                "name": "myservice"
+            },
+            "spec": {
+                "replicas": 1,
+                "selector": {
+                    "matchLabels": {
+                        "io.kompose.service": "myservice"
+                    }
+                },
+                "strategy": {},
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "kompose.cmd": "./kompose convert -f script/test/fixtures/envvars-interpolation/docker-compose.yaml -v -o json",
+                            "kompose.version": "1.26.1 (HEAD)"
+                        },
+                        "creationTimestamp": null,
+                        "labels": {
+                            "io.kompose.service": "myservice"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "curl",
+                                    "$(PROTOCOL)://$(DOMAIN)/"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "DOMAIN",
+                                        "value": "google.com"
+                                    },
+                                    {
+                                        "name": "PROTOCOL",
+                                        "value": "https"
+                                    }
+                                ],
+                                "image": "alpine",
+                                "name": "myservice",
+                                "resources": {}
+                            }
+                        ],
+                        "restartPolicy": "Always"
+                    }
+                }
+            },
+            "status": {}
+        }
+    ],
+    "kind": "List",
+    "metadata": {}
+}
