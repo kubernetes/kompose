@@ -43,5 +43,3 @@ jobs:
         env:
           # As per https://github.com/mattn/goveralls#github-actions
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: ./script/sync-docs.sh
-        if: ${{ github.ref == 'refs/heads/master' }}
