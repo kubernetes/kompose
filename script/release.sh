@@ -23,11 +23,7 @@ usage() {
   echo ""
   echo "Requirements:"
   echo " git"
-  echo " hub"
-  echo " github-release"
-  echo " github_changelog_generator"
-  echo " fpm"
-  echo " GITHUB_TOKEN in your env variable"
+  echo " gh"
   echo " "
   echo "Not only that, but you must have permission for:"
   echo " Tagging releases within Github"
@@ -41,30 +37,6 @@ requirements() {
     exit 0
   fi
 
-  if ! hash github-release 2>/dev/null; then
-    echo "ERROR: No $GOPATH/bin/github-release. Please run 'go get -v github.com/aktau/github-release'"
-    exit 0
-  fi
-
-  if ! hash github_changelog_generator 2>/dev/null; then
-    echo "ERROR: github_changelog_generator required to generate the change log. Please run 'gem install github_changelog_generator"
-    exit 0
-  fi
-
-  if ! hash fpm 2>/dev/null; then
-    echo "ERROR: fpm required to generate deb/rpm packages. Please run 'gem install fpm"
-    exit 0
-  fi
-
-  if ! hash hub 2>/dev/null; then
-    echo "ERROR: Hub needed in order to create the relevant PR's. Please install hub @ https://github.com/github/hub"
-    exit 0
-  fi
-
-  if [[ -z "$GITHUB_TOKEN" ]]; then
-    echo "ERROR: export GITHUB_TOKEN=yourtoken needed for using github-release"
-    exit 0
-  fi
 }
 
 # Make sure that upstream had been added to the repo 
@@ -103,60 +75,13 @@ replaceversion() {
 
   echo "Replaced version in build/VERSION"
   sed -i "s/$1/$2/g" build/VERSION || gsed -i "s/$1/$2/g" build/VERSION
-}
 
-changelog() {
-  echo "Generating changelog using github-changelog-generator"
-  github_changelog_generator --user $UPSTREAM_REPO --project $CLI -t $GITHUB_TOKEN --future-release v$1
-}
 
-changelog_github() {
-  touch changes.txt
-  echo "Write your GitHub changelog here" >> changes.txt
-  $EDITOR changes.txt
+  echo "Ignore above errors if you're using macOS"
 }
 
 build_binaries() {
   make cross
-}
-
-build_packages() {
-  # fpm is required installed (https://github.com/jordansissel/fpm)
-  BIN_DIR="./bin/"
-  PKG_DIR="./bin/"
-
-  mkdir -p $PKG_DIR
-
-  # package version, use current date by default (if build from master)
-  PKG_VERSION=$1
-
-  # create packages using fpm
-  fpm -h  >/dev/null 2>&1 || { 
-      echo "ERROR: fpm (https://github.com/jordansissel/fpm) is not installed. Can't create linux packages"
-      exit 1
-  }
-
-  TMP_DIR=$(mktemp -d)
-  mkdir -p $TMP_DIR/usr/local/bin/
-  cp $BIN_DIR/kompose-linux-amd64 $TMP_DIR/usr/local/bin/kompose
-
-  echo "creating DEB package"
-  fpm \
-    --input-type dir --output-type deb \
-    --chdir $TMP_DIR \
-    --name kompose --version $PKG_VERSION \
-    --architecture amd64 \
-    --maintainer "Charlie Drage <cdrage@redhat.com>" \
-    --package $PKG_DIR
-
-  echo "creating RPM package"
-  fpm \
-    --input-type dir --output-type rpm \
-    --chdir $TMP_DIR \
-    --name kompose --version $PKG_VERSION \
-    --architecture x86_64 --rpm-os linux \
-    --maintainer "Charlie Drage <cdrage@redhat.com>" \
-    --package $PKG_DIR
 }
 
 create_tarballs() {
@@ -180,7 +105,7 @@ git_commit() {
   git add .
   git commit -m "$1 Release"
   git push origin $BRANCH
-  hub pull-request -b $UPSTREAM_REPO/$CLI:master -h $ORIGIN_REPO/$CLI:$BRANCH
+  gh pr
 
   echo ""
   echo "PR opened against master to update version"
@@ -196,10 +121,6 @@ git_pull() {
 git_sync() {
   git fetch upstream master
   git rebase upstream/master
-}
-
-git_tag() {
-  git tag v$1
 }
 
 generate_install_guide() {
@@ -238,46 +159,17 @@ __Checksums:__
     echo "$HASH $NAME" >> bin/SHA256_SUM
   done
 
- # Append the file to the file
- cat install_guide.txt >> changes.txt
 }
 
 push() {
-  CHANGES=$(cat changes.txt)
-  # Release it!
 
-  echo "Creating GitHub tag"
-  github-release release \
-      --user $UPSTREAM_REPO \
-      --repo $CLI \
-      --tag v$1 \
-      --name "v$1" \
-      --description "$CHANGES"
-  if [ $? -eq 0 ]; then
-        echo UPLOAD OK 
-  else 
-        echo UPLOAD FAIL
-        exit
-  fi
+  echo "!!PLEASE READ!!
+  1. Say YES to GitHub generating the release notes
+  2. Append install_guide.txt to the TOP of the release notes when prompted
+  3. Double check that the binaries have been UPLOADED!
+  "
 
-  # Upload all the binaries and tarballs generated in bin/
-  for f in bin/*
-  do
-    echo "Uploading file $f"
-    NAME=`echo $f | sed "s,bin/,,g"`
-    github-release upload \
-        --user $UPSTREAM_REPO \
-        --repo $CLI \
-        --tag v$1 \
-        --file $f \
-        --name $NAME
-    if [ $? -eq 0 ]; then
-          echo UPLOAD OK 
-    else 
-          echo UPLOAD FAIL
-          exit
-    fi
-  done
+  gh release create v$1 bin/*
 
   echo "DONE"
   echo "DOUBLE CHECK IT:"
@@ -287,7 +179,7 @@ push() {
 }
 
 clean() {
-  rm changes.txt install_guide.txt
+  rm install_guide.txt
   rm -r bin/*
 }
 
@@ -325,11 +217,8 @@ main() {
   options=(
   "Initial sync with upstream"
   "Replace version number"
-  "Generate changelog"
-  "Generate GitHub changelog"
   "Create PR"
   "Sync with upstream"
-  "Create tag"
   "Build binaries"
   "Build packages"
   "Create tarballs"
@@ -347,26 +236,14 @@ main() {
           "Replace version number")
               replaceversion $PREV_VERSION $VERSION
               ;;
-          "Generate changelog")
-              changelog $VERSION
-              ;;
-          "Generate GitHub changelog")
-              changelog_github $VERSION
-              ;;
           "Create PR")
               git_commit $VERSION
               ;;
           "Sync with upstream")
               git_sync
               ;;
-          "Create tag")
-              git_tag $VERSION
-              ;;
           "Build binaries")
               build_binaries
-              ;;
-          "Build packages")
-              build_packages $VERSION
               ;;
           "Create tarballs")
               create_tarballs
