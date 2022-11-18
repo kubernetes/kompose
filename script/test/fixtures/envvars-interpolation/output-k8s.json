@@ -1,19 +1,17 @@
 {
+    "kind": "List",
     "apiVersion": "v1",
+    "metadata": {},
     "items": [
         {
-            "apiVersion": "apps/v1",
             "kind": "Deployment",
+            "apiVersion": "apps/v1",
             "metadata": {
-                "annotations": {
-                    "kompose.cmd": "./kompose convert -f script/test/fixtures/envvars-interpolation/docker-compose.yaml -v -o json",
-                    "kompose.version": "1.26.1 (HEAD)"
-                },
+                "name": "myservice",
                 "creationTimestamp": null,
                 "labels": {
                     "io.kompose.service": "myservice"
-                },
-                "name": "myservice"
+                }
             },
             "spec": {
                 "replicas": 1,
@@ -22,13 +20,8 @@
                         "io.kompose.service": "myservice"
                     }
                 },
-                "strategy": {},
                 "template": {
                     "metadata": {
-                        "annotations": {
-                            "kompose.cmd": "./kompose convert -f script/test/fixtures/envvars-interpolation/docker-compose.yaml -v -o json",
-                            "kompose.version": "1.26.1 (HEAD)"
-                        },
                         "creationTimestamp": null,
                         "labels": {
                             "io.kompose.service": "myservice"
@@ -37,6 +30,8 @@
                     "spec": {
                         "containers": [
                             {
+                                "name": "myservice",
+                                "image": "alpine",
                                 "args": [
                                     "curl",
                                     "$(PROTOCOL)://$(DOMAIN)/"
@@ -51,18 +46,15 @@
                                         "value": "https"
                                     }
                                 ],
-                                "image": "alpine",
-                                "name": "myservice",
                                 "resources": {}
                             }
                         ],
                         "restartPolicy": "Always"
                     }
-                }
+                },
+                "strategy": {}
             },
             "status": {}
         }
-    ],
-    "kind": "List",
-    "metadata": {}
+    ]
 }
