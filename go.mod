@@ -12,11 +12,11 @@ replace github.com/xeipuuv/gojsonschema => github.com/xeipuuv/gojsonschema v1.2.
 
 replace github.com/docker/docker => github.com/docker/docker v20.10.0-beta1.0.20201030232932-c2cc352355d4+incompatible
 
-replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.4
+replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.6
 
 replace github.com/opencontainers/runc => github.com/opencontainers/runc v1.1.2
 
-replace golang.org/x/sys => golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8
+replace golang.org/x/sys => golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
 
 replace k8s.io/kubernetes => k8s.io/kubernetes v1.24.1
 
@@ -25,6 +25,10 @@ replace github.com/miekg/dns => github.com/miekg/dns v1.1.49
 replace github.com/docker/distribution => github.com/docker/distribution v2.8.1+incompatible
 
 replace github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt v3.2.2+incompatible
+
+replace github.com/emicklei/go-restful => github.com/emicklei/go-restful v2.16.0+incompatible
+
+replace golang.org/x/crypto => golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d
 
 require (
 	github.com/containerd/containerd v1.6.4 // indirect
@@ -44,7 +48,9 @@ require (
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
-	golang.org/x/tools v0.1.6-0.20210726203631-07bc1bf47fb2
+	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c // indirect
+	golang.org/x/text v0.3.8 // indirect
+	golang.org/x/tools v0.1.12
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/api v0.22.5
