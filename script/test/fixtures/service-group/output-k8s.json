@@ -73,7 +73,8 @@
                 ],
                 "env": [
                   {
-                    "name": "TZ"
+                    "name": "TZ",
+                    "value": "${TZ}"
                   }
                 ],
                 "resources": {},
@@ -89,7 +90,8 @@
                 "image": "librenms/dispatcher:latest",
                 "env": [
                   {
-                    "name": "TZ"
+                    "name": "TZ",
+                    "value": "${TZ}"
                   }
                 ],
                 "resources": {},

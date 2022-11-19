@@ -259,7 +259,7 @@
         },
         "tags": [
           {
-            "name": "latest",
+            "name": "5.7",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
