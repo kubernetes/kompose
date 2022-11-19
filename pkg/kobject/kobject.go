@@ -91,6 +91,7 @@ func (opt *ConvertOptions) IsPodController() bool {
 	return opt.IsDeploymentFlag || opt.IsDaemonSetFlag || opt.IsReplicationControllerFlag || opt.Controller != ""
 }
 
+// ServiceConfigGroup holds an array of a ServiceConfig objects.
 type ServiceConfigGroup []ServiceConfig
 
 // ServiceConfig holds the basic struct of a container

@@ -1,0 +1,120 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {},
+    "items": [
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "myservice",
+                "creationTimestamp": null,
+                "labels": {
+                    "io.kompose.service": "myservice"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "resources": {}
+                },
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "myservice"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "myservice:latest"
+                            }
+                        }
+                    }
+                ],
+                "replicas": 1,
+                "test": false,
+                "selector": {
+                    "io.kompose.service": "myservice"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "io.kompose.service": "myservice"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "myservice",
+                                "image": " ",
+                                "args": [
+                                    "curl",
+                                    "$(PROTOCOL)://$(DOMAIN)/"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "DOMAIN",
+                                        "value": "google.com"
+                                    },
+                                    {
+                                        "name": "PROTOCOL",
+                                        "value": "https"
+                                    }
+                                ],
+                                "resources": {}
+                            }
+                        ],
+                        "restartPolicy": "Always"
+                    }
+                }
+            },
+            "status": {
+                "latestVersion": 0,
+                "observedGeneration": 0,
+                "replicas": 0,
+                "updatedReplicas": 0,
+                "availableReplicas": 0,
+                "unavailableReplicas": 0
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "myservice",
+                "creationTimestamp": null,
+                "labels": {
+                    "io.kompose.service": "myservice"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": false
+                },
+                "tags": [
+                    {
+                        "name": "latest",
+                        "annotations": null,
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "alpine"
+                        },
+                        "generation": null,
+                        "importPolicy": {},
+                        "referencePolicy": {
+                            "type": ""
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "dockerImageRepository": ""
+            }
+        }
+    ]
+}

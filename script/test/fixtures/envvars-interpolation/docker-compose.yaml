@@ -1,0 +1,13 @@
+version: '3.5'
+
+services:
+    myservice:
+        image: alpine
+        environment:
+            PROTOCOL: 'https'
+            DOMAIN: 'google.com'
+        command:
+            [
+                'curl',
+                '$PROTOCOL://$DOMAIN/',
+            ]

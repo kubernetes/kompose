@@ -1,0 +1,60 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {},
+    "items": [
+        {
+            "kind": "Deployment",
+            "apiVersion": "apps/v1",
+            "metadata": {
+                "name": "myservice",
+                "creationTimestamp": null,
+                "labels": {
+                    "io.kompose.service": "myservice"
+                }
+            },
+            "spec": {
+                "replicas": 1,
+                "selector": {
+                    "matchLabels": {
+                        "io.kompose.service": "myservice"
+                    }
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "io.kompose.service": "myservice"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "myservice",
+                                "image": "alpine",
+                                "args": [
+                                    "curl",
+                                    "$(PROTOCOL)://$(DOMAIN)/"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "DOMAIN",
+                                        "value": "google.com"
+                                    },
+                                    {
+                                        "name": "PROTOCOL",
+                                        "value": "https"
+                                    }
+                                ],
+                                "resources": {}
+                            }
+                        ],
+                        "restartPolicy": "Always"
+                    }
+                },
+                "strategy": {}
+            },
+            "status": {}
+        }
+    ]
+}

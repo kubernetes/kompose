@@ -597,3 +597,35 @@ func TestCreateServiceWithSpecialName(t *testing.T) {
 		}
 	}
 }
+
+func TestArgsInterpolation(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{{Name: "PROTOCOL", Value: "https"}, {Name: "DOMAIN", Value: "google.com"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Command:       []string{"curl"},
+		Args:          []string{"$PROTOCOL://$DOMAIN/"},
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	expectedArgs := []string{"$(PROTOCOL)://$(DOMAIN)/"}
+	for _, obj := range objects {
+		if deployment, ok := obj.(*appsv1.Deployment); ok {
+			args := deployment.Spec.Template.Spec.Containers[0].Args[0]
+			if args != expectedArgs[0] {
+				t.Errorf("Expected args %v upon conversion, actual %v", expectedArgs, args)
+			}
+		}
+	}
+}

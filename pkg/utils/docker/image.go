@@ -33,6 +33,7 @@ type Image struct {
 	Remote     string // the image's remote identifier. (ie: registry/name[:tag])
 }
 
+// NewImageFromParsed method returns the docker image from the docker parser reference
 func NewImageFromParsed(parsed *dockerparser.Reference) Image {
 	return Image{
 		Name:       parsed.Name(),

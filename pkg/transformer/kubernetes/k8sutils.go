@@ -25,6 +25,7 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -382,6 +383,7 @@ func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, p
 	return svc
 }
 
+// CreateLBService creates a k8s Load Balancer Service
 func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig) []*api.Service {
 	var svcs []*api.Service
 	tcpPorts, udpPorts := k.ConfigLBServicePorts(service)
@@ -442,6 +444,8 @@ func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceC
 
 	return svc
 }
+
+// UpdateKubernetesObjectsMultipleContainers method updates the kubernetes objects with the necessary data
 func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, service kobject.ServiceConfig, objects *[]runtime.Object, podSpec PodSpec) error {
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
@@ -524,7 +528,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].Name = GetContainerName(service)
 		template.Spec.Containers[0].Env = envs
 		template.Spec.Containers[0].Command = service.Command
-		template.Spec.Containers[0].Args = service.Args
+		template.Spec.Containers[0].Args = GetContainerArgs(service)
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
 		template.Spec.Containers[0].VolumeMounts = append(template.Spec.Containers[0].VolumeMounts, volumesMount...)
 		template.Spec.Containers[0].Stdin = service.Stdin
@@ -594,18 +598,18 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
 
 		// Configure the image pull policy
-		if policy, err := GetImagePullPolicy(name, service.ImagePullPolicy); err != nil {
+		policy, err := GetImagePullPolicy(name, service.ImagePullPolicy)
+		if err != nil {
 			return err
-		} else {
-			template.Spec.Containers[0].ImagePullPolicy = policy
 		}
+		template.Spec.Containers[0].ImagePullPolicy = policy
 
 		// Configure the container restart policy.
-		if restart, err := GetRestartPolicy(name, service.Restart); err != nil {
+		restart, err := GetRestartPolicy(name, service.Restart)
+		if err != nil {
 			return err
-		} else {
-			template.Spec.RestartPolicy = restart
 		}
+		template.Spec.RestartPolicy = restart
 
 		// Configure hostname/domain_name settings
 		if service.HostName != "" {
@@ -887,6 +891,7 @@ func FormatContainerName(name string) string {
 	return name
 }
 
+// GetContainerName returns the name of the container, from the service config object
 func GetContainerName(service kobject.ServiceConfig) string {
 	name := service.Name
 	if len(service.ContainerName) > 0 {
@@ -898,4 +903,16 @@ func GetContainerName(service kobject.ServiceConfig) string {
 // FormatResourceName generate a valid k8s resource name
 func FormatResourceName(name string) string {
 	return strings.ToLower(strings.Replace(name, "_", "-", -1))
+}
+
+// GetContainerArgs update the interpolation of env variables if exists.
+// example: [curl, $PROTOCOL://$DOMAIN] => [curl, $(PROTOCOL)://$(DOMAIN)]
+func GetContainerArgs(service kobject.ServiceConfig) []string {
+	var args []string
+	re := regexp.MustCompile(`\$([a-zA-Z0-9]*)`)
+	for _, arg := range service.Args {
+		arg = re.ReplaceAllString(arg, `$($1)`)
+		args = append(args, arg)
+	}
+	return args
 }
