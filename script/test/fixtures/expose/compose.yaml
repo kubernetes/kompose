@@ -1,14 +1,16 @@
-web:
-  image: tuna/docker-counter23
-  ports:
-    - "5000:5000"
-  links:
-    - redis
-  labels:
-    kompose.service.expose: "batman.example.com/dev,batwoman.example.com"
-    kompose.service.expose.tls-secret: "test-secret"
-    kompose.service.expose.ingress-class-name: "nginx"
-redis:
-  image: redis:3.0
-  ports:
-    - "6379"
+version: '3.5'
+services:
+  web:
+    image: tuna/docker-counter23
+    ports:
+      - "5000:5000"
+    links:
+      - redis
+    labels:
+      kompose.service.expose: "batman.example.com/dev,batwoman.example.com"
+      kompose.service.expose.tls-secret: "test-secret"
+      kompose.service.expose.ingress-class-name: "nginx"
+  redis:
+    image: redis:3.0
+    ports:
+      - "6379"

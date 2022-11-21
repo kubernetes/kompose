@@ -432,7 +432,7 @@
         },
         "tags": [
           {
-            "name": "latest",
+            "name": "3.0",
             "annotations": null,
             "from": {
               "kind": "DockerImage",
