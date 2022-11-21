@@ -518,7 +518,6 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 		// Again, in v3, we use the "long syntax" for volumes in terms of parsing
 		// https://docs.docker.com/compose/compose-file/#long-syntax-3
 		serviceConfig.VolList = loadV3Volumes(composeServiceConfig.Volumes)
-
 		if err := parseKomposeLabels(composeServiceConfig.Labels, &serviceConfig); err != nil {
 			return kobject.KomposeObject{}, err
 		}
@@ -538,7 +537,6 @@ func dockerComposeToKomposeMapping(composeObject *types.Config) (kobject.Kompose
 	}
 
 	handleV3Volume(&komposeObject, &composeObject.Volumes)
-
 	return komposeObject, nil
 }
 
@@ -652,7 +650,6 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 	// Label handler
 	// Labels used to influence conversion of kompose will be handled
 	// from here for docker-compose. Each loader will have such handler.
-
 	if serviceConfig.Labels == nil {
 		serviceConfig.Labels = make(map[string]string)
 	}
@@ -673,7 +670,7 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 		case LabelServiceExposeTLSSecret:
 			serviceConfig.ExposeServiceTLS = value
 		case LabelServiceExposeIngressClassName:
-			serviceConfig.ExposeServiceIngressClassName = &value
+			serviceConfig.ExposeServiceIngressClassName = value
 		case LabelImagePullSecret:
 			serviceConfig.ImagePullSecret = value
 		case LabelImagePullPolicy:
@@ -687,7 +684,7 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 		return errors.New("kompose.service.expose.tls-secret was specified without kompose.service.expose")
 	}
 
-	if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceIngressClassName != nil {
+	if serviceConfig.ExposeService == "" && serviceConfig.ExposeServiceIngressClassName != "" {
 		return errors.New("kompose.service.expose.ingress-class-name was specified without kompose.service.expose")
 	}
 
