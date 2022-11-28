@@ -8,7 +8,7 @@ metadata:
   creationTimestamp: null
   labels:
     io.kompose.service: front-end
-  name: front-end
+  name: front_end
 spec:
   ports:
     - name: "80"
@@ -67,7 +67,7 @@ metadata:
   creationTimestamp: null
   labels:
     io.kompose.service: front-end
-  name: front_end
+  name: front-end
 spec:
   ingressClassName: nginx
   rules:
@@ -83,3 +83,4 @@ spec:
             pathType: Prefix
 status:
   loadBalancer: {}
+
