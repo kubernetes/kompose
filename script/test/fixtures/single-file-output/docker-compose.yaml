@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  front_end:
+    image: gcr.io/google-samples/gb-frontend:v4
+    ports:
+      - "80:80"
+    environment:
+      - GET_HOSTS_FROM=dns
+    labels:
+      kompose.service.expose: lb
+      kompose.service.expose.ingress-class-name: nginx

@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.service.expose: lb
+    kompose.service.expose.ingress-class-name: nginx
+  creationTimestamp: null
+  labels:
+    io.kompose.service: front-end
+  name: front-end
+spec:
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+  selector:
+    io.kompose.service: front-end
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.service.expose: lb
+    kompose.service.expose.ingress-class-name: nginx
+  creationTimestamp: null
+  labels:
+    io.kompose.service: front-end
+  name: front-end
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: front-end
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.service.expose: lb
+        kompose.service.expose.ingress-class-name: nginx
+      creationTimestamp: null
+      labels:
+        io.kompose.service: front-end
+    spec:
+      containers:
+        - env:
+            - name: GET_HOSTS_FROM
+              value: dns
+          image: gcr.io/google-samples/gb-frontend:v4
+          name: front-end
+          ports:
+            - containerPort: 80
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kompose.service.expose: lb
+    kompose.service.expose.ingress-class-name: nginx
+  creationTimestamp: null
+  labels:
+    io.kompose.service: front-end
+  name: front_end
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: lb
+      http:
+        paths:
+          - backend:
+              service:
+                name: front-end
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+status:
+  loadBalancer: {}

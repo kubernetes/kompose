@@ -192,11 +192,9 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 	}
 
 	var files []string
-
 	// if asked to print to stdout or to put in single file
 	// we will create a list
 	if opt.ToStdout || f != nil {
-		list := &api.List{}
 		// convert objects to versioned and add them to list
 		for _, object := range objects {
 			versionedObject, err := convertToVersion(object)
@@ -204,24 +202,20 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 				return err
 			}
 
-			list.Items = append(list.Items, objectToRaw(versionedObject))
+			data, err := marshal(versionedObject, opt.GenerateJSON, opt.YAMLIndent)
+			if err != nil {
+				return fmt.Errorf("error in marshalling the List: %v", err)
+			}
+			if opt.GenerateJSON {
+				return fmt.Errorf("cannot convert to one file while specifying a json output file")
+			}
+			data = []byte(fmt.Sprintf("---\n%s", data))
+			printVal, err := transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
+			if err != nil {
+				return errors.Wrap(err, "transformer.Print failed")
+			}
+			files = append(files, printVal)
 		}
-		// version list itself
-		list.Kind = "List"
-		list.APIVersion = "v1"
-		convertedList, err := convertToVersion(list)
-		if err != nil {
-			return err
-		}
-		data, err := marshal(convertedList, opt.GenerateJSON, opt.YAMLIndent)
-		if err != nil {
-			return fmt.Errorf("error in marshalling the List: %v", err)
-		}
-		printVal, err := transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
-		if err != nil {
-			return errors.Wrap(err, "transformer.Print failed")
-		}
-		files = append(files, printVal)
 	} else {
 		finalDirName := dirName
 		if opt.CreateChart {

@@ -211,3 +211,11 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/output-k8s.
 os_output="$KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/output-os.json"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
+
+# Test single file output feature
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/single-file-output/docker-compose.yaml convert --out file.yaml --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/single-file-output/output-k8s.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output"
+
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/single-file-output/docker-compose.yaml convert --out file.json -j --with-kompose-annotation=false"
+convert::expect_failure "$k8s_cmd"
