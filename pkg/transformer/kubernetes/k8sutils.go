@@ -148,16 +148,16 @@ func getDirName(opt kobject.ConvertOptions) string {
 	return dirName
 }
 
-func objectToRaw(object runtime.Object) runtime.RawExtension {
-	r := runtime.RawExtension{
-		Object: object,
-	}
+// func objectToRaw(object runtime.Object) runtime.RawExtension {
+// 	r := runtime.RawExtension{
+// 		Object: object,
+// 	}
 
-	bytes, _ := json.Marshal(object)
-	r.Raw = bytes
+// 	bytes, _ := json.Marshal(object)
+// 	r.Raw = bytes
 
-	return r
-}
+// 	return r
+// }
 
 // PrintList will take the data converted and decide on the commandline attributes given
 func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
