@@ -205,10 +205,10 @@ convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
 
 # Test environment variables interpolation
-k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/docker-compose.yaml convert --stdout -j --with-kompose-annotation=false"
-os_cmd="kompose  --provider=openshift -f  $KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/docker-compose.yaml  convert --stdout -j --with-kompose-annotation=false"
-k8s_output="$KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/output-k8s.json"
-os_output="$KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/output-os.json"
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
+os_cmd="kompose  --provider=openshift -f  $KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/docker-compose.yaml  convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/output-k8s.yaml"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/output-os.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
 

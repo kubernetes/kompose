@@ -196,8 +196,8 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 	// we will create a list
 	if opt.ToStdout || f != nil {
 		// convert objects to versioned and add them to list
-		if opt.GenerateJSON && f != nil {
-			return fmt.Errorf("cannot convert to one file while specifying a json output file")
+		if opt.GenerateJSON {
+			return fmt.Errorf("cannot convert to one file while specifying a json output file or stdout option")
 		}
 		for _, object := range objects {
 			versionedObject, err := convertToVersion(object)
