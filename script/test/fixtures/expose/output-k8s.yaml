@@ -1,0 +1,148 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  ports:
+    - name: "6379"
+      port: 6379
+      targetPort: 6379
+  selector:
+    io.kompose.service: redis
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.service.expose: batman.example.com/dev,batwoman.example.com
+    kompose.service.expose.ingress-class-name: nginx
+    kompose.service.expose.tls-secret: test-secret
+  creationTimestamp: null
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  ports:
+    - name: "5000"
+      port: 5000
+      targetPort: 5000
+  selector:
+    io.kompose.service: web
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: redis
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: redis
+    spec:
+      containers:
+        - image: redis:3.0
+          name: redis
+          ports:
+            - containerPort: 6379
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.service.expose: batman.example.com/dev,batwoman.example.com
+    kompose.service.expose.ingress-class-name: nginx
+    kompose.service.expose.tls-secret: test-secret
+  creationTimestamp: null
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: web
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.service.expose: batman.example.com/dev,batwoman.example.com
+        kompose.service.expose.ingress-class-name: nginx
+        kompose.service.expose.tls-secret: test-secret
+      creationTimestamp: null
+      labels:
+        io.kompose.service: web
+    spec:
+      containers:
+        - image: tuna/docker-counter23
+          name: web
+          ports:
+            - containerPort: 5000
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kompose.service.expose: batman.example.com/dev,batwoman.example.com
+    kompose.service.expose.ingress-class-name: nginx
+    kompose.service.expose.tls-secret: test-secret
+  creationTimestamp: null
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: batman.example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: web
+                port:
+                  number: 5000
+            path: /dev
+            pathType: Prefix
+    - host: batwoman.example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: web
+                port:
+                  number: 5000
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - batman.example.com
+        - batwoman.example.com
+      secretName: test-secret
+status:
+  loadBalancer: {}
