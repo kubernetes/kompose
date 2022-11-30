@@ -148,17 +148,6 @@ func getDirName(opt kobject.ConvertOptions) string {
 	return dirName
 }
 
-// func objectToRaw(object runtime.Object) runtime.RawExtension {
-// 	r := runtime.RawExtension{
-// 		Object: object,
-// 	}
-
-// 	bytes, _ := json.Marshal(object)
-// 	r.Raw = bytes
-
-// 	return r
-// }
-
 // PrintList will take the data converted and decide on the commandline attributes given
 func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 	var f *os.File
@@ -209,10 +198,11 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			if err != nil {
 				return fmt.Errorf("error in marshalling the List: %v", err)
 			}
+			// this part add --- which unifies the file
 			data = []byte(fmt.Sprintf("---\n%s", data))
 			printVal, err := transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
 			if err != nil {
-				return errors.Wrap(err, "transformer.Print failed")
+				return errors.Wrap(err, "transformer to print to one single file failed")
 			}
 			files = append(files, printVal)
 		}
