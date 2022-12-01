@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: bar
+  name: bar
+spec:
+  replicas: 99
+  selector:
+    matchLabels:
+      io.kompose.service: bar
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: bar
+    spec:
+      containers:
+        - image: bar
+          name: bar
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: foo
+  name: foo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      io.kompose.service: foo
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: foo
+    spec:
+      containers:
+        - image: foo
+          name: foo
+          resources: {}
+      restartPolicy: Always
+status: {}

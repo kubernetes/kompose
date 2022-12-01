@@ -1,0 +1,118 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  ports:
+    - name: "6379"
+      port: 6379
+      targetPort: 6379
+  selector:
+    io.kompose.service: redis
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: redis
+  strategy:
+    resources: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: redis
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - machine
+                  - key: kubernetes.io/os
+                    operator: In
+                    values:
+                      - ubuntu 14.04
+                  - key: foo
+                    operator: NotIn
+                    values:
+                      - bar
+      containers:
+        - image: ' '
+          name: redis
+          ports:
+            - containerPort: 6379
+          resources: {}
+      restartPolicy: Always
+      topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              io.kompose.service: redis
+          maxSkew: 2
+          topologyKey: zone
+          whenUnsatisfiable: ScheduleAnyway
+        - labelSelector:
+            matchLabels:
+              io.kompose.service: redis
+          maxSkew: 1
+          topologyKey: ssd
+          whenUnsatisfiable: ScheduleAnyway
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - redis
+        from:
+          kind: ImageStreamTag
+          name: redis:latest
+      type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
+
+---
+apiVersion: v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: redis
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+

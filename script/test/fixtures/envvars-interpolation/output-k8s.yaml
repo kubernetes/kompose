@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: myservice
+  name: myservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: myservice
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: myservice
+    spec:
+      containers:
+        - args:
+            - curl
+            - $(PROTOCOL)://$(DOMAIN)/
+          env:
+            - name: DOMAIN
+              value: google.com
+            - name: PROTOCOL
+              value: https
+          image: alpine
+          name: myservice
+          resources: {}
+      restartPolicy: Always
+status: {}
+
