@@ -16,6 +16,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/envvars-interpolation-default: "true"
         io.kompose.service: myservice
     spec:
       containers:

@@ -1,10 +1,11 @@
-web:
-  image: tuna/docker-counter23
-  ports:
-    - "5000:5000"
-  links:
-    - redis
-redis:
-  image: redis:3.0
-  ports:
-    - "6379"
+services:
+  web:
+    image: tuna/docker-counter23
+    ports:
+      - "5000:5000"
+    links:
+      - redis
+  redis:
+    image: redis:3.0
+    ports:
+      - "6379"

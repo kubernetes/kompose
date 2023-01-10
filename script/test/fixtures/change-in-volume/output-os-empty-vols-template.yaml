@@ -57,6 +57,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/change-in-volume-default: "true"
         io.kompose.service: redis
     spec:
       containers:
@@ -126,6 +127,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/change-in-volume-default: "true"
         io.kompose.service: web
     spec:
       containers:

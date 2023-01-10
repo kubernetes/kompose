@@ -19,6 +19,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/multiple-type-volumes-default: "true"
         io.kompose.service: db
     spec:
       containers:
@@ -113,6 +114,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/multiple-type-volumes-default: "true"
         io.kompose.service: web
     spec:
       containers:

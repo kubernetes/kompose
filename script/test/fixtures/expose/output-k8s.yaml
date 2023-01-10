@@ -56,6 +56,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/expose-default: "true"
         io.kompose.service: redis
     spec:
       containers:
@@ -66,6 +67,22 @@ spec:
           resources: {}
       restartPolicy: Always
 status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: expose-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/expose-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/expose-default: "true"
 
 ---
 apiVersion: apps/v1
@@ -93,6 +110,7 @@ spec:
         kompose.service.expose.tls-secret: test-secret
       creationTimestamp: null
       labels:
+        io.kompose.network/expose-default: "true"
         io.kompose.service: web
     spec:
       containers:
@@ -146,3 +164,4 @@ spec:
       secretName: test-secret
 status:
   loadBalancer: {}
+

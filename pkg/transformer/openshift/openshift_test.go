@@ -36,8 +36,8 @@ func newServiceConfig() kobject.ServiceConfig {
 	return kobject.ServiceConfig{
 		ContainerName: "myfoobarname",
 		Image:         "image",
-		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
@@ -125,7 +125,7 @@ func TestKomposeConvertRoute(t *testing.T) {
 	}
 }
 
-//Test getting git remote url for a directory
+// Test getting git remote url for a directory
 func TestGetGitRemote(t *testing.T) {
 	var output string
 	var err error

@@ -56,6 +56,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/expose-default: "true"
         io.kompose.service: redis
     spec:
       containers:
@@ -130,6 +131,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/expose-default: "true"
         io.kompose.service: web
     spec:
       containers:

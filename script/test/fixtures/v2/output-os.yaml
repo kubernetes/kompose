@@ -138,6 +138,7 @@ kind: Pod
 metadata:
   creationTimestamp: null
   labels:
+    io.kompose.network/v2-default: "true"
     io.kompose.service: foo
   name: foo
 spec:
@@ -214,6 +215,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/v2-default: "true"
         io.kompose.service: redis
     spec:
       containers:

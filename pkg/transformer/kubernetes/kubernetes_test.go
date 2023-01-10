@@ -23,7 +23,7 @@ import (
 	"strings"
 	"testing"
 
-	dockerCliTypes "github.com/docker/cli/cli/compose/types"
+	"github.com/compose-spec/compose-go/types"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
@@ -43,8 +43,8 @@ func newServiceConfig() kobject.ServiceConfig {
 		Name:            "app",
 		ContainerName:   "name",
 		Image:           "image",
-		Environment:     []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:            []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456}, kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(api.ProtocolUDP)}, kobject.Ports{HostPort: 55564, ContainerPort: 55564}, kobject.Ports{HostPort: 55563, ContainerPort: 55563}},
+		Environment:     []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:            []kobject.Ports{{HostPort: 123, ContainerPort: 456}, {HostPort: 123, ContainerPort: 456, Protocol: string(api.ProtocolUDP)}, {HostPort: 55564, ContainerPort: 55564}, {HostPort: 55563, ContainerPort: 55563}},
 		Command:         []string{"cmd"},
 		WorkingDir:      "dir",
 		Args:            []string{"arg1", "arg2"},
@@ -65,8 +65,8 @@ func newServiceConfig() kobject.ServiceConfig {
 		Replicas:        2,
 		Volumes:         []kobject.Volumes{{SvcName: "app", MountPath: "/tmp/volume", PVCName: "app-claim0"}},
 		GroupAdd:        []int64{1003, 1005},
-		Configs:         []dockerCliTypes.ServiceConfigObjConfig{{Source: "config", Target: "/etc/world"}},
-		ConfigsMetaData: map[string]dockerCliTypes.ConfigObjConfig{"config": dockerCliTypes.ConfigObjConfig{Name: "myconfig", File: "kubernetes_test.go"}},
+		Configs:         []types.ServiceConfigObjConfig{{Source: "config", Target: "/etc/world"}},
+		ConfigsMetaData: types.Configs{"config": types.ConfigObjConfig{Name: "myconfig", File: "kubernetes_test.go"}},
 	}
 }
 
@@ -529,8 +529,8 @@ func TestConvertRestartOptions(t *testing.T) {
 		svc           kobject.KomposeObject
 		restartPolicy api.RestartPolicy
 	}{
-		"'restart' is set to 'no'":         {kobject.KomposeObject{ServiceConfigs: map[string]kobject.ServiceConfig{"app": kobject.ServiceConfig{Image: "foobar", Restart: "no"}}}, api.RestartPolicyNever},
-		"'restart' is set to 'on-failure'": {kobject.KomposeObject{ServiceConfigs: map[string]kobject.ServiceConfig{"app": kobject.ServiceConfig{Image: "foobar", Restart: "on-failure"}}}, api.RestartPolicyOnFailure},
+		"'restart' is set to 'no'":         {kobject.KomposeObject{ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Image: "foobar", Restart: "no"}}}, api.RestartPolicyNever},
+		"'restart' is set to 'on-failure'": {kobject.KomposeObject{ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Image: "foobar", Restart: "on-failure"}}}, api.RestartPolicyOnFailure},
 	}
 
 	for name, test := range testCases {

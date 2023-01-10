@@ -34,6 +34,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/placement-default: "true"
         io.kompose.service: redis
     spec:
       affinity:
@@ -74,4 +75,20 @@ spec:
           topologyKey: ssd
           whenUnsatisfiable: ScheduleAnyway
 status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: placement-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/placement-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/placement-default: "true"
 

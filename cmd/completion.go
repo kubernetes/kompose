@@ -63,7 +63,7 @@ func init() {
 }
 
 /*
-	Fish shell auto-completion support
+Fish shell auto-completion support
 */
 func runCompletionFish(out io.Writer, kompose *cobra.Command) error {
 	kompose.GenFishCompletion(out, true)
@@ -79,9 +79,9 @@ complete -c kompose -n "__fish_seen_subcommand_from completion" -a "bash zsh fis
 }
 
 /*
-	This is copied from
-	https://github.com/kubernetes/kubernetes/blob/ea18d5c32ee7c320fe96dda6b0c757476908e696/pkg/kubectl/cmd/completion.go
-	in order to generate ZSH completion support.
+This is copied from
+https://github.com/kubernetes/kubernetes/blob/ea18d5c32ee7c320fe96dda6b0c757476908e696/pkg/kubectl/cmd/completion.go
+in order to generate ZSH completion support.
 */
 func runCompletionZsh(out io.Writer, kompose *cobra.Command) error {
 	zshInitialization := `

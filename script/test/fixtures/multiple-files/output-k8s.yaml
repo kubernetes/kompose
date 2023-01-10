@@ -16,6 +16,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/multiple-files-default: "true"
         io.kompose.service: bar
     spec:
       containers:
@@ -24,6 +25,22 @@ spec:
           resources: {}
       restartPolicy: Always
 status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: multiple-files-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/multiple-files-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/multiple-files-default: "true"
 
 ---
 apiVersion: apps/v1
@@ -43,6 +60,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/multiple-files-default: "true"
         io.kompose.service: foo
     spec:
       containers:
@@ -51,3 +69,4 @@ spec:
           resources: {}
       restartPolicy: Always
 status: {}
+

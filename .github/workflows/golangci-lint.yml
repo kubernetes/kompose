@@ -5,7 +5,7 @@ jobs:
   golangci:
     strategy:
       matrix:
-        go: [1.16, 1.17]
+        go: [1.18, 1.19]
     name: lint
     runs-on: ubuntu-latest
     steps:

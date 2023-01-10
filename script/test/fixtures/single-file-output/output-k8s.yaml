@@ -43,6 +43,7 @@ spec:
         kompose.service.expose.ingress-class-name: nginx
       creationTimestamp: null
       labels:
+        io.kompose.network/single-file-output-default: "true"
         io.kompose.service: front-end
     spec:
       containers:
@@ -83,3 +84,20 @@ spec:
             pathType: Prefix
 status:
   loadBalancer: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: single-file-output-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/single-file-output-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/single-file-output-default: "true"
+

@@ -190,10 +190,10 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 			},
 			Triggers: []deployapi.DeploymentTriggerPolicy{
 				// Trigger new deploy when DeploymentConfig is created (config change)
-				deployapi.DeploymentTriggerPolicy{
+				{
 					Type: deployapi.DeploymentTriggerOnConfigChange,
 				},
-				deployapi.DeploymentTriggerPolicy{
+				{
 					Type: deployapi.DeploymentTriggerOnImageChange,
 					ImageChangeParams: &deployapi.DeploymentTriggerImageChangeParams{
 						//Automatic - if new tag is detected - update image update inside the pod template

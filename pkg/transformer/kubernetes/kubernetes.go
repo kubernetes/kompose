@@ -29,7 +29,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/cli/cli/compose/types"
+	"github.com/compose-spec/compose-go/types"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
