@@ -275,26 +275,24 @@ func loadPorts(ports []types.ServicePortConfig, expose []string) []kobject.Ports
 		exist[cast.ToString(port.Target)+port.Protocol] = true
 	}
 
-	if expose != nil {
-		for _, port := range expose {
-			portValue := port
-			protocol := string(api.ProtocolTCP)
-			if strings.Contains(portValue, "/") {
-				splits := strings.Split(port, "/")
-				portValue = splits[0]
-				protocol = splits[1]
-			}
-
-			if exist[portValue+protocol] {
-				continue
-			}
-			komposePorts = append(komposePorts, kobject.Ports{
-				HostPort:      cast.ToInt32(portValue),
-				ContainerPort: cast.ToInt32(portValue),
-				HostIP:        "",
-				Protocol:      strings.ToUpper(protocol),
-			})
+	for _, port := range expose {
+		portValue := port
+		protocol := string(api.ProtocolTCP)
+		if strings.Contains(portValue, "/") {
+			splits := strings.Split(port, "/")
+			portValue = splits[0]
+			protocol = splits[1]
 		}
+
+		if exist[portValue+protocol] {
+			continue
+		}
+		komposePorts = append(komposePorts, kobject.Ports{
+			HostPort:      cast.ToInt32(portValue),
+			ContainerPort: cast.ToInt32(portValue),
+			HostIP:        "",
+			Protocol:      strings.ToUpper(protocol),
+		})
 	}
 
 	return komposePorts

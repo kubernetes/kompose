@@ -119,7 +119,7 @@ func TestParseWindowsVolumeMountLinuxContainer(t *testing.T) {
 		},
 		{
 			"container",
-			fmt.Sprintf("%s", linuxContainer),
+			linuxContainer,
 			"",
 			"",
 			linuxContainer,
@@ -214,7 +214,7 @@ func TestParseWindowsVolumeMountWindowsContainer(t *testing.T) {
 		},
 		{
 			"container",
-			fmt.Sprintf("%s", windowsContainer),
+			windowsContainer,
 			"",
 			"",
 			windowsContainer,
@@ -311,7 +311,7 @@ func TestParseVolume(t *testing.T) {
 		},
 		{
 			"container",
-			fmt.Sprintf("%s", container2),
+			container2,
 			"",
 			"",
 			container2,

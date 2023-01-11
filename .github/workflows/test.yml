@@ -16,8 +16,8 @@ jobs:
         go: [1.18, 1.19]
         cross_compile: [true, false]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
       - name: Run tests
@@ -30,8 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
           go-version: 1.19
       - name: Create .coverprofile for each targeted directory by re:running tests

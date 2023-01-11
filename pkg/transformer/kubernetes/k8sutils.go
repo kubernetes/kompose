@@ -493,10 +493,8 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		}
 	}
 
-	if cms != nil {
-		for _, c := range cms {
-			*objects = append(*objects, c)
-		}
+	for _, c := range cms {
+		*objects = append(*objects, c)
 	}
 
 	// Configure the container ports.
@@ -724,8 +722,6 @@ func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTempl
 
 		template.Spec.Containers[0].Resources.Requests = resourceRequests
 	}
-
-	return
 }
 
 // GetImagePullPolicy get image pull settings
