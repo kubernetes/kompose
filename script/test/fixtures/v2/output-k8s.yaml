@@ -138,6 +138,7 @@ kind: Pod
 metadata:
   creationTimestamp: null
   labels:
+    io.kompose.network/v2-default: "true"
     io.kompose.service: foo
   name: foo
 spec:
@@ -195,6 +196,22 @@ spec:
 status: {}
 
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: v2-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/v2-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/v2-default: "true"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -216,6 +233,7 @@ spec:
         kompose.service.type: loadbalancer
       creationTimestamp: null
       labels:
+        io.kompose.network/v2-default: "true"
         io.kompose.service: redis
     spec:
       containers:

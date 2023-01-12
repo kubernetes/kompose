@@ -342,7 +342,7 @@ func GetComposeFileDir(inputFiles []string) (string, error) {
 	return filepath.Dir(inputFile), nil
 }
 
-//BuildDockerImage builds docker image
+// BuildDockerImage builds docker image
 func BuildDockerImage(service kobject.ServiceConfig, name string) error {
 	wd, err := os.Getwd()
 	if err != nil {

@@ -1,0 +1,26 @@
+name: lint
+on:
+  pull_request:
+jobs:
+  lint:
+    strategy:
+      matrix:
+        go: [1.18, 1.19]
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+      - name: "Install golang"
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go }}
+      - name: "Run go vet"
+        run: "go vet ./pkg/..."
+      - name: "Run staticcheck"
+        uses: dominikh/staticcheck-action@v1
+        with:
+          cache-key: "${{ matrix.go }}"
+          install-go: false
+          version: "latest"
+          working-directory: "pkg"

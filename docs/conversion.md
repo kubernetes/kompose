@@ -14,26 +14,10 @@ redirect_from:
 
 This document outlines all possible conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts.
 
-## Version Table
+## Version Support
 
-| Supported | Compose Version | Docker Engine Version |
-|------------|-----------------|-----------------------|
-| N          | 3.8             | 19.03.0+              |
-| N          | 3.7             | 18.06.0+              |
-| N          | 3.6             | 18.02.0+              |
-| N          | 3.5             | 17.12.0+              |
-| N          | 3.4             | 17.09.0+              |
-| Y          | 3.3             | 17.06.0+              |
-| Y          | 3.2             | 17.04.0+              |
-| Y          | 3.1             | 1.13.1+               |
-| Y          | 3.0             | 1.13.0+               |
-| Y          | 2.4             | 17.12.0+              |
-| Y          | 2.3             | 17.06.0+              |
-| Y          | 2.2             | 1.13.0+               |
-| Y          | 2.1             | 1.12.0+               |
-| Y          | 2.0             | 1.10.0+               |
-
-**Note:** We don't support anything 3.4 and above at the moment. It is reccomended to specify `version: "3.3"` in your `docker-compose.yaml` and converting. We use a library called [libcompose](https://github.com/docker/libcompose) that supports up to version `3.3`. If you are interested in adding additional support, please open up a PR!
+Under the hood, we're using [compose-go](https://github.com/compose-spec/compose-go), the reference library for parsing Compose files. We should be able to load all versions of Compose files.
+We're doing our best to keep it up to date as soon as possible in our releases to be compatible with the latest features defined in the [Compose specification](https://github.com/compose-spec/compose-spec/blob/master/spec.md). If you absolutely need a feature we don't support yet, please open a PR!
 
 ## Conversion Table
 

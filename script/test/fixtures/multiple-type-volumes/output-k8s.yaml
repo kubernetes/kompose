@@ -21,6 +21,7 @@ spec:
         kompose.volume.type: persistentVolumeClaim
       creationTimestamp: null
       labels:
+        io.kompose.network/multiple-type-volumes-default: "true"
         io.kompose.service: db
     spec:
       containers:
@@ -54,6 +55,22 @@ spec:
 status: {}
 
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: multiple-type-volumes-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/multiple-type-volumes-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/multiple-type-volumes-default: "true"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -76,6 +93,7 @@ spec:
         kompose.volume.type: configMap
       creationTimestamp: null
       labels:
+        io.kompose.network/multiple-type-volumes-default: "true"
         io.kompose.service: web
     spec:
       containers:

@@ -38,7 +38,7 @@ spec:
       creationTimestamp: null
       labels:
         io.kompose.network/app-network: "true"
-        io.kompose.network/normalized-network: "true"
+        io.kompose.network/v30-normalized-network: "true"
         io.kompose.network/web-network: "true"
         io.kompose.service: foo
     spec:
@@ -90,16 +90,16 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   creationTimestamp: null
-  name: normalized-network
+  name: v30-normalized-network
 spec:
   ingress:
     - from:
         - podSelector:
             matchLabels:
-              io.kompose.network/normalized-network: "true"
+              io.kompose.network/v30-normalized-network: "true"
   podSelector:
     matchLabels:
-      io.kompose.network/normalized-network: "true"
+      io.kompose.network/v30-normalized-network: "true"
 
 ---
 apiVersion: apps/v1
@@ -123,6 +123,7 @@ spec:
         kompose.service.type: headless
       creationTimestamp: null
       labels:
+        io.kompose.network/v30-default: "true"
         io.kompose.service: redis
     spec:
       containers:
@@ -138,4 +139,20 @@ spec:
           resources: {}
       restartPolicy: Always
 status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: v30-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/v30-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/v30-default: "true"
 

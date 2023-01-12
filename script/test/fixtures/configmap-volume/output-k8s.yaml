@@ -17,6 +17,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/configmap-volume-default: "true"
         io.kompose.service: db
     spec:
       containers:
@@ -51,6 +52,22 @@ metadata:
   name: db-cm0
 
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: configmap-volume-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/configmap-volume-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/configmap-volume-default: "true"
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -69,6 +86,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/configmap-volume-default: "true"
         io.kompose.service: web
     spec:
       containers:

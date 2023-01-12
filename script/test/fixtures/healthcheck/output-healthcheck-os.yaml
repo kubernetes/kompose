@@ -122,6 +122,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/healthcheck-default: "true"
         io.kompose.service: mongo
     spec:
       containers:
@@ -211,6 +212,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/healthcheck-default: "true"
         io.kompose.service: mysql
     spec:
       containers:
@@ -301,6 +303,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/healthcheck-default: "true"
         io.kompose.service: postgresql
     spec:
       containers:
@@ -390,6 +393,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/healthcheck-default: "true"
         io.kompose.service: redis
     spec:
       containers:

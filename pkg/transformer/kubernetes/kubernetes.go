@@ -29,7 +29,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/cli/cli/compose/types"
+	"github.com/compose-spec/compose-go/types"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
@@ -871,7 +871,7 @@ func (k *Kubernetes) getSecretPathsLegacy(secretConfig types.ServiceSecretConfig
 		}
 
 		// if the target isn't absolute path
-		if strings.HasPrefix(secretConfig.Target, "/") == false {
+		if !strings.HasPrefix(secretConfig.Target, "/") {
 			// concat the default secret directory
 			mountPath = "/run/secrets/" + mountPath
 		}
@@ -1474,20 +1474,17 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					SetVolumes(volumes),
 				)
 
-				if pvc != nil {
-					// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`
-					// because the type of objects and pvc is different, but when doing append
-					// one element at a time it gets converted to runtime.Object for objects slice
-					for _, p := range pvc {
-						objects = append(objects, p)
-					}
+				// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`
+				// because the type of objects and pvc is different, but when doing append
+				// one element at a time it gets converted to runtime.Object for objects slice
+				for _, p := range pvc {
+					objects = append(objects, p)
 				}
 
-				if cms != nil {
-					for _, c := range cms {
-						objects = append(objects, c)
-					}
+				for _, c := range cms {
+					objects = append(objects, c)
 				}
+
 				podSpec.Append(
 					SetPorts(service),
 					ImagePullPolicy(name, service),

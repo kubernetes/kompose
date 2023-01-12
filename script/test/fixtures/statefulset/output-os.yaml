@@ -52,6 +52,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/statefulset-default: "true"
         io.kompose.service: db
     spec:
       containers:
@@ -109,6 +110,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/statefulset-default: "true"
         io.kompose.service: db
     spec:
       containers:
@@ -191,6 +193,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/statefulset-default: "true"
         io.kompose.service: wordpress
     spec:
       containers:
@@ -248,6 +251,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/statefulset-default: "true"
         io.kompose.service: wordpress
     spec:
       containers:

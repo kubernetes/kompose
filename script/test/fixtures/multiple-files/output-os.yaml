@@ -16,6 +16,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/multiple-files-default: "true"
         io.kompose.service: bar
     spec:
       containers:
@@ -84,6 +85,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        io.kompose.network/multiple-files-default: "true"
         io.kompose.service: foo
     spec:
       containers:
