@@ -18,7 +18,6 @@ package docker
 
 import (
 	"bytes"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -43,7 +42,7 @@ func (c *Build) BuildImage(source string, image string, dockerfile string, build
 	log.Infof("Building image '%s' from directory '%s'", image, path.Base(source))
 
 	// Create a temporary file for tarball image packaging
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "kompose-image-build-")
+	tmpFile, err := os.CreateTemp(os.TempDir(), "kompose-image-build-")
 	if err != nil {
 		return err
 	}
