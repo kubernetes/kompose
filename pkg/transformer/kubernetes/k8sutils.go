@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -79,7 +78,7 @@ func generateHelm(dirName string) error {
 
 	/* Create the readme file */
 	readme := "This chart was created by Kompose\n"
-	err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"README.md", []byte(readme), 0644)
+	err = os.WriteFile(dirName+string(os.PathSeparator)+"README.md", []byte(readme), 0644)
 	if err != nil {
 		return err
 	}
@@ -102,7 +101,7 @@ home:
 	var chartData bytes.Buffer
 	_ = t.Execute(&chartData, details)
 
-	err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"Chart.yaml", chartData.Bytes(), 0644)
+	err = os.WriteFile(dirName+string(os.PathSeparator)+"Chart.yaml", chartData.Bytes(), 0644)
 	if err != nil {
 		return err
 	}
@@ -839,7 +838,7 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 
 // GetContentFromFile gets the content from the file..
 func GetContentFromFile(file string) (string, error) {
-	fileBytes, err := ioutil.ReadFile(file)
+	fileBytes, err := os.ReadFile(file)
 	if err != nil {
 		return "", errors.Wrap(err, "Unable to read file")
 	}

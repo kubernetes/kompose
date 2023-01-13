@@ -200,5 +200,6 @@ spec:
     kind: Service
     name: web
     weight: null
-status: {}
+status:
+  ingress: null
 

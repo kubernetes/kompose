@@ -18,7 +18,6 @@ package transformer
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -290,7 +289,7 @@ func Print(name, path string, trailing string, data []byte, toStdout, generateJS
 	} else {
 		// Write content separately to each file
 		file = filepath.Join(path, file)
-		if err := ioutil.WriteFile(file, data, 0644); err != nil {
+		if err := os.WriteFile(file, data, 0644); err != nil {
 			return "", errors.Wrap(err, "Failed to write %s: "+trailing)
 		}
 		log.Printf("%s file %q created", formatProviderName(provider), file)

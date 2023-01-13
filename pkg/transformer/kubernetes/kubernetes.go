@@ -19,7 +19,6 @@ package kubernetes
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -267,7 +266,7 @@ func (k *Kubernetes) IntiConfigMapFromFileOrDir(name, cmName, filePath string, s
 
 	switch mode := fi.Mode(); {
 	case mode.IsDir():
-		files, err := ioutil.ReadDir(filePath)
+		files, err := os.ReadDir(filePath)
 		if err != nil {
 			return nil, err
 		}

@@ -17,7 +17,7 @@ limitations under the License.
 package compose
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -179,11 +179,11 @@ func normalizeNetworkNames(netName string) (string, error) {
 func ReadFile(fileName string) ([]byte, error) {
 	if fileName == "-" {
 		if StdinData == nil {
-			data, err := ioutil.ReadAll(os.Stdin)
+			data, err := io.ReadAll(os.Stdin)
 			StdinData = data
 			return data, err
 		}
 		return StdinData, nil
 	}
-	return ioutil.ReadFile(fileName)
+	return os.ReadFile(fileName)
 }

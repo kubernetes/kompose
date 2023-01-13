@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"testing"
@@ -23,7 +22,7 @@ func Test_stdin(t *testing.T) {
 	if err != nil {
 		fmt.Println("error", err)
 	}
-	g, err := ioutil.ReadFile("/tmp/output-k8s.json")
+	g, err := os.ReadFile("/tmp/output-k8s.json")
 	if !bytes.Equal(output, g) {
 		t.Errorf("Test Failed")
 	}
