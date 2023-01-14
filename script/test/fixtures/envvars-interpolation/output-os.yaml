@@ -1,0 +1,77 @@
+---
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: myservice
+  name: myservice
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: myservice
+  strategy:
+    resources: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/envvars-interpolation-default: "true"
+        io.kompose.service: myservice
+    spec:
+      containers:
+        - args:
+            - curl
+            - $(PROTOCOL)://$(DOMAIN)/
+          env:
+            - name: DOMAIN
+              value: google.com
+            - name: PROTOCOL
+              value: https
+          image: ' '
+          name: myservice
+          resources: {}
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - myservice
+        from:
+          kind: ImageStreamTag
+          name: myservice:latest
+      type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
+
+---
+apiVersion: v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: myservice
+  name: myservice
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: alpine
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+

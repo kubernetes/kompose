@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: myservice
+  name: myservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: myservice
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/envvars-interpolation-default: "true"
+        io.kompose.service: myservice
+    spec:
+      containers:
+        - args:
+            - curl
+            - $(PROTOCOL)://$(DOMAIN)/
+          env:
+            - name: DOMAIN
+              value: google.com
+            - name: PROTOCOL
+              value: https
+          image: alpine
+          name: myservice
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: envvars-interpolation-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/envvars-interpolation-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/envvars-interpolation-default: "true"
+

@@ -32,15 +32,15 @@ import (
 )
 
 /*
-	Test the creation of a service
+Test the creation of a service
 */
 func TestCreateService(t *testing.T) {
 	// An example service
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
 		Image:         "image",
-		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
@@ -82,8 +82,8 @@ func TestCreateServiceWithMemLimit(t *testing.T) {
 	service := kobject.ServiceConfig{
 		ContainerName:  "name",
 		Image:          "image",
-		Environment:    []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:           []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Environment:    []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:           []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
 		Command:        []string{"cmd"},
 		WorkingDir:     "dir",
 		Args:           []string{"arg1", "arg2"},
@@ -134,8 +134,8 @@ func TestCreateServiceWithCPULimit(t *testing.T) {
 	service := kobject.ServiceConfig{
 		ContainerName:  "name",
 		Image:          "image",
-		Environment:    []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:           []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Environment:    []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:           []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
 		Command:        []string{"cmd"},
 		WorkingDir:     "dir",
 		Args:           []string{"arg1", "arg2"},
@@ -179,16 +179,16 @@ func TestCreateServiceWithCPULimit(t *testing.T) {
 }
 
 /*
-	Test the creation of a service with a specified user.
-	The expected result is that Kompose will set user in PodSpec
+Test the creation of a service with a specified user.
+The expected result is that Kompose will set user in PodSpec
 */
 func TestCreateServiceWithServiceUser(t *testing.T) {
 	// An example service
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
 		Image:         "image",
-		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
@@ -230,8 +230,8 @@ func TestTransformWithPid(t *testing.T) {
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
 		Image:         "image",
-		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
@@ -266,8 +266,8 @@ func TestTransformWithInvalidPid(t *testing.T) {
 	service := kobject.ServiceConfig{
 		ContainerName: "name",
 		Image:         "image",
-		Environment:   []kobject.EnvVar{kobject.EnvVar{Name: "env", Value: "value"}},
-		Port:          []kobject.Ports{kobject.Ports{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
 		Command:       []string{"cmd"},
 		WorkingDir:    "dir",
 		Args:          []string{"arg1", "arg2"},
@@ -517,7 +517,7 @@ func TestSortedKeys(t *testing.T) {
 	}
 }
 
-//test conversion from duration string to seconds *int64
+// test conversion from duration string to seconds *int64
 func TestDurationStrToSecondsInt(t *testing.T) {
 	testCases := map[string]struct {
 		in  string
@@ -567,6 +567,64 @@ func TestServiceWithServiceAccount(t *testing.T) {
 		if deployment, ok := obj.(*appsv1.Deployment); ok {
 			if deployment.Spec.Template.Spec.ServiceAccountName != assertServiceAccountName {
 				t.Errorf("Expected %v returned, got %v", assertServiceAccountName, deployment.Spec.Template.Spec.ServiceAccountName)
+			}
+		}
+	}
+}
+
+func TestCreateServiceWithSpecialName(t *testing.T) {
+	service := kobject.ServiceConfig{
+		ContainerName: "front_end",
+		Image:         "nginx",
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	expectedContainerName := "front-end"
+	for _, obj := range objects {
+		if deploy, ok := obj.(*appsv1.Deployment); ok {
+			containerName := deploy.Spec.Template.Spec.Containers[0].Name
+			if containerName != "front-end" {
+				t.Errorf("Error while transforming container name. Expected %s Got %s", expectedContainerName, containerName)
+			}
+		}
+	}
+}
+
+func TestArgsInterpolation(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{{Name: "PROTOCOL", Value: "https"}, {Name: "DOMAIN", Value: "google.com"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Command:       []string{"curl"},
+		Args:          []string{"$PROTOCOL://$DOMAIN/"},
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	expectedArgs := []string{"$(PROTOCOL)://$(DOMAIN)/"}
+	for _, obj := range objects {
+		if deployment, ok := obj.(*appsv1.Deployment); ok {
+			args := deployment.Spec.Template.Spec.Containers[0].Args[0]
+			if args != expectedArgs[0] {
+				t.Errorf("Expected args %v upon conversion, actual %v", expectedArgs, args)
 			}
 		}
 	}

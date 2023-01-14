@@ -1,0 +1,158 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.service.type: headless
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  clusterIP: None
+  ports:
+    - name: headless
+      port: 55555
+      targetPort: 0
+  selector:
+    io.kompose.service: redis
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: foo
+  name: foo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: foo
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/app-network: "true"
+        io.kompose.network/v30-normalized-network: "true"
+        io.kompose.network/web-network: "true"
+        io.kompose.service: foo
+    spec:
+      containers:
+        - args:
+            - sh
+            - -c
+            - echo Hello Foo
+          image: foo:latest
+          name: foo
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: app-network
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/app-network: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/app-network: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: web-network
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/web-network: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/web-network: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: v30-normalized-network
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/v30-normalized-network: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/v30-normalized-network: "true"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.service.type: headless
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: redis
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.service.type: headless
+      creationTimestamp: null
+      labels:
+        io.kompose.network/v30-default: "true"
+        io.kompose.service: redis
+    spec:
+      containers:
+        - image: redis
+          livenessProbe:
+            exec:
+              command:
+                - echo "hello world"
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+          name: redis
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: v30-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/v30-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/v30-default: "true"
+

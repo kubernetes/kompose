@@ -20,11 +20,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -78,7 +78,7 @@ func generateHelm(dirName string) error {
 
 	/* Create the readme file */
 	readme := "This chart was created by Kompose\n"
-	err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"README.md", []byte(readme), 0644)
+	err = os.WriteFile(dirName+string(os.PathSeparator)+"README.md", []byte(readme), 0644)
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ home:
 	var chartData bytes.Buffer
 	_ = t.Execute(&chartData, details)
 
-	err = ioutil.WriteFile(dirName+string(os.PathSeparator)+"Chart.yaml", chartData.Bytes(), 0644)
+	err = os.WriteFile(dirName+string(os.PathSeparator)+"Chart.yaml", chartData.Bytes(), 0644)
 	if err != nil {
 		return err
 	}
@@ -147,17 +147,6 @@ func getDirName(opt kobject.ConvertOptions) string {
 	return dirName
 }
 
-func objectToRaw(object runtime.Object) runtime.RawExtension {
-	r := runtime.RawExtension{
-		Object: object,
-	}
-
-	bytes, _ := json.Marshal(object)
-	r.Raw = bytes
-
-	return r
-}
-
 // PrintList will take the data converted and decide on the commandline attributes given
 func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 	var f *os.File
@@ -191,36 +180,31 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 	}
 
 	var files []string
-
 	// if asked to print to stdout or to put in single file
 	// we will create a list
 	if opt.ToStdout || f != nil {
-		list := &api.List{}
 		// convert objects to versioned and add them to list
+		if opt.GenerateJSON {
+			return fmt.Errorf("cannot convert to one file while specifying a json output file or stdout option")
+		}
 		for _, object := range objects {
 			versionedObject, err := convertToVersion(object)
 			if err != nil {
 				return err
 			}
 
-			list.Items = append(list.Items, objectToRaw(versionedObject))
+			data, err := marshal(versionedObject, opt.GenerateJSON, opt.YAMLIndent)
+			if err != nil {
+				return fmt.Errorf("error in marshalling the List: %v", err)
+			}
+			// this part add --- which unifies the file
+			data = []byte(fmt.Sprintf("---\n%s", data))
+			printVal, err := transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
+			if err != nil {
+				return errors.Wrap(err, "transformer to print to one single file failed")
+			}
+			files = append(files, printVal)
 		}
-		// version list itself
-		list.Kind = "List"
-		list.APIVersion = "v1"
-		convertedList, err := convertToVersion(list)
-		if err != nil {
-			return err
-		}
-		data, err := marshal(convertedList, opt.GenerateJSON, opt.YAMLIndent)
-		if err != nil {
-			return fmt.Errorf("error in marshalling the List: %v", err)
-		}
-		printVal, err := transformer.Print("", dirName, "", data, opt.ToStdout, opt.GenerateJSON, f, opt.Provider)
-		if err != nil {
-			return errors.Wrap(err, "transformer.Print failed")
-		}
-		files = append(files, printVal)
 	} else {
 		finalDirName := dirName
 		if opt.CreateChart {
@@ -382,6 +366,7 @@ func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, p
 	return svc
 }
 
+// CreateLBService creates a k8s Load Balancer Service
 func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig) []*api.Service {
 	var svcs []*api.Service
 	tcpPorts, udpPorts := k.ConfigLBServicePorts(service)
@@ -442,6 +427,8 @@ func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceC
 
 	return svc
 }
+
+// UpdateKubernetesObjectsMultipleContainers method updates the kubernetes objects with the necessary data
 func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, service kobject.ServiceConfig, objects *[]runtime.Object, podSpec PodSpec) error {
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
@@ -505,10 +492,8 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		}
 	}
 
-	if cms != nil {
-		for _, c := range cms {
-			*objects = append(*objects, c)
-		}
+	for _, c := range cms {
+		*objects = append(*objects, c)
 	}
 
 	// Configure the container ports.
@@ -524,7 +509,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.Spec.Containers[0].Name = GetContainerName(service)
 		template.Spec.Containers[0].Env = envs
 		template.Spec.Containers[0].Command = service.Command
-		template.Spec.Containers[0].Args = service.Args
+		template.Spec.Containers[0].Args = GetContainerArgs(service)
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
 		template.Spec.Containers[0].VolumeMounts = append(template.Spec.Containers[0].VolumeMounts, volumesMount...)
 		template.Spec.Containers[0].Stdin = service.Stdin
@@ -594,18 +579,18 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
 
 		// Configure the image pull policy
-		if policy, err := GetImagePullPolicy(name, service.ImagePullPolicy); err != nil {
+		policy, err := GetImagePullPolicy(name, service.ImagePullPolicy)
+		if err != nil {
 			return err
-		} else {
-			template.Spec.Containers[0].ImagePullPolicy = policy
 		}
+		template.Spec.Containers[0].ImagePullPolicy = policy
 
 		// Configure the container restart policy.
-		if restart, err := GetRestartPolicy(name, service.Restart); err != nil {
+		restart, err := GetRestartPolicy(name, service.Restart)
+		if err != nil {
 			return err
-		} else {
-			template.Spec.RestartPolicy = restart
 		}
+		template.Spec.RestartPolicy = restart
 
 		// Configure hostname/domain_name settings
 		if service.HostName != "" {
@@ -680,15 +665,15 @@ func getServiceGroupID(service kobject.ServiceConfig, mode string) string {
 
 // KomposeObjectToServiceConfigGroupMapping returns the service config group by name or by volume
 // This group function works as following
-// 1. Support two mode
-//   (1): label: use a custom label, the service that contains it will be merged to one workload.
-//   (2): volume: the service that share to exactly same volume config will be merged to one workload. If use pvc, only
-//                 create one for this group.
-// 2. If service containers restart policy and no workload argument provide and it's restart policy looks like a pod, then
-//    this service should generate a pod. If group mode specified, it should be grouped and ignore the restart policy.
-// 3. If group mode specified, port conflict between services in one group will be ignored, and multiple service should be created.
-// 4. If `volume` group mode specified, we don't have an appropriate name for this combined service, use the first one for now.
-//    A warn/info message should be printed to let the user know.
+//  1. Support two mode
+//     (1): label: use a custom label, the service that contains it will be merged to one workload.
+//     (2): volume: the service that share to exactly same volume config will be merged to one workload. If use pvc, only
+//     create one for this group.
+//  2. If service containers restart policy and no workload argument provide and it's restart policy looks like a pod, then
+//     this service should generate a pod. If group mode specified, it should be grouped and ignore the restart policy.
+//  3. If group mode specified, port conflict between services in one group will be ignored, and multiple service should be created.
+//  4. If `volume` group mode specified, we don't have an appropriate name for this combined service, use the first one for now.
+//     A warn/info message should be printed to let the user know.
 func KomposeObjectToServiceConfigGroupMapping(komposeObject *kobject.KomposeObject, opt kobject.ConvertOptions) map[string]kobject.ServiceConfigGroup {
 	serviceConfigGroup := make(map[string]kobject.ServiceConfigGroup)
 
@@ -736,8 +721,6 @@ func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTempl
 
 		template.Spec.Containers[0].Resources.Requests = resourceRequests
 	}
-
-	return
 }
 
 // GetImagePullPolicy get image pull settings
@@ -855,7 +838,7 @@ func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string
 
 // GetContentFromFile gets the content from the file..
 func GetContentFromFile(file string) (string, error) {
-	fileBytes, err := ioutil.ReadFile(file)
+	fileBytes, err := os.ReadFile(file)
 	if err != nil {
 		return "", errors.Wrap(err, "Unable to read file")
 	}
@@ -881,21 +864,34 @@ func FormatFileName(name string) string {
 	return strings.Replace(file, "_", "-", -1)
 }
 
-//FormatContainerName format Container name
+// FormatContainerName format Container name
 func FormatContainerName(name string) string {
 	name = strings.Replace(name, "_", "-", -1)
 	return name
 }
 
+// GetContainerName returns the name of the container, from the service config object
 func GetContainerName(service kobject.ServiceConfig) string {
 	name := service.Name
 	if len(service.ContainerName) > 0 {
-		name = FormatContainerName(service.ContainerName)
+		name = service.ContainerName
 	}
-	return name
+	return FormatContainerName(name)
 }
 
 // FormatResourceName generate a valid k8s resource name
 func FormatResourceName(name string) string {
 	return strings.ToLower(strings.Replace(name, "_", "-", -1))
+}
+
+// GetContainerArgs update the interpolation of env variables if exists.
+// example: [curl, $PROTOCOL://$DOMAIN] => [curl, $(PROTOCOL)://$(DOMAIN)]
+func GetContainerArgs(service kobject.ServiceConfig) []string {
+	var args []string
+	re := regexp.MustCompile(`\$([a-zA-Z0-9]*)`)
+	for _, arg := range service.Args {
+		arg = re.ReplaceAllString(arg, `$($1)`)
+		args = append(args, arg)
+	}
+	return args
 }

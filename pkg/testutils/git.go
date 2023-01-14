@@ -2,7 +2,6 @@ package testutils
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"testing"
@@ -15,7 +14,7 @@ func NewCommand(cmd string) *exec.Cmd {
 
 // CreateLocalDirectory TODO: comment
 func CreateLocalDirectory(t *testing.T) string {
-	dir, err := ioutil.TempDir(os.TempDir(), "kompose-test-")
+	dir, err := os.MkdirTemp(os.TempDir(), "kompose-test-")
 	if err != nil {
 		t.Fatal(err)
 	}

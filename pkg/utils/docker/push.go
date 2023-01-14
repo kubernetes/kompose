@@ -82,9 +82,10 @@ func (c *Push) PushImage(image Image) error {
 // handleDockerRegistry adapt legacy docker registry address
 // After docker login to docker.io, there must be https://index.docker.io/v1/ in config.json of authentication
 // Reference: https://docs.docker.com/engine/api/v1.23/
-//     > However (for legacy reasons) the “official” Docker, Inc. hosted registry
-//     > must be specified with both a “https://” prefix and a “/v1/” suffix
-//     > even though Docker will prefer to use the v2 registry API.
+//
+//	> However (for legacy reasons) the “official” Docker, Inc. hosted registry
+//	> must be specified with both a “https://” prefix and a “/v1/” suffix
+//	> even though Docker will prefer to use the v2 registry API.
 func handleDockerRegistry(auth *dockerlib.AuthConfigurations) {
 	const address = "docker.io"
 	const legacyAddress = "https://index.docker.io/v1/"

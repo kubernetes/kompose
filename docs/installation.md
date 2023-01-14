@@ -22,10 +22,10 @@ __Linux and macOS:__
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.26.1/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.27.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.26.1/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.27.0/kompose-darwin-amd64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
@@ -33,7 +33,7 @@ sudo mv ./kompose /usr/local/bin/kompose
 
 __Windows:__
 
-Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.26.1/kompose-windows-amd64.exe) and add the binary to your PATH.
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.27.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 ## Go
 
@@ -66,8 +66,8 @@ sudo dnf -y install kompose
 A deb package is released for compose. Download latest package in the assets in [github releases](https://github.com/kubernetes/kompose/releases).
 
 ```bash
-wget https://github.com/kubernetes/kompose/releases/download/v1.26.1/kompose_1.26.1_amd64.deb # Replace 1.26.1 with latest tag
-sudo apt install ./kompose_1.26.1_amd64.deb
+wget https://github.com/kubernetes/kompose/releases/download/v1.27.0/kompose_1.27.0_amd64.deb # Replace 1.27.0 with latest tag
+sudo apt install ./kompose_1.27.0_amd64.deb
 ```
 
 ## macOS

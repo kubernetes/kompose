@@ -19,7 +19,6 @@ package kubernetes
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -29,7 +28,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/docker/cli/cli/compose/types"
+	"github.com/compose-spec/compose-go/types"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
@@ -58,6 +57,7 @@ type Kubernetes struct {
 // PVCRequestSize (Persistent Volume Claim) has default size
 const PVCRequestSize = "100Mi"
 
+// ValidVolumeSet has the different types of valid volumes
 var ValidVolumeSet = map[string]struct{}{"emptyDir": {}, "hostPath": {}, "configMap": {}, "persistentVolumeClaim": {}}
 
 const (
@@ -128,7 +128,7 @@ func (k *Kubernetes) InitPodSpec(name string, image string, pullSecret string) a
 	return pod
 }
 
-//InitPodSpecWithConfigMap creates the pod specification
+// InitPodSpecWithConfigMap creates the pod specification
 func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service kobject.ServiceConfig) api.PodSpec {
 	var volumeMounts []api.VolumeMount
 	var volumes []api.Volume
@@ -245,7 +245,7 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions
 
 // IntiConfigMapFromFileOrDir will create a configmap from dir or file
 // usage:
-//   1. volume
+//  1. volume
 func (k *Kubernetes) IntiConfigMapFromFileOrDir(name, cmName, filePath string, service kobject.ServiceConfig) (*api.ConfigMap, error) {
 	configMap := &api.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
@@ -266,7 +266,7 @@ func (k *Kubernetes) IntiConfigMapFromFileOrDir(name, cmName, filePath string, s
 
 	switch mode := fi.Mode(); {
 	case mode.IsDir():
-		files, err := ioutil.ReadDir(filePath)
+		files, err := os.ReadDir(filePath)
 		if err != nil {
 			return nil, err
 		}
@@ -324,7 +324,7 @@ func initConfigMapData(configMap *api.ConfigMap, data map[string]string) {
 	configMap.BinaryData = binData
 }
 
-//InitConfigMapFromFile initializes a ConfigMap object
+// InitConfigMapFromFile initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceConfig, fileName string) *api.ConfigMap {
 	content, err := GetContentFromFile(fileName)
 	if err != nil {
@@ -432,6 +432,7 @@ func (k *Kubernetes) InitDS(name string, service kobject.ServiceConfig) *appsv1.
 	return ds
 }
 
+// InitSS method initialize a stateful set
 func (k *Kubernetes) InitSS(name string, service kobject.ServiceConfig, replicas int) *appsv1.StatefulSet {
 	var podSpec api.PodSpec
 	if len(service.Configs) > 0 {
@@ -529,8 +530,8 @@ func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, por
 		}
 	}
 
-	if service.ExposeServiceIngressClassName != nil {
-		ingress.Spec.IngressClassName = service.ExposeServiceIngressClassName
+	if service.ExposeServiceIngressClassName != "" {
+		ingress.Spec.IngressClassName = &service.ExposeServiceIngressClassName
 	}
 
 	return ingress
@@ -634,6 +635,7 @@ func ConfigPorts(service kobject.ServiceConfig) []api.ContainerPort {
 	return ports
 }
 
+// ConfigLBServicePorts method configure the ports of the k8s Load Balancer Service
 func (k *Kubernetes) ConfigLBServicePorts(service kobject.ServiceConfig) ([]api.ServicePort, []api.ServicePort) {
 	var tcpPorts []api.ServicePort
 	var udpPorts []api.ServicePort
@@ -708,7 +710,7 @@ func (k *Kubernetes) ConfigServicePorts(service kobject.ServiceConfig) []api.Ser
 	return servicePorts
 }
 
-//ConfigCapabilities configure POSIX capabilities that can be added or removed to a container
+// ConfigCapabilities configure POSIX capabilities that can be added or removed to a container
 func ConfigCapabilities(service kobject.ServiceConfig) *api.Capabilities {
 	capsAdd := []api.Capability{}
 	capsDrop := []api.Capability{}
@@ -868,7 +870,7 @@ func (k *Kubernetes) getSecretPathsLegacy(secretConfig types.ServiceSecretConfig
 		}
 
 		// if the target isn't absolute path
-		if strings.HasPrefix(secretConfig.Target, "/") == false {
+		if !strings.HasPrefix(secretConfig.Target, "/") {
 			// concat the default secret directory
 			mountPath = "/run/secrets/" + mountPath
 		}
@@ -954,16 +956,15 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			volsource = source
 		} else if useConfigMap {
 			log.Debugf("Use configmap volume")
-
-			if cm, err := k.IntiConfigMapFromFileOrDir(name, volumeName, volume.Host, service); err != nil {
+			cm, err := k.IntiConfigMapFromFileOrDir(name, volumeName, volume.Host, service)
+			if err != nil {
 				return nil, nil, nil, nil, err
-			} else {
-				cms = append(cms, cm)
-				volsource = k.ConfigConfigMapVolumeSource(volumeName, volume.Container, cm)
+			}
+			cms = append(cms, cm)
+			volsource = k.ConfigConfigMapVolumeSource(volumeName, volume.Container, cm)
 
-				if useSubPathMount(cm) {
-					volMount.SubPath = volsource.ConfigMap.Items[0].Path
-				}
+			if useSubPathMount(cm) {
+				volMount.SubPath = volsource.ConfigMap.Items[0].Path
 			}
 		} else {
 			volsource = k.ConfigPVCVolumeSource(volumeName, readonly)
@@ -1012,7 +1013,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 }
 
 // ConfigEmptyVolumeSource is helper function to create an EmptyDir api.VolumeSource
-//either for Tmpfs or for emptyvolumes
+// either for Tmpfs or for emptyvolumes
 func (k *Kubernetes) ConfigEmptyVolumeSource(key string) *api.VolumeSource {
 	//if key is tmpfs
 	if key == "tmpfs" {
@@ -1472,20 +1473,17 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					SetVolumes(volumes),
 				)
 
-				if pvc != nil {
-					// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`
-					// because the type of objects and pvc is different, but when doing append
-					// one element at a time it gets converted to runtime.Object for objects slice
-					for _, p := range pvc {
-						objects = append(objects, p)
-					}
+				// Looping on the slice pvc instead of `*objects = append(*objects, pvc...)`
+				// because the type of objects and pvc is different, but when doing append
+				// one element at a time it gets converted to runtime.Object for objects slice
+				for _, p := range pvc {
+					objects = append(objects, p)
 				}
 
-				if cms != nil {
-					for _, c := range cms {
-						objects = append(objects, c)
-					}
+				for _, c := range cms {
+					objects = append(objects, c)
 				}
+
 				podSpec.Append(
 					SetPorts(service),
 					ImagePullPolicy(name, service),

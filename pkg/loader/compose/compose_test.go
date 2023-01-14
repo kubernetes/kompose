@@ -24,10 +24,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/docker/cli/cli/compose/types"
-	"github.com/docker/libcompose/config"
-	"github.com/docker/libcompose/project"
-	"github.com/docker/libcompose/yaml"
+	"github.com/compose-spec/compose-go/types"
 	"github.com/google/go-cmp/cmp"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
@@ -203,7 +200,7 @@ func TestLoadV3Volumes(t *testing.T) {
 		ReadOnly: true,
 	}
 	volumes := []types.ServiceVolumeConfig{vol}
-	output := loadV3Volumes(volumes)
+	output := loadVolumes(volumes)
 	expected := "/tmp/foobar:/tmp/foobar:ro"
 
 	if output[0] != expected {
@@ -220,7 +217,7 @@ func TestLoadV3Ports(t *testing.T) {
 	}{
 		{
 			desc:   "ports with expose",
-			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: string(api.ProtocolTCP)}},
+			ports:  []types.ServicePortConfig{{Target: 80, Published: "80", Protocol: string(api.ProtocolTCP)}},
 			expose: []string{"80", "8080"},
 			want: []kobject.Ports{
 				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
@@ -229,7 +226,7 @@ func TestLoadV3Ports(t *testing.T) {
 		},
 		{
 			desc:   "exposed port including /protocol",
-			ports:  []types.ServicePortConfig{{Target: 80, Published: 80, Protocol: string(api.ProtocolTCP)}},
+			ports:  []types.ServicePortConfig{{Target: 80, Published: "80", Protocol: string(api.ProtocolTCP)}},
 			expose: []string{"80/udp"},
 			want: []kobject.Ports{
 				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
@@ -238,7 +235,7 @@ func TestLoadV3Ports(t *testing.T) {
 		},
 	} {
 		t.Run(tt.desc, func(t *testing.T) {
-			got := loadV3Ports(tt.ports, tt.expose)
+			got := loadPorts(tt.ports, tt.expose)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("loadV3Ports() mismatch (-want +got):\n%s", diff)
 			}
@@ -275,92 +272,90 @@ func TestHandleServiceType(t *testing.T) {
 
 // Test loading of ports
 func TestLoadPorts(t *testing.T) {
+	portWithIPAddress, _ := types.ParsePortConfig("127.0.0.1:80:80/tcp")
+	portWithoutIPAddress, _ := types.ParsePortConfig("80:80/tcp")
+	portWithoutProtocol, _ := types.ParsePortConfig("80:80")
+	singlePort, _ := types.ParsePortConfig("80")
+	singlePortsRange, _ := types.ParsePortConfig("3000-3002")
+	targetAndContainerPortsRange, _ := types.ParsePortConfig("3000-3002:5000-5002")
+	targetAndContainerPortsRangeWithIPAddress, _ := types.ParsePortConfig("127.0.0.1:3000-3002:5000-5002")
+	port3000, _ := types.ParsePortConfig("3000")
+
 	tests := []struct {
-		ports  []string
+		ports  []types.ServicePortConfig
 		expose []string
 		want   []kobject.Ports
 	}{
 		{
-			ports: []string{"127.0.0.1:80:80/tcp"},
+			ports: portWithIPAddress,
 			want: []kobject.Ports{
 				{HostIP: "127.0.0.1", HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
-			ports: []string{"80:80/tcp"},
+			ports: portWithoutIPAddress,
 			want: []kobject.Ports{
 				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
-			ports: []string{"80:80"},
+			ports: portWithoutProtocol,
 			want: []kobject.Ports{
 				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
-			ports: []string{"80"},
+			ports: singlePort,
 			want: []kobject.Ports{
 				{ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
-			ports: []string{"3000-3005"},
+			ports: singlePortsRange,
 			want: []kobject.Ports{
 				{ContainerPort: 3000, Protocol: string(api.ProtocolTCP)},
 				{ContainerPort: 3001, Protocol: string(api.ProtocolTCP)},
 				{ContainerPort: 3002, Protocol: string(api.ProtocolTCP)},
-				{ContainerPort: 3003, Protocol: string(api.ProtocolTCP)},
-				{ContainerPort: 3004, Protocol: string(api.ProtocolTCP)},
-				{ContainerPort: 3005, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
-			ports: []string{"3000-3005:5000-5005"},
+			ports: targetAndContainerPortsRange,
 			want: []kobject.Ports{
 				{HostPort: 3000, ContainerPort: 5000, Protocol: string(api.ProtocolTCP)},
 				{HostPort: 3001, ContainerPort: 5001, Protocol: string(api.ProtocolTCP)},
 				{HostPort: 3002, ContainerPort: 5002, Protocol: string(api.ProtocolTCP)},
-				{HostPort: 3003, ContainerPort: 5003, Protocol: string(api.ProtocolTCP)},
-				{HostPort: 3004, ContainerPort: 5004, Protocol: string(api.ProtocolTCP)},
-				{HostPort: 3005, ContainerPort: 5005, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
-			ports: []string{"127.0.0.1:3000-3005:5000-5005"},
+			ports: targetAndContainerPortsRangeWithIPAddress,
 			want: []kobject.Ports{
 				{HostIP: "127.0.0.1", HostPort: 3000, ContainerPort: 5000, Protocol: string(api.ProtocolTCP)},
 				{HostIP: "127.0.0.1", HostPort: 3001, ContainerPort: 5001, Protocol: string(api.ProtocolTCP)},
 				{HostIP: "127.0.0.1", HostPort: 3002, ContainerPort: 5002, Protocol: string(api.ProtocolTCP)},
-				{HostIP: "127.0.0.1", HostPort: 3003, ContainerPort: 5003, Protocol: string(api.ProtocolTCP)},
-				{HostIP: "127.0.0.1", HostPort: 3004, ContainerPort: 5004, Protocol: string(api.ProtocolTCP)},
-				{HostIP: "127.0.0.1", HostPort: 3005, ContainerPort: 5005, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
-			ports: []string{"80", "3000"},
+			ports: append(append([]types.ServicePortConfig{}, singlePort...), port3000...),
 			want: []kobject.Ports{
 				{HostPort: 0, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 				{HostPort: 0, ContainerPort: 3000, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
-			ports:  []string{"80", "3000"},
+			ports:  append(append([]types.ServicePortConfig{}, singlePort...), port3000...),
 			expose: []string{"80", "8080"},
 			want: []kobject.Ports{
-				{HostPort: 0, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
-				{HostPort: 0, ContainerPort: 3000, Protocol: string(api.ProtocolTCP)},
-				{HostPort: 0, ContainerPort: 8080, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 3000, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
+				{HostPort: 8080, ContainerPort: 8080, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("port=%q,expose=%q", tt.ports, tt.expose), func(t *testing.T) {
-			got, err := loadPorts(tt.ports, tt.expose)
-			if err != nil {
-				t.Fatalf("Unexpected error with loading ports %v", err)
-			}
+			got := loadPorts(tt.ports, tt.expose)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("loadPorts() mismatch (-want +got):\n%s", diff)
 			}
@@ -438,71 +433,60 @@ func TestLoadEnvVar(t *testing.T) {
 // docker-compose projects
 func TestUnsupportedKeys(t *testing.T) {
 	// create project that will be used in test cases
-	projectWithNetworks := project.NewProject(&project.Context{}, nil, nil)
-	projectWithNetworks.ServiceConfigs = config.NewServiceConfigs()
-	projectWithNetworks.ServiceConfigs.Add("foo", &config.ServiceConfig{
-		Image: "foo/bar",
-		Build: yaml.Build{
-			Context: "./build",
+	projectWithNetworks := &types.Project{
+		Networks: types.Networks{
+			"foo": types.NetworkConfig{
+				Name:   "foo",
+				Driver: "bridge",
+			},
 		},
-		Hostname: "localhost",
-		Ports:    []string{}, // test empty array
-		Networks: &yaml.Networks{
-			Networks: []*yaml.Network{
-				{
-					Name: "net1",
+		Services: types.Services{
+			types.ServiceConfig{
+				Name:  "foo",
+				Image: "foo/bar",
+				Build: &types.BuildConfig{
+					Context: "./build",
+				},
+				Hostname: "localhost",
+				Ports:    []types.ServicePortConfig{}, // test empty array
+				Networks: map[string]*types.ServiceNetworkConfig{
+					"net1": {},
+				},
+			},
+			types.ServiceConfig{
+				Name:  "bar",
+				Image: "bar/foo",
+				Build: &types.BuildConfig{
+					Context: "./build",
+				},
+				Hostname: "localhost",
+				Ports:    []types.ServicePortConfig{}, // test empty array
+				Networks: map[string]*types.ServiceNetworkConfig{
+					"net1": {},
 				},
 			},
 		},
-	})
-	projectWithNetworks.ServiceConfigs.Add("bar", &config.ServiceConfig{
-		Image: "bar/foo",
-		Build: yaml.Build{
-			Context: "./build",
-		},
-		Hostname: "localhost",
-		Ports:    []string{}, // test empty array
-		Networks: &yaml.Networks{
-			Networks: []*yaml.Network{
-				{
-					Name: "net1",
-				},
+		Volumes: types.Volumes{
+			"foo": types.VolumeConfig{
+				Name:   "foo",
+				Driver: "storage",
 			},
-		},
-	})
-	projectWithNetworks.VolumeConfigs = map[string]*config.VolumeConfig{
-		"foo": {
-			Driver: "storage",
-		},
-	}
-	projectWithNetworks.NetworkConfigs = map[string]*config.NetworkConfig{
-		"foo": {
-			Driver: "bridge",
 		},
 	}
 
-	projectWithEmptyNetwork := project.NewProject(&project.Context{}, nil, nil)
-	projectWithEmptyNetwork.ServiceConfigs = config.NewServiceConfigs()
-	projectWithEmptyNetwork.ServiceConfigs.Add("foo", &config.ServiceConfig{
-		Networks: &yaml.Networks{},
-	})
-
-	projectWithDefaultNetwork := project.NewProject(&project.Context{}, nil, nil)
-	projectWithDefaultNetwork.ServiceConfigs = config.NewServiceConfigs()
-
-	projectWithDefaultNetwork.ServiceConfigs.Add("foo", &config.ServiceConfig{
-		Networks: &yaml.Networks{
-			Networks: []*yaml.Network{
-				{
-					Name: "default",
+	projectWithDefaultNetwork := &types.Project{
+		Services: types.Services{
+			types.ServiceConfig{
+				Networks: map[string]*types.ServiceNetworkConfig{
+					"default": {},
 				},
 			},
 		},
-	})
+	}
 
 	// define all test cases for checkUnsupportedKey function
 	testCases := map[string]struct {
-		composeProject          *project.Project
+		composeProject          *types.Project
 		expectedUnsupportedKeys []string
 	}{
 		"With Networks (service and root level)": {
@@ -567,28 +551,6 @@ func TestNormalizeNetworkNames(t *testing.T) {
 	}
 }
 
-func TestCheckLabelsPorts(t *testing.T) {
-	testCases := []struct {
-		name        string
-		noOfPort    int
-		labels      string
-		svcName     string
-		expectError bool
-	}{
-		{"ports is defined", 1, "NodePort", "foo", false},
-		{"ports is not defined", 0, "NodePort", "foo", true},
-	}
-
-	var err error
-	for _, testcase := range testCases {
-		t.Log(testcase.name)
-		err = checkLabelsPorts(testcase.noOfPort, testcase.labels, testcase.svcName)
-		if testcase.expectError && err == nil {
-			t.Log("Expected error, got ", err)
-		}
-	}
-}
-
 func TestCheckPlacementCustomLabels(t *testing.T) {
 	placement := types.Placement{
 		Constraints: []string{
@@ -601,7 +563,7 @@ func TestCheckPlacementCustomLabels(t *testing.T) {
 			{Spread: "node.labels.ssd"},
 		},
 	}
-	output := loadV3Placement(placement)
+	output := loadPlacement(placement)
 
 	expected := kobject.Placement{
 		PositiveConstraints: map[string]string{

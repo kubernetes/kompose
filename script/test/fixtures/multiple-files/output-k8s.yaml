@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: bar
+  name: bar
+spec:
+  replicas: 99
+  selector:
+    matchLabels:
+      io.kompose.service: bar
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/multiple-files-default: "true"
+        io.kompose.service: bar
+    spec:
+      containers:
+        - image: bar
+          name: bar
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: multiple-files-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/multiple-files-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/multiple-files-default: "true"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: foo
+  name: foo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      io.kompose.service: foo
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/multiple-files-default: "true"
+        io.kompose.service: foo
+    spec:
+      containers:
+        - image: foo
+          name: foo
+          resources: {}
+      restartPolicy: Always
+status: {}
+

@@ -1,0 +1,463 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.service.group: my-group
+    kompose.service.healthcheck.liveness.tcp_port: "8080"
+    kompose.service.healthcheck.readiness.interval: 10s
+    kompose.service.healthcheck.readiness.retries: "5"
+    kompose.service.healthcheck.readiness.tcp_port: "9090"
+    kompose.service.healthcheck.readiness.timeout: 1s
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mongo
+  name: mongo
+spec:
+  ports:
+    - name: "27017"
+      port: 27017
+      targetPort: 27017
+  selector:
+    io.kompose.service: mongo
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.service.group: my-group
+    kompose.service.healthcheck.liveness.tcp_port: "8081"
+    kompose.service.healthcheck.readiness.interval: 11s
+    kompose.service.healthcheck.readiness.retries: "6"
+    kompose.service.healthcheck.readiness.tcp_port: "9091"
+    kompose.service.healthcheck.readiness.timeout: 2s
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mysql
+  name: mysql
+spec:
+  ports:
+    - name: "3306"
+      port: 3306
+      targetPort: 3306
+  selector:
+    io.kompose.service: mysql
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.service.healthcheck.liveness.http_get_path: /health
+    kompose.service.healthcheck.liveness.http_get_port: "8080"
+    kompose.service.healthcheck.readiness.http_get_path: /ready
+    kompose.service.healthcheck.readiness.http_get_port: "8080"
+    kompose.service.healthcheck.readiness.interval: 10s
+    kompose.service.healthcheck.readiness.retries: "5"
+    kompose.service.healthcheck.readiness.timeout: 1s
+  creationTimestamp: null
+  labels:
+    io.kompose.service: postgresql
+  name: postgresql
+spec:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  selector:
+    io.kompose.service: postgresql
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.service.healthcheck.readiness.interval: 10s
+    kompose.service.healthcheck.readiness.retries: "5"
+    kompose.service.healthcheck.readiness.test: echo "liveness"
+    kompose.service.healthcheck.readiness.timeout: 1s
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  ports:
+    - name: "6379"
+      port: 6379
+      targetPort: 6379
+  selector:
+    io.kompose.service: redis
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    kompose.service.group: my-group
+    kompose.service.healthcheck.liveness.tcp_port: "8080"
+    kompose.service.healthcheck.readiness.interval: 10s
+    kompose.service.healthcheck.readiness.retries: "5"
+    kompose.service.healthcheck.readiness.tcp_port: "9090"
+    kompose.service.healthcheck.readiness.timeout: 1s
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mongo
+  name: mongo
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: mongo
+  strategy:
+    resources: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/healthcheck-default: "true"
+        io.kompose.service: mongo
+    spec:
+      containers:
+        - image: ' '
+          livenessProbe:
+            failureThreshold: 5
+            periodSeconds: 10
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 1
+          name: mongo
+          ports:
+            - containerPort: 27017
+          readinessProbe:
+            failureThreshold: 5
+            periodSeconds: 10
+            tcpSocket:
+              port: 9090
+            timeoutSeconds: 1
+          resources: {}
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - mongo
+        from:
+          kind: ImageStreamTag
+          name: mongo:latest
+      type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
+
+---
+apiVersion: v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mongo
+  name: mongo
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: mongo
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+
+---
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    kompose.service.group: my-group
+    kompose.service.healthcheck.liveness.tcp_port: "8081"
+    kompose.service.healthcheck.readiness.interval: 11s
+    kompose.service.healthcheck.readiness.retries: "6"
+    kompose.service.healthcheck.readiness.tcp_port: "9091"
+    kompose.service.healthcheck.readiness.timeout: 2s
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mysql
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: mysql
+  strategy:
+    resources: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/healthcheck-default: "true"
+        io.kompose.service: mysql
+    spec:
+      containers:
+        - image: ' '
+          livenessProbe:
+            failureThreshold: 6
+            periodSeconds: 11
+            tcpSocket:
+              port: 8081
+            timeoutSeconds: 2
+          name: mysql
+          ports:
+            - containerPort: 3306
+          readinessProbe:
+            failureThreshold: 6
+            periodSeconds: 11
+            tcpSocket:
+              port: 9091
+            timeoutSeconds: 2
+          resources: {}
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - mysql
+        from:
+          kind: ImageStreamTag
+          name: mysql:latest
+      type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
+
+---
+apiVersion: v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mysql
+  name: mysql
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: mysql
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+
+---
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    kompose.service.healthcheck.liveness.http_get_path: /health
+    kompose.service.healthcheck.liveness.http_get_port: "8080"
+    kompose.service.healthcheck.readiness.http_get_path: /ready
+    kompose.service.healthcheck.readiness.http_get_port: "8080"
+    kompose.service.healthcheck.readiness.interval: 10s
+    kompose.service.healthcheck.readiness.retries: "5"
+    kompose.service.healthcheck.readiness.timeout: 1s
+  creationTimestamp: null
+  labels:
+    io.kompose.service: postgresql
+  name: postgresql
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: postgresql
+  strategy:
+    resources: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/healthcheck-default: "true"
+        io.kompose.service: postgresql
+    spec:
+      containers:
+        - image: ' '
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 1
+          name: postgresql
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /ready
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 1
+          resources: {}
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - postgresql
+        from:
+          kind: ImageStreamTag
+          name: postgresql:latest
+      type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
+
+---
+apiVersion: v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: postgresql
+  name: postgresql
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: postgresql
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+
+---
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+    kompose.service.healthcheck.readiness.interval: 10s
+    kompose.service.healthcheck.readiness.retries: "5"
+    kompose.service.healthcheck.readiness.test: echo "liveness"
+    kompose.service.healthcheck.readiness.timeout: 1s
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: redis
+  strategy:
+    resources: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/healthcheck-default: "true"
+        io.kompose.service: redis
+    spec:
+      containers:
+        - image: ' '
+          livenessProbe:
+            exec:
+              command:
+                - echo "liveness"
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+          name: redis
+          ports:
+            - containerPort: 6379
+          readinessProbe:
+            exec:
+              command:
+                - echo
+                - liveness
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+          resources: {}
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - redis
+        from:
+          kind: ImageStreamTag
+          name: redis:latest
+      type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
+
+---
+apiVersion: v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: redis
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+

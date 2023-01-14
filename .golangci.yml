@@ -12,7 +12,7 @@ linters:
 #    - errcheck
 #    - goconst
     - goimports
-#    - golint
+#    - staticcheck
     - goprintffuncname
 #    - gosimple
     - govet
