@@ -219,5 +219,8 @@ convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 
 # Test host port and protocol feature
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/host-port-protocol/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
+os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/host-port-protocol/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/host-port-protocol/output-k8s.yaml"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/host-port-protocol/output-os.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
+convert::expect_success "$os_cmd" "$os_output"
