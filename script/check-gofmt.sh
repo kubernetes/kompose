@@ -24,7 +24,7 @@ for file in $GO_FILES; do
 	if [ "$gofmtOutput" ]; then
 		errors+=("$gofmtOutput")
 	fi
-done 
+done
 
 
 if [ ${#errors[@]} -eq 0 ]; then

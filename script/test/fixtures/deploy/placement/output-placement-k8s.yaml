@@ -91,4 +91,3 @@ spec:
   podSelector:
     matchLabels:
       io.kompose.network/placement-default: "true"
-

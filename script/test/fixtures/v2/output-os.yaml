@@ -271,4 +271,3 @@ spec:
         type: ""
 status:
   dockerImageRepository: ""
-

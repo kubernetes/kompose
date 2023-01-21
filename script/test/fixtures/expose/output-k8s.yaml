@@ -164,4 +164,3 @@ spec:
       secretName: test-secret
 status:
   loadBalancer: {}
-

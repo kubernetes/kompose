@@ -49,4 +49,3 @@ spec:
   podSelector:
     matchLabels:
       io.kompose.network/envvars-interpolation-default: "true"
-

@@ -9,10 +9,10 @@ services:
         - redis
       networks:
         - default
-    
+
     redis:
       image: redis:3.0
-      networks: 
+      networks:
         - default
       ports:
         - "6379/tcp"

@@ -1,7 +1,7 @@
 name: kompose
 summary:  Go from Docker Compose to Kubernetes.
 description:Kompose is a tool to help users who are familiar with docker-compose move to Kubernetes. kompose takes a Docker Compose file and translates it into Kubernetes resources.
-  
+
 grade: stable
 confinement: classic
 
@@ -22,7 +22,7 @@ apps:
 
 parts:
   kompose:
-  plugin: nil 
+  plugin: nil
     source: https://github.com/kubernetes/kompose.git
     source-type: git
     override-pull: |

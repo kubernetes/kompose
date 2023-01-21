@@ -2,7 +2,7 @@ version: "2"
 
 services:
     foo:
-        build: 
+        build:
           context: "./build"
           args:
             NAME: web

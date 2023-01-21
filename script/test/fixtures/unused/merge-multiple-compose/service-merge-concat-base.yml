@@ -17,11 +17,10 @@ services:
       - other_service_1
       - common_service:alias1
     labels:
-      - "simplelabel.first=Foo" 
+      - "simplelabel.first=Foo"
       - "complexlabel=original"
     tmpfs:
       - /base-tmpdir
     volumes:
       - /simple/base/volume
       - /base/dir:/common/mount/point
-      

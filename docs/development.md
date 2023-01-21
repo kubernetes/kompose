@@ -2,7 +2,7 @@
 layout: default
 permalink: /development/
 title: Development
-redirect_from: 
+redirect_from:
   - /docs/development.md/
   - /docs/development/
 ---

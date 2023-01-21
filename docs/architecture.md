@@ -2,7 +2,7 @@
 layout: default
 permalink: /architecture/
 title: Architecture
-redirect_from: 
+redirect_from:
   - /docs/architecture.md/
   - /docs/architecture/
 ---
@@ -21,7 +21,7 @@ redirect_from:
 Loader reads input file (now `kompose` supports [Docker Compose](https://docs.docker.com/compose) v1, v2 and converts it to KomposeObject.
 
 Loader is represented by a Loader interface:
- 
+
 ```go
 type Loader interface {
       LoadFile(file string) kobject.KomposeObject

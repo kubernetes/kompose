@@ -1,7 +1,7 @@
 version: '2'
 services:
   web:
-    image: flask_web      
+    image: flask_web
     command: python app.py
     ports:
      - "5000:5000"

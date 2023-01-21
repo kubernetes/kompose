@@ -2,7 +2,7 @@
 layout: default
 permalink: /installation/
 title: Installation
-redirect_from: 
+redirect_from:
   - /docs/installation.md/
   - /docs/installation/
 ---

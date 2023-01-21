@@ -4,4 +4,3 @@ services:
     image: nginx
     labels:
       kompose.image-pull-policy: "Always"
-

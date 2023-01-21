@@ -248,4 +248,3 @@ spec:
               memory: "10485760e3"
       restartPolicy: Always
 status: {}
-

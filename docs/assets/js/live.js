@@ -6,16 +6,16 @@
   Recent change: Made stylesheet and mimetype checks case insensitive.
 
   http://livejs.com
-  http://livejs.com/license (MIT)  
+  http://livejs.com/license (MIT)
   @livejs
 
   Include live.js#css to monitor css changes only.
   Include live.js#js to monitor js changes only.
   Include live.js#html to monitor html changes only.
-  Mix and match to monitor a preferred combination such as live.js#html,css  
+  Mix and match to monitor a preferred combination such as live.js#html,css
 
   By default, just include live.js to monitor all css, js and html changes.
-  
+
   Live.js can also be loaded as a bookmarklet. It is best to only use it for CSS then,
   as a page reload due to a change in html or css would not re-include the bookmarklet.
   To monitor CSS and be notified that it has loaded, include it as: live.js#css,notify
@@ -34,8 +34,8 @@
   var Live = {
 
     // performs a cycle per interval
-    heartbeat: function () {      
-      if (document.body) {        
+    heartbeat: function () {
+      if (document.body) {
         // make sure all resources are loaded on first activation
         if (!loaded) Live.loadresources();
         Live.checkForChanges();
@@ -66,7 +66,7 @@
         if (src && src.match(/\blive.js#/)) {
           for (var type in active)
             active[type] = src.match("[#,|]" + type) != null
-          if (src.match("notify")) 
+          if (src.match("notify"))
             alert("Live.js is loaded.");
         }
       }
@@ -139,7 +139,7 @@
     // act upon a changed url of certain content type
     refreshResource: function (url, type) {
       switch (type.toLowerCase()) {
-        // css files can be reloaded dynamically by replacing the link element                               
+        // css files can be reloaded dynamically by replacing the link element
         case "text/css":
           var link = currentLinkElements[url],
               html = document.body.parentNode,
@@ -159,7 +159,7 @@
           Live.removeoldLinkElements();
           break;
 
-        // check if an html resource is our current url, then reload                               
+        // check if an html resource is our current url, then reload
         case "text/html":
           if (url != document.location.href)
             return;
@@ -229,5 +229,5 @@
     window.liveJsLoaded = true;
   }
   else if (window.console)
-    console.log("Live.js doesn't support the file protocol. It needs http.");    
+    console.log("Live.js doesn't support the file protocol. It needs http.");
 })();

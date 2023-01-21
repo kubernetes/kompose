@@ -161,7 +161,7 @@
 
         function closeAccordion($accordion, $content) {
             $accordion.trigger('accordion.close');
-            
+
             if(CSStransitions) {
                 if(accordionHasParent) {
                     var $parentAccordions = $accordion.parents('[data-accordion]');
@@ -244,15 +244,15 @@
 
         function addEventListeners() {
             $controls.on('click', toggleAccordion);
-            
+
             $controls.on('accordion.toggle', function() {
                 if(opts.singleOpen && $controls.length > 1) {
                     return false;
                 }
-                
+
                 toggleAccordion();
             });
-            
+
             $controls.on('accordion.refresh', function() {
                 refreshHeight($accordion);
             });

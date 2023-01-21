@@ -205,4 +205,3 @@ metadata:
   labels:
     io.kompose.service: web
   name: web-cm1
-

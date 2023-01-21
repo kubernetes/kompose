@@ -26,4 +26,3 @@ services:
     command: sleep 3600
     volumes:
       - /cat
-
