@@ -22,7 +22,7 @@ Read about building kompose [here](https://github.com/kubernetes/kompose#buildin
 
 ### Clone your fork
 
-The commands below require that you have `$GOPATH`. We highly recommended you put Kompose code into your `$GOPATH`.
+The commands below require that you have `$GOPATH`. We highly recommended you put the Kompose code into your `$GOPATH`.
 
 ```console
 git clone https://github.com/$YOUR_GITHUB_USERNAME/kompose.git $GOPATH/src/github.com/kubernetes/kompose

@@ -11,13 +11,13 @@ redirect_from:
 
 - TOC
 
-`kompose` has 3 stages: _Loader_, _Transformer_ and _Outputter_. Each stage should have a well-defined interface, so it is easy to write a new Loader, Transformer or Outputters and plug it in. Currently, only Loader and Transformer interfaces are defined.
+`kompose` has 3 stages: _Loader_, _Transformer_ and _Outputter_. Each stage should have a well-defined interface, so it is easy to write a new Loader, Transformer, or Outputters and plug it in. Currently, only Loader and Transformer interfaces are defined.
 
 ![Design Diagram](https://github.com/kubernetes/kompose/blob/master/docs/images/design_diagram.png)
 
 ## Loader
 
-Loader reads input file now `kompose` supports [Docker Compose](https://docs.docker.com/compose) v1, v2 and converts it to KomposeObject.
+The Loader reads the input file now `kompose` supports [Docker Compose](https://docs.docker.com/compose) v1, v2 and converts it to KomposeObject.
 
 Loader is represented by a Loader interface:
 
@@ -70,7 +70,7 @@ type ServiceConfig struct {
 
 ## Transformer
 
-Transformer takes KomposeObject and converts it to target/output format (currently, there are sets of Kubernetes/OpenShift objects). Similar to `Loader`, Transformer is represented by a Transformer interface:
+The Transformer takes KomposeObject and converts it to target/output format (currently, there are sets of Kubernetes/OpenShift objects). Similar to the `Loader`, Transformer is represented by a Transformer interface:
 
 ```go
 type Transformer interface {
@@ -78,7 +78,7 @@ type Transformer interface {
 }
 ```
 
-If you wish to add more providers which contain different kind of objects, transformer would be the place to look into. Currently, Kompose supports Kubernetes (by default) and OpenShift providers. More details at:
+If you wish to add more providers containing different kinds of objects, the Transformer would be the place to look into. Currently, Kompose supports Kubernetes (by default) and OpenShift providers. More details at:
 
 - [kompose/pkg/transformer](https://github.com/kubernetes/kompose/tree/master/pkg/transformer)
 - [kompose/pkg/transformer/Kubernetes](https://github.com/kubernetes/kompose/tree/master/pkg/transformer/kubernetes)
@@ -86,4 +86,4 @@ If you wish to add more providers which contain different kind of objects, trans
 
 ## Outputter
 
-Outputter takes Transformer result and executes the given action. For example, action can be displaying result to stdout or directly deploying artifacts to Kubernetes/OpenShift.
+The Outputter takes the Transformer result and executes the given action. For example, action can display results to stdout or directly deploy artifacts to Kubernetes/OpenShift.

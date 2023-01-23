@@ -70,7 +70,7 @@ Add the `<configuration>` and `<executions>` sections to `pom.xml` as shown in a
 
 **5. Deploy application on Kubernetes or OpenShift**
 
-Make sure that Kubernetes/OpenShift cluster or Minikube/minishift is running. In case, if anything of this is not running, you can run minishift to test this application by using following command.
+Make sure that Kubernetes/OpenShift cluster or Minikube/Minishift is running. In case, if anything of this is not running, you can run Minishift to test this application by using the following command.
 
 ```bash
 $ minishift start

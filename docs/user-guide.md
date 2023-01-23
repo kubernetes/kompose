@@ -87,7 +87,7 @@ INFO OpenShift file "result-deploymentconfig.yaml" created
 INFO OpenShift file "result-imagestream.yaml" created
 ```
 
-It also supports creating buildconfig for build directive in a service. By default, it uses the remote repo for the current git branch as the source repo, and the current branch as the source branch for the build. You can specify a different source repo and branch using `--build-repo` and `--build-branch` options respectively.
+It also supports creating buildconfig for build directive in a service. By default, it uses the remote repository for the current git branch as the source repository, and the current branch as the source branch for the build. You can specify a different source repository and branch using `--build-repo` and `--build-branch` options respectively.
 
 ```sh
 $ kompose --provider openshift --file buildconfig/docker-compose.yml convert
@@ -244,7 +244,7 @@ services:
 ```
 
 - `kompose.service.expose` defines if the service needs to be made accessible from outside the cluster or not. If the value is set to "true", the provider sets the endpoint automatically, and for any other value, the value is set as the hostname. If multiple ports are defined in a service, the first one is chosen to be the exposed.
-  - For the Kubernetes provider, an ingress resource is created,and it is assumed that an ingress controller has already been configured. If the value is set to a comma separated list, multiple hostnames are supported.Hostname with path is also supported.
+  - For the Kubernetes provider, an ingress resource is created, and it is assumed that an ingress controller has already been configured. If the value is set to a comma-separated list, multiple hostnames are supported. Hostname with the path is also supported.
   - For the OpenShift provider, a route is created.
 - `kompose.service.nodeport.port` defines the port value when service type is `nodeport`, this label should only be set when the service only contains 1 port. Usually kubernetes define a port range for node port values, kompose will not validate this.
 - `kompose.service.expose.tls-secret` provides the name of the TLS secret to use with the Kubernetes ingress controller. This requires kompose.service.expose to be set.
@@ -297,8 +297,8 @@ services:
       kompose.image-pull-secret: "example-kubernetes-secret"
 ```
 
-- `kompose.volume.size` defines the requests storage's size in the PersistentVolumeClaim, or you can use command line parameter `--pvc-request-size`.
-  The priority follow label (kompose.volume.size) > command parameter(--pvc-request-size) > defaultSize (100Mi)
+- `kompose.volume.size` defines the requests storage's size in the PersistentVolumeClaim, or you can use the command line parameter `--pvc-request-size`.
+- The priority follows label (kompose.volume.size) > command parameter(--pvc-request-size) > defaultSize (100Mi)
 
 For example:
 

@@ -73,8 +73,7 @@ sudo apt install ./kompose_1.28.0_amd64.deb
 
 ## macOS
 
-On macOS you can install the latest release via [Homebrew](https://brew.sh) or [MacPorts](https://www.macports.org/).
-
+On macOS, you can install the latest release via [Homebrew](https://brew.sh) or [MacPorts](https://www.macports.org/).
 ```bash
 # Homebrew
 brew install kompose
