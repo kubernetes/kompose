@@ -95,4 +95,4 @@ Created the new window in existing browser session.
 
 It will open your application endpoint in default browser.
 
-![Output-Diagram](/docs/images/kompose-maven-output-diagram.png)
+![Output-Diagram](https://github.com/kubernetes/kompose/blob/master/docs/images/kompose-maven-output-diagram.png)
