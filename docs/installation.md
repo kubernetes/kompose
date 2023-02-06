@@ -37,7 +37,7 @@ Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v
 
 ## Go
 
-Installing using `go install` pulls from the master branch with the latest development changes.
+Installing using `go install` pulls from the main branch with the latest development changes.
 
 ```sh
 go install github.com/kubernetes/kompose@latest

@@ -44,10 +44,10 @@ Starting cluster components...
 Kubectl is now configured to use the cluster
 ```
 
-**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml), or use your own:**
+**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:**
 
 ```sh
-wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml
+wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
 ```
 
 **Convert your Docker Compose file to Kubernetes:**
@@ -134,10 +134,14 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
+<<<<<<< HEAD
 **Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml), or use your own:**
+=======
+__Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:__
+>>>>>>> fa5394da8 (change master to main in scripts and docs)
 
 ```sh
-wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml
+wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
 ```
 
 **Convert your Docker Compose file to OpenShift:**
@@ -254,10 +258,14 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
+<<<<<<< HEAD
 **Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml), or use your own:**
+=======
+__Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:__
+>>>>>>> fa5394da8 (change master to main in scripts and docs)
 
 ```sh
-wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml
+wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
 ```
 
 **Convert your Docker Compose file to OpenShift:**

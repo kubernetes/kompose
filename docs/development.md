@@ -41,7 +41,7 @@ git checkout -b myfeature
 
 ```console
 git fetch upstream
-git rebase upstream/master
+git rebase upstream/main
 ```
 
 Note: If you have write access to the main repository at github.com/kubernetes/kompose, you should modify your git configuration so that you can't accidentally push to upstream:
@@ -77,7 +77,7 @@ Currently, it is not possible to use a different Kubernetes version from the ver
 
 ### Adding CLI tests
 
-[Kompose CLI tests](https://github.com/kubernetes/kompose/tree/master/script/test/cmd) run `kompose convert` with docker-compose files, and cross-check the k8s and OpenShift artifacts generated with the template files.
+[Kompose CLI tests](https://github.com/kubernetes/kompose/tree/main/script/test/cmd) run `kompose convert` with docker-compose files, and cross-check the k8s and OpenShift artifacts generated with the template files.
 
 To generate CLI tests, please run `make gen-cmd`.
 

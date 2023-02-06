@@ -8,7 +8,7 @@
 
 ## Use Case
 
-Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml) into Kubernetes deployments and services with one simple command:
+Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml) into Kubernetes deployments and services with one simple command:
 
 ```sh
 $ kompose convert -f docker-compose.yaml
@@ -121,7 +121,7 @@ $ make test
 
 ## Documentation
 
-Documentation can be found at our [kompose.io](http://kompose.io) website or our [docs](https://github.com/kubernetes/kompose/tree/master/docs) folder.
+Documentation can be found at our [kompose.io](http://kompose.io) website or our [docs](https://github.com/kubernetes/kompose/tree/main/docs) folder.
 
 Here is a list of all available docs:
 
@@ -148,7 +148,7 @@ Participation in the Kubernetes community is governed by the [Kubernetes Code of
 [Build Status Widget]: https://github.com/kubernetes/kompose/workflows/Kompose%20CI/badge.svg
 [GoDoc]: https://godoc.org/github.com/kubernetes/kompose
 [GoDoc Widget]: https://godoc.org/github.com/kubernetes/kompose?status.svg
-[Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes/kompose/badge.svg?branch=master
-[Coverage Status]: https://coveralls.io/github/kubernetes/kompose?branch=master
+[Coverage Status Widget]: https://coveralls.io/repos/github/kubernetes/kompose/badge.svg?branch=main
+[Coverage Status]: https://coveralls.io/github/kubernetes/kompose?branch=main
 [GoReportCard Widget]: https://goreportcard.com/badge/github.com/kubernetes/kompose
 [GoReportCardResult]: https://goreportcard.com/report/github.com/kubernetes/kompose
