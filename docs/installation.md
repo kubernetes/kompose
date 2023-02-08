@@ -12,11 +12,11 @@ redirect_from:
 - TOC
   {:toc}
 
-We have multiple ways to install Kompose. Our preferred method is downloading the binary from the latest GitHub release.
+We have multiple ways to install Kompose. Our preferred (and most up-to-date) method is downloading the binary from the latest GitHub release.
 
 ## GitHub release
 
-Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes/kompose/releases).
+Kompose is released via GitHub, you can see all current releases on the [GitHub release page](https://github.com/kubernetes/kompose/releases).
 
 **Linux and macOS:**
 
@@ -37,7 +37,7 @@ Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v
 
 ## Go
 
-Installing using `go install` pulls from the master branch with the latest development changes.
+Installing using `go install` pulls from the main branch with the latest development changes.
 
 ```sh
 go install github.com/kubernetes/kompose@latest
@@ -62,24 +62,12 @@ Kompose is in Fedora 24, 25 and 26 repositories. You can install it just like an
 sudo dnf -y install kompose
 ```
 
-## Ubuntu/Debian
-
-A deb package is released for compose. Download the latest package in the assets in [GitHub releases](https://github.com/kubernetes/kompose/releases).
-
-```bash
-wget https://github.com/kubernetes/kompose/releases/download/v1.28.0/kompose_1.28.0_amd64.deb # Replace 1.28.0 with latest tag
-sudo apt install ./kompose_1.28.0_amd64.deb
-```
-
 ## macOS
 
 On macOS, you can install the latest release via [Homebrew](https://brew.sh) or [MacPorts](https://www.macports.org/).
-```bash
-# Homebrew
-brew install kompose
 
-# MacPorts
-port install kompose
+```bash
+brew install kompose
 ```
 
 ## Windows
@@ -88,28 +76,6 @@ Kompose can be installed via [Chocolatey](https://chocolatey.org/packages/kubern
 
 ```console
 choco install kubernetes-kompose
-```
-
-## openSUSE/SLE
-
-Kompose is available in the official repositories of openSUSE Tumbleweed and in openSUSE Leap starting with 15.2. On SUSE Linux Enterprise Server 15 SP2 - and following - you can install kompose from [PackageHub](https://packagehub.suse.com/). Please refer to the SUSE documentation on how to activate [PackageHub](https://packagehub.suse.com/) on your SUSE Linux Enterprise distribution.
-
-```bash
-sudo zypper install kompose
-```
-
-## NixOS
-
-To install from [Nixpkgs](https://github.com/NixOS/nixpkgs), use [nix-env](https://nixos.org/manual/nix/stable/command-ref/nix-env.html).
-
-```bash
-nix-env --install -A nixpkgs.kompose
-```
-
-To run `kompose` without installing it, use [nix-shell](https://nixos.org/manual/nix/stable/command-ref/nix-shell.html).
-
-```bash
-nix-shell -p kompose --run "kompose convert"
 ```
 
 ## Docker
