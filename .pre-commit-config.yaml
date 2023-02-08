@@ -10,7 +10,6 @@ repos:
     hooks:
       - id: go-fmt
       - id: go-imports
-      - id: no-go-testing
       - id: golangci-lint
       - id: go-unit-tests
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
