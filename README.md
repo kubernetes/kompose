@@ -12,12 +12,12 @@ Convert [`docker-compose.yaml`](https://raw.githubusercontent.com/kubernetes/kom
 
 ```sh
 $ kompose convert -f docker-compose.yaml
-INFO Kubernetes file "frontend-service.yaml" created         
-INFO Kubernetes file "redis-master-service.yaml" created     
-INFO Kubernetes file "redis-slave-service.yaml" created      
-INFO Kubernetes file "frontend-deployment.yaml" created      
-INFO Kubernetes file "redis-master-deployment.yaml" created  
-INFO Kubernetes file "redis-slave-deployment.yaml" created 
+INFO Kubernetes file "frontend-service.yaml" created
+INFO Kubernetes file "redis-master-service.yaml" created
+INFO Kubernetes file "redis-slave-service.yaml" created
+INFO Kubernetes file "frontend-deployment.yaml" created
+INFO Kubernetes file "redis-master-deployment.yaml" created
+INFO Kubernetes file "redis-slave-deployment.yaml" created
 ```
 
 Other examples are provided in the _examples_ [directory](./examples).
@@ -29,22 +29,23 @@ We have multiple ways to install Kompose. Our preferred method is downloading th
 Our entire list of installation methods are located in our [installation.md](/docs/installation.md) document.
 
 Installation methods:
-  - [Binary (Preferred method)](/docs/installation.md#github-release)
-  - [Go](/docs/installation.md#go)
-  - [CentOS](/docs/installation.md#centos)
-  - [Fedora](/docs/installation.md#fedora)
-  - [openSUSE/SLE](/docs/installation.md#opensusesle)
-  - [Ubuntu/Debian](/docs/installation.md#ubuntudebian)
-  - [NixOS](/docs/installation.md#nixos)
-  - [macOS (Homebrew and MacPorts)](/docs/installation.md#macos)
-  - [Windows](/docs/installation.md#windows)
-  - [Docker](/docs/installation.md#docker)
+
+- [Binary (Preferred method)](/docs/installation.md#github-release)
+- [Go](/docs/installation.md#go)
+- [CentOS](/docs/installation.md#centos)
+- [Fedora](/docs/installation.md#fedora)
+- [openSUSE/SLE](/docs/installation.md#opensusesle)
+- [Ubuntu/Debian](/docs/installation.md#ubuntudebian)
+- [NixOS](/docs/installation.md#nixos)
+- [macOS (Homebrew and MacPorts)](/docs/installation.md#macos)
+- [Windows](/docs/installation.md#windows)
+- [Docker](/docs/installation.md#docker)
 
 #### Binary installation
 
 Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes/kompose/releases).
 
-__Linux and macOS:__
+**Linux and macOS:**
 
 ```sh
 # Linux
@@ -57,7 +58,7 @@ chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-__Windows:__
+**Windows:**
 
 Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.28.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
@@ -79,29 +80,41 @@ kompose completion fish | source
 ## Development and building of Kompose
 
 ### Building with `go`
-__Requisites:__
+
+**Requisites:**
+
 1. [make](https://www.gnu.org/software/make/)
 2. [Golang](https://golang.org/) v1.6 or later
 3. Set `GOPATH` correctly or click [SettingGOPATH](https://github.com/golang/go/wiki/SettingGOPATH) for details
 
-__Steps:__
+**Steps:**
+
 1. Clone repository
+
 ```console
 $ git clone https://github.com/kubernetes/kompose.git $GOPATH/src/github.com/kubernetes/kompose
 ```
+
 2. Change directory to the cloned repo.
+
 ```console
 cd $GOPATH/src/github.com/kubernetes/kompose
 ```
+
 3. Build with `make`
+
 ```console
 $ make bin
 ```
+
 4. Or build with `go`
+
 ```console
 $ go build -o kompose main.go
 ```
+
 5. Test your changes
+
 ```console
 $ make test
 ```
@@ -121,12 +134,11 @@ Here is a list of all available docs:
 
 ## Community, Discussion, Contribution, and Support
 
-__Issues:__ If you find any issues, please [file it](https://github.com/kubernetes/kompose/issues).
+**Issues:** If you find any issues, please [file it](https://github.com/kubernetes/kompose/issues).
 
-__Kubernetes Community:__ As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
+**Kubernetes Community:** As part of the Kubernetes ecosystem, we follow the Kubernetes community principles. More information can be found on the [community page](http://kubernetes.io/community/).
 
-__Chat (Slack):__ We're fairly active on [Slack](http://slack.kubernetes.io#kompose) and you can find us in the #kompose channel.
-
+**Chat (Slack):** We're fairly active on [Slack](http://slack.kubernetes.io#kompose) and you can find us in the #kompose channel.
 
 ### Code of Conduct
 

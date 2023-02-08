@@ -2,15 +2,15 @@
 layout: default
 permalink: /installation/
 title: Installation
-redirect_from: 
+redirect_from:
   - /docs/installation.md/
   - /docs/installation/
 ---
 
 # Installation
 
-* TOC
-{:toc}
+- TOC
+  {:toc}
 
 We have multiple ways to install Kompose. Our preferred method is downloading the binary from the latest GitHub release.
 
@@ -18,7 +18,7 @@ We have multiple ways to install Kompose. Our preferred method is downloading th
 
 Kompose is released via GitHub on a three-week cycle, you can see all current releases on the [GitHub release page](https://github.com/kubernetes/kompose/releases).
 
-__Linux and macOS:__
+**Linux and macOS:**
 
 ```sh
 # Linux
@@ -31,7 +31,7 @@ chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
 ```
 
-__Windows:__
+**Windows:**
 
 Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.28.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
@@ -46,7 +46,7 @@ go install github.com/kubernetes/kompose@latest
 ## CentOS
 
 Kompose is in [EPEL](https://fedoraproject.org/wiki/EPEL) CentOS repository.
-If you don't have [EPEL](https://fedoraproject.org/wiki/EPEL) repository already installed and enabled you can do it by running  `sudo yum install epel-release`
+If you don't have [EPEL](https://fedoraproject.org/wiki/EPEL) repository already installed and enabled you can do it by running `sudo yum install epel-release`
 
 If you have [EPEL](https://fedoraproject.org/wiki/EPEL) enabled in your system, you can install Kompose like any other package.
 
@@ -55,6 +55,7 @@ sudo yum -y install kompose
 ```
 
 ## Fedora
+
 Kompose is in Fedora 24, 25 and 26 repositories. You can install it just like any other package.
 
 ```bash
@@ -63,7 +64,7 @@ sudo dnf -y install kompose
 
 ## Ubuntu/Debian
 
-A deb package is released for compose. Download latest package in the assets in [github releases](https://github.com/kubernetes/kompose/releases).
+A deb package is released for compose. Download the latest package in the assets in [GitHub releases](https://github.com/kubernetes/kompose/releases).
 
 ```bash
 wget https://github.com/kubernetes/kompose/releases/download/v1.28.0/kompose_1.28.0_amd64.deb # Replace 1.28.0 with latest tag
@@ -71,8 +72,8 @@ sudo apt install ./kompose_1.28.0_amd64.deb
 ```
 
 ## macOS
-On macOS you can install latest release via [Homebrew](https://brew.sh) or [MacPorts](https://www.macports.org/).
 
+On macOS, you can install the latest release via [Homebrew](https://brew.sh) or [MacPorts](https://www.macports.org/).
 ```bash
 # Homebrew
 brew install kompose
@@ -82,6 +83,7 @@ port install kompose
 ```
 
 ## Windows
+
 Kompose can be installed via [Chocolatey](https://chocolatey.org/packages/kubernetes-kompose)
 
 ```console
@@ -89,6 +91,7 @@ choco install kubernetes-kompose
 ```
 
 ## openSUSE/SLE
+
 Kompose is available in the official repositories of openSUSE Tumbleweed and in openSUSE Leap starting with 15.2. On SUSE Linux Enterprise Server 15 SP2 - and following - you can install kompose from [PackageHub](https://packagehub.suse.com/). Please refer to the SUSE documentation on how to activate [PackageHub](https://packagehub.suse.com/) on your SUSE Linux Enterprise distribution.
 
 ```bash
@@ -109,10 +112,9 @@ To run `kompose` without installing it, use [nix-shell](https://nixos.org/manual
 nix-shell -p kompose --run "kompose convert"
 ```
 
-
 ## Docker
 
-You can build an image from the offical repo for [Docker](https://docs.docker.com/engine/reference/commandline/build/) or [Podman](https://docs.podman.io/en/latest/markdown/podman-build.1.html):
+You can build an image from the official repo for [Docker](https://docs.docker.com/engine/reference/commandline/build/) or [Podman](https://docs.podman.io/en/latest/markdown/podman-build.1.html):
 
 ```bash
 docker build -t kompose https://github.com/kubernetes/kompose.git
