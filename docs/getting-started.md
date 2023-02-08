@@ -134,11 +134,7 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
-<<<<<<< HEAD
-**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml), or use your own:**
-=======
-__Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:__
->>>>>>> fa5394da8 (change master to main in scripts and docs)
+**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:**
 
 ```sh
 wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
@@ -258,11 +254,7 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
-<<<<<<< HEAD
-**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml), or use your own:**
-=======
-__Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:__
->>>>>>> fa5394da8 (change master to main in scripts and docs)
+**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:**
 
 ```sh
 wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
