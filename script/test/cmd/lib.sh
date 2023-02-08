@@ -103,7 +103,7 @@ function convert::match_output() {
     match=$(diff <(yq ea '[.] | sort_by(.metadata.name) | .[] | splitDoc' $expected_output) <(yq ea '[.] | sort_by(.metadata.name) | .[] | splitDoc' $TEMP_STDOUT))
     echo "$match" > /tmp/diff
     if [ "$match" == "" ]; then SUCCESS_MSGS=$SUCCESS_MSGS"converted output matches\n"; return 0;
-    else FAIL_MSGS=$FAIL_MSGS"converted output does not match\n"; cat /tmp/diff; rm /tmp/diff; return 1;
+    else FAIL_MSGS=$FAIL_MSGS"converted output does not match\n"; cat /tmp/diff; rm /tmp/diff; return 1; 
     fi
 }
 readonly -f convert::match_output

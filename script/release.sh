@@ -39,7 +39,7 @@ requirements() {
 
 }
 
-# Make sure that upstream had been added to the repo
+# Make sure that upstream had been added to the repo 
 init_sync() {
   CURRENT_ORIGIN=`git config --get remote.origin.url`
   CURRENT_UPSTREAM=`git config --get remote.upstream.url`
@@ -190,10 +190,10 @@ main() {
   requirements
 
   echo "What is your Github username? (location of your $CLI fork)"
-  read ORIGIN_REPO
+  read ORIGIN_REPO 
   echo "You entered: $ORIGIN_REPO"
   echo ""
-
+  
   echo ""
   echo "First, please enter the version of the NEW release: "
   read VERSION

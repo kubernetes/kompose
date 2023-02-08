@@ -1,6 +1,6 @@
 FROM centos:7
 
-RUN yum -y install epel-release && yum install -y nodejs npm gcc* make
+RUN yum -y install epel-release && yum install -y nodejs npm gcc* make 
 RUN /bin/bash -c 'npm install -g nodemon' && mkdir /src
 
 # Define working directory

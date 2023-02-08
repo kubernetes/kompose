@@ -155,3 +155,4 @@ spec:
   podSelector:
     matchLabels:
       io.kompose.network/v30-default: "true"
+

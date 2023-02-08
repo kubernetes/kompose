@@ -2,7 +2,7 @@
 layout: default
 permalink: /maven-example/
 title: Maven Example
-redirect_from:
+redirect_from: 
   - /docs/maven-example.md/
   - /docs/maven-example/
 ---
@@ -13,7 +13,7 @@ Let's deploy a Springboot Java application with Docker Compose file using Fabric
 ##### Requirements
 * Linux or MacOS or Windows
 * JDK 1.7+ - [JDK Quick Installation Guide](http://openjdk.java.net/install/)
-* Maven 3.x+ - [Maven Installation Guide](http://www.baeldung.com/install-maven-on-windows-linux-mac)
+* Maven 3.x+ - [Maven Installation Guide](http://www.baeldung.com/install-maven-on-windows-linux-mac) 
 * Kompose - [Kompose Installation Guide](/docs/installation.md)
 
 __1. Clone the example project from GitHub__
@@ -26,7 +26,7 @@ Change current directory to `kompose-maven-example` directory.
 $ cd kompose-maven-example
 ```
 
-__2. Add Fabric8 Maven Plugin to your project__
+__2. Add Fabric8 Maven Plugin to your project__     
 ```bash
 $ mvn io.fabric8:fabric8-maven-plugin:3.5.28:setup
 ```
@@ -63,14 +63,14 @@ Add the `<configuration>` and `<executions>` sections to `pom.xml` as shown in a
 
 __5. Deploy application on Kubernetes or OpenShift__
 
- Make sure that Kubernetes/OpenShift cluster or Minikube/minishift is running. In case, if anything of this is not running, you can run minishift to test this application by using following command.
+ Make sure that Kubernetes/OpenShift cluster or Minikube/minishift is running. In case, if anything of this is not running, you can run minishift to test this application by using following command. 
 ```bash
 $ minishift start
 ```
 
  Below command deploys this application on Kubernetes or OpenShift.
 ```bash
-$ mvn fabric8:deploy
+$ mvn fabric8:deploy  
 ```
 
 Now that your service has been deployed, let's access it by querying `pod`, `service` from Kubernetes or OpenShift.

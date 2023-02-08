@@ -85,3 +85,4 @@ spec:
   podSelector:
     matchLabels:
       io.kompose.network/windows-default: "true"
+

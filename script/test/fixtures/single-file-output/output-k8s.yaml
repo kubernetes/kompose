@@ -100,3 +100,4 @@ spec:
   podSelector:
     matchLabels:
       io.kompose.network/single-file-output-default: "true"
+

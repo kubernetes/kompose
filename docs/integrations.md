@@ -2,7 +2,7 @@
 layout: default
 permalink: /integrations/
 title: Integrations
-redirect_from:
+redirect_from: 
   - /docs/integrations.md/
   - /docs/integrations/
 ---
@@ -46,9 +46,9 @@ __Link:__ [https://github.com/chouseknecht/kompose-install-role](https://github.
 
 ### Fabric8 Maven Plugin by Red Hat
 
-__Description:__  "Maven is one of the widely used build tools for Java applications. The Fabric8 Maven Plugin is a maven extension that simplifies the deployment of Java applications to Kubernetes or OpenShift cluster.
-The main task of this plugin is to build Docker images, generate Kubernetes or OpenShift resource descriptors and run/deploy the application on Kubernetes or OpenShift cluster.
-Plugin has wide range of configuration options. Docker Compose is one of the option to bring up deployments on Kubernetes or OpenShift cluster.
+__Description:__  "Maven is one of the widely used build tools for Java applications. The Fabric8 Maven Plugin is a maven extension that simplifies the deployment of Java applications to Kubernetes or OpenShift cluster. 
+The main task of this plugin is to build Docker images, generate Kubernetes or OpenShift resource descriptors and run/deploy the application on Kubernetes or OpenShift cluster. 
+Plugin has wide range of configuration options. Docker Compose is one of the option to bring up deployments on Kubernetes or OpenShift cluster. 
 Technically, Fabric8 Maven Plugin processes the external docker-compose.yml file and generates Kubernetes or OpenShift resources via Kompose."
 
 __Links:__

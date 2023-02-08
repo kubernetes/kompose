@@ -2,7 +2,7 @@
 layout: default
 permalink: /getting-started/
 title: Getting Started
-redirect_from:
+redirect_from: 
   - /docs/getting-started.md/
   - /docs/getting-started/
 ---
@@ -54,13 +54,13 @@ __Convert your Docker Compose file to Kubernetes:__
 Run `kompose convert` in the same directory as your `docker-compose.yaml` file.
 
 ```sh
-$ kompose convert
-INFO Kubernetes file "frontend-service.yaml" created
-INFO Kubernetes file "redis-master-service.yaml" created
-INFO Kubernetes file "redis-slave-service.yaml" created
-INFO Kubernetes file "frontend-deployment.yaml" created
-INFO Kubernetes file "redis-master-deployment.yaml" created
-INFO Kubernetes file "redis-slave-deployment.yaml" created
+$ kompose convert                           
+INFO Kubernetes file "frontend-service.yaml" created         
+INFO Kubernetes file "redis-master-service.yaml" created     
+INFO Kubernetes file "redis-slave-service.yaml" created      
+INFO Kubernetes file "frontend-deployment.yaml" created      
+INFO Kubernetes file "redis-master-deployment.yaml" created  
+INFO Kubernetes file "redis-slave-deployment.yaml" created 
 ```
 
 Then you can use `kubectl apply` to create these resources in kubernetes.
@@ -100,7 +100,7 @@ Note: If you're using a cloud provider, your IP will be listed next to `LoadBala
 If you have yet to expose your service (for example, within GCE), use the command:
 
 ```sh
-kubectl expose deployment frontend --type="LoadBalancer"
+kubectl expose deployment frontend --type="LoadBalancer" 
 ```
 
 To check functionality, you may also `curl` the URL.
@@ -146,15 +146,15 @@ Run `kompose convert --provider=openshift` in the same directory as your `docker
 
 ```sh
 $ kompose convert --provider=openshift
-INFO OpenShift file "frontend-service.yaml" created
-INFO OpenShift file "redis-master-service.yaml" created
-INFO OpenShift file "redis-slave-service.yaml" created
-INFO OpenShift file "frontend-deploymentconfig.yaml" created
-INFO OpenShift file "frontend-imagestream.yaml" created
-INFO OpenShift file "redis-master-deploymentconfig.yaml" created
-INFO OpenShift file "redis-master-imagestream.yaml" created
-INFO OpenShift file "redis-slave-deploymentconfig.yaml" created
-INFO OpenShift file "redis-slave-imagestream.yaml" created
+INFO OpenShift file "frontend-service.yaml" created 
+INFO OpenShift file "redis-master-service.yaml" created 
+INFO OpenShift file "redis-slave-service.yaml" created 
+INFO OpenShift file "frontend-deploymentconfig.yaml" created 
+INFO OpenShift file "frontend-imagestream.yaml" created 
+INFO OpenShift file "redis-master-deploymentconfig.yaml" created 
+INFO OpenShift file "redis-master-imagestream.yaml" created 
+INFO OpenShift file "redis-slave-deploymentconfig.yaml" created 
+INFO OpenShift file "redis-slave-imagestream.yaml" created 
 ```
 
 Then you can use `kubectl apply` to create these resources in OpenShift cluster.
@@ -265,15 +265,15 @@ Run `kompose convert --provider=openshift` in the same directory as your `docker
 
 ```sh
 $ kompose convert --provider=openshift
-INFO OpenShift file "frontend-service.yaml" created
-INFO OpenShift file "redis-master-service.yaml" created
-INFO OpenShift file "redis-slave-service.yaml" created
-INFO OpenShift file "frontend-deploymentconfig.yaml" created
-INFO OpenShift file "frontend-imagestream.yaml" created
-INFO OpenShift file "redis-master-deploymentconfig.yaml" created
-INFO OpenShift file "redis-master-imagestream.yaml" created
-INFO OpenShift file "redis-slave-deploymentconfig.yaml" created
-INFO OpenShift file "redis-slave-imagestream.yaml" created
+INFO OpenShift file "frontend-service.yaml" created 
+INFO OpenShift file "redis-master-service.yaml" created 
+INFO OpenShift file "redis-slave-service.yaml" created 
+INFO OpenShift file "frontend-deploymentconfig.yaml" created 
+INFO OpenShift file "frontend-imagestream.yaml" created 
+INFO OpenShift file "redis-master-deploymentconfig.yaml" created 
+INFO OpenShift file "redis-master-imagestream.yaml" created 
+INFO OpenShift file "redis-slave-deploymentconfig.yaml" created 
+INFO OpenShift file "redis-slave-imagestream.yaml" created 
 ```
 
 Then you can use `kubectl apply` to create these resources in OpenShift.

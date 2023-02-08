@@ -26,7 +26,7 @@ ENV GOPATH="/opt/go" \
     GOROOT="/usr/local/go" \
     GOVERSION="1.15.4" \
     # KOMPOSE_TMP_SRC is where kompose source will be mounted from host
-    KOMPOSE_TMP_SRC="/opt/tmp/kompose"
+    KOMPOSE_TMP_SRC="/opt/tmp/kompose" 
 
 ENV PATH="$PATH:$GOPATH/bin:$GOROOT/bin" \
     # KOMPOSE_SRC is where kompose source will be copied when container starts (by run.sh script)

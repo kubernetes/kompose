@@ -8,3 +8,4 @@ services:
   etherpad:
     ports:
       - "80:9001"
+

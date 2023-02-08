@@ -2,7 +2,7 @@
 layout: default
 permalink: /user-guide/
 title: User Guide
-redirect_from:
+redirect_from: 
   - /docs/user-guide.md/
   - /docs/user-guide/
 ---
@@ -46,57 +46,57 @@ You can also provide multiple docker-compose files at the same time:
 
 ```sh
 $ kompose -f docker-compose.yml -f docker-guestbook.yml convert
-INFO Kubernetes file "frontend-service.yaml" created
-INFO Kubernetes file "mlbparks-service.yaml" created
-INFO Kubernetes file "mongodb-service.yaml" created
-INFO Kubernetes file "redis-master-service.yaml" created
-INFO Kubernetes file "redis-slave-service.yaml" created
-INFO Kubernetes file "frontend-deployment.yaml" created
-INFO Kubernetes file "mlbparks-deployment.yaml" created
-INFO Kubernetes file "mongodb-deployment.yaml" created
-INFO Kubernetes file "mongodb-claim0-persistentvolumeclaim.yaml" created
-INFO Kubernetes file "redis-master-deployment.yaml" created
-INFO Kubernetes file "redis-slave-deployment.yaml" created
+INFO Kubernetes file "frontend-service.yaml" created         
+INFO Kubernetes file "mlbparks-service.yaml" created         
+INFO Kubernetes file "mongodb-service.yaml" created          
+INFO Kubernetes file "redis-master-service.yaml" created     
+INFO Kubernetes file "redis-slave-service.yaml" created      
+INFO Kubernetes file "frontend-deployment.yaml" created      
+INFO Kubernetes file "mlbparks-deployment.yaml" created      
+INFO Kubernetes file "mongodb-deployment.yaml" created       
+INFO Kubernetes file "mongodb-claim0-persistentvolumeclaim.yaml" created 
+INFO Kubernetes file "redis-master-deployment.yaml" created  
+INFO Kubernetes file "redis-slave-deployment.yaml" created   
 
 $ ls
-mlbparks-deployment.yaml  mongodb-service.yaml                       redis-slave-service.jsonmlbparks-service.yaml
+mlbparks-deployment.yaml  mongodb-service.yaml                       redis-slave-service.jsonmlbparks-service.yaml  
 frontend-deployment.yaml  mongodb-claim0-persistentvolumeclaim.yaml  redis-master-service.yaml
 frontend-service.yaml     mongodb-deployment.yaml                    redis-slave-deployment.yaml
 redis-master-deployment.yaml
-```
+``` 
 
 When multiple docker-compose files are provided the configuration is merged. Any configuration that is common will be over ridden by subsequent file.
-
+ 
 ### OpenShift
 
 ```sh
 $ kompose --provider openshift --file docker-voting.yml convert
 WARN [worker] Service cannot be created because of missing port.
-INFO OpenShift file "vote-service.yaml" created
-INFO OpenShift file "db-service.yaml" created
-INFO OpenShift file "redis-service.yaml" created
-INFO OpenShift file "result-service.yaml" created
-INFO OpenShift file "vote-deploymentconfig.yaml" created
-INFO OpenShift file "vote-imagestream.yaml" created
-INFO OpenShift file "worker-deploymentconfig.yaml" created
-INFO OpenShift file "worker-imagestream.yaml" created
-INFO OpenShift file "db-deploymentconfig.yaml" created
-INFO OpenShift file "db-imagestream.yaml" created
-INFO OpenShift file "redis-deploymentconfig.yaml" created
-INFO OpenShift file "redis-imagestream.yaml" created
-INFO OpenShift file "result-deploymentconfig.yaml" created
-INFO OpenShift file "result-imagestream.yaml" created
+INFO OpenShift file "vote-service.yaml" created             
+INFO OpenShift file "db-service.yaml" created               
+INFO OpenShift file "redis-service.yaml" created            
+INFO OpenShift file "result-service.yaml" created           
+INFO OpenShift file "vote-deploymentconfig.yaml" created    
+INFO OpenShift file "vote-imagestream.yaml" created         
+INFO OpenShift file "worker-deploymentconfig.yaml" created  
+INFO OpenShift file "worker-imagestream.yaml" created       
+INFO OpenShift file "db-deploymentconfig.yaml" created      
+INFO OpenShift file "db-imagestream.yaml" created           
+INFO OpenShift file "redis-deploymentconfig.yaml" created   
+INFO OpenShift file "redis-imagestream.yaml" created        
+INFO OpenShift file "result-deploymentconfig.yaml" created  
+INFO OpenShift file "result-imagestream.yaml" created  
 ```
 
 It also supports creating buildconfig for build directive in a service. By default, it uses the remote repo for the current git branch as the source repo, and the current branch as the source branch for the build. You can specify a different source repo and branch using ``--build-repo`` and ``--build-branch`` options respectively.
 
 ```sh
 $ kompose --provider openshift --file buildconfig/docker-compose.yml convert
-WARN [foo] Service cannot be created because of missing port.
-INFO OpenShift Buildconfig using git@github.com:rtnpro/kompose.git::master as source.
-INFO OpenShift file "foo-deploymentconfig.yaml" created
-INFO OpenShift file "foo-imagestream.yaml" created
-INFO OpenShift file "foo-buildconfig.yaml" created
+WARN [foo] Service cannot be created because of missing port. 
+INFO OpenShift Buildconfig using git@github.com:rtnpro/kompose.git::master as source. 
+INFO OpenShift file "foo-deploymentconfig.yaml" created     
+INFO OpenShift file "foo-imagestream.yaml" created          
+INFO OpenShift file "foo-buildconfig.yaml" created 
 ```
 
 **Note**: If you are manually pushing the Openshift artifacts using ``oc create -f``, you need to ensure that you push the imagestream artifact before the buildconfig artifact, to workaround this Openshift issue: https://github.com/openshift/origin/issues/4518 .
@@ -136,10 +136,10 @@ The `*-daemonset.yaml` files contain the Daemon Set objects
 
 ```sh
 $ kompose convert --controller statefulset
-INFO Kubernetes file "db-service.yaml" created
-INFO Kubernetes file "wordpress-service.yaml" created
-INFO Kubernetes file "db-statefulset.yaml" created
-INFO Kubernetes file "wordpress-statefulset.yaml" created
+INFO Kubernetes file "db-service.yaml" created    
+INFO Kubernetes file "wordpress-service.yaml" created 
+INFO Kubernetes file "db-statefulset.yaml" created 
+INFO Kubernetes file "wordpress-statefulset.yaml" created 
 ```
 
 The `*statefulset-.yaml` files contain the Statefulset objects.
@@ -148,7 +148,7 @@ The `*statefulset-.yaml` files contain the Statefulset objects.
 If you want to generate a Chart to be used with [Helm](https://github.com/kubernetes/helm) simply do:
 
 ```sh
-$ kompose convert -c
+$ kompose convert -c 
 INFO Kubernetes file "web-svc.yaml" created
 INFO Kubernetes file "redis-svc.yaml" created
 INFO Kubernetes file "web-deployment.yaml" created
@@ -180,7 +180,7 @@ The currently supported options are:
 | kompose.service.type | nodeport / clusterip / loadbalancer / headless |
 | kompose.service.group | name to group the containers contained in a single pod |
 | kompose.service.expose | true / hostnames (separated by comma) |
-| kompose.service.nodeport.port | port value (string) |
+| kompose.service.nodeport.port | port value (string) | 
 | kompose.service.expose.tls-secret | secret name |
 | kompose.service.expose.ingress-class-name | ingress class name |
 | kompose.volume.size | kubernetes supported volume size |
@@ -212,7 +212,7 @@ For example:
 
 ```yaml
 version: "2"
-services:
+services: 
   nginx:
     image: nginx
     dockerfile: foobar
@@ -220,7 +220,7 @@ services:
     cap_add:
       - ALL
     container_name: foobar
-    labels:
+    labels: 
       kompose.service.type: nodeport
 ```
 
@@ -236,13 +236,13 @@ services:
     image: nginx
     depends_on:
       - logs
-    labels:
+    labels: 
       - kompose.service.group=sidecar
 
   logs:
     image: busybox
     command: ["tail -f /var/log/nginx/access.log"]
-    labels:
+    labels: 
       - kompose.service.group=sidecar
 ```
 
@@ -300,7 +300,7 @@ services:
       kompose.image-pull-secret: "example-kubernetes-secret"
 ```
 
-- `kompose.volume.size` defines the requests storage's size in the PersistentVolumeClaim, or you can use command line parameter `--pvc-request-size`.
+- `kompose.volume.size` defines the requests storage's size in the PersistentVolumeClaim, or you can use command line parameter `--pvc-request-size`. 
 The priority follow label (kompose.volume.size) > command parameter(--pvc-request-size) > defaultSize (100Mi)
 
 For example:
@@ -454,7 +454,7 @@ If the Docker Compose file has `build` or `build:context, build:dockerfile` keys
 
 And Image will push to *docker.io* (default) when `--push-image=true` specified.
 
-It is possible to push to custom registry by specify `--push-image-registry`, which will override the registry from image name.
+It is possible to push to custom registry by specify `--push-image-registry`, which will override the registry from image name. 
 
 ### Authentication on registry
 
@@ -468,7 +468,7 @@ However, there is an approach to push successfully on macOS, by not using `osxke
 
 Now `config.json` should contain base64 encoded passwords, then push image should succeed. Working, but not safe though! Use it at your risk.
 
-For Windows, there is also `credsStore` which is `wincred`. Technically it will fail on authentication as macOS does, but you can try the approach above like macOS too.
+For Windows, there is also `credsStore` which is `wincred`. Technically it will fail on authentication as macOS does, but you can try the approach above like macOS too.   
 
 ## Docker Compose Versions
 

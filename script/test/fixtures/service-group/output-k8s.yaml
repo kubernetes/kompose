@@ -98,3 +98,4 @@ spec:
   podSelector:
     matchLabels:
       io.kompose.network/service-group-default: "true"
+
