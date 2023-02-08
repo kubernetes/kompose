@@ -20,7 +20,7 @@ cd "$DOCS_REPO_NAME"
 
 # switch to gh-pages and grab the docs folder from main
 git checkout gh-pages
-git checkout main docs
+git checkout main -- docs
 
 # Copy it all over to the current directory
 cp -r docs/* .
