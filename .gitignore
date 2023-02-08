@@ -72,3 +72,5 @@ tags
 
 # IntelliJ IDE specific
 .idea
+
+.DS_Store
