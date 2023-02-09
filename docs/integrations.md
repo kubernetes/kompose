@@ -9,8 +9,8 @@ redirect_from:
 
 # Integrations
 
-- TOC
-  {:toc}
+* TOC
+{:toc}
 
 There are some projects out there known to use Kompose integrated in some form or another
 

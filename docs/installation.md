@@ -9,8 +9,8 @@ redirect_from:
 
 # Installation
 
-- TOC
-  {:toc}
+* TOC
+{:toc}
 
 We have multiple ways to install Kompose. Our preferred (and most up-to-date) method is downloading the binary from the latest GitHub release.
 

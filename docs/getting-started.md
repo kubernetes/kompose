@@ -9,8 +9,8 @@ redirect_from:
 
 # Getting Started
 
-- TOC
-  {:toc}
+* TOC
+{:toc}
 
 This is how you'll get started with Kompose!
 
