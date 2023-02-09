@@ -2,7 +2,7 @@ name: Kompose CI
 on:
   push:
     branches:
-      - master
+      - main 
   pull_request:
 env:
   # Avoid noisy outputs like "tput: No value for $TERM and no -T specified"

@@ -21,23 +21,23 @@ We're doing our best to keep it up to date as soon as possible in our releases t
 
 ## Conversion Table
 
-__Glossary:__
+**Glossary:**
 
-- __✓:__ Converts
-- __-:__ Not in this Docker Compose Version
-- __n:__ Not yet implemented
-- __x:__ Not applicable / no 1-1 conversion
+- **✓:** Converts
+- **-:** Not in this Docker Compose Version
+- **n:** Not yet implemented
+- **x:** Not applicable / no 1-1 conversion
 
 | Keys                   | V1 | V2 | V3 | Kubernetes / OpenShift                                               | Notes                                                                                                                             |
-|------------------------|----|----|----|----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------- | -- | -- | -- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | build                  | ✓  | ✓  | ✓  |                                                                      | Builds/Pushes to Docker repository. See [user guide on build and push image](https://kompose.io/user-guide/#build-and-push-image) |
 | build: context         | ✓  | ✓  | ✓  |                                                                      |                                                                                                                                   |
 | build: dockerfile      | ✓  | ✓  | ✓  |                                                                      |                                                                                                                                   |
 | build: args            | n  | n  | n  |                                                                      |                                                                                                                                   |
 | build: cache_from      | -  | -  | n  |                                                                      |                                                                                                                                   |
-| cap_add                | ✓  | ✓  | ✓  | Container.SecurityContext.Capabilities.Add                  |                                                                                                                                   |
-| cap_drop               | ✓  | ✓  | ✓  | Container.SecurityContext.Capabilities.Drop                 |                                                                                                                                   |
-| command                | ✓  | ✓  | ✓  | Container.Args                                              |                                                                                                                                   |
+| cap_add                | ✓  | ✓  | ✓  | Container.SecurityContext.Capabilities.Add                           |                                                                                                                                   |
+| cap_drop               | ✓  | ✓  | ✓  | Container.SecurityContext.Capabilities.Drop                          |                                                                                                                                   |
+| command                | ✓  | ✓  | ✓  | Container.Args                                                       |                                                                                                                                   |
 | configs                | n  | n  | ✓  |                                                                      |                                                                                                                                   |
 | configs: short-syntax  | n  | n  | ✓  |                                                                      | Only create configMap                                                                                                             |
 | configs: long-syntax   | n  | n  | ✓  |                                                                      | If target path is /, ignore this and only create configMap                                                                        |
@@ -47,7 +47,7 @@ __Glossary:__
 | deploy                 | -  | -  | ✓  |                                                                      |                                                                                                                                   |
 | deploy: mode           | -  | -  | ✓  |                                                                      |                                                                                                                                   |
 | deploy: replicas       | -  | -  | ✓  | Deployment.Spec.Replicas / DeploymentConfig.Spec.Replicas            |                                                                                                                                   |
-| deploy: placement      | -  | -  | ✓  | Affinity                                                    |                                                                                                                                   |
+| deploy: placement      | -  | -  | ✓  | Affinity                                                             |                                                                                                                                   |
 | deploy: update_config  | -  | -  | ✓  | Workload.Spec.Strategy                                               | Deployment / DeploymentConfig                                                                                                     |
 | deploy: resources      | -  | -  | ✓  | Containers.Resources.Limits.Memory / Containers.Resources.Limits.CPU | Support for memory as well as cpu                                                                                                 |
 | deploy: restart_policy | -  | -  | ✓  | Pod generation                                                       | This generated a Pod, see the [user guide on restart](http://kompose.io/user-guide/#restart)                                      |
@@ -56,11 +56,11 @@ __Glossary:__
 | depends_on             | x  | x  | x  |                                                                      |                                                                                                                                   |
 | dns                    | x  | x  | x  |                                                                      | Not used within Kubernetes. Kubernetes uses a managed DNS server                                                                  |
 | dns_search             | x  | x  | x  |                                                                      | See `dns` key                                                                                                                     |
-| domainname             | ✓  | ✓  | ✓  | SubDomain                                                   |                                                                                                                                   |
-| tmpfs                  | ✓  | ✓  | ✓  | Containers.Volumes.EmptyDir                                 | Creates emptyDirvolume with medium set to Memory & mounts given directory inside container                                        |
-| entrypoint             | ✓  | ✓  | ✓  | Container.Command                                           |                                                                                                                                   |
+| domainname             | ✓  | ✓  | ✓  | SubDomain                                                            |                                                                                                                                   |
+| tmpfs                  | ✓  | ✓  | ✓  | Containers.Volumes.EmptyDir                                          | Creates emptyDirvolume with medium set to Memory & mounts given directory inside container                                        |
+| entrypoint             | ✓  | ✓  | ✓  | Container.Command                                                    |                                                                                                                                   |
 | env_file               | n  | n  | ✓  |                                                                      |                                                                                                                                   |
-| environment            | ✓  | ✓  | ✓  | Container.Env                                               |                                                                                                                                   |
+| environment            | ✓  | ✓  | ✓  | Container.Env                                                        |                                                                                                                                   |
 | expose                 | ✓  | ✓  | ✓  | Service.Spec.Ports                                                   |                                                                                                                                   |
 | endpoint_mode          | n  | n  | ✓  |                                                                      | If endpoint_mode=vip, the created Service will be forced to set to NodePort type                                                  |
 | extends                | ✓  | ✓  | ✓  |                                                                      | Extends by utilizing the same image supplied                                                                                      |
@@ -68,7 +68,7 @@ __Glossary:__
 | extra_hosts            | n  | n  | n  |                                                                      |                                                                                                                                   |
 | group_add              | ✓  | ✓  | ✓  |                                                                      |                                                                                                                                   |
 | healthcheck            | -  | n  | ✓  |                                                                      |                                                                                                                                   |
-| hostname               | ✓  | ✓  | ✓  | HostName                                                    |                                                                                                                                   |
+| hostname               | ✓  | ✓  | ✓  | HostName                                                             |                                                                                                                                   |
 | image                  | ✓  | ✓  | ✓  | Deployment.Spec.Containers.Image                                     |                                                                                                                                   |
 | isolation              | x  | x  | x  |                                                                      | Not applicable as this applies to Windows with HyperV support                                                                     |
 | labels                 | ✓  | ✓  | ✓  | Metadata.Annotations                                                 |                                                                                                                                   |
@@ -78,7 +78,7 @@ __Glossary:__
 | networks               | ✓  | ✓  | ✓  |                                                                      | See `networks` key                                                                                                                |
 | networks: aliases      | x  | x  | x  |                                                                      | See `networks` key                                                                                                                |
 | networks: addresses    | x  | x  | x  |                                                                      | See `networks` key                                                                                                                |
-| pid                    | ✓  | ✓  | ✓  | HostPID                                                     |                                                                                                                                   |
+| pid                    | ✓  | ✓  | ✓  | HostPID                                                              |                                                                                                                                   |
 | ports                  | ✓  | ✓  | ✓  | Service.Spec.Ports                                                   |                                                                                                                                   |
 | ports: short-syntax    | ✓  | ✓  | ✓  | Service.Spec.Ports                                                   |                                                                                                                                   |
 | ports: long-syntax     | -  | -  | ✓  | Service.Spec.Ports                                                   |                                                                                                                                   |
@@ -86,7 +86,7 @@ __Glossary:__
 | secrets: short-syntax  | -  | -  | ✓  | Secret                                                               | External Secret is not Supported                                                                                                  |
 | secrets: long-syntax   | -  | -  | ✓  | Secret                                                               | External Secret is not Supported                                                                                                  |
 | security_opt           | x  | x  | x  |                                                                      | Kubernetes uses its own container naming scheme                                                                                   |
-| stop_grace_period      | ✓  | ✓  | ✓  | TerminationGracePeriodSeconds                               |                                                                                                                                   |
+| stop_grace_period      | ✓  | ✓  | ✓  | TerminationGracePeriodSeconds                                        |                                                                                                                                   |
 | stop_signal            | x  | x  | x  |                                                                      | Not supported within Kubernetes. See issue https://github.com/kubernetes/kubernetes/issues/30051                                  |
 | sysctls                | n  | n  | n  |                                                                      |                                                                                                                                   |
 | ulimits                | x  | x  | x  |                                                                      | Not supported within Kubernetes. See issue https://github.com/kubernetes/kubernetes/issues/3595                                   |
@@ -96,13 +96,13 @@ __Glossary:__
 | volumes: long-syntax   | -  | -  | ✓  | PersistentVolumeClaim                                                | Creates a PersistentVolumeClaim. Can only be created if there is already a PersistentVolume within the cluster                    |
 | restart                | ✓  | ✓  | ✓  |                                                                      |                                                                                                                                   |
 |                        |    |    |    |                                                                      |                                                                                                                                   |
-| __Volume__             | x  | x  | x  |                                                                      |                                                                                                                                   |
+| **Volume**             | x  | x  | x  |                                                                      |                                                                                                                                   |
 | driver                 | x  | x  | x  |                                                                      |                                                                                                                                   |
 | driver_opts            | x  | x  | x  |                                                                      |                                                                                                                                   |
 | external               | x  | x  | x  |                                                                      |                                                                                                                                   |
 | labels                 | x  | x  | x  |                                                                      |                                                                                                                                   |
 |                        |    |    |    |                                                                      |                                                                                                                                   |
-| __Network__            | x  | x  | x  |                                                                      |                                                                                                                                   |
+| **Network**            | x  | x  | x  |                                                                      |                                                                                                                                   |
 | driver                 | x  | x  | x  |                                                                      |                                                                                                                                   |
 | driver_opts            | x  | x  | x  |                                                                      |                                                                                                                                   |
 | enable_ipv6            | x  | x  | x  |                                                                      |                                                                                                                                   |

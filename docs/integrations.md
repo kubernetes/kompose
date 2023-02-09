@@ -2,7 +2,7 @@
 layout: default
 permalink: /integrations/
 title: Integrations
-redirect_from: 
+redirect_from:
   - /docs/integrations.md/
   - /docs/integrations/
 ---
@@ -16,42 +16,42 @@ There are some projects out there known to use Kompose integrated in some form o
 
 ### Kompose UI by Jad Chamoun (ICANN) and Joe Haddad (Anghami)
 
-__Description:__ "A web interface to convert Docker Compose files to Kubernetes YAML"
+**Description:** "A web interface to convert Docker Compose files to Kubernetes YAML"
 
-__Link:__ [https://github.com/JadCham/komposeui](https://github.com/JadCham/komposeui)
+**Link:** [https://github.com/JadCham/komposeui](https://github.com/JadCham/komposeui)
 
 ### Kompose Docker Container by Cloudfind
 
-__Description:__ "A Docker container for the Kompose translator for docker-compose"
+**Description:** "A Docker container for the Kompose translator for docker-compose"
 
-__Link:__ [https://github.com/cloudfind/kompose-docker](https://github.com/cloudfind/kompose-docker)
+**Link:** [https://github.com/cloudfind/kompose-docker](https://github.com/cloudfind/kompose-docker)
 
 ### KPM by CoreOS
 
-__Description:__ "KPM is a tool to deploy and manage application stacks on Kubernetes"
+**Description:** "KPM is a tool to deploy and manage application stacks on Kubernetes"
 
-__Link:__ [https://github.com/coreos/kpm](https://github.com/coreos/kpm)
+**Link:** [https://github.com/coreos/kpm](https://github.com/coreos/kpm)
 
 ### Docker Image for Adobe Enterprise Manager by Adfinis SyGroup AG
 
-__Description:__ "Docker Image for Adobe Enterprise Manager"
+**Description:** "Docker Image for Adobe Enterprise Manager"
 
-__Link:__ [https://github.com/adfinis-sygroup/aem-docker/tree/master](https://github.com/adfinis-sygroup/aem-docker/tree/master)
+**Link:** [https://github.com/adfinis-sygroup/aem-docker/tree/master](https://github.com/adfinis-sygroup/aem-docker/tree/master)
 
 ### Kompose Ansible Playbook by Chris Houseknecht (Red Hat)
 
-__Description:__  "Download and unarchive the latest kompose release asset for your OS"
+**Description:** "Download and unarchive the latest kompose release asset for your OS"
 
-__Link:__ [https://github.com/chouseknecht/kompose-install-role](https://github.com/chouseknecht/kompose-install-role)
+**Link:** [https://github.com/chouseknecht/kompose-install-role](https://github.com/chouseknecht/kompose-install-role)
 
 ### Fabric8 Maven Plugin by Red Hat
 
-__Description:__  "Maven is one of the widely used build tools for Java applications. The Fabric8 Maven Plugin is a maven extension that simplifies the deployment of Java applications to Kubernetes or OpenShift cluster. 
-The main task of this plugin is to build Docker images, generate Kubernetes or OpenShift resource descriptors and run/deploy the application on Kubernetes or OpenShift cluster. 
-Plugin has wide range of configuration options. Docker Compose is one of the option to bring up deployments on Kubernetes or OpenShift cluster. 
+**Description:** "Maven is one of the widely used build tools for Java applications. The Fabric8 Maven Plugin is a maven extension that simplifies the deployment of Java applications to Kubernetes or OpenShift clusters.
+The main task of this plugin is to build Docker images, generate Kubernetes or OpenShift resource descriptors and run/deploy the application on Kubernetes or OpenShift cluster.
+The plugin has a wide range of configuration options. Docker Compose is one of the options to bring up deployments on Kubernetes or OpenShift clusters.
 Technically, Fabric8 Maven Plugin processes the external docker-compose.yml file and generates Kubernetes or OpenShift resources via Kompose."
 
-__Links:__
+**Links:**
 
-* [Quickstart](/docs/maven-example.md)
+* [Quickstart](/maven-example)
 * [Documentation](https://maven.fabric8.io/#docker-compose)

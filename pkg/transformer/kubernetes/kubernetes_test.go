@@ -84,6 +84,15 @@ func newKomposeObject() kobject.KomposeObject {
 	}
 }
 
+func newKomposeObjectHostPortProtocolConfig() kobject.ServiceConfig {
+	return kobject.ServiceConfig{
+		Name:          "nginx",
+		ContainerName: "nginx",
+		Image:         "nginx",
+		Port:          []kobject.Ports{{HostPort: 80, Protocol: string(api.ProtocolTCP), ContainerPort: 80}},
+	}
+}
+
 func equalStringSlice(s1, s2 []string) bool {
 	if len(s1) != len(s2) {
 		return false
@@ -936,5 +945,43 @@ func TestCreatePVC(t *testing.T) {
 	}
 	if *result.Spec.StorageClassName != storageClassName {
 		t.Errorf("Expected %s returned, got %s", storageClassName, *result.Spec.StorageClassName)
+	}
+}
+
+func TestCreateHostPortAndProtocol(t *testing.T) {
+	groupName := "pod_group"
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newKomposeObjectHostPortProtocolConfig()},
+	}
+	k := Kubernetes{}
+	objs, err := k.Transform(komposeObject, kobject.ConvertOptions{ServiceGroupMode: groupName})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	for _, obj := range objs {
+		if deployment, ok := obj.(*appsv1.Deployment); ok {
+			container := deployment.Spec.Template.Spec.Containers[0]
+			port := container.Ports[0]
+			containerPort := port.ContainerPort
+			hostPort := port.HostPort
+			protocol := port.Protocol
+
+			expectedPort := komposeObject.ServiceConfigs["app"].Port[0]
+			expectedContainerPort := expectedPort.ContainerPort
+			expectedHostPort := expectedPort.HostPort
+			expectedProtocol := expectedPort.Protocol
+
+			if containerPort != expectedContainerPort {
+				t.Errorf("Expected container port %v, got %v", expectedContainerPort, containerPort)
+			}
+
+			if hostPort != expectedHostPort {
+				t.Errorf("Expected host port %v, got %v", expectedHostPort, hostPort)
+			}
+
+			if protocol != api.Protocol(expectedProtocol) {
+				t.Errorf("Expected protocol %v, got %v", expectedProtocol, protocol)
+			}
+		}
 	}
 }

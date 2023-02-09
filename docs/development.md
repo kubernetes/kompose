@@ -14,6 +14,7 @@ redirect_from:
 Read about building kompose [here](https://github.com/kubernetes/kompose#building).
 
 ## Workflow
+
 ### Fork the main repository
 
 1. Go to https://github.com/kubernetes/kompose
@@ -21,7 +22,7 @@ Read about building kompose [here](https://github.com/kubernetes/kompose#buildin
 
 ### Clone your fork
 
-The commands below require that you have $GOPATH. We highly recommended you put Kompose' code into your $GOPATH.
+The commands below require that you have `$GOPATH`. We highly recommended you put the Kompose code into your `$GOPATH`.
 
 ```console
 git clone https://github.com/$YOUR_GITHUB_USERNAME/kompose.git $GOPATH/src/github.com/kubernetes/kompose
@@ -40,7 +41,7 @@ git checkout -b myfeature
 
 ```console
 git fetch upstream
-git rebase upstream/master
+git rebase upstream/main
 ```
 
 Note: If you have write access to the main repository at github.com/kubernetes/kompose, you should modify your git configuration so that you can't accidentally push to upstream:
@@ -65,17 +66,18 @@ git push -f origin myfeature
 ## Go Modules and dependency management
 
 Kompose uses [Go Modules](https://github.com/golang/go/wiki/Modules) to manage dependencies.
-If you want to make changes to dependencies please make sure that `go.mod` and `go.sum` are updated properly.
+If you want to introduce changes to dependencies, please ensure that `go.mod` and `go.sum` are updated properly.
 
 ##### Updating Kubernetes and OpenShift
+
 Kubernetes version depends on what version is OpenShift using.
 OpenShift is using forked Kubernetes to carry some patches.
-Currently it is not possible to use different Kubernetes version from version that OpenShift uses.
+Currently, it is not possible to use a different Kubernetes version from the version that OpenShift uses.
 (for more see comments in `go.mod`)
 
 ### Adding CLI tests
 
-[Kompose CLI tests](https://github.com/kubernetes/kompose/tree/master/script/test/cmd) run `kompose convert` with docker-compose files, and cross-check the k8s and OpenShift artifacts generated with the template files.
+[Kompose CLI tests](https://github.com/kubernetes/kompose/tree/main/script/test/cmd) run `kompose convert` with docker-compose files, and cross-check the k8s and OpenShift artifacts generated with the template files.
 
 To generate CLI tests, please run `make gen-cmd`.
 
@@ -83,6 +85,6 @@ To generate CLI tests, please run `make gen-cmd`.
 
 For Kompose, we use numerous CI's:
 
-   - [TravisCI](https://travis-ci.org/kubernetes/kompose): Unit and CLI tests
-   - [SemaphoreCI](https://semaphoreci.com/cdrage/kompose-2): Integration / cluster tests
-   - [Fabric8CI](http://jenkins.cd.k8s.fabric8.io/): Secondary integration tests / future cluster tests
+- [TravisCI](https://travis-ci.org/kubernetes/kompose): Unit and CLI tests
+- [SemaphoreCI](https://semaphoreci.com/cdrage/kompose-2): Integration / cluster tests
+- [Fabric8CI](http://jenkins.cd.k8s.fabric8.io/): Secondary integration tests / future cluster tests

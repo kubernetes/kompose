@@ -3,6 +3,7 @@ layout: default
 ---
 
 # Kubernetes + Compose = Kompose
+
 ## A conversion tool to go from Docker Compose to Kubernetes
 
 ### What's Kompose?
@@ -11,8 +12,8 @@ Kompose is a conversion tool for Docker Compose to container orchestrators such 
 
 Why do developers love it?
 
-  - Simplify your development process with Docker Compose and then deploy your containers to a production cluster
-  - Convert your `docker-compose.yaml` with one simple command `kompose convert`
+- Simplify your development process with Docker Compose and then deploy your containers to a production cluster
+- Convert your `docker-compose.yaml` with one simple command `kompose convert`
 
 ### It's as simple as 1-2-3
 

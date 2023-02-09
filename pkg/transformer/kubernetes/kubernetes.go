@@ -623,10 +623,8 @@ func ConfigPorts(service kobject.ServiceConfig) []api.ContainerPort {
 		containerPort := api.ContainerPort{
 			ContainerPort: port.ContainerPort,
 			HostIP:        port.HostIP,
-		}
-		// If the default is already TCP, no need to include protocol.
-		if protocol := api.Protocol(port.Protocol); protocol != api.ProtocolTCP {
-			containerPort.Protocol = protocol
+			HostPort:      port.HostPort,
+			Protocol:      api.Protocol(port.Protocol),
 		}
 		ports = append(ports, containerPort)
 		exist[port.ID()] = true

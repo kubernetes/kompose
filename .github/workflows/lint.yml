@@ -17,10 +17,3 @@ jobs:
           go-version: ${{ matrix.go }}
       - name: "Run go vet"
         run: "go vet ./pkg/..."
-      - name: "Run staticcheck"
-        uses: dominikh/staticcheck-action@v1
-        with:
-          cache-key: "${{ matrix.go }}"
-          install-go: false
-          version: "latest"
-          working-directory: "pkg"

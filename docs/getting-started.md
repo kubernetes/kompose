@@ -2,7 +2,7 @@
 layout: default
 permalink: /getting-started/
 title: Getting Started
-redirect_from: 
+redirect_from:
   - /docs/getting-started.md/
   - /docs/getting-started/
 ---
@@ -23,10 +23,11 @@ For beginners and the most compatibility, follow the _Minikube and Kompose_ guid
 In this guide, we'll deploy a sample `docker-compose.yaml` file to a Kubernetes cluster.
 
 Requirements:
-  - [minikube](https://github.com/kubernetes/minikube)
-  - [kompose](https://github.com/kubernetes/kompose)
 
-__Start `minikube`:__
+- [minikube](https://github.com/kubernetes/minikube)
+- [kompose](https://github.com/kubernetes/kompose)
+
+**Start `minikube`:**
 
 If you don't already have a Kubernetes cluster running, [minikube](https://github.com/kubernetes/minikube) is the best way to get started.
 
@@ -43,30 +44,29 @@ Starting cluster components...
 Kubectl is now configured to use the cluster
 ```
 
-__Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml), or use your own:__
+**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:**
 
 ```sh
-wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml
+wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
 ```
 
-__Convert your Docker Compose file to Kubernetes:__
+**Convert your Docker Compose file to Kubernetes:**
 
 Run `kompose convert` in the same directory as your `docker-compose.yaml` file.
 
 ```sh
-$ kompose convert                           
-INFO Kubernetes file "frontend-service.yaml" created         
-INFO Kubernetes file "redis-master-service.yaml" created     
-INFO Kubernetes file "redis-slave-service.yaml" created      
-INFO Kubernetes file "frontend-deployment.yaml" created      
-INFO Kubernetes file "redis-master-deployment.yaml" created  
-INFO Kubernetes file "redis-slave-deployment.yaml" created 
+$ kompose convert
+INFO Kubernetes file "frontend-service.yaml" created
+INFO Kubernetes file "redis-master-service.yaml" created
+INFO Kubernetes file "redis-slave-service.yaml" created
+INFO Kubernetes file "frontend-deployment.yaml" created
+INFO Kubernetes file "redis-master-deployment.yaml" created
+INFO Kubernetes file "redis-slave-deployment.yaml" created
 ```
 
-Then you can use `kubectl apply` to create these resources in kubernetes.
+Then you can use `kubectl apply` to create these resources in Kubernetes.
 
-
-__Access the newly deployed service:__
+**Access the newly deployed service:**
 
 Now that your service has been deployed, let's access it.
 
@@ -92,7 +92,6 @@ NodePort:               80      31144/TCP
 Endpoints:              172.17.0.4:80
 Session Affinity:       None
 No events.
-
 ```
 
 Note: If you're using a cloud provider, your IP will be listed next to `LoadBalancer Ingress`.
@@ -100,7 +99,7 @@ Note: If you're using a cloud provider, your IP will be listed next to `LoadBala
 If you have yet to expose your service (for example, within GCE), use the command:
 
 ```sh
-kubectl expose deployment frontend --type="LoadBalancer" 
+kubectl expose deployment frontend --type="LoadBalancer"
 ```
 
 To check functionality, you may also `curl` the URL.
@@ -114,15 +113,16 @@ $ curl http://123.45.67.89
 In this guide, we'll deploy a sample `docker-compose.yaml` file to an OpenShift cluster.
 
 Requirements:
-  - [minishift](https://github.com/minishift/minishift)
-  - [kompose](https://github.com/kubernetes/kompose)
-  - An OpenShift route created
 
-__Note:__ The service will NOT be accessible until you create an OpenShift route with `oc expose`. You must also have a virtualization environment setup. By default, `minishift` uses KVM.
+- [minishift](https://github.com/minishift/minishift)
+- [kompose](https://github.com/kubernetes/kompose)
+- An OpenShift route created
 
-__Start `minishift`:__
+**Note:** The service will NOT be accessible until you create an OpenShift route with `oc expose`. You must also have a virtualization environment setup. By default, `minishift` uses KVM.
 
-[Minishift](https://github.com/minishift/minishift) is a tool that helps run OpenShift locally using a single-node cluster inside of a VM. Similar to [minikube](https://github.com/kubernetes/minikube).
+**Start `minishift`:**
+
+[Minishift](https://github.com/minishift/minishift) is a tool that helps run OpenShift locally using a single-node cluster inside a VM. Similar to [minikube](https://github.com/kubernetes/minikube).
 
 ```sh
 $ minishift start
@@ -134,32 +134,32 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
-__Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml), or use your own:__
+**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:**
 
 ```sh
-wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml
+wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
 ```
 
-__Convert your Docker Compose file to OpenShift:__
+**Convert your Docker Compose file to OpenShift:**
 
 Run `kompose convert --provider=openshift` in the same directory as your `docker-compose.yaml` file.
 
 ```sh
 $ kompose convert --provider=openshift
-INFO OpenShift file "frontend-service.yaml" created 
-INFO OpenShift file "redis-master-service.yaml" created 
-INFO OpenShift file "redis-slave-service.yaml" created 
-INFO OpenShift file "frontend-deploymentconfig.yaml" created 
-INFO OpenShift file "frontend-imagestream.yaml" created 
-INFO OpenShift file "redis-master-deploymentconfig.yaml" created 
-INFO OpenShift file "redis-master-imagestream.yaml" created 
-INFO OpenShift file "redis-slave-deploymentconfig.yaml" created 
-INFO OpenShift file "redis-slave-imagestream.yaml" created 
+INFO OpenShift file "frontend-service.yaml" created
+INFO OpenShift file "redis-master-service.yaml" created
+INFO OpenShift file "redis-slave-service.yaml" created
+INFO OpenShift file "frontend-deploymentconfig.yaml" created
+INFO OpenShift file "frontend-imagestream.yaml" created
+INFO OpenShift file "redis-master-deploymentconfig.yaml" created
+INFO OpenShift file "redis-master-imagestream.yaml" created
+INFO OpenShift file "redis-slave-deploymentconfig.yaml" created
+INFO OpenShift file "redis-slave-imagestream.yaml" created
 ```
 
 Then you can use `kubectl apply` to create these resources in OpenShift cluster.
 
-__Access the newly deployed service:__
+**Access the newly deployed service:**
 
 After deployment, you must create an OpenShift route in order to access the service.
 
@@ -191,15 +191,16 @@ Opening the OpenShift Web console in the default browser...
 In this guide, we'll deploy a sample `docker-compose.yaml` file using both RHEL (Red Hat Enterprise Linux) and OpenShift.
 
 Requirements:
-  - Red Hat Enterprise Linux 7.4
-  - [Red Hat Development Suite](https://developers.redhat.com/products/devsuite/overview/)
-    - Which includes:
-    - [minishift](https://github.com/minishift/minishift)
-    - [kompose](https://github.com/kubernetes/kompose)
 
-__Note:__ A KVM hypervisor must be setup in order to correctly use `minishift` on RHEL. You can set it up via the [CDK Documentation](https://access.redhat.com/documentation/en-us/red_hat_container_development_kit/3.1/html-single/getting_started_guide/index#setup-virtualization) under "Set up your virtualization environment".
+- Red Hat Enterprise Linux 7.4
+- [Red Hat Development Suite](https://developers.redhat.com/products/devsuite/overview/)
+  - Which includes:
+  - [minishift](https://github.com/minishift/minishift)
+  - [kompose](https://github.com/kubernetes/kompose)
 
-__Install Red Hat Development Suite:__
+**Note:** A KVM hypervisor must be setup in order to correctly use `minishift` on RHEL. You can set it up via the [CDK Documentation](https://access.redhat.com/documentation/en-us/red_hat_container_development_kit/3.1/html-single/getting_started_guide/index#setup-virtualization) under "Set up your virtualization environment".
+
+**Install Red Hat Development Suite:**
 
 Before we are able to use both `minishift` and `kompose`, DevSuite must be installed. A more concise [installation document is available](https://developers.redhat.com/products/cdk/hello-world#fndtn-rhel).
 
@@ -230,7 +231,7 @@ Install Red Hat Development Suite and Kompose.
 $ yum install rh-devsuite kompose -y
 ```
 
-__Start `minishift`:__
+**Start `minishift`:**
 
 Before we begin, we must do a few preliminary steps setting up `minishift`.
 
@@ -253,32 +254,32 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
-__Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml), or use your own:__
+**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:**
 
 ```sh
-wget https://raw.githubusercontent.com/kubernetes/kompose/master/examples/docker-compose.yaml
+wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
 ```
 
-__Convert your Docker Compose file to OpenShift:__
+**Convert your Docker Compose file to OpenShift:**
 
 Run `kompose convert --provider=openshift` in the same directory as your `docker-compose.yaml` file.
 
 ```sh
 $ kompose convert --provider=openshift
-INFO OpenShift file "frontend-service.yaml" created 
-INFO OpenShift file "redis-master-service.yaml" created 
-INFO OpenShift file "redis-slave-service.yaml" created 
-INFO OpenShift file "frontend-deploymentconfig.yaml" created 
-INFO OpenShift file "frontend-imagestream.yaml" created 
-INFO OpenShift file "redis-master-deploymentconfig.yaml" created 
-INFO OpenShift file "redis-master-imagestream.yaml" created 
-INFO OpenShift file "redis-slave-deploymentconfig.yaml" created 
-INFO OpenShift file "redis-slave-imagestream.yaml" created 
+INFO OpenShift file "frontend-service.yaml" created
+INFO OpenShift file "redis-master-service.yaml" created
+INFO OpenShift file "redis-slave-service.yaml" created
+INFO OpenShift file "frontend-deploymentconfig.yaml" created
+INFO OpenShift file "frontend-imagestream.yaml" created
+INFO OpenShift file "redis-master-deploymentconfig.yaml" created
+INFO OpenShift file "redis-master-imagestream.yaml" created
+INFO OpenShift file "redis-slave-deploymentconfig.yaml" created
+INFO OpenShift file "redis-slave-imagestream.yaml" created
 ```
 
 Then you can use `kubectl apply` to create these resources in OpenShift.
 
-__Access the newly deployed service:__
+**Access the newly deployed service:**
 
 After deployment, you must create an OpenShift route in order to access the service.
 

@@ -36,8 +36,6 @@ ENV PATH="$PATH:$GOPATH/bin:$GOROOT/bin" \
 WORKDIR /tmp/go
 RUN curl https://storage.googleapis.com/golang/go$GOVERSION.linux-amd64.tar.gz | tar -xz -C /usr/local
 
-RUN go get honnef.co/go/tools/cmd/staticcheck@latest
-
 WORKDIR $KOMPOSE_SRC
 # This image can be run as any user
 RUN chmod -R ugo+rw $GOPATH
