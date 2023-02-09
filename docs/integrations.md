@@ -53,5 +53,5 @@ Technically, Fabric8 Maven Plugin processes the external docker-compose.yml file
 
 **Links:**
 
-- [Quickstart](/docs/maven-example.md)
-- [Documentation](https://maven.fabric8.io/#docker-compose)
+* [Quickstart](/maven-example)
+* [Documentation](https://maven.fabric8.io/#docker-compose)
