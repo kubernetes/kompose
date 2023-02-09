@@ -9,8 +9,8 @@ redirect_from:
 
 # Integrations
 
-- TOC
-  {:toc}
+* TOC
+{:toc}
 
 There are some projects out there known to use Kompose integrated in some form or another
 
@@ -53,5 +53,5 @@ Technically, Fabric8 Maven Plugin processes the external docker-compose.yml file
 
 **Links:**
 
-- [Quickstart](/docs/maven-example.md)
-- [Documentation](https://maven.fabric8.io/#docker-compose)
+* [Quickstart](/maven-example)
+* [Documentation](https://maven.fabric8.io/#docker-compose)

@@ -16,7 +16,7 @@ Let's deploy a Springboot Java application with Docker Compose file using Fabric
 - Linux or MacOS or Windows
 - JDK 1.7+ - [JDK Quick Installation Guide](http://openjdk.java.net/install/)
 - Maven 3.x+ - [Maven Installation Guide](http://www.baeldung.com/install-maven-on-windows-linux-mac)
-- Kompose - [Kompose Installation Guide](/docs/installation.md)
+- Kompose - [Kompose Installation Guide](/installation)
 
 **1. Clone the example project from GitHub**
 

@@ -9,7 +9,8 @@ redirect_from:
 
 # Architecture and Internal Design
 
-- TOC
+* TOC
+{:toc}
 
 `kompose` has 3 stages: _Loader_, _Transformer_ and _Outputter_. Each stage should have a well-defined interface, so it is easy to write a new Loader, Transformer, or Outputters and plug it in. Currently, only Loader and Transformer interfaces are defined.
 
