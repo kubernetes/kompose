@@ -105,7 +105,7 @@ git_commit() {
   git add .
   git commit -m "$1 Release"
   git push origin $BRANCH
-  gh pr
+  gh pr create
 
   echo ""
   echo "PR opened against master to update version"
@@ -220,7 +220,6 @@ main() {
   "Create PR"
   "Sync with upstream"
   "Build binaries"
-  "Build packages"
   "Create tarballs"
   "Generate install guide"
   "Upload the binaries and push to GitHub release page"
