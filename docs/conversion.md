@@ -9,8 +9,8 @@ redirect_from:
 
 # Conversion Matrix
 
-- TOC
-  {:toc}
+* TOC
+{:toc}
 
 This document outlines all possible conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts.
 

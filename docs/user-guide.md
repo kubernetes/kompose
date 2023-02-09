@@ -9,8 +9,8 @@ redirect_from:
 
 # User Guide
 
-- TOC
-  {:toc}
+* TOC
+{:toc}
 
 Kompose has support for two providers: OpenShift and Kubernetes.
 You can choose a targeted provider using global option `--provider`. If no provider is specified, Kubernetes is set by default.
