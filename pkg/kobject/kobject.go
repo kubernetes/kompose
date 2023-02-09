@@ -126,6 +126,7 @@ type ServiceConfig struct {
 	User                          string             `compose:"user"`
 	VolumesFrom                   []string           `compose:"volumes_from"`
 	ServiceType                   string             `compose:"kompose.service.type"`
+	ServiceExternalTrafficPolicy  string             `compose:"kompose.service.external-traffic-policy"`
 	NodePortPort                  int32              `compose:"kompose.service.nodeport.port"`
 	StopGracePeriod               string             `compose:"stop_grace_period"`
 	Build                         string             `compose:"build"`

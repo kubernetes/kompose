@@ -1357,6 +1357,7 @@ func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.Servi
 		if service.ServiceType == "LoadBalancer" {
 			svcs := k.CreateLBService(name, service)
 			for _, svc := range svcs {
+				svc.Spec.ExternalTrafficPolicy = api.ServiceExternalTrafficPolicyType(service.ServiceExternalTrafficPolicy)
 				*objects = append(*objects, svc)
 			}
 			if len(svcs) > 1 {
@@ -1368,11 +1369,17 @@ func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.Servi
 			if service.ExposeService != "" {
 				*objects = append(*objects, k.initIngress(name, service, svc.Spec.Ports[0].Port))
 			}
+			if service.ServiceExternalTrafficPolicy != "" && svc.Spec.Type != api.ServiceTypeNodePort {
+				log.Warningf("External Traffic Policy is ignored for the service %v of type %v", name, service.ServiceType)
+			}
 		}
 	} else {
 		if service.ServiceType == "Headless" {
 			svc := k.CreateHeadlessService(name, service)
 			*objects = append(*objects, svc)
+			if service.ServiceExternalTrafficPolicy != "" {
+				log.Warningf("External Traffic Policy is ignored for the service %v of type Headless", name)
+			}
 		} else {
 			log.Warnf("Service %q won't be created because 'ports' is not specified", service.Name)
 		}

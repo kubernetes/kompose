@@ -58,6 +58,54 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   creationTimestamp: null
+  name: normalized-network
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/normalized-network: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/normalized-network: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: v30-normalized-network
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/v30-normalized-network: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/v30-normalized-network: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: app-network
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/normalized-network: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/normalized-network: "true"
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
   name: app-network
 spec:
   ingress:
@@ -90,16 +138,16 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   creationTimestamp: null
-  name: v30-normalized-network
+  name: normalized-network
 spec:
   ingress:
     - from:
         - podSelector:
             matchLabels:
-              io.kompose.network/v30-normalized-network: "true"
+              io.kompose.network/normalized-network: "true"
   podSelector:
     matchLabels:
-      io.kompose.network/v30-normalized-network: "true"
+      io.kompose.network/normalized-network: "true"
 
 ---
 apiVersion: apps/v1
@@ -155,4 +203,3 @@ spec:
   podSelector:
     matchLabels:
       io.kompose.network/v30-default: "true"
-

@@ -698,6 +698,13 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 			}
 
 			serviceConfig.ServiceType = serviceType
+		case LabelServiceExternalTrafficPolicy:
+			serviceExternalTypeTrafficPolicy, err := handleServiceExternalTrafficPolicy(value)
+			if err != nil {
+				return errors.Wrap(err, "handleServiceExternalTrafficPolicy failed")
+			}
+
+			serviceConfig.ServiceExternalTrafficPolicy = serviceExternalTypeTrafficPolicy
 		case LabelServiceExpose:
 			serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
 		case LabelNodePortPort:

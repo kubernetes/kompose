@@ -32,6 +32,8 @@ import (
 const (
 	// LabelServiceType defines the type of service to be created
 	LabelServiceType = "kompose.service.type"
+	// LabelServiceExternalTrafficPolicy defines the external policy traffic of service to be created
+	LabelServiceExternalTrafficPolicy = "kompose.service.external-traffic-policy"
 	// LabelServiceGroup defines the group of services in a single pod
 	LabelServiceGroup = "kompose.service.group"
 	// LabelNodePortPort defines the port value for NodePort service
@@ -148,6 +150,17 @@ func handleServiceType(ServiceType string) (string, error) {
 		return ServiceTypeHeadless, nil
 	default:
 		return "", errors.New("Unknown value " + ServiceType + " , supported values are 'nodeport, clusterip, headless or loadbalancer'")
+	}
+}
+
+func handleServiceExternalTrafficPolicy(ServiceExternalTrafficPolicyType string) (string, error) {
+	switch strings.ToLower(ServiceExternalTrafficPolicyType) {
+	case "", "cluster":
+		return string(api.ServiceExternalTrafficPolicyTypeCluster), nil
+	case "local":
+		return string(api.ServiceExternalTrafficPolicyTypeLocal), nil
+	default:
+		return "", errors.New("Unknown value " + ServiceExternalTrafficPolicyType + " , supported values are 'local, cluster'")
 	}
 }
 

@@ -1,0 +1,14 @@
+version: "3.3"
+
+services:
+  front-end:
+    image: gcr.io/google-samples/gb-frontend:v4
+    environment:
+      - GET_HOSTS_FROM=dns
+    ports:
+      - 80:80
+    labels:
+      kompose.service.expose: lb
+      kompose.service.expose.ingress-class-name: nginx
+      kompose.service.external-traffic-policy: local
+      kompose.service.type: headless
