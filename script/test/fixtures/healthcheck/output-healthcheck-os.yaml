@@ -136,6 +136,7 @@ spec:
           name: mongo
           ports:
             - containerPort: 27017
+              protocol: TCP
           readinessProbe:
             failureThreshold: 5
             periodSeconds: 10
@@ -226,6 +227,7 @@ spec:
           name: mysql
           ports:
             - containerPort: 3306
+              protocol: TCP
           readinessProbe:
             failureThreshold: 6
             periodSeconds: 11
@@ -318,6 +320,7 @@ spec:
           name: postgresql
           ports:
             - containerPort: 5432
+              protocol: TCP
           readinessProbe:
             failureThreshold: 5
             httpGet:
@@ -408,6 +411,7 @@ spec:
           name: redis
           ports:
             - containerPort: 6379
+              protocol: TCP
           readinessProbe:
             exec:
               command:

@@ -150,42 +150,81 @@ spec:
       name: foo
       ports:
         - containerPort: 6379
+          protocol: TCP
         - containerPort: 6379
           protocol: UDP
         - containerPort: 3000
+          protocol: TCP
         - containerPort: 3001
+          protocol: TCP
         - containerPort: 3002
+          protocol: TCP
         - containerPort: 3003
+          protocol: TCP
         - containerPort: 3004
+          protocol: TCP
         - containerPort: 3005
+          protocol: TCP
         - containerPort: 8000
+          hostPort: 8000
+          protocol: TCP
         - containerPort: 8080
+          hostPort: 9090
+          protocol: TCP
         - containerPort: 8081
+          hostPort: 9091
+          protocol: TCP
         - containerPort: 22
+          hostPort: 49100
+          protocol: TCP
         - containerPort: 8001
           hostIP: 127.0.0.1
+          hostPort: 8001
+          protocol: TCP
         - containerPort: 5000
           hostIP: 127.0.0.1
+          hostPort: 5000
+          protocol: TCP
         - containerPort: 5001
           hostIP: 127.0.0.1
+          hostPort: 5001
+          protocol: TCP
         - containerPort: 5002
           hostIP: 127.0.0.1
+          hostPort: 5002
+          protocol: TCP
         - containerPort: 5003
           hostIP: 127.0.0.1
+          hostPort: 5003
+          protocol: TCP
         - containerPort: 5004
           hostIP: 127.0.0.1
+          hostPort: 5004
+          protocol: TCP
         - containerPort: 5005
           hostIP: 127.0.0.1
+          hostPort: 5005
+          protocol: TCP
         - containerPort: 5006
           hostIP: 127.0.0.1
+          hostPort: 5006
+          protocol: TCP
         - containerPort: 5007
           hostIP: 127.0.0.1
+          hostPort: 5007
+          protocol: TCP
         - containerPort: 5008
           hostIP: 127.0.0.1
+          hostPort: 5008
+          protocol: TCP
         - containerPort: 5009
           hostIP: 127.0.0.1
+          hostPort: 5009
+          protocol: TCP
         - containerPort: 5010
           hostIP: 127.0.0.1
+          hostPort: 5010
+          protocol: TCP
       resources:
         limits:
           memory: "10e3"
@@ -241,7 +280,9 @@ spec:
           name: redis
           ports:
             - containerPort: 6379
+              protocol: TCP
             - containerPort: 1235
+              hostPort: 1234
               protocol: UDP
           resources:
             limits:

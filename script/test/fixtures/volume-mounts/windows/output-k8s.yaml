@@ -43,6 +43,7 @@ spec:
           name: db
           ports:
             - containerPort: 80
+              protocol: TCP
           resources: {}
           volumeMounts:
             - mountPath: D:\config

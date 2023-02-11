@@ -46,6 +46,8 @@ spec:
           name: librenms
           ports:
             - containerPort: 8000
+              hostPort: 8000
+              protocol: TCP
           resources: {}
           volumeMounts:
             - mountPath: /data

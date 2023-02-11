@@ -73,6 +73,8 @@ spec:
           name: db
           ports:
             - containerPort: 3306
+              hostPort: 3306
+              protocol: TCP
           resources: {}
           volumeMounts:
             - mountPath: /var/lib/mysql
@@ -146,6 +148,8 @@ spec:
           name: wordpress
           ports:
             - containerPort: 80
+              hostPort: 8000
+              protocol: TCP
           resources: {}
           volumeMounts:
             - mountPath: /var/www/html
