@@ -43,6 +43,13 @@ func TestNewClientWithOpts(t *testing.T) {
 			expectedErrorOnWarnings:  true,
 			opts:                     []Opt{WithErrorOnWarning()},
 		},
+		{
+			expectedError:            nil,
+			expectedSuppressWarnings: true,
+			expectedVerbose:          false,
+			expectedErrorOnWarnings:  true,
+			opts:                     []Opt{WithErrorOnWarning(), WithSuppressWarnings()},
+		},
 	}
 	for _, tc := range testCases {
 		client, err := NewClient(tc.opts...)
