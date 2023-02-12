@@ -59,6 +59,7 @@ spec:
           name: redis
           ports:
             - containerPort: 6379
+              protocol: TCP
           resources: {}
       restartPolicy: Always
       topologySpreadConstraints:

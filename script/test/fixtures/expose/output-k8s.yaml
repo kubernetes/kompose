@@ -64,6 +64,7 @@ spec:
           name: redis
           ports:
             - containerPort: 6379
+              protocol: TCP
           resources: {}
       restartPolicy: Always
 status: {}
@@ -118,6 +119,8 @@ spec:
           name: web
           ports:
             - containerPort: 5000
+              hostPort: 5000
+              protocol: TCP
           resources: {}
       restartPolicy: Always
 status: {}
