@@ -200,6 +200,7 @@ The currently supported options are:
 | kompose.service.healthcheck.liveness.http_get_path  | kubernetes liveness httpGet path                                                     |
 | kompose.service.healthcheck.liveness.http_get_port  | kubernetes liveness httpGet port                                                     |
 | kompose.service.healthcheck.liveness.tcp_port       | kubernetes liveness tcpSocket port                                                   |
+| kompose.service.external-traffic-policy       | 'cluster', 'local', ''                                                   |                                                |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -411,6 +412,25 @@ services:
 
 - `kompose.service.healthcheck.readiness` defines Kubernetes [readiness](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-readiness-probes)
 
+- `kompose.service.external-traffic-policy` defines Kubernetes Service [external traffic policy.](https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip).
+
+For example:
+
+```yaml
+version: "3.3"
+
+services:
+  front-end:
+    image: gcr.io/google-samples/gb-frontend:v4
+    environment:
+      - GET_HOSTS_FROM=dns
+    ports:
+      - 80:80
+    labels:
+      kompose.service.expose: lb
+      kompose.service.external-traffic-policy: local
+      kompose.service.type: loadbalancer
+```
 ## Restart
 
 If you want to create normal pods without controller you can use `restart` construct of docker-compose to define that. Follow table below to see what happens on the `restart` value.
