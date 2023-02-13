@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -53,6 +54,16 @@ func newServiceConfig() kobject.ServiceConfig {
 		Restart:       "always",
 		Stdin:         true,
 		Tty:           true,
+	}
+}
+
+func newServiceConfigWithExternalTrafficPolicy() kobject.ServiceConfig {
+	loadBalancerServiceType := string(corev1.ServiceTypeLoadBalancer)
+	return kobject.ServiceConfig{
+		Name:                         "app",
+		Port:                         []kobject.Ports{{HostPort: 123, ContainerPort: 456}},
+		ServiceType:                  loadBalancerServiceType,
+		ServiceExternalTrafficPolicy: "local",
 	}
 }
 
@@ -421,6 +432,30 @@ func TestRecreateStrategyWithVolumesPresent(t *testing.T) {
 				t.Errorf("Expected %v as Strategy Type, got %v",
 					deployapi.DeploymentStrategyTypeRecreate,
 					deploymentConfig.Spec.Strategy.Type)
+			}
+		}
+	}
+}
+
+func TestServiceExternalTrafficPolicy(t *testing.T) {
+	groupName := "pod_group"
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newServiceConfigWithExternalTrafficPolicy()},
+	}
+	o := OpenShift{}
+	objs, err := o.Transform(komposeObject, kobject.ConvertOptions{ServiceGroupMode: groupName})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	for _, obj := range objs {
+		if service, ok := obj.(*corev1.Service); ok {
+			serviceExternalTrafficPolicy := string(service.Spec.ExternalTrafficPolicy)
+			if serviceExternalTrafficPolicy != strings.ToLower(string(corev1.ServiceExternalTrafficPolicyTypeLocal)) {
+				t.Errorf("Expected Local as external lifecycle policy, got %v", serviceExternalTrafficPolicy)
+			}
+			serviceType := service.Spec.Type
+			if serviceType != corev1.ServiceTypeLoadBalancer {
+				t.Errorf("Expected LoadBalancer as service type, got %v", serviceType)
 			}
 		}
 	}

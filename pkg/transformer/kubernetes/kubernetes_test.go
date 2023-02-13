@@ -93,6 +93,16 @@ func newKomposeObjectHostPortProtocolConfig() kobject.ServiceConfig {
 	}
 }
 
+func newServiceConfigWithExternalTrafficPolicy() kobject.ServiceConfig {
+	loadBalancerServiceType := string(api.ServiceTypeLoadBalancer)
+	return kobject.ServiceConfig{
+		Name:                         "app",
+		Port:                         []kobject.Ports{{HostPort: 123, ContainerPort: 456}},
+		ServiceType:                  loadBalancerServiceType,
+		ServiceExternalTrafficPolicy: "local",
+	}
+}
+
 func equalStringSlice(s1, s2 []string) bool {
 	if len(s1) != len(s2) {
 		return false
@@ -981,6 +991,30 @@ func TestCreateHostPortAndProtocol(t *testing.T) {
 
 			if protocol != api.Protocol(expectedProtocol) {
 				t.Errorf("Expected protocol %v, got %v", expectedProtocol, protocol)
+			}
+		}
+	}
+}
+
+func TestServiceExternalTrafficPolicy(t *testing.T) {
+	groupName := "pod_group"
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newServiceConfigWithExternalTrafficPolicy()},
+	}
+	k := Kubernetes{}
+	objs, err := k.Transform(komposeObject, kobject.ConvertOptions{ServiceGroupMode: groupName})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	for _, obj := range objs {
+		if service, ok := obj.(*api.Service); ok {
+			serviceExternalTrafficPolicy := string(service.Spec.ExternalTrafficPolicy)
+			if serviceExternalTrafficPolicy != strings.ToLower(string(api.ServiceExternalTrafficPolicyTypeLocal)) {
+				t.Errorf("Expected Local as external lifecycle policy, got %v", serviceExternalTrafficPolicy)
+			}
+			serviceType := service.Spec.Type
+			if serviceType != api.ServiceTypeLoadBalancer {
+				t.Errorf("Expected LoadBalancer as service type, got %v", serviceType)
 			}
 		}
 	}

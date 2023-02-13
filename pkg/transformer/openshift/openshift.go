@@ -386,6 +386,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			if service.ServiceType == "LoadBalancer" {
 				svcs := o.CreateLBService(name, service)
 				for _, svc := range svcs {
+					svc.Spec.ExternalTrafficPolicy = corev1.ServiceExternalTrafficPolicyType(service.ServiceExternalTrafficPolicy)
 					objects = append(objects, svc)
 				}
 				if len(svcs) > 1 {
@@ -398,10 +399,16 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				if service.ExposeService != "" {
 					objects = append(objects, o.initRoute(name, service, svc.Spec.Ports[0].Port))
 				}
+				if service.ServiceExternalTrafficPolicy != "" && svc.Spec.Type != corev1.ServiceTypeNodePort {
+					log.Warningf("External Traffic Policy is ignored for the service %v of type %v", name, service.ServiceType)
+				}
 			}
 		} else if service.ServiceType == "Headless" {
 			svc := o.CreateHeadlessService(name, service)
 			objects = append(objects, svc)
+			if service.ServiceExternalTrafficPolicy != "" {
+				log.Warningf("External Traffic Policy is ignored for the service %v of type Headless", name)
+			}
 		}
 
 		err := o.UpdateKubernetesObjects(name, service, opt, &objects)
