@@ -83,7 +83,7 @@ choco install kubernetes-kompose
 You can build an image from the official repo for [Docker](https://docs.docker.com/engine/reference/commandline/build/) or [Podman](https://docs.podman.io/en/latest/markdown/podman-build.1.html):
 
 ```bash
-docker build -t kompose https://github.com/kubernetes/kompose.git
+docker build -t kompose https://github.com/kubernetes/kompose.git\#main
 ```
 
 To run the built image against the current directory, run the following command:
