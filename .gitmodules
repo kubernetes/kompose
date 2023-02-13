@@ -1,3 +1,0 @@
-[submodule "build/rpm"]
-	path = build/rpm
-	url = https://src.fedoraproject.org/rpms/kompose
