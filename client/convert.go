@@ -14,29 +14,39 @@ func (k *Kompose) Convert(options ConvertOptions) error {
 	}
 
 	kobjectConvertOptions := kobject.ConvertOptions{
-		ToStdout:               options.ToStdout,
-		Build:                  options.Build,
-		PushImage:              options.PushImage,
-		PushImageRegistry:      options.PushImageRegistry,
-		GenerateJSON:           options.GenerateJson,
-		OutFile:                options.OutFile,
-		Replicas:               options.Replicas,
-		Volumes:                options.VolumeType,
-		PVCRequestSize:         options.PvcRequestSize,
-		WithKomposeAnnotation:  options.WithKomposeAnnotations,
-		CreateD:                k.createDeployment(options),
-		CreateDS:               k.createDaemonSet(options),
-		CreateRC:               k.createReplicationController(options),
-		CreateDeploymentConfig: k.createDeploymentConfig(options),
-		CreateChart:            k.createChart(options),
-		InputFiles:             options.InputFiles,
-		MultipleContainerMode:  k.multiContainerMode(options),
-		ServiceGroupMode:       k.serviceGroupMode(options),
-		ServiceGroupName:       k.serviceGroupName(options),
-		SecretsAsFiles:         k.secretsAsFiles(options),
-		InsecureRepository:     k.insecureRepository(options),
-		BuildRepo:              k.buildRepo(options),
-		BuildBranch:            k.buildBranch(options),
+		ToStdout:                    options.ToStdout,
+		CreateChart:                 k.createChart(options),
+		GenerateYaml:                options.GenerateYaml,
+		GenerateJSON:                options.GenerateJson,
+		Replicas:                    options.Replicas,
+		InputFiles:                  options.InputFiles,
+		OutFile:                     options.OutFile,
+		Provider:                    k.getProvider(options),
+		CreateD:                     k.createDeployment(options),
+		CreateDS:                    k.createDaemonSet(options),
+		CreateRC:                    k.createReplicationController(options),
+		Build:                       options.Build,
+		BuildRepo:                   k.buildRepo(options),
+		BuildBranch:                 k.buildBranch(options),
+		PushImage:                   options.PushImage,
+		PushImageRegistry:           options.PushImageRegistry,
+		CreateDeploymentConfig:      k.createDeploymentConfig(options),
+		EmptyVols:                   options.ConvertEmptyVols,
+		Volumes:                     options.VolumeType,
+		PVCRequestSize:              options.PvcRequestSize,
+		InsecureRepository:          k.insecureRepository(options),
+		IsDeploymentFlag:            k.createDeployment(options),
+		IsDaemonSetFlag:             k.createDaemonSet(options),
+		IsReplicationControllerFlag: k.createReplicationController(options),
+		Controller:                  k.getController(options),
+		IsReplicaSetFlag:            options.Replicas != 0,
+		IsDeploymentConfigFlag:      k.createDeploymentConfig(options),
+		YAMLIndent:                  options.YamlIndent,
+		WithKomposeAnnotation:       options.WithKomposeAnnotations,
+		MultipleContainerMode:       k.multiContainerMode(options),
+		ServiceGroupMode:            k.serviceGroupMode(options),
+		ServiceGroupName:            k.serviceGroupName(options),
+		SecretsAsFiles:              k.secretsAsFiles(options),
 	}
 	app.Convert(kobjectConvertOptions)
 	return nil
@@ -160,6 +170,23 @@ func (k *Kompose) buildRepo(options ConvertOptions) string {
 func (k *Kompose) buildBranch(options ConvertOptions) string {
 	if openshiftProvider, ok := options.Provider.(Openshift); ok {
 		return openshiftProvider.BuildRepo
+	}
+	return ""
+}
+
+func (k *Kompose) getProvider(options ConvertOptions) string {
+	if _, ok := options.Provider.(Openshift); ok {
+		return "openshift"
+	}
+	if _, ok := options.Provider.(Kubernetes); ok {
+		return "kubernetes"
+	}
+	return ""
+}
+
+func (k *Kompose) getController(options ConvertOptions) string {
+	if kubernetesProvider, ok := options.Provider.(Kubernetes); ok {
+		return kubernetesProvider.Controller
 	}
 	return ""
 }
