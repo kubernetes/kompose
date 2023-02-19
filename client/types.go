@@ -33,19 +33,16 @@ const (
 )
 
 type ConvertOptions struct {
-	Build                  string
+	Build                  *string
 	PushImage              bool
 	PushImageRegistry      string
 	GenerateJson           bool
-	GenerateYaml           bool
 	ToStdout               bool
 	OutFile                string
-	Replicas               int
-	VolumeType             string
+	Replicas               *int
+	VolumeType             *string
 	PvcRequestSize         string
-	ConvertEmptyVols       bool
-	YamlIndent             int
-	WithKomposeAnnotations bool
+	WithKomposeAnnotations *bool
 	InputFiles             []string
 	Provider
 }
@@ -55,9 +52,9 @@ type Provider interface{}
 type Kubernetes struct {
 	Provider
 	Chart              bool
-	Controller         string
+	Controller         *string
 	MultiContainerMode bool
-	ServiceGroupMode   string
+	ServiceGroupMode   *string
 	ServiceGroupName   string
 	SecretsAsFiles     bool
 }

@@ -76,3 +76,6 @@ tags
 .idea
 
 .DS_Store
+
+# Client Test generated files
+client/testdata/generated
