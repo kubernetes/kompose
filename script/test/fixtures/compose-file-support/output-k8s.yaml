@@ -1,0 +1,75 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert --stdout
+    kompose.version: 1.28.0 (4d1ce961)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+  selector:
+    io.kompose.service: web
+status:
+  loadBalancer: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert --stdout
+    kompose.version: 1.28.0 (4d1ce961)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: web
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert --stdout
+        kompose.version: 1.28.0 (4d1ce961)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/kompose-default: "true"
+        io.kompose.service: web
+    spec:
+      containers:
+        - image: nginx:latest
+          name: web
+          ports:
+            - containerPort: 80
+              hostPort: 80
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: kompose-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/kompose-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/kompose-default: "true"
+
