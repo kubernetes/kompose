@@ -105,6 +105,11 @@ func TestInitDeploymentConfig(t *testing.T) {
 	if spec.Spec.Triggers[1].ImageChangeParams.ContainerNames[0] != "myfoobarname" {
 		t.Errorf("Expected myfoobarname for name, actual %s", spec.Spec.Triggers[1].ImageChangeParams.ContainerNames[0])
 	}
+
+	// Check that the APIVersion is equal to "apps.openshift.io/v1"
+	if spec.APIVersion != "apps.openshift.io/v1" {
+		t.Errorf("Expected 'apps.openshift.io/v1' for APIVersion, actual %s", spec.APIVersion)
+	}
 }
 
 func TestKomposeConvertRoute(t *testing.T) {
