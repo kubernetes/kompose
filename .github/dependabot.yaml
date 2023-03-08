@@ -5,6 +5,7 @@ version: 2
 updates:
   - commit-message:
       include: "scope"
+      prefix: "go mod"
     directory: "/"
     ignore:
       # newer versions of these libs will break build
@@ -17,6 +18,7 @@ updates:
 
   - commit-message:
       include: "scope"
+      prefix: "gh actions"
     directory: "/"
     open-pull-requests-limit: 10
     package-ecosystem: "github-actions"
