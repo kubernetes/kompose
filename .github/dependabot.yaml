@@ -1,0 +1,24 @@
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+
+updates:
+  - commit-message:
+      include: "scope"
+    directory: "/"
+    ignore:
+      # newer versions of these libs will break build
+      - dependency-name: "k8s.io/api"
+      - dependency-name: "k8s.io/apimachinery"
+    open-pull-requests-limit: 10
+    package-ecosystem: "gomod"
+    schedule:
+      interval: "daily"
+
+  - commit-message:
+      include: "scope"
+    directory: "/"
+    open-pull-requests-limit: 10
+    package-ecosystem: "github-actions"
+    schedule:
+      interval: "daily"
