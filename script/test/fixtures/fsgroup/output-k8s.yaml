@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.security-context.fsgroup: "1001"
+  creationTimestamp: null
+  labels:
+    io.kompose.service: pgadmin
+  name: pgadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: pgadmin
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.security-context.fsgroup: "1001"
+      creationTimestamp: null
+      labels:
+        io.kompose.network/fsgroup-default: "true"
+        io.kompose.service: pgadmin
+    spec:
+      containers:
+        - env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: dumb_pgadmin_user@email.com
+            - name: PGADMIN_DEFAULT_PASSWORD
+              value: pgadmin_password
+          image: dpage/pgadmin4
+          name: pgadmin
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/pgadmin
+              name: pgadmin-data
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1001
+      volumes:
+        - name: pgadmin-data
+          persistentVolumeClaim:
+            claimName: pgadmin-data
+status: {}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: pgadmin-data
+  name: pgadmin-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: fsgroup-default
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/fsgroup-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/fsgroup-default: "true"
+
