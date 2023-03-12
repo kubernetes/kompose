@@ -128,6 +128,11 @@ func SecurityContext(name string, service kobject.ServiceConfig) PodSpecOption {
 			podSecurityContext.SupplementalGroups = service.GroupAdd
 		}
 
+		//set Pod FsGroup
+		if service.FsGroup != 0 {
+			podSecurityContext.FSGroup = &service.FsGroup
+		}
+
 		// Setup security context
 		securityContext := &api.SecurityContext{}
 		if service.Privileged {

@@ -79,6 +79,8 @@ const (
 
 	// ServiceTypeHeadless ...
 	ServiceTypeHeadless = "Headless"
+	// LabelSecurityContextFsGroup defines the pod FsGroup
+	LabelSecurityContextFsGroup = "kompose.security-context.fsgroup"
 )
 
 // load environment variables from compose file
