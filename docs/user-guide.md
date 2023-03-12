@@ -201,6 +201,7 @@ The currently supported options are:
 | kompose.service.healthcheck.liveness.http_get_port  | kubernetes liveness httpGet port                                                     |
 | kompose.service.healthcheck.liveness.tcp_port       | kubernetes liveness tcpSocket port                                                   |
 | kompose.service.external-traffic-policy       | 'cluster', 'local', ''                                                   |                                                |
+| kompose.security-context.fsgroup       |  kubernetes pod security group fsgroup                                                  |                                                |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -430,6 +431,20 @@ services:
       kompose.service.expose: lb
       kompose.service.external-traffic-policy: local
       kompose.service.type: loadbalancer
+```
+
+- `kompose.security-context.fsgroup` defines Kubernetes Pod [security context FsGroup.](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/).
+
+For example:
+
+```yaml
+version: '3.8'
+
+services:
+  pgadmin:
+    image: nginx
+    labels:
+      kompose.security-context.fsgroup: 1001
 ```
 ## Restart
 
