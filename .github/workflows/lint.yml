@@ -12,7 +12,7 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v3
       - name: "Install golang"
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
       - name: "Run go vet"
