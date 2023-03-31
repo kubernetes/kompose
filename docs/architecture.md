@@ -14,7 +14,7 @@ redirect_from:
 
 `kompose` has 3 stages: _Loader_, _Transformer_ and _Outputter_. Each stage should have a well-defined interface, so it is easy to write a new Loader, Transformer, or Outputters and plug it in. Currently, only Loader and Transformer interfaces are defined.
 
-![Design Diagram](https://github.com/kubernetes/kompose/blob/master/docs/images/design_diagram.png)
+![Design Diagram](https://github.com/kubernetes/kompose/blob/main/docs/images/design_diagram.png)
 
 ## Loader
 
