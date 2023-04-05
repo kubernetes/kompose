@@ -35,10 +35,10 @@ import (
 var (
 	// DefaultComposeFiles is a list of filenames that kompose will use if no file is explicitly set
 	DefaultComposeFiles = []string{
-		"docker-compose.yml",
+		"compose.yaml",
+		"compose.yml",
 		"docker-compose.yaml",
-		"container-compose.yml",
-		"container-compose.yaml",
+		"docker-compose.yml",
 	}
 )
 
