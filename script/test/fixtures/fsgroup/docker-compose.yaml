@@ -1,0 +1,14 @@
+version: '3.8'
+volumes:
+  pgadmin-data:
+
+services:
+  pgadmin:
+    labels:
+      kompose.security-context.fsgroup: 1001
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dumb_pgadmin_user@email.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_password
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin

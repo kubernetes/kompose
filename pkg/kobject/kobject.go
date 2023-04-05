@@ -149,6 +149,7 @@ type ServiceConfig struct {
 	Dockerfile         string             `compose:"dockerfile"`
 	Replicas           int                `compose:"replicas"`
 	GroupAdd           []int64            `compose:"group_add"`
+	FsGroup            int64              `compose:"kompose.security-context.fsgroup"`
 	Volumes            []Volumes          `compose:""`
 	Secrets            []types.ServiceSecretConfig
 	HealthChecks       HealthChecks `compose:""`

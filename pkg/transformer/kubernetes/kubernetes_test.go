@@ -51,6 +51,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		VolList:         []string{"/tmp/volume"},
 		Network:         []string{"network1", "network2"}, // supported
 		Labels:          nil,
+		FsGroup:         1001,
 		Annotations:     map[string]string{"abc": "def"},
 		CPUQuota:        1, // not supported
 		CapAdd:          []string{"cap_add"},
@@ -208,6 +209,9 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 	}
 	if config.Privileged == privilegedNilOrFalse(template) {
 		return fmt.Errorf("Found different template privileged: %#v vs. %#v", config.Privileged, template.Spec.Containers[0].SecurityContext)
+	}
+	if config.FsGroup != *template.Spec.SecurityContext.FSGroup {
+		return fmt.Errorf("Found different pod security context fs group values: %#v vs. %#v", config.FsGroup, *template.Spec.SecurityContext.FSGroup)
 	}
 	if config.Stdin != template.Spec.Containers[0].Stdin {
 		return fmt.Errorf("Found different values for stdin: %#v vs. %#v", config.Stdin, template.Spec.Containers[0].Stdin)
