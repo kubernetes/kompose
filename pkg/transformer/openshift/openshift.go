@@ -79,7 +79,7 @@ func (o *OpenShift) initImageStream(name string, service kobject.ServiceConfig, 
 	is := &imageapi.ImageStream{
 		TypeMeta: kapi.TypeMeta{
 			Kind:       "ImageStream",
-			APIVersion: "v1",
+			APIVersion: "image.openshift.io/v1",
 		},
 		ObjectMeta: kapi.ObjectMeta{
 			Name:   name,
@@ -172,7 +172,7 @@ func (o *OpenShift) initDeploymentConfig(name string, service kobject.ServiceCon
 	dc := &deployapi.DeploymentConfig{
 		TypeMeta: kapi.TypeMeta{
 			Kind:       "DeploymentConfig",
-			APIVersion: "v1",
+			APIVersion: "apps.openshift.io/v1",
 		},
 		ObjectMeta: kapi.ObjectMeta{
 			Name:   name,

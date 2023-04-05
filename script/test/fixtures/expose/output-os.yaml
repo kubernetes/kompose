@@ -39,7 +39,7 @@ status:
   loadBalancer: {}
 
 ---
-apiVersion: v1
+apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   creationTimestamp: null
@@ -87,7 +87,7 @@ status:
   updatedReplicas: 0
 
 ---
-apiVersion: v1
+apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   creationTimestamp: null
@@ -111,7 +111,7 @@ status:
   dockerImageRepository: ""
 
 ---
-apiVersion: v1
+apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   annotations:
@@ -164,7 +164,7 @@ status:
   updatedReplicas: 0
 
 ---
-apiVersion: v1
+apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   creationTimestamp: null

@@ -232,6 +232,7 @@ os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/exter
 os_output="$KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/output-os-v1.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
+
 # Test external traffic policy feature with warning, because we have nodeport with external traffic policy
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/docker-compose-v2.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/output-k8s-v2.yaml"
