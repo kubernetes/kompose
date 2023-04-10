@@ -104,6 +104,13 @@ func newServiceConfigWithExternalTrafficPolicy() kobject.ServiceConfig {
 	}
 }
 
+func newServiceConfigWithServiceVolumeMount(volumeMountSubPathValue string) kobject.ServiceConfig {
+	return kobject.ServiceConfig{
+		Name:               "app",
+		VolumeMountSubPath: volumeMountSubPathValue,
+	}
+}
+
 func equalStringSlice(s1, s2 []string) bool {
 	if len(s1) != len(s2) {
 		return false
@@ -1019,6 +1026,27 @@ func TestServiceExternalTrafficPolicy(t *testing.T) {
 			serviceType := service.Spec.Type
 			if serviceType != api.ServiceTypeLoadBalancer {
 				t.Errorf("Expected LoadBalancer as service type, got %v", serviceType)
+			}
+		}
+	}
+}
+
+func TestVolumeMountSubPath(t *testing.T) {
+	groupName := "pod_group"
+	expectedSubPathValue := "test-subpath"
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newServiceConfigWithServiceVolumeMount(expectedSubPathValue)},
+	}
+	k := Kubernetes{}
+	objs, err := k.Transform(komposeObject, kobject.ConvertOptions{ServiceGroupMode: groupName})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	for _, obj := range objs {
+		if deployment, ok := obj.(*appsv1.Deployment); ok {
+			volMountSubPath := deployment.Spec.Template.Spec.Containers[0].VolumeMounts[0].SubPath
+			if volMountSubPath != expectedSubPathValue {
+				t.Errorf("Expected VolumeMount Subpath %v, got %v", expectedSubPathValue, volMountSubPath)
 			}
 		}
 	}

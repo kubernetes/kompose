@@ -719,6 +719,8 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 			serviceConfig.ImagePullSecret = value
 		case LabelImagePullPolicy:
 			serviceConfig.ImagePullPolicy = value
+		case LabelContainerVolumeSubpath:
+			serviceConfig.VolumeMountSubPath = value
 		default:
 			serviceConfig.Labels[key] = value
 		}
