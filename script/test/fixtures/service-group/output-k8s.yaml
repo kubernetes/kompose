@@ -85,19 +85,3 @@ spec:
       storage: 100Mi
 status: {}
 
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  creationTimestamp: null
-  name: service-group-default
-spec:
-  ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              io.kompose.network/service-group-default: "true"
-  podSelector:
-    matchLabels:
-      io.kompose.network/service-group-default: "true"
-

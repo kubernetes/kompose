@@ -267,3 +267,8 @@ os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/vols-
 os_output="$KOMPOSE_ROOT/script/test/fixtures/vols-subpath/output-os.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
+
+# Test support for network policies generation
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/network-policies/docker-compose.yaml convert --generate-network-policies --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/network-policies/output-k8s.yaml"
+convert::expect_success "$os_cmd" "$os_output"

@@ -1,22 +1,4 @@
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  creationTimestamp: null
-  labels:
-    io.kompose.service: nginx
-  name: nginx
-spec:
-  ports:
-    - name: "80"
-      port: 80
-      targetPort: 80
-  selector:
-    io.kompose.service: nginx
-status:
-  loadBalancer: {}
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,17 +16,29 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        io.kompose.network/host-port-protocol-default: "true"
+        io.kompose.network/network-policies-web: "true"
         io.kompose.service: nginx
     spec:
       containers:
         - image: nginx
           name: nginx
-          ports:
-            - containerPort: 80
-              hostPort: 80
-              protocol: TCP
           resources: {}
       restartPolicy: Always
 status: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: network-policies-web
+spec:
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              io.kompose.network/network-policies-web: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/network-policies-web: "true"
 

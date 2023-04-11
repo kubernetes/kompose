@@ -70,22 +70,6 @@ spec:
 status: {}
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  creationTimestamp: null
-  name: change-in-volume-default
-spec:
-  ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              io.kompose.network/change-in-volume-default: "true"
-  podSelector:
-    matchLabels:
-      io.kompose.network/change-in-volume-default: "true"
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
