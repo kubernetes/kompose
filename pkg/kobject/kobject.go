@@ -73,6 +73,9 @@ type ConvertOptions struct {
 	IsDeploymentConfigFlag      bool
 	IsNamespaceFlag             bool
 
+	BuildCommand string
+	PushCommand  string
+
 	Server string
 
 	YAMLIndent int
