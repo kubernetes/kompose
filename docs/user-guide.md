@@ -185,7 +185,7 @@ The currently supported options are:
 | kompose.volume.size                                 | kubernetes supported volume size                                                     |
 | kompose.volume.storage-class-name                   | kubernetes supported volume storageClassName                                         |
 | kompose.volume.type                                 | use k8s volume type, eg "configMap", "persistentVolumeClaim", "emptyDir", "hostPath" |
-| kompose.controller.type                             | deployment / daemonset / replicationcontroller                                       |
+| kompose.controller.type                             | deployment / daemonset / replicationcontroller / statefulset                         |
 | kompose.image-pull-policy                           | kubernetes pods imagePullPolicy                                                      |
 | kompose.image-pull-secret                           | kubernetes secret name for imagePullSecrets                                          |
 | kompose.service.healthcheck.readiness.disable       | kubernetes readiness disable                                                         |
@@ -200,8 +200,8 @@ The currently supported options are:
 | kompose.service.healthcheck.liveness.http_get_path  | kubernetes liveness httpGet path                                                     |
 | kompose.service.healthcheck.liveness.http_get_port  | kubernetes liveness httpGet port                                                     |
 | kompose.service.healthcheck.liveness.tcp_port       | kubernetes liveness tcpSocket port                                                   |
-| kompose.service.external-traffic-policy       | 'cluster', 'local', ''                                                   |                                                |
-| kompose.security-context.fsgroup       |  kubernetes pod security group fsgroup                                                  |                                                |
+| kompose.service.external-traffic-policy             | 'cluster', 'local', ''                                                               |
+| kompose.security-context.fsgroup                    | kubernetes pod security group fsgroup                                                |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
