@@ -249,6 +249,11 @@ os_output="$KOMPOSE_ROOT/script/test/fixtures/fsgroup/output-os.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 
 # Test support for compose.yaml file
-k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/compose-file-support convert --stdout --with-kompose-annotation=false"
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/compose-file-support/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/compose-file-support/output-k8s.yaml"
-convert::expect_success "$os_cmd" "$os_output"
+convert::expect_success "$k8s_cmd" "$k8s_output"
+
+# Test support for compose env interpolation
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/compose-env-interpolation/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/compose-env-interpolation/output-k8s.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output"

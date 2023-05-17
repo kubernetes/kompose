@@ -156,7 +156,7 @@ func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
 		return kobject.KomposeObject{}, err
 	}
 
-	projectOptions, err := cli.NewProjectOptions(files, cli.WithOsEnv, cli.WithWorkingDirectory(workingDir), cli.WithInterpolation(false))
+	projectOptions, err := cli.NewProjectOptions(files, cli.WithOsEnv, cli.WithWorkingDirectory(workingDir), cli.WithInterpolation(true))
 	if err != nil {
 		return kobject.KomposeObject{}, errors.Wrap(err, "Unable to create compose options")
 	}
