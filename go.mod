@@ -3,7 +3,7 @@ module github.com/kubernetes/kompose
 go 1.18
 
 require (
-	github.com/compose-spec/compose-go v1.13.5
+	github.com/compose-spec/compose-go v1.14.0
 	github.com/deckarep/golang-set v1.8.0
 	github.com/fatih/structs v1.1.0
 	github.com/fsouza/go-dockerclient v1.9.7
