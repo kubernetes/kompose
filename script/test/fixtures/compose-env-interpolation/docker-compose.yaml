@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  foo:
+    labels:
+      kompose.image-pull-policy: "${IMAGE_PULL_POLICY:-IfNotPresent}"
+    build: .
