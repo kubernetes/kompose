@@ -42,6 +42,7 @@ Installation methods:
 - [macOS (Homebrew and MacPorts)](/docs/installation.md#macos)
 - [Windows](/docs/installation.md#windows)
 - [Docker](/docs/installation.md#docker)
+- [Conda](/docs/installation.md#conda)
 
 #### Binary installation
 
