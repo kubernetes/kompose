@@ -91,3 +91,11 @@ To run the built image against the current directory, run the following command:
 ```bash
 docker run --rm -it -v $PWD:/opt kompose sh -c "cd /opt && kompose convert"
 ```
+
+## Conda
+
+Kompose can be installed via [Conda](https://anaconda.org/conda-forge/kompose):
+
+```bash
+conda install -c conda-forge docker-compose
+```
