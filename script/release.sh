@@ -56,9 +56,9 @@ init_sync() {
     exit 0
   fi
 
-  git checkout master
+  git checkout main
   git fetch upstream
-  git merge upstream/master
+  git merge upstream/main
   git checkout -b release-$1
 }
 
@@ -108,7 +108,7 @@ git_commit() {
   gh pr create
 
   echo ""
-  echo "PR opened against master to update version"
+  echo "PR opened against main to update version"
   echo "MERGE THIS BEFORE CONTINUING"
   echo ""
 }
@@ -119,8 +119,8 @@ git_pull() {
 
 
 git_sync() {
-  git fetch upstream master
-  git rebase upstream/master
+  git fetch upstream main
+  git rebase upstream/main
 }
 
 generate_install_guide() {
