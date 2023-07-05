@@ -78,6 +78,12 @@ Kompose can be installed via [Chocolatey](https://chocolatey.org/packages/kubern
 choco install kubernetes-kompose
 ```
 
+or using winget
+
+```console
+winget install Kubernetes.kompose
+```
+
 ## Docker
 
 You can build an image from the official repo for [Docker](https://docs.docker.com/engine/reference/commandline/build/) or [Podman](https://docs.podman.io/en/latest/markdown/podman-build.1.html):
