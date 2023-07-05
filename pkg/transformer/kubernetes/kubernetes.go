@@ -887,6 +887,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	var PVCs []*api.PersistentVolumeClaim
 	var cms []*api.ConfigMap
 	var volumeName string
+	var subpathName string
 
 	// Set a var based on if the user wants to use empty volumes
 	// as opposed to persistent volumes and volume claims
@@ -895,6 +896,10 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	useConfigMap := k.Opt.Volumes == "configMap"
 	if k.Opt.Volumes == "emptyDir" {
 		useEmptyVolumes = true
+	}
+
+	if subpath, ok := service.Labels["kompose.volume.subpath"]; ok {
+		subpathName = subpath
 	}
 
 	// Override volume type if specified in service labels.
@@ -992,6 +997,9 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 
 				PVCs = append(PVCs, createdPVC)
 			}
+		}
+		if subpathName != "" {
+			volMount.SubPath = subpathName
 		}
 		volumeMounts = append(volumeMounts, volMount)
 

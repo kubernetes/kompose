@@ -200,8 +200,9 @@ The currently supported options are:
 | kompose.service.healthcheck.liveness.http_get_path  | kubernetes liveness httpGet path                                                     |
 | kompose.service.healthcheck.liveness.http_get_port  | kubernetes liveness httpGet port                                                     |
 | kompose.service.healthcheck.liveness.tcp_port       | kubernetes liveness tcpSocket port                                                   |
-| kompose.service.external-traffic-policy             | 'cluster', 'local', ''                                                               |
-| kompose.security-context.fsgroup                    | kubernetes pod security group fsgroup                                                |
+| kompose.service.external-traffic-policy       | 'cluster', 'local', ''                                                   |                                                |
+| kompose.security-context.fsgroup       |  kubernetes pod security group fsgroup                                                  |                                                |
+| kompose.volume.sub-path                        | kubernetes volume mount subpath                                                   |                                                |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -445,6 +446,20 @@ services:
     image: nginx
     labels:
       kompose.security-context.fsgroup: 1001
+```
+
+- `kompose.volume.sub-path` defines Kubernetes Container [VolumeMounts Subpath](https://kubernetes.io/docs/concepts/storage/volumes/#using-subpath).
+
+For example:
+
+```yaml
+version: '3.8'
+
+services:
+  pgadmin:
+    image: postgres
+    labels:
+      kompose.volume.sub-path: pg-data
 ```
 ## Restart
 

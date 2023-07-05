@@ -142,6 +142,7 @@ type ServiceConfig struct {
 	MemLimit                      types.UnitBytes    `compose:"mem_limit"`
 	MemReservation                types.UnitBytes    `compose:""`
 	DeployMode                    string             `compose:""`
+	VolumeMountSubPath            string             `compose:"kompose.volume.subpath"`
 	// DeployLabels mapping to kubernetes labels
 	DeployLabels       map[string]string  `compose:""`
 	DeployUpdateConfig types.UpdateConfig `compose:""`

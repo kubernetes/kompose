@@ -81,6 +81,9 @@ const (
 	ServiceTypeHeadless = "Headless"
 	// LabelSecurityContextFsGroup defines the pod FsGroup
 	LabelSecurityContextFsGroup = "kompose.security-context.fsgroup"
+
+	// LabelContainerVolumeSubpath defines the volume mount subpath inside container
+	LabelContainerVolumeSubpath = "kompose.volume.subpath"
 )
 
 // load environment variables from compose file

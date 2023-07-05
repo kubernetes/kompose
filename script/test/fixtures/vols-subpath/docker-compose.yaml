@@ -1,0 +1,15 @@
+version: '3.8'
+volumes:
+  postgres-data:
+
+services:
+  postgres:
+    labels:
+      kompose.volume.subpath: test
+    image: postgres
+    environment:
+      POSTGRES_USER: dumb_postgres_user
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: dumb_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
