@@ -79,10 +79,11 @@ type ConvertOptions struct {
 
 	WithKomposeAnnotation bool
 
-	MultipleContainerMode bool
-	ServiceGroupMode      string
-	ServiceGroupName      string
-	SecretsAsFiles        bool
+	MultipleContainerMode   bool
+	ServiceGroupMode        string
+	ServiceGroupName        string
+	SecretsAsFiles          bool
+	GenerateNetworkPolicies bool
 }
 
 // IsPodController indicate if the user want to use a controller

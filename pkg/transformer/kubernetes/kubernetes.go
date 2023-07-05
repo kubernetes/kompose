@@ -1519,8 +1519,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 				}
 
-				if err = k.configNetworkPolicyForService(service, service.Name, &objects); err != nil {
-					return nil, err
+				if opt.GenerateNetworkPolicies {
+					if err = k.configNetworkPolicyForService(service, service.Name, &objects); err != nil {
+						return nil, err
+					}
 				}
 			}
 
@@ -1560,8 +1562,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		if err != nil {
 			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 		}
-		if err := k.configNetworkPolicyForService(service, name, &objects); err != nil {
-			return nil, err
+		if opt.GenerateNetworkPolicies {
+			if err := k.configNetworkPolicyForService(service, name, &objects); err != nil {
+				return nil, err
+			}
 		}
 		allobjects = append(allobjects, objects...)
 	}

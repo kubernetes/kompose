@@ -50,6 +50,7 @@ var (
 	ConvertPushImageRegistry     string
 	ConvertOpt                   kobject.ConvertOptions
 	ConvertYAMLIndent            int
+	GenerateNetworkPolicies      bool
 
 	UpBuild string
 
@@ -116,6 +117,7 @@ var convertCmd = &cobra.Command{
 			ServiceGroupMode:            ServiceGroupMode,
 			ServiceGroupName:            ServiceGroupName,
 			SecretsAsFiles:              SecretsAsFiles,
+			GenerateNetworkPolicies:     GenerateNetworkPolicies,
 		}
 
 		if ServiceGroupMode == "" && MultipleContainerMode {
@@ -178,6 +180,7 @@ func init() {
 	convertCmd.Flags().IntVar(&ConvertReplicas, "replicas", 1, "Specify the number of replicas in the generated resource spec")
 	convertCmd.Flags().StringVar(&ConvertVolumes, "volumes", "persistentVolumeClaim", `Volumes to be generated ("persistentVolumeClaim"|"emptyDir"|"hostPath" | "configMap")`)
 	convertCmd.Flags().StringVar(&ConvertPVCRequestSize, "pvc-request-size", "", `Specify the size of pvc storage requests in the generated resource spec`)
+	convertCmd.Flags().BoolVar(&GenerateNetworkPolicies, "generate-network-policies", false, "Specify whether to generate network policies or not.")
 
 	convertCmd.Flags().BoolVar(&WithKomposeAnnotation, "with-kompose-annotation", true, "Add kompose annotations to generated resource")
 

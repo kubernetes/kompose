@@ -98,22 +98,6 @@ status:
   replicas: 0
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  creationTimestamp: null
-  name: statefulset-default
-spec:
-  ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              io.kompose.network/statefulset-default: "true"
-  podSelector:
-    matchLabels:
-      io.kompose.network/statefulset-default: "true"
-
----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

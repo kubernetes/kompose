@@ -68,18 +68,3 @@ spec:
       restartPolicy: Always
 status: {}
 
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  creationTimestamp: null
-  name: external-traffic-policy-default
-spec:
-  ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              io.kompose.network/external-traffic-policy-default: "true"
-  podSelector:
-    matchLabels:
-      io.kompose.network/external-traffic-policy-default: "true"
