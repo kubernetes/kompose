@@ -523,6 +523,13 @@ Now `config.json` should contain base64 encoded passwords, then push image shoul
 
 For Windows, there is also `credsStore` which is `wincred`. Technically it will fail on authentication as macOS does, but you can try the approach above like macOS too.
 
+### Custom Build and Push
+If you want to customize the build and push processes and use another containers solution than Docker,
+Kompose offers you the possibility to do that. You can use `--build-command` and `--push-command` flags
+to achieve that.
+
+e.g: `kompose -f convert --build-command 'whatever command --you-use' --push-command 'whatever command --you-use'`
+
 ## Docker Compose Versions
 
 Kompose supports Docker Compose versions: 1, 2 and 3. We have limited support on versions 2.1 and 3.2 due to their experimental nature.

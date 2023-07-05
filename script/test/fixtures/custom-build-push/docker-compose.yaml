@@ -1,0 +1,10 @@
+version: '3.8'
+
+networks:
+  web:
+
+services:
+  nginx:
+    image: nginx
+    networks: 
+    - web

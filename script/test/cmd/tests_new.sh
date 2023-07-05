@@ -272,3 +272,8 @@ convert::expect_success "$os_cmd" "$os_output"
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/network-policies/docker-compose.yaml convert --generate-network-policies --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/network-policies/output-k8s.yaml"
 convert::expect_success "$os_cmd" "$os_output"
+
+# Test support for custom build and push images
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/custom-build-push/docker-compose.yaml convert --build-command 'docker build -t ahmedgrati/kompose-test ./script/test/fixtures/custom-build-push' --push-command 'docker push ahmedgrati/kompose-test' --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/custom-build-push/output-k8s.yaml"
+convert::expect_success "$os_cmd" "$os_output"

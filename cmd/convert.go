@@ -54,6 +54,8 @@ var (
 
 	UpBuild string
 
+	BuildCommand string
+	PushCommand  string
 	// WithKomposeAnnotation decides if we will add metadata about this convert to resource's annotation.
 	// default is true.
 	WithKomposeAnnotation bool
@@ -118,6 +120,8 @@ var convertCmd = &cobra.Command{
 			ServiceGroupName:            ServiceGroupName,
 			SecretsAsFiles:              SecretsAsFiles,
 			GenerateNetworkPolicies:     GenerateNetworkPolicies,
+			BuildCommand:                BuildCommand,
+			PushCommand:                 PushCommand,
 		}
 
 		if ServiceGroupMode == "" && MultipleContainerMode {
@@ -170,6 +174,8 @@ func init() {
 	// Standard between the two
 	convertCmd.Flags().StringVar(&ConvertBuild, "build", "none", `Set the type of build ("local"|"build-config"(OpenShift only)|"none")`)
 	convertCmd.Flags().BoolVar(&ConvertPushImage, "push-image", false, "If we should push the docker image we built")
+	convertCmd.Flags().StringVar(&BuildCommand, "build-command", "", `Set the command used to build the container image. override the docker build command.Should be used in conjuction with --push-command flag.`)
+	convertCmd.Flags().StringVar(&PushCommand, "push-command", "", `Set the command used to push the container image. override the docker push command. Should be used in conjuction with --build-command flag.`)
 	convertCmd.Flags().StringVar(&ConvertPushImageRegistry, "push-image-registry", "", "Specify registry for pushing image, which will override registry from image name.")
 	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into YAML format")
 	convertCmd.Flags().MarkDeprecated("yaml", "YAML is the default format now.")

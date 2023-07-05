@@ -20,6 +20,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -33,6 +34,7 @@ import (
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/kubernetes/kompose/pkg/transformer"
+	"github.com/mattn/go-shellwords"
 	deployapi "github.com/openshift/api/apps/v1"
 	buildapi "github.com/openshift/api/build/v1"
 	"github.com/pkg/errors"
@@ -1333,6 +1335,27 @@ func buildServiceImage(opt kobject.ConvertOptions, service kobject.ServiceConfig
 	// Check to see if there is an InputFile (required!) before we build the container
 	// Check that there's actually a Build key
 	// Lastly, we must have an Image name to continue
+
+	// If the user provided a custom build it will override the docker one.
+	if opt.BuildCommand != "" && opt.PushCommand != "" {
+		p := shellwords.NewParser()
+		p.ParseEnv = true
+
+		buildArgs, _ := p.Parse(opt.BuildCommand)
+		buildCommand := exec.Command(buildArgs[0], buildArgs[1:]...)
+		err := buildCommand.Run()
+		if err != nil {
+			return errors.Wrap(err, "error while trying to build a custom container image")
+		}
+
+		pushArgs, _ := p.Parse(opt.PushCommand)
+		pushCommand := exec.Command(pushArgs[0], pushArgs[1:]...)
+		err = pushCommand.Run()
+		if err != nil {
+			return errors.Wrap(err, "error while trying to push a custom container image")
+		}
+		return nil
+	}
 	if opt.Build == "local" && opt.InputFiles != nil && service.Build != "" {
 		// If there's no "image" key, use the name of the container that's built
 		if service.Image == "" {
