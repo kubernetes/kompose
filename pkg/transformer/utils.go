@@ -31,6 +31,8 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	api "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // Selector used as labels and selector
@@ -442,4 +444,34 @@ func PushDockerImageWithOpt(service kobject.ServiceConfig, serviceName string, o
 	}
 
 	return nil
+}
+
+// CreateNamespace creates a Kubernetes namespace, which can be used in both:
+// Openshift and Kubernetes
+func CreateNamespace(namespace string) *api.Namespace {
+	return &api.Namespace{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Namespace",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: namespace,
+		},
+	}
+}
+
+// AssignNamespaceToObjects will add the namespace metadata to each object
+func AssignNamespaceToObjects(objs *[]runtime.Object, namespace string) {
+	ns := "default"
+	if namespace != "" {
+		ns = namespace
+	}
+	var result []runtime.Object
+	for _, obj := range *objs {
+		if us, ok := obj.(metav1.Object); ok {
+			us.SetNamespace(ns)
+		}
+		result = append(result, obj)
+	}
+	*objs = result
 }

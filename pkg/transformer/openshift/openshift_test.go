@@ -29,6 +29,7 @@ import (
 	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
 	deployapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
+	api "k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -461,6 +462,31 @@ func TestServiceExternalTrafficPolicy(t *testing.T) {
 			serviceType := service.Spec.Type
 			if serviceType != corev1.ServiceTypeLoadBalancer {
 				t.Errorf("Expected LoadBalancer as service type, got %v", serviceType)
+			}
+		}
+	}
+}
+
+func TestNamespaceGeneration(t *testing.T) {
+	ns := "app"
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newServiceConfig()},
+		Namespace:      ns,
+	}
+	o := OpenShift{}
+	objs, err := o.Transform(komposeObject, kobject.ConvertOptions{})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	for _, obj := range objs {
+		if namespace, ok := obj.(*api.Namespace); ok {
+			if strings.ToLower(ns) != strings.ToLower(namespace.ObjectMeta.Name) {
+				t.Errorf("Expected namespace name %v, got %v", ns, namespace.ObjectMeta.Name)
+			}
+		}
+		if dep, ok := obj.(*deployapi.DeploymentConfig); ok {
+			if dep.ObjectMeta.Namespace != ns {
+				t.Errorf("Expected deployment namespace %v, got %v", ns, dep.ObjectMeta.Namespace)
 			}
 		}
 	}

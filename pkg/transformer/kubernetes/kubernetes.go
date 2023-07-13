@@ -71,18 +71,6 @@ const (
 	StatefulStateController = "statefulset"
 )
 
-func (k *Kubernetes) CreateNamespace(namespace string) *api.Namespace {
-	return &api.Namespace{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Namespace",
-			APIVersion: "v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: namespace,
-		},
-	}
-}
-
 // CheckUnsupportedKey checks if given komposeObject contains
 // keys that are not supported by this transformer.
 // list of all unsupported keys are stored in unsupportedKey variable
@@ -1466,7 +1454,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	}
 
 	if komposeObject.Namespace != "" {
-		ns := k.CreateNamespace(komposeObject.Namespace)
+		ns := transformer.CreateNamespace(komposeObject.Namespace)
 		allobjects = append(allobjects, ns)
 	}
 
@@ -1619,7 +1607,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
 	k.RemoveDupObjects(&allobjects)
-	k.AssignNamespaceToObjects(&allobjects, komposeObject.Namespace)
+	transformer.AssignNamespaceToObjects(&allobjects, komposeObject.Namespace)
 	// k.FixWorkloadVersion(&allobjects)
 	return allobjects, nil
 }

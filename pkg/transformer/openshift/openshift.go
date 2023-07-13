@@ -257,8 +257,15 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	for _, keyName := range noSupKeys {
 		log.Warningf("OpenShift provider doesn't support %s key - ignoring", keyName)
 	}
+
 	// this will hold all the converted data
 	var allobjects []runtime.Object
+
+	if komposeObject.Namespace != "" {
+		ns := transformer.CreateNamespace(komposeObject.Namespace)
+		allobjects = append(allobjects, ns)
+	}
+
 	var err error
 	var composeFileDir string
 	buildRepo := opt.BuildRepo
@@ -422,6 +429,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	// sort all object so Services are first
 	o.SortServicesFirst(&allobjects)
 	o.RemoveDupObjects(&allobjects)
+	transformer.AssignNamespaceToObjects(&allobjects, komposeObject.Namespace)
 	// o.FixWorkloadVersion(&allobjects)
 
 	return allobjects, nil
