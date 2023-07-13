@@ -257,7 +257,6 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	for _, keyName := range noSupKeys {
 		log.Warningf("OpenShift provider doesn't support %s key - ignoring", keyName)
 	}
-
 	// this will hold all the converted data
 	var allobjects []runtime.Object
 

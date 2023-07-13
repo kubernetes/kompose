@@ -6,6 +6,7 @@ metadata:
   labels:
     io.kompose.service: test
   name: test
+  namespace: default
 spec:
   ports:
     - name: "80"
@@ -24,6 +25,7 @@ metadata:
   labels:
     io.kompose.service: test
   name: test
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -75,6 +77,7 @@ metadata:
   labels:
     io.kompose.service: test
   name: test
+  namespace: default
 spec:
   lookupPolicy:
     local: false

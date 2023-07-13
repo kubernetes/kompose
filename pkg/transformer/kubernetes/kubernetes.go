@@ -220,10 +220,6 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 
 // InitConfigMapForEnv initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
-	ns := "default"
-	if opt.Namespace != "" {
-		ns = opt.Namespace
-	}
 	envs, err := GetEnvsFromFile(envFile, opt)
 	if err != nil {
 		log.Fatalf("Unable to retrieve env file: %s", err)
@@ -240,9 +236,8 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      envName,
-			Namespace: ns,
-			Labels:    transformer.ConfigLabels(name + "-" + envName),
+			Name:   envName,
+			Labels: transformer.ConfigLabels(name + "-" + envName),
 		},
 		Data: envs,
 	}
