@@ -71,6 +71,18 @@ const (
 	StatefulStateController = "statefulset"
 )
 
+func (k *Kubernetes) CreateNamespace(namespace string) *api.Namespace {
+	return &api.Namespace{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Namespace",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: namespace,
+		},
+	}
+}
+
 // CheckUnsupportedKey checks if given komposeObject contains
 // keys that are not supported by this transformer.
 // list of all unsupported keys are stored in unsupportedKey variable
@@ -220,6 +232,10 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 
 // InitConfigMapForEnv initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
+	ns := "default"
+	if opt.Namespace != "" {
+		ns = opt.Namespace
+	}
 	envs, err := GetEnvsFromFile(envFile, opt)
 	if err != nil {
 		log.Fatalf("Unable to retrieve env file: %s", err)
@@ -236,8 +252,9 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   envName,
-			Labels: transformer.ConfigLabels(name + "-" + envName),
+			Name:      envName,
+			Namespace: ns,
+			Labels:    transformer.ConfigLabels(name + "-" + envName),
 		},
 		Data: envs,
 	}
@@ -1447,6 +1464,12 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			allobjects = append(allobjects, item)
 		}
 	}
+
+	if komposeObject.Namespace != "" {
+		ns := k.CreateNamespace(komposeObject.Namespace)
+		allobjects = append(allobjects, ns)
+	}
+
 	if opt.ServiceGroupMode != "" {
 		log.Debugf("Service group mode is: %s", opt.ServiceGroupMode)
 		komposeObjectToServiceConfigGroupMapping := KomposeObjectToServiceConfigGroupMapping(&komposeObject, opt)
@@ -1596,6 +1619,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
 	k.RemoveDupObjects(&allobjects)
+	k.AssignNamespaceToObjects(&allobjects, komposeObject.Namespace)
 	// k.FixWorkloadVersion(&allobjects)
 	return allobjects, nil
 }

@@ -781,6 +781,21 @@ func (k *Kubernetes) SortServicesFirst(objs *[]runtime.Object) {
 	*objs = ret
 }
 
+func (k *Kubernetes) AssignNamespaceToObjects(objs *[]runtime.Object, namespace string) {
+	ns := "default"
+	if namespace != "" {
+		ns = namespace
+	}
+	var result []runtime.Object
+	for _, obj := range *objs {
+		if us, ok := obj.(metav1.Object); ok {
+			us.SetNamespace(ns)
+		}
+		result = append(result, obj)
+	}
+	*objs = result
+}
+
 // RemoveDupObjects remove objects that are dups...eg. configmaps from env.
 // since we know for sure that the duplication can only happen on ConfigMap, so
 // this code will looks like this for now.
