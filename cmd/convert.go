@@ -188,7 +188,7 @@ func init() {
 	convertCmd.Flags().IntVar(&ConvertReplicas, "replicas", 1, "Specify the number of replicas in the generated resource spec")
 	convertCmd.Flags().StringVar(&ConvertVolumes, "volumes", "persistentVolumeClaim", `Volumes to be generated ("persistentVolumeClaim"|"emptyDir"|"hostPath" | "configMap")`)
 	convertCmd.Flags().StringVar(&ConvertPVCRequestSize, "pvc-request-size", "", `Specify the size of pvc storage requests in the generated resource spec`)
-	convertCmd.Flags().StringVar(&ConvertNamespace, "namespace", "n", `Specify the namespace of the generated resources`)
+	convertCmd.Flags().StringVarP(&ConvertNamespace, "namespace", "n", "", `Specify the namespace of the generated resources`)
 	convertCmd.Flags().BoolVar(&GenerateNetworkPolicies, "generate-network-policies", false, "Specify whether to generate network policies or not.")
 
 	convertCmd.Flags().BoolVar(&WithKomposeAnnotation, "with-kompose-annotation", true, "Add kompose annotations to generated resource")
