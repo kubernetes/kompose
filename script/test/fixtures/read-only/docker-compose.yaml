@@ -1,0 +1,6 @@
+services:
+  test:
+    image: alpine
+    read_only: true
+    ports:
+    - 80:80
