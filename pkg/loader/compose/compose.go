@@ -708,7 +708,7 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 		case LabelSecurityContextFsGroup:
 			serviceConfig.FsGroup = cast.ToInt64(value)
 		case LabelServiceExpose:
-			serviceConfig.ExposeService = strings.Trim(strings.ToLower(value), " ,")
+			serviceConfig.ExposeService = strings.Trim(value, " ,")
 		case LabelNodePortPort:
 			serviceConfig.NodePortPort = cast.ToInt32(value)
 		case LabelServiceExposeTLSSecret:
