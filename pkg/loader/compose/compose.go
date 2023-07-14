@@ -462,6 +462,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 		serviceConfig.Expose = composeServiceConfig.Expose
 		serviceConfig.Privileged = composeServiceConfig.Privileged
 		serviceConfig.User = composeServiceConfig.User
+		serviceConfig.ReadOnly = composeServiceConfig.ReadOnly
 		serviceConfig.Stdin = composeServiceConfig.StdinOpen
 		serviceConfig.Tty = composeServiceConfig.Tty
 		serviceConfig.TmpFs = composeServiceConfig.Tmpfs
