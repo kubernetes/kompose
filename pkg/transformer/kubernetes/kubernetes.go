@@ -1447,6 +1447,12 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			allobjects = append(allobjects, item)
 		}
 	}
+
+	if komposeObject.Namespace != "" {
+		ns := transformer.CreateNamespace(komposeObject.Namespace)
+		allobjects = append(allobjects, ns)
+	}
+
 	if opt.ServiceGroupMode != "" {
 		log.Debugf("Service group mode is: %s", opt.ServiceGroupMode)
 		komposeObjectToServiceConfigGroupMapping := KomposeObjectToServiceConfigGroupMapping(&komposeObject, opt)
@@ -1596,6 +1602,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
 	k.RemoveDupObjects(&allobjects)
+	transformer.AssignNamespaceToObjects(&allobjects, komposeObject.Namespace)
 	// k.FixWorkloadVersion(&allobjects)
 	return allobjects, nil
 }

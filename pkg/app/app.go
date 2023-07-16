@@ -219,6 +219,8 @@ func Convert(opt kobject.ConvertOptions) {
 		log.Fatalf(err.Error())
 	}
 
+	komposeObject.Namespace = opt.Namespace
+
 	// Get a transformer that maps komposeObject to provider's primitives
 	t := getTransformer(opt)
 

@@ -259,6 +259,12 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	}
 	// this will hold all the converted data
 	var allobjects []runtime.Object
+
+	if komposeObject.Namespace != "" {
+		ns := transformer.CreateNamespace(komposeObject.Namespace)
+		allobjects = append(allobjects, ns)
+	}
+
 	var err error
 	var composeFileDir string
 	buildRepo := opt.BuildRepo
@@ -422,6 +428,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 	// sort all object so Services are first
 	o.SortServicesFirst(&allobjects)
 	o.RemoveDupObjects(&allobjects)
+	transformer.AssignNamespaceToObjects(&allobjects, komposeObject.Namespace)
 	// o.FixWorkloadVersion(&allobjects)
 
 	return allobjects, nil

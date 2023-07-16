@@ -4,18 +4,28 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: test
-  name: test
-  namespace: default
+    io.kompose.service: web
+  name: web
+  namespace: web
 spec:
   ports:
     - name: "80"
       port: 80
       targetPort: 80
   selector:
-    io.kompose.service: test
+    io.kompose.service: web
 status:
   loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: web
+  namespace: web
+spec: {}
+status: {}
 
 ---
 apiVersion: apps.openshift.io/v1
@@ -23,32 +33,30 @@ kind: DeploymentConfig
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: test
-  name: test
-  namespace: default
+    io.kompose.service: web
+  name: web
+  namespace: web
 spec:
   replicas: 1
   selector:
-    io.kompose.service: test
+    io.kompose.service: web
   strategy:
     resources: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        io.kompose.network/read-only-default: "true"
-        io.kompose.service: test
+        io.kompose.network/namespace-default: "true"
+        io.kompose.service: web
     spec:
       containers:
         - image: ' '
-          name: test
+          name: web
           ports:
             - containerPort: 80
               hostPort: 80
               protocol: TCP
           resources: {}
-          securityContext:
-            readOnlyRootFilesystem: true
       restartPolicy: Always
   test: false
   triggers:
@@ -56,10 +64,10 @@ spec:
     - imageChangeParams:
         automatic: true
         containerNames:
-          - test
+          - web
         from:
           kind: ImageStreamTag
-          name: test:latest
+          name: web:latest
       type: ImageChange
 status:
   availableReplicas: 0
@@ -75,9 +83,9 @@ kind: ImageStream
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: test
-  name: test
-  namespace: default
+    io.kompose.service: web
+  name: web
+  namespace: web
 spec:
   lookupPolicy:
     local: false
@@ -85,7 +93,7 @@ spec:
     - annotations: null
       from:
         kind: DockerImage
-        name: alpine
+        name: nginx
       generation: null
       importPolicy: {}
       name: latest

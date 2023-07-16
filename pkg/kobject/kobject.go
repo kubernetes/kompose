@@ -38,6 +38,9 @@ type KomposeObject struct {
 	LoadedFrom string
 
 	Secrets types.Secrets
+
+	// Namespace is the namespace where all the generated objects would be assigned to
+	Namespace string
 }
 
 // ConvertOptions holds all options that controls transformation process
