@@ -110,6 +110,7 @@ type ServiceConfig struct {
 	WorkingDir                    string             `compose:""`
 	DomainName                    string             `compose:"domainname"`
 	HostName                      string             `compose:"hostname"`
+	ReadOnly                      bool               `compose:"read_only"`
 	Args                          []string           `compose:"args"`
 	VolList                       []string           `compose:"volumes"`
 	Network                       []string           `compose:"network"`

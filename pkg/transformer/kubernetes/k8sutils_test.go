@@ -629,3 +629,31 @@ func TestArgsInterpolation(t *testing.T) {
 		}
 	}
 }
+
+func TestReadOnlyRootFS(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		ReadOnly:      true,
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	for _, obj := range objects {
+		if deployment, ok := obj.(*appsv1.Deployment); ok {
+			readOnlyFS := deployment.Spec.Template.Spec.Containers[0].SecurityContext.ReadOnlyRootFilesystem
+			if *readOnlyFS != true {
+				t.Errorf("Expected ReadOnlyRootFileSystem %v upon conversion, actual %v", true, readOnlyFS)
+			}
+		}
+	}
+}

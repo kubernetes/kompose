@@ -573,6 +573,11 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			securityContext.Capabilities = capabilities
 		}
 
+		//set readOnlyRootFilesystem if it is enabled
+		if service.ReadOnly {
+			securityContext.ReadOnlyRootFilesystem = &service.ReadOnly
+		}
+
 		// update template only if securityContext is not empty
 		if *securityContext != (api.SecurityContext{}) {
 			template.Spec.Containers[0].SecurityContext = securityContext
