@@ -1072,3 +1072,25 @@ func TestNetworkPoliciesGeneration(t *testing.T) {
 		}
 	}
 }
+
+func TestServiceGroupModeImagePullSecrets(t *testing.T) {
+	groupName := "pod_group"
+	serviceConfig := newServiceConfig()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": serviceConfig},
+	}
+	k := Kubernetes{}
+	objs, err := k.Transform(komposeObject, kobject.ConvertOptions{ServiceGroupMode: groupName, GenerateNetworkPolicies: true})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	expectedSecretsLen := len(serviceConfig.ImagePullSecret)
+	for _, obj := range objs {
+		if deployment, ok := obj.(*appsv1.Deployment); ok {
+			secretsLen := len(deployment.Spec.Template.Spec.ImagePullSecrets)
+			if secretsLen != expectedSecretsLen {
+				t.Errorf("Expected length of Deployment ImagePullSecrets to be equal to %v, got %v", expectedSecretsLen, secretsLen)
+			}
+		}
+	}
+}

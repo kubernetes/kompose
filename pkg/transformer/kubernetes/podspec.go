@@ -48,7 +48,11 @@ func AddContainer(service kobject.ServiceConfig, opt kobject.ConvertOptions) Pod
 			LivenessProbe:  configProbe(service.HealthChecks.Liveness),
 			ReadinessProbe: configProbe(service.HealthChecks.Readiness),
 		})
-
+		if service.ImagePullSecret != "" {
+			podSpec.ImagePullSecrets = append(podSpec.ImagePullSecrets, api.LocalObjectReference{
+				Name: service.ImagePullSecret,
+			})
+		}
 		podSpec.Affinity = ConfigAffinity(service)
 	}
 }
