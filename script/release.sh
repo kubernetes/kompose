@@ -223,6 +223,7 @@ main() {
   "Create tarballs"
   "Generate install guide"
   "Upload the binaries and push to GitHub release page"
+  "Update the website"
   "Clean"
   "Quit")
   select opt in "${options[@]}"
@@ -252,6 +253,11 @@ main() {
               ;;
           "Upload the binaries and push to GitHub release page")
               push $VERSION
+              ;;
+          "Update the website")
+              echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+              echo "Run ./script/manual-docs-sync.sh on the main branch"
+              echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
               ;;
           "Clean")
               clean $VERSION
