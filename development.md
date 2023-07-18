@@ -11,7 +11,7 @@ redirect_from:
 
 ## Building Kompose
 
-Read about building kompose [here](https://github.com/kubernetes/kompose#building).
+Read about building kompose [here](https://github.com/kubernetes/kompose#development-and-building-of-kompose).
 
 ## Workflow
 

@@ -22,10 +22,10 @@ Kompose is released via GitHub, you can see all current releases on the [GitHub 
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.28.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.30.0/kompose-linux-amd64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.28.0/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.30.0/kompose-darwin-amd64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
@@ -33,7 +33,7 @@ sudo mv ./kompose /usr/local/bin/kompose
 
 **Windows:**
 
-Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.28.0/kompose-windows-amd64.exe) and add the binary to your PATH.
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.30.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 ## Go
 
@@ -78,12 +78,18 @@ Kompose can be installed via [Chocolatey](https://chocolatey.org/packages/kubern
 choco install kubernetes-kompose
 ```
 
+or using winget
+
+```console
+winget install Kubernetes.kompose
+```
+
 ## Docker
 
 You can build an image from the official repo for [Docker](https://docs.docker.com/engine/reference/commandline/build/) or [Podman](https://docs.podman.io/en/latest/markdown/podman-build.1.html):
 
 ```bash
-docker build -t kompose https://github.com/kubernetes/kompose.git
+docker build -t kompose https://github.com/kubernetes/kompose.git\#main
 ```
 
 To run the built image against the current directory, run the following command:
