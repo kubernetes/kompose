@@ -1,0 +1,208 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: namenode
+  name: namenode
+  namespace: default
+spec:
+  ports:
+    - name: "50070"
+      port: 50070
+      targetPort: 50070
+    - name: "8020"
+      port: 8020
+      targetPort: 8020
+  selector:
+    io.kompose.service: namenode
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+data:
+  BAR: FOO
+  FOO: BAR
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: another-namenode-home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+  namespace: default
+
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: another-namenode
+  name: another-namenode
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: another-namenode
+  strategy:
+    resources: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/env-default: "true"
+        io.kompose.service: another-namenode
+    spec:
+      containers:
+        - env:
+            - name: BAR
+              valueFrom:
+                configMapKeyRef:
+                  key: BAR
+                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+            - name: FOO
+              valueFrom:
+                configMapKeyRef:
+                  key: FOO
+                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+          image: ' '
+          name: another-namenode
+          resources: {}
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - another-namenode
+        from:
+          kind: ImageStreamTag
+          name: another-namenode:2.0.0-hadoop2.7.4-java8
+      type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
+
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: another-namenode
+  name: another-namenode
+  namespace: default
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+      generation: null
+      importPolicy: {}
+      name: 2.0.0-hadoop2.7.4-java8
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: namenode
+  name: namenode
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: namenode
+  strategy:
+    resources: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.network/env-default: "true"
+        io.kompose.service: namenode
+    spec:
+      containers:
+        - env:
+            - name: BAR
+              valueFrom:
+                configMapKeyRef:
+                  key: BAR
+                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+            - name: CLUSTER_NAME
+              value: test
+            - name: FOO
+              valueFrom:
+                configMapKeyRef:
+                  key: FOO
+                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+          image: ' '
+          name: namenode
+          ports:
+            - containerPort: 50070
+              hostPort: 50070
+              protocol: TCP
+            - containerPort: 8020
+              hostPort: 8020
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - namenode
+        from:
+          kind: ImageStreamTag
+          name: namenode:2.0.0-hadoop2.7.4-java8
+      type: ImageChange
+status:
+  availableReplicas: 0
+  latestVersion: 0
+  observedGeneration: 0
+  replicas: 0
+  unavailableReplicas: 0
+  updatedReplicas: 0
+
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: namenode
+  name: namenode
+  namespace: default
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+      generation: null
+      importPolicy: {}
+      name: 2.0.0-hadoop2.7.4-java8
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+

@@ -6,6 +6,7 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
+  namespace: default
 spec:
   ports:
     - name: "80"
@@ -24,6 +25,7 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -80,6 +82,7 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
+  namespace: default
 spec:
   lookupPolicy:
     local: false
@@ -104,6 +107,7 @@ metadata:
   labels:
     io.kompose.service: db-claim0
   name: db-claim0
+  namespace: default
 spec:
   accessModes:
     - ReadWriteOnce

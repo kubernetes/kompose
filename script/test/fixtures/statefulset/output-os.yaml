@@ -6,6 +6,7 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
+  namespace: default
 spec:
   ports:
     - name: "3306"
@@ -24,6 +25,7 @@ metadata:
   labels:
     io.kompose.service: wordpress
   name: wordpress
+  namespace: default
 spec:
   ports:
     - name: "8000"
@@ -42,6 +44,7 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -91,6 +94,7 @@ spec:
             storage: 100Mi
       status: {}
 status:
+  availableReplicas: 0
   replicas: 0
 
 ---
@@ -101,6 +105,7 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -163,6 +168,7 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
+  namespace: default
 spec:
   lookupPolicy:
     local: false
@@ -187,6 +193,7 @@ metadata:
   labels:
     io.kompose.service: wordpress
   name: wordpress
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -236,6 +243,7 @@ spec:
             storage: 100Mi
       status: {}
 status:
+  availableReplicas: 0
   replicas: 0
 
 ---
@@ -246,6 +254,7 @@ metadata:
   labels:
     io.kompose.service: wordpress
   name: wordpress
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -308,6 +317,7 @@ metadata:
   labels:
     io.kompose.service: wordpress
   name: wordpress
+  namespace: default
 spec:
   lookupPolicy:
     local: false

@@ -28,6 +28,7 @@ $KOMPOSE_ROOT/kompose -f $KOMPOSE_ROOT/script/test/fixtures/host-port-protocol/d
 $KOMPOSE_ROOT/kompose -f $KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/docker-compose-v1.yaml convert --stdout --with-kompose-annotation=false > $KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/output-k8s-v1.yaml
 $KOMPOSE_ROOT/kompose -f $KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/docker-compose-v2.yaml convert --stdout --with-kompose-annotation=false > $KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/output-k8s-v2.yaml
 $KOMPOSE_ROOT/kompose -f $KOMPOSE_ROOT/script/test/fixtures/compose-file-support/compose.yaml convert --stdout --with-kompose-annotation=false > $KOMPOSE_ROOT/script/test/fixtures/compose-file-support/output-k8s.yaml
+$KOMPOSE_ROOT/kompose -f $KOMPOSE_ROOT/script/test/fixtures/env/docker-compose.yml convert --stdout --with-kompose-annotation=false > $KOMPOSE_ROOT/script/test/fixtures/env/output-k8s.yaml
 fi
 
 if $UPDATE_OS ; then
@@ -48,4 +49,5 @@ $KOMPOSE_ROOT/kompose  --provider=openshift -f  $KOMPOSE_ROOT/script/test/fixtur
 $KOMPOSE_ROOT/kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/host-port-protocol/docker-compose.yaml convert --stdout --with-kompose-annotation=false > $KOMPOSE_ROOT/script/test/fixtures/host-port-protocol/output-os.yaml
 $KOMPOSE_ROOT/kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/docker-compose-v1.yaml convert --stdout --with-kompose-annotation=false > $KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/output-os-v1.yaml
 $KOMPOSE_ROOT/kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/docker-compose-v2.yaml convert --stdout --with-kompose-annotation=false > $KOMPOSE_ROOT/script/test/fixtures/external-traffic-policy/output-os-v2.yaml
+$KOMPOSE_ROOT/kompose -f $KOMPOSE_ROOT/script/test/fixtures/env/docker-compose.yml convert --stdout --with-kompose-annotation=false --provider openshift > $KOMPOSE_ROOT/script/test/fixtures/env/output-os.yaml
 fi

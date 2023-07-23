@@ -6,6 +6,7 @@ metadata:
   labels:
     io.kompose.service: myservice
   name: myservice
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -22,7 +23,7 @@ spec:
       containers:
         - args:
             - curl
-            - $(PROTOCOL)://$(DOMAIN)/
+            - :///
           env:
             - name: DOMAIN
               value: google.com
@@ -59,6 +60,7 @@ metadata:
   labels:
     io.kompose.service: myservice
   name: myservice
+  namespace: default
 spec:
   lookupPolicy:
     local: false

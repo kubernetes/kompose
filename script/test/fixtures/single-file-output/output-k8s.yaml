@@ -9,6 +9,7 @@ metadata:
   labels:
     io.kompose.service: front-end
   name: front_end
+  namespace: default
 spec:
   ports:
     - name: "80"
@@ -30,6 +31,7 @@ metadata:
   labels:
     io.kompose.service: front-end
   name: front-end
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -71,6 +73,7 @@ metadata:
   labels:
     io.kompose.service: front-end
   name: front-end
+  namespace: default
 spec:
   ingressClassName: nginx
   rules:
