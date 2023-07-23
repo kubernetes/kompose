@@ -220,7 +220,7 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 
 // InitConfigMapForEnv initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
-	envs, err := GetEnvsFromFile(envFile, opt)
+	envs, err := GetEnvsFromFile(envFile)
 	if err != nil {
 		log.Fatalf("Unable to retrieve env file: %s", err)
 	}
@@ -1099,12 +1099,11 @@ func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]ap
 
 	if len(service.EnvFile) > 0 {
 		// Load each env_file
-
 		for _, file := range service.EnvFile {
 			envName := FormatEnvName(file)
 
 			// Load environment variables from file
-			envLoad, err := GetEnvsFromFile(file, opt)
+			envLoad, err := GetEnvsFromFile(file)
 			if err != nil {
 				return envs, errors.Wrap(err, "Unable to read env_file")
 			}

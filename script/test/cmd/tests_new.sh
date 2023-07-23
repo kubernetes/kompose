@@ -293,3 +293,5 @@ os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/read-only/docker-compose.y
 os_output="$KOMPOSE_ROOT/script/test/fixtures/read-only/output-os.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
+
+# Test env_file support

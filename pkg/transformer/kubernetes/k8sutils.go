@@ -829,16 +829,9 @@ func DurationStrToSecondsInt(s string) (*int64, error) {
 }
 
 // GetEnvsFromFile get env vars from env_file
-func GetEnvsFromFile(file string, opt kobject.ConvertOptions) (map[string]string, error) {
-	// Get the correct file context / directory
-	composeDir, err := transformer.GetComposeFileDir(opt.InputFiles)
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to load file context")
-	}
-	fileLocation := path.Join(composeDir, file)
+func GetEnvsFromFile(file string) (map[string]string, error) {
 
-	// Load environment variables from file
-	envLoad, err := godotenv.Read(fileLocation)
+	envLoad, err := godotenv.Read(file)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to read env_file")
 	}
