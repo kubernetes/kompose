@@ -69,10 +69,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis-slave",
+        "name": "redis-replica",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis-slave"
+          "io.kompose.service": "redis-replica"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -88,7 +88,7 @@
           }
         ],
         "selector": {
-          "io.kompose.service": "redis-slave"
+          "io.kompose.service": "redis-replica"
         }
       },
       "status": {
@@ -223,15 +223,15 @@
         },
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis-slave"
+          "io.kompose.service": "redis-replica"
         },
-        "name": "redis-slave"
+        "name": "redis-replica"
       },
       "spec": {
         "replicas": 1,
         "selector": {
           "matchLabels": {
-            "io.kompose.service": "redis-slave"
+            "io.kompose.service": "redis-replica"
           }
         },
         "strategy": {},
@@ -243,7 +243,7 @@
             },
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "redis-slave"
+              "io.kompose.service": "redis-replica"
             }
           },
           "spec": {
@@ -255,9 +255,9 @@
                     "value": "dns"
                   }
                 ],
-                "image": "gcr.io/google_samples/gb-redisslave:v1",
+                "image": "registry.k8s.io/redis-slave:v2",
                 "imagePullPolicy": "",
-                "name": "redis-slave",
+                "name": "redis-replica",
                 "ports": [
                   {
                     "containerPort": 6379

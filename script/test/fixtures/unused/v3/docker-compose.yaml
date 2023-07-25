@@ -7,8 +7,8 @@ services:
     ports:
       - "6379"
 
-  redis-slave:
-    image: gcr.io/google_samples/gb-redisslave:v1
+  redis-replica:
+    image: registry.k8s.io/redis-slave:v2
     ports:
       - "6379"
     environment:
