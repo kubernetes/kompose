@@ -69,10 +69,10 @@
       "kind": "Service",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis-slave",
+        "name": "redis-replica",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis-slave"
+          "io.kompose.service": "redis-replica"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -88,7 +88,7 @@
           }
         ],
         "selector": {
-          "io.kompose.service": "redis-slave"
+          "io.kompose.service": "redis-replica"
         }
       },
       "status": {
@@ -296,10 +296,10 @@
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis-slave",
+        "name": "redis-replica",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis-slave"
+          "io.kompose.service": "redis-replica"
         },
         "annotations": {
           "kompose.cmd": "%CMD%",
@@ -319,11 +319,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "redis-slave"
+                "redis-replica"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "redis-slave:v1"
+                "name": "redis-replica:v1"
               }
             }
           }
@@ -331,19 +331,19 @@
         "replicas": 1,
         "test": false,
         "selector": {
-          "io.kompose.service": "redis-slave"
+          "io.kompose.service": "redis-replica"
         },
         "template": {
           "metadata": {
             "creationTimestamp": null,
             "labels": {
-              "io.kompose.service": "redis-slave"
+              "io.kompose.service": "redis-replica"
             }
           },
           "spec": {
             "containers": [
               {
-                "name": "redis-slave",
+                "name": "redis-replica",
                 "image": " ",
                 "ports": [
                   {
@@ -369,10 +369,10 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "redis-slave",
+        "name": "redis-replica",
         "creationTimestamp": null,
         "labels": {
-          "io.kompose.service": "redis-slave"
+          "io.kompose.service": "redis-replica"
         }
       },
       "spec": {
@@ -382,7 +382,7 @@
             "annotations": null,
             "from": {
               "kind": "DockerImage",
-              "name": "gcr.io/google_samples/gb-redisslave:v1"
+              "name": "registry.k8s.io/redis-slave:v2"
             },
             "generation": null,
             "importPolicy": {}
