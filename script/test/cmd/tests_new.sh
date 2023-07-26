@@ -293,3 +293,11 @@ os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/read-only/docker-compose.y
 os_output="$KOMPOSE_ROOT/script/test/fixtures/read-only/output-os.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output"
 convert::expect_success "$os_cmd" "$os_output"
+
+# Test env_file support
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/env/docker-compose.yml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/env/output-k8s.yaml"
+os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/env/docker-compose.yml convert --provider openshift --stdout --with-kompose-annotation=false"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/env/output-os.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output"
+convert::expect_success "$os_cmd" "$os_output"

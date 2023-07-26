@@ -11,6 +11,7 @@ metadata:
   labels:
     io.kompose.service: front-end
   name: front-end
+  namespace: default
 spec:
   clusterIP: None
   ports:
@@ -36,6 +37,7 @@ metadata:
   labels:
     io.kompose.service: front-end
   name: front-end
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -88,6 +90,7 @@ metadata:
   labels:
     io.kompose.service: front-end
   name: front-end
+  namespace: default
 spec:
   lookupPolicy:
     local: false
@@ -112,6 +115,7 @@ metadata:
   labels:
     io.kompose.service: front-end
   name: front-end
+  namespace: default
 spec:
   host: lb
   port:
