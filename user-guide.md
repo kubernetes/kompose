@@ -529,9 +529,3 @@ Kompose offers you the possibility to do that. You can use `--build-command` and
 to achieve that.
 
 e.g: `kompose -f convert --build-command 'whatever command --you-use' --push-command 'whatever command --you-use'`
-
-## Docker Compose Versions
-
-Kompose supports Docker Compose versions: 1, 2 and 3. We have limited support on versions 2.1 and 3.2 due to their experimental nature.
-
-A full list on compatibility between all three versions is listed in our [conversion document](/conversion) including a list of all incompatible Docker Compose keys.
