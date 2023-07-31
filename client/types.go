@@ -45,6 +45,7 @@ type ConvertOptions struct {
 	WithKomposeAnnotations *bool
 	InputFiles             []string
 	Provider
+	GenerateNetworkPolicies bool
 }
 
 type Provider interface{}
