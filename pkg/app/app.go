@@ -18,6 +18,7 @@ package app
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -223,6 +224,30 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 	}
 
 	komposeObject.Namespace = opt.Namespace
+
+	// convert env_file from absolute to relative path
+	for _, service := range komposeObject.ServiceConfigs {
+		if len(service.EnvFile) <= 0 {
+			continue
+		}
+		for i, envFile := range service.EnvFile {
+			if !filepath.IsAbs(envFile) {
+				continue
+			}
+
+			workDirAbs, err := filepath.Abs(filepath.Dir(opt.InputFiles[0]))
+			if err != nil {
+				log.Fatalf(err.Error())
+			}
+
+			relPath, err := filepath.Rel(workDirAbs, envFile)
+			if err != nil {
+				log.Fatalf(err.Error())
+			}
+
+			service.EnvFile[i] = strings.Replace(relPath, "\\", "/", -1)
+		}
+	}
 
 	// Get a transformer that maps komposeObject to provider's primitives
 	t := getTransformer(opt)
