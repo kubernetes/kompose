@@ -7,10 +7,6 @@ updates:
       include: "scope"
       prefix: "chore(deps)"
     directory: "/"
-    ignore:
-      # newer versions of these libs will break build
-      - dependency-name: "k8s.io/api"
-      - dependency-name: "k8s.io/apimachinery"
     open-pull-requests-limit: 10
     package-ecosystem: "gomod"
     schedule:
