@@ -221,7 +221,7 @@ func TestLoadV3Ports(t *testing.T) {
 			expose: []string{"80", "8080"},
 			want: []kobject.Ports{
 				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
-				{HostPort: 8080, ContainerPort: 8080, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 8080, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 		{
@@ -230,7 +230,7 @@ func TestLoadV3Ports(t *testing.T) {
 			expose: []string{"80/udp"},
 			want: []kobject.Ports{
 				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
-				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolUDP)},
+				{ContainerPort: 80, Protocol: string(api.ProtocolUDP)},
 			},
 		},
 	} {
@@ -347,8 +347,8 @@ func TestLoadPorts(t *testing.T) {
 			want: []kobject.Ports{
 				{ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 				{ContainerPort: 3000, Protocol: string(api.ProtocolTCP)},
-				{HostPort: 80, ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
-				{HostPort: 8080, ContainerPort: 8080, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
+				{ContainerPort: 8080, Protocol: string(api.ProtocolTCP)},
 			},
 		},
 	}
