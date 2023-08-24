@@ -22,6 +22,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	"os"
 
@@ -143,20 +144,22 @@ func ValidateFlags(args []string, cmd *cobra.Command, opt *kobject.ConvertOption
 }
 
 // ValidateComposeFile validates the compose file provided for conversion
-func ValidateComposeFile(opt *kobject.ConvertOptions) {
+func ValidateComposeFile(opt *kobject.ConvertOptions) error {
 	if len(opt.InputFiles) == 0 {
 		for _, name := range DefaultComposeFiles {
 			_, err := os.Stat(name)
 			if err != nil {
 				log.Debugf("'%s' not found: %v", name, err)
+				return err
 			} else {
 				opt.InputFiles = []string{name}
-				return
+				return nil
 			}
 		}
 
 		log.Fatal("No 'docker-compose' file found")
 	}
+	return nil
 }
 
 func validateControllers(opt *kobject.ConvertOptions) {
@@ -202,7 +205,7 @@ func validateControllers(opt *kobject.ConvertOptions) {
 }
 
 // Convert transforms docker compose or dab file to k8s objects
-func Convert(opt kobject.ConvertOptions) {
+func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 	validateControllers(&opt)
 
 	// loader parses input from file into komposeObject.
@@ -236,6 +239,7 @@ func Convert(opt kobject.ConvertOptions) {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+	return objects, err
 }
 
 // Convenience method to return the appropriate Transformer based on

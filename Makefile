@@ -138,3 +138,7 @@ install-golangci-lint:
 .PHONY: golangci-lint
 golangci-lint: install-golangci-lint
 	$(GOLANGCI_LINT) run -c .golangci.yml --timeout 5m
+
+.PHONY: test-client
+test-client: 
+	go test ./client/...
