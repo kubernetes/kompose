@@ -21,8 +21,8 @@ require (
 	golang.org/x/tools v0.12.0
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.5.0
-	k8s.io/api v0.28.0
-	k8s.io/apimachinery v0.28.0
+	k8s.io/api v0.28.1
+	k8s.io/apimachinery v0.28.1
 )
 
 require (
