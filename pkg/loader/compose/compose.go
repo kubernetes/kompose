@@ -288,7 +288,6 @@ func loadPorts(ports []types.ServicePortConfig, expose []string) []kobject.Ports
 			continue
 		}
 		komposePorts = append(komposePorts, kobject.Ports{
-			HostPort:      cast.ToInt32(portValue),
 			ContainerPort: cast.ToInt32(portValue),
 			HostIP:        "",
 			Protocol:      strings.ToUpper(protocol),
