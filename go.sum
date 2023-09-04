@@ -53,8 +53,8 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
-github.com/compose-spec/compose-go v1.18.3 h1:hiwTZ8ED1l+CB2G2G4LFv/bIaoUfG2ZBalz4S7MOy5w=
-github.com/compose-spec/compose-go v1.18.3/go.mod h1:zR2tP1+kZHi5vJz7PjpW6oMoDji/Js3GHjP+hfjf70Q=
+github.com/compose-spec/compose-go v1.18.4 h1:yLYfsc3ATAYZVAJcXyx/V847/JVBmf3pfKfR13mXU4s=
+github.com/compose-spec/compose-go v1.18.4/go.mod h1:+MdqXV4RA7wdFsahh/Kb8U0pAJqkg7mr4PM9tFKU8RM=
 github.com/containerd/console v1.0.3/go.mod h1:7LqA/THxQ86k76b8c/EMSiaJ3h1eZkMkXar0TQ1gf3U=
 github.com/containerd/containerd v1.6.18 h1:qZbsLvmyu+Vlty0/Ex5xc0z2YtKpIsb5n45mAMI+2Ns=
 github.com/containerd/containerd v1.6.18/go.mod h1:1RdCUu95+gc2v9t3IL+zIlpClSmew7/0YS8O5eQZrOw=
@@ -70,8 +70,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/deckarep/golang-set v1.8.0 h1:sk9/l/KqpunDwP7pSjUg0keiOOLEnOBHzykLrsPppp4=
 github.com/deckarep/golang-set v1.8.0/go.mod h1:5nI87KwE7wgsBU1F4GKAw2Qod7p5kyS383rP6+o6qqo=
-github.com/distribution/distribution/v3 v3.0.0-20230214150026-36d8c594d7aa h1:L9Ay/slwQ4ERSPaurC+TVkZrM0K98GNrEEo1En3e8as=
-github.com/distribution/distribution/v3 v3.0.0-20230214150026-36d8c594d7aa/go.mod h1:WHNsWjnIn2V1LYOrME7e8KxSeKunYHsxEm4am0BUtcI=
+github.com/distribution/reference v0.5.0 h1:/FUIFXtfc/x2gpa5/VGfiGLuOIdYa1t65IKK2OFGvA0=
+github.com/distribution/reference v0.5.0/go.mod h1:BbU0aIcezP1/5jX/8MP0YiH4SdvB5Y4f/wlDRiLyi3E=
 github.com/docker/docker v23.0.3+incompatible h1:9GhVsShNWz1hO//9BNg/dpMnZW25KydO4wtVxWAIbho=
 github.com/docker/docker v23.0.3+incompatible/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
 github.com/docker/go-connections v0.4.0 h1:El9xVISelRB7BuFusrZozjnkIM5YnzCViNKohAFqRJQ=
