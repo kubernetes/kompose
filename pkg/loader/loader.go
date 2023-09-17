@@ -25,7 +25,7 @@ import (
 
 // Loader interface defines loader that loads files and converts it to kobject representation
 type Loader interface {
-	LoadFile(files []string) (kobject.KomposeObject, error)
+	LoadFile(files []string, profiles []string) (kobject.KomposeObject, error)
 	///Name() string
 }
 

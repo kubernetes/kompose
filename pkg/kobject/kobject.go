@@ -53,6 +53,7 @@ type ConvertOptions struct {
 	BuildRepo                   string
 	BuildBranch                 string
 	Build                       string
+	Profiles                    []string
 	PushImage                   bool
 	PushImageRegistry           string
 	CreateChart                 bool
@@ -117,6 +118,7 @@ type ServiceConfig struct {
 	Args                          []string           `compose:"args"`
 	VolList                       []string           `compose:"volumes"`
 	Network                       []string           `compose:"network"`
+	Profiles                      []string           `compose:"profiles"`
 	Labels                        map[string]string  `compose:"labels"`
 	Annotations                   map[string]string  `compose:""`
 	CPUSet                        string             `compose:"cpuset"`
