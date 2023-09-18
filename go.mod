@@ -20,7 +20,7 @@ require (
 	github.com/spf13/viper v1.16.0
 	golang.org/x/tools v0.13.0
 	gopkg.in/yaml.v3 v3.0.1
-	gotest.tools/v3 v3.5.0
+	gotest.tools/v3 v3.5.1
 	k8s.io/api v0.28.2
 	k8s.io/apimachinery v0.28.2
 )
