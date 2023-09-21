@@ -126,7 +126,7 @@ func TestConvertWithProfiles(t *testing.T) {
 			},
 		},
 		{
-			name: "All profiles provided",
+			name: "One profile only",
 			options: ConvertOptions{
 				ToStdout: true,
 				InputFiles: []string{
