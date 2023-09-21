@@ -1,0 +1,17 @@
+version: '3'
+services:
+  backend:
+    image: dummy:tag
+    profiles: ['hello', 'world']
+    ports:
+      - "80:80"
+  frontend:
+    image: dummy:tag
+    profiles: [ 'hello' ]
+    ports:
+      - "80:80"
+  database:
+    image: dummy:tag
+    profiles: [ 'world' ]
+    ports:
+      - "80:80"
