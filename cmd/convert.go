@@ -201,7 +201,7 @@ func init() {
 
 	convertCmd.Flags().IntVar(&ConvertYAMLIndent, "indent", 2, "Spaces length to indent generated yaml files")
 
-	convertCmd.Flags().StringArrayVar(&ConvertProfiles, "profile", []string{}, `Specify the profile to use, can use multiple.`)
+	convertCmd.Flags().StringArrayVar(&ConvertProfiles, "profile", []string{}, `Specify the profile to use, can use multiple profiles`)
 
 	// In order to 'separate' both OpenShift and Kubernetes only flags. A custom help page is created
 	customHelp := `Usage:{{if .Runnable}}
