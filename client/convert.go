@@ -33,6 +33,7 @@ func (k *Kompose) Convert(options ConvertOptions) ([]runtime.Object, error) {
 		PushImageRegistry:           options.PushImageRegistry,
 		CreateDeploymentConfig:      k.createDeploymentConfig(options),
 		EmptyVols:                   false,
+		Profiles:                    options.Profiles,
 		Volumes:                     *options.VolumeType,
 		PVCRequestSize:              options.PvcRequestSize,
 		InsecureRepository:          k.insecureRepository(options),

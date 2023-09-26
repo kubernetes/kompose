@@ -46,6 +46,7 @@ var (
 	ConvertDeploymentConfig      bool
 	ConvertReplicas              int
 	ConvertController            string
+	ConvertProfiles              []string
 	ConvertPushImage             bool
 	ConvertNamespace             string
 	ConvertPushImageRegistry     string
@@ -115,6 +116,7 @@ var convertCmd = &cobra.Command{
 			IsReplicaSetFlag:            cmd.Flags().Lookup("replicas").Changed,
 			IsDeploymentConfigFlag:      cmd.Flags().Lookup("deployment-config").Changed,
 			YAMLIndent:                  ConvertYAMLIndent,
+			Profiles:                    ConvertProfiles,
 			WithKomposeAnnotation:       WithKomposeAnnotation,
 			MultipleContainerMode:       MultipleContainerMode,
 			ServiceGroupMode:            ServiceGroupMode,
@@ -198,6 +200,8 @@ func init() {
 	convertCmd.Flags().MarkDeprecated("emptyvols", "emptyvols has been marked as deprecated. Use --volumes emptyDir")
 
 	convertCmd.Flags().IntVar(&ConvertYAMLIndent, "indent", 2, "Spaces length to indent generated yaml files")
+
+	convertCmd.Flags().StringArrayVar(&ConvertProfiles, "profile", []string{}, `Specify the profile to use, can use multiple profiles`)
 
 	// In order to 'separate' both OpenShift and Kubernetes only flags. A custom help page is created
 	customHelp := `Usage:{{if .Runnable}}

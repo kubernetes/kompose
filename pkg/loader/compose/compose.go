@@ -149,14 +149,19 @@ func checkUnsupportedKey(composeProject *types.Project) []string {
 }
 
 // LoadFile loads a compose file into KomposeObject
-func (c *Compose) LoadFile(files []string) (kobject.KomposeObject, error) {
+func (c *Compose) LoadFile(files []string, profiles []string) (kobject.KomposeObject, error) {
 	// Gather the working directory
 	workingDir, err := getComposeFileDir(files)
 	if err != nil {
 		return kobject.KomposeObject{}, err
 	}
 
-	projectOptions, err := cli.NewProjectOptions(files, cli.WithOsEnv, cli.WithWorkingDirectory(workingDir), cli.WithInterpolation(true))
+	projectOptions, err := cli.NewProjectOptions(
+		files, cli.WithOsEnv,
+		cli.WithWorkingDirectory(workingDir),
+		cli.WithInterpolation(true),
+		cli.WithProfiles(profiles),
+	)
 	if err != nil {
 		return kobject.KomposeObject{}, errors.Wrap(err, "Unable to create compose options")
 	}

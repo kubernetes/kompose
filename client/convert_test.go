@@ -2,6 +2,8 @@ package client
 
 import (
 	"fmt"
+	v1 "k8s.io/api/core/v1"
+	"sort"
 	"testing"
 
 	"gotest.tools/v3/assert"
@@ -69,7 +71,7 @@ func TestConvertWithDefaultOptions(t *testing.T) {
 	client, err := NewClient(WithErrorOnWarning())
 	assert.Check(t, is.Equal(err, nil))
 	objects, err := client.Convert(ConvertOptions{
-		OutFile: "./testdata/generated/",
+		ToStdout: true,
 		InputFiles: []string{
 			"./testdata/docker-compose.yaml",
 		},
@@ -79,5 +81,91 @@ func TestConvertWithDefaultOptions(t *testing.T) {
 		if deployment, ok := object.(*appsv1.Deployment); ok {
 			assert.Check(t, is.Equal(int(*deployment.Spec.Replicas), 1))
 		}
+	}
+}
+
+func TestConvertWithProfiles(t *testing.T) {
+	client, err := NewClient(WithErrorOnWarning())
+	assert.Check(t, is.Equal(err, nil))
+
+	type Want struct {
+		deploymentsNames []string
+		servicesNames    []string
+	}
+
+	tests := []struct {
+		name    string
+		options ConvertOptions
+		want    Want
+	}{
+		{
+			name: "No profiles provided",
+			options: ConvertOptions{
+				ToStdout: true,
+				InputFiles: []string{
+					"./testdata/docker-compose-profiles.yaml",
+				},
+			},
+			want: Want{
+				deploymentsNames: nil,
+				servicesNames:    nil,
+			},
+		},
+		{
+			name: "All profiles provided",
+			options: ConvertOptions{
+				ToStdout: true,
+				InputFiles: []string{
+					"./testdata/docker-compose-profiles.yaml",
+				},
+				Profiles: []string{"hello", "world"},
+			},
+			want: Want{
+				deploymentsNames: []string{"backend", "frontend", "database"},
+				servicesNames:    []string{"backend", "frontend", "database"},
+			},
+		},
+		{
+			name: "One profile only",
+			options: ConvertOptions{
+				ToStdout: true,
+				InputFiles: []string{
+					"./testdata/docker-compose-profiles.yaml",
+				},
+				Profiles: []string{"hello"},
+			},
+			want: Want{
+				deploymentsNames: []string{"backend", "frontend"},
+				servicesNames:    []string{"backend", "frontend"},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			objects, err := client.Convert(tt.options)
+			assert.Check(t, is.Equal(err, nil))
+
+			sort.Strings(tt.want.deploymentsNames)
+			sort.Strings(tt.want.servicesNames)
+
+			var deploymentsNames []string
+			var servicesNames []string
+
+			for _, object := range objects {
+				if deployment, ok := object.(*appsv1.Deployment); ok {
+					deploymentsNames = append(deploymentsNames, deployment.Name)
+				}
+
+				if service, ok := object.(*v1.Service); ok {
+					servicesNames = append(servicesNames, service.Name)
+				}
+			}
+
+			sort.Strings(deploymentsNames)
+			sort.Strings(servicesNames)
+
+			assert.Check(t, is.DeepEqual(deploymentsNames, tt.want.deploymentsNames))
+			assert.Check(t, is.DeepEqual(servicesNames, tt.want.servicesNames))
+		})
 	}
 }

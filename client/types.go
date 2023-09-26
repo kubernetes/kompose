@@ -44,6 +44,7 @@ type ConvertOptions struct {
 	PvcRequestSize         string
 	WithKomposeAnnotations *bool
 	InputFiles             []string
+	Profiles               []string
 	Provider
 	GenerateNetworkPolicies bool
 }
