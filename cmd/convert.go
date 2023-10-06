@@ -133,7 +133,12 @@ var convertCmd = &cobra.Command{
 		}
 
 		app.ValidateFlags(args, cmd, &ConvertOpt)
-		app.ValidateComposeFile(&ConvertOpt)
+
+		// Since ValidateComposeFiles returns an error, let's validate it and output the error appropriately if the validation fails
+		err := app.ValidateComposeFile(&ConvertOpt)
+		if err != nil {
+			log.Fatalf("Error validating compose file: %v", err)
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 

@@ -146,18 +146,18 @@ func ValidateFlags(args []string, cmd *cobra.Command, opt *kobject.ConvertOption
 // ValidateComposeFile validates the compose file provided for conversion
 func ValidateComposeFile(opt *kobject.ConvertOptions) error {
 	if len(opt.InputFiles) == 0 {
+		// Go through a range of "default" file names to see if tany ofthem exist in the current directory
 		for _, name := range DefaultComposeFiles {
 			_, err := os.Stat(name)
 			if err != nil {
 				log.Debugf("'%s' not found: %v", name, err)
-				return err
 			} else {
 				opt.InputFiles = []string{name}
 				return nil
 			}
 		}
-
-		log.Fatal("No 'docker-compose' file found")
+		// Return an error message that no compose or docker-compose yaml files were found
+		return fmt.Errorf("No compose or docker-compose yaml file found in the current directory")
 	}
 	return nil
 }
