@@ -53,7 +53,6 @@ type ConvertOptions struct {
 	BuildRepo                   string
 	BuildBranch                 string
 	Build                       string
-	Profiles                    []string
 	PushImage                   bool
 	PushImageRegistry           string
 	CreateChart                 bool

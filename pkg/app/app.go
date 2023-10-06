@@ -217,7 +217,7 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
-	komposeObject, err = l.LoadFile(opt.InputFiles, opt.Profiles)
+	komposeObject, err = l.LoadFile(opt.InputFiles)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
