@@ -50,7 +50,10 @@ Kompose is released via GitHub on a three-week cycle, you can see all current re
 **Linux and macOS:**
 
 ```sh
-# Linux
+# Linux (Debian)
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.1/kompose-linux-amd64 -o kompose
+
+# Linux (Mint)
 curl -L -o kompose https://github.com/kubernetes/kompose/releases/download/v1.31.1/kompose-linux-amd64
 
 # macOS
