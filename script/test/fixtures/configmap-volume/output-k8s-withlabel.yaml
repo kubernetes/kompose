@@ -8,7 +8,6 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -55,7 +54,6 @@ metadata:
   labels:
     io.kompose.service: db
   name: db-cm0
-  namespace: default
 
 ---
 apiVersion: apps/v1
@@ -67,7 +65,6 @@ metadata:
   labels:
     io.kompose.service: web
   name: web
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -118,7 +115,6 @@ metadata:
   labels:
     io.kompose.service: web
   name: web-cm0
-  namespace: default
 
 ---
 apiVersion: v1
@@ -132,5 +128,4 @@ metadata:
   labels:
     io.kompose.service: web
   name: web-cm1
-  namespace: default
 

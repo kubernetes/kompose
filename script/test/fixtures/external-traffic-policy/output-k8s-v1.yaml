@@ -11,7 +11,6 @@ metadata:
   labels:
     io.kompose.service: front-end-tcp
   name: front-end-tcp
-  namespace: default
 spec:
   externalTrafficPolicy: Local
   ports:
@@ -37,7 +36,6 @@ metadata:
   labels:
     io.kompose.service: front-end
   name: front-end
-  namespace: default
 spec:
   replicas: 1
   selector:

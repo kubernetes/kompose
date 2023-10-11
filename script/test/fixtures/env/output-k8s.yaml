@@ -6,7 +6,6 @@ metadata:
   labels:
     io.kompose.service: namenode
   name: namenode
-  namespace: default
 spec:
   ports:
     - name: "50070"
@@ -28,7 +27,6 @@ metadata:
   labels:
     io.kompose.service: another-namenode
   name: another-namenode
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -48,12 +46,12 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: BAR
-                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+                  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
             - name: FOO
               valueFrom:
                 configMapKeyRef:
                   key: FOO
-                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+                  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
           image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
           name: another-namenode
           resources: {}
@@ -69,9 +67,8 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: another-namenode-home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
-  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
-  namespace: default
+    io.kompose.service: another-namenode-Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
 
 ---
 apiVersion: apps/v1
@@ -81,7 +78,6 @@ metadata:
   labels:
     io.kompose.service: namenode
   name: namenode
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -101,14 +97,14 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: BAR
-                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+                  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
             - name: CLUSTER_NAME
               value: test
             - name: FOO
               valueFrom:
                 configMapKeyRef:
                   key: FOO
-                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+                  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
           image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
           name: namenode
           ports:
