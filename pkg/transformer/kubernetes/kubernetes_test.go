@@ -1119,3 +1119,29 @@ func TestNamespaceGeneration(t *testing.T) {
 		}
 	}
 }
+
+// Test namespace generation with namespace being blank / ""
+func TestNamespaceGenerationBlank(t *testing.T) {
+	ns := ""
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newServiceConfig()},
+		Namespace:      ns,
+	}
+	k := Kubernetes{}
+	objs, err := k.Transform(komposeObject, kobject.ConvertOptions{})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+	for _, obj := range objs {
+		if namespace, ok := obj.(*api.Namespace); ok {
+			if strings.ToLower(ns) != strings.ToLower(namespace.ObjectMeta.Name) {
+				t.Errorf("Expected namespace name %v, got %v", ns, namespace.ObjectMeta.Name)
+			}
+		}
+		if dep, ok := obj.(*appsv1.Deployment); ok {
+			if dep.ObjectMeta.Namespace != ns {
+				t.Errorf("Expected deployment namespace %v, got %v", ns, dep.ObjectMeta.Namespace)
+			}
+		}
+	}
+}
