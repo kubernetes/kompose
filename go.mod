@@ -7,7 +7,7 @@ require (
 	github.com/deckarep/golang-set v1.8.0
 	github.com/fatih/structs v1.1.0
 	github.com/fsouza/go-dockerclient v1.9.7
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-shellwords v1.0.12
