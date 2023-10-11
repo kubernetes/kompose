@@ -1601,7 +1601,11 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	// sort all object so Services are first
 	k.SortServicesFirst(&allobjects)
 	k.RemoveDupObjects(&allobjects)
-	transformer.AssignNamespaceToObjects(&allobjects, komposeObject.Namespace)
+
+	// Only append namespaces if --namespace has been passed in
+	if komposeObject.Namespace != "" {
+		transformer.AssignNamespaceToObjects(&allobjects, komposeObject.Namespace)
+	}
 	// k.FixWorkloadVersion(&allobjects)
 	return allobjects, nil
 }
