@@ -133,8 +133,14 @@ __Linux and macOS:__
 # Linux
 curl -L https://github.com/kubernetes/kompose/releases/download/v$1/kompose-linux-amd64 -o kompose
 
+# Linux ARM64
+curl -L https://github.com/kubernetes/kompose/releases/download/v$1/kompose-linux-arm64 -o kompose
+
 # macOS
 curl -L https://github.com/kubernetes/kompose/releases/download/v$1/kompose-darwin-amd64 -o kompose
+
+# macOS ARM64
+curl -L https://github.com/kubernetes/kompose/releases/download/v$1/kompose-darwin-arm64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
