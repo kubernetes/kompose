@@ -42,11 +42,11 @@ A more detailed guide is available in our [getting started guide](/docs/getting-
 Grab the Kompose binary!
 
 ```sh
-# Linux (Debian)
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.1/kompose-linux-amd64 -o kompose
+# Linux (DebianUbuntu)
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-linux-amd64 -o kompose
 
 # Linux (Mint)
-curl -L -o kompose https://github.com/kubernetes/kompose/releases/download/v1.31.1/kompose-linux-amd64
+curl -L -o kompose https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-linux-amd64
 
 # macOS
 curl -L https://github.com/kubernetes/kompose/releases/download/v1.25.0/kompose-darwin-amd64 -o kompose
