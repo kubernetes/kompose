@@ -50,14 +50,14 @@ Kompose is released via GitHub on a three-week cycle, you can see all current re
 **Linux and macOS:**
 
 ```sh
-# Linux (Debian)
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.1/kompose-linux-amd64 -o kompose
+# Linux (Debian/Ubuntu)
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-linux-amd64 -o kompose
 
 # Linux (Mint)
-curl -L -o kompose https://github.com/kubernetes/kompose/releases/download/v1.31.1/kompose-linux-amd64
+curl -L -o kompose https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-linux-amd64
 
 # macOS
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.1/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-darwin-amd64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
@@ -65,7 +65,7 @@ sudo mv ./kompose /usr/local/bin/kompose
 
 **Windows:**
 
-Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.31.1/kompose-windows-amd64.exe) and add the binary to your PATH.
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 ## Shell autocompletion
 
