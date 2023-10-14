@@ -116,9 +116,6 @@ os_output="$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/output-os.ya
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success_and_warning "$os_cmd" "$os_output"
 
-# Exit if status code different than 0
-set -e
-
 # # TEST the placement
 # should convert placement to affinity
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/deploy/placement/docker-compose-placement.yaml convert --stdout --with-kompose-annotation=false"
