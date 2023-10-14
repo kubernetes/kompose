@@ -5,3 +5,5 @@ services:
     labels:
       kompose.image-pull-policy: "${IMAGE_PULL_POLICY:-IfNotPresent}"
     build: .
+    ports:
+      - 80:80

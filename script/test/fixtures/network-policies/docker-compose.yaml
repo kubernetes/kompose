@@ -6,5 +6,7 @@ networks:
 services:
   nginx:
     image: nginx
-    networks: 
+    ports:
+      - 80:80
+    networks:
     - web
