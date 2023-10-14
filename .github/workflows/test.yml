@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
+      - name: Install dyff
+        run: go install github.com/homeport/dyff/cmd/dyff@v1.5.8
       - name: Run tests
         run: make test
       - name: Perform cross compile
@@ -34,6 +36,8 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: 1.19
+      - name: Install dyff
+        run: go install github.com/homeport/dyff/cmd/dyff@v1.5.8
       - name: Create .coverprofile for each targeted directory by re:running tests
         run: make test
       - name: Collect all .coverprofile files and save it to one file gover.coverprofile
