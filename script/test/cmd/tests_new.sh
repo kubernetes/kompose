@@ -107,8 +107,6 @@ convert::expect_warning "$cmd" "Push image registry 'whatever' is specified but 
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/storage-class-name/docker-compose.yml convert -o $TEMP_DIR/output-k8s.yaml" "$TEMP_DIR/output-k8s.yaml"
 convert::check_artifacts_generated "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/storage-class-name/docker-compose.yml convert -o $TEMP_DIR/output-os.yaml -j" "$TEMP_DIR/output-os.yaml"
 
-set -e
-
 # TEST the windows volume
 # windows host path to windows container
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
@@ -117,6 +115,9 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/output-k8s.
 os_output="$KOMPOSE_ROOT/script/test/fixtures/volume-mounts/windows/output-os.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
 convert::expect_success_and_warning "$os_cmd" "$os_output"
+
+# Exit if status code different than 0
+set -e
 
 # # TEST the placement
 # should convert placement to affinity
