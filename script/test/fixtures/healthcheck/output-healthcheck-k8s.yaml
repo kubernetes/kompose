@@ -11,7 +11,7 @@ metadata:
     kompose.service.healthcheck.readiness.timeout: 1s
   creationTimestamp: null
   labels:
-    io.kompose.service: my-group
+    io.kompose.service: mongo
   name: mongo
 spec:
   ports:
@@ -19,7 +19,7 @@ spec:
       port: 27017
       targetPort: 27017
   selector:
-    io.kompose.service: my-group
+    io.kompose.service: mongo
 status:
   loadBalancer: {}
 
@@ -36,7 +36,7 @@ metadata:
     kompose.service.healthcheck.readiness.timeout: 2s
   creationTimestamp: null
   labels:
-    io.kompose.service: my-group
+    io.kompose.service: mysql
   name: mysql
 spec:
   ports:
@@ -44,7 +44,7 @@ spec:
       port: 3306
       targetPort: 3306
   selector:
-    io.kompose.service: my-group
+    io.kompose.service: mysql
 status:
   loadBalancer: {}
 
@@ -103,20 +103,20 @@ kind: Deployment
 metadata:
   annotations:
     kompose.service.group: my-group
-    kompose.service.healthcheck.liveness.tcp_port: "8081"
-    kompose.service.healthcheck.readiness.interval: 11s
-    kompose.service.healthcheck.readiness.retries: "6"
-    kompose.service.healthcheck.readiness.tcp_port: "9091"
-    kompose.service.healthcheck.readiness.timeout: 2s
+    kompose.service.healthcheck.liveness.tcp_port: "8080"
+    kompose.service.healthcheck.readiness.interval: 10s
+    kompose.service.healthcheck.readiness.retries: "5"
+    kompose.service.healthcheck.readiness.tcp_port: "9090"
+    kompose.service.healthcheck.readiness.timeout: 1s
   creationTimestamp: null
   labels:
-    io.kompose.service: my-group
-  name: my-group
+    io.kompose.service: mongo
+  name: mongo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: my-group
+      io.kompose.service: mongo
   strategy: {}
   template:
     metadata:
@@ -130,7 +130,7 @@ spec:
       creationTimestamp: null
       labels:
         io.kompose.network/healthcheck-default: "true"
-        io.kompose.service: my-group
+        io.kompose.service: mongo
     spec:
       containers:
         - image: mongo
@@ -151,6 +151,45 @@ spec:
               port: 9090
             timeoutSeconds: 1
           resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.service.group: my-group
+    kompose.service.healthcheck.liveness.tcp_port: "8081"
+    kompose.service.healthcheck.readiness.interval: 11s
+    kompose.service.healthcheck.readiness.retries: "6"
+    kompose.service.healthcheck.readiness.tcp_port: "9091"
+    kompose.service.healthcheck.readiness.timeout: 2s
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mysql
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mysql
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.service.group: my-group
+        kompose.service.healthcheck.liveness.tcp_port: "8081"
+        kompose.service.healthcheck.readiness.interval: 11s
+        kompose.service.healthcheck.readiness.retries: "6"
+        kompose.service.healthcheck.readiness.tcp_port: "9091"
+        kompose.service.healthcheck.readiness.timeout: 2s
+      creationTimestamp: null
+      labels:
+        io.kompose.network/healthcheck-default: "true"
+        io.kompose.service: mysql
+    spec:
+      containers:
         - image: mysql
           livenessProbe:
             failureThreshold: 6

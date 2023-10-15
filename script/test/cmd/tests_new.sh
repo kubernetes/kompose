@@ -181,11 +181,11 @@ convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
 convert::expect_success "$ocp_cmd" "$ocp_output" || exit 1
 
 # test health check
-k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/healthcheck/docker-compose-healthcheck.yaml convert --stdout --service-group-mode=label --with-kompose-annotation=false"
-os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/healthcheck/docker-compose-healthcheck.yaml convert --stdout --service-group-mode=label --with-kompose-annotation=false"
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/healthcheck/docker-compose-healthcheck.yaml convert --stdout --with-kompose-annotation=false"
+os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/healthcheck/docker-compose-healthcheck.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/healthcheck/output-healthcheck-k8s.yaml"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/healthcheck/output-healthcheck-os.yaml"
-convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 convert::expect_success "$os_cmd" "$os_output" || exit 1
 
 # test statefulset
