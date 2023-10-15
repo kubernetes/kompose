@@ -168,7 +168,7 @@ convert::expect_success "$ocp_cmd" "$ocp_output" || exit 1
 
 
 # test service group by volume, not support openshift for now
-k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/service-group/compose.yaml convert --stdout --with-kompose-annotation=false --service-group-mode=volume"
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/service-group/compose.yaml convert --stdout --with-kompose-annotation=false --service-group-mode=volume --service-group-name=librenms-dispatcher"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/service-group/output-k8s.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
 
