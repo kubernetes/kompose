@@ -294,7 +294,7 @@ func Print(name, path string, trailing string, data []byte, toStdout, generateJS
 		file = filepath.Join(path, file)
 
 		// simple hack to remove status from the output
-		re := regexp.MustCompile(`status:[\s\S]*?(?:---|$)`)
+		re := regexp.MustCompile(`(?s)status:.*`)
 		data = re.ReplaceAll(data, nil)
 
 		if err := os.WriteFile(file, data, 0644); err != nil {
