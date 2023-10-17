@@ -22,6 +22,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	dockerlib "github.com/fsouza/go-dockerclient"
@@ -291,6 +292,11 @@ func Print(name, path string, trailing string, data []byte, toStdout, generateJS
 	} else {
 		// Write content separately to each file
 		file = filepath.Join(path, file)
+
+		// simple hack to remove status from the output
+		re := regexp.MustCompile(`status:[\s\S]*?(?:---|$)`)
+		data = re.ReplaceAll(data, nil)
+
 		if err := os.WriteFile(file, data, 0644); err != nil {
 			return "", errors.Wrap(err, "Failed to write %s: "+trailing)
 		}
