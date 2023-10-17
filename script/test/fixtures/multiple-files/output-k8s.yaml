@@ -6,7 +6,6 @@ metadata:
   labels:
     io.kompose.service: bar
   name: bar
-  namespace: default
 spec:
   replicas: 99
   selector:
@@ -35,7 +34,6 @@ metadata:
   labels:
     io.kompose.service: foo
   name: foo
-  namespace: default
 spec:
   replicas: 3
   selector:

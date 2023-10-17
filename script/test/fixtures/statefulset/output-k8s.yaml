@@ -6,7 +6,6 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
-  namespace: default
 spec:
   clusterIP: None
   ports:
@@ -27,7 +26,6 @@ metadata:
   labels:
     io.kompose.service: wordpress
   name: wordpress
-  namespace: default
 spec:
   clusterIP: None
   ports:
@@ -48,7 +46,6 @@ metadata:
   labels:
     io.kompose.service: db
   name: db
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -109,7 +106,6 @@ metadata:
   labels:
     io.kompose.service: wordpress
   name: wordpress
-  namespace: default
 spec:
   replicas: 1
   selector:

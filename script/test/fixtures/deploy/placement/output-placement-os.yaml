@@ -6,7 +6,6 @@ metadata:
   labels:
     io.kompose.service: redis
   name: redis
-  namespace: default
 spec:
   ports:
     - name: "6379"
@@ -25,7 +24,6 @@ metadata:
   labels:
     io.kompose.service: redis
   name: redis
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -104,7 +102,6 @@ metadata:
   labels:
     io.kompose.service: redis
   name: redis
-  namespace: default
 spec:
   lookupPolicy:
     local: false

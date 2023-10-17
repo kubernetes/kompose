@@ -60,20 +60,3 @@ spec:
     requests:
       storage: 100Mi
 status: {}
-
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  creationTimestamp: null
-  name: fsgroup-default
-spec:
-  ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              io.kompose.network/fsgroup-default: "true"
-  podSelector:
-    matchLabels:
-      io.kompose.network/fsgroup-default: "true"
-

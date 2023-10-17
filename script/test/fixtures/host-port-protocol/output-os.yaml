@@ -6,7 +6,6 @@ metadata:
   labels:
     io.kompose.service: nginx
   name: nginx
-  namespace: default
 spec:
   ports:
     - name: "80"
@@ -25,7 +24,6 @@ metadata:
   labels:
     io.kompose.service: nginx
   name: nginx
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -75,7 +73,6 @@ metadata:
   labels:
     io.kompose.service: nginx
   name: nginx
-  namespace: default
 spec:
   lookupPolicy:
     local: false

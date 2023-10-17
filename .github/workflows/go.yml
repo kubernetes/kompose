@@ -28,7 +28,6 @@ jobs:
     - name: Build
       run: make bin
 
-      
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3
       with:

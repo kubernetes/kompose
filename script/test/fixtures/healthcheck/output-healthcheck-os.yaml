@@ -13,7 +13,6 @@ metadata:
   labels:
     io.kompose.service: mongo
   name: mongo
-  namespace: default
 spec:
   ports:
     - name: "27017"
@@ -39,7 +38,6 @@ metadata:
   labels:
     io.kompose.service: mysql
   name: mysql
-  namespace: default
 spec:
   ports:
     - name: "3306"
@@ -66,7 +64,6 @@ metadata:
   labels:
     io.kompose.service: postgresql
   name: postgresql
-  namespace: default
 spec:
   ports:
     - name: "5432"
@@ -90,7 +87,6 @@ metadata:
   labels:
     io.kompose.service: redis
   name: redis
-  namespace: default
 spec:
   ports:
     - name: "6379"
@@ -116,7 +112,6 @@ metadata:
   labels:
     io.kompose.service: mongo
   name: mongo
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -177,7 +172,6 @@ metadata:
   labels:
     io.kompose.service: mongo
   name: mongo
-  namespace: default
 spec:
   lookupPolicy:
     local: false
@@ -209,7 +203,6 @@ metadata:
   labels:
     io.kompose.service: mysql
   name: mysql
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -270,7 +263,6 @@ metadata:
   labels:
     io.kompose.service: mysql
   name: mysql
-  namespace: default
 spec:
   lookupPolicy:
     local: false
@@ -303,7 +295,6 @@ metadata:
   labels:
     io.kompose.service: postgresql
   name: postgresql
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -366,7 +357,6 @@ metadata:
   labels:
     io.kompose.service: postgresql
   name: postgresql
-  namespace: default
 spec:
   lookupPolicy:
     local: false
@@ -396,7 +386,6 @@ metadata:
   labels:
     io.kompose.service: redis
   name: redis
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -460,7 +449,6 @@ metadata:
   labels:
     io.kompose.service: redis
   name: redis
-  namespace: default
 spec:
   lookupPolicy:
     local: false

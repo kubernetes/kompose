@@ -8,7 +8,6 @@ metadata:
   labels:
     io.kompose.service: redis
   name: redis
-  namespace: default
 spec:
   clusterIP: None
   ports:
@@ -28,7 +27,6 @@ metadata:
   labels:
     io.kompose.service: foo
   name: foo
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -65,7 +63,6 @@ metadata:
   labels:
     io.kompose.service: redis
   name: redis
-  namespace: default
 spec:
   replicas: 1
   selector:

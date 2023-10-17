@@ -100,10 +100,10 @@ function convert::match_output() {
     convert::run_cmd $cmd
     exit_status=$?
     if [ $exit_status -ne 0 ]; then FAIL_MSGS=$FAIL_MSGS"exit status: $exit_status\n"; return $exit_status; fi
-    match=$(diff <(yq ea '[.] | sort_by(.metadata.name) | .[] | splitDoc' $expected_output) <(yq ea '[.] | sort_by(.metadata.name) | .[] | splitDoc' $TEMP_STDOUT))
-    echo "$match" > /tmp/diff
-    if [ "$match" == "" ]; then SUCCESS_MSGS=$SUCCESS_MSGS"converted output matches\n"; return 0;
-    else FAIL_MSGS=$FAIL_MSGS"converted output does not match\n"; cat /tmp/diff; rm /tmp/diff; return 1; 
+
+    match=$(dyff between --ignore-order-changes --set-exit-code $expected_output $TEMP_STDOUT)
+    if [ $? -eq 0 ]; then SUCCESS_MSGS=$SUCCESS_MSGS"converted output matches\n"; return 0;
+    else FAIL_MSGS=$FAIL_MSGS"converted output does not match\n"; echo $match; return 1; 
     fi
 }
 readonly -f convert::match_output

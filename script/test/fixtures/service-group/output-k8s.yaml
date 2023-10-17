@@ -4,16 +4,15 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: dispatcher-librenms
+    io.kompose.service: librenms-dispatcher
   name: librenms
-  namespace: default
 spec:
   ports:
     - name: "8000"
       port: 8000
       targetPort: 8000
   selector:
-    io.kompose.service: dispatcher-librenms
+    io.kompose.service: librenms-dispatcher
 status:
   loadBalancer: {}
 
@@ -23,14 +22,13 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: dispatcher-librenms
-  name: dispatcher-librenms
-  namespace: default
+    io.kompose.service: librenms-dispatcher
+  name: librenms-dispatcher
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: dispatcher-librenms
+      io.kompose.service: librenms-dispatcher
   strategy:
     type: Recreate
   template:
@@ -38,17 +36,9 @@ spec:
       creationTimestamp: null
       labels:
         io.kompose.network/service-group-default: "true"
-        io.kompose.service: dispatcher-librenms
+        io.kompose.service: librenms-dispatcher
     spec:
       containers:
-        - env:
-            - name: TZ
-          image: librenms/dispatcher:latest
-          name: dispatcher
-          resources: {}
-          volumeMounts:
-            - mountPath: /data
-              name: dispatcher-librenms-claim0
         - env:
             - name: TZ
           image: librenms/librenms:latest
@@ -60,13 +50,21 @@ spec:
           resources: {}
           volumeMounts:
             - mountPath: /data
-              name: dispatcher-librenms-claim0
-      hostname: librenms
+              name: librenms-dispatcher-claim0
+        - env:
+            - name: TZ
+          image: librenms/dispatcher:latest
+          name: dispatcher
+          resources: {}
+          volumeMounts:
+            - mountPath: /data
+              name: librenms-dispatcher-claim0
+      hostname: dispatcher
       restartPolicy: Always
       volumes:
-        - name: dispatcher-librenms-claim0
+        - name: librenms-dispatcher-claim0
           persistentVolumeClaim:
-            claimName: dispatcher-librenms-claim0
+            claimName: librenms-dispatcher-claim0
 status: {}
 
 ---
@@ -75,9 +73,8 @@ kind: PersistentVolumeClaim
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: dispatcher-librenms-claim0
-  name: dispatcher-librenms-claim0
-  namespace: default
+    io.kompose.service: librenms-dispatcher-claim0
+  name: librenms-dispatcher-claim0
 spec:
   accessModes:
     - ReadWriteOnce
