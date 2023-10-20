@@ -853,8 +853,15 @@ func GetContentFromFile(file string) (string, error) {
 // FormatEnvName format env name
 func FormatEnvName(name string) string {
 	envName := strings.Trim(name, "./")
+	// only take string after the last slash only if the string contains a slash
+	if strings.Contains(envName, "/") {
+		envName = envName[strings.LastIndex(envName, "/")+1:]
+	}
+	// take only last 63 chars
+	if len(envName) > 63 {
+		envName = envName[len(envName)-63:]
+	}
 	envName = strings.Replace(envName, ".", "-", -1)
-	envName = strings.Replace(envName, "/", "-", -1)
 	return envName
 }
 
