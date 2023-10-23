@@ -43,14 +43,24 @@ status:
 ---
 apiVersion: v1
 data:
-  BAR: FOO
   FOO: BAR
 kind: ConfigMap
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: another-namenode-hadoop-hive-namenode-env
+    io.kompose.service: hadoop-hive-namenode-env
   name: hadoop-hive-namenode-env
+
+---
+apiVersion: v1
+data:
+  BAR: FOO
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: another-namenode-hadoop-hive-namenode-env
+  name: hadoop-hive-namenode-env1
 
 ---
 apiVersion: apps.openshift.io/v1
@@ -79,12 +89,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: BAR
-                  name: hadoop-hive-namenode-env
-            - name: FOO
-              valueFrom:
-                configMapKeyRef:
-                  key: FOO
-                  name: hadoop-hive-namenode-env
+                  name: hadoop-hive-namenode-env1
           image: ' '
           name: another-namenode
           ports:
@@ -162,11 +167,6 @@ spec:
     spec:
       containers:
         - env:
-            - name: BAR
-              valueFrom:
-                configMapKeyRef:
-                  key: BAR
-                  name: hadoop-hive-namenode-env
             - name: CLUSTER_NAME
               value: test
             - name: FOO
