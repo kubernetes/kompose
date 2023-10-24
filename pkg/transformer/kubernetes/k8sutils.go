@@ -687,6 +687,7 @@ func getServiceGroupID(service kobject.ServiceConfig, mode string) string {
 func KomposeObjectToServiceConfigGroupMapping(komposeObject *kobject.KomposeObject, opt kobject.ConvertOptions) map[string]kobject.ServiceConfigGroup {
 	serviceConfigGroup := make(map[string]kobject.ServiceConfigGroup)
 	sortedServiceConfigs := SortedKeys(komposeObject.ServiceConfigs)
+
 	for _, service := range sortedServiceConfigs {
 		serviceConfig := komposeObject.ServiceConfigs[service]
 		groupID := getServiceGroupID(serviceConfig, opt.ServiceGroupMode)

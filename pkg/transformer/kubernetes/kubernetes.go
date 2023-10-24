@@ -1473,6 +1473,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					}
 					groupName = strings.Join(names, "-")
 				}
+			} else {
+				groupName = group
 			}
 
 			// added a container
