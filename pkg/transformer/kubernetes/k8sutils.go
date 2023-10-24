@@ -686,14 +686,16 @@ func getServiceGroupID(service kobject.ServiceConfig, mode string) string {
 //     A warn/info message should be printed to let the user know.
 func KomposeObjectToServiceConfigGroupMapping(komposeObject *kobject.KomposeObject, opt kobject.ConvertOptions) map[string]kobject.ServiceConfigGroup {
 	serviceConfigGroup := make(map[string]kobject.ServiceConfigGroup)
+	sortedServiceConfigs := SortedKeys(komposeObject.ServiceConfigs)
 
-	for name, service := range komposeObject.ServiceConfigs {
-		groupID := getServiceGroupID(service, opt.ServiceGroupMode)
+	for _, service := range sortedServiceConfigs {
+		serviceConfig := komposeObject.ServiceConfigs[service]
+		groupID := getServiceGroupID(serviceConfig, opt.ServiceGroupMode)
 		if groupID != "" {
-			service.Name = name
-			service.InGroup = true
-			serviceConfigGroup[groupID] = append(serviceConfigGroup[groupID], service)
-			komposeObject.ServiceConfigs[name] = service
+			serviceConfig.Name = service
+			serviceConfig.InGroup = true
+			serviceConfigGroup[groupID] = append(serviceConfigGroup[groupID], serviceConfig)
+			komposeObject.ServiceConfigs[service] = serviceConfig
 		}
 	}
 
@@ -806,9 +808,9 @@ func (k *Kubernetes) RemoveDupObjects(objs *[]runtime.Object) {
 }
 
 // SortedKeys Ensure the kubernetes objects are in a consistent order
-func SortedKeys(komposeObject kobject.KomposeObject) []string {
+func SortedKeys[V kobject.ServiceConfig | kobject.ServiceConfigGroup](serviceConfig map[string]V) []string {
 	var sortedKeys []string
-	for name := range komposeObject.ServiceConfigs {
+	for name := range serviceConfig {
 		sortedKeys = append(sortedKeys, name)
 	}
 	sort.Strings(sortedKeys)
