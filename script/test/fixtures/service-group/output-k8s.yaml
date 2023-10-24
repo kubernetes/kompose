@@ -41,6 +41,14 @@ spec:
       containers:
         - env:
             - name: TZ
+          image: librenms/dispatcher:latest
+          name: dispatcher
+          resources: {}
+          volumeMounts:
+            - mountPath: /data
+              name: librenms-dispatcher-claim0
+        - env:
+            - name: TZ
           image: librenms/librenms:latest
           name: librenms
           ports:
@@ -51,15 +59,7 @@ spec:
           volumeMounts:
             - mountPath: /data
               name: librenms-dispatcher-claim0
-        - env:
-            - name: TZ
-          image: librenms/dispatcher:latest
-          name: dispatcher
-          resources: {}
-          volumeMounts:
-            - mountPath: /data
-              name: librenms-dispatcher-claim0
-      hostname: dispatcher
+      hostname: librenms
       restartPolicy: Always
       volumes:
         - name: librenms-dispatcher-claim0
