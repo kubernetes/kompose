@@ -280,7 +280,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 		}
 	}
 
-	sortedKeys := kubernetes.SortedKeys(komposeObject)
+	sortedKeys := kubernetes.SortedKeys(komposeObject.ServiceConfigs)
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 		var objects []runtime.Object

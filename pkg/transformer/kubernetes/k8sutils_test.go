@@ -511,7 +511,7 @@ func TestSortedKeys(t *testing.T) {
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: map[string]kobject.ServiceConfig{"b": service, "a": service1},
 	}
-	a := SortedKeys(komposeObject)
+	a := SortedKeys(komposeObject.ServiceConfigs)
 	if !reflect.DeepEqual(a, c) {
 		t.Logf("Test Fail output should be %s", c)
 	}

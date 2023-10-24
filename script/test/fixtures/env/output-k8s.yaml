@@ -67,12 +67,12 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: BAR
-                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+                  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
             - name: FOO
               valueFrom:
                 configMapKeyRef:
                   key: FOO
-                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+                  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
           image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
           name: another-namenode
           ports:
@@ -95,8 +95,8 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: another-namenode-home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
-  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+    io.kompose.service: another-namenode-Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
 
 ---
 apiVersion: apps/v1
@@ -125,14 +125,14 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: BAR
-                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+                  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
             - name: CLUSTER_NAME
               value: test
             - name: FOO
               valueFrom:
                 configMapKeyRef:
                   key: FOO
-                  name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
+                  name: Users-ahmedgrati-projects-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
           image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
           name: namenode
           ports:

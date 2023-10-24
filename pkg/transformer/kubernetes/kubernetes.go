@@ -1455,20 +1455,23 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 	if opt.ServiceGroupMode != "" {
 		log.Debugf("Service group mode is: %s", opt.ServiceGroupMode)
 		komposeObjectToServiceConfigGroupMapping := KomposeObjectToServiceConfigGroupMapping(&komposeObject, opt)
-		for name, group := range komposeObjectToServiceConfigGroupMapping {
+		sortedGroupMappingKeys := SortedKeys(komposeObjectToServiceConfigGroupMapping)
+		for _, group := range sortedGroupMappingKeys {
+			groupMapping := komposeObjectToServiceConfigGroupMapping[group]
 			var objects []runtime.Object
 			podSpec := PodSpec{}
 
+			var groupName string
 			// if using volume group, the name here will be a volume config string. reset to the first service name
 			if opt.ServiceGroupMode == "volume" {
 				if opt.ServiceGroupName != "" {
-					name = opt.ServiceGroupName
+					groupName = opt.ServiceGroupName
 				} else {
 					var names []string
-					for _, svc := range group {
+					for _, svc := range groupMapping {
 						names = append(names, svc.Name)
 					}
-					name = strings.Join(names, "-")
+					groupName = strings.Join(names, "-")
 				}
 			}
 
@@ -1476,7 +1479,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			// ports conflict check between services
 			portsUses := map[string]bool{}
 
-			for _, service := range group {
+			for _, service := range groupMapping {
 				// first do ports check
 				ports := ConfigPorts(service)
 				for _, port := range ports {
@@ -1487,7 +1490,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					portsUses[key] = true
 				}
 
-				log.Infof("Group Service %s to [%s]", service.Name, name)
+				log.Infof("Group Service %s to [%s]", service.Name, groupName)
 				service.WithKomposeAnnotation = opt.WithKomposeAnnotation
 				podSpec.Append(AddContainer(service, opt))
 
@@ -1495,17 +1498,17 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					return nil, err
 				}
 				// override..
-				objects = append(objects, k.CreateWorkloadAndConfigMapObjects(name, service, opt)...)
-				k.configKubeServiceAndIngressForService(service, name, &objects)
+				objects = append(objects, k.CreateWorkloadAndConfigMapObjects(groupName, service, opt)...)
+				k.configKubeServiceAndIngressForService(service, groupName, &objects)
 
 				// Configure the container volumes.
-				volumesMount, volumes, pvc, cms, err := k.ConfigVolumes(name, service)
+				volumesMount, volumes, pvc, cms, err := k.ConfigVolumes(groupName, service)
 				if err != nil {
 					return nil, errors.Wrap(err, "k.ConfigVolumes failed")
 				}
 				// Configure Tmpfs
 				if len(service.TmpFs) > 0 {
-					TmpVolumesMount, TmpVolumes := k.ConfigTmpfs(name, service)
+					TmpVolumesMount, TmpVolumes := k.ConfigTmpfs(groupName, service)
 					volumes = append(volumes, TmpVolumes...)
 					volumesMount = append(volumesMount, TmpVolumesMount...)
 				}
@@ -1527,14 +1530,14 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 
 				podSpec.Append(
 					SetPorts(service),
-					ImagePullPolicy(name, service),
-					RestartPolicy(name, service),
-					SecurityContext(name, service),
+					ImagePullPolicy(groupName, service),
+					RestartPolicy(groupName, service),
+					SecurityContext(groupName, service),
 					HostName(service),
 					DomainName(service),
 					ResourcesLimits(service),
 					ResourcesRequests(service),
-					TerminationGracePeriodSeconds(name, service),
+					TerminationGracePeriodSeconds(groupName, service),
 					TopologySpreadConstraints(service),
 				)
 
@@ -1542,7 +1545,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					podSpec.Append(ServiceAccountName(serviceAccountName))
 				}
 
-				err = k.UpdateKubernetesObjectsMultipleContainers(name, service, &objects, podSpec)
+				err = k.UpdateKubernetesObjectsMultipleContainers(groupName, service, &objects, podSpec)
 				if err != nil {
 					return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 				}
@@ -1557,7 +1560,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			allobjects = append(allobjects, objects...)
 		}
 	}
-	sortedKeys := SortedKeys(komposeObject)
+	sortedKeys := SortedKeys(komposeObject.ServiceConfigs)
 	for _, name := range sortedKeys {
 		service := komposeObject.ServiceConfigs[name]
 

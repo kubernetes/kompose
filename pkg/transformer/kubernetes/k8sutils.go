@@ -806,9 +806,9 @@ func (k *Kubernetes) RemoveDupObjects(objs *[]runtime.Object) {
 }
 
 // SortedKeys Ensure the kubernetes objects are in a consistent order
-func SortedKeys(komposeObject kobject.KomposeObject) []string {
+func SortedKeys[V kobject.ServiceConfig | kobject.ServiceConfigGroup](serviceConfig map[string]V) []string {
 	var sortedKeys []string
-	for name := range komposeObject.ServiceConfigs {
+	for name := range serviceConfig {
 		sortedKeys = append(sortedKeys, name)
 	}
 	sort.Strings(sortedKeys)
