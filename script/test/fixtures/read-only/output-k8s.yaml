@@ -14,8 +14,7 @@ spec:
       targetPort: 80
   selector:
     io.kompose.service: test
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -50,5 +49,5 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
       restartPolicy: Always
-status: {}
+
 

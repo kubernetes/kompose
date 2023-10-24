@@ -33,5 +33,5 @@ spec:
           name: myservice
           resources: {}
       restartPolicy: Always
-status: {}
+
 

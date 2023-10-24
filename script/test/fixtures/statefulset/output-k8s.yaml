@@ -16,8 +16,7 @@ spec:
   selector:
     io.kompose.service: db
   type: ClusterIP
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -37,8 +36,7 @@ spec:
   selector:
     io.kompose.service: wordpress
   type: ClusterIP
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -96,10 +94,6 @@ spec:
         resources:
           requests:
             storage: 100Mi
-      status: {}
-status:
-  availableReplicas: 0
-  replicas: 0
 
 ---
 apiVersion: apps/v1
@@ -157,8 +151,4 @@ spec:
         resources:
           requests:
             storage: 100Mi
-      status: {}
-status:
-  availableReplicas: 0
-  replicas: 0
 

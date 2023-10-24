@@ -275,6 +275,9 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 // Print either prints to stdout or to file/s
 func Print(name, path string, trailing string, data []byte, toStdout, generateJSON bool, f *os.File, provider string) (string, error) {
 	file := ""
+	// simple hack to remove status from the output
+	re := regexp.MustCompile(`(?s)status:.*`)
+	data = re.ReplaceAll(data, nil)
 	if generateJSON {
 		file = fmt.Sprintf("%s-%s.json", name, trailing)
 	} else {
@@ -292,11 +295,6 @@ func Print(name, path string, trailing string, data []byte, toStdout, generateJS
 	} else {
 		// Write content separately to each file
 		file = filepath.Join(path, file)
-
-		// simple hack to remove status from the output
-		re := regexp.MustCompile(`(?s)status:.*`)
-		data = re.ReplaceAll(data, nil)
-
 		if err := os.WriteFile(file, data, 0644); err != nil {
 			return "", errors.Wrap(err, "Failed to write %s: "+trailing)
 		}

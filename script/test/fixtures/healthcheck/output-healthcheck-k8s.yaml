@@ -21,8 +21,7 @@ spec:
       targetPort: 27017
   selector:
     io.kompose.service: my-group
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -47,8 +46,7 @@ spec:
       targetPort: 3306
   selector:
     io.kompose.service: my-group
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -74,8 +72,7 @@ spec:
       targetPort: 5432
   selector:
     io.kompose.service: postgresql
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -98,8 +95,7 @@ spec:
       targetPort: 6379
   selector:
     io.kompose.service: redis
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -175,7 +171,7 @@ spec:
             timeoutSeconds: 2
           resources: {}
       restartPolicy: Always
-status: {}
+
 
 ---
 apiVersion: apps/v1
@@ -237,7 +233,7 @@ spec:
             timeoutSeconds: 1
           resources: {}
       restartPolicy: Always
-status: {}
+
 
 ---
 apiVersion: apps/v1
@@ -294,5 +290,5 @@ spec:
             timeoutSeconds: 1
           resources: {}
       restartPolicy: Always
-status: {}
+
 

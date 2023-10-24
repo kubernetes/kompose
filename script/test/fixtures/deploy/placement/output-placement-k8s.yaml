@@ -14,9 +14,6 @@ spec:
       targetPort: 6379
   selector:
     io.kompose.service: redis
-status:
-  loadBalancer: {}
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -77,5 +74,3 @@ spec:
           maxSkew: 1
           topologyKey: ssd
           whenUnsatisfiable: ScheduleAnyway
-status: {}
-

@@ -21,8 +21,7 @@ spec:
   selector:
     io.kompose.service: front-end
   type: LoadBalancer
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -68,5 +67,5 @@ spec:
               protocol: TCP
           resources: {}
       restartPolicy: Always
-status: {}
+
 

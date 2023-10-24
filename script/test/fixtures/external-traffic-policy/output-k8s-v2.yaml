@@ -21,8 +21,7 @@ spec:
   selector:
     io.kompose.service: front-end
   type: ClusterIP
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -68,7 +67,7 @@ spec:
               protocol: TCP
           resources: {}
       restartPolicy: Always
-status: {}
+
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -97,6 +96,5 @@ spec:
                   number: 80
             path: /
             pathType: Prefix
-status:
-  loadBalancer: {}
+
 

@@ -4,9 +4,26 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
+    io.kompose.service: another-namenode
+  name: another-namenode
+spec:
+  ports:
+    - name: "50070"
+      port: 50070
+      targetPort: 50070
+    - name: "8020"
+      port: 8020
+      targetPort: 8020
+  selector:
+    io.kompose.service: another-namenode
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
     io.kompose.service: namenode
   name: namenode
-  namespace: default
 spec:
   ports:
     - name: "50070"
@@ -17,9 +34,6 @@ spec:
       targetPort: 8020
   selector:
     io.kompose.service: namenode
-status:
-  loadBalancer: {}
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -28,7 +42,6 @@ metadata:
   labels:
     io.kompose.service: another-namenode
   name: another-namenode
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -56,10 +69,15 @@ spec:
                   name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
           image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
           name: another-namenode
+          ports:
+            - containerPort: 50070
+              hostPort: 50070
+              protocol: TCP
+            - containerPort: 8020
+              hostPort: 8020
+              protocol: TCP
           resources: {}
       restartPolicy: Always
-status: {}
-
 ---
 apiVersion: v1
 data:
@@ -71,8 +89,6 @@ metadata:
   labels:
     io.kompose.service: another-namenode-home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
   name: home-runner-work-kompose-kompose-script-test-fixtures-env-hadoop-hive-namenode-env
-  namespace: default
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -81,7 +97,6 @@ metadata:
   labels:
     io.kompose.service: namenode
   name: namenode
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -120,5 +135,3 @@ spec:
               protocol: TCP
           resources: {}
       restartPolicy: Always
-status: {}
-

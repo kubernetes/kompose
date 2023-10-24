@@ -14,8 +14,7 @@ spec:
       targetPort: 80
   selector:
     io.kompose.service: db
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -55,7 +54,7 @@ spec:
         - name: db-claim0
           persistentVolumeClaim:
             claimName: db-claim0
-status: {}
+
 
 ---
 apiVersion: v1
@@ -72,5 +71,5 @@ spec:
   resources:
     requests:
       storage: 100Mi
-status: {}
+
 
