@@ -1,0 +1,18 @@
+version: '3'
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - env1/hadoop-hive-namenode.env
+    ports:
+      - "50070:50070"
+      - "8020:8020"
+  another-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+    ports:
+      - "50070:50070"
+      - "8020:8020"
+    env_file:
+      - env2/hadoop-hive-namenode.env

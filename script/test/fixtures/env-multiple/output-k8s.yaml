@@ -68,11 +68,6 @@ spec:
                 configMapKeyRef:
                   key: BAR
                   name: hadoop-hive-namenode-env
-            - name: FOO
-              valueFrom:
-                configMapKeyRef:
-                  key: FOO
-                  name: hadoop-hive-namenode-env
           image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
           name: another-namenode
           ports:
@@ -89,14 +84,24 @@ status: {}
 ---
 apiVersion: v1
 data:
-  BAR: FOO
   FOO: BAR
 kind: ConfigMap
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: another-namenode-hadoop-hive-namenode-env
+    io.kompose.service: hadoop-hive-namenode-env
   name: hadoop-hive-namenode-env
+
+---
+apiVersion: v1
+data:
+  BAR: FOO
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: another-namenode-hadoop-hive-namenode-env
+  name: hadoop-hive-namenode-env1
 
 ---
 apiVersion: apps/v1
@@ -121,11 +126,6 @@ spec:
     spec:
       containers:
         - env:
-            - name: BAR
-              valueFrom:
-                configMapKeyRef:
-                  key: BAR
-                  name: hadoop-hive-namenode-env
             - name: CLUSTER_NAME
               value: test
             - name: FOO

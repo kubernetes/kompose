@@ -296,3 +296,12 @@ os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/env/docker-compose.yml con
 os_output="$KOMPOSE_ROOT/script/test/fixtures/env/output-os.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 convert::expect_success "$os_cmd" "$os_output" || exit 1
+
+# disabled until FormatEnvName can take into account conflicting/duplicate file names
+# Test env_file support for multiple env_file with the same name from different dirs
+# k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/env-multiple/docker-compose.yml convert --stdout --with-kompose-annotation=false"
+# k8s_output="$KOMPOSE_ROOT/script/test/fixtures/env-multiple/output-k8s.yaml"
+# os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/env-multiple/docker-compose.yml convert --provider openshift --stdout --with-kompose-annotation=false"
+# os_output="$KOMPOSE_ROOT/script/test/fixtures/env-multiple/output-os.yaml"
+# convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+# convert::expect_success "$os_cmd" "$os_output" || exit 1
