@@ -91,7 +91,7 @@ spec:
   resources:
     requests:
       storage: 100Mi
-status: {}
+
 
 ---
 apiVersion: apps.openshift.io/v1

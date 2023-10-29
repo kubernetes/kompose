@@ -36,7 +36,7 @@ spec:
         - name: db-data
           persistentVolumeClaim:
             claimName: db-data
-status: {}
+
 
 ---
 apiVersion: v1
@@ -52,7 +52,7 @@ spec:
   resources:
     requests:
       storage: 100Mi
-status: {}
+
 
 ---
 apiVersion: apps/v1
@@ -101,7 +101,7 @@ spec:
                 path: test-a-key.key
             name: web-cm1
           name: web-cm1
-status: {}
+
 
 ---
 apiVersion: v1

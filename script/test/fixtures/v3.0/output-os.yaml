@@ -16,8 +16,7 @@ spec:
       targetPort: 0
   selector:
     io.kompose.service: redis
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps.openshift.io/v1

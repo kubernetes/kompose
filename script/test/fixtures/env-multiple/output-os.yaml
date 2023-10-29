@@ -16,8 +16,7 @@ spec:
       targetPort: 8020
   selector:
     io.kompose.service: another-namenode
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -37,8 +36,7 @@ spec:
       targetPort: 8020
   selector:
     io.kompose.service: namenode
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1

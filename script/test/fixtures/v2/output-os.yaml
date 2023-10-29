@@ -86,8 +86,7 @@ spec:
       targetPort: 5010
   selector:
     io.kompose.service: foo
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -107,8 +106,7 @@ spec:
   selector:
     io.kompose.service: redis
   type: LoadBalancer
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -129,8 +127,7 @@ spec:
   selector:
     io.kompose.service: redis
   type: LoadBalancer
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -232,7 +229,7 @@ spec:
   securityContext:
     supplementalGroups:
       - 1234
-status: {}
+
 
 ---
 apiVersion: apps.openshift.io/v1

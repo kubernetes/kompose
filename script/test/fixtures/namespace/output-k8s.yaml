@@ -14,8 +14,7 @@ spec:
       targetPort: 80
   selector:
     io.kompose.service: web
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -25,7 +24,7 @@ metadata:
   name: web
   namespace: web
 spec: {}
-status: {}
+
 
 ---
 apiVersion: apps/v1
@@ -58,5 +57,5 @@ spec:
               protocol: TCP
           resources: {}
       restartPolicy: Always
-status: {}
+
 

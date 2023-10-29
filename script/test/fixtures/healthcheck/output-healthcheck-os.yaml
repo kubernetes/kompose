@@ -20,8 +20,7 @@ spec:
       targetPort: 27017
   selector:
     io.kompose.service: mongo
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -45,8 +44,7 @@ spec:
       targetPort: 3306
   selector:
     io.kompose.service: mysql
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -71,8 +69,7 @@ spec:
       targetPort: 5432
   selector:
     io.kompose.service: postgresql
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -94,8 +91,7 @@ spec:
       targetPort: 6379
   selector:
     io.kompose.service: redis
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps.openshift.io/v1

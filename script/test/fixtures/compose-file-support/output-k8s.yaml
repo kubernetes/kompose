@@ -13,8 +13,7 @@ spec:
       targetPort: 80
   selector:
     io.kompose.service: web
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -46,5 +45,5 @@ spec:
               protocol: TCP
           resources: {}
       restartPolicy: Always
-status: {}
+
 

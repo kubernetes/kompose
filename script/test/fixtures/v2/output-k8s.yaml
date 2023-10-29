@@ -86,8 +86,6 @@ spec:
       targetPort: 5010
   selector:
     io.kompose.service: foo
-status:
-  loadBalancer: {}
 
 ---
 apiVersion: v1
@@ -107,8 +105,6 @@ spec:
   selector:
     io.kompose.service: redis
   type: LoadBalancer
-status:
-  loadBalancer: {}
 
 ---
 apiVersion: v1
@@ -129,8 +125,6 @@ spec:
   selector:
     io.kompose.service: redis
   type: LoadBalancer
-status:
-  loadBalancer: {}
 
 ---
 apiVersion: v1
@@ -232,7 +226,6 @@ spec:
   securityContext:
     supplementalGroups:
       - 1234
-status: {}
 
 ---
 apiVersion: apps/v1
@@ -272,5 +265,4 @@ spec:
             limits:
               memory: "10485760e3"
       restartPolicy: Always
-status: {}
 

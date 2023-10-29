@@ -16,8 +16,7 @@ spec:
       targetPort: 0
   selector:
     io.kompose.service: redis
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -34,8 +33,7 @@ spec:
       targetPort: 5000
   selector:
     io.kompose.service: web
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -67,7 +65,7 @@ spec:
           name: redis
           resources: {}
       restartPolicy: Always
-status: {}
+
 
 ---
 apiVersion: apps/v1
@@ -109,5 +107,5 @@ spec:
       volumes:
         - emptyDir: {}
           name: code-volume
-status: {}
+
 
