@@ -91,10 +91,6 @@ spec:
         resources:
           requests:
             storage: 100Mi
-      
-status:
-  availableReplicas: 0
-  replicas: 0
 
 ---
 apiVersion: apps/v1
@@ -151,8 +147,4 @@ spec:
         resources:
           requests:
             storage: 100Mi
-      
-status:
-  availableReplicas: 0
-  replicas: 0
 

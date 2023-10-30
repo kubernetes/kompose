@@ -58,13 +58,7 @@ spec:
           kind: ImageStreamTag
           name: test:latest
       type: ImageChange
-status:
-  availableReplicas: 0
-  latestVersion: 0
-  observedGeneration: 0
-  replicas: 0
-  unavailableReplicas: 0
-  updatedReplicas: 0
+
 
 ---
 apiVersion: image.openshift.io/v1
@@ -87,6 +81,5 @@ spec:
       name: latest
       referencePolicy:
         type: ""
-status:
-  dockerImageRepository: ""
+
 

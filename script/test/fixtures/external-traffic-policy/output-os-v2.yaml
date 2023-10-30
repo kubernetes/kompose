@@ -71,13 +71,7 @@ spec:
           kind: ImageStreamTag
           name: front-end:v4
       type: ImageChange
-status:
-  availableReplicas: 0
-  latestVersion: 0
-  observedGeneration: 0
-  replicas: 0
-  unavailableReplicas: 0
-  updatedReplicas: 0
+
 
 ---
 apiVersion: image.openshift.io/v1
@@ -100,8 +94,7 @@ spec:
       name: v4
       referencePolicy:
         type: ""
-status:
-  dockerImageRepository: ""
+
 
 ---
 apiVersion: v1
@@ -119,6 +112,4 @@ spec:
     kind: Service
     name: front-end
     weight: null
-status:
-  ingress: null
 
