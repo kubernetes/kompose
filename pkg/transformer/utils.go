@@ -275,7 +275,7 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 // Print either prints to stdout or to file/s
 func Print(name, path string, trailing string, data []byte, toStdout, generateJSON bool, f *os.File, provider string) (string, error) {
 	file := ""
-	// simple hack to remove status from the output
+	// TODO: we should refactor / change this hack in the future once we have a better solution
 	re := regexp.MustCompile(`(?s)status:.*`)
 	data = re.ReplaceAll(data, nil)
 
