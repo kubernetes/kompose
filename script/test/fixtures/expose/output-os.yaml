@@ -13,8 +13,7 @@ spec:
       targetPort: 6379
   selector:
     io.kompose.service: redis
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -35,8 +34,7 @@ spec:
       targetPort: 5000
   selector:
     io.kompose.service: web
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps.openshift.io/v1
@@ -78,13 +76,7 @@ spec:
           kind: ImageStreamTag
           name: redis:3.0
       type: ImageChange
-status:
-  availableReplicas: 0
-  latestVersion: 0
-  observedGeneration: 0
-  replicas: 0
-  unavailableReplicas: 0
-  updatedReplicas: 0
+
 
 ---
 apiVersion: image.openshift.io/v1
@@ -107,8 +99,7 @@ spec:
       name: "3.0"
       referencePolicy:
         type: ""
-status:
-  dockerImageRepository: ""
+
 
 ---
 apiVersion: apps.openshift.io/v1
@@ -155,13 +146,7 @@ spec:
           kind: ImageStreamTag
           name: web:latest
       type: ImageChange
-status:
-  availableReplicas: 0
-  latestVersion: 0
-  observedGeneration: 0
-  replicas: 0
-  unavailableReplicas: 0
-  updatedReplicas: 0
+
 
 ---
 apiVersion: image.openshift.io/v1
@@ -184,8 +169,7 @@ spec:
       name: latest
       referencePolicy:
         type: ""
-status:
-  dockerImageRepository: ""
+
 
 ---
 apiVersion: v1
@@ -203,6 +187,4 @@ spec:
     kind: Service
     name: web
     weight: null
-status:
-  ingress: null
 

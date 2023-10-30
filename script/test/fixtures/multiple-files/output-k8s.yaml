@@ -24,7 +24,7 @@ spec:
           name: bar
           resources: {}
       restartPolicy: Always
-status: {}
+
 
 ---
 apiVersion: apps/v1
@@ -52,5 +52,5 @@ spec:
           name: foo
           resources: {}
       restartPolicy: Always
-status: {}
+
 

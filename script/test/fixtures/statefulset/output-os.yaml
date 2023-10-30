@@ -13,8 +13,7 @@ spec:
       targetPort: 3306
   selector:
     io.kompose.service: db
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: v1
@@ -31,8 +30,7 @@ spec:
       targetPort: 80
   selector:
     io.kompose.service: wordpress
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -89,10 +87,6 @@ spec:
         resources:
           requests:
             storage: 100Mi
-      status: {}
-status:
-  availableReplicas: 0
-  replicas: 0
 
 ---
 apiVersion: apps.openshift.io/v1
@@ -148,13 +142,7 @@ spec:
           kind: ImageStreamTag
           name: db:5.7
       type: ImageChange
-status:
-  availableReplicas: 0
-  latestVersion: 0
-  observedGeneration: 0
-  replicas: 0
-  unavailableReplicas: 0
-  updatedReplicas: 0
+
 
 ---
 apiVersion: image.openshift.io/v1
@@ -177,8 +165,7 @@ spec:
       name: "5.7"
       referencePolicy:
         type: ""
-status:
-  dockerImageRepository: ""
+
 
 ---
 apiVersion: apps/v1
@@ -235,10 +222,6 @@ spec:
         resources:
           requests:
             storage: 100Mi
-      status: {}
-status:
-  availableReplicas: 0
-  replicas: 0
 
 ---
 apiVersion: apps.openshift.io/v1
@@ -294,13 +277,7 @@ spec:
           kind: ImageStreamTag
           name: wordpress:latest
       type: ImageChange
-status:
-  availableReplicas: 0
-  latestVersion: 0
-  observedGeneration: 0
-  replicas: 0
-  unavailableReplicas: 0
-  updatedReplicas: 0
+
 
 ---
 apiVersion: image.openshift.io/v1
@@ -323,6 +300,5 @@ spec:
       name: latest
       referencePolicy:
         type: ""
-status:
-  dockerImageRepository: ""
+
 

@@ -36,7 +36,7 @@ spec:
                 path: configs.tar
             name: db-cm0
           name: db-cm0
-status: {}
+
 
 ---
 apiVersion: v1
@@ -94,7 +94,7 @@ spec:
                 path: test-a-key.key
             name: web-cm1
           name: web-cm1
-status: {}
+
 
 ---
 apiVersion: v1

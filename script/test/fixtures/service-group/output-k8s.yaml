@@ -13,8 +13,7 @@ spec:
       targetPort: 8000
   selector:
     io.kompose.service: librenms-dispatcher
-status:
-  loadBalancer: {}
+
 
 ---
 apiVersion: apps/v1
@@ -65,7 +64,7 @@ spec:
         - name: librenms-dispatcher-claim0
           persistentVolumeClaim:
             claimName: librenms-dispatcher-claim0
-status: {}
+
 
 ---
 apiVersion: v1
@@ -81,5 +80,5 @@ spec:
   resources:
     requests:
       storage: 100Mi
-status: {}
+
 

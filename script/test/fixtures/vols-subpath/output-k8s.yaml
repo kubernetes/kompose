@@ -44,7 +44,7 @@ spec:
         - name: postgres-data
           persistentVolumeClaim:
             claimName: postgres-data
-status: {}
+
 
 ---
 apiVersion: v1
@@ -60,4 +60,4 @@ spec:
   resources:
     requests:
       storage: 100Mi
-status: {}
+
