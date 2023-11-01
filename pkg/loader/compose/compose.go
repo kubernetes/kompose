@@ -171,6 +171,14 @@ func (c *Compose) LoadFile(files []string, profiles []string) (kobject.KomposeOb
 		return kobject.KomposeObject{}, errors.Wrap(err, "Unable to load files")
 	}
 
+	// Finding 0 services means two things:
+	// 1. The compose project is empty
+	// 2. The profile that is configured in the compose project is different than the one defined in Kompose convert options
+	// In both cases we should provide the user with a warning indicating that we didn't find any service.
+	if len(project.Services) == 0 {
+		log.Warning("No service selected. The profile specified in services of your compose yaml may not exist.")
+	}
+
 	komposeObject, err := dockerComposeToKomposeMapping(project)
 	if err != nil {
 		return kobject.KomposeObject{}, err

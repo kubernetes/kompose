@@ -1,0 +1,8 @@
+version: '3'
+services:
+  web:
+    image: nginx
+    profiles:
+      - test
+    ports:
+      - 80:80
