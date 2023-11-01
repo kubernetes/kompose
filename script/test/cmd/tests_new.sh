@@ -305,3 +305,8 @@ convert::expect_success "$os_cmd" "$os_output" || exit 1
 # os_output="$KOMPOSE_ROOT/script/test/fixtures/env-multiple/output-os.yaml"
 # convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 # convert::expect_success "$os_cmd" "$os_output" || exit 1
+
+# Test that if we have no profile a warning should raised
+cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/no-profile-warning/docker-compose.yaml convert"
+convert::expect_warning "$cmd" "No service selected. The profile specified in services of your compose yaml may not exist." || exit 1
+
