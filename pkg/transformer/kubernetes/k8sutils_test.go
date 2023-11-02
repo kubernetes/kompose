@@ -657,3 +657,50 @@ func TestReadOnlyRootFS(t *testing.T) {
 		}
 	}
 }
+
+func TestFormatEnvName(t *testing.T) {
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "check dot conversion",
+			args: args{
+				name: "random.test",
+			},
+			want: "random-test",
+		},
+		{
+			name: "check that path is shortened",
+			args: args{
+				name: "random/test/v1",
+			},
+			want: "v1",
+		},
+		{
+			name: "check that ./ is removed",
+			args: args{
+				name: "./random",
+			},
+			want: "random",
+		},
+		{
+			name: "check that ./ is removed",
+			args: args{
+				name: "abcdefghijklnmopqrstuvxyzabcdefghijklmnopqrstuvwxyzabcdejghijkl$Hereisadditional",
+			},
+			want: "rstuvxyzabcdefghijklmnopqrstuvwxyzabcdejghijkl$Hereisadditional",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := FormatEnvName(tt.args.name); got != tt.want {
+				t.Errorf("FormatEnvName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
