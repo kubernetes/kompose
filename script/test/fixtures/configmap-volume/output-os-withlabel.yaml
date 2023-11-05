@@ -2,8 +2,6 @@
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.volume.type: configMap
   creationTimestamp: null
   labels:
     io.kompose.service: db
@@ -50,7 +48,6 @@ spec:
           name: db:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -73,7 +70,6 @@ spec:
       referencePolicy:
         type: ""
 
-
 ---
 apiVersion: v1
 binaryData:
@@ -91,8 +87,6 @@ metadata:
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.volume.type: configMap
   creationTimestamp: null
   labels:
     io.kompose.service: web
@@ -144,7 +138,6 @@ spec:
           name: web:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -166,7 +159,6 @@ spec:
       name: latest
       referencePolicy:
         type: ""
-
 
 ---
 apiVersion: v1

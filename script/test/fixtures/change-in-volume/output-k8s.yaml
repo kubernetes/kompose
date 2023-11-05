@@ -2,8 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.type: headless
   creationTimestamp: null
   labels:
     io.kompose.service: redis
@@ -16,7 +14,6 @@ spec:
       targetPort: 0
   selector:
     io.kompose.service: redis
-
 
 ---
 apiVersion: v1
@@ -34,13 +31,10 @@ spec:
   selector:
     io.kompose.service: web
 
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.service.type: headless
   creationTimestamp: null
   labels:
     io.kompose.service: redis
@@ -53,8 +47,6 @@ spec:
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.service.type: headless
       creationTimestamp: null
       labels:
         io.kompose.network/change-in-volume-default: "true"
@@ -65,7 +57,6 @@ spec:
           name: redis
           resources: {}
       restartPolicy: Always
-
 
 ---
 apiVersion: apps/v1
@@ -107,5 +98,4 @@ spec:
       volumes:
         - emptyDir: {}
           name: code-volume
-
 

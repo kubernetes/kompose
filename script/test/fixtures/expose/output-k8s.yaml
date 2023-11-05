@@ -14,15 +14,10 @@ spec:
   selector:
     io.kompose.service: redis
 
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.expose: batman.example.com/dev,batwoman.example.com
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.expose.tls-secret: test-secret
   creationTimestamp: null
   labels:
     io.kompose.service: web
@@ -34,7 +29,6 @@ spec:
       targetPort: 5000
   selector:
     io.kompose.service: web
-
 
 ---
 apiVersion: apps/v1
@@ -66,15 +60,10 @@ spec:
           resources: {}
       restartPolicy: Always
 
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.service.expose: batman.example.com/dev,batwoman.example.com
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.expose.tls-secret: test-secret
   creationTimestamp: null
   labels:
     io.kompose.service: web
@@ -87,10 +76,6 @@ spec:
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.service.expose: batman.example.com/dev,batwoman.example.com
-        kompose.service.expose.ingress-class-name: nginx
-        kompose.service.expose.tls-secret: test-secret
       creationTimestamp: null
       labels:
         io.kompose.network/expose-default: "true"
@@ -106,15 +91,10 @@ spec:
           resources: {}
       restartPolicy: Always
 
-
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  annotations:
-    kompose.service.expose: batman.example.com/dev,batwoman.example.com
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.expose.tls-secret: test-secret
   creationTimestamp: null
   labels:
     io.kompose.service: web
@@ -147,5 +127,4 @@ spec:
         - batman.example.com
         - batwoman.example.com
       secretName: test-secret
-
 

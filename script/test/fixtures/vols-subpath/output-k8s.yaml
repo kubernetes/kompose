@@ -2,8 +2,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.volume.subpath: test
   creationTimestamp: null
   labels:
     io.kompose.service: postgres
@@ -17,8 +15,6 @@ spec:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.volume.subpath: test
       creationTimestamp: null
       labels:
         io.kompose.network/vols-subpath-default: "true"
@@ -44,7 +40,6 @@ spec:
         - name: postgres-data
           persistentVolumeClaim:
             claimName: postgres-data
-
 
 ---
 apiVersion: v1
