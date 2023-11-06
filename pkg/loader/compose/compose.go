@@ -463,7 +463,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 	for _, composeServiceConfig := range composeObject.Services {
 		// Standard import
 		// No need to modify before importation
-		name := composeServiceConfig.Name
+		name := strings.ToLower(composeServiceConfig.Name)
 		serviceConfig := kobject.ServiceConfig{}
 		serviceConfig.Name = name
 		serviceConfig.Image = composeServiceConfig.Image
