@@ -857,12 +857,11 @@ func FormatEnvName(name string) string {
 	if strings.Contains(envName, "/") {
 		envName = envName[strings.LastIndex(envName, "/")+1:]
 	}
-	// take only last 63 chars
+	// take only last chars: The ones after 63th index
 	if len(envName) > 63 {
 		envName = envName[len(envName)-63:]
 	}
-	envName = strings.Replace(envName, ".", "-", -1)
-	return envName
+	return strings.Replace(envName, ".", "-", -1)
 }
 
 // FormatFileName format file name
