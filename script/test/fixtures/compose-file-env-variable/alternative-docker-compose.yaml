@@ -1,0 +1,7 @@
+version: "3"
+services:
+  alpine:
+    image: alpine
+    ports:
+      - 80:80
+

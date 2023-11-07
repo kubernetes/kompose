@@ -66,6 +66,11 @@ redis-master-deployment.yaml
 
 When multiple docker-compose files are provided the configuration is merged. Any configuration that is common will be over ridden by subsequent file.
 
+You can provide your docker-compose files via environment variables as following:
+```sh
+$ COMPOSE_FILE="docker-compose.yaml alternative-docker-compose.yaml" kompose convert
+```
+
 ### OpenShift
 
 ```sh

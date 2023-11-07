@@ -310,3 +310,8 @@ convert::expect_success "$os_cmd" "$os_output" || exit 1
 cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/no-profile-warning/docker-compose.yaml convert"
 convert::expect_warning "$cmd" "No service selected. The profile specified in services of your compose yaml may not exist." || exit 1
 
+# Test COMPOSE_FILE env variable is honored
+export COMPOSE_FILE="$KOMPOSE_ROOT/script/test/fixtures/compose-file-env-variable/docker-compose.yaml $KOMPOSE_ROOT/script/test/fixtures/compose-file-env-variable/alternative-docker-compose.yaml"
+k8s_cmd="kompose convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/compose-file-env-variable/output-k8s.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
