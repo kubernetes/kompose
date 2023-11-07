@@ -2,8 +2,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.security-context.fsgroup: "1001"
   creationTimestamp: null
   labels:
     io.kompose.service: pgadmin
@@ -17,8 +15,6 @@ spec:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.security-context.fsgroup: "1001"
       creationTimestamp: null
       labels:
         io.kompose.network/fsgroup-default: "true"
@@ -43,7 +39,6 @@ spec:
         - name: pgadmin-data
           persistentVolumeClaim:
             claimName: pgadmin-data
-
 
 ---
 apiVersion: v1

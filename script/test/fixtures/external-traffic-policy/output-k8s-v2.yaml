@@ -2,11 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.expose: lb
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.external-traffic-policy: local
-    kompose.service.type: headless
   creationTimestamp: null
   labels:
     io.kompose.service: front-end
@@ -21,16 +16,10 @@ spec:
     io.kompose.service: front-end
   type: ClusterIP
 
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.service.expose: lb
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.external-traffic-policy: local
-    kompose.service.type: headless
   creationTimestamp: null
   labels:
     io.kompose.service: front-end
@@ -43,11 +32,6 @@ spec:
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.service.expose: lb
-        kompose.service.expose.ingress-class-name: nginx
-        kompose.service.external-traffic-policy: local
-        kompose.service.type: headless
       creationTimestamp: null
       labels:
         io.kompose.network/external-traffic-policy-default: "true"
@@ -66,16 +50,10 @@ spec:
           resources: {}
       restartPolicy: Always
 
-
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  annotations:
-    kompose.service.expose: lb
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.external-traffic-policy: local
-    kompose.service.type: headless
   creationTimestamp: null
   labels:
     io.kompose.service: front-end
@@ -93,5 +71,4 @@ spec:
                   number: 80
             path: /
             pathType: Prefix
-
 

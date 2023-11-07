@@ -2,8 +2,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.volume.type: configMap
   creationTimestamp: null
   labels:
     io.kompose.service: db
@@ -17,8 +15,6 @@ spec:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.volume.type: configMap
       creationTimestamp: null
       labels:
         io.kompose.network/configmap-volume-default: "true"
@@ -41,7 +37,6 @@ spec:
             name: db-cm0
           name: db-cm0
 
-
 ---
 apiVersion: v1
 binaryData:
@@ -59,8 +54,6 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.volume.type: configMap
   creationTimestamp: null
   labels:
     io.kompose.service: web
@@ -74,8 +67,6 @@ spec:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.volume.type: configMap
       creationTimestamp: null
       labels:
         io.kompose.network/configmap-volume-default: "true"
@@ -102,7 +93,6 @@ spec:
                 path: test-a-key.key
             name: web-cm1
           name: web-cm1
-
 
 ---
 apiVersion: v1

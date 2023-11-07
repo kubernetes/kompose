@@ -2,8 +2,6 @@
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.volume.subpath: test
   creationTimestamp: null
   labels:
     io.kompose.service: postgres
@@ -54,7 +52,6 @@ spec:
           name: postgres:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -77,7 +74,6 @@ spec:
       referencePolicy:
         type: ""
 
-
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -92,5 +88,4 @@ spec:
   resources:
     requests:
       storage: 100Mi
-
 

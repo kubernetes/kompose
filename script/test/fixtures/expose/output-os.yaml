@@ -14,15 +14,10 @@ spec:
   selector:
     io.kompose.service: redis
 
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.expose: batman.example.com/dev,batwoman.example.com
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.expose.tls-secret: test-secret
   creationTimestamp: null
   labels:
     io.kompose.service: web
@@ -34,7 +29,6 @@ spec:
       targetPort: 5000
   selector:
     io.kompose.service: web
-
 
 ---
 apiVersion: apps.openshift.io/v1
@@ -77,7 +71,6 @@ spec:
           name: redis:3.0
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -100,15 +93,10 @@ spec:
       referencePolicy:
         type: ""
 
-
 ---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.service.expose: batman.example.com/dev,batwoman.example.com
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.expose.tls-secret: test-secret
   creationTimestamp: null
   labels:
     io.kompose.service: web
@@ -147,7 +135,6 @@ spec:
           name: web:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -169,7 +156,6 @@ spec:
       name: latest
       referencePolicy:
         type: ""
-
 
 ---
 apiVersion: v1

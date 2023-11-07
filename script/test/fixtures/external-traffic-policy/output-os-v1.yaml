@@ -2,11 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.expose: lb
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.external-traffic-policy: local
-    kompose.service.type: loadbalancer
   creationTimestamp: null
   labels:
     io.kompose.service: front-end-tcp
@@ -21,16 +16,10 @@ spec:
     io.kompose.service: front-end
   type: LoadBalancer
 
-
 ---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.service.expose: lb
-    kompose.service.expose.ingress-class-name: nginx
-    kompose.service.external-traffic-policy: local
-    kompose.service.type: loadbalancer
   creationTimestamp: null
   labels:
     io.kompose.service: front-end
@@ -72,7 +61,6 @@ spec:
           name: front-end:v4
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -94,5 +82,4 @@ spec:
       name: v4
       referencePolicy:
         type: ""
-
 

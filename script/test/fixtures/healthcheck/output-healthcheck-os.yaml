@@ -2,13 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.group: my-group
-    kompose.service.healthcheck.liveness.tcp_port: "8080"
-    kompose.service.healthcheck.readiness.interval: 10s
-    kompose.service.healthcheck.readiness.retries: "5"
-    kompose.service.healthcheck.readiness.tcp_port: "9090"
-    kompose.service.healthcheck.readiness.timeout: 1s
   creationTimestamp: null
   labels:
     io.kompose.service: mongo
@@ -21,18 +14,10 @@ spec:
   selector:
     io.kompose.service: mongo
 
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.group: my-group
-    kompose.service.healthcheck.liveness.tcp_port: "8081"
-    kompose.service.healthcheck.readiness.interval: 11s
-    kompose.service.healthcheck.readiness.retries: "6"
-    kompose.service.healthcheck.readiness.tcp_port: "9091"
-    kompose.service.healthcheck.readiness.timeout: 2s
   creationTimestamp: null
   labels:
     io.kompose.service: mysql
@@ -45,19 +30,10 @@ spec:
   selector:
     io.kompose.service: mysql
 
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.healthcheck.liveness.http_get_path: /health
-    kompose.service.healthcheck.liveness.http_get_port: "8080"
-    kompose.service.healthcheck.readiness.http_get_path: /ready
-    kompose.service.healthcheck.readiness.http_get_port: "8080"
-    kompose.service.healthcheck.readiness.interval: 10s
-    kompose.service.healthcheck.readiness.retries: "5"
-    kompose.service.healthcheck.readiness.timeout: 1s
   creationTimestamp: null
   labels:
     io.kompose.service: postgresql
@@ -70,16 +46,10 @@ spec:
   selector:
     io.kompose.service: postgresql
 
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.healthcheck.readiness.interval: 10s
-    kompose.service.healthcheck.readiness.retries: "5"
-    kompose.service.healthcheck.readiness.test: echo "liveness"
-    kompose.service.healthcheck.readiness.timeout: 1s
   creationTimestamp: null
   labels:
     io.kompose.service: redis
@@ -92,18 +62,10 @@ spec:
   selector:
     io.kompose.service: redis
 
-
 ---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.service.group: my-group
-    kompose.service.healthcheck.liveness.tcp_port: "8080"
-    kompose.service.healthcheck.readiness.interval: 10s
-    kompose.service.healthcheck.readiness.retries: "5"
-    kompose.service.healthcheck.readiness.tcp_port: "9090"
-    kompose.service.healthcheck.readiness.timeout: 1s
   creationTimestamp: null
   labels:
     io.kompose.service: mongo
@@ -153,7 +115,6 @@ spec:
           name: mongo:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -176,18 +137,10 @@ spec:
       referencePolicy:
         type: ""
 
-
 ---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.service.group: my-group
-    kompose.service.healthcheck.liveness.tcp_port: "8081"
-    kompose.service.healthcheck.readiness.interval: 11s
-    kompose.service.healthcheck.readiness.retries: "6"
-    kompose.service.healthcheck.readiness.tcp_port: "9091"
-    kompose.service.healthcheck.readiness.timeout: 2s
   creationTimestamp: null
   labels:
     io.kompose.service: mysql
@@ -237,7 +190,6 @@ spec:
           name: mysql:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -260,19 +212,10 @@ spec:
       referencePolicy:
         type: ""
 
-
 ---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.service.healthcheck.liveness.http_get_path: /health
-    kompose.service.healthcheck.liveness.http_get_port: "8080"
-    kompose.service.healthcheck.readiness.http_get_path: /ready
-    kompose.service.healthcheck.readiness.http_get_port: "8080"
-    kompose.service.healthcheck.readiness.interval: 10s
-    kompose.service.healthcheck.readiness.retries: "5"
-    kompose.service.healthcheck.readiness.timeout: 1s
   creationTimestamp: null
   labels:
     io.kompose.service: postgresql
@@ -324,7 +267,6 @@ spec:
           name: postgresql:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -347,16 +289,10 @@ spec:
       referencePolicy:
         type: ""
 
-
 ---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.service.healthcheck.readiness.interval: 10s
-    kompose.service.healthcheck.readiness.retries: "5"
-    kompose.service.healthcheck.readiness.test: echo "liveness"
-    kompose.service.healthcheck.readiness.timeout: 1s
   creationTimestamp: null
   labels:
     io.kompose.service: redis
@@ -409,7 +345,6 @@ spec:
           name: redis:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -431,5 +366,4 @@ spec:
       name: latest
       referencePolicy:
         type: ""
-
 

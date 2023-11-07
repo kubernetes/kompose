@@ -2,8 +2,6 @@
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.security-context.fsgroup: "1001"
   creationTimestamp: null
   labels:
     io.kompose.service: pgadmin
@@ -53,7 +51,6 @@ spec:
           name: pgadmin:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
@@ -75,7 +72,6 @@ spec:
       name: latest
       referencePolicy:
         type: ""
-
 
 ---
 apiVersion: v1
