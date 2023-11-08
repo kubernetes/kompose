@@ -315,3 +315,11 @@ export COMPOSE_FILE="$KOMPOSE_ROOT/script/test/fixtures/compose-file-env-variabl
 k8s_cmd="kompose convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/compose-file-env-variable/output-k8s.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+
+# Test resources names lowercase
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/resources-lowercase/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/resources-lowercase/output-k8s.yaml"
+os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/resources-lowercase/docker-compose.yaml convert --provider openshift --stdout --with-kompose-annotation=false"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/resources-lowercase/output-os.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$os_cmd" "$os_output" || exit 1
