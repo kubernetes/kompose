@@ -62,14 +62,6 @@ If you have [EPEL](https://fedoraproject.org/wiki/EPEL) enabled in your system, 
 sudo yum -y install kompose
 ```
 
-## Fedora
-
-Kompose is in Fedora 24, 25 and 26 repositories. You can install it just like any other package.
-
-```bash
-sudo dnf -y install kompose
-```
-
 ## macOS
 
 On macOS, you can install the latest release via [Homebrew](https://brew.sh) or [MacPorts](https://www.macports.org/).
