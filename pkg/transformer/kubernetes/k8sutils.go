@@ -280,6 +280,34 @@ func marshal(obj runtime.Object, jsonFormat bool, indent int) (data []byte, err 
 	return
 }
 
+// remove empty map[string]interface{} strings from the object
+//
+// Note: this function uses recursion, use it only objects created by the unmarshalled json.
+// Passing cyclic structures to removeEmptyInterfaces will result in a stack overflow.
+func removeEmptyInterfaces(obj interface{}) interface{} {
+	switch v := obj.(type) {
+	case []interface{}:
+		for i, val := range v {
+			if valMap, ok := val.(map[string]interface{}); (ok && len(valMap) == 0) || val == nil {
+				v = append(v[:i], v[i+1:]...)
+			} else {
+				v[i] = removeEmptyInterfaces(val)
+			}
+		}
+	case map[string]interface{}:
+		for k, val := range v {
+			if valMap, ok := val.(map[string]interface{}); (ok && len(valMap) == 0) || val == nil {
+				delete(v, k)
+			} else {
+				v[k] = removeEmptyInterfaces(val)
+			}
+		}
+	default:
+		return v
+	}
+	return obj
+}
+
 // Convert JSON to YAML.
 func jsonToYaml(j []byte, spaces int) ([]byte, error) {
 	// Convert the JSON to an object.
@@ -293,7 +321,7 @@ func jsonToYaml(j []byte, spaces int) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	jsonObj = removeEmptyInterfaces(jsonObj)
 	var b bytes.Buffer
 	encoder := yaml.NewEncoder(&b)
 	encoder.SetIndent(spaces)
