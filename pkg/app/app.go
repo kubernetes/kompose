@@ -225,9 +225,10 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 
 	komposeObject.Namespace = opt.Namespace
 
-	// Check if input files are specified
-	if len(opt.InputFiles) <= 0 {
-		log.Fatal("No input files specified")
+	// Get the directory of the compose file
+	composeFileDir, err := transformer.GetComposeFileDir(opt.InputFiles)
+	if err != nil {
+		log.Fatalf(err.Error())
 	}
 
 	// convert env_file from absolute to relative path
@@ -240,12 +241,7 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 				continue
 			}
 
-			workDirAbs, err := filepath.Abs(filepath.Dir(opt.InputFiles[0]))
-			if err != nil {
-				log.Fatalf(err.Error())
-			}
-
-			relPath, err := filepath.Rel(workDirAbs, envFile)
+			relPath, err := filepath.Rel(composeFileDir, envFile)
 			if err != nil {
 				log.Fatalf(err.Error())
 			}
