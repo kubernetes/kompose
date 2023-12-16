@@ -225,6 +225,11 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 
 	komposeObject.Namespace = opt.Namespace
 
+	// Check if input files are specified
+	if len(opt.InputFiles) <= 0 {
+		log.Fatal("No input files specified")
+	}
+
 	// convert env_file from absolute to relative path
 	for _, service := range komposeObject.ServiceConfigs {
 		if len(service.EnvFile) <= 0 {
@@ -245,7 +250,7 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 				log.Fatalf(err.Error())
 			}
 
-			service.EnvFile[i] = strings.Replace(relPath, "\\", "/", -1)
+			service.EnvFile[i] = filepath.ToSlash(relPath)
 		}
 	}
 
