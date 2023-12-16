@@ -338,7 +338,7 @@ func (env EnvSort) Swap(i, j int) {
 func GetComposeFileDir(inputFiles []string) (string, error) {
 	// Check if input files are specified
 	if len(inputFiles) <= 0 {
-		log.Fatal("No input files specified")
+		return "", errors.New("No input files specified")
 	}
 
 	// Lets assume all the docker-compose files are in the same directory
