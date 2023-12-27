@@ -51,3 +51,26 @@ spec:
       resources: {}
   restartPolicy: Never
 
+---
+apiVersion: v1
+data:
+  ALLOW_EMPTY_PASSWORD: "yes"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis-foo-env
+  name: foo-env
+
+---
+apiVersion: v1
+data:
+  BAR: FOO
+  FOO: BAR
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis-bar-env
+  name: bar-env
+

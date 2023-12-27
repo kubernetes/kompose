@@ -325,7 +325,7 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 		}
 
-		// Generate pod only and nothing more
+		// Generate pod and configmap objects
 		if service.Restart == "no" || service.Restart == "on-failure" {
 			// Error out if Controller Object is specified with restart: 'on-failure'
 			if opt.IsDeploymentConfigFlag {
@@ -333,6 +333,13 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 			pod := o.InitPod(name, service)
 			objects = append(objects, pod)
+
+			if len(service.EnvFile) > 0 {
+				for _, envFile := range service.EnvFile {
+					configMap := o.InitConfigMapForEnv(name, opt, envFile)
+					objects = append(objects, configMap)
+				}
+			}
 		} else {
 			objects = o.CreateWorkloadAndConfigMapObjects(name, service, opt)
 
