@@ -294,18 +294,30 @@ func removeEmptyInterfaces(obj interface{}) interface{} {
 				v[i] = removeEmptyInterfaces(val)
 			}
 		}
+		return v
 	case map[string]interface{}:
 		for k, val := range v {
-			if valMap, ok := val.(map[string]interface{}); (ok && len(valMap) == 0) || val == nil {
+			if valMap, ok := val.(map[string]interface{}); ok {
+				// It is always map[string]interface{} when passed the map[string]interface{}
+				valMap := removeEmptyInterfaces(valMap).(map[string]interface{})
+				if len(valMap) == 0 {
+					delete(v, k)
+				}
+			} else if val == nil {
 				delete(v, k)
 			} else {
-				v[k] = removeEmptyInterfaces(val)
+				processedInterface := removeEmptyInterfaces(val)
+				if valSlice, ok := processedInterface.([]interface{}); ok && len(valSlice) == 0 {
+					delete(v, k)
+				} else {
+					v[k] = processedInterface
+				}
 			}
 		}
+		return v
 	default:
 		return v
 	}
-	return obj
 }
 
 // Convert JSON to YAML.

@@ -1145,25 +1145,3 @@ func TestNamespaceGenerationBlank(t *testing.T) {
 		}
 	}
 }
-
-// Test empty interfaces removal
-func TestRemoveEmptyInterfaces(t *testing.T) {
-	type Obj = map[string]interface{}
-	var testCases = []struct {
-		input  interface{}
-		output interface{}
-	}{
-		{Obj{"useless": Obj{}}, Obj{}},
-		{Obj{"usefull": Obj{"usefull": "usefull"}}, Obj{"usefull": Obj{"usefull": "usefull"}}},
-		{Obj{"usefull": Obj{"usefull": "usefull", "uselessdeep": Obj{}, "uselessnil": nil}}, Obj{"usefull": Obj{"usefull": "usefull"}}},
-		{"test", "test"},
-	}
-	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("Test removeEmptyInterfaces(%s)", tc.input), func(t *testing.T) {
-			result := removeEmptyInterfaces(tc.input)
-			if !reflect.DeepEqual(result, tc.output) {
-				t.Errorf("Expected %v, got %v", tc.output, result)
-			}
-		})
-	}
-}

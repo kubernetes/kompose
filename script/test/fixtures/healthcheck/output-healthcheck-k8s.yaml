@@ -2,7 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: mongo
   name: mongo
@@ -18,7 +17,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: mysql
   name: mysql
@@ -34,7 +32,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: postgresql
   name: postgresql
@@ -50,7 +47,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -66,7 +62,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: mongo
   name: mongo
@@ -75,10 +70,8 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: mongo
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/healthcheck-default: "true"
         io.kompose.service: mongo
@@ -101,14 +94,12 @@ spec:
             tcpSocket:
               port: 9090
             timeoutSeconds: 1
-          resources: {}
       restartPolicy: Always
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: mysql
   name: mysql
@@ -117,10 +108,8 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: mysql
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/healthcheck-default: "true"
         io.kompose.service: mysql
@@ -143,14 +132,12 @@ spec:
             tcpSocket:
               port: 9091
             timeoutSeconds: 2
-          resources: {}
       restartPolicy: Always
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: postgresql
   name: postgresql
@@ -159,10 +146,8 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: postgresql
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/healthcheck-default: "true"
         io.kompose.service: postgresql
@@ -187,14 +172,12 @@ spec:
               port: 8080
             periodSeconds: 10
             timeoutSeconds: 1
-          resources: {}
       restartPolicy: Always
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -203,10 +186,8 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: redis
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/healthcheck-default: "true"
         io.kompose.service: redis
@@ -232,6 +213,5 @@ spec:
             failureThreshold: 5
             periodSeconds: 10
             timeoutSeconds: 1
-          resources: {}
       restartPolicy: Always
 

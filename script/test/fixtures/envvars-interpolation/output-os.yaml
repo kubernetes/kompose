@@ -2,7 +2,6 @@
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: myservice
   name: myservice
@@ -10,11 +9,8 @@ spec:
   replicas: 1
   selector:
     io.kompose.service: myservice
-  strategy:
-    resources: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/envvars-interpolation-default: "true"
         io.kompose.service: myservice
@@ -30,7 +26,6 @@ spec:
               value: https
           image: ' '
           name: myservice
-          resources: {}
       restartPolicy: Always
   test: false
   triggers:
@@ -44,12 +39,10 @@ spec:
           name: myservice:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: myservice
   name: myservice
@@ -57,14 +50,10 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: alpine
-      generation: null
-      importPolicy: {}
       name: latest
       referencePolicy:
         type: ""
-
 

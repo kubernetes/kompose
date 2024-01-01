@@ -2,7 +2,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: bar
   name: bar
@@ -11,10 +10,8 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: bar
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/multiple-files-default: "true"
         io.kompose.service: bar
@@ -22,7 +19,6 @@ spec:
       containers:
         - image: bar
           name: bar
-          resources: {}
       restartPolicy: Always
 
 
@@ -30,7 +26,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: foo
   name: foo
@@ -39,10 +34,8 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: foo
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/multiple-files-default: "true"
         io.kompose.service: foo
@@ -50,7 +43,6 @@ spec:
       containers:
         - image: foo
           name: foo
-          resources: {}
       restartPolicy: Always
 
 

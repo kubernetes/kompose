@@ -4,7 +4,6 @@ kind: Service
 metadata:
   annotations:
     kompose.service.type: headless
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -21,7 +20,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: foo
   name: foo
@@ -30,10 +28,8 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: foo
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/app-network: "true"
         io.kompose.network/v30-normalized-network: "true"
@@ -47,7 +43,6 @@ spec:
             - echo Hello Foo
           image: foo:latest
           name: foo
-          resources: {}
       restartPolicy: Always
 
 ---
@@ -56,7 +51,6 @@ kind: Deployment
 metadata:
   annotations:
     kompose.service.type: headless
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -65,12 +59,10 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: redis
-  strategy: {}
   template:
     metadata:
       annotations:
         kompose.service.type: headless
-      creationTimestamp: null
       labels:
         io.kompose.network/v30-default: "true"
         io.kompose.service: redis
@@ -85,6 +77,5 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 1
           name: redis
-          resources: {}
       restartPolicy: Always
 

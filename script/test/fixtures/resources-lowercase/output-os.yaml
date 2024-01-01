@@ -2,7 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: nginx
   name: nginx
@@ -18,7 +17,6 @@ spec:
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: nginx
   name: nginx
@@ -26,11 +24,8 @@ spec:
   replicas: 1
   selector:
     io.kompose.service: nginx
-  strategy:
-    resources: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/resources-lowercase-default: "true"
         io.kompose.service: nginx
@@ -42,7 +37,6 @@ spec:
             - containerPort: 80
               hostPort: 80
               protocol: TCP
-          resources: {}
       restartPolicy: Always
   test: false
   triggers:
@@ -60,7 +54,6 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: nginx
   name: nginx
@@ -68,12 +61,9 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: nginx:latest
-      generation: null
-      importPolicy: {}
       name: latest
       referencePolicy:
         type: ""

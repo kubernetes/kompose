@@ -2,7 +2,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: myservice
   name: myservice
@@ -11,10 +10,8 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: myservice
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/envvars-interpolation-default: "true"
         io.kompose.service: myservice
@@ -30,7 +27,6 @@ spec:
               value: https
           image: alpine
           name: myservice
-          resources: {}
       restartPolicy: Always
 
 

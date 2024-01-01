@@ -2,7 +2,6 @@
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: db
   name: db
@@ -11,11 +10,9 @@ spec:
   selector:
     io.kompose.service: db
   strategy:
-    resources: {}
     type: Recreate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/configmap-volume-default: "true"
         io.kompose.service: db
@@ -23,7 +20,6 @@ spec:
       containers:
         - image: ' '
           name: db
-          resources: {}
           volumeMounts:
             - mountPath: /data/configs.tar
               name: db-cm0
@@ -52,7 +48,6 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: db
   name: db
@@ -60,12 +55,9 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: mysql
-      generation: null
-      importPolicy: {}
       name: latest
       referencePolicy:
         type: ""
@@ -78,7 +70,6 @@ kind: ConfigMap
 metadata:
   annotations:
     use-subpath: "true"
-  creationTimestamp: null
   labels:
     io.kompose.service: db
   name: db-cm0
@@ -87,7 +78,6 @@ metadata:
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web
@@ -96,11 +86,9 @@ spec:
   selector:
     io.kompose.service: web
   strategy:
-    resources: {}
     type: Recreate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/configmap-volume-default: "true"
         io.kompose.service: web
@@ -108,7 +96,6 @@ spec:
       containers:
         - image: ' '
           name: web
-          resources: {}
           volumeMounts:
             - mountPath: /etc/tls
               name: web-cm0
@@ -142,7 +129,6 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web
@@ -150,12 +136,9 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: nginx
-      generation: null
-      importPolicy: {}
       name: latest
       referencePolicy:
         type: ""
@@ -167,7 +150,6 @@ data:
   a.key: test-key-data....
 kind: ConfigMap
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web-cm0
@@ -180,7 +162,6 @@ kind: ConfigMap
 metadata:
   annotations:
     use-subpath: "true"
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web-cm1
