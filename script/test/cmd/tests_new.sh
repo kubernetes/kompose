@@ -142,6 +142,14 @@ os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-volume/output-os-withlab
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
 convert::expect_success "$os_cmd" "$os_output" || exit 1
 
+# test configmap pod generation
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-pod/docker-compose.yml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-pod/output-k8s.yaml"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-pod/output-os.yaml"
+os_cmd="kompose  --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/configmap-pod/docker-compose.yml convert --stdout --with-kompose-annotation=false"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$os_cmd" "$os_output" || exit 1
+
 # Test that emptyDir works
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/docker-compose.yml convert --with-kompose-annotation=false --stdout --volumes emptyDir"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s-empty-vols-template.yaml"

@@ -220,7 +220,11 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 
 // InitConfigMapForEnv initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
-	envs, err := GetEnvsFromFile(envFile)
+	workDir, err := transformer.GetComposeFileDir(opt.InputFiles)
+	if err != nil {
+		log.Fatalf("Unable to get compose file directory: %s", err)
+	}
+	envs, err := GetEnvsFromFile(filepath.Join(workDir, envFile))
 	if err != nil {
 		log.Fatalf("Unable to retrieve env file: %s", err)
 	}
@@ -1103,7 +1107,11 @@ func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]ap
 			envName := FormatEnvName(file)
 
 			// Load environment variables from file
-			envLoad, err := GetEnvsFromFile(file)
+			workDir, err := transformer.GetComposeFileDir(opt.InputFiles)
+			if err != nil {
+				log.Fatalf("Unable to get compose file directory: %s", err)
+			}
+			envLoad, err := GetEnvsFromFile(filepath.Join(workDir, file))
 			if err != nil {
 				return envs, errors.Wrap(err, "Unable to read env_file")
 			}
@@ -1579,11 +1587,18 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			return nil, err
 		}
 
-		// Generate pod only and nothing more
+		// Generate pod and configmap objects
 		if (service.Restart == "no" || service.Restart == "on-failure") && !opt.IsPodController() {
 			log.Infof("Create kubernetes pod instead of pod controller due to restart policy: %s", service.Restart)
 			pod := k.InitPod(name, service)
 			objects = append(objects, pod)
+
+			if len(service.EnvFile) > 0 {
+				for _, envFile := range service.EnvFile {
+					configMap := k.InitConfigMapForEnv(name, opt, envFile)
+					objects = append(objects, configMap)
+				}
+			}
 		} else {
 			objects = k.CreateWorkloadAndConfigMapObjects(name, service, opt)
 		}
