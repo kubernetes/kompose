@@ -77,5 +77,8 @@ tags
 
 .DS_Store
 
+# VSCode specific
+.vscode
+
 # Client Test generated files
 client/testdata/generated

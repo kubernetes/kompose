@@ -2,7 +2,6 @@
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: postgres
   name: postgres
@@ -11,11 +10,9 @@ spec:
   selector:
     io.kompose.service: postgres
   strategy:
-    resources: {}
     type: Recreate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/vols-subpath-default: "true"
         io.kompose.service: postgres
@@ -30,7 +27,6 @@ spec:
               value: dumb_postgres_user
           image: ' '
           name: postgres
-          resources: {}
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: postgres-data
@@ -56,7 +52,6 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: postgres
   name: postgres
@@ -64,12 +59,9 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: postgres
-      generation: null
-      importPolicy: {}
       name: latest
       referencePolicy:
         type: ""
@@ -78,7 +70,6 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: postgres-data
   name: postgres-data

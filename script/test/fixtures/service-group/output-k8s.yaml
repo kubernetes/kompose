@@ -2,7 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: librenms-dispatcher
   name: librenms
@@ -19,7 +18,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: librenms-dispatcher
   name: librenms-dispatcher
@@ -32,7 +30,6 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/service-group-default: "true"
         io.kompose.service: librenms-dispatcher
@@ -42,7 +39,6 @@ spec:
             - name: TZ
           image: librenms/dispatcher:latest
           name: dispatcher
-          resources: {}
           volumeMounts:
             - mountPath: /data
               name: librenms-dispatcher-claim0
@@ -54,7 +50,6 @@ spec:
             - containerPort: 8000
               hostPort: 8000
               protocol: TCP
-          resources: {}
           volumeMounts:
             - mountPath: /data
               name: librenms-dispatcher-claim0
@@ -70,7 +65,6 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: librenms-dispatcher-claim0
   name: librenms-dispatcher-claim0

@@ -2,7 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: front-end
   name: front-end
@@ -20,7 +19,6 @@ spec:
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: front-end
   name: front-end
@@ -28,11 +26,8 @@ spec:
   replicas: 1
   selector:
     io.kompose.service: front-end
-  strategy:
-    resources: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/external-traffic-policy-default: "true"
         io.kompose.service: front-end
@@ -47,7 +42,6 @@ spec:
             - containerPort: 80
               hostPort: 80
               protocol: TCP
-          resources: {}
       restartPolicy: Always
   test: false
   triggers:
@@ -65,7 +59,6 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: front-end
   name: front-end
@@ -73,12 +66,9 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: gcr.io/google-samples/gb-frontend:v4
-      generation: null
-      importPolicy: {}
       name: v4
       referencePolicy:
         type: ""
@@ -87,7 +77,6 @@ spec:
 apiVersion: v1
 kind: Route
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: front-end
   name: front-end
@@ -98,5 +87,4 @@ spec:
   to:
     kind: Service
     name: front-end
-    weight: null
 

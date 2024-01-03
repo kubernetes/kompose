@@ -4,7 +4,6 @@ kind: Service
 metadata:
   annotations:
     kompose.service.type: headless
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -17,12 +16,10 @@ spec:
   selector:
     io.kompose.service: redis
 
-
 ---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: foo
   name: foo
@@ -34,7 +31,6 @@ spec:
     resources: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/app-network: "true"
         io.kompose.network/v30-normalized-network: "true"
@@ -48,7 +44,6 @@ spec:
             - echo Hello Foo
           image: ' '
           name: foo
-          resources: {}
       restartPolicy: Always
   test: false
   triggers:
@@ -62,12 +57,10 @@ spec:
           name: foo:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: foo
   name: foo
@@ -75,16 +68,12 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: foo:latest
-      generation: null
-      importPolicy: {}
       name: latest
       referencePolicy:
         type: ""
-
 
 ---
 apiVersion: apps.openshift.io/v1
@@ -92,7 +81,6 @@ kind: DeploymentConfig
 metadata:
   annotations:
     kompose.service.type: headless
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -100,11 +88,8 @@ spec:
   replicas: 1
   selector:
     io.kompose.service: redis
-  strategy:
-    resources: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/v30-default: "true"
         io.kompose.service: redis
@@ -119,7 +104,6 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 1
           name: redis
-          resources: {}
       restartPolicy: Always
   test: false
   triggers:
@@ -133,12 +117,10 @@ spec:
           name: redis:latest
       type: ImageChange
 
-
 ---
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -146,14 +128,10 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: redis
-      generation: null
-      importPolicy: {}
       name: latest
       referencePolicy:
         type: ""
-
 

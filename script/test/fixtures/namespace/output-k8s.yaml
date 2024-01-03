@@ -2,7 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web
@@ -20,17 +19,14 @@ spec:
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: null
   name: web
   namespace: web
-spec: {}
 
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web
@@ -40,10 +36,8 @@ spec:
   selector:
     matchLabels:
       io.kompose.service: web
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/namespace-default: "true"
         io.kompose.service: web
@@ -55,7 +49,6 @@ spec:
             - containerPort: 80
               hostPort: 80
               protocol: TCP
-          resources: {}
       restartPolicy: Always
 
 

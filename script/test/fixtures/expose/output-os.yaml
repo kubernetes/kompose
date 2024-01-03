@@ -2,7 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -18,7 +17,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web
@@ -34,7 +32,6 @@ spec:
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -42,11 +39,8 @@ spec:
   replicas: 1
   selector:
     io.kompose.service: redis
-  strategy:
-    resources: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/expose-default: "true"
         io.kompose.service: redis
@@ -57,7 +51,6 @@ spec:
           ports:
             - containerPort: 6379
               protocol: TCP
-          resources: {}
       restartPolicy: Always
   test: false
   triggers:
@@ -75,7 +68,6 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -83,12 +75,9 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: redis:3.0
-      generation: null
-      importPolicy: {}
       name: "3.0"
       referencePolicy:
         type: ""
@@ -97,7 +86,6 @@ spec:
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web
@@ -105,11 +93,8 @@ spec:
   replicas: 1
   selector:
     io.kompose.service: web
-  strategy:
-    resources: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/expose-default: "true"
         io.kompose.service: web
@@ -121,7 +106,6 @@ spec:
             - containerPort: 5000
               hostPort: 5000
               protocol: TCP
-          resources: {}
       restartPolicy: Always
   test: false
   triggers:
@@ -139,7 +123,6 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web
@@ -147,12 +130,9 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - annotations: null
-      from:
+    - from:
         kind: DockerImage
         name: tuna/docker-counter23
-      generation: null
-      importPolicy: {}
       name: latest
       referencePolicy:
         type: ""
@@ -161,7 +141,6 @@ spec:
 apiVersion: v1
 kind: Route
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web
@@ -172,5 +151,4 @@ spec:
   to:
     kind: Service
     name: web
-    weight: null
 

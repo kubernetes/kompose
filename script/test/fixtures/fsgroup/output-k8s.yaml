@@ -2,7 +2,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: pgadmin
   name: pgadmin
@@ -15,7 +14,6 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/fsgroup-default: "true"
         io.kompose.service: pgadmin
@@ -28,7 +26,6 @@ spec:
               value: pgadmin_password
           image: dpage/pgadmin4
           name: pgadmin
-          resources: {}
           volumeMounts:
             - mountPath: /var/lib/pgadmin
               name: pgadmin-data
@@ -44,7 +41,6 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: pgadmin-data
   name: pgadmin-data

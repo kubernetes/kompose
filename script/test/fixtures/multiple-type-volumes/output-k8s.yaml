@@ -2,7 +2,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: db
   name: db
@@ -15,7 +14,6 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/multiple-type-volumes-default: "true"
         io.kompose.service: db
@@ -23,7 +21,6 @@ spec:
       containers:
         - image: mysql
           name: db
-          resources: {}
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: db-data
@@ -37,7 +34,6 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: db-data
   name: db-data
@@ -52,7 +48,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web
@@ -65,7 +60,6 @@ spec:
     type: Recreate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         io.kompose.network/multiple-type-volumes-default: "true"
         io.kompose.service: web
@@ -73,7 +67,6 @@ spec:
       containers:
         - image: nginx
           name: web
-          resources: {}
           volumeMounts:
             - mountPath: /etc/tls
               name: web-cm0
@@ -99,7 +92,6 @@ data:
   a.key: test-key-data....
 kind: ConfigMap
 metadata:
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web-cm0
@@ -112,7 +104,6 @@ kind: ConfigMap
 metadata:
   annotations:
     use-subpath: "true"
-  creationTimestamp: null
   labels:
     io.kompose.service: web
   name: web-cm1
