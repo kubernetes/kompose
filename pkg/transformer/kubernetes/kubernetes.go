@@ -582,6 +582,7 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 				return nil, err
 			}
 			data := []byte(dataString)
+			fileName := GetFileName(config.File)
 			secret := &api.Secret{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Secret",
@@ -592,7 +593,7 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 					Labels: transformer.ConfigLabels(name),
 				},
 				Type: api.SecretTypeOpaque,
-				Data: map[string][]byte{name: data},
+				Data: map[string][]byte{fileName: data},
 			}
 			objects = append(objects, secret)
 		} else {

@@ -1145,3 +1145,68 @@ func TestNamespaceGenerationBlank(t *testing.T) {
 		}
 	}
 }
+
+func TestKubernetes_CreateSecrets(t *testing.T) {
+	// hardcoded
+	komposeDefaultObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newServiceConfig()},
+		Secrets: types.Secrets{
+			"config-ini": types.SecretConfig{
+				Name: "debug-config-ini",
+				File: "../../../docs/CNAME",
+			},
+		},
+	}
+
+	type fields struct {
+		Opt kobject.ConvertOptions
+	}
+	type args struct {
+		komposeObject kobject.KomposeObject
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []*api.Secret
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "CreateSecrets from default KomposeObject amd hardcoded secrets",
+			args: args{
+				komposeObject: komposeDefaultObject,
+			},
+			want: []*api.Secret{
+				{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   FormatResourceName("config-ini"),
+						Labels: transformer.ConfigLabels("config-ini"),
+					},
+					Type: api.SecretTypeOpaque,
+					Data: map[string][]byte{"CNAME": []byte("kompose.io")},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k := &Kubernetes{
+				Opt: tt.fields.Opt,
+			}
+			got, err := k.CreateSecrets(tt.args.komposeObject)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Kubernetes.CreateSecrets() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Kubernetes.CreateSecrets() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
