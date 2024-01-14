@@ -428,9 +428,7 @@ version: "3.3"
 
 services:
   front-end:
-    image: gcr.io/google-samples/gb-frontend:v4
-    environment:
-      - GET_HOSTS_FROM=dns
+    image: nginx
     ports:
       - 80:80
     labels:
