@@ -20,7 +20,7 @@ For beginners and the most compatibility, follow the _Minikube and Kompose_ guid
 
 ## Minikube and Kompose
 
-In this guide, we'll deploy a sample `docker-compose.yaml` file to a Kubernetes cluster.
+In this guide, we'll deploy a sample `compose.yaml` file to a Kubernetes cluster.
 
 Requirements:
 
@@ -44,15 +44,15 @@ Starting cluster components...
 Kubectl is now configured to use the cluster
 ```
 
-**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:**
+**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml), or use your own:**
 
 ```sh
-wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
+wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml
 ```
 
 **Convert your Docker Compose file to Kubernetes:**
 
-Run `kompose convert` in the same directory as your `docker-compose.yaml` file.
+Run `kompose convert` in the same directory as your `compose.yaml` file.
 
 ```sh
 $ kompose convert
@@ -110,7 +110,7 @@ $ curl http://123.45.67.89
 
 ## Minishift and Kompose
 
-In this guide, we'll deploy a sample `docker-compose.yaml` file to an OpenShift cluster.
+In this guide, we'll deploy a sample `compose.yaml` file to an OpenShift cluster.
 
 Requirements:
 
@@ -134,15 +134,15 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
-**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:**
+**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml), or use your own:**
 
 ```sh
-wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
+wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml
 ```
 
 **Convert your Docker Compose file to OpenShift:**
 
-Run `kompose convert --provider=openshift` in the same directory as your `docker-compose.yaml` file.
+Run `kompose convert --provider=openshift` in the same directory as your `compose.yaml` file.
 
 ```sh
 $ kompose convert --provider=openshift
@@ -188,7 +188,7 @@ Opening the OpenShift Web console in the default browser...
 
 ## RHEL and Kompose
 
-In this guide, we'll deploy a sample `docker-compose.yaml` file using both RHEL (Red Hat Enterprise Linux) and OpenShift.
+In this guide, we'll deploy a sample `compose.yaml` file using both RHEL (Red Hat Enterprise Linux) and OpenShift.
 
 Requirements:
 
@@ -254,15 +254,15 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
-**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml), or use your own:**
+**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml), or use your own:**
 
 ```sh
-wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/docker-compose.yaml
+wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml
 ```
 
 **Convert your Docker Compose file to OpenShift:**
 
-Run `kompose convert --provider=openshift` in the same directory as your `docker-compose.yaml` file.
+Run `kompose convert --provider=openshift` in the same directory as your `compose.yaml` file.
 
 ```sh
 $ kompose convert --provider=openshift

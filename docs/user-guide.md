@@ -37,14 +37,14 @@ INFO Kubernetes file "worker-deployment.yaml" created
 INFO Kubernetes file "db-deployment.yaml" created
 
 $ ls
-db-deployment.yaml  docker-compose.yml         docker-gitlab.yml  redis-deployment.yaml  result-deployment.yaml  vote-deployment.yaml  worker-deployment.yaml
+db-deployment.yaml  compose.yml         docker-gitlab.yml  redis-deployment.yaml  result-deployment.yaml  vote-deployment.yaml  worker-deployment.yaml
 db-svc.yaml         docker-voting.yml          redis-svc.yaml     result-svc.yaml        vote-svc.yaml           worker-svc.yaml
 ```
 
-You can also provide multiple docker-compose files at the same time:
+You can also provide multiple compose files at the same time:
 
 ```sh
-$ kompose -f docker-compose.yml -f docker-guestbook.yml convert
+$ kompose -f compose.yml -f docker-guestbook.yml convert
 INFO Kubernetes file "frontend-service.yaml" created
 INFO Kubernetes file "mlbparks-service.yaml" created
 INFO Kubernetes file "mongodb-service.yaml" created
@@ -64,11 +64,11 @@ frontend-service.yaml     mongodb-deployment.yaml                    redis-repli
 redis-master-deployment.yaml
 ```
 
-When multiple docker-compose files are provided the configuration is merged. Any configuration that is common will be over ridden by subsequent file.
+When multiple compose files are provided the configuration is merged. Any configuration that is common will be over ridden by subsequent file.
 
-You can provide your docker-compose files via environment variables as following:
+You can provide your compose files via environment variables as following:
 ```sh
-$ COMPOSE_FILE="docker-compose.yaml alternative-docker-compose.yaml" kompose convert
+$ COMPOSE_FILE="compose.yaml alternative-compose.yaml" kompose convert
 ```
 
 ### OpenShift
@@ -95,7 +95,7 @@ INFO OpenShift file "result-imagestream.yaml" created
 It also supports creating buildconfig for build directive in a service. By default, it uses the remote repository for the current git branch as the source repository, and the current branch as the source branch for the build. You can specify a different source repository and branch using `--build-repo` and `--build-branch` options respectively.
 
 ```sh
-$ kompose --provider openshift --file buildconfig/docker-compose.yml convert
+$ kompose --provider openshift --file buildconfig/compose.yml convert
 WARN [foo] Service cannot be created because of missing port.
 INFO OpenShift Buildconfig using git@github.com:rtnpro/kompose.git::master as source.
 INFO OpenShift file "foo-deploymentconfig.yaml" created
@@ -157,10 +157,10 @@ INFO Kubernetes file "web-svc.yaml" created
 INFO Kubernetes file "redis-svc.yaml" created
 INFO Kubernetes file "web-deployment.yaml" created
 INFO Kubernetes file "redis-deployment.yaml" created
-chart created in "./docker-compose/"
+chart created in "./compose/"
 
-$ tree docker-compose/
-docker-compose
+$ tree compose/
+compose
 ├── Chart.yaml
 ├── README.md
 └── templates
@@ -174,7 +174,7 @@ The chart structure is aimed at providing a skeleton for building your Helm char
 
 ## Labels
 
-`kompose` supports Kompose-specific labels within the `docker-compose.yml` file to
+`kompose` supports Kompose-specific labels within the `compose.yml` file to
 explicitly define the generated resources' behavior upon conversion, like Service, PersistentVolumeClaim...
 
 The currently supported options are:
@@ -428,11 +428,9 @@ version: "3.3"
 
 services:
   front-end:
-    image: gcr.io/google-samples/gb-frontend:v4
-    environment:
-      - GET_HOSTS_FROM=dns
+    image: quay.io/kompose/web
     ports:
-      - 80:80
+      - 8080:8080
     labels:
       kompose.service.expose: lb
       kompose.service.external-traffic-policy: local
@@ -468,9 +466,9 @@ services:
 ```
 ## Restart
 
-If you want to create normal pods without controller you can use `restart` construct of docker-compose to define that. Follow table below to see what happens on the `restart` value.
+If you want to create normal pods without controller you can use `restart` construct of compose to define that. Follow table below to see what happens on the `restart` value.
 
-| `docker-compose` `restart` | object created    | Pod `restartPolicy` |
+| `compose` `restart` | object created    | Pod `restartPolicy` |
 | -------------------------- | ----------------- | ------------------- |
 | `""`                       | controller object | `Always`            |
 | `always`                   | controller object | `Always`            |
@@ -498,7 +496,7 @@ If the Docker Compose file has a volume specified for a service, the Deployment 
 
 If the Docker Compose file has service name with `_` or `.` in it (eg.`web_service` or `web.service`), then it will be replaced by `-` and the service name will be renamed accordingly (eg.`web-service`). Kompose does this because "Kubernetes" doesn't allow `_` in object name.
 
-Please note that changing service name might break some `docker-compose` files.
+Please note that changing service name might break some `compose` files.
 
 ## Network policies generation
 [Network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies) are not generated by default, because it's not mandatory to deploy your application. However, it's one of the best practices when it comes to deploy secure applications on top of Kubernetes.

@@ -1,0 +1,20 @@
+services:
+
+  redis-leader:
+    container_name: redis-leader
+    image: redis:latest
+    ports:
+      - "6379"
+
+  redis-replica:
+    container_name: redis-replica
+    image: redis:latest
+    ports:
+      - "6379"
+    command: redis-server --replicaof redis-leader 6379
+
+  web:
+    container_name: web
+    image: quay.io/kompose/web
+    ports:
+      - "8080:8080"

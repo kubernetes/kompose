@@ -17,6 +17,7 @@
 
 # This checks if all go source files in current directory are format using gofmt
 
+# Ignore vendor directory that's NOT in the main path
 GO_FILES=$(find . -path ./vendor -prune -o -name '*.go' -print )
 
 for file in $GO_FILES; do
