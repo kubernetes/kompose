@@ -12,7 +12,7 @@ redirect_from:
 * TOC
 {:toc}
 
-This document outlines all possible conversion details regarding `docker-compose.yaml` values to Kubernetes / OpenShift artifacts.
+This document outlines all possible conversion details regarding `compose.yaml` values to Kubernetes / OpenShift artifacts.
 
 ## Version Support
 
