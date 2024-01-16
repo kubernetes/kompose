@@ -57,10 +57,10 @@ Run `kompose convert` in the same directory as your `compose.yaml` file.
 ```sh
 $ kompose convert
 INFO Kubernetes file "frontend-service.yaml" created
-INFO Kubernetes file "redis-master-service.yaml" created
+INFO Kubernetes file "redis-leader-service.yaml" created
 INFO Kubernetes file "redis-replica-service.yaml" created
 INFO Kubernetes file "frontend-deployment.yaml" created
-INFO Kubernetes file "redis-master-deployment.yaml" created
+INFO Kubernetes file "redis-leader-deployment.yaml" created
 INFO Kubernetes file "redis-replica-deployment.yaml" created
 ```
 
@@ -147,12 +147,12 @@ Run `kompose convert --provider=openshift` in the same directory as your `compos
 ```sh
 $ kompose convert --provider=openshift
 INFO OpenShift file "frontend-service.yaml" created
-INFO OpenShift file "redis-master-service.yaml" created
+INFO OpenShift file "redis-leader-service.yaml" created
 INFO OpenShift file "redis-replica-service.yaml" created
 INFO OpenShift file "frontend-deploymentconfig.yaml" created
 INFO OpenShift file "frontend-imagestream.yaml" created
-INFO OpenShift file "redis-master-deploymentconfig.yaml" created
-INFO OpenShift file "redis-master-imagestream.yaml" created
+INFO OpenShift file "redis-leader-deploymentconfig.yaml" created
+INFO OpenShift file "redis-leader-imagestream.yaml" created
 INFO OpenShift file "redis-replica-deploymentconfig.yaml" created
 INFO OpenShift file "redis-replica-imagestream.yaml" created
 ```
@@ -267,12 +267,12 @@ Run `kompose convert --provider=openshift` in the same directory as your `compos
 ```sh
 $ kompose convert --provider=openshift
 INFO OpenShift file "frontend-service.yaml" created
-INFO OpenShift file "redis-master-service.yaml" created
+INFO OpenShift file "redis-leader-service.yaml" created
 INFO OpenShift file "redis-replica-service.yaml" created
 INFO OpenShift file "frontend-deploymentconfig.yaml" created
 INFO OpenShift file "frontend-imagestream.yaml" created
-INFO OpenShift file "redis-master-deploymentconfig.yaml" created
-INFO OpenShift file "redis-master-imagestream.yaml" created
+INFO OpenShift file "redis-leader-deploymentconfig.yaml" created
+INFO OpenShift file "redis-leader-imagestream.yaml" created
 INFO OpenShift file "redis-replica-deploymentconfig.yaml" created
 INFO OpenShift file "redis-replica-imagestream.yaml" created
 ```

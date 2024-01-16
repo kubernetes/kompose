@@ -48,20 +48,20 @@ $ kompose -f compose.yml -f docker-guestbook.yml convert
 INFO Kubernetes file "frontend-service.yaml" created
 INFO Kubernetes file "mlbparks-service.yaml" created
 INFO Kubernetes file "mongodb-service.yaml" created
-INFO Kubernetes file "redis-master-service.yaml" created
+INFO Kubernetes file "redis-leader-service.yaml" created
 INFO Kubernetes file "redis-replica-service.yaml" created
 INFO Kubernetes file "frontend-deployment.yaml" created
 INFO Kubernetes file "mlbparks-deployment.yaml" created
 INFO Kubernetes file "mongodb-deployment.yaml" created
 INFO Kubernetes file "mongodb-claim0-persistentvolumeclaim.yaml" created
-INFO Kubernetes file "redis-master-deployment.yaml" created
+INFO Kubernetes file "redis-leader-deployment.yaml" created
 INFO Kubernetes file "redis-replica-deployment.yaml" created
 
 $ ls
 mlbparks-deployment.yaml  mongodb-service.yaml                       redis-replica-service.jsonmlbparks-service.yaml
-frontend-deployment.yaml  mongodb-claim0-persistentvolumeclaim.yaml  redis-master-service.yaml
+frontend-deployment.yaml  mongodb-claim0-persistentvolumeclaim.yaml  redis-leader-service.yaml
 frontend-service.yaml     mongodb-deployment.yaml                    redis-replica-deployment.yaml
-redis-master-deployment.yaml
+redis-leader-deployment.yaml
 ```
 
 When multiple compose files are provided the configuration is merged. Any configuration that is common will be over ridden by subsequent file.
