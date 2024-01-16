@@ -33,6 +33,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cast"
+	batchv1 "k8s.io/api/batch/v1"
 	api "k8s.io/api/core/v1"
 )
 
@@ -693,6 +694,42 @@ func parseEnvironment(composeServiceConfig *types.ServiceConfig, serviceConfig *
 	}
 }
 
+func handleCronJobConcurrencyPolicy(policy string) (batchv1.ConcurrencyPolicy, error) {
+	switch policy {
+	case "Allow":
+		return batchv1.AllowConcurrent, nil
+	case "Forbid":
+		return batchv1.ForbidConcurrent, nil
+	case "Replace":
+		return batchv1.ReplaceConcurrent, nil
+	case "":
+		return "", nil
+	default:
+		return "", fmt.Errorf("invalid cronjob concurrency policy: %s", policy)
+	}
+}
+
+func handleCronJobBackoffLimit(backoffLimit string) (*int32, error) {
+	if backoffLimit == "" {
+		return nil, nil
+	}
+
+	limit, err := cast.ToInt32E(backoffLimit)
+	if err != nil {
+		return nil, fmt.Errorf("invalid cronjob backoff limit: %s", backoffLimit)
+	}
+	return &limit, nil
+}
+
+func handleCronJobSchedule(schedule string) (string, error) {
+	if schedule == "" {
+		return "", fmt.Errorf("cronjob schedule cannot be empty")
+	}
+
+	return schedule, nil
+
+}
+
 // parseKomposeLabels parse kompose labels, also do some validation
 func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.ServiceConfig) error {
 	// Label handler
@@ -734,6 +771,27 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 			serviceConfig.ImagePullPolicy = value
 		case LabelContainerVolumeSubpath:
 			serviceConfig.VolumeMountSubPath = value
+		case LabelCronJobSchedule:
+			cronJobSchedule, err := handleCronJobSchedule(value)
+			if err != nil {
+				return errors.Wrap(err, "handleCronJobSchedule failed")
+			}
+
+			serviceConfig.CronJobSchedule = cronJobSchedule
+		case LabelCronJobConcurrencyPolicy:
+			cronJobConcurrencyPolicy, err := handleCronJobConcurrencyPolicy(value)
+			if err != nil {
+				return errors.Wrap(err, "handleCronJobConcurrencyPolicy failed")
+			}
+
+			serviceConfig.CronJobConcurrencyPolicy = cronJobConcurrencyPolicy
+		case LabelCronJobBackoffLimit:
+			cronJobBackoffLimit, err := handleCronJobBackoffLimit(value)
+			if err != nil {
+				return errors.Wrap(err, "handleCronJobBackoffLimit failed")
+			}
+
+			serviceConfig.CronJobBackoffLimit = cronJobBackoffLimit
 		default:
 			serviceConfig.Labels[key] = value
 		}
@@ -753,6 +811,11 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 
 	if len(serviceConfig.Port) > 1 && serviceConfig.NodePortPort != 0 {
 		return errors.New("cannot set kompose.service.nodeport.port when service has multiple ports")
+	}
+
+	if serviceConfig.Restart == "always" && serviceConfig.CronJobConcurrencyPolicy != "" {
+		log.Infof("cronjob restart policy will be converted from '%s' to 'on-failure'", serviceConfig.Restart)
+		serviceConfig.Restart = "on-failure"
 	}
 
 	return nil

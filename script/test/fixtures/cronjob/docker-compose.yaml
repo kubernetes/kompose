@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  challenge:
+    image: busybox:stable-glibc
+    labels:
+      kompose.cronjob.schedule: "* * * * *"
+      kompose.cronjob.concurrency_policy: "Forbid"
+      kompose.cronjob.backoff_limit: "0"
+    command:
+      - "bash"
+      - "-c"
+      - "echo hello from cron"
+    restart: "no"

@@ -325,14 +325,20 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 			}
 		}
 
-		// Generate pod and configmap objects
+		// Generate pod or cronjob and configmap objects
 		if service.Restart == "no" || service.Restart == "on-failure" {
 			// Error out if Controller Object is specified with restart: 'on-failure'
 			if opt.IsDeploymentConfigFlag {
 				return nil, errors.New("Controller object cannot be specified with restart: 'on-failure'")
 			}
-			pod := o.InitPod(name, service)
-			objects = append(objects, pod)
+
+			if service.CronJobSchedule != "" {
+				cronJob := o.InitCJ(name, service, service.CronJobSchedule, service.CronJobConcurrencyPolicy, service.CronJobBackoffLimit)
+				objects = append(objects, cronJob)
+			} else {
+				pod := o.InitPod(name, service)
+				objects = append(objects, pod)
+			}
 
 			if len(service.EnvFile) > 0 {
 				for _, envFile := range service.EnvFile {
