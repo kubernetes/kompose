@@ -6,7 +6,7 @@ layout: index
 ---
 
 ```sh
-$ kompose convert -f docker-compose.yaml
+$ kompose convert -f compose.yaml
 
 $ kubectl apply -f .
 

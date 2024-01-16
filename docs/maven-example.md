@@ -87,20 +87,20 @@ Now that your service has been deployed, let's access it by querying `pod`, `ser
 ```bash
 $ oc get pods
 NAME                                    READY     STATUS      RESTARTS   AGE
-springboot-docker-compose-1-xl0vb       1/1       Running     0          5m
-springboot-docker-compose-s2i-1-build   0/1       Completed   0          7m
+springboot-compose-1-xl0vb       1/1       Running     0          5m
+springboot-compose-s2i-1-build   0/1       Completed   0          7m
 ```
 
 ```bash
 $ oc get svc
 NAME                        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-springboot-docker-compose   172.30.205.137   <none>        8080/TCP   6m
+springboot-compose   172.30.205.137   <none>        8080/TCP   6m
 ```
 
 Let's access the Springboot service.
 
 ```bash
-$ minishift openshift service --in-browser springboot-docker-compose
+$ minishift openshift service --in-browser springboot-compose
 Created the new window in existing browser session.
 ```
 
