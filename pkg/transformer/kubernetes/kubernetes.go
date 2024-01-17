@@ -42,6 +42,7 @@ import (
 	"github.com/spf13/cast"
 	"golang.org/x/tools/godoc/util"
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	api "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -468,6 +469,33 @@ func (k *Kubernetes) InitSS(name string, service kobject.ServiceConfig, replicas
 		},
 	}
 	return ds
+}
+
+// InitCJ initializes Kubernetes CronJob object
+func (k *Kubernetes) InitCJ(name string, service kobject.ServiceConfig, schedule string, concurrencyPolicy batchv1.ConcurrencyPolicy, backoffLimit *int32) *batchv1.CronJob {
+	cj := &batchv1.CronJob{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "CronJob",
+			APIVersion: "batch/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   name,
+			Labels: transformer.ConfigAllLabels(name, &service),
+		},
+		Spec: batchv1.CronJobSpec{
+			Schedule:          schedule,
+			ConcurrencyPolicy: concurrencyPolicy,
+			JobTemplate: batchv1.JobTemplateSpec{
+				Spec: batchv1.JobSpec{
+					BackoffLimit: backoffLimit,
+					Template: api.PodTemplateSpec{
+						Spec: k.InitPodSpec(name, service.Image, service.ImagePullSecret),
+					},
+				},
+			},
+		},
+	}
+	return cj
 }
 
 func (k *Kubernetes) initIngress(name string, service kobject.ServiceConfig, port int32) *networkingv1.Ingress {
@@ -1587,11 +1615,16 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 			return nil, err
 		}
 
-		// Generate pod and configmap objects
+		// Generate pod or cronjob and configmap objects
 		if (service.Restart == "no" || service.Restart == "on-failure") && !opt.IsPodController() {
-			log.Infof("Create kubernetes pod instead of pod controller due to restart policy: %s", service.Restart)
-			pod := k.InitPod(name, service)
-			objects = append(objects, pod)
+			if service.CronJobSchedule != "" {
+				log.Infof("Create kubernetes pod instead of pod controller due to restart policy: %s", service.Restart)
+				cronJob := k.InitCJ(name, service, service.CronJobSchedule, service.CronJobConcurrencyPolicy, service.CronJobBackoffLimit)
+				objects = append(objects, cronJob)
+			} else {
+				pod := k.InitPod(name, service)
+				objects = append(objects, pod)
+			}
 
 			if len(service.EnvFile) > 0 {
 				for _, envFile := range service.EnvFile {
@@ -1647,6 +1680,12 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 		updateMeta(&t.ObjectMeta)
 	case *appsv1.StatefulSet:
 		err = updateTemplate(&t.Spec.Template)
+		if err != nil {
+			return errors.Wrap(err, "updateTemplate failed")
+		}
+		updateMeta(&t.ObjectMeta)
+	case *batchv1.CronJob:
+		err = updateTemplate(&t.Spec.JobTemplate.Spec.Template)
 		if err != nil {
 			return errors.Wrap(err, "updateTemplate failed")
 		}

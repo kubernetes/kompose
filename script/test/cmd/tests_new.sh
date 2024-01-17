@@ -204,6 +204,14 @@ ocp_output="$KOMPOSE_ROOT/script/test/fixtures/statefulset/output-os.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 convert::expect_success "$ocp_cmd" "$ocp_output" || exit 1
 
+# test cronjob
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/cronjob/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
+ocp_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/cronjob/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/cronjob/output-k8s.yaml"
+ocp_output="$KOMPOSE_ROOT/script/test/fixtures/cronjob/output-os.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$ocp_cmd" "$ocp_output" || exit 1
+
 # test specifying volume type using service label
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/docker-compose.yaml convert --stdout --with-kompose-annotation=false"
 os_cmd="kompose  --provider=openshift -f  $KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/docker-compose.yaml  convert --stdout --with-kompose-annotation=false"

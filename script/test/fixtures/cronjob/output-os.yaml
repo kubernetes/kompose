@@ -1,0 +1,27 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  labels:
+    io.kompose.service: challenge
+  name: challenge
+spec:
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            io.kompose.network/cronjob-default: "true"
+            io.kompose.service: challenge
+        spec:
+          containers:
+            - args:
+                - bash
+                - -c
+                - echo hello from cron
+              image: busybox:stable-glibc
+              name: challenge
+          restartPolicy: Never
+  schedule: '* * * * *'

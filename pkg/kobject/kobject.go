@@ -26,6 +26,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 	v1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
@@ -153,17 +154,20 @@ type ServiceConfig struct {
 	DeployMode                    string             `compose:""`
 	VolumeMountSubPath            string             `compose:"kompose.volume.subpath"`
 	// DeployLabels mapping to kubernetes labels
-	DeployLabels       map[string]string  `compose:""`
-	DeployUpdateConfig types.UpdateConfig `compose:""`
-	TmpFs              []string           `compose:"tmpfs"`
-	Dockerfile         string             `compose:"dockerfile"`
-	Replicas           int                `compose:"replicas"`
-	GroupAdd           []int64            `compose:"group_add"`
-	FsGroup            int64              `compose:"kompose.security-context.fsgroup"`
-	Volumes            []Volumes          `compose:""`
-	Secrets            []types.ServiceSecretConfig
-	HealthChecks       HealthChecks `compose:""`
-	Placement          Placement    `compose:""`
+	DeployLabels             map[string]string         `compose:""`
+	DeployUpdateConfig       types.UpdateConfig        `compose:""`
+	TmpFs                    []string                  `compose:"tmpfs"`
+	Dockerfile               string                    `compose:"dockerfile"`
+	Replicas                 int                       `compose:"replicas"`
+	GroupAdd                 []int64                   `compose:"group_add"`
+	FsGroup                  int64                     `compose:"kompose.security-context.fsgroup"`
+	CronJobSchedule          string                    `compose:"kompose.cronjob.schedule"`
+	CronJobConcurrencyPolicy batchv1.ConcurrencyPolicy `compose:"kompose.cronjob.concurrency_policy"`
+	CronJobBackoffLimit      *int32                    `compose:"kompose.cronjob.backoff_limit"`
+	Volumes                  []Volumes                 `compose:""`
+	Secrets                  []types.ServiceSecretConfig
+	HealthChecks             HealthChecks `compose:""`
+	Placement                Placement    `compose:""`
 	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
 	Configs []types.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
