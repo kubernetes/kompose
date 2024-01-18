@@ -53,9 +53,9 @@ var RootCmd = &cobra.Command{
 	Use:           "kompose",
 	Short:         "A tool helping Docker Compose users move to Kubernetes",
 	Long:          `Kompose is a tool to help users who are familiar with docker-compose move to Kubernetes.`,
-	Example: `  kompose --file docker-voting.yml convert
-  kompose -f docker-compose.yml -f docker-guestbook.yml convert
-  kompose --provider openshift --file docker-voting.yml convert
+	Example: `  kompose --file compose.yaml convert
+  kompose -f first.yaml -f second.yaml convert
+  kompose --provider openshift --file compose.yaml convert
   kompose completion bash`,
 	SilenceErrors: true,
 	// PersistentPreRun will be "inherited" by all children and ran before *every* command unless

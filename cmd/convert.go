@@ -79,9 +79,9 @@ var (
 var convertCmd = &cobra.Command{
 	Use:   "convert",
 	Short: "Convert a Docker Compose file",
-	Example: `  kompose --file docker-voting.yml convert
-  kompose -f docker-compose.yml -f docker-guestbook.yml convert
-  kompose --provider openshift --file docker-voting.yml convert`,
+	Example: `  kompose --file compose.yaml convert
+  kompose -f first.yaml -f second.yaml convert
+  kompose --provider openshift --file compose.yaml convert`,
 	PreRun: func(cmd *cobra.Command, args []string) {
 
 		// Check that build-config wasn't passed in with --provider=kubernetes
