@@ -24,16 +24,16 @@ This is the **recommended** way of installing Kompose.
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-linux-amd64 -o kompose
 
 # Linux ARM64
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-linux-arm64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-linux-arm64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-darwin-amd64 -o kompose
 
 # macOS ARM64
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-darwin-arm64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-darwin-arm64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
@@ -41,7 +41,7 @@ sudo mv ./kompose /usr/local/bin/kompose
 
 **Windows:**
 
-Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.31.2/kompose-windows-amd64.exe) and add the binary to your PATH.
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 ## Go
 
