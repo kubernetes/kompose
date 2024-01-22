@@ -170,7 +170,7 @@ func init() {
 	convertCmd.Flags().StringVar(&ServiceGroupMode, "service-group-mode", "", "Group multiple service to create single workload by `label`(`kompose.service.group`) or `volume`(shared volumes)")
 	convertCmd.Flags().StringVar(&ServiceGroupName, "service-group-name", "", "Using with --service-group-mode=volume to specific a final service name for the group")
 	convertCmd.Flags().MarkDeprecated("multiple-container-mode", "use --service-group-mode=label")
-	convertCmd.Flags().BoolVar(&SecretsAsFiles, "secrets-as-files", false, "Always convert docker-compose secrets into files instead of symlinked directories.")
+	convertCmd.Flags().BoolVar(&SecretsAsFiles, "secrets-as-files", false, "Always convert docker-compose secrets into files instead of symlinked directories")
 
 	// OpenShift only
 	convertCmd.Flags().BoolVar(&ConvertDeploymentConfig, "deployment-config", true, "Generate an OpenShift deploymentconfig object")
@@ -186,12 +186,12 @@ func init() {
 	// Standard between the two
 	convertCmd.Flags().StringVar(&ConvertBuild, "build", "none", `Set the type of build ("local"|"build-config"(OpenShift only)|"none")`)
 	convertCmd.Flags().BoolVar(&ConvertPushImage, "push-image", false, "If we should push the docker image we built")
-	convertCmd.Flags().StringVar(&BuildCommand, "build-command", "", `Set the command used to build the container image. override the docker build command.Should be used in conjuction with --push-command flag.`)
+	convertCmd.Flags().StringVar(&BuildCommand, "build-command", "", `Set the command used to build the container image, which will override the docker build command. Should be used in conjuction with --push-command flag.`)
 	convertCmd.Flags().StringVar(&PushCommand, "push-command", "", `Set the command used to push the container image. override the docker push command. Should be used in conjuction with --build-command flag.`)
-	convertCmd.Flags().StringVar(&ConvertPushImageRegistry, "push-image-registry", "", "Specify registry for pushing image, which will override registry from image name.")
+	convertCmd.Flags().StringVar(&ConvertPushImageRegistry, "push-image-registry", "", "Specify registry for pushing image, which will override registry from image name")
 	convertCmd.Flags().BoolVarP(&ConvertYaml, "yaml", "y", false, "Generate resource files into YAML format")
-	convertCmd.Flags().MarkDeprecated("yaml", "YAML is the default format now.")
-	convertCmd.Flags().MarkShorthandDeprecated("y", "YAML is the default format now.")
+	convertCmd.Flags().MarkDeprecated("yaml", "YAML is the default format now")
+	convertCmd.Flags().MarkShorthandDeprecated("y", "YAML is the default format now")
 	convertCmd.Flags().BoolVarP(&ConvertJSON, "json", "j", false, "Generate resource files into JSON format")
 	convertCmd.Flags().BoolVar(&ConvertStdout, "stdout", false, "Print converted objects to stdout")
 	convertCmd.Flags().StringVarP(&ConvertOut, "out", "o", "", "Specify a file name or directory to save objects to (if path does not exist, a file will be created)")
@@ -199,7 +199,7 @@ func init() {
 	convertCmd.Flags().StringVar(&ConvertVolumes, "volumes", "persistentVolumeClaim", `Volumes to be generated ("persistentVolumeClaim"|"emptyDir"|"hostPath" | "configMap")`)
 	convertCmd.Flags().StringVar(&ConvertPVCRequestSize, "pvc-request-size", "", `Specify the size of pvc storage requests in the generated resource spec`)
 	convertCmd.Flags().StringVarP(&ConvertNamespace, "namespace", "n", "", `Specify the namespace of the generated resources`)
-	convertCmd.Flags().BoolVar(&GenerateNetworkPolicies, "generate-network-policies", false, "Specify whether to generate network policies or not.")
+	convertCmd.Flags().BoolVar(&GenerateNetworkPolicies, "generate-network-policies", false, "Specify whether to generate network policies or not")
 
 	convertCmd.Flags().BoolVar(&WithKomposeAnnotation, "with-kompose-annotation", true, "Add kompose annotations to generated resource")
 
