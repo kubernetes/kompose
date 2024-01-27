@@ -3696,13 +3696,22 @@ font-family: "Open Sans";
 .code-example {
   margin: 0;
   padding: 0;
-  margin-bottom 0px !important;
+  margin-bottom: 0px !important;
   background-color: transparent !important;
 }
 
 .copyright {
   color: #fff !important;
   font-size:13px;
+  padding-bottom: 12px;
+}
+
+a.trademarks {
+	color: #fff !important;
+	font-weight:600;
+	display: inline-block;
+	text-decoration: underline;
+	padding: 0.8rem 0;
 }
 
 .highlight {
