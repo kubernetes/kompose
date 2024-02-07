@@ -1147,15 +1147,23 @@ func TestNamespaceGenerationBlank(t *testing.T) {
 }
 
 func TestKubernetes_CreateSecrets(t *testing.T) {
-	// hardcoded
-	komposeDefaultObject := kobject.KomposeObject{
-		ServiceConfigs: map[string]kobject.ServiceConfig{"app": newServiceConfig()},
-		Secrets: types.Secrets{
-			"config-ini": types.SecretConfig{
-				Name: "debug-config-ini",
-				File: "../../../docs/CNAME",
-			},
+	var komposeDefaultObject []kobject.KomposeObject
+	dataSecrets := []SecretsConfig{
+		{
+			nameSecretConfig: "config-ini",
+			nameSecret:       "debug-config-ini",
+			pathFile:         "../../../docs/CNAME",
 		},
+		{
+			nameSecretConfig: "new-config-init",
+			nameSecret:       "new-debug-config-ini",
+			pathFile:         "../../../docs/CNAME",
+		},
+	}
+
+	for i := 0; i < len(dataSecrets); i++ {
+		komposeDefaultObject = append(komposeDefaultObject, newKomposeObject())
+		komposeDefaultObject[i].Secrets = newSecrets(dataSecrets[i])
 	}
 
 	type fields struct {
@@ -1172,11 +1180,10 @@ func TestKubernetes_CreateSecrets(t *testing.T) {
 		want    []*api.Secret
 		wantErr bool
 	}{
-		// TODO: Add test cases.
 		{
-			name: "CreateSecrets from default KomposeObject amd hardcoded secrets",
+			name: "CreateSecrets from default KomposeObject and secrets taken from CNAME file",
 			args: args{
-				komposeObject: komposeDefaultObject,
+				komposeObject: komposeDefaultObject[0],
 			},
 			want: []*api.Secret{
 				{
@@ -1185,8 +1192,28 @@ func TestKubernetes_CreateSecrets(t *testing.T) {
 						APIVersion: "v1",
 					},
 					ObjectMeta: metav1.ObjectMeta{
-						Name:   FormatResourceName("config-ini"),
-						Labels: transformer.ConfigLabels("config-ini"),
+						Name:   FormatResourceName(dataSecrets[0].nameSecretConfig),
+						Labels: transformer.ConfigLabels(dataSecrets[0].nameSecretConfig),
+					},
+					Type: api.SecretTypeOpaque,
+					Data: map[string][]byte{"CNAME": []byte("kompose.io")},
+				},
+			},
+		},
+		{
+			name: "CreateSecrets from default KomposeObject and secrets taken from CNAME file",
+			args: args{
+				komposeObject: komposeDefaultObject[1],
+			},
+			want: []*api.Secret{
+				{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   FormatResourceName(dataSecrets[1].nameSecretConfig),
+						Labels: transformer.ConfigLabels(dataSecrets[1].nameSecretConfig),
 					},
 					Type: api.SecretTypeOpaque,
 					Data: map[string][]byte{"CNAME": []byte("kompose.io")},
@@ -1208,5 +1235,21 @@ func TestKubernetes_CreateSecrets(t *testing.T) {
 				t.Errorf("Kubernetes.CreateSecrets() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+type SecretsConfig struct {
+	nameSecretConfig string
+	nameSecret       string
+	pathFile         string
+}
+
+// generate
+func newSecrets(stringsSecretConfig SecretsConfig) types.Secrets {
+	return types.Secrets{
+		stringsSecretConfig.nameSecretConfig: types.SecretConfig{
+			Name: stringsSecretConfig.nameSecret,
+			File: stringsSecretConfig.pathFile,
+		},
 	}
 }
