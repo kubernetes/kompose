@@ -232,7 +232,7 @@ func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions
 
 	// Remove root pathing
 	// replace all other slashes / periods
-	envName := FormatEnvName(envFile)
+	envName := FormatEnvName(envFile, name)
 
 	// In order to differentiate files, we append to the name and remove '.env' if applicable from the file name
 	configMap := &api.ConfigMap{
@@ -1133,7 +1133,7 @@ func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]ap
 	if len(service.EnvFile) > 0 {
 		// Load each env_file
 		for _, file := range service.EnvFile {
-			envName := FormatEnvName(file)
+			envName := FormatEnvName(file, service.Name)
 
 			// Load environment variables from file
 			workDir, err := transformer.GetComposeFileDir(opt.InputFiles)

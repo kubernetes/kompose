@@ -64,7 +64,7 @@ func (k *Kompose) setDefaultValues(options ConvertOptions) ConvertOptions {
 	buildDefaultValue := "none"
 	volumeTypeDefaultValue := "persistentVolumeClaim"
 	withKomposeAnnotationsDefaultValue := true
-	kubernetesControllerDefaultValue := "deployment"
+	kubernetesControllerDefaultValue := ""
 	kubernetesServiceGroupModeDefaultValue := ""
 
 	if options.Replicas == nil {
@@ -126,7 +126,7 @@ func (k *Kompose) validateOptions(options ConvertOptions) error {
 
 	if kubernetesProvider, ok := options.Provider.(Kubernetes); ok {
 		kubernetesController := kubernetesProvider.Controller
-		if *kubernetesController != string(DEPLOYMENT) && *kubernetesController != string(DAEMONSET) && *kubernetesController != string(REPLICATION_CONTROLLER) {
+		if *kubernetesController != "" && *kubernetesController != string(DEPLOYMENT) && *kubernetesController != string(DAEMONSET) && *kubernetesController != string(REPLICATION_CONTROLLER) {
 			return fmt.Errorf(
 				"unexpected Value for Kubernetes Controller field. Possible values are: %v, %v, and %v", string(DEPLOYMENT), string(DAEMONSET), string(REPLICATION_CONTROLLER),
 			)

@@ -891,17 +891,30 @@ func GetContentFromFile(file string) (string, error) {
 }
 
 // FormatEnvName format env name
-func FormatEnvName(name string) string {
+func FormatEnvName(name string, serviceName string) string {
 	envName := strings.Trim(name, "./")
 	// only take string after the last slash only if the string contains a slash
 	if strings.Contains(envName, "/") {
 		envName = envName[strings.LastIndex(envName, "/")+1:]
 	}
-	// take only last chars: The ones after 63th index
-	if len(envName) > 63 {
-		envName = envName[len(envName)-63:]
+
+	envName = strings.Replace(envName, ".", "-", -1)
+	envName = getUsableNameEnvFile(envName, serviceName)
+	return envName
+}
+
+// getUsableNameEnvFile checks and adjusts the environment file name to make it usable.
+// If the first character of envName is a hyphen "-", it is concatenated with nameService.
+// If the length of envName is greater than 63, it is truncated to 63 characters.
+// Returns the adjusted environment file name.
+func getUsableNameEnvFile(envName string, serviceName string) string {
+	if string(envName[0]) == "-" { // -env-local....
+		envName = fmt.Sprintf("%s%s", serviceName, envName)
 	}
-	return strings.Replace(envName, ".", "-", -1)
+	if len(envName) > 63 {
+		envName = envName[0:63]
+	}
+	return envName
 }
 
 // FormatFileName format file name
