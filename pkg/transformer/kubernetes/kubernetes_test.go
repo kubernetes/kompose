@@ -1238,13 +1238,14 @@ func TestKubernetes_CreateSecrets(t *testing.T) {
 	}
 }
 
+// struct defines the configuration parameters required for creating a secret
 type SecretsConfig struct {
 	nameSecretConfig string
 	nameSecret       string
 	pathFile         string
 }
 
-// generate
+// creates a new instance of types.Secrets based on the provided SecretsConfig parameter
 func newSecrets(stringsSecretConfig SecretsConfig) types.Secrets {
 	return types.Secrets{
 		stringsSecretConfig.nameSecretConfig: types.SecretConfig{
