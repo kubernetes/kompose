@@ -1145,3 +1145,112 @@ func TestNamespaceGenerationBlank(t *testing.T) {
 		}
 	}
 }
+
+func TestKubernetes_CreateSecrets(t *testing.T) {
+	var komposeDefaultObject []kobject.KomposeObject
+	dataSecrets := []SecretsConfig{
+		{
+			nameSecretConfig: "config-ini",
+			nameSecret:       "debug-config-ini",
+			pathFile:         "../../../docs/CNAME",
+		},
+		{
+			nameSecretConfig: "new-config-init",
+			nameSecret:       "new-debug-config-ini",
+			pathFile:         "../../../docs/CNAME",
+		},
+	}
+
+	for i := 0; i < len(dataSecrets); i++ {
+		komposeDefaultObject = append(komposeDefaultObject, newKomposeObject())
+		komposeDefaultObject[i].Secrets = newSecrets(dataSecrets[i])
+	}
+
+	type fields struct {
+		Opt kobject.ConvertOptions
+	}
+	type args struct {
+		komposeObject kobject.KomposeObject
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []*api.Secret
+		wantErr bool
+	}{
+		{
+			name: "CreateSecrets from default KomposeObject and secrets taken from CNAME file",
+			args: args{
+				komposeObject: komposeDefaultObject[0],
+			},
+			want: []*api.Secret{
+				{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   FormatResourceName(dataSecrets[0].nameSecretConfig),
+						Labels: transformer.ConfigLabels(dataSecrets[0].nameSecretConfig),
+					},
+					Type: api.SecretTypeOpaque,
+					Data: map[string][]byte{"CNAME": []byte("kompose.io")},
+				},
+			},
+		},
+		{
+			name: "CreateSecrets from default KomposeObject and secrets taken from CNAME file",
+			args: args{
+				komposeObject: komposeDefaultObject[1],
+			},
+			want: []*api.Secret{
+				{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   FormatResourceName(dataSecrets[1].nameSecretConfig),
+						Labels: transformer.ConfigLabels(dataSecrets[1].nameSecretConfig),
+					},
+					Type: api.SecretTypeOpaque,
+					Data: map[string][]byte{"CNAME": []byte("kompose.io")},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k := &Kubernetes{
+				Opt: tt.fields.Opt,
+			}
+			got, err := k.CreateSecrets(tt.args.komposeObject)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Kubernetes.CreateSecrets() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Kubernetes.CreateSecrets() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// struct defines the configuration parameters required for creating a secret
+type SecretsConfig struct {
+	nameSecretConfig string
+	nameSecret       string
+	pathFile         string
+}
+
+// creates a new instance of types.Secrets based on the provided SecretsConfig parameter
+func newSecrets(stringsSecretConfig SecretsConfig) types.Secrets {
+	return types.Secrets{
+		stringsSecretConfig.nameSecretConfig: types.SecretConfig{
+			Name: stringsSecretConfig.nameSecret,
+			File: stringsSecretConfig.pathFile,
+		},
+	}
+}
