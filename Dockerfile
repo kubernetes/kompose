@@ -1,10 +1,17 @@
-FROM alpine:3.9 as builder
+# Alpine Builder
+FROM alpine as builder
 
 RUN apk add --no-cache curl
 COPY ./build/VERSION VERSION
-RUN version=$(cat VERSION) && curl -L "https://github.com/kubernetes/kompose/releases/download/v${version}/kompose-linux-amd64" -o kompose
+RUN \
+  version=$(cat VERSION) && \
+  ARCH=$(uname -m | sed 's/armv7l/arm/g' | sed 's/aarch64/arm64/g' | sed 's/x86_64/amd64/g') && \
+  curl -L \
+    "https://github.com/kubernetes/kompose/releases/download/v${version}/kompose-linux-${ARCH}" \
+    -o kompose && \
+  chmod +x kompose
 
-FROM alpine:3.9
+# Runtime
+FROM alpine
 
 COPY --from=builder /kompose /usr/bin/kompose
-RUN chmod +x /usr/bin/kompose
