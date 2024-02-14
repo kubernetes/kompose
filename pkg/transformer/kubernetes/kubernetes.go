@@ -582,18 +582,18 @@ func (k *Kubernetes) CreateSecrets(komposeObject kobject.KomposeObject) ([]*api.
 				return nil, err
 			}
 			data := []byte(dataString)
-			fileName := GetFileName(config.File)
+			resourceName := FormatResourceName(name)
 			secret := &api.Secret{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Secret",
 					APIVersion: "v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:   FormatResourceName(name),
-					Labels: transformer.ConfigLabels(name),
+					Name:   resourceName,
+					Labels: transformer.ConfigLabels(resourceName),
 				},
 				Type: api.SecretTypeOpaque,
-				Data: map[string][]byte{fileName: data},
+				Data: map[string][]byte{resourceName: data},
 			}
 			objects = append(objects, secret)
 		} else {
@@ -800,6 +800,7 @@ func (k *Kubernetes) ConfigSecretVolumes(name string, service kobject.ServiceCon
 	var volumes []api.Volume
 	if len(service.Secrets) > 0 {
 		for _, secretConfig := range service.Secrets {
+			secretConfig := reformatSecretConfigUnderscoreWithDash(secretConfig)
 			if secretConfig.UID != "" {
 				log.Warnf("Ignore pid in secrets for service: %s", name)
 			}
@@ -911,8 +912,8 @@ func (k *Kubernetes) getSecretPathsLegacy(secretConfig types.ServiceSecretConfig
 		itemPath = lastPart
 	}
 
-	secretSubPath = "" // We didn't set a SubPath in legacy behavior
-	return itemPath, mountPath, ""
+	secretSubPath = itemPath //"" // We didn't set a SubPath in legacy behavior
+	return itemPath, mountPath, secretSubPath
 }
 
 // ConfigVolumes configure the container volumes.
@@ -1165,6 +1166,9 @@ func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]ap
 	// Load up the environment variables
 	for _, v := range service.Environment {
 		if !keysFromEnvFile[v.Name] {
+			if strings.Contains(v.Value, "run/secrets") {
+				v.Value = FormatResourceName(v.Value)
+			}
 			envs = append(envs, api.EnvVar{
 				Name:  v.Name,
 				Value: v.Value,
