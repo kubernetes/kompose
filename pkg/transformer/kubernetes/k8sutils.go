@@ -965,9 +965,5 @@ func GetContainerArgs(service kobject.ServiceConfig) []string {
 // The function does not format the file name further, as it may contain periods or other valid characters.
 // Returns the extracted file name.
 func GetFileName(fileName string) string {
-	if strings.Contains(fileName, "/") {
-		fileName = fileName[strings.LastIndex(fileName, "/")+1:]
-	}
-	// Not format filename because can begin with .fileName
-	return fileName
+	return filepath.Base(fileName)
 }

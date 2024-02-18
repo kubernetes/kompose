@@ -152,7 +152,7 @@ func checkUnsupportedKey(composeProject *types.Project) []string {
 // LoadFile loads a compose file into KomposeObject
 func (c *Compose) LoadFile(files []string, profiles []string) (kobject.KomposeObject, error) {
 	// Gather the working directory
-	workingDir, err := getComposeFileDir(files)
+	workingDir, err := transformer.GetComposeFileDir(files)
 	if err != nil {
 		return kobject.KomposeObject{}, err
 	}
