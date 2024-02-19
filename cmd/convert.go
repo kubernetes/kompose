@@ -129,6 +129,7 @@ var convertCmd = &cobra.Command{
 			BuildCommand:                BuildCommand,
 			PushCommand:                 PushCommand,
 			Namespace:                   ConvertNamespace,
+			CreateDefaultLimitsRequests: GlobalDefaultLimitsRequests,
 		}
 
 		if ServiceGroupMode == "" && MultipleContainerMode {

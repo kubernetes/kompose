@@ -41,11 +41,12 @@ func (errorOnWarningHook) Fire(entry *log.Entry) error {
 
 // TODO: comment
 var (
-	GlobalProvider         string
-	GlobalVerbose          bool
-	GlobalSuppressWarnings bool
-	GlobalErrorOnWarning   bool
-	GlobalFiles            []string
+	GlobalProvider              string
+	GlobalVerbose               bool
+	GlobalSuppressWarnings      bool
+	GlobalErrorOnWarning        bool
+	GlobalFiles                 []string
+	GlobalDefaultLimitsRequests bool
 )
 
 // RootCmd root level flags and commands
@@ -111,4 +112,5 @@ func init() {
 	RootCmd.PersistentFlags().BoolVar(&GlobalErrorOnWarning, "error-on-warning", false, "Treat any warning as an error")
 	RootCmd.PersistentFlags().StringSliceVarP(&GlobalFiles, "file", "f", []string{}, "Specify an alternative compose file")
 	RootCmd.PersistentFlags().StringVar(&GlobalProvider, "provider", "kubernetes", "Specify a provider. Kubernetes or OpenShift.")
+	RootCmd.PersistentFlags().BoolVarP(&GlobalDefaultLimitsRequests, "limitsrequests", "l", false, "Output default Limits and Requests")
 }

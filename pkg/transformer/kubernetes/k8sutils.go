@@ -47,6 +47,13 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
+const (
+	DEFAULT_CPU_REQUEST    = 500         // Default CPU request in milicores
+	DEFAULT_MEMORY_REQUEST = 64_000_000  // Default memory request in bytes (64 MB)
+	DEFAULT_CPU_LIMIT      = 1_000       // Default CPU limit in milicores
+	DEFAULT_MEMORY_LIMIT   = 256_000_000 // Default memory limit in bytes (256 MB)
+)
+
 /**
  * Generate Helm Chart configuration
  */
@@ -570,7 +577,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			}
 		}
 
-		TranslatePodResource(&service, template)
+		TranslatePodResource(&service, template, &opt)
 
 		// Configure resource reservations
 		podSecurityContext := &api.PodSecurityContext{}
@@ -743,11 +750,10 @@ func KomposeObjectToServiceConfigGroupMapping(komposeObject *kobject.KomposeObje
 }
 
 // TranslatePodResource config pod resources
-func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTemplateSpec) {
+func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTemplateSpec, opt *kobject.ConvertOptions) {
+	resourceLimit := getResourceLimits(&opt.CreateDefaultLimitsRequests)
 	// Configure the resource limits
 	if service.MemLimit != 0 || service.CPULimit != 0 {
-		resourceLimit := api.ResourceList{}
-
 		if service.MemLimit != 0 {
 			resourceLimit[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemLimit), "RandomStringForFormat")
 		}
@@ -755,14 +761,12 @@ func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTempl
 		if service.CPULimit != 0 {
 			resourceLimit[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPULimit, resource.DecimalSI)
 		}
-
-		template.Spec.Containers[0].Resources.Limits = resourceLimit
 	}
+	template.Spec.Containers[0].Resources.Limits = resourceLimit
 
+	resourceRequests := getResourceRequests(&opt.CreateDefaultLimitsRequests)
 	// Configure the resource requests
 	if service.MemReservation != 0 || service.CPUReservation != 0 {
-		resourceRequests := api.ResourceList{}
-
 		if service.MemReservation != 0 {
 			resourceRequests[api.ResourceMemory] = *resource.NewQuantity(int64(service.MemReservation), "RandomStringForFormat")
 		}
@@ -770,9 +774,8 @@ func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTempl
 		if service.CPUReservation != 0 {
 			resourceRequests[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPUReservation, resource.DecimalSI)
 		}
-
-		template.Spec.Containers[0].Resources.Requests = resourceRequests
 	}
+	template.Spec.Containers[0].Resources.Requests = resourceRequests
 }
 
 // GetImagePullPolicy get image pull settings
@@ -970,4 +973,47 @@ func GetFileName(fileName string) string {
 	}
 	// Not format filename because can begin with .fileName
 	return fileName
+}
+
+// getResourceLimits returns a map of resources with predefined limits for CPU and memory
+// If productionReady flag is false, it returns an empty map
+func getResourceLimits(productionReady *bool) api.ResourceList {
+	if !*productionReady {
+		return api.ResourceList{}
+	}
+	resourceLimits := api.ResourceList{
+		api.ResourceCPU:    *resource.NewMilliQuantity(DEFAULT_CPU_LIMIT, resource.DecimalSI),
+		api.ResourceMemory: *resource.NewQuantity(DEFAULT_MEMORY_LIMIT, resource.DecimalSI),
+	}
+	return resourceLimits
+}
+
+// getResourceRequests returns a map of resources with predefined requests for CPU and memory.
+// If productionReady flag is false, it returns an empty map
+func getResourceRequests(productionReady *bool) api.ResourceList {
+	if !*productionReady {
+		return api.ResourceList{}
+	}
+	resourceRequests := api.ResourceList{
+		api.ResourceCPU:    *resource.NewMilliQuantity(DEFAULT_CPU_REQUEST, resource.DecimalSI),
+		api.ResourceMemory: *resource.NewQuantity(DEFAULT_MEMORY_REQUEST, resource.DecimalSI),
+	}
+	return resourceRequests
+}
+
+// reformatSecretConfigUnderscoreWithDash takes a ServiceSecretConfig object as input and returns a new instance of ServiceSecretConfig
+// where the values of Source and Target are formatted using the FormatResourceName function to replace underscores with dashes and lowercase,
+// while the other fields remain unchanged. This is done to ensure consistency in the format of container names within the service's secret configuration.
+// this function ensures that source, target names are in an acceptable format for Kubernetes and other systems that may require a specific naming format.
+func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConfig) types.ServiceSecretConfig {
+	newSecretConfig := types.ServiceSecretConfig{
+		Source:     FormatResourceName(secretConfig.Source),
+		Target:     FormatResourceName(secretConfig.Target),
+		UID:        secretConfig.UID,
+		GID:        secretConfig.GID,
+		Mode:       secretConfig.Mode,
+		Extensions: secretConfig.Extensions,
+	}
+
+	return newSecretConfig
 }

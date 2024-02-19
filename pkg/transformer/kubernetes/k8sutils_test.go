@@ -738,3 +738,50 @@ func TestRemoveEmptyInterfaces(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateServiceWithDefaultValuesForLimitsRequests(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Command:       []string{"cmd"},
+		WorkingDir:    "dir",
+		Args:          []string{"arg1", "arg2"},
+		VolList:       []string{"/tmp/volume"},
+		Network:       []string{"network1", "network2"}, // not supported
+		Labels:        nil,
+		Annotations:   map[string]string{"abc": "def"},
+		CPUQuota:      1,                    // not supported
+		CapAdd:        []string{"cap_add"},  // not supported
+		CapDrop:       []string{"cap_drop"}, // not supported
+		Expose:        []string{"expose"},   // not supported
+		Privileged:    true,
+		Restart:       "always",
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3, CreateDefaultLimitsRequests: true})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	// Retrieve the deployment object and test that it matches the mem value
+	for _, obj := range objects {
+		if deploy, ok := obj.(*appsv1.Deployment); ok {
+			memLimit, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Limits.Memory().AsInt64()
+			if memLimit != DEFAULT_MEMORY_LIMIT {
+				t.Errorf("Expected %d for memory limit check, got %v", DEFAULT_MEMORY_LIMIT, memLimit)
+			}
+			memReservation, _ := deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Memory().AsInt64()
+			if memReservation != DEFAULT_MEMORY_REQUEST {
+				t.Errorf("Expected %d for memory reservation check, got %v", DEFAULT_MEMORY_REQUEST, memReservation)
+			}
+		}
+	}
+}
