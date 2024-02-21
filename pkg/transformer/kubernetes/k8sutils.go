@@ -31,6 +31,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/compose-spec/compose-go/types"
 	"github.com/joho/godotenv"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
@@ -970,4 +971,21 @@ func GetFileName(fileName string) string {
 	}
 	// Not format filename because can begin with .fileName
 	return fileName
+}
+
+// reformatSecretConfigUnderscoreWithDash takes a ServiceSecretConfig object as input and returns a new instance of ServiceSecretConfig
+// where the values of Source and Target are formatted using the FormatResourceName function to replace underscores with dashes and lowercase,
+// while the other fields remain unchanged. This is done to ensure consistency in the format of container names within the service's secret configuration.
+// this function ensures that source, target names are in an acceptable format for Kubernetes and other systems that may require a specific naming format.
+func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConfig) types.ServiceSecretConfig {
+	newSecretConfig := types.ServiceSecretConfig{
+		Source:     FormatResourceName(secretConfig.Source),
+		Target:     FormatResourceName(secretConfig.Target),
+		UID:        secretConfig.UID,
+		GID:        secretConfig.GID,
+		Mode:       secretConfig.Mode,
+		Extensions: secretConfig.Extensions,
+	}
+
+	return newSecretConfig
 }
