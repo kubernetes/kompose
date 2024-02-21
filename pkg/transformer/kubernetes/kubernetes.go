@@ -319,9 +319,10 @@ func initConfigMapData(configMap *api.ConfigMap, data map[string]string) {
 	binData := map[string][]byte{}
 
 	for k, v := range data {
-		isText := util.IsText([]byte(v))
+		lfText := strings.Replace(v, "\r\n", "\n", -1)
+		isText := util.IsText([]byte(lfText))
 		if isText {
-			stringData[k] = v
+			stringData[k] = lfText
 		} else {
 			binData[k] = []byte(base64.StdEncoding.EncodeToString([]byte(v)))
 		}
