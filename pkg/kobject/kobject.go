@@ -92,6 +92,7 @@ type ConvertOptions struct {
 	ServiceGroupName        string
 	SecretsAsFiles          bool
 	GenerateNetworkPolicies bool
+	PrefixAdd               []string
 }
 
 // IsPodController indicate if the user want to use a controller

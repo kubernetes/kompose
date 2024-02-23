@@ -738,3 +738,108 @@ func TestRemoveEmptyInterfaces(t *testing.T) {
 		})
 	}
 }
+
+func Test_appendPrefixName(t *testing.T) {
+	type args struct {
+		komposeObject *kobject.KomposeObject
+		prefixArray   []string
+	}
+	tests := []struct {
+		name string
+		args args
+		want *kobject.KomposeObject
+	}{
+		{
+			name: "-TEST_FAIL-",
+			args: args{
+				prefixArray: []string{
+					"-TEST_FAIL-",
+				},
+				komposeObject: &kobject.KomposeObject{
+					ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "WEB_API_BAD_NAME"}},
+				},
+			},
+			want: &kobject.KomposeObject{
+				ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "test-fail-web-api-bad-name"}},
+			},
+		},
+		{
+			name: "-TEST_FAIL",
+			args: args{
+				prefixArray: []string{
+					"-TEST_FAIL",
+				},
+				komposeObject: &kobject.KomposeObject{
+					ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "WEB_API_BAD_NAME"}},
+				},
+			},
+			want: &kobject.KomposeObject{
+				ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "test-fail-web-api-bad-name"}},
+			},
+		},
+		{
+			name: "-Testing-Bad-",
+			args: args{
+				prefixArray: []string{
+					"-Testing-Bad-",
+				},
+				komposeObject: &kobject.KomposeObject{
+					ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "WEB_API_BAD_NAME"}},
+				},
+			},
+			want: &kobject.KomposeObject{
+				ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "testing-bad-web-api-bad-name"}},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := appendPrefixName(tt.args.komposeObject, tt.args.prefixArray); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("appendPrefixName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_cleanPrefix(t *testing.T) {
+	tests := []struct {
+		prefix string
+		want   string
+	}{
+		{
+			prefix: "-testing-service",
+			want:   "testing-service",
+		},
+		{
+			prefix: "testing-service-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "testing_service-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "-testing_service-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "-TESTING_SERVICE-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "TESTING_SERVICE-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "-TESTING_SERVICE",
+			want:   "testing-service",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			if got := cleanPrefix(tt.prefix); got != tt.want {
+				t.Errorf("cleanPrefix() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
