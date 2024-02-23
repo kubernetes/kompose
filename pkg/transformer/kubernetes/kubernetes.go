@@ -1473,6 +1473,9 @@ func (k *Kubernetes) configNetworkPolicyForService(service kobject.ServiceConfig
 func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.ConvertOptions) ([]runtime.Object, error) {
 	// this will hold all the converted data
 	var allobjects []runtime.Object
+	if len(opt.PrefixAdd) == 1 {
+		appendPrefixName(&komposeObject, opt.PrefixAdd)
+	}
 
 	if komposeObject.Secrets != nil {
 		secrets, err := k.CreateSecrets(komposeObject)
