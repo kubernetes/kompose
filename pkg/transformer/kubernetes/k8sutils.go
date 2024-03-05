@@ -1003,9 +1003,5 @@ func prependPrefixName(komposeObject *kobject.KomposeObject, prefixRaw string) *
 // It ensures consistency in the format of prefixes
 // prevents issues with leading or trailing dashes affecting resulting service names
 func cleanPrefix(prefix string) string {
-	prefix = strings.Trim(FormatResourceName(prefix), "-")
-	//FormatResourceName(prefix)
-	// prefix = strings.TrimSuffix(prefix, "-")
-	// prefix = strings.TrimPrefix(prefix, "-")
-	return prefix
+	return strings.Trim(FormatResourceName(prefix), "-")
 }

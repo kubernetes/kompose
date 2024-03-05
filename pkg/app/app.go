@@ -142,7 +142,6 @@ func ValidateFlags(args []string, cmd *cobra.Command, opt *kobject.ConvertOption
 		}
 		log.Fatal("Unknown Volume type: ", opt.Volumes, ", possible values are: ", strings.Join(validVolumesTypes, " "))
 	}
-
 }
 
 // ValidateComposeFile validates the compose file provided for conversion
