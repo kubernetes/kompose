@@ -739,10 +739,10 @@ func TestRemoveEmptyInterfaces(t *testing.T) {
 	}
 }
 
-func Test_appendPrefixName(t *testing.T) {
+func Test_prependPrefixName(t *testing.T) {
 	type args struct {
 		komposeObject *kobject.KomposeObject
-		prefixArray   []string
+		prefix        string
 	}
 	tests := []struct {
 		name string
@@ -750,11 +750,9 @@ func Test_appendPrefixName(t *testing.T) {
 		want *kobject.KomposeObject
 	}{
 		{
-			name: "-TEST_FAIL-",
+			name: "prefix with a dash in the start and the end with a hyphen in the middle",
 			args: args{
-				prefixArray: []string{
-					"-TEST_FAIL-",
-				},
+				prefix: "-TEST_FAIL-",
 				komposeObject: &kobject.KomposeObject{
 					ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "WEB_API_BAD_NAME"}},
 				},
@@ -764,11 +762,9 @@ func Test_appendPrefixName(t *testing.T) {
 			},
 		},
 		{
-			name: "-TEST_FAIL",
+			name: "suffix with a dash at the start",
 			args: args{
-				prefixArray: []string{
-					"-TEST_FAIL",
-				},
+				prefix: "-TEST_FAIL",
 				komposeObject: &kobject.KomposeObject{
 					ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "WEB_API_BAD_NAME"}},
 				},
@@ -778,11 +774,9 @@ func Test_appendPrefixName(t *testing.T) {
 			},
 		},
 		{
-			name: "-Testing-Bad-",
+			name: "prefix with dashes at the start and end and dashes in the middle",
 			args: args{
-				prefixArray: []string{
-					"-Testing-Bad-",
-				},
+				prefix: "-Testing-Bad-",
 				komposeObject: &kobject.KomposeObject{
 					ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "WEB_API_BAD_NAME"}},
 				},
@@ -794,8 +788,8 @@ func Test_appendPrefixName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := appendPrefixName(tt.args.komposeObject, tt.args.prefixArray); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("appendPrefixName() = %v, want %v", got, tt.want)
+			if got := prependPrefixName(tt.args.komposeObject, tt.args.prefix); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("prependPrefixName() = %v, want %v", got, tt.want)
 			}
 		})
 	}

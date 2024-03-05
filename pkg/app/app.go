@@ -143,10 +143,6 @@ func ValidateFlags(args []string, cmd *cobra.Command, opt *kobject.ConvertOption
 		log.Fatal("Unknown Volume type: ", opt.Volumes, ", possible values are: ", strings.Join(validVolumesTypes, " "))
 	}
 
-	// Error in case more than 1 entry in array prefix override
-	if len(opt.PrefixAdd) > 1 {
-		log.Fatalf("%v number of prefix cannot be more than 1.", opt.PrefixAdd)
-	}
 }
 
 // ValidateComposeFile validates the compose file provided for conversion
