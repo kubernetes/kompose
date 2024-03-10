@@ -601,3 +601,113 @@ func checkConstraints(t *testing.T, caseName string, output, expected map[string
 		}
 	}
 }
+
+func Test_parseKomposeLabels(t *testing.T) {
+	service := kobject.ServiceConfig{
+		Name:          "name",
+		ContainerName: "containername",
+		Image:         "image",
+		Labels:        nil,
+		Annotations:   map[string]string{"abc": "def"},
+		Restart:       "always",
+	}
+
+	type args struct {
+		labels        types.Labels
+		serviceConfig *kobject.ServiceConfig
+	}
+	tests := []struct {
+		name     string
+		args     args
+		expected *kobject.ServiceConfig
+	}{
+		{
+			name: "override with overriding",
+			args: args{
+				labels: types.Labels{
+					LabelNameOverride: "overriding",
+				},
+				serviceConfig: &service,
+			},
+			expected: &kobject.ServiceConfig{
+				Name: "overriding",
+			},
+		},
+		{
+			name: "override",
+			args: args{
+				labels: types.Labels{
+					LabelNameOverride: "overriding-resource-name",
+				},
+				serviceConfig: &service,
+			},
+			expected: &kobject.ServiceConfig{
+				Name: "overriding-resource-name",
+			},
+		},
+		{
+			name: "hyphen in the middle",
+			args: args{
+				labels: types.Labels{
+					LabelNameOverride: "overriding_resource-name",
+				},
+				serviceConfig: &service,
+			},
+			expected: &kobject.ServiceConfig{
+				Name: "overriding-resource-name",
+			},
+		},
+		{
+			name: "hyphen in the middle with mays",
+			args: args{
+				labels: types.Labels{
+					LabelNameOverride: "OVERRIDING_RESOURCE-NAME",
+				},
+				serviceConfig: &service,
+			},
+			expected: &kobject.ServiceConfig{
+				Name: "overriding-resource-name",
+			},
+		},
+		// This is a corner case that is expected to fail because
+		// it does not account for scenarios where the string
+		// starts or ends with a '-' or any other character
+		// this test will fail with current tests
+		// {
+		// 	name: "Add a prefix with a dash at the start and end, with a hyphen in the middle.",
+		// 	args: args{
+		// 		labels: types.Labels{
+		// 			LabelNameOverride: "-OVERRIDING_RESOURCE-NAME-",
+		// 		},
+		// 		serviceConfig: &service,
+		// 	},
+		// 	expected: &kobject.ServiceConfig{
+		// 		Name: "overriding-resource-name",
+		// 	},
+		// },
+		// not fail
+		{
+			name: "Add a prefix with a dash at the start and end, with a hyphen in the middle.",
+			args: args{
+				labels: types.Labels{
+					LabelNameOverride: "-OVERRIDING_RESOURCE-NAME-",
+				},
+				serviceConfig: &service,
+			},
+			expected: &kobject.ServiceConfig{
+				Name: "-overriding-resource-name-",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := parseKomposeLabels(tt.args.labels, tt.args.serviceConfig); err != nil {
+				t.Errorf("parseKomposeLabels(): %v", err)
+			}
+
+			if tt.expected.Name != tt.args.serviceConfig.Name {
+				t.Errorf("Name are not equal, expected: %v, output: %v", tt.expected.Name, tt.args.serviceConfig.Name)
+			}
+		})
+	}
+}

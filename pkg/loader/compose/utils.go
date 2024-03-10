@@ -22,6 +22,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/compose-spec/compose-go/types"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 
@@ -87,6 +88,8 @@ const (
 	LabelCronJobConcurrencyPolicy = "kompose.cronjob.concurrency_policy"
 	// LabelCronJobBackoffLimit defines the job backoff limit
 	LabelCronJobBackoffLimit = "kompose.cronjob.backoff_limit"
+	// LabelNameOverride defines the override resource name
+	LabelNameOverride = "kompose.service.name_override"
 )
 
 // load environment variables from compose file
@@ -193,4 +196,16 @@ func ReadFile(fileName string) ([]byte, error) {
 		return StdinData, nil
 	}
 	return os.ReadFile(fileName)
+}
+
+// Choose normalized name from resource in case exist LabelNameOverride
+// from label
+func parseResourceName(resourceName string, labels types.Labels) string {
+	// Opted to use normalizeContainerNames over normalizeServiceNames
+	// as in tests, normalization is only to lowercase.
+	normalizedName := normalizeContainerNames(resourceName)
+	if labelValue, exist := labels[LabelNameOverride]; exist {
+		normalizedName = normalizeContainerNames(labelValue)
+	}
+	return normalizedName
 }
