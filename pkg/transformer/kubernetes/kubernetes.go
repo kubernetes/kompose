@@ -29,7 +29,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
@@ -1314,7 +1314,7 @@ func (k *Kubernetes) createConfigMapFromComposeConfig(name string, service kobje
 	for _, config := range service.Configs {
 		currentConfigName := config.Source
 		currentConfigObj := service.ConfigsMetaData[currentConfigName]
-		if currentConfigObj.External.External {
+		if currentConfigObj.External {
 			continue
 		}
 		currentFileName := currentConfigObj.File

@@ -24,7 +24,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/google/go-cmp/cmp"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
