@@ -43,16 +43,16 @@ in order to make building easier.
 
 if the DOCKER_BUILDKIT is '1', then we will use the docker CLI to build the image
 */
-func (c *Build) BuildImage(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg) error {
+func (c *Build) BuildImage(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg, buildTarget string) error {
 	log.Infof("Building image '%s' from directory '%s'", image, path.Base(source))
 
 	outputBuffer := bytes.NewBuffer(nil)
 	var err error
 
 	if usecli, _ := strconv.ParseBool(os.Getenv("DOCKER_BUILDKIT")); usecli {
-		err = buildDockerCli(source, image, dockerfile, buildargs, outputBuffer)
+		err = buildDockerCli(source, image, dockerfile, buildargs, outputBuffer, buildTarget)
 	} else {
-		err = c.buildDockerClient(source, image, dockerfile, buildargs, outputBuffer)
+		err = c.buildDockerClient(source, image, dockerfile, buildargs, outputBuffer, buildTarget)
 	}
 
 	log.Debugf("Image %s build output:\n%s", image, outputBuffer)
@@ -66,7 +66,7 @@ func (c *Build) BuildImage(source string, image string, dockerfile string, build
 	return nil
 }
 
-func (c *Build) buildDockerClient(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg, outputBuffer *bytes.Buffer) error {
+func (c *Build) buildDockerClient(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg, outputBuffer *bytes.Buffer, buildTarget string) error {
 	// Create a temporary file for tarball image packaging
 	tmpFile, err := os.CreateTemp(os.TempDir(), "kompose-image-build-")
 	if err != nil {
@@ -93,13 +93,14 @@ func (c *Build) buildDockerClient(source string, image string, dockerfile string
 		OutputStream: outputBuffer,
 		Dockerfile:   dockerfile,
 		BuildArgs:    buildargs,
+		Target:       buildTarget,
 	}
 
 	// Build it!
 	return c.Client.BuildImage(opts)
 }
 
-func buildDockerCli(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg, outputBuffer *bytes.Buffer) error {
+func buildDockerCli(source string, image string, dockerfile string, buildargs []dockerlib.BuildArg, outputBuffer *bytes.Buffer, buildTarget string) error {
 	args := []string{"build", "-t", image}
 
 	if dockerfile != "" {
@@ -111,6 +112,9 @@ func buildDockerCli(source string, image string, dockerfile string, buildargs []
 	}
 
 	args = append(args, source)
+	if buildTarget != "" {
+		args = append(args, fmt.Sprintf("--target=%s", buildTarget))
+	}
 
 	cmd := exec.Command("docker", args...)
 	cmd.Stdout = outputBuffer
