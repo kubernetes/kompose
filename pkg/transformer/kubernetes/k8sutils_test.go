@@ -29,6 +29,7 @@ import (
 	"github.com/kubernetes/kompose/pkg/testutils"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
+	api "k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -734,6 +735,212 @@ func TestRemoveEmptyInterfaces(t *testing.T) {
 			result := removeEmptyInterfaces(tc.input)
 			if !reflect.DeepEqual(result, tc.output) {
 				t.Errorf("Expected %v, got %v", tc.output, result)
+			}
+		})
+	}
+}
+
+func Test_parseContainerCommandsFromStr(t *testing.T) {
+	tests := []struct {
+		name string
+		line string
+		want []string
+	}{
+		{
+			name: "line comand without spaces in between",
+			line: `[ "bundle", "exec", "thin", "-p", "3000" ]`,
+			want: []string{
+				"bundle", "exec", "thin", "-p", "3000",
+			},
+		},
+		{
+			name: `line comand spaces inside ""`,
+			line: `[ " bundle ",   " exec ", " thin ", " -p ", "3000" ]`,
+			want: []string{
+				"bundle", "exec", "thin", "-p", "3000",
+			},
+		},
+		{
+			name: `more use cases for line comand spaces inside ""`,
+			line: `[  " bundle ",   "exec ",   " thin ", " -p ", "3000  " ]`,
+			want: []string{
+				"bundle", "exec", "thin", "-p", "3000",
+			},
+		},
+		{
+			name: `line command without [] and ""`,
+			line: `bundle exec thin -p 3000`,
+			want: []string{
+				"bundle exec thin -p 3000",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := parseContainerCommandsFromStr(tt.line); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("parseContainerCommandsFromStr() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_fillInitContainers(t *testing.T) {
+	type args struct {
+		template *api.PodTemplateSpec
+		service  kobject.ServiceConfig
+	}
+	tests := []struct {
+		name string
+		args args
+		want []corev1.Container
+	}{
+		{
+			name: "Testing init container are generated from labels with ,",
+			args: args{
+				template: &api.PodTemplateSpec{},
+				service: kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelInitContainerName:   "name",
+						compose.LabelInitContainerImage:  "image",
+						compose.LabelInitContainerComand: `[ "bundle", "exec", "thin", "-p", "3000" ]`,
+					},
+				},
+			},
+			want: []corev1.Container{
+				{
+					Name:  "name",
+					Image: "image",
+					Command: []string{
+						"bundle", "exec", "thin", "-p", "3000",
+					},
+				},
+			},
+		},
+		{
+			name: "Testing init container are generated from labels without ,",
+			args: args{
+				template: &api.PodTemplateSpec{},
+				service: kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelInitContainerName:   "name",
+						compose.LabelInitContainerImage:  "image",
+						compose.LabelInitContainerComand: `bundle exec thin -p 3000`,
+					},
+				},
+			},
+			want: []corev1.Container{
+				{
+					Name:  "name",
+					Image: "image",
+					Command: []string{
+						`bundle exec thin -p 3000`,
+					},
+				},
+			},
+		},
+		{
+			name: `Testing init container with long comand with vars inside and ''`,
+			args: args{
+				template: &api.PodTemplateSpec{},
+				service: kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelInitContainerName:   "init-myservice",
+						compose.LabelInitContainerImage:  "busybox:1.28",
+						compose.LabelInitContainerComand: `['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]`,
+					},
+				},
+			},
+			want: []corev1.Container{
+				{
+					Name:  "init-myservice",
+					Image: "busybox:1.28",
+					Command: []string{
+						"sh", "-c", `until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done`,
+					},
+				},
+			},
+		},
+		{
+			name: `without image`,
+			args: args{
+				template: &api.PodTemplateSpec{},
+				service: kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelInitContainerName:   "init-myservice",
+						compose.LabelInitContainerImage:  "",
+						compose.LabelInitContainerComand: `['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]`,
+					},
+				},
+			},
+			want: nil,
+		},
+		{
+			name: `Testing init container without name`,
+			args: args{
+				template: &api.PodTemplateSpec{},
+				service: kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelInitContainerName:   "",
+						compose.LabelInitContainerImage:  "busybox:1.28",
+						compose.LabelInitContainerComand: `['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]`,
+					},
+				},
+			},
+			want: []corev1.Container{
+				{
+					Name:  "init-service",
+					Image: "busybox:1.28",
+					Command: []string{
+						"sh", "-c", `until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done`,
+					},
+				},
+			},
+		},
+		{
+			name: `Testing init container without command`,
+			args: args{
+				template: &api.PodTemplateSpec{},
+				service: kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelInitContainerName:   "init-service",
+						compose.LabelInitContainerImage:  "busybox:1.28",
+						compose.LabelInitContainerComand: ``,
+					},
+				},
+			},
+			want: []corev1.Container{
+				{
+					Name:    "init-service",
+					Image:   "busybox:1.28",
+					Command: []string{},
+				},
+			},
+		},
+		{
+			name: `Testing init container without command`,
+			args: args{
+				template: &api.PodTemplateSpec{},
+				service: kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelInitContainerName:  "init-service",
+						compose.LabelInitContainerImage: "busybox:1.28",
+					},
+				},
+			},
+			want: []corev1.Container{
+				{
+					Name:    "init-service",
+					Image:   "busybox:1.28",
+					Command: []string{},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fillInitContainers(tt.args.template, tt.args.service)
+			if !reflect.DeepEqual(tt.args.template.Spec.InitContainers, tt.want) {
+				t.Errorf("Test_fillInitContainers Fail got %v, want %v", tt.args.template.Spec.InitContainers, tt.want)
 			}
 		})
 	}
