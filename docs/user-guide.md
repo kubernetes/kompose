@@ -471,13 +471,12 @@ services:
       kompose.volume.sub-path: pg-data
 ```
 
-
 - `kompose.init-contaners.name`  is used to specify the name of the Init Containers for a Pod [Init Container Name](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
 
 For example:
 
 ```yaml
-version: '2'
+version: '3'
 services:
   example-service:
     image: example-image
@@ -490,7 +489,7 @@ services:
 For example:
 
 ```yaml
-version: '2'
+version: '3'
 services:
   example-service:
     image: example-image
@@ -504,7 +503,7 @@ services:
 For example:
 
 ```yaml
-version: '2'
+version: '3'
 services:
   example-service:
     image: example-image

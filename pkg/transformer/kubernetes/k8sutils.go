@@ -986,8 +986,7 @@ func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConf
 	return newSecretConfig
 }
 
-//	looks for an initContainer resources and its passed as labels
-//
+// fillInitContainers looks for an initContainer resources and its passed as labels
 // if there is no image, it does not fill the initContainer
 // https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
 func fillInitContainers(template *api.PodTemplateSpec, service kobject.ServiceConfig) {
@@ -1007,13 +1006,13 @@ func fillInitContainers(template *api.PodTemplateSpec, service kobject.ServiceCo
 	})
 }
 
-// parses a string containing comma-separated commands
-// returns a slice of strings or a single command and
+// parseContainerCommandsFromStr parses a string containing comma-separated commands
+// returns a slice of strings or a single command
 // example:
 // [ "bundle", "exec", "thin", "-p", "3000" ]
 //
 // example:
-// bundle exec thin -p 3000
+// [ "bundle exec thin -p 3000" ]
 func parseContainerCommandsFromStr(line string) []string {
 	if line == "" {
 		return []string{}
