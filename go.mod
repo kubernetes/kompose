@@ -1,6 +1,8 @@
 module github.com/kubernetes/kompose
 
-go 1.18
+go 1.21
+
+toolchain go1.21.8
 
 require (
 	github.com/compose-spec/compose-go/v2 v2.0.0-rc.8

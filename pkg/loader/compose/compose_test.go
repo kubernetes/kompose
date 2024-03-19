@@ -441,7 +441,7 @@ func TestUnsupportedKeys(t *testing.T) {
 			},
 		},
 		Services: types.Services{
-			types.ServiceConfig{
+			"foo": types.ServiceConfig{
 				Name:  "foo",
 				Image: "foo/bar",
 				Build: &types.BuildConfig{
@@ -453,7 +453,7 @@ func TestUnsupportedKeys(t *testing.T) {
 					"net1": {},
 				},
 			},
-			types.ServiceConfig{
+			"bar": types.ServiceConfig{
 				Name:  "bar",
 				Image: "bar/foo",
 				Build: &types.BuildConfig{
@@ -476,7 +476,7 @@ func TestUnsupportedKeys(t *testing.T) {
 
 	projectWithDefaultNetwork := &types.Project{
 		Services: types.Services{
-			types.ServiceConfig{
+			"foo": types.ServiceConfig{
 				Networks: map[string]*types.ServiceNetworkConfig{
 					"default": {},
 				},
