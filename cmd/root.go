@@ -112,5 +112,5 @@ func init() {
 	RootCmd.PersistentFlags().BoolVar(&GlobalErrorOnWarning, "error-on-warning", false, "Treat any warning as an error")
 	RootCmd.PersistentFlags().StringSliceVarP(&GlobalFiles, "file", "f", []string{}, "Specify an alternative compose file")
 	RootCmd.PersistentFlags().StringVar(&GlobalProvider, "provider", "kubernetes", "Specify a provider. Kubernetes or OpenShift.")
-	RootCmd.PersistentFlags().StringVarP(&GlobalPrefixAdd, "prefix", "x", "", "Add prefix in name services")
+	RootCmd.PersistentFlags().StringVarP(&GlobalPrefixAdd, "prefix", "x", "", "Adds a custom prefix to service names")
 }
