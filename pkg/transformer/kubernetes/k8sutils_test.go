@@ -747,21 +747,21 @@ func Test_parseContainerCommandsFromStr(t *testing.T) {
 		want []string
 	}{
 		{
-			name: "line comand without spaces in between",
+			name: "line command without spaces in between",
 			line: `[ "bundle", "exec", "thin", "-p", "3000" ]`,
 			want: []string{
 				"bundle", "exec", "thin", "-p", "3000",
 			},
 		},
 		{
-			name: `line comand spaces inside ""`,
+			name: `line command spaces inside ""`,
 			line: `[ " bundle ",   " exec ", " thin ", " -p ", "3000" ]`,
 			want: []string{
 				"bundle", "exec", "thin", "-p", "3000",
 			},
 		},
 		{
-			name: `more use cases for line comand spaces inside ""`,
+			name: `more use cases for line command spaces inside ""`,
 			line: `[  " bundle ",   "exec ",   " thin ", " -p ", "3000  " ]`,
 			want: []string{
 				"bundle", "exec", "thin", "-p", "3000",
@@ -800,9 +800,9 @@ func Test_fillInitContainers(t *testing.T) {
 				template: &api.PodTemplateSpec{},
 				service: kobject.ServiceConfig{
 					Labels: map[string]string{
-						compose.LabelInitContainerName:   "name",
-						compose.LabelInitContainerImage:  "image",
-						compose.LabelInitContainerComand: `[ "bundle", "exec", "thin", "-p", "3000" ]`,
+						compose.LabelInitContainerName:    "name",
+						compose.LabelInitContainerImage:   "image",
+						compose.LabelInitContainerCommand: `[ "bundle", "exec", "thin", "-p", "3000" ]`,
 					},
 				},
 			},
@@ -822,9 +822,9 @@ func Test_fillInitContainers(t *testing.T) {
 				template: &api.PodTemplateSpec{},
 				service: kobject.ServiceConfig{
 					Labels: map[string]string{
-						compose.LabelInitContainerName:   "name",
-						compose.LabelInitContainerImage:  "image",
-						compose.LabelInitContainerComand: `bundle exec thin -p 3000`,
+						compose.LabelInitContainerName:    "name",
+						compose.LabelInitContainerImage:   "image",
+						compose.LabelInitContainerCommand: `bundle exec thin -p 3000`,
 					},
 				},
 			},
@@ -839,14 +839,14 @@ func Test_fillInitContainers(t *testing.T) {
 			},
 		},
 		{
-			name: `Testing init container with long comand with vars inside and ''`,
+			name: `Testing init container with long command with vars inside and ''`,
 			args: args{
 				template: &api.PodTemplateSpec{},
 				service: kobject.ServiceConfig{
 					Labels: map[string]string{
-						compose.LabelInitContainerName:   "init-myservice",
-						compose.LabelInitContainerImage:  "busybox:1.28",
-						compose.LabelInitContainerComand: `['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]`,
+						compose.LabelInitContainerName:    "init-myservice",
+						compose.LabelInitContainerImage:   "busybox:1.28",
+						compose.LabelInitContainerCommand: `['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]`,
 					},
 				},
 			},
@@ -866,9 +866,9 @@ func Test_fillInitContainers(t *testing.T) {
 				template: &api.PodTemplateSpec{},
 				service: kobject.ServiceConfig{
 					Labels: map[string]string{
-						compose.LabelInitContainerName:   "init-myservice",
-						compose.LabelInitContainerImage:  "",
-						compose.LabelInitContainerComand: `['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]`,
+						compose.LabelInitContainerName:    "init-myservice",
+						compose.LabelInitContainerImage:   "",
+						compose.LabelInitContainerCommand: `['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]`,
 					},
 				},
 			},
@@ -880,9 +880,9 @@ func Test_fillInitContainers(t *testing.T) {
 				template: &api.PodTemplateSpec{},
 				service: kobject.ServiceConfig{
 					Labels: map[string]string{
-						compose.LabelInitContainerName:   "",
-						compose.LabelInitContainerImage:  "busybox:1.28",
-						compose.LabelInitContainerComand: `['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]`,
+						compose.LabelInitContainerName:    "",
+						compose.LabelInitContainerImage:   "busybox:1.28",
+						compose.LabelInitContainerCommand: `['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]`,
 					},
 				},
 			},
@@ -902,9 +902,9 @@ func Test_fillInitContainers(t *testing.T) {
 				template: &api.PodTemplateSpec{},
 				service: kobject.ServiceConfig{
 					Labels: map[string]string{
-						compose.LabelInitContainerName:   "init-service",
-						compose.LabelInitContainerImage:  "busybox:1.28",
-						compose.LabelInitContainerComand: ``,
+						compose.LabelInitContainerName:    "init-service",
+						compose.LabelInitContainerImage:   "busybox:1.28",
+						compose.LabelInitContainerCommand: ``,
 					},
 				},
 			},

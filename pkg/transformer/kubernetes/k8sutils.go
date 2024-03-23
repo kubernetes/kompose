@@ -1001,7 +1001,7 @@ func fillInitContainers(template *api.PodTemplateSpec, service kobject.ServiceCo
 
 	template.Spec.InitContainers = append(template.Spec.InitContainers, api.Container{
 		Name:    resourceName,
-		Command: parseContainerCommandsFromStr(service.Labels[compose.LabelInitContainerComand]),
+		Command: parseContainerCommandsFromStr(service.Labels[compose.LabelInitContainerCommand]),
 		Image:   resourceImage,
 	})
 }
