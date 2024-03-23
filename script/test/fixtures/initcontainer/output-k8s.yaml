@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: web
+  template:
+    metadata:
+      labels:
+        io.kompose.network/initcontainer-default: "true"
+        io.kompose.service: web
+    spec:
+      containers:
+        - image: nginx
+          name: web
+      initContainers:
+        - command:
+            - sh
+            - -c
+            - until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done
+          image: busybox:1.28
+          name: init-myservice
+      restartPolicy: Always
