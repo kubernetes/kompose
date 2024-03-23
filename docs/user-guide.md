@@ -172,6 +172,31 @@ compose
 
 The chart structure is aimed at providing a skeleton for building your Helm charts. It's compatible with both Helm V2 and Helm V3.
 
+##### Adding a Custom Prefix to Service Names
+
+The `--prefix` / `-x` functionality allows you to add a custom prefix to the service names.
+
+large format:
+```
+$ kompose convert --prefix prefix-name -f compose.yaml
+```
+
+short format:
+```
+$ kompose convert -x prefix-name -f compose.yaml
+```
+
+example compose.yaml:
+```
+version: "3"
+services:
+  nginx:
+    image: nginx
+```
+
+result:
+
+
 ## Labels
 
 `kompose` supports Kompose-specific labels within the `compose.yml` file to

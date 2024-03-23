@@ -203,6 +203,7 @@ func init() {
 	convertCmd.Flags().BoolVar(&GenerateNetworkPolicies, "generate-network-policies", false, "Specify whether to generate network policies or not")
 
 	convertCmd.Flags().BoolVar(&WithKomposeAnnotation, "with-kompose-annotation", true, "Add kompose annotations to generated resource")
+	convertCmd.Flags().StringVarP(&GlobalPrefixAdd, "prefix", "x", "", "Adds a custom prefix to service names")
 
 	// Deprecated commands
 	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
@@ -231,7 +232,7 @@ Kubernetes Flags:
       --controller               Set the output controller ("deployment"|"daemonSet"|"replicationController")
       --service-group-mode       Group multiple service to create single workload by "label"("kompose.service.group") or "volume"(shared volumes)
       --service-group-name       Using with --service-group-mode=volume to specific a final service name for the group
-
+  -x, --prefix                   Adds a custom prefix to service names
 OpenShift Flags:
       --build-branch             Specify repository branch to use for buildconfig (default is current branch name)
       --build-repo               Specify source repository for buildconfig (default is current branch's remote url)
