@@ -24,7 +24,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/google/go-cmp/cmp"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
@@ -429,6 +429,52 @@ func TestLoadEnvVar(t *testing.T) {
 	}
 }
 
+func TestParseEnvFiles(t *testing.T) {
+	tests := []struct {
+		service types.ServiceConfig
+		want    []string
+	}{
+		{service: types.ServiceConfig{
+			Name:  "baz",
+			Image: "foo/baz",
+			EnvFiles: []types.EnvFile{
+				{
+					Path:     "",
+					Required: false,
+				},
+				{
+					Path:     "foo",
+					Required: false,
+				},
+				{
+					Path:     "bar",
+					Required: true,
+				},
+			},
+		},
+			want: []string{"", "foo", "bar"},
+		},
+		{
+			service: types.ServiceConfig{
+				Name:     "baz",
+				Image:    "foo/baz",
+				EnvFiles: []types.EnvFile{},
+			},
+			want: []string{},
+		},
+	}
+
+	for _, tt := range tests {
+		sc := kobject.ServiceConfig{
+			EnvFile: []string{},
+		}
+		parseEnvFiles(&tt.service, &sc)
+		if !reflect.DeepEqual(sc.EnvFile, tt.want) {
+			t.Errorf("Expected %q, got %q", tt.want, sc.EnvFile)
+		}
+	}
+}
+
 // TestUnsupportedKeys test checkUnsupportedKey function with various
 // docker-compose projects
 func TestUnsupportedKeys(t *testing.T) {
@@ -441,7 +487,7 @@ func TestUnsupportedKeys(t *testing.T) {
 			},
 		},
 		Services: types.Services{
-			types.ServiceConfig{
+			"foo": types.ServiceConfig{
 				Name:  "foo",
 				Image: "foo/bar",
 				Build: &types.BuildConfig{
@@ -453,7 +499,7 @@ func TestUnsupportedKeys(t *testing.T) {
 					"net1": {},
 				},
 			},
-			types.ServiceConfig{
+			"bar": types.ServiceConfig{
 				Name:  "bar",
 				Image: "bar/foo",
 				Build: &types.BuildConfig{
@@ -476,7 +522,7 @@ func TestUnsupportedKeys(t *testing.T) {
 
 	projectWithDefaultNetwork := &types.Project{
 		Services: types.Services{
-			types.ServiceConfig{
+			"foo": types.ServiceConfig{
 				Networks: map[string]*types.ServiceNetworkConfig{
 					"default": {},
 				},
