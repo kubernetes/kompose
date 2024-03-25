@@ -985,3 +985,9 @@ func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConf
 
 	return newSecretConfig
 }
+
+// It ensures consistency in the format of prefixes
+// prevents issues with leading or trailing dashes affecting resulting service names
+func cleanPrefix(prefix string) string {
+	return strings.Trim(FormatResourceName(prefix), "-")
+}

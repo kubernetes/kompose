@@ -601,3 +601,87 @@ func checkConstraints(t *testing.T, caseName string, output, expected map[string
 		}
 	}
 }
+
+func Test_formatNormalizeResourceName(t *testing.T) {
+	type args struct {
+		resourceName string
+		prefix       string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "Prefix present without underscore without dash",
+			args: args{
+				resourceName: "resource-name",
+				prefix:       "prefix",
+			},
+			want: "prefix-resource-name",
+		},
+		{
+			name: "Prefix present with underscore",
+			args: args{
+				resourceName: "resource-name",
+				prefix:       "prefix_",
+			},
+			want: "prefix-resource-name",
+		},
+		{
+			name: "Prefix present with dash",
+			args: args{
+				resourceName: "resource-name",
+				prefix:       "prefix-",
+			},
+			want: "prefix-resource-name",
+		},
+		{
+			name: "Prefix present with uppercase and underscore",
+			args: args{
+				resourceName: "RESOURCE-NAME",
+				prefix:       "PREFIX_",
+			},
+			want: "prefix-resource-name",
+		},
+		{
+			name: "Prefix present with dash and underscore",
+			args: args{
+				resourceName: "RESOURCE-NAME-",
+				prefix:       "-PREFIX_",
+			},
+			want: "prefix-resource-name",
+		},
+		{
+			name: "without prefix, resourcename with dash",
+			args: args{
+				resourceName: "RESOURCE-NAME-",
+				prefix:       "",
+			},
+			want: "resource-name",
+		},
+		{
+			name: "without prefix, resourcename with underscore and dash",
+			args: args{
+				resourceName: "RESOURCE-NAME_",
+				prefix:       "",
+			},
+			want: "resource-name",
+		},
+		{
+			name: "without prefix, resourcename with underscore",
+			args: args{
+				resourceName: "_RESOURCE_NAME_",
+				prefix:       "",
+			},
+			want: "resource-name",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := formatNormalizeResourceName(tt.args.resourceName, tt.args.prefix); got != tt.want {
+				t.Errorf("formatNormalizeResourceName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

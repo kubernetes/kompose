@@ -738,3 +738,46 @@ func TestRemoveEmptyInterfaces(t *testing.T) {
 		})
 	}
 }
+
+func Test_cleanPrefix(t *testing.T) {
+	tests := []struct {
+		prefix string
+		want   string
+	}{
+		{
+			prefix: "-testing-service",
+			want:   "testing-service",
+		},
+		{
+			prefix: "testing-service-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "testing_service-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "-testing_service-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "-TESTING_SERVICE-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "TESTING_SERVICE-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "-TESTING_SERVICE",
+			want:   "testing-service",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			if got := cleanPrefix(tt.prefix); got != tt.want {
+				t.Errorf("cleanPrefix() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -17,11 +17,13 @@ limitations under the License.
 package compose
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"regexp"
 	"strings"
 
+	"github.com/compose-spec/compose-go/types"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 
@@ -193,4 +195,22 @@ func ReadFile(fileName string) ([]byte, error) {
 		return StdinData, nil
 	}
 	return os.ReadFile(fileName)
+}
+
+// Iterates over each service in the project
+// and modifies its name by adding the specified prefix
+func addPrefixToServiceName(project *types.Project, prefix string) {
+	for key := range project.Services {
+		project.Services[key].Name = formatNormalizeResourceName(project.Services[key].Name, prefix)
+	}
+}
+
+// Opted to use normalizeContainerNames over normalizeServiceNames
+// as in tests, normalization is only to lowercase.
+func formatNormalizeResourceName(resourceName string, prefix string) string {
+	if prefix != "" {
+		prefix = strings.ToLower(strings.Trim(prefix, "_-")) + "-"
+	}
+	resourceName = strings.Trim(strings.ToLower(strings.ReplaceAll(resourceName, "_", "-")), "-")
+	return fmt.Sprintf("%s%s", prefix, resourceName)
 }
