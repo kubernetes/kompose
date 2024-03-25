@@ -739,62 +739,6 @@ func TestRemoveEmptyInterfaces(t *testing.T) {
 	}
 }
 
-func Test_prependPrefixName(t *testing.T) {
-	type args struct {
-		komposeObject *kobject.KomposeObject
-		prefix        string
-	}
-	tests := []struct {
-		name string
-		args args
-		want *kobject.KomposeObject
-	}{
-		{
-			name: "prefix with a dash in the start and the end with a hyphen in the middle",
-			args: args{
-				prefix: "-TEST_FAIL-",
-				komposeObject: &kobject.KomposeObject{
-					ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "WEB_API_BAD_NAME"}},
-				},
-			},
-			want: &kobject.KomposeObject{
-				ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "test-fail-web-api-bad-name"}},
-			},
-		},
-		{
-			name: "suffix with a dash at the start",
-			args: args{
-				prefix: "-TEST_FAIL",
-				komposeObject: &kobject.KomposeObject{
-					ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "WEB_API_BAD_NAME"}},
-				},
-			},
-			want: &kobject.KomposeObject{
-				ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "test-fail-web-api-bad-name"}},
-			},
-		},
-		{
-			name: "prefix with dashes at the start and end and dashes in the middle",
-			args: args{
-				prefix: "-Testing-Bad-",
-				komposeObject: &kobject.KomposeObject{
-					ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "WEB_API_BAD_NAME"}},
-				},
-			},
-			want: &kobject.KomposeObject{
-				ServiceConfigs: map[string]kobject.ServiceConfig{"app": {Name: "testing-bad-web-api-bad-name"}},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := prependPrefixName(tt.args.komposeObject, tt.args.prefix); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("prependPrefixName() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_cleanPrefix(t *testing.T) {
 	tests := []struct {
 		prefix string

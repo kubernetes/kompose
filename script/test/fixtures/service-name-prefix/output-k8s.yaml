@@ -1,0 +1,147 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: prefix-name-db
+  name: prefix-name-db
+spec:
+  ports:
+    - name: "3306"
+      port: 3306
+      targetPort: 3306
+  selector:
+    io.kompose.service: prefix-name-db
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: prefix-name-wordpress
+  name: prefix-name-wordpress
+spec:
+  ports:
+    - name: "8000"
+      port: 8000
+      targetPort: 80
+  selector:
+    io.kompose.service: prefix-name-wordpress
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: prefix-name-db
+  name: prefix-name-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: prefix-name-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/service-name-prefix-default: "true"
+        io.kompose.service: prefix-name-db
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+              value: wordpress
+            - name: MYSQL_PASSWORD
+              value: wordpress
+            - name: MYSQL_ROOT_PASSWORD
+              value: somewordpress
+            - name: MYSQL_USER
+              value: wordpress
+          image: mysql:5.7
+          name: prefix-name-db
+          ports:
+            - containerPort: 3306
+              hostPort: 3306
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: db-data
+      restartPolicy: Always
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: db-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: db-data
+  name: db-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: prefix-name-wordpress
+  name: prefix-name-wordpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: prefix-name-wordpress
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/service-name-prefix-default: "true"
+        io.kompose.service: prefix-name-wordpress
+    spec:
+      containers:
+        - env:
+            - name: WORDPRESS_DB_HOST
+              value: db:3306
+            - name: WORDPRESS_DB_NAME
+              value: wordpress
+            - name: WORDPRESS_DB_PASSWORD
+              value: wordpress
+            - name: WORDPRESS_DB_USER
+              value: wordpress
+          image: wordpress:latest
+          name: prefix-name-wordpress
+          ports:
+            - containerPort: 80
+              hostPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: wordpress-data
+      restartPolicy: Always
+      volumes:
+        - name: wordpress-data
+          persistentVolumeClaim:
+            claimName: wordpress-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: wordpress-data
+  name: wordpress-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

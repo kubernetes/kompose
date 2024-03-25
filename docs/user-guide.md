@@ -195,7 +195,31 @@ services:
 ```
 
 result:
-
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  [...]
+  labels:
+    io.kompose.service: prefix-name-nginx
+  name: prefix-name-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: prefix-name-nginx
+  template:
+    metadata:
+      [...]
+      labels:
+        io.kompose.network/kompose-default: "true"
+        io.kompose.service: prefix-name-nginx
+    spec:
+      containers:
+        - image: nginx
+          name: prefix-name-nginx
+      restartPolicy: Always
+```
 
 ## Labels
 

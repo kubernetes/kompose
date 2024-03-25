@@ -17,6 +17,7 @@ limitations under the License.
 package compose
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -88,8 +89,6 @@ const (
 	LabelCronJobConcurrencyPolicy = "kompose.cronjob.concurrency_policy"
 	// LabelCronJobBackoffLimit defines the job backoff limit
 	LabelCronJobBackoffLimit = "kompose.cronjob.backoff_limit"
-	// LabelNameOverride defines the override resource name
-	LabelNameOverride = "kompose.service.name_override"
 )
 
 // load environment variables from compose file
@@ -198,14 +197,20 @@ func ReadFile(fileName string) ([]byte, error) {
 	return os.ReadFile(fileName)
 }
 
-// Choose normalized name from resource in case exist LabelNameOverride
-// from label
-func parseResourceName(resourceName string, labels types.Labels) string {
-	// Opted to use normalizeContainerNames over normalizeServiceNames
-	// as in tests, normalization is only to lowercase.
-	normalizedName := normalizeContainerNames(resourceName)
-	if labelValue, exist := labels[LabelNameOverride]; exist {
-		normalizedName = normalizeContainerNames(labelValue)
+// Iterates over each service in the project
+// and modifies its name by adding the specified prefix
+func addPrefixToServiceName(project *types.Project, prefix string) {
+	for key := range project.Services {
+		project.Services[key].Name = formatNormalizeResourceName(project.Services[key].Name, prefix)
 	}
-	return normalizedName
+}
+
+// Opted to use normalizeContainerNames over normalizeServiceNames
+// as in tests, normalization is only to lowercase.
+func formatNormalizeResourceName(resourceName string, prefix string) string {
+	if prefix != "" {
+		prefix = strings.ToLower(strings.Trim(prefix, "_-")) + "-"
+	}
+	resourceName = strings.Trim(strings.ToLower(strings.ReplaceAll(resourceName, "_", "-")), "-")
+	return fmt.Sprintf("%s%s", prefix, resourceName)
 }

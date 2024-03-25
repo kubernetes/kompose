@@ -150,7 +150,7 @@ func checkUnsupportedKey(composeProject *types.Project) []string {
 }
 
 // LoadFile loads a compose file into KomposeObject
-func (c *Compose) LoadFile(files []string, profiles []string) (kobject.KomposeObject, error) {
+func (c *Compose) LoadFile(files []string, profiles []string, prefix string) (kobject.KomposeObject, error) {
 	// Gather the working directory
 	workingDir, err := transformer.GetComposeFileDir(files)
 	if err != nil {
@@ -178,6 +178,9 @@ func (c *Compose) LoadFile(files []string, profiles []string) (kobject.KomposeOb
 	// In both cases we should provide the user with a warning indicating that we didn't find any service.
 	if len(project.Services) == 0 {
 		log.Warning("No service selected. The profile specified in services of your compose yaml may not exist.")
+	}
+	if prefix != "" {
+		addPrefixToServiceName(project, prefix)
 	}
 
 	komposeObject, err := dockerComposeToKomposeMapping(project)
@@ -464,7 +467,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 	for _, composeServiceConfig := range composeObject.Services {
 		// Standard import
 		// No need to modify before importation
-		name := parseResourceName(composeServiceConfig.Name, composeServiceConfig.Labels)
+		name := strings.ToLower(composeServiceConfig.Name)
 		serviceConfig := kobject.ServiceConfig{}
 		serviceConfig.Name = name
 		serviceConfig.Image = composeServiceConfig.Image
@@ -792,10 +795,6 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 			}
 
 			serviceConfig.CronJobBackoffLimit = cronJobBackoffLimit
-		case LabelNameOverride:
-			// generate a valid k8s resource name
-			normalizedName := normalizeServiceNames(value)
-			serviceConfig.Name = normalizedName
 		default:
 			serviceConfig.Labels[key] = value
 		}

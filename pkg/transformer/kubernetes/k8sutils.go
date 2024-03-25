@@ -986,20 +986,6 @@ func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConf
 	return newSecretConfig
 }
 
-// It takes a pointer to a KomposeObject and an array of prefixes
-// The first prefix from the array is used for appending
-// This function modifies the original KomposeObject directly
-func prependPrefixName(komposeObject *kobject.KomposeObject, prefixRaw string) *kobject.KomposeObject {
-	prefixCleaned := cleanPrefix(prefixRaw)
-	for name, service := range komposeObject.ServiceConfigs {
-		serviceName := fmt.Sprintf("%s-%s", prefixCleaned, service.Name)
-		serviceName = FormatResourceName(serviceName)
-		service.Name = serviceName
-		komposeObject.ServiceConfigs[name] = service
-	}
-	return komposeObject
-}
-
 // It ensures consistency in the format of prefixes
 // prevents issues with leading or trailing dashes affecting resulting service names
 func cleanPrefix(prefix string) string {

@@ -602,111 +602,85 @@ func checkConstraints(t *testing.T, caseName string, output, expected map[string
 	}
 }
 
-func Test_parseKomposeLabels(t *testing.T) {
-	service := kobject.ServiceConfig{
-		Name:          "name",
-		ContainerName: "containername",
-		Image:         "image",
-		Labels:        nil,
-		Annotations:   map[string]string{"abc": "def"},
-		Restart:       "always",
-	}
-
+func Test_formatNormalizeResourceName(t *testing.T) {
 	type args struct {
-		labels        types.Labels
-		serviceConfig *kobject.ServiceConfig
+		resourceName string
+		prefix       string
 	}
 	tests := []struct {
-		name     string
-		args     args
-		expected *kobject.ServiceConfig
+		name string
+		args args
+		want string
 	}{
 		{
-			name: "override with overriding",
+			name: "Prefix present without underscore without dash",
 			args: args{
-				labels: types.Labels{
-					LabelNameOverride: "overriding",
-				},
-				serviceConfig: &service,
+				resourceName: "resource-name",
+				prefix:       "prefix",
 			},
-			expected: &kobject.ServiceConfig{
-				Name: "overriding",
-			},
+			want: "prefix-resource-name",
 		},
 		{
-			name: "override",
+			name: "Prefix present with underscore",
 			args: args{
-				labels: types.Labels{
-					LabelNameOverride: "overriding-resource-name",
-				},
-				serviceConfig: &service,
+				resourceName: "resource-name",
+				prefix:       "prefix_",
 			},
-			expected: &kobject.ServiceConfig{
-				Name: "overriding-resource-name",
-			},
+			want: "prefix-resource-name",
 		},
 		{
-			name: "hyphen in the middle",
+			name: "Prefix present with dash",
 			args: args{
-				labels: types.Labels{
-					LabelNameOverride: "overriding_resource-name",
-				},
-				serviceConfig: &service,
+				resourceName: "resource-name",
+				prefix:       "prefix-",
 			},
-			expected: &kobject.ServiceConfig{
-				Name: "overriding-resource-name",
-			},
+			want: "prefix-resource-name",
 		},
 		{
-			name: "hyphen in the middle with mays",
+			name: "Prefix present with uppercase and underscore",
 			args: args{
-				labels: types.Labels{
-					LabelNameOverride: "OVERRIDING_RESOURCE-NAME",
-				},
-				serviceConfig: &service,
+				resourceName: "RESOURCE-NAME",
+				prefix:       "PREFIX_",
 			},
-			expected: &kobject.ServiceConfig{
-				Name: "overriding-resource-name",
-			},
+			want: "prefix-resource-name",
 		},
-		// This is a corner case that is expected to fail because
-		// it does not account for scenarios where the string
-		// starts or ends with a '-' or any other character
-		// this test will fail with current tests
-		// {
-		// 	name: "Add a prefix with a dash at the start and end, with a hyphen in the middle.",
-		// 	args: args{
-		// 		labels: types.Labels{
-		// 			LabelNameOverride: "-OVERRIDING_RESOURCE-NAME-",
-		// 		},
-		// 		serviceConfig: &service,
-		// 	},
-		// 	expected: &kobject.ServiceConfig{
-		// 		Name: "overriding-resource-name",
-		// 	},
-		// },
-		// not fail
 		{
-			name: "Add a prefix with a dash at the start and end, with a hyphen in the middle.",
+			name: "Prefix present with dash and underscore",
 			args: args{
-				labels: types.Labels{
-					LabelNameOverride: "-OVERRIDING_RESOURCE-NAME-",
-				},
-				serviceConfig: &service,
+				resourceName: "RESOURCE-NAME-",
+				prefix:       "-PREFIX_",
 			},
-			expected: &kobject.ServiceConfig{
-				Name: "-overriding-resource-name-",
+			want: "prefix-resource-name",
+		},
+		{
+			name: "without prefix, resourcename with dash",
+			args: args{
+				resourceName: "RESOURCE-NAME-",
+				prefix:       "",
 			},
+			want: "resource-name",
+		},
+		{
+			name: "without prefix, resourcename with underscore and dash",
+			args: args{
+				resourceName: "RESOURCE-NAME_",
+				prefix:       "",
+			},
+			want: "resource-name",
+		},
+		{
+			name: "without prefix, resourcename with underscore",
+			args: args{
+				resourceName: "_RESOURCE_NAME_",
+				prefix:       "",
+			},
+			want: "resource-name",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := parseKomposeLabels(tt.args.labels, tt.args.serviceConfig); err != nil {
-				t.Errorf("parseKomposeLabels(): %v", err)
-			}
-
-			if tt.expected.Name != tt.args.serviceConfig.Name {
-				t.Errorf("Name are not equal, expected: %v, output: %v", tt.expected.Name, tt.args.serviceConfig.Name)
+			if got := formatNormalizeResourceName(tt.args.resourceName, tt.args.prefix); got != tt.want {
+				t.Errorf("formatNormalizeResourceName() = %v, want %v", got, tt.want)
 			}
 		})
 	}
