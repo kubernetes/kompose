@@ -429,6 +429,52 @@ func TestLoadEnvVar(t *testing.T) {
 	}
 }
 
+func TestParseEnvFiles(t *testing.T) {
+	tests := []struct {
+		service types.ServiceConfig
+		want    []string
+	}{
+		{service: types.ServiceConfig{
+			Name:  "baz",
+			Image: "foo/baz",
+			EnvFiles: []types.EnvFile{
+				{
+					Path:     "",
+					Required: false,
+				},
+				{
+					Path:     "foo",
+					Required: false,
+				},
+				{
+					Path:     "bar",
+					Required: true,
+				},
+			},
+		},
+			want: []string{"", "foo", "bar"},
+		},
+		{
+			service: types.ServiceConfig{
+				Name:     "baz",
+				Image:    "foo/baz",
+				EnvFiles: []types.EnvFile{},
+			},
+			want: []string{},
+		},
+	}
+
+	for _, tt := range tests {
+		sc := kobject.ServiceConfig{
+			EnvFile: []string{},
+		}
+		parseEnvFiles(&tt.service, &sc)
+		if !reflect.DeepEqual(sc.EnvFile, tt.want) {
+			t.Errorf("Expected %q, got %q", tt.want, sc.EnvFile)
+		}
+	}
+}
+
 // TestUnsupportedKeys test checkUnsupportedKey function with various
 // docker-compose projects
 func TestUnsupportedKeys(t *testing.T) {

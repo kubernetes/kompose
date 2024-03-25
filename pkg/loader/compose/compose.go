@@ -698,6 +698,7 @@ func parseEnvironment(composeServiceConfig *types.ServiceConfig, serviceConfig *
 func parseEnvFiles(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) {
 	for _, value := range composeServiceConfig.EnvFiles {
 		serviceConfig.EnvFile = append(serviceConfig.EnvFile, value.Path)
+		// value.Required is ignored
 	}
 }
 
