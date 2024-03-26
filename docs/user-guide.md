@@ -211,6 +211,10 @@ The currently supported options are:
 | kompose.cronjob.schedule                            | kubernetes cronjob schedule (for example: '1 * * * *')                               |
 | kompose.cronjob.concurrency_policy                  | 'Forbid' / 'Allow' / 'Never' / ''                                                    |
 | kompose.cronjob.backoff_limit                       | kubernetes cronjob backoff limit (for example: '6')                                  |
+| kompose.hpa.minreplicas                             | defines Horizontal Pod Autoscaler min pod replicas                                   |
+| kompose.hpa.maxreplicas                             | defines Horizontal Pod Autoscaler max pod replicas                                   |
+| kompose.hpa.cpu                                     | defines Horizontal Pod Autoscaler cpu utilization trigger                            |
+| kompose.hpa.memory                                  | defines Horizontal Pod Autoscaler memory utilization trigger                         |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -467,6 +471,63 @@ services:
     labels:
       kompose.volume.sub-path: pg-data
 ```
+
+- `kompose.hpa.minreplicas` defines minimum replicas from Horizontal Pod Autoscaler. Default value 1 [HPA Min Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+
+For example:
+
+```yaml
+version: '3.8'
+
+services:
+  pgadmin:
+    image: postgres
+    labels:
+      kompose.hpa.minreplicas: 1
+```
+
+- `kompose.hpa.maxreplicas` defines maximum replicas from Horizontal Pod Autoscaler. Default value 10 [HPA Max Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+
+For example:
+
+```yaml
+version: '3.8'
+
+services:
+  pgadmin:
+    image: postgres
+    labels:
+      kompose.hpa.maxreplicas: 10
+```
+
+- `kompose.hpa.cpu` defines % cpu utilization trigger scale from Horizontal Pod Autoscaler. It is represented as a percentage of a resource. Default value: 50 [HPA CPU Utilization](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+
+For example:
+
+```yaml
+version: '3.8'
+
+services:
+  pgadmin:
+    image: postgres
+    labels:
+      kompose.hpa.cpu: 50
+```
+
+- `kompose.hpa.memory` defines memory utilization trigger scale from Horizontal Pod Autoscaler. It is represented as a percentage of a resource. Default value: 70 [HPA Memory Utilization](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+
+For example:
+
+```yaml
+version: '3.8'
+
+services:
+  pgadmin:
+    image: postgres
+    labels:
+      kompose.hpa.memory: 50
+```
+
 ## Restart
 
 If you want to create normal pods without controller you can use `restart` construct of compose to define that. Follow table below to see what happens on the `restart` value.

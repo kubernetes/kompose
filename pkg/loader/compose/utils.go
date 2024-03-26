@@ -87,6 +87,14 @@ const (
 	LabelCronJobConcurrencyPolicy = "kompose.cronjob.concurrency_policy"
 	// LabelCronJobBackoffLimit defines the job backoff limit
 	LabelCronJobBackoffLimit = "kompose.cronjob.backoff_limit"
+	// LabelHpaMinReplicas defines min pod replicas
+	LabelHpaMinReplicas = "kompose.hpa.minreplicas"
+	// LabelHpaMaxReplicas defines max pod replicas
+	LabelHpaMaxReplicas = "kompose.hpa.maxreplicas"
+	// LabelHpaCpu defines scaling decisions based on CPU utilization
+	LabelHpaCPU = "kompose.hpa.cpu"
+	// LabelHpaMemory defines scaling decisions based on memory utilization
+	LabelHpaMemory = "kompose.hpa.memory"
 )
 
 // load environment variables from compose file
