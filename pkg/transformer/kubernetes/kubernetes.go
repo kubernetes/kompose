@@ -1654,6 +1654,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				return nil, err
 			}
 		}
+		err = k.configHorizontalPodScaler(name, service, opt, &objects)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
+		}
 		allobjects = append(allobjects, objects...)
 	}
 
@@ -1716,5 +1720,18 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 	case *buildapi.BuildConfig:
 		updateMeta(&t.ObjectMeta)
 	}
+	return nil
+}
+
+// configHorizontalPodScaler create Hpa resource also append to the objects
+// first checks if the service labels contain any HPA labels using the searchHPAValues
+func (k *Kubernetes) configHorizontalPodScaler(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, objects *[]runtime.Object) (err error) {
+	found := searchHPAValues(service.Labels)
+	if !found {
+		return nil
+	}
+
+	hpa := createHPAResources(name, &service)
+	*objects = append(*objects, &hpa)
 	return nil
 }

@@ -29,7 +29,9 @@ import (
 	"github.com/kubernetes/kompose/pkg/testutils"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
+	hpa "k8s.io/api/autoscaling/v2beta2"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 /*
@@ -734,6 +736,582 @@ func TestRemoveEmptyInterfaces(t *testing.T) {
 			result := removeEmptyInterfaces(tc.input)
 			if !reflect.DeepEqual(result, tc.output) {
 				t.Errorf("Expected %v, got %v", tc.output, result)
+			}
+		})
+	}
+}
+
+func Test_getHpaValue(t *testing.T) {
+	type args struct {
+		service      *kobject.ServiceConfig
+		label        string
+		defaultValue int32
+	}
+	tests := []struct {
+		name string
+		args args
+		want int32
+	}{
+		// LabelHpaMinReplicas
+		{
+			name: "LabelHpaMinReplicas with 1 value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaMinReplicas,
+				defaultValue: 1,
+			},
+			want: 1,
+		},
+		{
+			name: "LabelHpaMinReplicas with 0 value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "0",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaMinReplicas,
+				defaultValue: 1,
+			},
+			want: 1,
+		},
+		{
+			name: "LabelHpaMinReplicas with error value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "cannot transform",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaMinReplicas,
+				defaultValue: 1,
+			},
+			want: 1,
+		},
+		// LabelHpaMaxReplicas
+		{
+			name: "LabelHpaMaxReplicas with 10 value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaMaxReplicas,
+				defaultValue: 30,
+			},
+			want: 10,
+		},
+		{
+			name: "LabelHpaMaxReplicas with 0 value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "0",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaMaxReplicas,
+				defaultValue: 10,
+			},
+			want: 10,
+		},
+		{
+			name: "LabelHpaMaxReplicas with error value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "cannot transform",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaMaxReplicas,
+				defaultValue: 10,
+			},
+			want: 10,
+		},
+		// LabelHpaCPU
+		{
+			name: "LabelHpaCPU with 50 value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaCPU,
+				defaultValue: 30,
+			},
+			want: 50,
+		},
+		{
+			name: "LabelHpaCPU with 0 value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "0",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaCPU,
+				defaultValue: 50,
+			},
+			want: 50,
+		},
+		{
+			name: "LabelHpaCPU with error value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "cannot transform",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaCPU,
+				defaultValue: 50,
+			},
+			want: 50,
+		},
+		// LabelHpaMemory
+		{
+			name: "LabelHpaMemory with 70 value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+				label:        compose.LabelHpaMemory,
+				defaultValue: 30,
+			},
+			want: 70,
+		},
+		{
+			name: "LabelHpaMemory with 0 value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "0",
+					},
+				},
+				label:        compose.LabelHpaMemory,
+				defaultValue: 70,
+			},
+			want: 70,
+		},
+		{
+			name: "LabelHpaMemory with error value",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "cannot transform",
+					},
+				},
+				label:        compose.LabelHpaMemory,
+				defaultValue: 70,
+			},
+			want: 70,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getHpaValue(tt.args.service, tt.args.label, tt.args.defaultValue); got != tt.want {
+				t.Errorf("getHpaValue() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getResourceHpaValues(t *testing.T) {
+	type args struct {
+		service *kobject.ServiceConfig
+	}
+	tests := []struct {
+		name string
+		args args
+		want HpaValues
+	}{
+		{
+			name: "check same values",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,
+				MaxReplicas:       10,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
+			},
+		},
+		{
+			name: "check same values",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "5",
+						compose.LabelHpaMaxReplicas: "3",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       5,
+				MaxReplicas:       5,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
+			},
+		},
+		{
+			name: "with error values and use default values from LabelHpaMinReplicas",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "cannot transform",
+						compose.LabelHpaMaxReplicas: "3",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,
+				MaxReplicas:       3,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
+			},
+		},
+		{
+			name: "LabelHpaMaxReplicas is minor to LabelHpaMinReplicas",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "6",
+						compose.LabelHpaMaxReplicas: "5",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       6,
+				MaxReplicas:       6,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
+			},
+		},
+		{
+			name: "error label and LabelHpaMaxReplicas is minor to LabelHpaMinReplicas",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "6",
+						compose.LabelHpaMaxReplicas: "5",
+						compose.LabelHpaCPU:         "cannot transform",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       6,
+				MaxReplicas:       6,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
+			},
+		},
+		{
+			name: "error label and LabelHpaMaxReplicas is minor to LabelHpaMinReplicas",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "6",
+						compose.LabelHpaMaxReplicas: "5",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "cannot transform",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       6,
+				MaxReplicas:       6,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
+			},
+		},
+		{
+			name: "all error label",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "cannot transform",
+						compose.LabelHpaMaxReplicas: "cannot transform",
+						compose.LabelHpaCPU:         "cannot transform",
+						compose.LabelHpaMemory:      "cannot transform",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,
+				MaxReplicas:       10,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
+			},
+		},
+		{
+			name: "error label without some labels",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "cannot transform",
+						compose.LabelHpaMaxReplicas: "cannot transform",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,
+				MaxReplicas:       10,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
+			},
+		},
+		{
+			name: "without labels, should return default values",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,
+				MaxReplicas:       10,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getResourceHpaValues(tt.args.service); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getResourceHpaValues() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getHpaMetricSpec(t *testing.T) {
+	valueCPUFixed := int32(50)
+	valueMemoryFixed := int32(70)
+	type args struct {
+		hpaValues HpaValues
+	}
+	tests := []struct {
+		name string
+		args args
+		want []hpa.MetricSpec
+	}{
+		{
+			name: "no values",
+			args: args{
+				hpaValues: HpaValues{},
+			},
+			want: nil,
+		},
+		{
+			name: "only cpu",
+			args: args{
+				hpaValues: HpaValues{
+					CPUtilization: 50,
+				},
+			},
+			want: []hpa.MetricSpec{
+				{
+					Type: hpa.ResourceMetricSourceType,
+					Resource: &hpa.ResourceMetricSource{
+						Name: "cpu",
+						Target: hpa.MetricTarget{
+							Type:               hpa.UtilizationMetricType,
+							AverageUtilization: &valueCPUFixed,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "only memory",
+			args: args{
+				hpaValues: HpaValues{
+					MemoryUtilization: 70,
+				},
+			},
+			want: []hpa.MetricSpec{
+				{
+					Type: hpa.ResourceMetricSourceType,
+					Resource: &hpa.ResourceMetricSource{
+						Name: "memory",
+						Target: hpa.MetricTarget{
+							Type:               hpa.UtilizationMetricType,
+							AverageUtilization: &valueMemoryFixed,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "cpu and memory",
+			args: args{
+				hpaValues: HpaValues{
+					CPUtilization:     50,
+					MemoryUtilization: 70,
+				},
+			},
+			want: []hpa.MetricSpec{
+				{
+					Type: hpa.ResourceMetricSourceType,
+					Resource: &hpa.ResourceMetricSource{
+						Name: "cpu",
+						Target: hpa.MetricTarget{
+							Type:               hpa.UtilizationMetricType,
+							AverageUtilization: &valueCPUFixed,
+						},
+					},
+				},
+				{
+					Type: hpa.ResourceMetricSourceType,
+					Resource: &hpa.ResourceMetricSource{
+						Name: "memory",
+						Target: hpa.MetricTarget{
+							Type:               hpa.UtilizationMetricType,
+							AverageUtilization: &valueMemoryFixed,
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getHpaMetricSpec(tt.args.hpaValues); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getHpaMetricSpec() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_createHPAResources(t *testing.T) {
+	valueCPUFixed := int32(50)
+	valueMemoryFixed := int32(70)
+	fixedMinReplicas := int32(1)
+	type args struct {
+		name    string
+		service *kobject.ServiceConfig
+	}
+	tests := []struct {
+		name string
+		args args
+		want hpa.HorizontalPodAutoscaler
+	}{
+		{
+			name: "all labels",
+			args: args{
+				name: "web",
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaCPU:         "50",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+			},
+			want: hpa.HorizontalPodAutoscaler{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "HorizontalPodAutoscaler",
+					APIVersion: "autoscaling/v2",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "web",
+				},
+				Spec: hpa.HorizontalPodAutoscalerSpec{
+					ScaleTargetRef: hpa.CrossVersionObjectReference{
+						Kind:       "Deployment",
+						Name:       "web",
+						APIVersion: "apps/v1",
+					},
+					MinReplicas: &fixedMinReplicas,
+					MaxReplicas: 10,
+					Metrics: []hpa.MetricSpec{
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "cpu",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueCPUFixed,
+								},
+							},
+						},
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "memory",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueMemoryFixed,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := createHPAResources(tt.args.name, tt.args.service); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("createHPAResources() = %v, want %v", got, tt.want)
 			}
 		})
 	}
