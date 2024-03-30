@@ -118,6 +118,7 @@ type ServiceConfig struct {
 	ReadOnly                      bool               `compose:"read_only"`
 	Args                          []string           `compose:"args"`
 	VolList                       []string           `compose:"volumes"`
+	NetworkMode                   string             `compose:"network_mode"`
 	Network                       []string           `compose:"network"`
 	Labels                        map[string]string  `compose:"labels"`
 	Annotations                   map[string]string  `compose:""`
