@@ -48,6 +48,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
+const (
+	DefaultSuffixTCPLBPorts = "-tcp"
+	DefaultSuffixUDPLBPorts = "-udp"
+)
+
 /**
  * Generate Helm Chart configuration
  */
@@ -412,11 +417,13 @@ func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig)
 	var svcs []*api.Service
 	tcpPorts, udpPorts := k.ConfigLBServicePorts(service)
 	if tcpPorts != nil {
-		svc := k.initSvcObject(name+"-tcp", service, tcpPorts)
+		newName := getServiceNamePortTCP(name, service.Labels)
+		svc := k.initSvcObject(newName, service, tcpPorts)
 		svcs = append(svcs, svc)
 	}
 	if udpPorts != nil {
-		svc := k.initSvcObject(name+"-udp", service, udpPorts)
+		newName := getServiceNamePortUDP(name, service.Labels)
+		svc := k.initSvcObject(newName, service, udpPorts)
 		svcs = append(svcs, svc)
 	}
 	return svcs
@@ -990,4 +997,36 @@ func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConf
 // prevents issues with leading or trailing dashes affecting resulting service names
 func cleanPrefix(prefix string) string {
 	return strings.Trim(FormatResourceName(prefix), "-")
+}
+
+// getServiceNamePortTCP used to generate service names for TCP ports
+// default suffix is used in case LabelSuffixTCPLoadbalancer
+// also overrider suffix in cause LabelSuffixLoadbalancer exist
+func getServiceNamePortTCP(name string, labels map[string]string) string {
+	suffix, exist := labels[compose.LabelSuffixTCPLoadbalancer]
+	if !exist {
+		suffix = DefaultSuffixTCPLBPorts
+	}
+	newSuffix, exist := labels[compose.LabelSuffixLoadbalancer]
+	if exist {
+		suffix = newSuffix
+	}
+	name += suffix
+	return name
+}
+
+// getServiceNamePortUDP used to generate service names for UPD ports
+// default suffix is used in case LabelSuffixUDPLoadbalancer
+// also overrider suffix in cause LabelSuffixLoadbalancer exist
+func getServiceNamePortUDP(name string, labels map[string]string) string {
+	suffix, exist := labels[compose.LabelSuffixUDPLoadbalancer]
+	if !exist {
+		suffix = DefaultSuffixUDPLBPorts
+	}
+	newSuffix, exist := labels[compose.LabelSuffixLoadbalancer]
+	if exist {
+		suffix = newSuffix
+	}
+	name += suffix
+	return name
 }

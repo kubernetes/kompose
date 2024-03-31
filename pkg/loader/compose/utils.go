@@ -89,6 +89,12 @@ const (
 	LabelCronJobConcurrencyPolicy = "kompose.cronjob.concurrency_policy"
 	// LabelCronJobBackoffLimit defines the job backoff limit
 	LabelCronJobBackoffLimit = "kompose.cronjob.backoff_limit"
+	// LabelSuffixTCPLoadbalancer for suffix for tcp ports in LB
+	LabelSuffixTCPLoadbalancer = "kompose.service.suffix-lb-tcp"
+	// LabelSuffixUDPLoadbalancer for suffix for udp ports in LB
+	LabelSuffixUDPLoadbalancer = "kompose.service.suffix-lb-udp"
+	// LabelSuffixLoadbalancer for suffix both tcp/udp in LB
+	LabelSuffixLoadbalancer = "kompose.service.suffix-lb"
 )
 
 // load environment variables from compose file
