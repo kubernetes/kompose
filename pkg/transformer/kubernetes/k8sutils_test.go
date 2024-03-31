@@ -738,3 +738,170 @@ func TestRemoveEmptyInterfaces(t *testing.T) {
 		})
 	}
 }
+
+func Test_cleanPrefix(t *testing.T) {
+	tests := []struct {
+		prefix string
+		want   string
+	}{
+		{
+			prefix: "-testing-service",
+			want:   "testing-service",
+		},
+		{
+			prefix: "testing-service-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "testing_service-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "-testing_service-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "-TESTING_SERVICE-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "TESTING_SERVICE-",
+			want:   "testing-service",
+		},
+		{
+			prefix: "-TESTING_SERVICE",
+			want:   "testing-service",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			if got := cleanPrefix(tt.prefix); got != tt.want {
+				t.Errorf("cleanPrefix() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getServiceNamePortTCP(t *testing.T) {
+	type args struct {
+		name   string
+		labels map[string]string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: `test with "" suffix-lb `,
+			args: args{
+				name: "app",
+				labels: map[string]string{
+					"kompose.service.expose":                  "lb",
+					"kompose.service.external-traffic-policy": "local",
+					"kompose.service.type":                    "loadbalancer",
+					"kompose.service.suffix-lb":               "",
+					"kompose.service.suffix-lb-tcp":           "-new-suffix",
+					"kompose.service.suffix-lb-udp":           "-udp",
+				},
+			},
+			want: "app",
+		},
+		{
+			name: `test with override "-with-suffix-lb" in suffix-lb `,
+			args: args{
+				name: "app",
+				labels: map[string]string{
+					"kompose.service.expose":                  "lb",
+					"kompose.service.external-traffic-policy": "local",
+					"kompose.service.type":                    "loadbalancer",
+					"kompose.service.suffix-lb":               "-with-suffix-lb",
+					"kompose.service.suffix-lb-tcp":           "-new-suffix",
+					"kompose.service.suffix-lb-udp":           "-udp",
+				},
+			},
+			want: "app-with-suffix-lb",
+		},
+		{
+			name: `test add suffix-lb-tcp with no override `,
+			args: args{
+				name: "app",
+				labels: map[string]string{
+					"kompose.service.expose":                  "lb",
+					"kompose.service.external-traffic-policy": "local",
+					"kompose.service.type":                    "loadbalancer",
+					"kompose.service.suffix-lb-tcp":           "-new-suffix",
+				},
+			},
+			want: "app-new-suffix",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getServiceNamePortTCP(tt.args.name, tt.args.labels); got != tt.want {
+				t.Errorf("getServiceNamePortTCP() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getServiceNamePortUDP(t *testing.T) {
+	type args struct {
+		name   string
+		labels map[string]string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: `test with "" suffix-lb `,
+			args: args{
+				name: "app",
+				labels: map[string]string{
+					"kompose.service.expose":                  "lb",
+					"kompose.service.external-traffic-policy": "local",
+					"kompose.service.type":                    "loadbalancer",
+					"kompose.service.suffix-lb":               "",
+					"kompose.service.suffix-lb-udp":           "-udp",
+				},
+			},
+			want: "app",
+		},
+		{
+			name: `test with override "-with-suffix-lb" in suffix-lb `,
+			args: args{
+				name: "app",
+				labels: map[string]string{
+					"kompose.service.expose":                  "lb",
+					"kompose.service.external-traffic-policy": "local",
+					"kompose.service.type":                    "loadbalancer",
+					"kompose.service.suffix-lb":               "-with-suffix-lb",
+					"kompose.service.suffix-lb-udp":           "-new-suffix",
+				},
+			},
+			want: "app-with-suffix-lb",
+		},
+		{
+			name: `test add suffix-lb-tcp with no override`,
+			args: args{
+				name: "app",
+				labels: map[string]string{
+					"kompose.service.expose":                  "lb",
+					"kompose.service.external-traffic-policy": "local",
+					"kompose.service.type":                    "loadbalancer",
+					"kompose.service.suffix-lb-udp":           "-new-suffix",
+				},
+			},
+			want: "app-new-suffix",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getServiceNamePortUDP(tt.args.name, tt.args.labels); got != tt.want {
+				t.Errorf("getServiceNamePortUDP() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

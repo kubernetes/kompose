@@ -211,6 +211,9 @@ The currently supported options are:
 | kompose.cronjob.schedule                            | kubernetes cronjob schedule (for example: '1 * * * *')                               |
 | kompose.cronjob.concurrency_policy                  | 'Forbid' / 'Allow' / 'Never' / ''                                                    |
 | kompose.cronjob.backoff_limit                       | kubernetes cronjob backoff limit (for example: '6')                                  |
+| kompose.service.suffix-lb                           | used to generate a LoadBalancer with a suffix in ports TCP and UDP                   |
+| kompose.service.suffix-lb-tcp                       | used to generate a LoadBalancer with a suffix in ports TCP                           |
+| kompose.service.suffix-lb-udp                       | used to generate a LoadBalancer with a suffix in ports UDP                           |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -467,6 +470,124 @@ services:
     labels:
       kompose.volume.sub-path: pg-data
 ```
+
+- `kompose.service.suffix-lb`  directive that sets a suffix for the LoadBalancer, which applies to both TCP and UDP ports. By default, a `-tcp` suffix is added. If is empty (""), no suffix is added of the LoadBalancer.
+
+For example:
+
+```yaml
+version: '3.8'
+
+services:
+  proxy:
+    image: nginx
+    labels:
+      kompose.service.expose: lb
+      kompose.service.external-traffic-policy: local
+      kompose.service.type: loadbalancer
+```
+result: 
+
+```yaml
+  labels:
+    io.kompose.service: nginx-tcp
+  name: nginx-tcp
+```
+
+
+
+For example:
+
+```yaml
+version: '3.8'
+
+services:
+  proxy:
+    image: nginx
+    labels:
+      kompose.service.expose: lb
+      kompose.service.external-traffic-policy: local
+      kompose.service.type: loadbalancer
+      kompose.service.suffix-lb: "-new-suffix"
+```
+result: 
+
+```yaml
+  labels:
+    io.kompose.service: nginx-new-suffix
+  name: nginx-new-suffix
+```
+
+For example:
+
+```yaml
+version: '3.8'
+
+services:
+  proxy:
+    image: nginx
+    labels:
+      kompose.service.expose: lb
+      kompose.service.external-traffic-policy: local
+      kompose.service.type: loadbalancer
+      kompose.service.suffix-lb: ""
+```
+
+result: 
+
+```yaml
+  labels:
+    io.kompose.service: nginx
+  name: nginx
+```
+
+
+- `kompose.service.suffix-lb-tcp` directive that sets a suffix specifically for the TCP ports in LoadBalancer. By default, a `-tcp` suffix is added. If is empty (""), no suffix is added to the TCP port of the LoadBalancer.
+
+For example:
+```yaml
+version: '3.8'
+
+services:
+  proxy:
+    image: nginx
+    labels:
+      kompose.service.expose: lb
+      kompose.service.external-traffic-policy: local
+      kompose.service.type: loadbalancer
+      kompose.service.suffix-lb-tcp: "-new-suffix"
+```
+result: 
+
+```yaml
+  labels:
+    io.kompose.service: nginx-new-suffix
+  name: nginx-new-suffix
+```
+
+- `kompose.service.suffix-lb-udp`  directive that sets a suffix specifically for the UDP ports in LoadBalancerBy default, a `-tcp` suffix is added. If is empty (""), no suffix is added to the UDP port of the LoadBalancer.
+
+For example:
+```yaml
+version: '3.8'
+
+services:
+  proxy:
+    image: nginx
+    labels:
+      kompose.service.expose: lb
+      kompose.service.external-traffic-policy: local
+      kompose.service.type: loadbalancer
+      kompose.service.suffix-lb-udp: "-new-suffix"
+```
+result: 
+
+```yaml
+  labels:
+    io.kompose.service: nginx-new-suffix
+  name: nginx-new-suffix
+```
+
 ## Restart
 
 If you want to create normal pods without controller you can use `restart` construct of compose to define that. Follow table below to see what happens on the `restart` value.
