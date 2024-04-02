@@ -211,8 +211,8 @@ The currently supported options are:
 | kompose.cronjob.schedule                            | kubernetes cronjob schedule (for example: '1 * * * *')                               |
 | kompose.cronjob.concurrency_policy                  | 'Forbid' / 'Allow' / 'Never' / ''                                                    |
 | kompose.cronjob.backoff_limit                       | kubernetes cronjob backoff limit (for example: '6')                                  |
-| kompose.hpa.minreplicas                             | defines Horizontal Pod Autoscaler min pod replicas                                   |
-| kompose.hpa.maxreplicas                             | defines Horizontal Pod Autoscaler max pod replicas                                   |
+| kompose.hpa.replicas.min                            | defines Horizontal Pod Autoscaler minimum number of pod replicas                     |
+| kompose.hpa.replicas.max                            | defines Horizontal Pod Autoscaler maximum  number of pod replicas                    |
 | kompose.hpa.cpu                                     | defines Horizontal Pod Autoscaler cpu utilization trigger                            |
 | kompose.hpa.memory                                  | defines Horizontal Pod Autoscaler memory utilization trigger                         |
 
@@ -472,32 +472,28 @@ services:
       kompose.volume.sub-path: pg-data
 ```
 
-- `kompose.hpa.minreplicas` defines minimum replicas from Horizontal Pod Autoscaler. Default value 1 [HPA Min Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+- `kompose.hpa.replicas.min` defines minimum replicas from Horizontal Pod Autoscaler. Default value 1 [HPA Min Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
 
 For example:
 
 ```yaml
-version: '3.8'
-
 services:
   pgadmin:
     image: postgres
     labels:
-      kompose.hpa.minreplicas: 1
+      kompose.hpa.replicas.min: 1
 ```
 
-- `kompose.hpa.maxreplicas` defines maximum replicas from Horizontal Pod Autoscaler. Default value 10 [HPA Max Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+- `kompose.hpa.replicas.max` defines maximum replicas from Horizontal Pod Autoscaler. Default value 10 [HPA Max Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
 
 For example:
 
 ```yaml
-version: '3.8'
-
 services:
   pgadmin:
     image: postgres
     labels:
-      kompose.hpa.maxreplicas: 10
+      kompose.hpa.replicas.max: 10
 ```
 
 - `kompose.hpa.cpu` defines % cpu utilization trigger scale from Horizontal Pod Autoscaler. It is represented as a percentage of a resource. Default value: 50 [HPA CPU Utilization](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
@@ -505,8 +501,6 @@ services:
 For example:
 
 ```yaml
-version: '3.8'
-
 services:
   pgadmin:
     image: postgres
@@ -519,8 +513,6 @@ services:
 For example:
 
 ```yaml
-version: '3.8'
-
 services:
   pgadmin:
     image: postgres

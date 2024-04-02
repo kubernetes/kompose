@@ -968,7 +968,7 @@ func Test_getResourceHpaValues(t *testing.T) {
 		want HpaValues
 	}{
 		{
-			name: "check same values",
+			name: "check default values",
 			args: args{
 				service: &kobject.ServiceConfig{
 					Labels: map[string]string{
@@ -987,7 +987,7 @@ func Test_getResourceHpaValues(t *testing.T) {
 			},
 		},
 		{
-			name: "check same values",
+			name: "check if max replicas are less than min replicas, and max replicas set to min replicas",
 			args: args{
 				service: &kobject.ServiceConfig{
 					Labels: map[string]string{
@@ -1000,7 +1000,7 @@ func Test_getResourceHpaValues(t *testing.T) {
 			},
 			want: HpaValues{
 				MinReplicas:       5,
-				MaxReplicas:       5,
+				MaxReplicas:       5, // same as min replicas
 				CPUtilization:     50,
 				MemoryUtilization: 70,
 			},
@@ -1018,7 +1018,7 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,
+				MinReplicas:       1, // Default value
 				MaxReplicas:       3,
 				CPUtilization:     50,
 				MemoryUtilization: 70,
@@ -1038,7 +1038,7 @@ func Test_getResourceHpaValues(t *testing.T) {
 			},
 			want: HpaValues{
 				MinReplicas:       6,
-				MaxReplicas:       6,
+				MaxReplicas:       6, // set min replicas number
 				CPUtilization:     50,
 				MemoryUtilization: 70,
 			},
@@ -1057,8 +1057,8 @@ func Test_getResourceHpaValues(t *testing.T) {
 			},
 			want: HpaValues{
 				MinReplicas:       6,
-				MaxReplicas:       6,
-				CPUtilization:     50,
+				MaxReplicas:       6,  // same as min replicas number
+				CPUtilization:     50, // Default value
 				MemoryUtilization: 70,
 			},
 		},
@@ -1078,11 +1078,11 @@ func Test_getResourceHpaValues(t *testing.T) {
 				MinReplicas:       6,
 				MaxReplicas:       6,
 				CPUtilization:     50,
-				MemoryUtilization: 70,
+				MemoryUtilization: 70, // Default value
 			},
 		},
 		{
-			name: "all error label",
+			name: "all error label, set all default values",
 			args: args{
 				service: &kobject.ServiceConfig{
 					Labels: map[string]string{
@@ -1094,14 +1094,14 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,
-				MaxReplicas:       10,
-				CPUtilization:     50,
-				MemoryUtilization: 70,
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
 			},
 		},
 		{
-			name: "error label without some labels",
+			name: "error label without some labels, missing labels set to default",
 			args: args{
 				service: &kobject.ServiceConfig{
 					Labels: map[string]string{
@@ -1111,10 +1111,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,
-				MaxReplicas:       10,
-				CPUtilization:     50,
-				MemoryUtilization: 70,
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
 			},
 		},
 		{
@@ -1125,10 +1125,186 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,
-				MaxReplicas:       10,
-				CPUtilization:     50,
-				MemoryUtilization: 70,
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
+			},
+		},
+		{
+			name: "only min replicas label is provided",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "3",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       3,
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
+			},
+		},
+		{
+			name: "only max replicas label is provided",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMaxReplicas: "5",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1, // Default value
+				MaxReplicas:       5,
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
+			},
+		},
+		{
+			name: "check default values when all labels contain invalid values",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "cannot transform",
+						compose.LabelHpaMaxReplicas: "cannot transform",
+						compose.LabelHpaCPU:         "cannot transform",
+						compose.LabelHpaMemory:      "cannot transform",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
+			},
+		},
+		{
+			name: "only cpu utilization label is provided",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaCPU: "80",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     80,
+				MemoryUtilization: 70, // Default value
+			},
+		},
+		{
+			name: "only memory utilization label is provided",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMemory: "90",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 90,
+			},
+		},
+		{
+			name: "only cpu and memory utilization labels are provided",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaCPU:    "80",
+						compose.LabelHpaMemory: "90",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     80,
+				MemoryUtilization: 90,
+			},
+		},
+		{
+			name: "check default values when labels are empty strings",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "",
+						compose.LabelHpaMaxReplicas: "",
+						compose.LabelHpaCPU:         "",
+						compose.LabelHpaMemory:      "",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
+			},
+		},
+		{
+			name: "check default values when labels contain invalid characters",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "abc",
+						compose.LabelHpaMaxReplicas: "xyz",
+						compose.LabelHpaCPU:         "-100",
+						compose.LabelHpaMemory:      "invalid",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
+			},
+		},
+		{
+			name: "check default values when labels are set to zero",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "0",
+						compose.LabelHpaMaxReplicas: "0",
+						compose.LabelHpaCPU:         "0",
+						compose.LabelHpaMemory:      "0",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
+			},
+		},
+		{
+			name: "check default values when all labels are negative",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "-5",
+						compose.LabelHpaMaxReplicas: "-10",
+						compose.LabelHpaCPU:         "-20",
+						compose.LabelHpaMemory:      "-30",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       1,  // Default value
+				MaxReplicas:       10, // Default value
+				CPUtilization:     50, // Default value
+				MemoryUtilization: 70, // Default value
 			},
 		},
 	}
@@ -1282,6 +1458,268 @@ func Test_createHPAResources(t *testing.T) {
 					},
 					MinReplicas: &fixedMinReplicas,
 					MaxReplicas: 10,
+					Metrics: []hpa.MetricSpec{
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "cpu",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueCPUFixed,
+								},
+							},
+						},
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "memory",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueMemoryFixed,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "minimum labels",
+			args: args{
+				name: "api",
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaCPU:         "50",
+					},
+				},
+			},
+			want: hpa.HorizontalPodAutoscaler{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "HorizontalPodAutoscaler",
+					APIVersion: "autoscaling/v2",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "api",
+				},
+				Spec: hpa.HorizontalPodAutoscalerSpec{
+					ScaleTargetRef: hpa.CrossVersionObjectReference{
+						Kind:       "Deployment",
+						Name:       "api",
+						APIVersion: "apps/v1",
+					},
+					MinReplicas: &fixedMinReplicas,
+					MaxReplicas: 10, // Default value
+					Metrics: []hpa.MetricSpec{
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "cpu",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueCPUFixed,
+								},
+							},
+						},
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "memory",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueMemoryFixed,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "missing CPU utilization label",
+			args: args{
+				name: "app",
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "5",
+						compose.LabelHpaMemory:      "70",
+					},
+				},
+			},
+			want: hpa.HorizontalPodAutoscaler{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "HorizontalPodAutoscaler",
+					APIVersion: "autoscaling/v2",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+				},
+				Spec: hpa.HorizontalPodAutoscalerSpec{
+					ScaleTargetRef: hpa.CrossVersionObjectReference{
+						Kind:       "Deployment",
+						Name:       "app",
+						APIVersion: "apps/v1",
+					},
+					MinReplicas: &fixedMinReplicas,
+					MaxReplicas: 5,
+					Metrics: []hpa.MetricSpec{
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "cpu",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueCPUFixed,
+								},
+							},
+						},
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "memory",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueMemoryFixed,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "missing memory utilization label",
+			args: args{
+				name: "db",
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "8",
+						compose.LabelHpaCPU:         "50",
+					},
+				},
+			},
+			want: hpa.HorizontalPodAutoscaler{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "HorizontalPodAutoscaler",
+					APIVersion: "autoscaling/v2",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "db",
+				},
+				Spec: hpa.HorizontalPodAutoscalerSpec{
+					ScaleTargetRef: hpa.CrossVersionObjectReference{
+						Kind:       "Deployment",
+						Name:       "db",
+						APIVersion: "apps/v1",
+					},
+					MinReplicas: &fixedMinReplicas,
+					MaxReplicas: 8,
+					Metrics: []hpa.MetricSpec{
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "cpu",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueCPUFixed,
+								},
+							},
+						},
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "memory",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueMemoryFixed,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "wrong labels",
+			args: args{
+				name: "db",
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "not converted",
+						compose.LabelHpaMaxReplicas: "not converted",
+					},
+				},
+			},
+			want: hpa.HorizontalPodAutoscaler{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "HorizontalPodAutoscaler",
+					APIVersion: "autoscaling/v2",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "db",
+				},
+				Spec: hpa.HorizontalPodAutoscalerSpec{
+					ScaleTargetRef: hpa.CrossVersionObjectReference{
+						Kind:       "Deployment",
+						Name:       "db",
+						APIVersion: "apps/v1",
+					},
+					MinReplicas: &fixedMinReplicas,
+					MaxReplicas: 10, // Default value
+					Metrics: []hpa.MetricSpec{
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "cpu",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueCPUFixed,
+								},
+							},
+						},
+						{
+							Type: hpa.ResourceMetricSourceType,
+							Resource: &hpa.ResourceMetricSource{
+								Name: "memory",
+								Target: hpa.MetricTarget{
+									Type:               hpa.UtilizationMetricType,
+									AverageUtilization: &valueMemoryFixed,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "missing both CPU and memory utilization labels",
+			args: args{
+				name: "db",
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "1",
+						compose.LabelHpaMaxReplicas: "5",
+					},
+				},
+			},
+			want: hpa.HorizontalPodAutoscaler{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "HorizontalPodAutoscaler",
+					APIVersion: "autoscaling/v2",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "db",
+				},
+				Spec: hpa.HorizontalPodAutoscalerSpec{
+					ScaleTargetRef: hpa.CrossVersionObjectReference{
+						Kind:       "Deployment",
+						Name:       "db",
+						APIVersion: "apps/v1",
+					},
+					MinReplicas: &fixedMinReplicas,
+					MaxReplicas: 5,
 					Metrics: []hpa.MetricSpec{
 						{
 							Type: hpa.ResourceMetricSourceType,

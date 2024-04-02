@@ -88,9 +88,9 @@ const (
 	// LabelCronJobBackoffLimit defines the job backoff limit
 	LabelCronJobBackoffLimit = "kompose.cronjob.backoff_limit"
 	// LabelHpaMinReplicas defines min pod replicas
-	LabelHpaMinReplicas = "kompose.hpa.minreplicas"
+	LabelHpaMinReplicas = "kompose.hpa.replicas.min"
 	// LabelHpaMaxReplicas defines max pod replicas
-	LabelHpaMaxReplicas = "kompose.hpa.maxreplicas"
+	LabelHpaMaxReplicas = "kompose.hpa.replicas.max"
 	// LabelHpaCpu defines scaling decisions based on CPU utilization
 	LabelHpaCPU = "kompose.hpa.cpu"
 	// LabelHpaMemory defines scaling decisions based on memory utilization

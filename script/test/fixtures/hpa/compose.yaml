@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  web:
+    image: nginx
+    labels:
+      kompose.hpa.cpu: 50
+      kompose.hap.memory: 70
+      kompose.hap.replicas.min: 1
+      kompose.hap.replicas.max: 10
