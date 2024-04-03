@@ -753,7 +753,43 @@ func Test_removeFromSlice(t *testing.T) {
 		want []runtime.Object
 	}{
 		{
-			name: "remove object from slice",
+			name: "remove object in the middle",
+			args: args{
+				objects: []runtime.Object{
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+				},
+				objectToRemove: &corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+			},
+			want: []runtime.Object{
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+			},
+		},
+		{
+			name: "remove objects in the middle and last object",
+			args: args{
+				objects: []runtime.Object{
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+				},
+				objectToRemove: &corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+			},
+			want: []runtime.Object{
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+			},
+		},
+		{
+			name: "remove 1 object",
 			args: args{
 				objects: []runtime.Object{
 					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
@@ -766,6 +802,58 @@ func Test_removeFromSlice(t *testing.T) {
 				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
 				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
 			},
+		},
+		{
+			name: "remove object at the beginning",
+			args: args{
+				objects: []runtime.Object{
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+				},
+				objectToRemove: &corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+			},
+			want: []runtime.Object{
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+			},
+		},
+		{
+			name: "remove object at the end",
+			args: args{
+				objects: []runtime.Object{
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+				},
+				objectToRemove: &corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+			},
+			want: []runtime.Object{
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+			},
+		},
+		{
+			name: "remove object that doesn't exist",
+			args: args{
+				objects: []runtime.Object{
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+				},
+				objectToRemove: &corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "missing"}},
+			},
+			want: []runtime.Object{
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+				&corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+			},
+		},
+		{
+			name: "remove object from empty slice",
+			args: args{
+				objects:        []runtime.Object{},
+				objectToRemove: &corev1.Service{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+			},
+			want: []runtime.Object{},
 		},
 	}
 	for _, tt := range tests {
@@ -788,7 +876,7 @@ func Test_removeTargetDeployment(t *testing.T) {
 		want *[]runtime.Object
 	}{
 		{
-			name: "remove middle object from slice",
+			name: "remove middle object",
 			args: args{
 				objects: &[]runtime.Object{
 					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
@@ -832,6 +920,56 @@ func Test_removeTargetDeployment(t *testing.T) {
 				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
 			},
 		},
+		{
+			name: "remove target deployment from an empty slice",
+			args: args{
+				objects:              &[]runtime.Object{},
+				targetDeploymentName: "remove",
+			},
+			want: &[]runtime.Object{},
+		},
+		{
+			name: "remove target deployment that does not exist",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+				},
+				targetDeploymentName: "missing",
+			},
+			want: &[]runtime.Object{
+				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+			},
+		},
+		{
+			name: "remove target deployment from a slice with only the target deployment",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+				},
+				targetDeploymentName: "remove",
+			},
+			want: &[]runtime.Object{},
+		},
+		{
+			name: "remove all targets",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "remove"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+				},
+				targetDeploymentName: "remove",
+			},
+			want: &[]runtime.Object{
+				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -860,16 +998,89 @@ func Test_removeDeploymentTransfered(t *testing.T) {
 					{
 						TargetDeploymentName: "app",
 						SourceDeploymentName: "db",
-						ContainerDestination: []corev1.Container{
-							{
-								Name: "app",
-							},
-						},
 					},
 				},
 				objects: &[]runtime.Object{
 					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
 					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+				},
+			},
+			want: &[]runtime.Object{
+				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+			},
+		},
+		{
+			name: "remove multiple deployments already transferred",
+			args: args{
+				deploymentMappings: []DeploymentMapping{
+					{
+						TargetDeploymentName: "app",
+						SourceDeploymentName: "db",
+					},
+					{
+						TargetDeploymentName: "web",
+						SourceDeploymentName: "cache",
+					},
+				},
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "web"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "cache"}},
+				},
+			},
+			want: &[]runtime.Object{
+				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "web"}},
+			},
+		},
+		{
+			name: "remove deployment transferred with multiple containers",
+			args: args{
+				deploymentMappings: []DeploymentMapping{
+					{
+						TargetDeploymentName: "app",
+						SourceDeploymentName: "db",
+					},
+				},
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+				},
+			},
+			want: &[]runtime.Object{
+				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+			},
+		},
+		{
+			name: "remove deployment transferred with different container names",
+			args: args{
+				deploymentMappings: []DeploymentMapping{
+					{
+						TargetDeploymentName: "app",
+						SourceDeploymentName: "db",
+					},
+				},
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "db"}},
+				},
+			},
+			want: &[]runtime.Object{
+				&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
+			},
+		},
+		{
+			name: "remove deployment transferred when no matching source deployment",
+			args: args{
+				deploymentMappings: []DeploymentMapping{
+					{
+						TargetDeploymentName: "app",
+						SourceDeploymentName: "db",
+					},
+				},
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: "app"}},
 				},
 			},
 			want: &[]runtime.Object{
@@ -908,7 +1119,6 @@ func Test_searchNetworkModeToService(t *testing.T) {
 				{
 					SourceDeploymentName: "db",
 					TargetDeploymentName: "app",
-					ContainerDestination: nil,
 				},
 			},
 		},
@@ -924,6 +1134,53 @@ func Test_searchNetworkModeToService(t *testing.T) {
 			},
 			want: []DeploymentMapping{},
 		},
+		{
+			name: "search network mode to service with multiple source deployments",
+			services: map[string]kobject.ServiceConfig{
+				"app": {
+					Name: "app",
+				},
+				"db1": {
+					Name:        "db1",
+					NetworkMode: "service:app",
+				},
+				"db2": {
+					Name:        "db2",
+					NetworkMode: "service:app",
+				},
+			},
+			want: []DeploymentMapping{
+				{
+					SourceDeploymentName: "db1",
+					TargetDeploymentName: "app",
+				},
+				{
+					SourceDeploymentName: "db2",
+					TargetDeploymentName: "app",
+				},
+			},
+		},
+		{
+			name: "search network mode to service with multiple target deployments",
+			services: map[string]kobject.ServiceConfig{
+				"app1": {
+					Name: "app1",
+				},
+				"app2": {
+					Name: "app2",
+				},
+				"db": {
+					Name:        "db",
+					NetworkMode: "service:app1",
+				},
+			},
+			want: []DeploymentMapping{
+				{
+					SourceDeploymentName: "db",
+					TargetDeploymentName: "app1",
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -936,7 +1193,6 @@ func Test_searchNetworkModeToService(t *testing.T) {
 
 func Test_addContainersToTargetDeployment(t *testing.T) {
 	k := Kubernetes{}
-	var objectsK []runtime.Object
 
 	appK, err := k.Transform(
 		kobject.KomposeObject{
@@ -949,7 +1205,6 @@ func Test_addContainersToTargetDeployment(t *testing.T) {
 	if err != nil {
 		t.Error(errors.Wrap(err, "k.Transform failed"))
 	}
-	objectsK = append(objectsK, appK...)
 
 	dbK, err := k.Transform(
 		kobject.KomposeObject{
@@ -963,41 +1218,122 @@ func Test_addContainersToTargetDeployment(t *testing.T) {
 	if err != nil {
 		t.Error(errors.Wrap(err, "k.Transform failed"))
 	}
-	objectsK = append(objectsK, dbK...)
-	containersToADD := objectsK[1].(*appsv1.Deployment)
 
 	type args struct {
-		objects                  *[]runtime.Object
+		objects                  []runtime.Object
 		containersToAppend       []api.Container
 		nameDeploymentToTransfer string
 	}
+	const (
+		FirstObject  = 0
+		SecondObject = 1
+	)
 	tests := []struct {
-		name string
-		args args
-		want int
+		name         string
+		args         args
+		wantAfter    int
+		wantBefore   int
+		targetObject int
 	}{
+
 		{
-			name: "add one container more to target deployment",
+			name: "no containers to add, appk target transfer",
 			args: args{
-				objects:                  &objectsK,
-				containersToAppend:       containersToADD.Spec.Template.Spec.Containers,
+				objects:                  []runtime.Object{appK[0]},
+				containersToAppend:       []api.Container{},
 				nameDeploymentToTransfer: "app",
 			},
-			want: 2,
+			wantBefore:   1,
+			wantAfter:    1,
+			targetObject: FirstObject,
+		},
+		{
+			name: "no match in the deployment names, no target found",
+			args: args{
+				objects:                  []runtime.Object{dbK[0]},
+				containersToAppend:       []api.Container{},
+				nameDeploymentToTransfer: "app",
+			},
+			wantBefore:   1,
+			wantAfter:    1,
+			targetObject: FirstObject,
+		},
+		{
+			name: "1 container more, appk target transfer",
+			args: args{
+				objects:                  []runtime.Object{appK[0]},
+				containersToAppend:       []api.Container{{Name: "new-1"}},
+				nameDeploymentToTransfer: "app",
+			},
+			wantBefore:   1,
+			wantAfter:    2,
+			targetObject: FirstObject,
+		},
+		{
+			name: "1 containers and 2 more, appk target transfer",
+			args: args{
+				objects:                  []runtime.Object{appK[0], dbK[0]},
+				containersToAppend:       []api.Container{{Name: "new-1"}, {Name: "new-2"}},
+				nameDeploymentToTransfer: "app",
+			},
+			wantBefore:   1,
+			wantAfter:    3,
+			targetObject: FirstObject,
+		},
+		{
+			name: "one containers to transfer, appk target transfer",
+			args: args{
+				objects:                  []runtime.Object{appK[0]},
+				containersToAppend:       []api.Container{{Name: "new-1"}},
+				nameDeploymentToTransfer: "app",
+			},
+			wantBefore:   1,
+			wantAfter:    2,
+			targetObject: FirstObject,
+		},
+		{
+			name: "1 container in appk and add 2 container in dbK, db target transfer",
+			args: args{
+				objects:                  []runtime.Object{appK[0], dbK[0]},
+				containersToAppend:       []api.Container{{Name: "new-1"}, {Name: "new-2"}},
+				nameDeploymentToTransfer: "db",
+			},
+			wantBefore:   1,
+			wantAfter:    3,
+			targetObject: SecondObject,
+		},
+		{
+			name: "1 container in appk, cannot add 2 container in dbK, app target transfer",
+			args: args{
+				objects:                  []runtime.Object{appK[0], dbK[0]},
+				containersToAppend:       []api.Container{{Name: "new-1"}, {Name: "new-2"}},
+				nameDeploymentToTransfer: "app",
+			},
+			wantBefore:   1,
+			wantAfter:    1,
+			targetObject: SecondObject,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			beforeContainers := (*tt.args.objects)[0].(*appsv1.Deployment).Spec.Template.Spec.Containers
-			if len(beforeContainers) != 1 {
-				t.Errorf("Expected %d containers, got %d", 1, len(beforeContainers))
+			beforeContainers := (tt.args.objects)[tt.targetObject].(*appsv1.Deployment).Spec.Template.Spec.Containers
+			if len(beforeContainers) != tt.wantBefore {
+				t.Errorf("Before Expected %d containers, got %d", tt.wantBefore, len(beforeContainers))
 			}
 
-			addContainersToTargetDeployment(tt.args.objects, tt.args.containersToAppend, tt.args.nameDeploymentToTransfer)
-			afterContainers := (*tt.args.objects)[0].(*appsv1.Deployment).Spec.Template.Spec.Containers
-			if len(afterContainers) != tt.want {
-				t.Errorf("Expected %d containers, got %d", tt.want, len(afterContainers))
+			addContainersToTargetDeployment(&tt.args.objects, tt.args.containersToAppend, tt.args.nameDeploymentToTransfer)
+			afterContainers := (tt.args.objects)[tt.targetObject].(*appsv1.Deployment).Spec.Template.Spec.Containers
+			if len(afterContainers) != tt.wantAfter {
+				t.Errorf("After Expected %d containers, got %d", tt.wantAfter, len(afterContainers))
 			}
+			// reset containers
+			newContainer := appK[0].(*appsv1.Deployment).Spec.Template.Spec.Containers[0]
+			appK[0].(*appsv1.Deployment).Spec.Template.Spec.Containers = nil
+			appK[0].(*appsv1.Deployment).Spec.Template.Spec.Containers = append(appK[0].(*appsv1.Deployment).Spec.Template.Spec.Containers, newContainer)
+
+			newContainer = dbK[0].(*appsv1.Deployment).Spec.Template.Spec.Containers[0]
+			dbK[0].(*appsv1.Deployment).Spec.Template.Spec.Containers = nil
+			dbK[0].(*appsv1.Deployment).Spec.Template.Spec.Containers = append(dbK[0].(*appsv1.Deployment).Spec.Template.Spec.Containers, newContainer)
 		})
 	}
 }
@@ -1007,10 +1343,16 @@ func Test_addContainersFromSourceToTargetDeployment(t *testing.T) {
 		objects              *[]runtime.Object
 		currentDeploymentMap DeploymentMapping
 	}
+	const (
+		FirstObject  = 0
+		SecondObject = 1
+	)
 	tests := []struct {
-		name string
-		args args
-		want int
+		name             string
+		args             args
+		wantBefore       int
+		wantAfter        int
+		targetDeployment int
 	}{
 		{
 			name: "add one container more to target deployment",
@@ -1050,29 +1392,154 @@ func Test_addContainersFromSourceToTargetDeployment(t *testing.T) {
 				currentDeploymentMap: DeploymentMapping{
 					SourceDeploymentName: "db",
 					TargetDeploymentName: "app",
-					ContainerDestination: []corev1.Container{
-						{
-							Name:  "db",
-							Image: "image",
+				},
+			},
+			wantBefore:       1,
+			wantAfter:        2,
+			targetDeployment: FirstObject,
+		},
+		{
+			name: "no containers to transfer",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "new-1",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db",
+											Image: "image",
+										},
+									},
+								},
+							},
 						},
 					},
 				},
+				currentDeploymentMap: DeploymentMapping{},
 			},
-			want: 2,
+			wantBefore:       1,
+			wantAfter:        1,
+			targetDeployment: FirstObject,
+		},
+		{
+			name: "no containers to transfer",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "new-1",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				currentDeploymentMap: DeploymentMapping{
+					SourceDeploymentName: "app",
+					TargetDeploymentName: "db",
+				},
+			},
+			wantBefore:       1,
+			wantAfter:        2,
+			targetDeployment: SecondObject,
+		},
+		{
+			name: "target deployment not found",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "new-1",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				currentDeploymentMap: DeploymentMapping{
+					SourceDeploymentName: "no-exist-deployment",
+					TargetDeploymentName: "target-no-exist",
+				},
+			},
+			wantBefore:       1,
+			wantAfter:        1,
+			targetDeployment: FirstObject,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			beforeContainers := (*tt.args.objects)[0].(*appsv1.Deployment).Spec.Template.Spec.Containers
-			if len(beforeContainers) != 1 {
-				t.Errorf("Expected %d containers, got %d", 1, len(beforeContainers))
+			beforeContainers := (*tt.args.objects)[tt.targetDeployment].(*appsv1.Deployment).Spec.Template.Spec.Containers
+			if len(beforeContainers) != tt.wantBefore {
+				t.Errorf("Before expected %d containers, got %d", tt.wantBefore, len(beforeContainers))
 			}
 
 			addContainersFromSourceToTargetDeployment(tt.args.objects, tt.args.currentDeploymentMap)
-			afterContainers := (*tt.args.objects)[0].(*appsv1.Deployment).Spec.Template.Spec.Containers
-			if len(afterContainers) != tt.want {
-				t.Errorf("Expected %d containers, got %d", tt.want, len(afterContainers))
+			afterContainers := (*tt.args.objects)[tt.targetDeployment].(*appsv1.Deployment).Spec.Template.Spec.Containers
+			if len(afterContainers) != tt.wantAfter {
+				t.Errorf("After expected %d containers, got %d", tt.wantAfter, len(afterContainers))
 			}
 		})
 	}
@@ -1083,13 +1550,205 @@ func Test_mergeContainersIntoDestinationDeployment(t *testing.T) {
 		deploymentMappings []DeploymentMapping
 		objects            *[]runtime.Object
 	}
+	const (
+		FirstObject  = 0
+		SecondObject = 1
+	)
 	tests := []struct {
-		name string
-		args args
-		want int
+		name             string
+		args             args
+		wantBefore       int
+		wantAfter        int
+		targetDeployment int
 	}{
 		{
+			name: "merge containers into db",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "app",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{},
+								},
+							},
+						},
+					},
+				},
+				deploymentMappings: []DeploymentMapping{
+					{
+						SourceDeploymentName: "app",
+						TargetDeploymentName: "db",
+					},
+				},
+			},
+			wantBefore:       0,
+			wantAfter:        1,
+			targetDeployment: SecondObject,
+		},
+		{
 			name: "merge containers into destination deployment",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "app",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db-1",
+											Image: "image",
+										},
+										{
+											Name:  "db-2",
+											Image: "image",
+										},
+										{
+											Name:  "db-3",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				deploymentMappings: []DeploymentMapping{
+					{
+						SourceDeploymentName: "db",
+						TargetDeploymentName: "app",
+					},
+				},
+			},
+			wantBefore:       1,
+			wantAfter:        4,
+			targetDeployment: FirstObject,
+		},
+		{
+			name: "no containers to transfer",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "app",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				deploymentMappings: []DeploymentMapping{},
+			},
+			wantBefore:       1,
+			wantAfter:        1,
+			targetDeployment: FirstObject,
+		},
+		{
+			name: "merge 2 containers db deployment into app deployment",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "app",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db",
+											Image: "image",
+										},
+										{
+											Name:  "db-2",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				deploymentMappings: []DeploymentMapping{
+					{
+						SourceDeploymentName: "db",
+						TargetDeploymentName: "app",
+					},
+				},
+			},
+			wantBefore:       1,
+			wantAfter:        3,
+			targetDeployment: FirstObject,
+		},
+		{
+			name: "merge containers in app deployment into db deployment",
 			args: args{
 				objects: &[]runtime.Object{
 					&appsv1.Deployment{
@@ -1125,30 +1784,26 @@ func Test_mergeContainersIntoDestinationDeployment(t *testing.T) {
 				},
 				deploymentMappings: []DeploymentMapping{
 					{
-						SourceDeploymentName: "db",
-						TargetDeploymentName: "app",
-						ContainerDestination: []corev1.Container{
-							{
-								Name:  "db",
-								Image: "image",
-							},
-						},
+						SourceDeploymentName: "app",
+						TargetDeploymentName: "db",
 					},
 				},
 			},
-			want: 2,
+			wantBefore:       1,
+			wantAfter:        2,
+			targetDeployment: SecondObject,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			beforeContainers := (*tt.args.objects)[0].(*appsv1.Deployment).Spec.Template.Spec.Containers
-			if len(beforeContainers) != 1 {
-				t.Errorf("Expected %d containers, got %d", 1, len(beforeContainers))
+			beforeContainers := (*tt.args.objects)[tt.targetDeployment].(*appsv1.Deployment).Spec.Template.Spec.Containers
+			if len(beforeContainers) != tt.wantBefore {
+				t.Errorf("Before expected %d containers, got %d", tt.wantBefore, len(beforeContainers))
 			}
 			mergeContainersIntoDestinationDeployment(tt.args.deploymentMappings, tt.args.objects)
-			afterContainers := (*tt.args.objects)[0].(*appsv1.Deployment).Spec.Template.Spec.Containers
-			if len(afterContainers) != tt.want {
-				t.Errorf("Expected %d containers, got %d", tt.want, len(afterContainers))
+			afterContainers := (*tt.args.objects)[tt.targetDeployment].(*appsv1.Deployment).Spec.Template.Spec.Containers
+			if len(afterContainers) != tt.wantAfter {
+				t.Errorf("After expected %d containers, got %d", tt.wantAfter, len(afterContainers))
 			}
 		})
 	}
@@ -1159,14 +1814,91 @@ func TestKubernetes_fixNetworkModeToService(t *testing.T) {
 		objects  *[]runtime.Object
 		services map[string]kobject.ServiceConfig
 	}
+	const (
+		FirstObject  = 0
+		SecondObject = 1
+	)
 	tests := []struct {
-		name string
-		// fields fields
-		want int
-		args args
+		name             string
+		args             args
+		wantBefore       int
+		wantAfter        int
+		targetDeployment int
+		wantDeployments  int
 	}{
 		{
-			name: "fix network mode to service",
+			name: "fix network mode to service with transfer",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "app",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "nginx"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "nginx",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				services: map[string]kobject.ServiceConfig{
+					"nginx": {
+						Name:  "nginx",
+						Image: "image",
+					},
+					"app": {
+						Name:        "app",
+						Image:       "image",
+						NetworkMode: "service:db",
+					},
+					"db": {
+						Name:  "db",
+						Image: "image",
+					},
+				},
+			},
+			wantBefore:       1,
+			wantAfter:        2,
+			targetDeployment: FirstObject,
+			wantDeployments:  2,
+		},
+		{
+			name: "not transfer because wronge service name",
 			args: args{
 				objects: &[]runtime.Object{
 					&appsv1.Deployment{
@@ -1208,25 +1940,196 @@ func TestKubernetes_fixNetworkModeToService(t *testing.T) {
 					"db": {
 						Name:        "db",
 						Image:       "image",
-						NetworkMode: "service:app",
+						NetworkMode: "service:wrong",
 					},
 				},
 			},
-			want: 2,
+			wantBefore:       1,
+			wantAfter:        1,
+			targetDeployment: FirstObject,
+			wantDeployments:  1,
+		},
+		{
+			name: "deployment db removed",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "app",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				services: map[string]kobject.ServiceConfig{
+					"app": {
+						Name:        "app",
+						Image:       "image",
+						NetworkMode: "service:db",
+					},
+					"db": {
+						Name:  "db",
+						Image: "image",
+					},
+				},
+			},
+			wantBefore:       1,
+			wantAfter:        2,
+			targetDeployment: FirstObject, // db deployment removed
+			wantDeployments:  1,
+		},
+		{
+			name: "deployment app removed and added 1 container",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "app",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+
+				services: map[string]kobject.ServiceConfig{
+					"app": {
+						Name:        "app",
+						Image:       "image",
+						NetworkMode: "service:db",
+					},
+					"db": {
+						Name:  "db",
+						Image: "image",
+					},
+				},
+			},
+			wantBefore:       1,
+			wantAfter:        2,
+			targetDeployment: FirstObject,
+			wantDeployments:  1,
+		},
+		{
+			name: "deployment db removed and added 3 containers",
+			args: args{
+				objects: &[]runtime.Object{
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "app"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "app",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+					&appsv1.Deployment{
+						ObjectMeta: metav1.ObjectMeta{Name: "db"},
+						Spec: appsv1.DeploymentSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "db-1",
+											Image: "image",
+										},
+										{
+											Name:  "db-2",
+											Image: "image",
+										},
+										{
+											Name:  "db-3",
+											Image: "image",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				services: map[string]kobject.ServiceConfig{
+					"app": {
+						Name:        "app",
+						Image:       "image",
+						NetworkMode: "service:db",
+					},
+					"db": {
+						Name:  "db",
+						Image: "image",
+					},
+				},
+			},
+			wantBefore:       1,
+			wantAfter:        4,
+			targetDeployment: FirstObject, // db deployment removed
+			wantDeployments:  1,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k := &Kubernetes{}
-			beforeContainers := (*tt.args.objects)[0].(*appsv1.Deployment).Spec.Template.Spec.Containers
-			if len(beforeContainers) != 1 {
-				t.Errorf("Expected %d containers, got %d", 1, len(beforeContainers))
+			beforeContainers := (*tt.args.objects)[tt.targetDeployment].(*appsv1.Deployment).Spec.Template.Spec.Containers
+			if len(beforeContainers) != tt.wantBefore {
+				t.Errorf("Expected %d containers, got %d", tt.wantBefore, len(beforeContainers))
 			}
 
 			k.fixNetworkModeToService(tt.args.objects, tt.args.services)
-			afterContainers := (*tt.args.objects)[0].(*appsv1.Deployment).Spec.Template.Spec.Containers
-			if len(afterContainers) != tt.want {
-				t.Errorf("Expected %d containers, got %d", tt.want, len(afterContainers))
+			afterContainers := (*tt.args.objects)[tt.targetDeployment].(*appsv1.Deployment).Spec.Template.Spec.Containers
+			if len(afterContainers) != tt.wantAfter {
+				t.Errorf("Expected %d containers, got %d", tt.wantAfter, len(afterContainers))
+			}
+			if len(*tt.args.objects) != tt.wantDeployments {
+				t.Errorf("Expected %d deployments, got %d", tt.wantDeployments, len(*tt.args.objects))
 			}
 		})
 	}

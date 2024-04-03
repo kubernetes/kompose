@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: client
+  name: client
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  selector:
+    io.kompose.service: client
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: client
+  name: client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: client
+  template:
+    metadata:
+      labels:
+        io.kompose.network/network-mode-service-default: "true"
+        io.kompose.service: client
+    spec:
+      containers:
+        - args:
+            - sleep
+            - infinity
+          image: busybox
+          name: threats-client
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+              protocol: TCP
+        - args:
+            - sleep
+            - infinity
+          image: busybox
+          name: threats-server
+      restartPolicy: Always

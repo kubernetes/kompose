@@ -339,3 +339,8 @@ os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/resources-lowercase/compos
 os_output="$KOMPOSE_ROOT/script/test/fixtures/resources-lowercase/output-os.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 convert::expect_success "$os_cmd" "$os_output" || exit 1
+
+# Test network_mode: service:
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/network-mode-service/compose.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/network-mode-service/output-k8s.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1

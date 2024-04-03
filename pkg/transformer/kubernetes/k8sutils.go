@@ -55,7 +55,6 @@ const (
 type DeploymentMapping struct {
 	SourceDeploymentName string
 	TargetDeploymentName string
-	ContainerDestination []api.Container
 }
 
 /**
