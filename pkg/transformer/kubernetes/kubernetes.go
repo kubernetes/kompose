@@ -1656,7 +1656,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		}
 		err = k.configHorizontalPodScaler(name, service, opt, &objects)
 		if err != nil {
-			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
+			return nil, errors.Wrap(err, "Error creating Kubernetes HPA")
 		}
 		allobjects = append(allobjects, objects...)
 	}

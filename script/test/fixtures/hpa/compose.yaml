@@ -4,6 +4,7 @@ services:
     image: nginx
     labels:
       kompose.hpa.cpu: 50
-      kompose.hap.memory: 70
-      kompose.hap.replicas.min: 1
-      kompose.hap.replicas.max: 10
+      kompose.hpa.memory: 70
+      kompose.hpa.replicas.min: 1
+      kompose.hpa.replicas.max: 10
+

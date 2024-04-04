@@ -472,7 +472,7 @@ services:
       kompose.volume.sub-path: pg-data
 ```
 
-- `kompose.hpa.replicas.min` defines minimum replicas from Horizontal Pod Autoscaler. Default value 1 [HPA Min Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+- `kompose.hpa.replicas.min` defines the floor for the number of replicas that the HPA can scale down to during a scaling event. Default value is set to 1. This means that, regardless of the load on the system, the HPA will always maintain at least one replica. More info: [HPA Min Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
 
 For example:
 
@@ -484,7 +484,7 @@ services:
       kompose.hpa.replicas.min: 1
 ```
 
-- `kompose.hpa.replicas.max` defines maximum replicas from Horizontal Pod Autoscaler. Default value 10 [HPA Max Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+- `kompose.hpa.replicas.max` defines the upper limit for the number of replicas that the HPA can create during a scaling event. Default value is set to 3. This default value serves as a safeguard, providing a conservative starting point for your HPA configuration. More info: [HPA Max Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
 
 For example:
 
@@ -496,7 +496,7 @@ services:
       kompose.hpa.replicas.max: 10
 ```
 
-- `kompose.hpa.cpu` defines % cpu utilization trigger scale from Horizontal Pod Autoscaler. It is represented as a percentage of a resource. Default value: 50 [HPA CPU Utilization](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+- `kompose.hpa.cpu` defines % cpu utilization that triggers to scale the number of pods. It is represented as a percentage of a resource. Default value is set to 50. This default value serves as a safeguard, providing a conservative starting point for your HPA configuration. More info: [HPA CPU Utilization](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
 
 For example:
 
@@ -508,7 +508,7 @@ services:
       kompose.hpa.cpu: 50
 ```
 
-- `kompose.hpa.memory` defines memory utilization trigger scale from Horizontal Pod Autoscaler. It is represented as a percentage of a resource. Default value: 70 [HPA Memory Utilization](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+- `kompose.hpa.memory` defines memory utilization that triggers to scale the number of pods. It is represented as a percentage of a resource. Default value is set to 70. This default value serves as a safeguard, providing a conservative starting point for your HPA configuration. More info: [HPA Memory Utilization](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
 
 For example:
 

@@ -52,8 +52,8 @@ import (
 // Default values for Horizontal Pod Autoscaler (HPA)
 const (
 	DefaultMinReplicas       = 1
-	DefaultMaxReplicas       = 10
-	DefaultCpuUtilization    = 50
+	DefaultMaxReplicas       = 3
+	DefaultCPUUtilization    = 50
 	DefaultMemoryUtilization = 70
 )
 
@@ -1013,13 +1013,12 @@ func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConf
 // searchHPAValues is useful to check if labels
 // contains any labels related to Horizontal Pod Autoscaler
 func searchHPAValues(labels map[string]string) bool {
-	found := true
 	for _, value := range LabelKeys {
 		if _, ok := labels[value]; ok {
-			return found
+			return true
 		}
 	}
-	return !found
+	return false
 }
 
 // createHPAResources creates a HorizontalPodAutoscaler (HPA) resource
@@ -1059,15 +1058,30 @@ func getResourceHpaValues(service *kobject.ServiceConfig) HpaValues {
 	maxReplicas := getHpaValue(service, compose.LabelHpaMaxReplicas, DefaultMaxReplicas)
 
 	if maxReplicas < minReplicas {
+		log.Warnf("maxReplicas %d is less than minReplicas %d. Using minReplicas value %d", maxReplicas, minReplicas, minReplicas)
 		maxReplicas = minReplicas
 	}
+
+	cpuUtilization := validatePercentageMetric(service, compose.LabelHpaCPU, DefaultCPUUtilization)
+	memoryUtilization := validatePercentageMetric(service, compose.LabelHpaMemory, DefaultMemoryUtilization)
 
 	return HpaValues{
 		MinReplicas:       minReplicas,
 		MaxReplicas:       maxReplicas,
-		CPUtilization:     getHpaValue(service, compose.LabelHpaCPU, DefaultCpuUtilization),
-		MemoryUtilization: getHpaValue(service, compose.LabelHpaMemory, DefaultMemoryUtilization),
+		CPUtilization:     cpuUtilization,
+		MemoryUtilization: memoryUtilization,
 	}
+}
+
+// validatePercentageMetric validates the CPU or memory metrics value
+// ensuring that it falls within the acceptable range [1, 100].
+func validatePercentageMetric(service *kobject.ServiceConfig, metricLabel string, defaultValue int32) int32 {
+	metricValue := getHpaValue(service, metricLabel, defaultValue)
+	if metricValue > 100 || metricValue < 1 {
+		log.Warnf("Metric value %d is not within the acceptable range [1, 100]. Using default value %d", metricValue, defaultValue)
+		return defaultValue
+	}
+	return metricValue
 }
 
 // getHpaValue convert the label value to integer
@@ -1075,7 +1089,8 @@ func getResourceHpaValues(service *kobject.ServiceConfig) HpaValues {
 // it returns the provided default value
 func getHpaValue(service *kobject.ServiceConfig, label string, defaultValue int32) int32 {
 	valueFromLabel, err := strconv.Atoi(service.Labels[label])
-	if err != nil || valueFromLabel <= 0 {
+	if err != nil || valueFromLabel < 0 {
+		log.Warnf("Error converting label %s. Using default value %d", label, defaultValue)
 		return defaultValue
 	}
 	return int32(valueFromLabel)

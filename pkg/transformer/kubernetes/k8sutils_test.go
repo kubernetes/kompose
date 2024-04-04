@@ -783,7 +783,7 @@ func Test_getHpaValue(t *testing.T) {
 				label:        compose.LabelHpaMinReplicas,
 				defaultValue: 1,
 			},
-			want: 1,
+			want: 0,
 		},
 		{
 			name: "LabelHpaMinReplicas with error value",
@@ -830,9 +830,9 @@ func Test_getHpaValue(t *testing.T) {
 					},
 				},
 				label:        compose.LabelHpaMaxReplicas,
-				defaultValue: 10,
+				defaultValue: DefaultMaxReplicas,
 			},
-			want: 10,
+			want: 0,
 		},
 		{
 			name: "LabelHpaMaxReplicas with error value",
@@ -846,9 +846,9 @@ func Test_getHpaValue(t *testing.T) {
 					},
 				},
 				label:        compose.LabelHpaMaxReplicas,
-				defaultValue: 10,
+				defaultValue: DefaultMaxReplicas,
 			},
-			want: 10,
+			want: DefaultMaxReplicas,
 		},
 		// LabelHpaCPU
 		{
@@ -879,9 +879,9 @@ func Test_getHpaValue(t *testing.T) {
 					},
 				},
 				label:        compose.LabelHpaCPU,
-				defaultValue: 50,
+				defaultValue: DefaultCPUUtilization,
 			},
-			want: 50,
+			want: 0,
 		},
 		{
 			name: "LabelHpaCPU with error value",
@@ -895,9 +895,9 @@ func Test_getHpaValue(t *testing.T) {
 					},
 				},
 				label:        compose.LabelHpaCPU,
-				defaultValue: 50,
+				defaultValue: DefaultCPUUtilization,
 			},
-			want: 50,
+			want: DefaultCPUUtilization,
 		},
 		// LabelHpaMemory
 		{
@@ -928,9 +928,9 @@ func Test_getHpaValue(t *testing.T) {
 					},
 				},
 				label:        compose.LabelHpaMemory,
-				defaultValue: 70,
+				defaultValue: DefaultMemoryUtilization,
 			},
-			want: 70,
+			want: 0,
 		},
 		{
 			name: "LabelHpaMemory with error value",
@@ -944,9 +944,9 @@ func Test_getHpaValue(t *testing.T) {
 					},
 				},
 				label:        compose.LabelHpaMemory,
-				defaultValue: 70,
+				defaultValue: DefaultMemoryUtilization,
 			},
-			want: 70,
+			want: DefaultMemoryUtilization,
 		},
 	}
 	for _, tt := range tests {
@@ -973,7 +973,7 @@ func Test_getResourceHpaValues(t *testing.T) {
 				service: &kobject.ServiceConfig{
 					Labels: map[string]string{
 						compose.LabelHpaMinReplicas: "1",
-						compose.LabelHpaMaxReplicas: "10",
+						compose.LabelHpaMaxReplicas: "3",
 						compose.LabelHpaCPU:         "50",
 						compose.LabelHpaMemory:      "70",
 					},
@@ -981,7 +981,7 @@ func Test_getResourceHpaValues(t *testing.T) {
 			},
 			want: HpaValues{
 				MinReplicas:       1,
-				MaxReplicas:       10,
+				MaxReplicas:       3,
 				CPUtilization:     50,
 				MemoryUtilization: 70,
 			},
@@ -1018,7 +1018,7 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1, // Default value
+				MinReplicas:       DefaultMinReplicas,
 				MaxReplicas:       3,
 				CPUtilization:     50,
 				MemoryUtilization: 70,
@@ -1057,13 +1057,13 @@ func Test_getResourceHpaValues(t *testing.T) {
 			},
 			want: HpaValues{
 				MinReplicas:       6,
-				MaxReplicas:       6,  // same as min replicas number
-				CPUtilization:     50, // Default value
+				MaxReplicas:       6, // same as min replicas number
+				CPUtilization:     DefaultCPUUtilization,
 				MemoryUtilization: 70,
 			},
 		},
 		{
-			name: "error label and LabelHpaMaxReplicas is minor to LabelHpaMinReplicas",
+			name: "error label and LabelHpaMaxReplicas is minor to LabelHpaMinReplicas and cannot transform hpa mmemor utilization",
 			args: args{
 				service: &kobject.ServiceConfig{
 					Labels: map[string]string{
@@ -1078,7 +1078,7 @@ func Test_getResourceHpaValues(t *testing.T) {
 				MinReplicas:       6,
 				MaxReplicas:       6,
 				CPUtilization:     50,
-				MemoryUtilization: 70, // Default value
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1094,10 +1094,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1111,10 +1111,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1125,10 +1125,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1142,9 +1142,9 @@ func Test_getResourceHpaValues(t *testing.T) {
 			},
 			want: HpaValues{
 				MinReplicas:       3,
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1157,10 +1157,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1, // Default value
+				MinReplicas:       DefaultMinReplicas,
 				MaxReplicas:       5,
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1176,10 +1176,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1192,10 +1192,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
 				CPUtilization:     80,
-				MemoryUtilization: 70, // Default value
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1208,9 +1208,9 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
 				MemoryUtilization: 90,
 			},
 		},
@@ -1225,8 +1225,8 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
 				CPUtilization:     80,
 				MemoryUtilization: 90,
 			},
@@ -1244,10 +1244,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1263,10 +1263,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 		{
@@ -1282,10 +1282,10 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				MinReplicas:       0,
+				MaxReplicas:       0,
+				CPUtilization:     50,
+				MemoryUtilization: 70,
 			},
 		},
 		{
@@ -1301,10 +1301,29 @@ func Test_getResourceHpaValues(t *testing.T) {
 				},
 			},
 			want: HpaValues{
-				MinReplicas:       1,  // Default value
-				MaxReplicas:       10, // Default value
-				CPUtilization:     50, // Default value
-				MemoryUtilization: 70, // Default value
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
+			},
+		},
+		{
+			name: "check default values when labels cpu and memory are over",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMinReplicas: "-2",
+						compose.LabelHpaMaxReplicas: "-2",
+						compose.LabelHpaCPU:         "120",
+						compose.LabelHpaMemory:      "120",
+					},
+				},
+			},
+			want: HpaValues{
+				MinReplicas:       DefaultMinReplicas,
+				MaxReplicas:       DefaultMaxReplicas,
+				CPUtilization:     DefaultCPUUtilization,
+				MemoryUtilization: DefaultMemoryUtilization,
 			},
 		},
 	}
@@ -1317,9 +1336,189 @@ func Test_getResourceHpaValues(t *testing.T) {
 	}
 }
 
+func Test_validatePercentageMetric(t *testing.T) {
+	type args struct {
+		service      *kobject.ServiceConfig
+		metricLabel  string
+		defaultValue int32
+	}
+	tests := []struct {
+		name string
+		args args
+		want int32
+	}{
+		{
+			name: "0 cpu utilization",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaCPU: "0",
+					},
+				},
+				metricLabel:  compose.LabelHpaCPU,
+				defaultValue: DefaultCPUUtilization,
+			},
+			want: 50,
+		},
+		{
+			name: "default cpu valid range",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaCPU: "120",
+					},
+				},
+				metricLabel:  compose.LabelHpaCPU,
+				defaultValue: DefaultCPUUtilization,
+			},
+			want: DefaultCPUUtilization,
+		},
+		{
+			name: "cpu invalid range",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaCPU: "-120",
+					},
+				},
+				metricLabel:  compose.LabelHpaCPU,
+				defaultValue: DefaultCPUUtilization,
+			},
+			want: DefaultCPUUtilization,
+		},
+		{
+			name: "cpu utilization set to 100",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaCPU: "100",
+					},
+				},
+				metricLabel:  compose.LabelHpaCPU,
+				defaultValue: DefaultCPUUtilization,
+			},
+			want: 100,
+		},
+		{
+			name: "cpu utlization set to 101",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaCPU: "101",
+					},
+				},
+				metricLabel:  compose.LabelHpaCPU,
+				defaultValue: DefaultCPUUtilization,
+			},
+			want: DefaultCPUUtilization,
+		},
+		{
+			name: "cannot convert value in cpu label",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaCPU: "not converted",
+					},
+				},
+				metricLabel:  compose.LabelHpaCPU,
+				defaultValue: DefaultCPUUtilization,
+			},
+			want: DefaultCPUUtilization,
+		},
+		{
+			name: "0 memory utilization",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMemory: "0",
+					},
+				},
+				metricLabel:  compose.LabelHpaMemory,
+				defaultValue: DefaultMemoryUtilization,
+			},
+			want: 70,
+		},
+		{
+			name: "memory over 100 utilization",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMemory: "120",
+					},
+				},
+				metricLabel:  compose.LabelHpaMemory,
+				defaultValue: DefaultMemoryUtilization,
+			},
+			want: DefaultMemoryUtilization,
+		},
+		{
+			name: "-120 utilization memory wrong range",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMemory: "-120",
+					},
+				},
+				metricLabel:  compose.LabelHpaMemory,
+				defaultValue: DefaultMemoryUtilization,
+			},
+			want: DefaultMemoryUtilization,
+		},
+		{
+			name: "memory 100 usage",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMemory: "100",
+					},
+				},
+				metricLabel:  compose.LabelHpaMemory,
+				defaultValue: DefaultMemoryUtilization,
+			},
+			want: 100,
+		},
+		{
+			name: "101 memory utilization",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMemory: "101",
+					},
+				},
+				metricLabel:  compose.LabelHpaMemory,
+				defaultValue: DefaultMemoryUtilization,
+			},
+			want: DefaultMemoryUtilization,
+		},
+		{
+			name: "cannot convert memory from label",
+			args: args{
+				service: &kobject.ServiceConfig{
+					Labels: map[string]string{
+						compose.LabelHpaMemory: "not converted",
+					},
+				},
+				metricLabel:  compose.LabelHpaMemory,
+				defaultValue: DefaultMemoryUtilization,
+			},
+			want: DefaultMemoryUtilization,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := validatePercentageMetric(tt.args.service, tt.args.metricLabel, tt.args.defaultValue); got != tt.want {
+				t.Errorf("validatePercentageMetric() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func Test_getHpaMetricSpec(t *testing.T) {
 	valueCPUFixed := int32(50)
 	valueMemoryFixed := int32(70)
+	valueOver100 := int32(120)
+	valueUnderZero := int32(-120)
+	// valueZero := int32(0)
 	type args struct {
 		hpaValues HpaValues
 	}
@@ -1331,7 +1530,7 @@ func Test_getHpaMetricSpec(t *testing.T) {
 		{
 			name: "no values",
 			args: args{
-				hpaValues: HpaValues{},
+				hpaValues: HpaValues{}, // set all values to 0
 			},
 			want: nil,
 		},
@@ -1339,7 +1538,7 @@ func Test_getHpaMetricSpec(t *testing.T) {
 			name: "only cpu",
 			args: args{
 				hpaValues: HpaValues{
-					CPUtilization: 50,
+					CPUtilization: valueCPUFixed,
 				},
 			},
 			want: []hpa.MetricSpec{
@@ -1379,8 +1578,8 @@ func Test_getHpaMetricSpec(t *testing.T) {
 			name: "cpu and memory",
 			args: args{
 				hpaValues: HpaValues{
-					CPUtilization:     50,
-					MemoryUtilization: 70,
+					CPUtilization:     valueCPUFixed,
+					MemoryUtilization: valueMemoryFixed,
 				},
 			},
 			want: []hpa.MetricSpec{
@@ -1406,7 +1605,69 @@ func Test_getHpaMetricSpec(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "memory over 100",
+			args: args{
+				hpaValues: HpaValues{
+					MemoryUtilization: valueOver100,
+				},
+			},
+			want: []hpa.MetricSpec{
+				{
+					Type: hpa.ResourceMetricSourceType,
+					Resource: &hpa.ResourceMetricSource{
+						Name: "memory",
+						Target: hpa.MetricTarget{
+							Type:               hpa.UtilizationMetricType,
+							AverageUtilization: &valueOver100,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "cpu and memory over 100",
+			args: args{
+				hpaValues: HpaValues{
+					CPUtilization:     valueOver100,
+					MemoryUtilization: valueOver100,
+				},
+			},
+			want: []hpa.MetricSpec{
+				{
+					Type: hpa.ResourceMetricSourceType,
+					Resource: &hpa.ResourceMetricSource{
+						Name: "cpu",
+						Target: hpa.MetricTarget{
+							Type:               hpa.UtilizationMetricType,
+							AverageUtilization: &valueOver100,
+						},
+					},
+				},
+				{
+					Type: hpa.ResourceMetricSourceType,
+					Resource: &hpa.ResourceMetricSource{
+						Name: "memory",
+						Target: hpa.MetricTarget{
+							Type:               hpa.UtilizationMetricType,
+							AverageUtilization: &valueOver100,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "cpu and memory under 0",
+			args: args{
+				hpaValues: HpaValues{
+					CPUtilization:     valueUnderZero,
+					MemoryUtilization: valueUnderZero,
+				},
+			},
+			want: nil,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := getHpaMetricSpec(tt.args.hpaValues); !reflect.DeepEqual(got, tt.want) {
@@ -1509,7 +1770,7 @@ func Test_createHPAResources(t *testing.T) {
 						APIVersion: "apps/v1",
 					},
 					MinReplicas: &fixedMinReplicas,
-					MaxReplicas: 10, // Default value
+					MaxReplicas: DefaultMaxReplicas,
 					Metrics: []hpa.MetricSpec{
 						{
 							Type: hpa.ResourceMetricSourceType,
@@ -1667,7 +1928,7 @@ func Test_createHPAResources(t *testing.T) {
 						APIVersion: "apps/v1",
 					},
 					MinReplicas: &fixedMinReplicas,
-					MaxReplicas: 10, // Default value
+					MaxReplicas: DefaultMaxReplicas,
 					Metrics: []hpa.MetricSpec{
 						{
 							Type: hpa.ResourceMetricSourceType,
