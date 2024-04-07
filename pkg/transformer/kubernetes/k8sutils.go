@@ -985,3 +985,67 @@ func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConf
 
 	return newSecretConfig
 }
+
+// isConfigFile checks if the given filePath should be used as a configMap
+// if dir is not empty, withindir are treated as cofigmaps
+// if it's configMap, mount readonly as default
+func isConfigFile(filePath string) (useConfigMap bool, readonly bool) {
+	if strings.HasSuffix(filePath, ".sock") {
+		return
+	}
+
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		log.Warnf("Failed to check if the directory is empty: %v", err)
+		return
+	}
+
+	if !fi.Mode().IsRegular() { // is dir
+		isDirEmpty, err := checkIsEmptyDir(filePath)
+		if err != nil {
+			log.Warnf("Failed to check if the directory is empty: %v", err)
+			return
+		}
+
+		if isDirEmpty {
+			return false, false
+		}
+	}
+	return true, true
+}
+
+// checkIsEmptyDir checks if filepath is empty
+func checkIsEmptyDir(filePath string) (bool, error) {
+	entries, err := os.ReadDir(filePath)
+	if err != nil {
+		return false, err
+	}
+	if len(entries) == 0 {
+		return true, err
+	}
+	return false, err
+}
+
+// setVolumeAccessMode sets the access mode for a volume based on the mode string
+// current types:
+// ReadOnly RO and ReadOnlyMany ROX can be mounted in read-only mode to many hosts
+// ReadWriteMany RWX can be mounted in read/write mode to many hosts
+// ReadWriteOncePod RWOP can be mounted in read/write mode to exactly 1 pod
+// ReadWriteOnce RWO can be mounted in read/write mode to exactly 1 host
+// https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+func setVolumeAccessMode(mode string, volumeAccesMode []api.PersistentVolumeAccessMode) []api.PersistentVolumeAccessMode {
+	switch mode {
+	case "ro", "rox":
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadOnlyMany}
+	case "rwx":
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadWriteMany}
+	case "rwop":
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadWriteOncePod}
+	case "rwo":
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadWriteOnce}
+	default:
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadWriteOnce}
+	}
+
+	return volumeAccesMode
+}
