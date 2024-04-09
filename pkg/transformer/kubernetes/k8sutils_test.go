@@ -817,7 +817,17 @@ func Test_isConfigFile(t *testing.T) {
 		args             args
 		wantUseConfigMap bool
 		wantReadonly     bool
+		wantSkip         bool
 	}{
+		{
+			name: "dir not empty",
+			args: args{
+				filePath: "../../../script/test/fixtures/configmap-file-configs/certs",
+			},
+			wantUseConfigMap: true,
+			wantReadonly:     true,
+			wantSkip:         false,
+		},
 		{
 			name: "sock",
 			args: args{
@@ -825,6 +835,7 @@ func Test_isConfigFile(t *testing.T) {
 			},
 			wantUseConfigMap: false,
 			wantReadonly:     false,
+			wantSkip:         true,
 		},
 		{
 			name: "cannot resolve filepath",
@@ -833,6 +844,7 @@ func Test_isConfigFile(t *testing.T) {
 			},
 			wantUseConfigMap: false,
 			wantReadonly:     false,
+			wantSkip:         false,
 		},
 		{
 			name: "file cert",
@@ -841,24 +853,65 @@ func Test_isConfigFile(t *testing.T) {
 			},
 			wantUseConfigMap: true,
 			wantReadonly:     true,
+			wantSkip:         false,
 		},
 		{
-			name: "dir not empty",
+			name: "docker sock",
 			args: args{
-				filePath: "../../../script/test/fixtures/configmap-file-configs/certs",
+				filePath: "/var/run/docker.sock",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         true,
+		},
+		{
+			name: "dir sys",
+			args: args{
+				filePath: "/sys",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         true,
+		},
+		{
+			name: "dir root",
+			args: args{
+				filePath: "/root",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         true,
+		},
+		{
+			name: "docker var lib",
+			args: args{
+				filePath: "/var/lib/docker",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         true,
+		},
+		{
+			name: "file from 3 levels",
+			args: args{
+				filePath: "../../../script/test/fixtures/configmap-file-configs/certs-level1/certs-level2/certs-level3/cert2.pem",
 			},
 			wantUseConfigMap: true,
 			wantReadonly:     true,
+			wantSkip:         false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotUseConfigMap, gotReadonly := isConfigFile(tt.args.filePath)
+			gotUseConfigMap, gotReadonly, gotSkip := isConfigFile(tt.args.filePath)
 			if gotUseConfigMap != tt.wantUseConfigMap {
 				t.Errorf("isConfigFile() gotUseConfigMap = %v, want %v", gotUseConfigMap, tt.wantUseConfigMap)
 			}
 			if gotReadonly != tt.wantReadonly {
 				t.Errorf("isConfigFile() gotReadonly = %v, want %v", gotReadonly, tt.wantReadonly)
+			}
+			if gotSkip != tt.wantSkip {
+				t.Errorf("isConfigFile() gotSkip = %v, want %v", gotSkip, tt.wantSkip)
 			}
 		})
 	}

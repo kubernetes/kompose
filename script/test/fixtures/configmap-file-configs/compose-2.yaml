@@ -1,0 +1,17 @@
+services:
+  busy:
+    image: busybox
+    ports:
+      - "8081:8080"
+      - "8026:8025"
+    volumes:
+      - ./certs:/certs
+      - ./certs-level1/certs-level2/certs-level3/cert2.pem:/certs/cert2.pem
+      - ./auth.txt:/auth.txt
+      - ./users.php:/users.php:ro
+    command:
+      [
+        "/bin/sh", 
+        "-c", 
+        "cat /auth.txt /users.php /certs/cert1.pem /certs/cert2.pem"
+      ]

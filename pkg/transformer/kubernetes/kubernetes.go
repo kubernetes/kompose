@@ -951,13 +951,22 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 	volumes = append(volumes, secretsVolumes...)
 
 	var count int
+	skip := false
 	//iterating over array of `Vols` struct as it contains all necessary information about volumes
 	for _, volume := range service.Volumes {
 		// check if ro/rw mode is defined, default rw
 		readonly := len(volume.Mode) > 0 && (volume.Mode == "ro" || volume.Mode == "rox")
+		mountHost := volume.Host
+		if mountHost == "" {
+			mountHost = volume.MountPath
+		}
 		// return useconfigmap and readonly,
 		// not used asigned readonly because dont break e2e
-		useConfigMap, _ = isConfigFile(volume.Host)
+		useConfigMap, _, skip = isConfigFile(mountHost)
+		if skip {
+			log.Warnf("Skip file in path %s ", volume.Host)
+			continue
+		}
 		if volume.VolumeName == "" {
 			if useEmptyVolumes {
 				volumeName = strings.Replace(volume.PVCName, "claim", "empty", 1)

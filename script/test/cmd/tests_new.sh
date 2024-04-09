@@ -340,7 +340,26 @@ os_output="$KOMPOSE_ROOT/script/test/fixtures/resources-lowercase/output-os.yaml
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 convert::expect_success "$os_cmd" "$os_output" || exit 1
 
-#Test configmaps
-k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/compose.yaml convert --stdout --with-kompose-annotation=false"
-k8s_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/output-k8s.yaml"
+#Test auto configmaps from files/dir
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/compose-1.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/output-k8s-1.yaml"
+os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/compose-1.yaml convert --provider openshift --stdout --with-kompose-annotation=false"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/output-os-1.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$os_cmd" "$os_output" || exit 1
+
+#Test auto configmaps from files/dir
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/compose-2.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/output-k8s-2.yaml"
+os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/compose-2.yaml convert --provider openshift --stdout --with-kompose-annotation=false"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/output-os-2.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$os_cmd" "$os_output" || exit 1
+
+#Test auto configmaps from files/dir
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/compose-3.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/output-k8s-3.yaml"
+os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/compose-3.yaml convert --provider openshift --stdout --with-kompose-annotation=false"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/output-os-3.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$os_cmd" "$os_output" || exit 1

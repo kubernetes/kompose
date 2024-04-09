@@ -989,14 +989,18 @@ func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConf
 // isConfigFile checks if the given filePath should be used as a configMap
 // if dir is not empty, withindir are treated as cofigmaps
 // if it's configMap, mount readonly as default
-func isConfigFile(filePath string) (useConfigMap bool, readonly bool) {
-	if strings.HasSuffix(filePath, ".sock") {
+func isConfigFile(filePath string) (useConfigMap bool, readonly bool, skip bool) {
+	if filePath == "" || strings.HasSuffix(filePath, ".sock") {
+		skip = true
 		return
 	}
 
 	fi, err := os.Stat(filePath)
 	if err != nil {
-		log.Warnf("Failed to check if the directory is empty: %v", err)
+		log.Warnf("File don't exist or failed to check if the directory is empty: %v", err)
+		// dir/file not exist
+		// here not assigned skip to true,
+		// maybe dont want to skip
 		return
 	}
 
@@ -1004,26 +1008,36 @@ func isConfigFile(filePath string) (useConfigMap bool, readonly bool) {
 		isDirEmpty, err := checkIsEmptyDir(filePath)
 		if err != nil {
 			log.Warnf("Failed to check if the directory is empty: %v", err)
+			skip = true
 			return
 		}
 
 		if isDirEmpty {
-			return false, false
+			return
 		}
 	}
-	return true, true
+	return true, true, skip
 }
 
 // checkIsEmptyDir checks if filepath is empty
 func checkIsEmptyDir(filePath string) (bool, error) {
-	entries, err := os.ReadDir(filePath)
+	files, err := os.ReadDir(filePath)
 	if err != nil {
 		return false, err
 	}
-	if len(entries) == 0 {
+	if len(files) == 0 {
 		return true, err
 	}
-	return false, err
+	for _, file := range files {
+		if !file.IsDir() {
+			return false, nil
+		}
+		_, err := checkIsEmptyDir(file.Name())
+		if err != nil {
+			return false, err
+		}
+	}
+	return true, nil
 }
 
 // setVolumeAccessMode sets the access mode for a volume based on the mode string

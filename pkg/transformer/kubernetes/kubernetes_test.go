@@ -757,7 +757,7 @@ func TestMultipleContainersInPod(t *testing.T) {
 		config.Volumes = []kobject.Volumes{
 			{
 				VolumeName: "mountVolume",
-				MountPath:  "/data",
+				MountPath:  "/data-dir",
 			},
 		}
 		return config
