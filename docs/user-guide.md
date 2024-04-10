@@ -211,9 +211,9 @@ The currently supported options are:
 | kompose.cronjob.schedule                            | kubernetes cronjob schedule (for example: '1 * * * *')                               |
 | kompose.cronjob.concurrency_policy                  | 'Forbid' / 'Allow' / 'Never' / ''                                                    |
 | kompose.cronjob.backoff_limit                       | kubernetes cronjob backoff limit (for example: '6')                                  |
-| kompose.init.containers.name                         | kubernetes init container name                                                       |
-| kompose.init.containers.image                        | kubernetes init container image                                                      |
-| kompose.init.containers.command                      | kubernetes init container commands                                                   |
+| kompose.init.containers.name                        | kubernetes init container name                                                       |
+| kompose.init.containers.image                       | kubernetes init container image                                                      |
+| kompose.init.containers.command                     | kubernetes init container commands                                                   |
 | kompose.hpa.replicas.min                            | defines Horizontal Pod Autoscaler minimum number of pod replicas                     |
 | kompose.hpa.replicas.max                            | defines Horizontal Pod Autoscaler maximum  number of pod replicas                    |
 | kompose.hpa.cpu                                     | defines Horizontal Pod Autoscaler cpu utilization trigger                            |
