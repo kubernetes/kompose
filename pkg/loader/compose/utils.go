@@ -87,6 +87,12 @@ const (
 	LabelCronJobConcurrencyPolicy = "kompose.cronjob.concurrency_policy"
 	// LabelCronJobBackoffLimit defines the job backoff limit
 	LabelCronJobBackoffLimit = "kompose.cronjob.backoff_limit"
+	// LabelInitContainerName defines name resource
+	LabelInitContainerName = "kompose.init.containers.name"
+	// LabelInitContainerImage defines image to pull
+	LabelInitContainerImage = "kompose.init.containers.image"
+	// LabelInitContainerCommand defines commands
+	LabelInitContainerCommand = "kompose.init.containers.command"
 	// LabelSuffixTCPLoadbalancer for suffix for tcp ports in LB
 	LabelSuffixTCPLoadbalancer = "kompose.service.suffix-lb-tcp"
 	// LabelSuffixUDPLoadbalancer for suffix for udp ports in LB

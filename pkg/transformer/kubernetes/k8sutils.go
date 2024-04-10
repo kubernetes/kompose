@@ -661,7 +661,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 		if serviceAccountName, ok := service.Labels[compose.LabelServiceAccountName]; ok {
 			template.Spec.ServiceAccountName = serviceAccountName
 		}
-
+		fillInitContainers(template, service)
 		return nil
 	}
 
@@ -991,6 +991,51 @@ func reformatSecretConfigUnderscoreWithDash(secretConfig types.ServiceSecretConf
 	}
 
 	return newSecretConfig
+}
+
+// fillInitContainers looks for an initContainer resources and its passed as labels
+// if there is no image, it does not fill the initContainer
+// https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+func fillInitContainers(template *api.PodTemplateSpec, service kobject.ServiceConfig) {
+	resourceImage, exist := service.Labels[compose.LabelInitContainerImage]
+	if !exist || resourceImage == "" {
+		return
+	}
+	resourceName, exist := service.Labels[compose.LabelInitContainerName]
+	if !exist || resourceName == "" {
+		resourceName = "init-service"
+	}
+
+	template.Spec.InitContainers = append(template.Spec.InitContainers, api.Container{
+		Name:    resourceName,
+		Command: parseContainerCommandsFromStr(service.Labels[compose.LabelInitContainerCommand]),
+		Image:   resourceImage,
+	})
+}
+
+// parseContainerCommandsFromStr parses a string containing comma-separated commands
+// returns a slice of strings or a single command
+// example:
+// [ "bundle", "exec", "thin", "-p", "3000" ]
+//
+// example:
+// [ "bundle exec thin -p 3000" ]
+func parseContainerCommandsFromStr(line string) []string {
+	if line == "" {
+		return []string{}
+	}
+	var commands []string
+	if strings.Contains(line, ",") {
+		line = strings.TrimSpace(strings.Trim(line, "[]"))
+		commands = strings.Split(line, ",")
+		// remove space "'
+		for i := range commands {
+			commands[i] = strings.TrimSpace(strings.Trim(commands[i], `"' `))
+		}
+	} else {
+		commands = append(commands, line)
+	}
+	return commands
 }
 
 // It ensures consistency in the format of prefixes

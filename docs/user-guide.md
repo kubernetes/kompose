@@ -211,6 +211,9 @@ The currently supported options are:
 | kompose.cronjob.schedule                            | kubernetes cronjob schedule (for example: '1 * * * *')                               |
 | kompose.cronjob.concurrency_policy                  | 'Forbid' / 'Allow' / 'Never' / ''                                                    |
 | kompose.cronjob.backoff_limit                       | kubernetes cronjob backoff limit (for example: '6')                                  |
+| kompose.init.containers.name                        | kubernetes init container name                                                       |
+| kompose.init.containers.image                       | kubernetes init container image                                                      |
+| kompose.init.containers.command                     | kubernetes init container commands                                                   |
 | kompose.service.suffix-lb                           | used to generate a LoadBalancer with a suffix in ports TCP and UDP                   |
 | kompose.service.suffix-lb-tcp                       | used to generate a LoadBalancer with a suffix in ports TCP                           |
 | kompose.service.suffix-lb-udp                       | used to generate a LoadBalancer with a suffix in ports UDP                           |
@@ -470,6 +473,48 @@ services:
     labels:
       kompose.volume.sub-path: pg-data
 ```
+
+- `kompose.init.containers.name`  is used to specify the name of the Init Containers for a Pod [Init Container Name](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+
+For example:
+
+```yaml
+version: '3'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.init.containers.name: "initcontainername"
+```
+
+- `kompose.init.containers.image` defines image to use for the Init Containers [Init Container Image](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+
+For example:
+
+```yaml
+version: '3'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.init.containers.image: perl
+```
+
+
+- `kompose.init.containers.command` defines the command that the Init Containers will run after they are started [Init Container Command](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+
+For example:
+
+```yaml
+version: '3'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.init.containers.command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      kompose.init.containers.image: perl
+```
+
 
 - `kompose.service.suffix-lb`  directive that sets a suffix for the LoadBalancer, which applies to both TCP and UDP ports. By default, a `-tcp` suffix is added. If is empty (""), no suffix is added of the LoadBalancer.
 
