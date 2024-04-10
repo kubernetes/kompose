@@ -89,6 +89,12 @@ const (
 	LabelCronJobConcurrencyPolicy = "kompose.cronjob.concurrency_policy"
 	// LabelCronJobBackoffLimit defines the job backoff limit
 	LabelCronJobBackoffLimit = "kompose.cronjob.backoff_limit"
+	// LabelInitContainerName defines name resource
+	LabelInitContainerName = "kompose.init.containers.name"
+	// LabelInitContainerImage defines image to pull
+	LabelInitContainerImage = "kompose.init.containers.image"
+	// LabelInitContainerCommand defines commands
+	LabelInitContainerCommand = "kompose.init.containers.command"
 )
 
 // load environment variables from compose file

@@ -562,6 +562,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 			serviceConfig.Dockerfile = composeServiceConfig.Build.Dockerfile
 			serviceConfig.BuildArgs = composeServiceConfig.Build.Args
 			serviceConfig.BuildLabels = composeServiceConfig.Build.Labels
+			serviceConfig.BuildTarget = composeServiceConfig.Build.Target
 		}
 
 		// env
