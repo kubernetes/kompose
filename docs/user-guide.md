@@ -211,6 +211,9 @@ The currently supported options are:
 | kompose.cronjob.schedule                            | kubernetes cronjob schedule (for example: '1 * * * *')                               |
 | kompose.cronjob.concurrency_policy                  | 'Forbid' / 'Allow' / 'Never' / ''                                                    |
 | kompose.cronjob.backoff_limit                       | kubernetes cronjob backoff limit (for example: '6')                                  |
+| kompose.init.containers.name                        | kubernetes init container name                                                       |
+| kompose.init.containers.image                       | kubernetes init container image                                                      |
+| kompose.init.containers.command                     | kubernetes init container commands                                                   |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -467,6 +470,48 @@ services:
     labels:
       kompose.volume.sub-path: pg-data
 ```
+
+- `kompose.init.containers.name`  is used to specify the name of the Init Containers for a Pod [Init Container Name](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+
+For example:
+
+```yaml
+version: '3'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.init.containers.name: "initcontainername"
+```
+
+- `kompose.init.containers.image` defines image to use for the Init Containers [Init Container Image](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+
+For example:
+
+```yaml
+version: '3'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.init.containers.image: perl
+```
+
+
+- `kompose.init.containers.command` defines the command that the Init Containers will run after they are started [Init Container Command](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+
+For example:
+
+```yaml
+version: '3'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.init.containers.command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      kompose.init.containers.image: perl
+```
+
 ## Restart
 
 If you want to create normal pods without controller you can use `restart` construct of compose to define that. Follow table below to see what happens on the `restart` value.
