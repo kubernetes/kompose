@@ -277,9 +277,8 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 func Print(name, path string, trailing string, data []byte, toStdout, generateJSON bool, f *os.File, provider string) (string, error) {
 	file := ""
 	// TODO: we should refactor / change this hack in the future once we have a better solution
-	re := regexp.MustCompile(`(?s)status:.*`)
+	re := regexp.MustCompile(`(?s)status:\n.*`)
 	data = re.ReplaceAll(data, nil)
-
 	if generateJSON {
 		file = fmt.Sprintf("%s-%s.json", name, trailing)
 	} else {
