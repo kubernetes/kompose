@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  ports:
+    - name: "3000"
+      port: 3000
+      targetPort: 3000
+  selector:
+    io.kompose.service: app
+
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: app
+  template:
+    metadata:
+      labels:
+        io.kompose.network/envvars-with-status-default: "true"
+        io.kompose.service: app
+    spec:
+      containers:
+        - args:
+            - sh
+            - -c
+            - yarn install && yarn run dev
+          env:
+            - name: OTHER_ENV
+              value: example
+            - name: TOPICS
+              value: foo:1,status:2,bar:3
+          image: ' '
+          name: app
+          ports:
+            - containerPort: 3000
+              hostPort: 3000
+              protocol: TCP
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - app
+        from:
+          kind: ImageStreamTag
+          name: app:18-alpine
+      type: ImageChange
+
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - from:
+        kind: DockerImage
+        name: node:18-alpine
+      name: 18-alpine
+      referencePolicy:
+        type: ""

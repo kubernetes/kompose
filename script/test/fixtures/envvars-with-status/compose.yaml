@@ -1,0 +1,9 @@
+services:
+  app:
+    image: node:18-alpine
+    command: sh -c "yarn install && yarn run dev"
+    ports:
+      - 3000:3000
+    environment:
+      TOPICS: foo:1,status:2,bar:3
+      OTHER_ENV: example

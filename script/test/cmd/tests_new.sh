@@ -344,3 +344,11 @@ convert::expect_success "$os_cmd" "$os_output" || exit 1
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/initcontainer/compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/initcontainer/output-k8s.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
+
+# Test env var with status
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/envvars-with-status/compose.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/envvars-with-status/output-k8s.yaml"
+os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/envvars-with-status/compose.yaml convert --provider openshift --stdout --with-kompose-annotation=false"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/envvars-with-status/output-os.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$os_cmd" "$os_output" || exit 1
