@@ -41,12 +41,36 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
+	hpa "k8s.io/api/autoscaling/v2beta2"
 	api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
+
+// Default values for Horizontal Pod Autoscaler (HPA)
+const (
+	DefaultMinReplicas       = 1
+	DefaultMaxReplicas       = 3
+	DefaultCPUUtilization    = 50
+	DefaultMemoryUtilization = 70
+)
+
+// LabelKeys are the keys for HPA related labels in the service
+var LabelKeys = []string{
+	compose.LabelHpaCPU,
+	compose.LabelHpaMemory,
+	compose.LabelHpaMinReplicas,
+	compose.LabelHpaMaxReplicas,
+}
+
+type HpaValues struct {
+	MinReplicas       int32
+	MaxReplicas       int32
+	CPUtilization     int32
+	MemoryUtilization int32
+}
 
 /**
  * Generate Helm Chart configuration
@@ -1029,4 +1053,123 @@ func parseContainerCommandsFromStr(line string) []string {
 		commands = append(commands, line)
 	}
 	return commands
+}
+
+// searchHPAValues is useful to check if labels
+// contains any labels related to Horizontal Pod Autoscaler
+func searchHPAValues(labels map[string]string) bool {
+	for _, value := range LabelKeys {
+		if _, ok := labels[value]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+// createHPAResources creates a HorizontalPodAutoscaler (HPA) resource
+// It sets the number of replicas in the service to 0 because
+// the number of replicas will be managed by the HPA
+func createHPAResources(name string, service *kobject.ServiceConfig) hpa.HorizontalPodAutoscaler {
+	valuesHpa := getResourceHpaValues(service)
+	service.Replicas = 0
+	metrics := getHpaMetricSpec(valuesHpa)
+	scalerSpecs := hpa.HorizontalPodAutoscaler{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "HorizontalPodAutoscaler",
+			APIVersion: "autoscaling/v2",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+		},
+		Spec: hpa.HorizontalPodAutoscalerSpec{
+			ScaleTargetRef: hpa.CrossVersionObjectReference{
+				Kind:       "Deployment",
+				Name:       name,
+				APIVersion: "apps/v1",
+			},
+			MinReplicas: &valuesHpa.MinReplicas,
+			MaxReplicas: valuesHpa.MaxReplicas,
+			Metrics:     metrics,
+		},
+	}
+
+	return scalerSpecs
+}
+
+// getResourceHpaValues retrieves the min/max replicas and CPU/memory utilization values
+// control if maxReplicas is less than minReplicas
+func getResourceHpaValues(service *kobject.ServiceConfig) HpaValues {
+	minReplicas := getHpaValue(service, compose.LabelHpaMinReplicas, DefaultMinReplicas)
+	maxReplicas := getHpaValue(service, compose.LabelHpaMaxReplicas, DefaultMaxReplicas)
+
+	if maxReplicas < minReplicas {
+		log.Warnf("maxReplicas %d is less than minReplicas %d. Using minReplicas value %d", maxReplicas, minReplicas, minReplicas)
+		maxReplicas = minReplicas
+	}
+
+	cpuUtilization := validatePercentageMetric(service, compose.LabelHpaCPU, DefaultCPUUtilization)
+	memoryUtilization := validatePercentageMetric(service, compose.LabelHpaMemory, DefaultMemoryUtilization)
+
+	return HpaValues{
+		MinReplicas:       minReplicas,
+		MaxReplicas:       maxReplicas,
+		CPUtilization:     cpuUtilization,
+		MemoryUtilization: memoryUtilization,
+	}
+}
+
+// validatePercentageMetric validates the CPU or memory metrics value
+// ensuring that it falls within the acceptable range [1, 100].
+func validatePercentageMetric(service *kobject.ServiceConfig, metricLabel string, defaultValue int32) int32 {
+	metricValue := getHpaValue(service, metricLabel, defaultValue)
+	if metricValue > 100 || metricValue < 1 {
+		log.Warnf("Metric value %d is not within the acceptable range [1, 100]. Using default value %d", metricValue, defaultValue)
+		return defaultValue
+	}
+	return metricValue
+}
+
+// getHpaValue convert the label value to integer
+// If the label is not present or the conversion fails
+// it returns the provided default value
+func getHpaValue(service *kobject.ServiceConfig, label string, defaultValue int32) int32 {
+	valueFromLabel, err := strconv.Atoi(service.Labels[label])
+	if err != nil || valueFromLabel < 0 {
+		log.Warnf("Error converting label %s. Using default value %d", label, defaultValue)
+		return defaultValue
+	}
+	return int32(valueFromLabel)
+}
+
+// getHpaMetricSpec returns a list of metric specs for the HPA resource
+// Target type is hardcoded to hpa.UtilizationMetricType
+// Each MetricSpec specifies the type metric CPU/memory and average utilization value
+// to trigger scaling
+func getHpaMetricSpec(hpaValues HpaValues) []hpa.MetricSpec {
+	var metrics []hpa.MetricSpec
+	if hpaValues.CPUtilization > 0 {
+		metrics = append(metrics, hpa.MetricSpec{
+			Type: hpa.ResourceMetricSourceType,
+			Resource: &hpa.ResourceMetricSource{
+				Name: api.ResourceCPU,
+				Target: hpa.MetricTarget{
+					Type:               hpa.UtilizationMetricType,
+					AverageUtilization: &hpaValues.CPUtilization,
+				},
+			},
+		})
+	}
+	if hpaValues.MemoryUtilization > 0 {
+		metrics = append(metrics, hpa.MetricSpec{
+			Type: hpa.ResourceMetricSourceType,
+			Resource: &hpa.ResourceMetricSource{
+				Name: api.ResourceMemory,
+				Target: hpa.MetricTarget{
+					Type:               hpa.UtilizationMetricType,
+					AverageUtilization: &hpaValues.MemoryUtilization,
+				},
+			},
+		})
+	}
+	return metrics
 }
