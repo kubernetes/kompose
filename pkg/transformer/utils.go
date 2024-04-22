@@ -121,7 +121,7 @@ func parseVolume(volume string) (name, host, container, mode string, err error) 
 	return
 }
 
-// parseVolume parses window volume.
+// parseWindowsVolume parses window volume.
 // example: windows host mount to windows container
 // volume = dataVolumeName:C:\Users\Data:D:\config:rw
 // it can be parsed:
