@@ -94,6 +94,14 @@ const (
 	LabelInitContainerImage = "kompose.init.containers.image"
 	// LabelInitContainerCommand defines commands
 	LabelInitContainerCommand = "kompose.init.containers.command"
+	// LabelHpaMinReplicas defines min pod replicas
+	LabelHpaMinReplicas = "kompose.hpa.replicas.min"
+	// LabelHpaMaxReplicas defines max pod replicas
+	LabelHpaMaxReplicas = "kompose.hpa.replicas.max"
+	// LabelHpaCpu defines scaling decisions based on CPU utilization
+	LabelHpaCPU = "kompose.hpa.cpu"
+	// LabelHpaMemory defines scaling decisions based on memory utilization
+	LabelHpaMemory = "kompose.hpa.memory"
 	// LabelNameOverride defines the override resource name
 	LabelNameOverride = "kompose.service.name_override"
 )

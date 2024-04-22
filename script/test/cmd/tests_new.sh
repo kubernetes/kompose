@@ -344,3 +344,8 @@ convert::expect_success "$os_cmd" "$os_output" || exit 1
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/initcontainer/compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/initcontainer/output-k8s.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
+
+# Test HPA 
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/hpa/compose.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/hpa/output-k8s.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
