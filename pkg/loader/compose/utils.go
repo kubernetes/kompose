@@ -23,7 +23,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/pkg/errors"
 
@@ -215,7 +215,9 @@ func ReadFile(fileName string) ([]byte, error) {
 // and modifies its name by adding the specified prefix
 func addPrefixToServiceName(project *types.Project, prefix string) {
 	for key := range project.Services {
-		project.Services[key].Name = formatNormalizeResourceName(project.Services[key].Name, prefix)
+		tempService := project.Services[key]
+		tempService.Name = formatNormalizeResourceName(project.Services[key].Name, prefix)
+		project.Services[key] = tempService
 	}
 }
 
