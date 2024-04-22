@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	deployapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	"github.com/spf13/cast"
@@ -252,7 +252,7 @@ func (s *ServiceConfig) GetConfigMapKeyFromMeta(name string) (string, error) {
 	}
 
 	config := s.ConfigsMetaData[name]
-	if config.External.External {
+	if config.External {
 		return "", errors.Errorf("config %s is external", name)
 	}
 

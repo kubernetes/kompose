@@ -17,6 +17,7 @@ limitations under the License.
 package compose
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"reflect"
@@ -24,8 +25,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/compose-spec/compose-go/cli"
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/cli"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/fatih/structs"
 	"github.com/google/shlex"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -167,7 +168,7 @@ func (c *Compose) LoadFile(files []string, profiles []string, prefix string) (ko
 		return kobject.KomposeObject{}, errors.Wrap(err, "Unable to create compose options")
 	}
 
-	project, err := cli.ProjectFromOptions(projectOptions)
+	project, err := cli.ProjectFromOptions(context.Background(), projectOptions)
 	if err != nil {
 		return kobject.KomposeObject{}, errors.Wrap(err, "Unable to load files")
 	}
@@ -569,7 +570,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 		parseEnvironment(&composeServiceConfig, &serviceConfig)
 
 		// Get env_file
-		serviceConfig.EnvFile = composeServiceConfig.EnvFile
+		parseEnvFiles(&composeServiceConfig, &serviceConfig)
 
 		// Parse the ports
 		// v3 uses a new format called "long syntax" starting in 3.2
@@ -695,6 +696,13 @@ func parseEnvironment(composeServiceConfig *types.ServiceConfig, serviceConfig *
 			}
 		}
 		serviceConfig.Environment = append(serviceConfig.Environment, env)
+	}
+}
+
+func parseEnvFiles(composeServiceConfig *types.ServiceConfig, serviceConfig *kobject.ServiceConfig) {
+	for _, value := range composeServiceConfig.EnvFiles {
+		serviceConfig.EnvFile = append(serviceConfig.EnvFile, value.Path)
+		// value.Required is ignored
 	}
 }
 
