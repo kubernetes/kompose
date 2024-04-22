@@ -29,7 +29,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/fatih/structs"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
@@ -1314,7 +1314,7 @@ func (k *Kubernetes) createConfigMapFromComposeConfig(name string, service kobje
 	for _, config := range service.Configs {
 		currentConfigName := config.Source
 		currentConfigObj := service.ConfigsMetaData[currentConfigName]
-		if currentConfigObj.External.External {
+		if currentConfigObj.External {
 			continue
 		}
 		currentFileName := currentConfigObj.File
@@ -1654,6 +1654,10 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				return nil, err
 			}
 		}
+		err = k.configHorizontalPodScaler(name, service, opt, &objects)
+		if err != nil {
+			return nil, errors.Wrap(err, "Error creating Kubernetes HPA")
+		}
 		allobjects = append(allobjects, objects...)
 	}
 
@@ -1717,5 +1721,18 @@ func (k *Kubernetes) UpdateController(obj runtime.Object, updateTemplate func(*a
 	case *buildapi.BuildConfig:
 		updateMeta(&t.ObjectMeta)
 	}
+	return nil
+}
+
+// configHorizontalPodScaler create Hpa resource also append to the objects
+// first checks if the service labels contain any HPA labels using the searchHPAValues
+func (k *Kubernetes) configHorizontalPodScaler(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, objects *[]runtime.Object) (err error) {
+	found := searchHPAValues(service.Labels)
+	if !found {
+		return nil
+	}
+
+	hpa := createHPAResources(name, &service)
+	*objects = append(*objects, &hpa)
 	return nil
 }
