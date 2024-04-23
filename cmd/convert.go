@@ -62,7 +62,7 @@ var (
 	// default is true.
 	WithKomposeAnnotation bool
 
-	// MultipleContainerMode which enables creating multi containers in a single pod is a developping function.
+	// MultipleContainerMode which enables creating multi containers in a single pod is a developing function.
 	// default is false
 	MultipleContainerMode bool
 
