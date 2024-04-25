@@ -465,7 +465,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 	for _, composeServiceConfig := range composeObject.Services {
 		// Standard import
 		// No need to modify before importation
-		name := strings.ToLower(composeServiceConfig.Name)
+		name := parseResourceName(composeServiceConfig.Name, composeServiceConfig.Labels)
 		serviceConfig := kobject.ServiceConfig{}
 		serviceConfig.Name = name
 		serviceConfig.Image = composeServiceConfig.Image
@@ -801,6 +801,10 @@ func parseKomposeLabels(labels map[string]string, serviceConfig *kobject.Service
 			}
 
 			serviceConfig.CronJobBackoffLimit = cronJobBackoffLimit
+		case LabelNameOverride:
+			// generate a valid k8s resource name
+			normalizedName := normalizeServiceNames(value)
+			serviceConfig.Name = normalizedName
 		default:
 			serviceConfig.Labels[key] = value
 		}
