@@ -1678,6 +1678,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		transformer.AssignNamespaceToObjects(&allobjects, komposeObject.Namespace)
 	}
 	// k.FixWorkloadVersion(&allobjects)
+	k.fixNetworkModeToService(&allobjects, komposeObject.ServiceConfigs)
 	return allobjects, nil
 }
 
