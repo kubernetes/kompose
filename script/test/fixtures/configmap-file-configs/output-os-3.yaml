@@ -1,0 +1,77 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: busy
+  name: busy
+spec:
+  ports:
+    - name: "8081"
+      port: 8081
+      targetPort: 8080
+    - name: "8026"
+      port: 8026
+      targetPort: 8025
+  selector:
+    io.kompose.service: busy
+
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    io.kompose.service: busy
+  name: busy
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: busy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.network/configmap-file-configs-default: "true"
+        io.kompose.service: busy
+    spec:
+      containers:
+        - image: ' '
+          name: busy
+          ports:
+            - containerPort: 8080
+              hostPort: 8081
+              protocol: TCP
+            - containerPort: 8025
+              hostPort: 8026
+              protocol: TCP
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - busy
+        from:
+          kind: ImageStreamTag
+          name: busy:latest
+      type: ImageChange
+
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    io.kompose.service: busy
+  name: busy
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - from:
+        kind: DockerImage
+        name: busybox
+      name: latest
+      referencePolicy:
+        type: ""
