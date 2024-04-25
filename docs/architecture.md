@@ -18,7 +18,7 @@ redirect_from:
 
 ## Loader
 
-The Loader reads the input file now `kompose` supports [Docker Compose](https://docs.docker.com/compose) v1, v2 and converts it to KomposeObject.
+The Loader reads the input file now `kompose` supports [Compose](https://docs.docker.com/compose) v1, v2 and converts it to KomposeObject.
 
 Loader is represented by a Loader interface:
 

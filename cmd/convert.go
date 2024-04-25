@@ -78,7 +78,7 @@ var (
 
 var convertCmd = &cobra.Command{
 	Use:   "convert",
-	Short: "Convert a Docker Compose file",
+	Short: "Convert a Compose file",
 	Example: `  kompose --file compose.yaml convert
   kompose -f first.yaml -f second.yaml convert
   kompose --provider openshift --file compose.yaml convert`,

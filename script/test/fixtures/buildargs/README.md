@@ -1,4 +1,4 @@
-## Docker Compose Buildargs
+## Compose Buildargs
 
 ### Usage
 
