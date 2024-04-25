@@ -211,6 +211,13 @@ The currently supported options are:
 | kompose.cronjob.schedule                            | kubernetes cronjob schedule (for example: '1 * * * *')                               |
 | kompose.cronjob.concurrency_policy                  | 'Forbid' / 'Allow' / 'Never' / ''                                                    |
 | kompose.cronjob.backoff_limit                       | kubernetes cronjob backoff limit (for example: '6')                                  |
+| kompose.init.containers.name                        | kubernetes init container name                                                       |
+| kompose.init.containers.image                       | kubernetes init container image                                                      |
+| kompose.init.containers.command                     | kubernetes init container commands                                                   |
+| kompose.hpa.replicas.min                            | defines Horizontal Pod Autoscaler minimum number of pod replicas                     |
+| kompose.hpa.replicas.max                            | defines Horizontal Pod Autoscaler maximum  number of pod replicas                    |
+| kompose.hpa.cpu                                     | defines Horizontal Pod Autoscaler cpu utilization trigger                            |
+| kompose.hpa.memory                                  | defines Horizontal Pod Autoscaler memory utilization trigger                         |
 
 **Note**: `kompose.service.type` label should be defined with `ports` only (except for headless service), otherwise `kompose` will fail.
 
@@ -467,6 +474,97 @@ services:
     labels:
       kompose.volume.sub-path: pg-data
 ```
+
+- `kompose.init.containers.name`  is used to specify the name of the Init Containers for a Pod [Init Container Name](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+
+For example:
+
+```yaml
+version: '3'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.init.containers.name: "initcontainername"
+```
+
+- `kompose.init.containers.image` defines image to use for the Init Containers [Init Container Image](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+
+For example:
+
+```yaml
+version: '3'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.init.containers.image: perl
+```
+
+
+- `kompose.init.containers.command` defines the command that the Init Containers will run after they are started [Init Container Command](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
+
+For example:
+
+```yaml
+version: '3'
+services:
+  example-service:
+    image: example-image
+    labels:
+      kompose.init.containers.command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      kompose.init.containers.image: perl
+```
+
+
+- `kompose.hpa.replicas.min` defines the floor for the number of replicas that the HPA can scale down to during a scaling event. Default value is set to 1. This means that, regardless of the load on the system, the HPA will always maintain at least one replica. More info: [HPA Min Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+
+For example:
+
+```yaml
+services:
+  pgadmin:
+    image: postgres
+    labels:
+      kompose.hpa.replicas.min: 1
+```
+
+- `kompose.hpa.replicas.max` defines the upper limit for the number of replicas that the HPA can create during a scaling event. Default value is set to 3. This default value serves as a safeguard, providing a conservative starting point for your HPA configuration. More info: [HPA Max Replicas](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+
+For example:
+
+```yaml
+services:
+  pgadmin:
+    image: postgres
+    labels:
+      kompose.hpa.replicas.max: 10
+```
+
+- `kompose.hpa.cpu` defines % cpu utilization that triggers to scale the number of pods. It is represented as a percentage of a resource. Default value is set to 50. This default value serves as a safeguard, providing a conservative starting point for your HPA configuration. More info: [HPA CPU Utilization](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+
+For example:
+
+```yaml
+services:
+  pgadmin:
+    image: postgres
+    labels:
+      kompose.hpa.cpu: 50
+```
+
+- `kompose.hpa.memory` defines memory utilization that triggers to scale the number of pods. It is represented as a percentage of a resource. Default value is set to 70. This default value serves as a safeguard, providing a conservative starting point for your HPA configuration. More info: [HPA Memory Utilization](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics).
+
+For example:
+
+```yaml
+services:
+  pgadmin:
+    image: postgres
+    labels:
+      kompose.hpa.memory: 50
+```
+
 ## Restart
 
 If you want to create normal pods without controller you can use `restart` construct of compose to define that. Follow table below to see what happens on the `restart` value.

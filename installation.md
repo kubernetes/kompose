@@ -24,16 +24,16 @@ This is the **recommended** way of installing Kompose.
 
 ```sh
 # Linux
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-linux-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.33.0/kompose-linux-amd64 -o kompose
 
 # Linux ARM64
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-linux-arm64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.33.0/kompose-linux-arm64 -o kompose
 
 # macOS
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-darwin-amd64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.33.0/kompose-darwin-amd64 -o kompose
 
 # macOS ARM64
-curl -L https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-darwin-arm64 -o kompose
+curl -L https://github.com/kubernetes/kompose/releases/download/v1.33.0/kompose-darwin-arm64 -o kompose
 
 chmod +x kompose
 sudo mv ./kompose /usr/local/bin/kompose
@@ -41,7 +41,7 @@ sudo mv ./kompose /usr/local/bin/kompose
 
 **Windows:**
 
-Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.32.0/kompose-windows-amd64.exe) and add the binary to your PATH.
+Download from [GitHub](https://github.com/kubernetes/kompose/releases/download/v1.33.0/kompose-windows-amd64.exe) and add the binary to your PATH.
 
 ## Go
 
@@ -53,7 +53,7 @@ go install github.com/kubernetes/kompose@latest
 
 ## CentOS
 
-Kompose is in [EPEL](https://fedoraproject.org/wiki/EPEL) CentOS repository.
+Kompose is in [EPEL](https://fedoraproject.org/wiki/EPEL) (Available in EPEL 7 package repository) CentOS repository.
 If you don't have [EPEL](https://fedoraproject.org/wiki/EPEL) repository already installed and enabled you can do it by running `sudo yum install epel-release`
 
 If you have [EPEL](https://fedoraproject.org/wiki/EPEL) enabled in your system, you can install Kompose like any other package.
