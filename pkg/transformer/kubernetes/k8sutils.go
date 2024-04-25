@@ -1183,6 +1183,84 @@ func getHpaMetricSpec(hpaValues HpaValues) []hpa.MetricSpec {
 	return metrics
 }
 
+// isConfigFile checks if the given filePath should be used as a configMap
+// if dir is not empty, withindir are treated as cofigmaps
+// if it's configMap, mount readonly as default
+func isConfigFile(filePath string) (useConfigMap bool, readonly bool, skip bool) {
+	if filePath == "" || strings.HasSuffix(filePath, ".sock") {
+		skip = true
+		return
+	}
+
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		log.Warnf("File don't exist or failed to check if the directory is empty: %v", err)
+		// dir/file not exist
+		// here not assigned skip to true,
+		// maybe dont want to skip
+		return
+	}
+
+	if !fi.Mode().IsRegular() { // is dir
+		isDirEmpty, err := checkIsEmptyDir(filePath)
+		if err != nil {
+			log.Warnf("Failed to check if the directory is empty: %v", err)
+			skip = true
+			return
+		}
+
+		if isDirEmpty {
+			return
+		}
+	}
+	return true, true, skip
+}
+
+// checkIsEmptyDir checks if filepath is empty
+func checkIsEmptyDir(filePath string) (bool, error) {
+	files, err := os.ReadDir(filePath)
+	if err != nil {
+		return false, err
+	}
+	if len(files) == 0 {
+		return true, err
+	}
+	for _, file := range files {
+		if !file.IsDir() {
+			return false, nil
+		}
+		_, err := checkIsEmptyDir(file.Name())
+		if err != nil {
+			return false, err
+		}
+	}
+	return true, nil
+}
+
+// setVolumeAccessMode sets the access mode for a volume based on the mode string
+// current types:
+// ReadOnly RO and ReadOnlyMany ROX can be mounted in read-only mode to many hosts
+// ReadWriteMany RWX can be mounted in read/write mode to many hosts
+// ReadWriteOncePod RWOP can be mounted in read/write mode to exactly 1 pod
+// ReadWriteOnce RWO can be mounted in read/write mode to exactly 1 host
+// https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
+func setVolumeAccessMode(mode string, volumeAccesMode []api.PersistentVolumeAccessMode) []api.PersistentVolumeAccessMode {
+	switch mode {
+	case "ro", "rox":
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadOnlyMany}
+	case "rwx":
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadWriteMany}
+	case "rwop":
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadWriteOncePod}
+	case "rwo":
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadWriteOnce}
+	default:
+		volumeAccesMode = []api.PersistentVolumeAccessMode{api.ReadWriteOnce}
+	}
+
+	return volumeAccesMode
+}
+
 // fixNetworkModeToService is responsible for adjusting the network mode of services in docker compose (services:)
 // generate a mapping of deployments based on the network mode of each service
 // merging containers into the destination deployment, and removing transferred deployments

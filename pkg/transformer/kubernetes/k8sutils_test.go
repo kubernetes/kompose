@@ -2224,6 +2224,224 @@ func Test_createHPAResources(t *testing.T) {
 	}
 }
 
+func Test_setVolumeAccessMode(t *testing.T) {
+	type args struct {
+		mode            string
+		volumeAccesMode []api.PersistentVolumeAccessMode
+	}
+	tests := []struct {
+		name string
+		args args
+		want []api.PersistentVolumeAccessMode
+	}{
+		{
+			name: "readonly",
+			args: args{
+				mode:            "ro",
+				volumeAccesMode: []api.PersistentVolumeAccessMode{},
+			},
+			want: []api.PersistentVolumeAccessMode{api.ReadOnlyMany},
+		},
+		{
+			name: "not acceptable",
+			args: args{
+				mode:            "wrong",
+				volumeAccesMode: []api.PersistentVolumeAccessMode{},
+			},
+			want: []api.PersistentVolumeAccessMode{api.ReadWriteOnce},
+		},
+		{
+			name: "readonly many",
+			args: args{
+				mode:            "rox",
+				volumeAccesMode: []api.PersistentVolumeAccessMode{},
+			},
+			want: []api.PersistentVolumeAccessMode{api.ReadOnlyMany},
+		},
+		{
+			name: "readwrite many",
+			args: args{
+				mode:            "rwx",
+				volumeAccesMode: []api.PersistentVolumeAccessMode{},
+			},
+			want: []api.PersistentVolumeAccessMode{api.ReadWriteMany},
+		},
+		{
+			name: "readwrite once in pod",
+			args: args{
+				mode:            "rwop",
+				volumeAccesMode: []api.PersistentVolumeAccessMode{},
+			},
+			want: []api.PersistentVolumeAccessMode{api.ReadWriteOncePod},
+		},
+		{
+			name: "readwrite once",
+			args: args{
+				mode:            "rwo",
+				volumeAccesMode: []api.PersistentVolumeAccessMode{},
+			},
+			want: []api.PersistentVolumeAccessMode{api.ReadWriteOnce},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := setVolumeAccessMode(tt.args.mode, tt.args.volumeAccesMode); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("setVolumeAccessMode() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_isConfigFile(t *testing.T) {
+	type args struct {
+		filePath string
+	}
+	tests := []struct {
+		name             string
+		args             args
+		wantUseConfigMap bool
+		wantReadonly     bool
+		wantSkip         bool
+	}{
+		{
+			name: "dir not empty",
+			args: args{
+				filePath: "../../../script/test/fixtures/configmap-file-configs/certs",
+			},
+			wantUseConfigMap: true,
+			wantReadonly:     true,
+			wantSkip:         false,
+		},
+		{
+			name: "sock",
+			args: args{
+				filePath: "./docker.sock",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         true,
+		},
+		{
+			name: "cannot resolve filepath",
+			args: args{
+				filePath: "./certs/cert1.pem",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         false,
+		},
+		{
+			name: "file cert",
+			args: args{
+				filePath: "../../../script/test/fixtures/configmap-file-configs/certs/cert1.pem",
+			},
+			wantUseConfigMap: true,
+			wantReadonly:     true,
+			wantSkip:         false,
+		},
+		{
+			name: "docker sock",
+			args: args{
+				filePath: "/var/run/docker.sock",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         true,
+		},
+		{
+			name: "dir sys",
+			args: args{
+				filePath: "/sys",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         true,
+		},
+		{
+			name: "dir root",
+			args: args{
+				filePath: "/root",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         true,
+		},
+		{
+			name: "docker var lib",
+			args: args{
+				filePath: "/var/lib/docker",
+			},
+			wantUseConfigMap: false,
+			wantReadonly:     false,
+			wantSkip:         true,
+		},
+		{
+			name: "file from 3 levels",
+			args: args{
+				filePath: "../../../script/test/fixtures/configmap-file-configs/certs-level1/certs-level2/certs-level3/cert2.pem",
+			},
+			wantUseConfigMap: true,
+			wantReadonly:     true,
+			wantSkip:         false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotUseConfigMap, gotReadonly, gotSkip := isConfigFile(tt.args.filePath)
+			if gotUseConfigMap != tt.wantUseConfigMap {
+				t.Errorf("isConfigFile() gotUseConfigMap = %v, want %v", gotUseConfigMap, tt.wantUseConfigMap)
+			}
+			if gotReadonly != tt.wantReadonly {
+				t.Errorf("isConfigFile() gotReadonly = %v, want %v", gotReadonly, tt.wantReadonly)
+			}
+			if gotSkip != tt.wantSkip {
+				t.Errorf("isConfigFile() gotSkip = %v, want %v", gotSkip, tt.wantSkip)
+			}
+		})
+	}
+}
+
+func Test_checkIsEmptyDir(t *testing.T) {
+	type args struct {
+		filePath string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    bool
+		wantErr bool
+	}{
+		{
+			name: "dir not found",
+			args: args{
+				filePath: "../../../script/test/fixtures/configmap-file-configs/notfound",
+			},
+			want:    false,
+			wantErr: true,
+		},
+		{
+			name: "dir not empty",
+			args: args{
+				filePath: "../../../script/test/fixtures/configmap-file-configs/certs",
+			},
+			want:    false,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := checkIsEmptyDir(tt.args.filePath)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("checkIsEmptyDir() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("checkIsEmptyDir() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func Test_removeFromSlice(t *testing.T) {
 	type args struct {
 		objects        []runtime.Object
