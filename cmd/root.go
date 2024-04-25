@@ -100,7 +100,7 @@ var RootCmd = &cobra.Command{
 }
 
 // Execute executes the root level command.
-// It returns an erorr if any.
+// It returns an error if any.
 func Execute() error {
 	return RootCmd.Execute()
 }
