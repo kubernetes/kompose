@@ -103,6 +103,8 @@ const (
 	LabelHpaCPU = "kompose.hpa.cpu"
 	// LabelHpaMemory defines scaling decisions based on memory utilization
 	LabelHpaMemory = "kompose.hpa.memory"
+	// LabelNameOverride defines the override resource name
+	LabelNameOverride = "kompose.service.name_override"
 )
 
 // load environment variables from compose file

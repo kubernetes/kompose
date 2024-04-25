@@ -327,7 +327,7 @@ func TestKomposeConvert(t *testing.T) {
 		opt             kobject.ConvertOptions
 		expectedNumObjs int
 	}{
-		// objects generated are deployment, service nework policies (2) and pvc
+		// objects generated are deployment, service network policies (2) and pvc
 		"Convert to Deployments (D)":                  {newKomposeObject(), kobject.ConvertOptions{CreateD: true, Replicas: replicas, IsReplicaSetFlag: true}, 4},
 		"Convert to Deployments (D) with v3 replicas": {newKomposeObject(), kobject.ConvertOptions{CreateD: true}, 4},
 		"Convert to DaemonSets (DS)":                  {newKomposeObject(), kobject.ConvertOptions{CreateDS: true}, 4},
@@ -757,7 +757,7 @@ func TestMultipleContainersInPod(t *testing.T) {
 		config.Volumes = []kobject.Volumes{
 			{
 				VolumeName: "mountVolume",
-				MountPath:  "/data",
+				MountPath:  "/data-dir",
 			},
 		}
 		return config
