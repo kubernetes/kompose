@@ -72,6 +72,15 @@ type HpaValues struct {
 	MemoryUtilization int32
 }
 
+const (
+	NetworkModeService = "service:"
+)
+
+type DeploymentMapping struct {
+	SourceDeploymentName string
+	TargetDeploymentName string
+}
+
 /**
  * Generate Helm Chart configuration
  */
@@ -1250,4 +1259,102 @@ func setVolumeAccessMode(mode string, volumeAccesMode []api.PersistentVolumeAcce
 	}
 
 	return volumeAccesMode
+}
+
+// fixNetworkModeToService is responsible for adjusting the network mode of services in docker compose (services:)
+// generate a mapping of deployments based on the network mode of each service
+// merging containers into the destination deployment, and removing transferred deployments
+func (k *Kubernetes) fixNetworkModeToService(objects *[]runtime.Object, services map[string]kobject.ServiceConfig) {
+	deploymentMappings := searchNetworkModeToService(services)
+	if len(deploymentMappings) == 0 {
+		return
+	}
+	mergeContainersIntoDestinationDeployment(deploymentMappings, objects)
+	removeDeploymentTransfered(deploymentMappings, objects)
+}
+
+// mergeContainersIntoDestinationDeployment takes a list of deployment mappings and a list of runtime objects
+// and merges containers from source deployment into the destination deployment
+func mergeContainersIntoDestinationDeployment(deploymentMappings []DeploymentMapping, objects *[]runtime.Object) {
+	for _, currentDeploymentMap := range deploymentMappings {
+		addContainersFromSourceToTargetDeployment(objects, currentDeploymentMap)
+	}
+}
+
+// addContainersFromSourceToTargetDeployment adds containers from the source deployment
+// if current deployment name matches source deployment name
+func addContainersFromSourceToTargetDeployment(objects *[]runtime.Object, currentDeploymentMap DeploymentMapping) {
+	for _, obj := range *objects {
+		if deploy, ok := obj.(*appsv1.Deployment); ok {
+			if deploy.ObjectMeta.Name == currentDeploymentMap.SourceDeploymentName {
+				addContainersToTargetDeployment(objects, deploy.Spec.Template.Spec.Containers, currentDeploymentMap.TargetDeploymentName)
+			}
+		}
+	}
+}
+
+// addContainersToTargetDeployment takes
+// - list of runtime objects
+// - list of containers to append
+// - deployment name to transfer
+// appends the containers to the target deployment if its name matches
+func addContainersToTargetDeployment(objects *[]runtime.Object, containersToAppend []api.Container, nameDeploymentToTransfer string) {
+	for _, obj := range *objects {
+		if deploy, ok := obj.(*appsv1.Deployment); ok {
+			if deploy.ObjectMeta.Name == nameDeploymentToTransfer {
+				deploy.Spec.Template.Spec.Containers = append(deploy.Spec.Template.Spec.Containers, containersToAppend...)
+			}
+		}
+	}
+}
+
+// searchNetworkModeToService iterates over services and checking their network mode service:
+// its separates over process of transferring containers,
+// it determines where each container should be removed from and where it should be added to
+func searchNetworkModeToService(services map[string]kobject.ServiceConfig) (deploymentMappings []DeploymentMapping) {
+	deploymentMappings = []DeploymentMapping{}
+	for _, service := range services {
+		if !strings.Contains(service.NetworkMode, NetworkModeService) {
+			continue
+		}
+		splitted := strings.Split(service.NetworkMode, ":")
+		if len(splitted) < 2 {
+			continue
+		}
+		deploymentMappings = append(deploymentMappings, DeploymentMapping{
+			SourceDeploymentName: service.Name,
+			TargetDeploymentName: splitted[1],
+		})
+	}
+	return deploymentMappings
+}
+
+// removeDeploymentTransfered iterates over a list of DeploymentMapping and
+// removes each deployment that marked in deploymentMappings
+func removeDeploymentTransfered(deploymentMappings []DeploymentMapping, objects *[]runtime.Object) {
+	for _, currentDeploymentMap := range deploymentMappings {
+		removeTargetDeployment(objects, currentDeploymentMap.SourceDeploymentName)
+	}
+}
+
+// removeTargetDeployment iterates over a list of runtime objects
+// and removes the target deployment from the list
+func removeTargetDeployment(objects *[]runtime.Object, targetDeploymentName string) {
+	for i := len(*objects) - 1; i >= 0; i-- {
+		if deploy, ok := (*objects)[i].(*appsv1.Deployment); ok {
+			if deploy.ObjectMeta.Name == targetDeploymentName {
+				*objects = removeFromSlice(*objects, (*objects)[i])
+			}
+		}
+	}
+}
+
+// removeFromSlice removes a specific object from a slice of runtime objects and returns the updated slice
+func removeFromSlice(objects []runtime.Object, objectToRemove runtime.Object) []runtime.Object {
+	for i, currentObject := range objects {
+		if reflect.DeepEqual(currentObject, objectToRemove) {
+			return append(objects[:i], objects[i+1:]...)
+		}
+	}
+	return objects
 }

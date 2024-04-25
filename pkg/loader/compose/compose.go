@@ -487,6 +487,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 		serviceConfig.HostName = composeServiceConfig.Hostname
 		serviceConfig.DomainName = composeServiceConfig.DomainName
 		serviceConfig.Secrets = composeServiceConfig.Secrets
+		serviceConfig.NetworkMode = composeServiceConfig.NetworkMode
 
 		if composeServiceConfig.StopGracePeriod != nil {
 			serviceConfig.StopGracePeriod = composeServiceConfig.StopGracePeriod.String()
