@@ -621,7 +621,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: api.PersistentVolumeClaimSpec{
-			Resources: api.ResourceRequirements{
+			Resources: api.VolumeResourceRequirements{
 				Requests: api.ResourceList{
 					api.ResourceStorage: volSize,
 				},

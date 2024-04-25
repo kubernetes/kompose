@@ -653,23 +653,15 @@ func parseResources(composeServiceConfig *types.ServiceConfig, serviceConfig *ko
 		if composeServiceConfig.Deploy.Resources.Limits != nil {
 			serviceConfig.MemLimit = composeServiceConfig.Deploy.Resources.Limits.MemoryBytes
 
-			if composeServiceConfig.Deploy.Resources.Limits.NanoCPUs != "" {
-				cpuLimit, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Limits.NanoCPUs, 64)
-				if err != nil {
-					return errors.Wrap(err, "Unable to convert cpu limits resources value")
-				}
-				serviceConfig.CPULimit = int64(cpuLimit * 1000)
+			if composeServiceConfig.Deploy.Resources.Limits.NanoCPUs > 0 {
+				serviceConfig.CPULimit = int64(composeServiceConfig.Deploy.Resources.Limits.NanoCPUs * 1000)
 			}
 		}
 		if composeServiceConfig.Deploy.Resources.Reservations != nil {
 			serviceConfig.MemReservation = composeServiceConfig.Deploy.Resources.Reservations.MemoryBytes
 
-			if composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs != "" {
-				cpuReservation, err := strconv.ParseFloat(composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs, 64)
-				if err != nil {
-					return errors.Wrap(err, "Unable to convert cpu limits reservation value")
-				}
-				serviceConfig.CPUReservation = int64(cpuReservation * 1000)
+			if composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs > 0 {
+				serviceConfig.CPUReservation = int64(composeServiceConfig.Deploy.Resources.Reservations.NanoCPUs * 1000)
 			}
 		}
 	}
