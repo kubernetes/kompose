@@ -1,4 +1,4 @@
-## Docker Compose Etherpad
+## Compose Etherpad
 
 Etherpad and Mariadb
 

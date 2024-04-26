@@ -1270,7 +1270,7 @@ func (k *Kubernetes) CreateWorkloadAndConfigMapObjects(name string, service kobj
 		replica = service.Replicas
 	}
 
-	// Check to see if Docker Compose v3 Deploy.Mode has been set to "global"
+	// Check to see if Compose v3 Deploy.Mode has been set to "global"
 	if service.DeployMode == "global" {
 		//default use daemonset
 		if opt.Controller == "" {

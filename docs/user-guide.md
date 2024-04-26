@@ -17,7 +17,7 @@ You can choose a targeted provider using global option `--provider`. If no provi
 
 ## Kompose Convert
 
-Kompose supports conversion of V1, V2, and V3 Docker Compose files into Kubernetes and OpenShift objects.
+Kompose supports conversion of V1, V2, and V3 Compose files into Kubernetes and OpenShift objects.
 
 ### Kubernetes
 
@@ -609,9 +609,9 @@ services:
 
 #### Warning about Deployment Config's
 
-If the Docker Compose file has a volume specified for a service, the Deployment (Kubernetes) or DeploymentConfig (OpenShift) strategy is changed to "Recreate" instead of "RollingUpdate" (default). This is done to avoid multiple instances of a service from accessing a volume at the same time.
+If the Compose file has a volume specified for a service, the Deployment (Kubernetes) or DeploymentConfig (OpenShift) strategy is changed to "Recreate" instead of "RollingUpdate" (default). This is done to avoid multiple instances of a service from accessing a volume at the same time.
 
-If the Docker Compose file has service name with `_` or `.` in it (eg.`web_service` or `web.service`), then it will be replaced by `-` and the service name will be renamed accordingly (eg.`web-service`). Kompose does this because "Kubernetes" doesn't allow `_` in object name.
+If the Compose file has service name with `_` or `.` in it (eg.`web_service` or `web.service`), then it will be replaced by `-` and the service name will be renamed accordingly (eg.`web-service`). Kompose does this because "Kubernetes" doesn't allow `_` in object name.
 
 Please note that changing service name might break some `compose` files.
 
@@ -621,7 +621,7 @@ To generate network policies, all you need is to use the `--generate-network-pol
 
 ## Build and push image
 
-If the Docker Compose file has `build` or `build:context, build:dockerfile` keys, build will run when `--build` specified.
+If the Compose file has `build` or `build:context, build:dockerfile` keys, build will run when `--build` specified.
 
 And Image will push to _docker.io_ (default) when `--push-image=true` specified.
 

@@ -250,7 +250,7 @@ func convertDockerLabel(dockerLabel string) (string, error) {
 	return "", errors.New(errMsg)
 }
 
-// Convert the Docker Compose volumes to []string (the old way)
+// Convert the Compose volumes to []string (the old way)
 // TODO: Check to see if it's a "bind" or "volume". Ignore for now.
 // TODO: Refactor it similar to loadPorts
 // See: https://docs.docker.com/compose/compose-file/#long-syntax-3
@@ -273,7 +273,7 @@ func loadVolumes(volumes []types.ServiceVolumeConfig) []string {
 	return volArray
 }
 
-// Convert Docker Compose ports to kobject.Ports
+// Convert Compose ports to kobject.Ports
 // expose ports will be treated as TCP ports
 func loadPorts(ports []types.ServicePortConfig, expose []string) []kobject.Ports {
 	komposePorts := []kobject.Ports{}
