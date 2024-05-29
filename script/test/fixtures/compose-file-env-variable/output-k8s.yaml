@@ -51,7 +51,6 @@ spec:
           name: alpine
           ports:
             - containerPort: 80
-              hostPort: 80
               protocol: TCP
       restartPolicy: Always
 
@@ -78,7 +77,6 @@ spec:
           name: debian
           ports:
             - containerPort: 80
-              hostPort: 80
               protocol: TCP
       restartPolicy: Always
 

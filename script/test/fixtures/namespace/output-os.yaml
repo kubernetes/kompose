@@ -44,7 +44,6 @@ spec:
           name: web
           ports:
             - containerPort: 80
-              hostPort: 80
               protocol: TCP
       restartPolicy: Always
   test: false

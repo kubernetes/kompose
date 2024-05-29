@@ -40,10 +40,8 @@ spec:
           name: busy
           ports:
             - containerPort: 8080
-              hostPort: 8081
               protocol: TCP
             - containerPort: 8025
-              hostPort: 8026
               protocol: TCP
       restartPolicy: Always
   test: false

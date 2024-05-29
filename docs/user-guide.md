@@ -181,6 +181,7 @@ The currently supported options are:
 
 | Key                                                 | Value                                                                                |
 |-----------------------------------------------------|--------------------------------------------------------------------------------------|
+| kompose.controller.port.expose                      | defines whether to expose container to host or not (It has security concerns, not recommended) |
 | kompose.service.type                                | nodeport / clusterip / loadbalancer / headless                                       |
 | kompose.service.group                               | name to group the containers contained in a single pod                               |
 | kompose.service.expose                              | true / hostnames (separated by comma)                                                |

@@ -2,8 +2,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.type: headless
   labels:
     io.kompose.service: redis
   name: redis
@@ -27,8 +25,6 @@ spec:
   replicas: 1
   selector:
     io.kompose.service: foo
-  strategy:
-    resources: {}
   template:
     metadata:
       labels:
@@ -79,8 +75,6 @@ spec:
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  annotations:
-    kompose.service.type: headless
   labels:
     io.kompose.service: redis
   name: redis
