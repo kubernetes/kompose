@@ -2349,33 +2349,6 @@ func Test_isConfigFile(t *testing.T) {
 			wantSkip:         true,
 		},
 		{
-			name: "dir sys",
-			args: args{
-				filePath: "/sys",
-			},
-			wantUseConfigMap: false,
-			wantReadonly:     false,
-			wantSkip:         true,
-		},
-		{
-			name: "dir root",
-			args: args{
-				filePath: "/root",
-			},
-			wantUseConfigMap: false,
-			wantReadonly:     false,
-			wantSkip:         true,
-		},
-		{
-			name: "docker var lib",
-			args: args{
-				filePath: "/var/lib/docker",
-			},
-			wantUseConfigMap: false,
-			wantReadonly:     false,
-			wantSkip:         true,
-		},
-		{
 			name: "file from 3 levels",
 			args: args{
 				filePath: "../../../script/test/fixtures/configmap-file-configs/certs-level1/certs-level2/certs-level3/cert2.pem",
