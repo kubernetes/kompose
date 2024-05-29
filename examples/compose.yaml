@@ -2,16 +2,16 @@ services:
 
   redis-leader:
     container_name: redis-leader
-    image: redis:latest
+    image: redis
     ports:
       - "6379"
 
   redis-replica:
     container_name: redis-replica
-    image: redis:latest
+    image: redis
     ports:
       - "6379"
-    command: redis-server --replicaof redis-leader 6379
+    command: redis-server --replicaof redis-leader 6379 --dir /tmp
 
   web:
     container_name: web
