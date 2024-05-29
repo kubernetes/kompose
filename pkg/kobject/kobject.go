@@ -142,6 +142,7 @@ type ServiceConfig struct {
 	StopGracePeriod               string             `compose:"stop_grace_period"`
 	Build                         string             `compose:"build"`
 	BuildArgs                     map[string]*string `compose:"build-args"`
+	ExposeContainerToHost         bool               `compose:"kompose.controller.port.expose"`
 	ExposeService                 string             `compose:"kompose.service.expose"`
 	ExposeServicePath             string             `compose:"kompose.service.expose.path"`
 	BuildLabels                   map[string]string  `compose:"build-labels"`

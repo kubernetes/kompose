@@ -104,6 +104,8 @@ const (
 	LabelHpaMemory = "kompose.hpa.memory"
 	// LabelNameOverride defines the override resource name
 	LabelNameOverride = "kompose.service.name_override"
+	// LabelExposeContainerToHost defines whether to expose container to host or not using hostPort
+	LabelExposeContainerToHost = "kompose.controller.port.expose"
 )
 
 // load environment variables from compose file

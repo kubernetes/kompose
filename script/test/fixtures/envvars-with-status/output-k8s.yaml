@@ -45,6 +45,5 @@ spec:
           name: app
           ports:
             - containerPort: 3000
-              hostPort: 3000
               protocol: TCP
       restartPolicy: Always

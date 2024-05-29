@@ -70,10 +70,8 @@ spec:
           name: another-namenode
           ports:
             - containerPort: 50070
-              hostPort: 50070
               protocol: TCP
             - containerPort: 8020
-              hostPort: 8020
               protocol: TCP
           resources: {}
       restartPolicy: Always
@@ -135,10 +133,8 @@ spec:
           name: namenode
           ports:
             - containerPort: 50070
-              hostPort: 50070
               protocol: TCP
             - containerPort: 8020
-              hostPort: 8020
               protocol: TCP
           resources: {}
       restartPolicy: Always

@@ -88,10 +88,11 @@ func newKomposeObject() kobject.KomposeObject {
 
 func newKomposeObjectHostPortProtocolConfig() kobject.ServiceConfig {
 	return kobject.ServiceConfig{
-		Name:          "nginx",
-		ContainerName: "nginx",
-		Image:         "nginx",
-		Port:          []kobject.Ports{{HostPort: 80, Protocol: string(api.ProtocolTCP), ContainerPort: 80}},
+		Name:                  "nginx",
+		ContainerName:         "nginx",
+		Image:                 "nginx",
+		Port:                  []kobject.Ports{{HostPort: 80, Protocol: string(api.ProtocolTCP), ContainerPort: 80}},
+		ExposeContainerToHost: true,
 	}
 }
 

@@ -104,7 +104,6 @@ spec:
           name: web
           ports:
             - containerPort: 5000
-              hostPort: 5000
               protocol: TCP
       restartPolicy: Always
   test: false

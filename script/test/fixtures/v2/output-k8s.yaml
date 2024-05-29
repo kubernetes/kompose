@@ -17,9 +17,6 @@ spec:
     - name: "3000"
       port: 3000
       targetPort: 3000
-    - name: 3000-tcp
-      port: 3000
-      targetPort: 3000
     - name: "3001"
       port: 3001
       targetPort: 3001
@@ -90,8 +87,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.type: loadbalancer
   labels:
     io.kompose.service: redis-tcp
   name: redis-tcp
@@ -108,8 +103,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.service.type: loadbalancer
   labels:
     io.kompose.service: redis-udp
   name: redis-udp
@@ -156,64 +149,36 @@ spec:
         - containerPort: 3005
           protocol: TCP
         - containerPort: 8000
-          hostPort: 8000
           protocol: TCP
         - containerPort: 8080
-          hostPort: 9090
           protocol: TCP
         - containerPort: 8081
-          hostPort: 9091
           protocol: TCP
         - containerPort: 22
-          hostPort: 49100
           protocol: TCP
         - containerPort: 8001
-          hostIP: 127.0.0.1
-          hostPort: 8001
           protocol: TCP
         - containerPort: 5000
-          hostIP: 127.0.0.1
-          hostPort: 5000
           protocol: TCP
         - containerPort: 5001
-          hostIP: 127.0.0.1
-          hostPort: 5001
           protocol: TCP
         - containerPort: 5002
-          hostIP: 127.0.0.1
-          hostPort: 5002
           protocol: TCP
         - containerPort: 5003
-          hostIP: 127.0.0.1
-          hostPort: 5003
           protocol: TCP
         - containerPort: 5004
-          hostIP: 127.0.0.1
-          hostPort: 5004
           protocol: TCP
         - containerPort: 5005
-          hostIP: 127.0.0.1
-          hostPort: 5005
           protocol: TCP
         - containerPort: 5006
-          hostIP: 127.0.0.1
-          hostPort: 5006
           protocol: TCP
         - containerPort: 5007
-          hostIP: 127.0.0.1
-          hostPort: 5007
           protocol: TCP
         - containerPort: 5008
-          hostIP: 127.0.0.1
-          hostPort: 5008
           protocol: TCP
         - containerPort: 5009
-          hostIP: 127.0.0.1
-          hostPort: 5009
           protocol: TCP
         - containerPort: 5010
-          hostIP: 127.0.0.1
-          hostPort: 5010
           protocol: TCP
       resources:
         limits:
@@ -227,8 +192,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.service.type: loadbalancer
   labels:
     io.kompose.service: redis
   name: redis
@@ -239,8 +202,6 @@ spec:
       io.kompose.service: redis
   template:
     metadata:
-      annotations:
-        kompose.service.type: loadbalancer
       labels:
         io.kompose.network/v2-default: "true"
         io.kompose.service: redis
@@ -252,7 +213,6 @@ spec:
             - containerPort: 6379
               protocol: TCP
             - containerPort: 1235
-              hostPort: 1234
               protocol: UDP
           resources:
             limits:

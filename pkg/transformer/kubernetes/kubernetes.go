@@ -654,9 +654,12 @@ func ConfigPorts(service kobject.ServiceConfig) []api.ContainerPort {
 		}
 		containerPort := api.ContainerPort{
 			ContainerPort: port.ContainerPort,
-			HostIP:        port.HostIP,
-			HostPort:      port.HostPort,
 			Protocol:      api.Protocol(port.Protocol),
+		}
+
+		if service.ExposeContainerToHost {
+			containerPort.HostIP = port.HostIP
+			containerPort.HostPort = port.HostPort
 		}
 		ports = append(ports, containerPort)
 		exist[port.ID()] = true
