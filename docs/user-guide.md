@@ -18,7 +18,7 @@ redirect_from:
 * [Restart policy](#restart-policy)
 * [Building and pushing images](#building-and-pushing-images)
 
-## Kompose conversion example
+## Kompose Conversion Example
 
 Kompose has support for two providers: OpenShift and Kubernetes.
 You can choose a targeted provider using global option `--provider`. If no provider is specified, Kubernetes is set by default.
