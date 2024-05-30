@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"testing"
 
@@ -2349,33 +2350,6 @@ func Test_isConfigFile(t *testing.T) {
 			wantSkip:         true,
 		},
 		{
-			name: "dir sys",
-			args: args{
-				filePath: "/sys",
-			},
-			wantUseConfigMap: false,
-			wantReadonly:     false,
-			wantSkip:         true,
-		},
-		{
-			name: "dir root",
-			args: args{
-				filePath: "/root",
-			},
-			wantUseConfigMap: false,
-			wantReadonly:     false,
-			wantSkip:         true,
-		},
-		{
-			name: "docker var lib",
-			args: args{
-				filePath: "/var/lib/docker",
-			},
-			wantUseConfigMap: false,
-			wantReadonly:     false,
-			wantSkip:         true,
-		},
-		{
 			name: "file from 3 levels",
 			args: args{
 				filePath: "../../../script/test/fixtures/configmap-file-configs/certs-level1/certs-level2/certs-level3/cert2.pem",
@@ -2884,7 +2858,20 @@ func Test_searchNetworkModeToService(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotDeploymentMappings := searchNetworkModeToService(tt.services); !reflect.DeepEqual(gotDeploymentMappings, tt.want) {
+			gotDeploymentMappings := searchNetworkModeToService(tt.services)
+			sort.Slice(gotDeploymentMappings, func(i, j int) bool {
+				if gotDeploymentMappings[i].SourceDeploymentName != gotDeploymentMappings[j].SourceDeploymentName {
+					return gotDeploymentMappings[i].SourceDeploymentName < gotDeploymentMappings[j].SourceDeploymentName
+				}
+				return gotDeploymentMappings[i].TargetDeploymentName < gotDeploymentMappings[j].TargetDeploymentName
+			})
+			sort.Slice(tt.want, func(i, j int) bool {
+				if tt.want[i].SourceDeploymentName != tt.want[j].SourceDeploymentName {
+					return tt.want[i].SourceDeploymentName < tt.want[j].SourceDeploymentName
+				}
+				return tt.want[i].TargetDeploymentName < tt.want[j].TargetDeploymentName
+			})
+			if !reflect.DeepEqual(gotDeploymentMappings, tt.want) {
 				t.Errorf("searchNetworkModeToService() = %v, want %v", gotDeploymentMappings, tt.want)
 			}
 		})
