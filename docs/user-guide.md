@@ -45,7 +45,7 @@ $ COMPOSE_FILE="compose.yaml alternative-compose.yaml" kompose convert
 ### OpenShift
 
 ```sh
-$ kompose --provider openshift --file compose.yamlconvert
+$ kompose --provider openshift --file compose.yaml convert
 ```
 
 ## CLI modifications
