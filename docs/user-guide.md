@@ -12,11 +12,10 @@ redirect_from:
 ## Table of contents
 
 * [Kompose conversion example](#kompose-conversion-example)
-* [CLI modifications](#cli-modifications)
+* [CLI Modifications](#cli-modifications)
 * [Labels](#labels)
-* [Label examples](#label-examples)
-* [Restart policy](#restart-policy)
-* [Building and pushing images](#building-and-pushing-images)
+* [Restart Policy](#restart-policy)
+* [Building and Pushing Images](#building-and-pushing-images)
 
 ## Kompose Conversion Example
 
@@ -48,7 +47,7 @@ $ COMPOSE_FILE="compose.yaml alternative-compose.yaml" kompose convert
 $ kompose --provider openshift --file compose.yaml convert
 ```
 
-## CLI modifications
+## CLI Modifications
 
 On the command line, you can modify the output of the generated YAML. For example, using alternative controllers such as [Replication Controllers](http://kubernetes.io/docs/user-guide/replication-controller/) objects, [Daemon Sets](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/), or [Statefulset](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/).
 
@@ -564,7 +563,7 @@ services:
       - db-data:/var/lib/postgresql/data
 ```
 
-## Restart policy
+## Restart Policy
 
 If you want to create normal pods without a controller you can use the `restart` construct of compose to define that. Follow the table below to see what happens on the `restart` value.
 
@@ -614,7 +613,7 @@ If the Compose file has a service name with `_` or `.` in it (e.g., `web_service
 
 Please note that changing the service name might break some `compose` files.
 
-## Building and pushing images
+## Building and Pushing Images
 
 If the Compose file has `build` or `build:context, build:dockerfile` keys, build will run when `--build` specified.
 
@@ -622,7 +621,7 @@ And Image will push to _docker.io_ (default) when `--push-image=true` specified.
 
 It is possible to push to a custom registry by specifying `--push-image-registry`, which will override the registry from the image name.
 
-### Authentication on registry
+### Authentication on Registry
 
 Kompose uses the docker authentication from file `$DOCKER_CONFIG/config.json`, `$HOME/.docker/config.json`, and `$HOME/.dockercfg` after `docker login`.
 
