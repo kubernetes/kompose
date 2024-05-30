@@ -15,7 +15,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/vols-subpath-default: "true"
         io.kompose.service: postgres
     spec:
       containers:

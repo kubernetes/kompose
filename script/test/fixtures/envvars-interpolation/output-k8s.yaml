@@ -13,7 +13,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/envvars-interpolation-default: "true"
         io.kompose.service: myservice
     spec:
       containers:

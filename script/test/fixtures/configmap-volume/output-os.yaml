@@ -14,7 +14,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/configmap-volume-default: "true"
         io.kompose.service: db
     spec:
       containers:
@@ -91,7 +90,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/configmap-volume-default: "true"
         io.kompose.service: web
     spec:
       containers:

@@ -13,7 +13,6 @@ spec:
       template:
         metadata:
           labels:
-            io.kompose.network/cronjob-default: "true"
             io.kompose.service: challenge
         spec:
           containers:

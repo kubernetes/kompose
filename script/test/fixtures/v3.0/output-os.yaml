@@ -28,9 +28,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/app-network: "true"
-        io.kompose.network/v30-normalized-network: "true"
-        io.kompose.network/web-network: "true"
         io.kompose.service: foo
     spec:
       containers:
@@ -85,7 +82,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/v30-default: "true"
         io.kompose.service: redis
     spec:
       containers:

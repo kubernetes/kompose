@@ -59,7 +59,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/env-default: "true"
         io.kompose.service: another-namenode
     spec:
       containers:
@@ -126,7 +125,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/env-default: "true"
         io.kompose.service: namenode
     spec:
       containers:

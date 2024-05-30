@@ -14,7 +14,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/multiple-type-volumes-default: "true"
         io.kompose.service: db
     spec:
       containers:
@@ -88,7 +87,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/multiple-type-volumes-default: "true"
         io.kompose.service: web
     spec:
       containers:

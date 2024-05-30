@@ -13,7 +13,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/initcontainer-default: "true"
         io.kompose.service: web
     spec:
       containers:

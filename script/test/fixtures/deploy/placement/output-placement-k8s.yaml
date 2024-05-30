@@ -28,7 +28,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/placement-default: "true"
         io.kompose.service: redis
     spec:
       affinity:

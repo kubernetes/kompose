@@ -72,7 +72,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/healthcheck-default: "true"
         io.kompose.service: mongo
     spec:
       containers:
@@ -138,7 +137,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/healthcheck-default: "true"
         io.kompose.service: mysql
     spec:
       containers:
@@ -204,7 +202,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/healthcheck-default: "true"
         io.kompose.service: postgresql
     spec:
       containers:
@@ -272,7 +269,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/healthcheck-default: "true"
         io.kompose.service: redis
     spec:
       containers:

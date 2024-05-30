@@ -15,7 +15,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/fsgroup-default: "true"
         io.kompose.service: pgadmin
     spec:
       containers:

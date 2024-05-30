@@ -29,7 +29,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/compose-file-support-default: "true"
         io.kompose.service: web
     spec:
       containers:
