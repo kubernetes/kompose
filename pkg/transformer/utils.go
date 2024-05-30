@@ -249,10 +249,6 @@ func ConfigAllLabels(name string, service *kobject.ServiceConfig) map[string]str
 func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 	annotations := map[string]string{}
 
-	if !service.WithKomposeAnnotation {
-		return annotations
-	}
-
 	for key, value := range service.Annotations {
 		annotations[key] = value
 	}
@@ -268,6 +264,15 @@ func ConfigAnnotations(service kobject.ServiceConfig) map[string]string {
 	// If the version is blank (couldn't retrieve the kompose version for whatever reason)
 	if annotations["kompose.version"] == "" {
 		annotations["kompose.version"] = version.VERSION + " (" + version.GITCOMMIT + ")"
+	}
+
+	// if service.WithKomposeAnnotation = false, we remove **all** kompose annotations (io.kompose.*)
+	if !service.WithKomposeAnnotation {
+		for key := range annotations {
+			if strings.HasPrefix(key, "kompose.") {
+				delete(annotations, key)
+			}
+		}
 	}
 
 	return annotations
