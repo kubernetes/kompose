@@ -26,7 +26,7 @@ You can choose a targeted provider using global option `--provider`. If no provi
 ### Kubernetes
 
 ```sh
-$ kompose --file compose.yamlconvert
+$ kompose --file compose.yaml convert
 ```
 
 You can also provide multiple compose files at the same time:
