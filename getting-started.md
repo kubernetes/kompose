@@ -44,13 +44,13 @@ Starting cluster components...
 Kubectl is now configured to use the cluster
 ```
 
-**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml), or use your own:**
+**Download an [example Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml), or use your own:**
 
 ```sh
 wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml
 ```
 
-**Convert your Docker Compose file to Kubernetes:**
+**Convert your Compose file to Kubernetes:**
 
 Run `kompose convert` in the same directory as your `compose.yaml` file.
 
@@ -134,13 +134,13 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
-**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml), or use your own:**
+**Download an [example Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml), or use your own:**
 
 ```sh
 wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml
 ```
 
-**Convert your Docker Compose file to OpenShift:**
+**Convert your Compose file to OpenShift:**
 
 Run `kompose convert --provider=openshift` in the same directory as your `compose.yaml` file.
 
@@ -254,13 +254,13 @@ Starting local OpenShift cluster using 'kvm' hypervisor...
 ...
 ```
 
-**Download an [example Docker Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml), or use your own:**
+**Download an [example Compose file](https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml), or use your own:**
 
 ```sh
 wget https://raw.githubusercontent.com/kubernetes/kompose/main/examples/compose.yaml
 ```
 
-**Convert your Docker Compose file to OpenShift:**
+**Convert your Compose file to OpenShift:**
 
 Run `kompose convert --provider=openshift` in the same directory as your `compose.yaml` file.
 

@@ -16,7 +16,7 @@ There are some projects out there known to use Kompose integrated in some form o
 
 ### Kompose UI by Jad Chamoun (ICANN) and Joe Haddad (Anghami)
 
-**Description:** "A web interface to convert Docker Compose files to Kubernetes YAML"
+**Description:** "A web interface to convert Compose files to Kubernetes YAML"
 
 **Link:** [https://github.com/JadCham/komposeui](https://github.com/JadCham/komposeui)
 
@@ -48,7 +48,7 @@ There are some projects out there known to use Kompose integrated in some form o
 
 **Description:** "Maven is one of the widely used build tools for Java applications. The Fabric8 Maven Plugin is a maven extension that simplifies the deployment of Java applications to Kubernetes or OpenShift clusters.
 The main task of this plugin is to build Docker images, generate Kubernetes or OpenShift resource descriptors and run/deploy the application on Kubernetes or OpenShift cluster.
-The plugin has a wide range of configuration options. Docker Compose is one of the options to bring up deployments on Kubernetes or OpenShift clusters.
+The plugin has a wide range of configuration options. Compose is one of the options to bring up deployments on Kubernetes or OpenShift clusters.
 Technically, Fabric8 Maven Plugin processes the external compose.yml file and generates Kubernetes or OpenShift resources via Kompose."
 
 **Links:**

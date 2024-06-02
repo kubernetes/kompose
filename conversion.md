@@ -24,7 +24,7 @@ We're doing our best to keep it up to date as soon as possible in our releases t
 **Glossary:**
 
 - **✓:** Converts
-- **-:** Not in this Docker Compose Version
+- **-:** Not in this Compose Version
 - **n:** Not yet implemented
 - **x:** Not applicable / no 1-1 conversion
 
@@ -90,7 +90,7 @@ We're doing our best to keep it up to date as soon as possible in our releases t
 | stop_signal            | x  | x  | x  |                                                                      | Not supported within Kubernetes. See issue https://github.com/kubernetes/kubernetes/issues/30051                                  |
 | sysctls                | n  | n  | n  |                                                                      |                                                                                                                                   |
 | ulimits                | x  | x  | x  |                                                                      | Not supported within Kubernetes. See issue https://github.com/kubernetes/kubernetes/issues/3595                                   |
-| userns_mode            | x  | x  | x  |                                                                      | Not supported within Kubernetes and ignored in Docker Compose Version 3                                                           |
+| userns_mode            | x  | x  | x  |                                                                      | Not supported within Kubernetes and ignored in Compose Version 3                                                           |
 | volumes                | ✓  | ✓  | ✓  | PersistentVolumeClaim                                                | Creates a PersistentVolumeClaim. Can only be created if there is already a PersistentVolume within the cluster                    |
 | volumes: short-syntax  | ✓  | ✓  | ✓  | PersistentVolumeClaim                                                | Creates a PersistentVolumeClaim. Can only be created if there is already a PersistentVolume within the cluster                    |
 | volumes: long-syntax   | -  | -  | ✓  | PersistentVolumeClaim                                                | Creates a PersistentVolumeClaim. Can only be created if there is already a PersistentVolume within the cluster                    |
