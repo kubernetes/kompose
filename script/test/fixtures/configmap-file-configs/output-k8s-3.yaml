@@ -45,3 +45,4 @@ spec:
             - containerPort: 8025
               protocol: TCP
       restartPolicy: Always
+

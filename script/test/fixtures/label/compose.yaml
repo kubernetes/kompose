@@ -1,0 +1,7 @@
+services:
+  app:
+    image: node:18-alpine
+    ports:
+      - 3000:3000
+    labels:
+      - "com.example.label=foo"
