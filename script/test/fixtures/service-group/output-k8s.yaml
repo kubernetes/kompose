@@ -31,7 +31,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/service-group-default: "true"
         io.kompose.service: librenms-dispatcher
     spec:
       containers:

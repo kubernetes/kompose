@@ -46,7 +46,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/statefulset-default: "true"
         io.kompose.service: db
     spec:
       containers:
@@ -96,7 +95,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/statefulset-default: "true"
         io.kompose.service: db
     spec:
       containers:
@@ -166,7 +164,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/statefulset-default: "true"
         io.kompose.service: wordpress
     spec:
       containers:
@@ -216,7 +213,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/statefulset-default: "true"
         io.kompose.service: wordpress
     spec:
       containers:

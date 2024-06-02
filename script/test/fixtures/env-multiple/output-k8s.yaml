@@ -56,7 +56,6 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        io.kompose.network/env-default: "true"
         io.kompose.service: another-namenode
     spec:
       containers:
@@ -117,7 +116,6 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        io.kompose.network/env-default: "true"
         io.kompose.service: namenode
     spec:
       containers:

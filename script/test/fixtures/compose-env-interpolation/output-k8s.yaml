@@ -28,7 +28,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/compose-env-interpolation-default: "true"
         io.kompose.service: foo
     spec:
       containers:

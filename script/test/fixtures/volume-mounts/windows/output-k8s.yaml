@@ -30,7 +30,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/windows-default: "true"
         io.kompose.service: db
     spec:
       containers:

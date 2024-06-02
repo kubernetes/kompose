@@ -27,7 +27,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/envvars-with-status-default: "true"
         io.kompose.service: app
     spec:
       containers:

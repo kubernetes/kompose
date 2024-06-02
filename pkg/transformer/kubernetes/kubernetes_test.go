@@ -50,7 +50,6 @@ func newServiceConfig() kobject.ServiceConfig {
 		WorkingDir:      "dir",
 		Args:            []string{"arg1", "arg2"},
 		VolList:         []string{"/tmp/volume"},
-		Network:         []string{"network1", "network2"}, // supported
 		Labels:          nil,
 		FsGroup:         1001,
 		Annotations:     map[string]string{"abc": "def"},

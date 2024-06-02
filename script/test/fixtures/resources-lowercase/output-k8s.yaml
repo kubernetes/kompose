@@ -28,7 +28,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/resources-lowercase-default: "true"
         io.kompose.service: nginx
     spec:
       containers:

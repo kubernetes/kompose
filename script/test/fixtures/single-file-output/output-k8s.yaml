@@ -28,7 +28,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/single-file-output-default: "true"
         io.kompose.service: front-end
     spec:
       containers:

@@ -29,7 +29,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/read-only-default: "true"
         io.kompose.service: test
     spec:
       containers:

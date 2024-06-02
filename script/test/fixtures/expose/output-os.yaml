@@ -42,7 +42,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/expose-default: "true"
         io.kompose.service: redis
     spec:
       containers:
@@ -96,7 +95,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/expose-default: "true"
         io.kompose.service: web
     spec:
       containers:

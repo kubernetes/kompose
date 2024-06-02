@@ -1600,7 +1600,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					podSpec.Append(ServiceAccountName(serviceAccountName))
 				}
 
-				err = k.UpdateKubernetesObjectsMultipleContainers(groupName, service, &objects, podSpec)
+				err = k.UpdateKubernetesObjectsMultipleContainers(groupName, service, &objects, podSpec, opt)
 				if err != nil {
 					return nil, errors.Wrap(err, "Error transforming Kubernetes objects")
 				}

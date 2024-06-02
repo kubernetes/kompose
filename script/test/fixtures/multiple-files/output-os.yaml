@@ -12,7 +12,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/multiple-files-default: "true"
         io.kompose.service: bar
     spec:
       containers:
@@ -63,7 +62,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/multiple-files-default: "true"
         io.kompose.service: foo
     spec:
       containers:

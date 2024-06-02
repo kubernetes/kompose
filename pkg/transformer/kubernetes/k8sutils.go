@@ -503,13 +503,20 @@ func (k *Kubernetes) CreateHeadlessService(name string, service kobject.ServiceC
 }
 
 // UpdateKubernetesObjectsMultipleContainers method updates the kubernetes objects with the necessary data
-func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, service kobject.ServiceConfig, objects *[]runtime.Object, podSpec PodSpec) error {
+func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, service kobject.ServiceConfig, objects *[]runtime.Object, podSpec PodSpec, opt kobject.ConvertOptions) error {
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
 
 	// fillTemplate fills the pod template with the value calculated from config
 	fillTemplate := func(template *api.PodTemplateSpec) error {
-		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
+
+		// We will ONLY add config labels with network if we actually
+		// passed in --generate-network-policies to the kompose command
+		if opt.GenerateNetworkPolicies {
+			template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
+		} else {
+			template.ObjectMeta.Labels = transformer.ConfigLabels(name)
+		}
 		template.Spec = podSpec.Get()
 		return nil
 	}
@@ -660,7 +667,13 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			template.Spec.SecurityContext = podSecurityContext
 		}
 		template.Spec.Containers[0].Ports = ports
-		template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
+
+		// Only add network mode if generate-network-policies is set
+		if opt.GenerateNetworkPolicies {
+			template.ObjectMeta.Labels = transformer.ConfigLabelsWithNetwork(name, service.Network)
+		} else {
+			template.ObjectMeta.Labels = transformer.ConfigLabels(name)
+		}
 
 		// Configure the image pull policy
 		policy, err := GetImagePullPolicy(name, service.ImagePullPolicy)

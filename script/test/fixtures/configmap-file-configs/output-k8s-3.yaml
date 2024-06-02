@@ -33,7 +33,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/configmap-file-configs-default: "true"
         io.kompose.service: busy
     spec:
       containers:

@@ -28,7 +28,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/host-port-protocol-default: "true"
         io.kompose.service: nginx
     spec:
       containers:

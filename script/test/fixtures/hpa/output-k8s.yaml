@@ -13,7 +13,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/hpa-default: "true"
         io.kompose.service: web
     spec:
       containers:

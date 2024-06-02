@@ -43,7 +43,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/compose-file-env-variable-default: "true"
         io.kompose.service: alpine
     spec:
       containers:
@@ -69,7 +68,6 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.network/compose-file-env-variable-default: "true"
         io.kompose.service: debian
     spec:
       containers:
