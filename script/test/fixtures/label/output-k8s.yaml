@@ -34,7 +34,6 @@ spec:
       annotations:
         com.example.label: foo
       labels:
-        io.kompose.network/label-default: "true"
         io.kompose.service: app
     spec:
       containers:
