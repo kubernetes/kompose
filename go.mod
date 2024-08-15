@@ -8,7 +8,7 @@ require (
 	github.com/compose-spec/compose-go/v2 v2.1.6
 	github.com/deckarep/golang-set v1.8.0
 	github.com/fatih/structs v1.1.0
-	github.com/fsouza/go-dockerclient v1.11.2
+	github.com/fsouza/go-dockerclient v1.12.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/joho/godotenv v1.5.1
@@ -29,12 +29,12 @@ require (
 )
 
 require (
+	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
-	github.com/containerd/containerd v1.7.16 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/docker v27.1.1+incompatible // indirect
+	github.com/docker/docker v27.1.2+incompatible // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
@@ -52,6 +52,7 @@ require (
 	github.com/moby/patternmatcher v0.6.0 // indirect
 	github.com/moby/sys/sequential v0.5.0 // indirect
 	github.com/moby/sys/user v0.1.0 // indirect
+	github.com/moby/sys/userns v0.1.0 // indirect
 	github.com/moby/term v0.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
