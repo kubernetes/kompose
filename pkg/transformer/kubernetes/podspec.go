@@ -3,6 +3,7 @@ package kubernetes
 import (
 	"reflect"
 	"strconv"
+	"strings"
 
 	mapset "github.com/deckarep/golang-set"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -143,11 +144,30 @@ func SecurityContext(name string, service kobject.ServiceConfig) PodSpecOption {
 			securityContext.Privileged = &service.Privileged
 		}
 		if service.User != "" {
-			uid, err := strconv.ParseInt(service.User, 10, 64)
-			if err != nil {
-				log.Warn("Ignoring user directive. User to be specified as a UID (numeric).")
-			} else {
-				securityContext.RunAsUser = &uid
+			switch userparts := strings.Split(service.User, ":"); len(userparts) {
+			default:
+				log.Warn("Ignoring ill-formed user directive. Must be in format UID or UID:GID.")
+			case 1:
+				uid, err := strconv.ParseInt(userparts[0], 10, 64)
+				if err != nil {
+					log.Warn("Ignoring user directive. User to be specified as a UID (numeric).")
+				} else {
+					securityContext.RunAsUser = &uid
+				}
+			case 2:
+				uid, err := strconv.ParseInt(userparts[0], 10, 64)
+				if err != nil {
+					log.Warn("Ignoring user name in user directive. User to be specified as a UID (numeric).")
+				} else {
+					securityContext.RunAsUser = &uid
+				}
+
+				gid, err := strconv.ParseInt(userparts[1], 10, 64)
+				if err != nil {
+					log.Warn("Ignoring group name in user directive. Group to be specified as a GID (numeric).")
+				} else {
+					securityContext.RunAsGroup = &gid
+				}
 			}
 		}
 
