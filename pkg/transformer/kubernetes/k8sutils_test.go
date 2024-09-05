@@ -22,7 +22,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
-	"strconv"
 	"testing"
 
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -208,7 +207,7 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 		Expose:        []string{"expose"},   // not supported
 		Privileged:    true,
 		Restart:       "always",
-		User:          "1234",
+		User:          "1234:5678",
 	}
 
 	komposeObject := kobject.KomposeObject{
@@ -224,8 +223,9 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 	for _, obj := range objects {
 		if deploy, ok := obj.(*appsv1.Deployment); ok {
 			uid := *deploy.Spec.Template.Spec.Containers[0].SecurityContext.RunAsUser
-			if strconv.FormatInt(uid, 10) != service.User {
-				t.Errorf("User in ServiceConfig is not matching user in PodSpec")
+			gid := *deploy.Spec.Template.Spec.Containers[0].SecurityContext.RunAsGroup
+			if fmt.Sprintf("%d:%d", uid, gid) != service.User {
+				t.Errorf("User and group in ServiceConfig is not matching user in PodSpec")
 			}
 		}
 	}
