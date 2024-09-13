@@ -85,6 +85,8 @@ in order to generate ZSH completion support.
 */
 func runCompletionZsh(out io.Writer, kompose *cobra.Command) error {
 	zshInitialization := `
+#compdef kompose
+
 __kompose_bash_source() {
 	alias shopt=':'
 	alias _expand=_bash_expand
