@@ -811,7 +811,7 @@ func KomposeObjectToServiceConfigGroupMapping(komposeObject *kobject.KomposeObje
 // TranslatePodResource config pod resources
 func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTemplateSpec) {
 	// Configure the resource limits
-	if service.MemLimit != 0 || service.CPULimit != 0 {
+	if service.MemLimit != 0 || service.CPULimit != 0 || service.DeployLabels["limits.ephemeral-storage"] != "" {
 		resourceLimit := api.ResourceList{}
 
 		if service.MemLimit != 0 {
@@ -822,11 +822,18 @@ func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTempl
 			resourceLimit[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPULimit, resource.DecimalSI)
 		}
 
+		// Check for ephemeral-storage in deploy labels
+		if val, ok := service.DeployLabels["limits.ephemeral-storage"]; ok {
+			if quantity, err := resource.ParseQuantity(val); err == nil {
+				resourceLimit[api.ResourceEphemeralStorage] = quantity
+			}
+		}
+
 		template.Spec.Containers[0].Resources.Limits = resourceLimit
 	}
 
 	// Configure the resource requests
-	if service.MemReservation != 0 || service.CPUReservation != 0 {
+	if service.MemReservation != 0 || service.CPUReservation != 0 || service.DeployLabels["requests.ephemeral-storage"] != "" {
 		resourceRequests := api.ResourceList{}
 
 		if service.MemReservation != 0 {
@@ -835,6 +842,13 @@ func TranslatePodResource(service *kobject.ServiceConfig, template *api.PodTempl
 
 		if service.CPUReservation != 0 {
 			resourceRequests[api.ResourceCPU] = *resource.NewMilliQuantity(service.CPUReservation, resource.DecimalSI)
+		}
+
+		// Check for ephemeral-storage in deploy labels
+		if val, ok := service.DeployLabels["requests.ephemeral-storage"]; ok {
+			if quantity, err := resource.ParseQuantity(val); err == nil {
+				resourceRequests[api.ResourceEphemeralStorage] = quantity
+			}
 		}
 
 		template.Spec.Containers[0].Resources.Requests = resourceRequests

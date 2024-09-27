@@ -1,0 +1,9 @@
+services:
+  app:
+    image: node:18-alpine
+    ports:
+      - 3000:3000
+    deploy:
+      labels:
+        requests.ephemeral-storage: 1Gi
+        limits.ephemeral-storage: 1Gi
