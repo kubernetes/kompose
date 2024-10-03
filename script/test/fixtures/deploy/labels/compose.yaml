@@ -5,5 +5,5 @@ services:
       - 3000:3000
     deploy:
       labels:
-        requests.ephemeral-storage: 1Gi
-        limits.ephemeral-storage: 1Gi
+        kompose.ephemeral-storage.request: 1Gi
+        kompose.ephemeral-storage.limit: 1Gi
