@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.22.1
 
 require (
-	github.com/compose-spec/compose-go/v2 v2.2.0
+	github.com/compose-spec/compose-go/v2 v2.3.0
 	github.com/deckarep/golang-set v1.8.0
 	github.com/fatih/structs v1.1.0
 	github.com/fsouza/go-dockerclient v1.12.0
