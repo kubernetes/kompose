@@ -985,7 +985,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 			volumeName = strings.Replace(volumeName, service.Name, name, 1)
 			count++
 		} else {
-			volumeName = volume.VolumeName
+			volumeName = strings.ToLower(volume.VolumeName)
 		}
 		volMount := api.VolumeMount{
 			Name:      volumeName,
