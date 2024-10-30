@@ -960,7 +960,7 @@ func (k *Kubernetes) ConfigVolumes(name string, service kobject.ServiceConfig) (
 		// check if ro/rw mode is defined, default rw
 		readonly := len(volume.Mode) > 0 && (volume.Mode == "ro" || volume.Mode == "rox")
 		mountHost := volume.Host
-		if mountHost == "" {
+		if volume.VolumeName == "" && mountHost == "" {
 			mountHost = volume.MountPath
 		}
 		// return useconfigmap and readonly,
