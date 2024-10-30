@@ -82,3 +82,6 @@ tags
 
 # Client Test generated files
 client/testdata/generated
+
+
+pkg/mod
