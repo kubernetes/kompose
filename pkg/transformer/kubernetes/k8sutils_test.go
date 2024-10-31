@@ -32,6 +32,7 @@ import (
 	hpa "k8s.io/api/autoscaling/v2beta2"
 	api "k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -178,6 +179,102 @@ func TestCreateServiceWithCPULimit(t *testing.T) {
 			cpuReservation := deploy.Spec.Template.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
 			if cpuReservation != 1 {
 				t.Errorf("Expected 1 for cpu reservation check, got %v", cpuReservation)
+			}
+		}
+	}
+}
+
+/*
+Test the creation of a service with ephemeral storage limit
+*/
+func TestDeployLabelsEphemeralStorageLimit(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Command:       []string{"cmd"},
+		WorkingDir:    "dir",
+		Args:          []string{"arg1", "arg2"},
+		VolList:       []string{"/tmp/volume"},
+		Network:       []string{"network1", "network2"},
+		Labels:        nil,
+		Annotations:   map[string]string{"abc": "def"},
+		CPUQuota:      1,
+		CapAdd:        []string{"cap_add"},
+		CapDrop:       []string{"cap_drop"},
+		Expose:        []string{"expose"},
+		Privileged:    true,
+		Restart:       "always",
+		DeployLabels:  map[string]string{"kompose.ephemeral-storage.limit": "1Gi"},
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	// Retrieve the deployment object and test that it matches the ephemeral storage limit value
+	for _, obj := range objects {
+		if deploy, ok := obj.(*appsv1.Deployment); ok {
+			storageLimit := deploy.Spec.Template.Spec.Containers[0].Resources.Limits.StorageEphemeral()
+			expectedLimit := resource.MustParse("1Gi")
+			if *storageLimit != expectedLimit {
+				t.Errorf("Expected %v for ephemeral storage limit check, got %v", expectedLimit, storageLimit)
+			}
+		}
+	}
+}
+
+/*
+Test the creation of a service with ephemeral storage request
+*/
+func TestDeployLabelsEphemeralStorageRequest(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Command:       []string{"cmd"},
+		WorkingDir:    "dir",
+		Args:          []string{"arg1", "arg2"},
+		VolList:       []string{"/tmp/volume"},
+		Network:       []string{"network1", "network2"},
+		Labels:        nil,
+		Annotations:   map[string]string{"abc": "def"},
+		CPUQuota:      1,
+		CapAdd:        []string{"cap_add"},
+		CapDrop:       []string{"cap_drop"},
+		Expose:        []string{"expose"},
+		Privileged:    true,
+		Restart:       "always",
+		DeployLabels:  map[string]string{"kompose.ephemeral-storage.request": "1Gi"},
+	}
+
+	// An example object generated via k8s runtime.Objects()
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 3})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	// Retrieve the deployment object and test that it matches the ephemeral storage request value
+	for _, obj := range objects {
+		if deploy, ok := obj.(*appsv1.Deployment); ok {
+			storageRequest := deploy.Spec.Template.Spec.Containers[0].Resources.Requests.StorageEphemeral()
+			expectedRequest := resource.MustParse("1Gi")
+			if *storageRequest != expectedRequest {
+				t.Errorf("Expected %v for ephemeral storage request check, got %v", expectedRequest, storageRequest)
 			}
 		}
 	}

@@ -391,3 +391,8 @@ convert::expect_success "$os_cmd" "$os_output" || exit 1
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/label/compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/label/output-k8s.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+
+# Test deploy.labels in compose.yaml appears in the output
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/deploy/labels/compose.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/deploy/labels/output-k8s.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1

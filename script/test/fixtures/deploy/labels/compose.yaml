@@ -1,0 +1,9 @@
+services:
+  app:
+    image: node:18-alpine
+    ports:
+      - 3000:3000
+    deploy:
+      labels:
+        kompose.ephemeral-storage.request: 1Gi
+        kompose.ephemeral-storage.limit: 1Gi
