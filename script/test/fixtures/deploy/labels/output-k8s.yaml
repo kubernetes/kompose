@@ -19,8 +19,8 @@ kind: Deployment
 metadata:
   labels:
     io.kompose.service: app
-    limits.ephemeral-storage: 1Gi
-    requests.ephemeral-storage: 1Gi
+    kompose.ephemeral-storage.limit: 1Gi
+    kompose.ephemeral-storage.request: 1Gi
   name: app
 spec:
   replicas: 1
