@@ -617,7 +617,7 @@ func (k *Kubernetes) CreatePVC(name string, mode string, size string, selectorVa
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   name,
+			Name:   FormatResourceName(name),
 			Labels: transformer.ConfigLabels(name),
 		},
 		Spec: api.PersistentVolumeClaimSpec{
