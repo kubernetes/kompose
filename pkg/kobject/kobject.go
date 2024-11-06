@@ -257,7 +257,24 @@ func (s *ServiceConfig) GetConfigMapKeyFromMeta(name string) (string, error) {
 		return "", errors.Errorf("config %s is external", name)
 	}
 
-	return filepath.Base(config.File), nil
+	if config.File != "" {
+		return filepath.Base(config.File), nil
+	} else if config.Content != "" {
+		// loop through s.Configs to find the config with the same name
+		for _, cfg := range s.Configs {
+			if cfg.Source == name {
+				if cfg.Target == "" {
+					return filepath.Base(cfg.Source), nil
+				} else {
+					return filepath.Base(cfg.Target), nil
+				}
+			}
+		}
+	} else {
+		return "", errors.Errorf("config %s is empty", name)
+	}
+
+	return "", errors.Errorf("config %s not found", name)
 }
 
 // GetKubernetesUpdateStrategy from compose update_config
