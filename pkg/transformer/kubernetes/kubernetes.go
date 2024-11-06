@@ -333,6 +333,24 @@ func initConfigMapData(configMap *api.ConfigMap, data map[string]string) {
 }
 
 // InitConfigMapFromFile initializes a ConfigMap object
+func (k *Kubernetes) InitConfigMapFromContent(name string, service kobject.ServiceConfig, content string, currentConfigName string, target string) *api.ConfigMap {
+	configMap := &api.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   currentConfigName,
+			Labels: transformer.ConfigLabels(name),
+		},
+	}
+	filename := GetFileName(target)
+	data := map[string]string{filename: content}
+	initConfigMapData(configMap, data)
+	return configMap
+}
+
+// InitConfigMapFromFile initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapFromFile(name string, service kobject.ServiceConfig, fileName string) *api.ConfigMap {
 	content, err := GetContentFromFile(fileName)
 	if err != nil {
@@ -1325,12 +1343,26 @@ func (k *Kubernetes) createConfigMapFromComposeConfig(name string, service kobje
 	for _, config := range service.Configs {
 		currentConfigName := config.Source
 		currentConfigObj := service.ConfigsMetaData[currentConfigName]
+		if config.Target == "" {
+			config.Target = currentConfigName
+		}
 		if currentConfigObj.External {
 			continue
 		}
-		currentFileName := currentConfigObj.File
-		configMap := k.InitConfigMapFromFile(name, service, currentFileName)
-		objects = append(objects, configMap)
+		if currentConfigObj.File != "" {
+			currentFileName := currentConfigObj.File
+			configMap := k.InitConfigMapFromFile(name, service, currentFileName)
+			objects = append(objects, configMap)
+		} else if currentConfigObj.Content != "" {
+			content := currentConfigObj.Content
+			configMap := k.InitConfigMapFromContent(name, service, content, currentConfigName, config.Target)
+			objects = append(objects, configMap)
+		} else if currentConfigObj.Environment != "" {
+			// TODO: Add support for environment variables in configmaps
+			log.Warnf("Environment variables in configmaps are not supported yet")
+		} else {
+			log.Warnf("Configmap %s is empty", currentConfigName)
+		}
 	}
 	return objects
 }
