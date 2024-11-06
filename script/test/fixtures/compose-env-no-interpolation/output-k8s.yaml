@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: foo
+  name: foo
+spec:
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+  selector:
+    io.kompose.service: foo
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: foo
+  name: foo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: foo
+  template:
+    metadata:
+      labels:
+        io.kompose.service: foo
+    spec:
+      containers:
+        - env:
+            - name: VERSION
+              value: ${IMAGE_TAG:-latest}
+          image: ${DOCKER_REGISTRY-}foo:${IMAGE_TAG:-latest}
+          name: foo
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      restartPolicy: Always
+
