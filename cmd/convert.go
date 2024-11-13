@@ -206,7 +206,7 @@ func init() {
 	convertCmd.Flags().BoolVar(&GenerateNetworkPolicies, "generate-network-policies", false, "Specify whether to generate network policies or not")
 
 	convertCmd.Flags().BoolVar(&WithKomposeAnnotation, "with-kompose-annotation", true, "Add kompose annotations to generated resource")
-	convertCmd.Flags().BoolVar(&NoInterpolate, "no-interpolate", false, "Disable environment variable interpolation in the compose file")
+	convertCmd.Flags().BoolVar(&NoInterpolate, "no-interpolate", false, "Keep environment variable names in the Compose file")
 
 	// Deprecated commands
 	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
