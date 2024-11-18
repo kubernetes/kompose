@@ -332,7 +332,7 @@ func initConfigMapData(configMap *api.ConfigMap, data map[string]string) {
 	configMap.BinaryData = binData
 }
 
-// InitConfigMapFromFile initializes a ConfigMap object
+// InitConfigMapFromContent initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapFromContent(name string, service kobject.ServiceConfig, content string, currentConfigName string, target string) *api.ConfigMap {
 	configMap := &api.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
