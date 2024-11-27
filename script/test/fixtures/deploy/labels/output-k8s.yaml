@@ -1,0 +1,47 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  ports:
+    - name: "3000"
+      port: 3000
+      targetPort: 3000
+  selector:
+    io.kompose.service: app
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: app
+    kompose.ephemeral-storage.limit: 1Gi
+    kompose.ephemeral-storage.request: 1Gi
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: app
+  template:
+    metadata:
+      labels:
+        io.kompose.service: app
+    spec:
+      containers:
+        - image: node:18-alpine
+          name: app
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          resources:
+            limits:
+              ephemeral-storage: 1Gi
+            requests:
+              ephemeral-storage: 1Gi
+      restartPolicy: Always
+
