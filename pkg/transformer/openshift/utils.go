@@ -1,6 +1,7 @@
 package openshift
 
 import (
+	"github.com/pkg/errors"
 	"os/exec"
 	"strings"
 )
@@ -34,12 +35,16 @@ func GetImageTag(image string) string {
 func GetAbsBuildContext(context string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-prefix")
 	cmd.Dir = context
-	out, err := cmd.Output()
+	var out strings.Builder
+	var stderr strings.Builder
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
 	if err != nil {
-		return "", err
+		return "", errors.New(stderr.String())
 	}
 	//convert output of command to string
-	contextDir := strings.Trim(string(out), "\n")
+	contextDir := strings.Trim(out.String(), "\n")
 	return contextDir, nil
 }
 
@@ -53,11 +58,15 @@ func HasGitBinary() bool {
 func GetGitCurrentRemoteURL(composeFileDir string) (string, error) {
 	cmd := exec.Command("git", "ls-remote", "--get-url")
 	cmd.Dir = composeFileDir
-	out, err := cmd.Output()
+	var out strings.Builder
+	var stderr strings.Builder
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
 	if err != nil {
-		return "", err
+		return "", errors.New(stderr.String())
 	}
-	url := strings.TrimRight(string(out), "\n")
+	url := strings.TrimRight(out.String(), "\n")
 	if !strings.HasSuffix(url, ".git") {
 		url += ".git"
 	}
@@ -68,9 +77,13 @@ func GetGitCurrentRemoteURL(composeFileDir string) (string, error) {
 func GetGitCurrentBranch(composeFileDir string) (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
 	cmd.Dir = composeFileDir
-	out, err := cmd.Output()
+	var out strings.Builder
+	var stderr strings.Builder
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
 	if err != nil {
-		return "", err
+		return "", errors.New(stderr.String())
 	}
-	return strings.TrimRight(string(out), "\n"), nil
+	return strings.TrimRight(out.String(), "\n"), nil
 }
