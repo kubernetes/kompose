@@ -7,7 +7,7 @@ toolchain go1.22.1
 replace github.com/openshift/api v3.9.0+incompatible => github.com/openshift/api v0.0.0-20230704153349-abb98ff04d03
 
 require (
-	github.com/compose-spec/compose-go/v2 v2.4.4
+	github.com/compose-spec/compose-go/v2 v2.4.5
 	github.com/deckarep/golang-set v1.8.0
 	github.com/fatih/structs v1.1.0
 	github.com/fsouza/go-dockerclient v1.12.0
