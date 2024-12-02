@@ -24,6 +24,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/kubernetes/kompose/pkg/testutils"
@@ -323,6 +324,97 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 			gid := *deploy.Spec.Template.Spec.Containers[0].SecurityContext.RunAsGroup
 			if fmt.Sprintf("%d:%d", uid, gid) != service.User {
 				t.Errorf("User and group in ServiceConfig is not matching user in PodSpec")
+			}
+		}
+	}
+}
+
+func TestCreateServiceWithConfigLongSyntax(t *testing.T) {
+	content := "setting: true"
+	target := "/etc/config.yaml"
+
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName:   "name",
+		Image:           "image",
+		Environment:     []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:            []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Command:         []string{"cmd"},
+		Configs:         []types.ServiceConfigObjConfig{{Source: "configmap", Target: target}},
+		ConfigsMetaData: map[string]types.ConfigObjConfig{"configmap": {Content: content}},
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{
+			"app": service,
+		},
+	}
+
+	k := Kubernetes{}
+
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	for _, obj := range objects {
+		t.Log(obj)
+		if configMap, ok := obj.(*api.ConfigMap); ok {
+			fileContent := configMap.Data["config.yaml"]
+			if fileContent != content {
+				t.Errorf("Config map content not equal")
+			}
+		}
+		if deployment, ok := obj.(*appsv1.Deployment); ok {
+			spec := deployment.Spec.Template.Spec
+			if spec.Containers[0].VolumeMounts[0].MountPath != target {
+				t.Errorf("Config map mountPath not found")
+			}
+		}
+	}
+}
+
+func TestCreateServiceWithConfigShortSyntax(t *testing.T) {
+	content := "setting: true"
+	source := "configmap"
+	target := "/" + source
+
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName:   "name",
+		Image:           "image",
+		Environment:     []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:            []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Command:         []string{"cmd"},
+		Configs:         []types.ServiceConfigObjConfig{{Source: source}},
+		ConfigsMetaData: map[string]types.ConfigObjConfig{source: {Content: content}},
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{
+			"app": service,
+		},
+	}
+
+	k := Kubernetes{}
+
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	for _, obj := range objects {
+		t.Log(obj)
+		if configMap, ok := obj.(*api.ConfigMap); ok {
+			fileContent := configMap.Data[source]
+			if fileContent != content {
+				t.Errorf("Config map content not equal")
+			}
+		}
+		if deployment, ok := obj.(*appsv1.Deployment); ok {
+			spec := deployment.Spec.Template.Spec
+			if spec.Containers[0].VolumeMounts[0].MountPath != target {
+				t.Errorf("Config map mountPath not found")
 			}
 		}
 	}
