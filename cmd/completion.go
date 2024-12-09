@@ -17,11 +17,18 @@ var completion = &cobra.Command{
 
 Auto completion supports bash, zsh and fish. Output is to STDOUT.
 
+# Enable auto-completion in bash  
 source <(kompose completion bash)
+
+# Enable auto-completion in zsh  
 source <(kompose completion zsh)
+
+# Enable auto-completion in fish 
 kompose completion fish | source
 
 Will load the shell completion code.
+
+Note: To enable completion permanently in your shell place these shell commands in their respective shell configuration file.
 	`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
