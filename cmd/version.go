@@ -29,7 +29,8 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version of Kompose",
 	Run: func(cmd *cobra.Command, args []string) {
 		// See pkg/version/version.go for more information as to why we use the git commit / hash value
-		fmt.Println(version.VERSION + " (" + version.GITCOMMIT + ")")
+		fmt.Println("Kompose version:", "v"+version.VERSION)
+		fmt.Println("Git HEAD:", version.GITCOMMIT)
 	},
 }
 
