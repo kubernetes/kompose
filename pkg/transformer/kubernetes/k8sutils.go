@@ -1237,12 +1237,10 @@ func isConfigFile(filePath string) (useConfigMap bool, readonly bool, skip bool)
 		skip = true
 		return
 	}
-	log.Debugf("isConfigFile File : %v", filePath)
-
 
 	fi, err := os.Stat(filePath)
 	if err != nil {
-		log.Warnf("File don't exist or failed to check if the directory is empty: %v", err)
+		log.Errorf("File don't exist or failed to check if the directory is empty: %v", err)
 		// dir/file not exist
 		// here not assigned skip to true,
 		// maybe dont want to skip
@@ -1266,27 +1264,23 @@ func isConfigFile(filePath string) (useConfigMap bool, readonly bool, skip bool)
 
 // checkIsEmptyDir checks if filepath is empty
 func checkIsEmptyDir(filePath string) (bool, error) {
-	log.Debugf("checkIsEmptyDir of File : %v", filePath)
 	files, err := os.ReadDir(filePath)
 	if err != nil {
-		log.Errorf("ReadDir of %v failed !",filePath);
+		log.Errorf("ReadDir of %v failed !", filePath)
 		return false, err
 	}
 	if len(files) == 0 {
-		log.Debugf("ReadDir return no file %d !",len(files));
 		// is empty
 		return true, err
 	}
 	for _, file := range files {
 		if !file.IsDir() {
-		        log.Debugf("IsDir of %v return that is not directory !",file);
 			// not empty
 			return false, nil
 		}
 		// recurse directory
-		_, err := checkIsEmptyDir(filepath.Join(filePath,file.Name()))
+		_, err := checkIsEmptyDir(filepath.Join(filePath, file.Name()))
 		if err != nil {
-		        log.Debugf("Recursive checkIsEmptyDir return err %v for %v !",err, file);
 			return false, err
 		}
 	}
