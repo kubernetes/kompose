@@ -1266,25 +1266,21 @@ func isConfigFile(filePath string) (useConfigMap bool, readonly bool, skip bool)
 func checkIsEmptyDir(filePath string) (bool, error) {
 	files, err := os.ReadDir(filePath)
 	if err != nil {
-		log.Errorf("ReadDir of %v failed !", filePath)
+		log.Errorf("ReadDir of %s failed !", filePath)
 		return false, err
 	}
 	if len(files) == 0 {
-		// is empty
 		return true, err
 	}
 	for _, file := range files {
 		if !file.IsDir() {
-			// not empty
 			return false, nil
 		}
-		// recurse directory
 		_, err := checkIsEmptyDir(filepath.Join(filePath, file.Name()))
 		if err != nil {
 			return false, err
 		}
 	}
-	// is empty
 	return true, nil
 }
 
