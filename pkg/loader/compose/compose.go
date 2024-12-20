@@ -151,7 +151,7 @@ func checkUnsupportedKey(composeProject *types.Project) []string {
 }
 
 // LoadFile loads a compose file into KomposeObject
-func (c *Compose) LoadFile(files []string, profiles []string) (kobject.KomposeObject, error) {
+func (c *Compose) LoadFile(files []string, profiles []string, noInterpolate bool) (kobject.KomposeObject, error) {
 	// Gather the working directory
 	workingDir, err := transformer.GetComposeFileDir(files)
 	if err != nil {
@@ -161,7 +161,7 @@ func (c *Compose) LoadFile(files []string, profiles []string) (kobject.KomposeOb
 	projectOptions, err := cli.NewProjectOptions(
 		files, cli.WithOsEnv,
 		cli.WithWorkingDirectory(workingDir),
-		cli.WithInterpolation(true),
+		cli.WithInterpolation(!noInterpolate),
 		cli.WithProfiles(profiles),
 	)
 	if err != nil {
