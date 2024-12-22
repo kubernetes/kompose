@@ -1250,7 +1250,7 @@ func isConfigFile(filePath string) (useConfigMap bool, readonly bool, skip bool)
 	if !fi.Mode().IsRegular() { // is dir
 		isDirEmpty, err := checkIsEmptyDir(filePath)
 		if err != nil {
-			log.Warnf("Failed to check if the directory is empty: %v", err)
+			log.Debugf("Failed to check if the directory is empty: %v", err)
 			skip = true
 			return
 		}
