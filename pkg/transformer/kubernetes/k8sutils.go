@@ -1240,17 +1240,17 @@ func isConfigFile(filePath string) (useConfigMap bool, readonly bool, skip bool)
 
 	fi, err := os.Stat(filePath)
 	if err != nil {
-		log.Errorf("File don't exist or failed to check if the directory is empty: %v", err)
+		log.Warnf("File don't exist or failed to check if the directory is empty: %v", err)
 		// dir/file not exist
 		// here not assigned skip to true,
 		// maybe dont want to skip
 		return
 	}
 
-	if !fi.Mode().IsRegular() { // is dir
+	if fi.Mode().IsDir() { // is dir
 		isDirEmpty, err := checkIsEmptyDir(filePath)
 		if err != nil {
-			log.Debugf("Failed to check if the directory is empty: %v", err)
+			log.Warnf("Failed to check if the directory is empty: %v", err)
 			skip = true
 			return
 		}
@@ -1266,7 +1266,6 @@ func isConfigFile(filePath string) (useConfigMap bool, readonly bool, skip bool)
 func checkIsEmptyDir(filePath string) (bool, error) {
 	files, err := os.ReadDir(filePath)
 	if err != nil {
-		log.Errorf("ReadDir of %s failed !", filePath)
 		return false, err
 	}
 	if len(files) == 0 {
