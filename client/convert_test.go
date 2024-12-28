@@ -2,9 +2,10 @@ package client
 
 import (
 	"fmt"
-	v1 "k8s.io/api/core/v1"
 	"sort"
 	"testing"
+
+	v1 "k8s.io/api/core/v1"
 
 	"gotest.tools/v3/assert"
 	is "gotest.tools/v3/assert/cmp"
@@ -80,6 +81,24 @@ func TestConvertWithDefaultOptions(t *testing.T) {
 	for _, object := range objects {
 		if deployment, ok := object.(*appsv1.Deployment); ok {
 			assert.Check(t, is.Equal(int(*deployment.Spec.Replicas), 1))
+		}
+	}
+}
+
+func TestConvertWithEnv(t *testing.T) {
+	client, err := NewClient(WithErrorOnWarning())
+	assert.Check(t, is.Equal(err, nil))
+	objects, err := client.Convert(ConvertOptions{
+		ToStdout: true,
+		InputFiles: []string{
+			"./testdata/docker-compose-env.yaml",
+		},
+	})
+	assert.Check(t, is.Equal(err, nil))
+	for _, object := range objects {
+		if deployment, ok := object.(*appsv1.Deployment); ok {
+			assert.Check(t, is.Equal(deployment.Spec.Template.Spec.Containers[0].Args[2], "$REDIS_PASSWORD"))
+			assert.Check(t, is.Equal(deployment.Spec.Template.Spec.Containers[0].LivenessProbe.Exec.Command, "redis-cli -a $REDIS_PASSWORD --raw incr ping"))
 		}
 	}
 }
