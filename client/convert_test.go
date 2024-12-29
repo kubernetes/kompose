@@ -97,8 +97,8 @@ func TestConvertWithEnv(t *testing.T) {
 	assert.Check(t, is.Equal(err, nil))
 	for _, object := range objects {
 		if deployment, ok := object.(*appsv1.Deployment); ok {
-			assert.Check(t, is.Equal(deployment.Spec.Template.Spec.Containers[0].Args[2], "$REDIS_PASSWORD"))
-			assert.Check(t, is.Equal(deployment.Spec.Template.Spec.Containers[0].LivenessProbe.Exec.Command, "redis-cli -a $REDIS_PASSWORD --raw incr ping"))
+			assert.Check(t, is.Equal(deployment.Spec.Template.Spec.Containers[0].Args[2], "$(REDIS_PASSWORD)"))
+			assert.Check(t, is.Equal(deployment.Spec.Template.Spec.Containers[0].LivenessProbe.Exec.Command[0], "redis-cli -a $REDIS_PASSWORD --raw incr ping"))
 		}
 	}
 }
