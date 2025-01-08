@@ -24,11 +24,9 @@ echo "source <(kompose completion bash)" >> $HOME/.bashrc
 echo "source <(kompose completion zsh)" >> $HOME/.zshrc 
 
 # Enable auto-completion in fish 
-echo "kompose completion fish | source" >> $HOME/fish/config.fish
+echo "kompose completion fish | source" >> $HOME/.config/fish/config.fish
 
 Will load the shell completion code.
-
-Note: To enable completion permanently in your shell place these shell commands in their respective shell configuration file.
 	`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
