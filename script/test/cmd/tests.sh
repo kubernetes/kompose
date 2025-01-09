@@ -276,6 +276,12 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/compose-env-interpolation/output-
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 convert::expect_success "$os_cmd" "$os_output" || exit 1
 
+# Test support for compose env without interpolation
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/compose-env-no-interpolation/compose.yaml convert --stdout --no-interpolate --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/compose-env-no-interpolation/output-k8s.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$os_cmd" "$os_output" || exit 1
+
 # Test support for subpath volume
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/vols-subpath/compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/vols-subpath/output-k8s.yaml"

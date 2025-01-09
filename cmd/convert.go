@@ -62,6 +62,9 @@ var (
 	// default is true.
 	WithKomposeAnnotation bool
 
+	// NoInterpolation decides if we will interpolate environment variables in the compose file.
+	NoInterpolate bool
+
 	// MultipleContainerMode which enables creating multi containers in a single pod is a developing function.
 	// default is false
 	MultipleContainerMode bool
@@ -121,6 +124,7 @@ var convertCmd = &cobra.Command{
 			YAMLIndent:                  ConvertYAMLIndent,
 			Profiles:                    ConvertProfiles,
 			WithKomposeAnnotation:       WithKomposeAnnotation,
+			NoInterpolate:               NoInterpolate,
 			MultipleContainerMode:       MultipleContainerMode,
 			ServiceGroupMode:            ServiceGroupMode,
 			ServiceGroupName:            ServiceGroupName,
@@ -202,6 +206,7 @@ func init() {
 	convertCmd.Flags().BoolVar(&GenerateNetworkPolicies, "generate-network-policies", false, "Specify whether to generate network policies or not")
 
 	convertCmd.Flags().BoolVar(&WithKomposeAnnotation, "with-kompose-annotation", true, "Add kompose annotations to generated resource")
+	convertCmd.Flags().BoolVar(&NoInterpolate, "no-interpolate", false, "Keep environment variable names in the Compose file")
 
 	// Deprecated commands
 	convertCmd.Flags().BoolVar(&ConvertEmptyVols, "emptyvols", false, "Use Empty Volumes. Do not generate PVCs")
