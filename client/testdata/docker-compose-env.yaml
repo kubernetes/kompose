@@ -1,0 +1,9 @@
+version: "3"
+services:
+  redis:
+    image: redis
+    command: redis-server --requirepass $$REDIS_PASSWORD
+    healthcheck:
+      test: redis-cli -a $$REDIS_PASSWORD --raw incr ping
+    ports:
+      - 6379

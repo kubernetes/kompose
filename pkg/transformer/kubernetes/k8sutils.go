@@ -1030,9 +1030,12 @@ func FormatResourceName(name string) string {
 
 // GetContainerArgs update the interpolation of env variables if exists.
 // example: [curl, $PROTOCOL://$DOMAIN] => [curl, $(PROTOCOL)://$(DOMAIN)]
+//
+// > Environment variable names consist of letters, numbers, underscores, dots, or hyphens, but the first character cannot be a digit
+// https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/#using-environment-variables-inside-of-your-config
 func GetContainerArgs(service kobject.ServiceConfig) []string {
 	var args []string
-	re := regexp.MustCompile(`\$([a-zA-Z0-9]*)`)
+	re := regexp.MustCompile(`\$([a-zA-Z0-9.-_]+)`)
 	for _, arg := range service.Args {
 		arg = re.ReplaceAllString(arg, `$($1)`)
 		args = append(args, arg)
