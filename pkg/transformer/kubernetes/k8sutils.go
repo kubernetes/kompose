@@ -39,7 +39,6 @@ import (
 	deployapi "github.com/openshift/api/apps/v1"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
 	hpa "k8s.io/api/autoscaling/v2beta2"
 	api "k8s.io/api/core/v1"
@@ -47,6 +46,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+
+	yaml "sigs.k8s.io/yaml"
 )
 
 // Default values for Horizontal Pod Autoscaler (HPA)
@@ -227,7 +228,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 				return err
 			}
 
-			data, err := marshal(versionedObject, opt.GenerateJSON, opt.YAMLIndent)
+			data, err := marshal(versionedObject, opt.GenerateJSON)
 			if err != nil {
 				return fmt.Errorf("error in marshalling the List: %v", err)
 			}
@@ -256,7 +257,7 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 			if err != nil {
 				return err
 			}
-			data, err := marshal(versionedObject, opt.GenerateJSON, opt.YAMLIndent)
+			data, err := marshal(versionedObject, opt.GenerateJSON)
 			if err != nil {
 				return err
 			}
@@ -301,17 +302,20 @@ func PrintList(objects []runtime.Object, opt kobject.ConvertOptions) error {
 }
 
 // marshal object runtime.Object and return byte array
-func marshal(obj runtime.Object, jsonFormat bool, indent int) (data []byte, err error) {
-	// convert data to yaml or json
-	if jsonFormat {
-		data, err = json.MarshalIndent(obj, "", "  ")
-	} else {
-		data, err = marshalWithIndent(obj, indent)
-	}
+func marshal(obj runtime.Object, jsonFormat bool) ([]byte, error) {
+	data, err := json.Marshal(obj)
 	if err != nil {
-		data = nil
+		return nil, err
 	}
-	return
+
+	if !jsonFormat {
+		data, err = yaml.JSONToYAML(data)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return data, nil
 }
 
 // remove empty map[string]interface{} strings from the object
@@ -352,46 +356,6 @@ func removeEmptyInterfaces(obj interface{}) interface{} {
 	default:
 		return v
 	}
-}
-
-// Convert JSON to YAML.
-func jsonToYaml(j []byte, spaces int) ([]byte, error) {
-	// Convert the JSON to an object.
-	var jsonObj interface{}
-	// We are using yaml.Unmarshal here (instead of json.Unmarshal) because the
-	// Go JSON library doesn't try to pick the right number type (int, float,
-	// etc.) when unmarshling to interface{}, it just picks float64
-	// universally. go-yaml does go through the effort of picking the right
-	// number type, so we can preserve number type throughout this process.
-	err := yaml.Unmarshal(j, &jsonObj)
-	if err != nil {
-		return nil, err
-	}
-	jsonObj = removeEmptyInterfaces(jsonObj)
-	var b bytes.Buffer
-	encoder := yaml.NewEncoder(&b)
-	encoder.SetIndent(spaces)
-	if err := encoder.Encode(jsonObj); err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
-
-	// Marshal this object into YAML.
-	// return yaml.Marshal(jsonObj)
-}
-
-func marshalWithIndent(o interface{}, indent int) ([]byte, error) {
-	j, err := json.Marshal(o)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling into JSON: %s", err.Error())
-	}
-
-	y, err := jsonToYaml(j, indent)
-	if err != nil {
-		return nil, fmt.Errorf("error converting JSON to YAML: %s", err.Error())
-	}
-
-	return y, nil
 }
 
 // Convert object to versioned object

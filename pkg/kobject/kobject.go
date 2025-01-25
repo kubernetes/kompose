@@ -83,8 +83,6 @@ type ConvertOptions struct {
 
 	Server string
 
-	YAMLIndent int
-
 	WithKomposeAnnotation bool
 
 	MultipleContainerMode   bool
