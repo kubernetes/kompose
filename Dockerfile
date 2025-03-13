@@ -1,5 +1,5 @@
 # Alpine Builder
-FROM alpine as builder
+FROM alpine AS builder
 
 RUN apk add --no-cache curl
 COPY ./build/VERSION VERSION
