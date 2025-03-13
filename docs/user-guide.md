@@ -140,7 +140,7 @@ Labels are an important kompose concept as they allow you to add Kubernetes modi
 | `String` | `1Gi` |
 | [`kompose.volume.storage-class-name`](#komposevolumestorage-class-name) | StorageClassName for provisioning volumes |
 | `String` | `standard` |
-| [`kompose.volume.sub-path`](#komposevolumesub-path) | Subpath inside the mounted volume |
+| [`kompose.volume.subpath`](#komposevolumesubpath) | Subpath inside the mounted volume |
 | `String` | `/data` |
 | [`kompose.volume.type`](#komposevolumetype) | Type of Kubernetes volume |
 | `String` | `configMap`, `persistentVolumeClaim`, `emptyDir`, `hostPath` |
@@ -541,14 +541,14 @@ services:
       - db-data:/var/lib/postgresql/data
 ```
 
-### kompose.volume.sub-path
+### kompose.volume.subpath
 
 ```yaml
 services:
   pgadmin:
     image: postgres
     labels:
-      kompose.volume.sub-path: pg-data
+      kompose.volume.subpath: pg-data
 ```
 
 ### kompose.volume.type
