@@ -95,5 +95,5 @@ docker build -t kompose https://github.com/kubernetes/kompose.git\#main
 To run the built image against the current directory, run the following command:
 
 ```bash
-docker run --rm -it -v $PWD:/opt kompose sh -c "cd /opt && kompose convert"
+docker run --rm -it -v $PWD:/opt -w /opt kompose kompose convert
 ```
