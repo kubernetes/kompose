@@ -875,7 +875,7 @@ func TestFormatEnvName(t *testing.T) {
 			args: args{
 				name: "random/test/v1",
 			},
-			want: "v1",
+			want: "random-test-v1",
 		},
 		{
 			name: "check that ./ is removed",
@@ -885,7 +885,7 @@ func TestFormatEnvName(t *testing.T) {
 			want: "random",
 		},
 		{
-			name: "check that ./ is removed",
+			name: "check that everything after $ is removed",
 			args: args{
 				name: "abcdefghijklnmopqrstuvxyzabcdefghijklmnopqrstuvwxyzabcdejghijkl$Hereisadditional",
 			},
@@ -897,7 +897,7 @@ func TestFormatEnvName(t *testing.T) {
 				name:        "src/app/.env",
 				serviceName: "app",
 			},
-			want: "app-env",
+			want: "src-app--env",
 		},
 	}
 	for _, tt := range tests {

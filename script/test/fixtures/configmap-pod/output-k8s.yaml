@@ -23,22 +23,11 @@ metadata:
   name: redis
 spec:
   containers:
-    - env:
-        - name: ALLOW_EMPTY_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              key: ALLOW_EMPTY_PASSWORD
-              name: foo-env
-        - name: BAR
-          valueFrom:
-            configMapKeyRef:
-              key: BAR
-              name: bar-env
-        - name: FOO
-          valueFrom:
-            configMapKeyRef:
-              key: FOO
-              name: bar-env
+    - envFrom:
+        - configMapRef:
+            name: foo-env
+        - configMapRef:
+            name: bar-env
       image: bitnami/redis:latest
       name: redis
       ports:
