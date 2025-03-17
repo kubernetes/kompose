@@ -973,12 +973,9 @@ func GetContentFromFile(file string) (string, error) {
 // FormatEnvName format env name
 func FormatEnvName(name string, serviceName string) string {
 	envName := strings.Trim(name, "./")
-	// only take string after the last slash only if the string contains a slash
-	if strings.Contains(envName, "/") {
-		envName = envName[strings.LastIndex(envName, "/")+1:]
-	}
 
-	envName = strings.Replace(envName, ".", "-", -1)
+	// replace all non-alphanumerical characters with dashes to have a unique envName (env filename could be used multiple times)
+	envName = regexp.MustCompile(`[^a-zA-Z0-9]`).ReplaceAllString(envName, "-")
 	envName = getUsableNameEnvFile(envName, serviceName)
 	return envName
 }
