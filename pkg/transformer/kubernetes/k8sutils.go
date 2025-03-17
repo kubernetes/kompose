@@ -547,7 +547,7 @@ func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, serv
 // UpdateKubernetesObjects loads configurations to k8s objects
 func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, objects *[]runtime.Object) error {
 	// Configure the environment variables.
-	envs, err := ConfigEnvs(service, opt)
+	envs, envsFrom, err := ConfigEnvs(service, opt)
 	if err != nil {
 		return errors.Wrap(err, "Unable to load env variables")
 	}
@@ -589,6 +589,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	fillTemplate := func(template *api.PodTemplateSpec) error {
 		template.Spec.Containers[0].Name = GetContainerName(service)
 		template.Spec.Containers[0].Env = envs
+		template.Spec.Containers[0].EnvFrom = envsFrom
 		template.Spec.Containers[0].Command = service.Command
 		template.Spec.Containers[0].Args = GetContainerArgs(service)
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
