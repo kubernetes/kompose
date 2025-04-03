@@ -1240,7 +1240,7 @@ func isConfigFile(filePath string) (useConfigMap bool, readonly bool, skip bool)
 
 	fi, err := os.Stat(filePath)
 	if err != nil {
-		log.Warnf("File don't exist or failed to check if the directory is empty: %v", err)
+		log.Warnf("File doesn't exist or failed to check if the directory is empty: %v", err)
 		// dir/file not exist
 		// here not assigned skip to true,
 		// maybe dont want to skip
