@@ -17,9 +17,14 @@ var completion = &cobra.Command{
 
 Auto completion supports bash, zsh and fish. Output is to STDOUT.
 
-source <(kompose completion bash)
-source <(kompose completion zsh)
-kompose completion fish | source
+# Enable auto-completion in bash  
+echo "source <(kompose completion bash)" >> $HOME/.bashrc
+
+# Enable auto-completion in zsh  
+echo "source <(kompose completion zsh)" >> $HOME/.zshrc 
+
+# Enable auto-completion in fish 
+echo "kompose completion fish | source" >> $HOME/.config/fish/config.fish
 
 Will load the shell completion code.
 	`,
