@@ -1153,18 +1153,25 @@ func (k *Kubernetes) ConfigPVCVolumeSource(name string, readonly bool) *api.Volu
 }
 
 // ConfigEnvs configures the environment variables.
-func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]api.EnvVar, error) {
+func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]api.EnvVar, []api.EnvFromSource, error) {
 	envs := transformer.EnvSort{}
+	envsFrom := []api.EnvFromSource{}
 
 	keysFromEnvFile := make(map[string]bool)
-
-	// If there is an env_file, use ConfigMaps and ignore the environment variables
-	// already specified
+	// If there is an env_file, use ConfigMaps and add them using EnvFrom
 
 	if len(service.EnvFile) > 0 {
 		// Load each env_file
 		for _, file := range service.EnvFile {
 			envName := FormatEnvName(file, service.Name)
+
+			envsFrom = append(envsFrom, api.EnvFromSource{
+				ConfigMapRef: &api.ConfigMapEnvSource{
+					LocalObjectReference: api.LocalObjectReference{
+						Name: envName,
+					},
+				},
+			})
 
 			// Load environment variables from file
 			workDir, err := transformer.GetComposeFileDir(opt.InputFiles)
@@ -1173,21 +1180,11 @@ func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]ap
 			}
 			envLoad, err := GetEnvsFromFile(filepath.Join(workDir, file))
 			if err != nil {
-				return envs, errors.Wrap(err, "Unable to read env_file")
+				return envs, envsFrom, errors.Wrap(err, "Unable to read env_file")
 			}
 
-			// Add configMapKeyRef to each environment variable
+			// Mark environment variable source to env file
 			for k := range envLoad {
-				envs = append(envs, api.EnvVar{
-					Name: k,
-					ValueFrom: &api.EnvVarSource{
-						ConfigMapKeyRef: &api.ConfigMapKeySelector{
-							LocalObjectReference: api.LocalObjectReference{
-								Name: envName,
-							},
-							Key: k,
-						}},
-				})
 				keysFromEnvFile[k] = true
 			}
 		}
@@ -1210,7 +1207,7 @@ func ConfigEnvs(service kobject.ServiceConfig, opt kobject.ConvertOptions) ([]ap
 	// we need this because envs are not populated in any random order
 	// this sorting ensures they are populated in a particular order
 	sort.Stable(envs)
-	return envs, nil
+	return envs, envsFrom, nil
 }
 
 // ConfigAffinity configures the Affinity.
