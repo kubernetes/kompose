@@ -219,6 +219,38 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 	return svc
 }
 
+// InitConfigMapForEnvWithLookup initializes a ConfigMap object from an env_file with variable interpolation support
+// using the provided lookup function to resolve variable references like ${VAR} or ${VAR:-default}
+func (k *Kubernetes) InitConfigMapForEnvWithLookup(name string, opt kobject.ConvertOptions, envFile string, lookup func(key string) (string, bool)) *api.ConfigMap {
+	workDir, err := transformer.GetComposeFileDir(opt.InputFiles)
+	if err != nil {
+		log.Fatalf("Unable to get compose file directory: %s", err)
+	}
+	envs, err := LoadEnvFiles(filepath.Join(workDir, envFile), lookup)
+	if err != nil {
+		log.Fatalf("Unable to retrieve env file: %s", err)
+	}
+
+	// Remove root pathing
+	// replace all other slashes / periods
+	envName := FormatEnvName(envFile, name)
+
+	// In order to differentiate files, we append to the name and remove '.env' if applicable from the file name
+	configMap := &api.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   envName,
+			Labels: transformer.ConfigLabels(name + "-" + envName),
+		},
+		Data: envs,
+	}
+
+	return configMap
+}
+
 // InitConfigMapForEnv initializes a ConfigMap object
 func (k *Kubernetes) InitConfigMapForEnv(name string, opt kobject.ConvertOptions, envFile string) *api.ConfigMap {
 	workDir, err := transformer.GetComposeFileDir(opt.InputFiles)
@@ -1326,13 +1358,8 @@ func (k *Kubernetes) CreateWorkloadAndConfigMapObjects(name string, service kobj
 		objects = append(objects, k.InitSS(name, service, replica))
 	}
 
-	if len(service.EnvFile) > 0 {
-		for _, envFile := range service.EnvFile {
-			configMap := k.InitConfigMapForEnv(name, opt, envFile)
-			objects = append(objects, configMap)
-		}
-	}
-
+	envConfigMaps := k.PargeEnvFiletoConfigMaps(name, service, opt)
+	objects = append(objects, envConfigMaps...)
 	return objects
 }
 
@@ -1671,13 +1698,8 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				pod := k.InitPod(name, service)
 				objects = append(objects, pod)
 			}
-
-			if len(service.EnvFile) > 0 {
-				for _, envFile := range service.EnvFile {
-					configMap := k.InitConfigMapForEnv(name, opt, envFile)
-					objects = append(objects, configMap)
-				}
-			}
+			envConfigMaps := k.PargeEnvFiletoConfigMaps(name, service, opt)
+			objects = append(objects, envConfigMaps...)
 		} else {
 			objects = k.CreateWorkloadAndConfigMapObjects(name, service, opt)
 		}
@@ -1775,4 +1797,20 @@ func (k *Kubernetes) configHorizontalPodScaler(name string, service kobject.Serv
 	hpa := createHPAResources(name, &service)
 	*objects = append(*objects, &hpa)
 	return nil
+}
+
+func (k *Kubernetes) PargeEnvFiletoConfigMaps(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions) []runtime.Object {
+	envs := make(map[string]string)
+	for _, env := range service.Environment {
+		envs[env.Name] = env.Value
+	}
+	configMaps := make([]runtime.Object, 0)
+	for _, envFile := range service.EnvFile {
+		configMap := k.InitConfigMapForEnvWithLookup(name, opt, envFile, func(key string) (string, bool) {
+			v, ok := envs[key]
+			return v, ok
+		})
+		configMaps = append(configMaps, configMap)
+	}
+	return configMaps
 }
