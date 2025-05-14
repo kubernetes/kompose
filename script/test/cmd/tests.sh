@@ -228,6 +228,14 @@ os_output="$KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/output-os.ya
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
 convert::expect_success_and_warning "$os_cmd" "$os_output" || exit 1
 
+# Test load .env file by default
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/env-dotenv/compose.yaml convert --stdout --with-kompose-annotation=false"
+os_cmd="kompose  --provider=openshift -f  $KOMPOSE_ROOT/script/test/fixtures/env-dotenv/compose.yaml  convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/env-dotenv/output-k8s.yaml"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/env-dotenv/output-os.yaml"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success_and_warning "$os_cmd" "$os_output" || exit 1
+
 # Test single file output feature
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/single-file-output/compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/single-file-output/output-k8s.yaml"

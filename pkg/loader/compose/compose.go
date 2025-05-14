@@ -163,6 +163,8 @@ func (c *Compose) LoadFile(files []string, profiles []string, noInterpolate bool
 		cli.WithWorkingDirectory(workingDir),
 		cli.WithInterpolation(!noInterpolate),
 		cli.WithProfiles(profiles),
+		cli.WithEnvFiles([]string{}...),
+		cli.WithDotEnv,
 	)
 	if err != nil {
 		return kobject.KomposeObject{}, errors.Wrap(err, "Unable to create compose options")

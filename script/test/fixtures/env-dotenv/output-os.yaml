@@ -1,0 +1,96 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: minio
+  name: minio
+spec:
+  ports:
+    - name: "9000"
+      port: 9000
+      targetPort: 9000
+    - name: "9001"
+      port: 9001
+      targetPort: 9001
+  selector:
+    io.kompose.service: minio
+
+---
+apiVersion: v1
+data:
+  MINIO_CONSOLE_PORT: "9001"
+  MINIO_PASSWORD: infini_rag_flow
+  MINIO_PORT: "9000"
+  MINIO_USER: rag_flow
+  TIMEZONE: Asia/Shanghai
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: minio-env
+  name: env
+
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    io.kompose.service: minio
+  name: minio
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: minio
+  template:
+    metadata:
+      labels:
+        io.kompose.service: minio
+    spec:
+      containers:
+        - env:
+            - name: MINIO_ROOT_PASSWORD
+              value: infini_rag_flow
+            - name: MINIO_ROOT_USER
+              value: rag_flow
+            - name: TZ
+              value: Asia/Shanghai
+          envFrom:
+            - configMapRef:
+                name: env
+          image: ' '
+          name: minio
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+            - containerPort: 9001
+              protocol: TCP
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - minio
+        from:
+          kind: ImageStreamTag
+          name: minio:RELEASE.2023-12-20T01-00-02Z
+      type: ImageChange
+
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    io.kompose.service: minio
+  name: minio
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - from:
+        kind: DockerImage
+        name: quay.io/minio/minio:RELEASE.2023-12-20T01-00-02Z
+      name: RELEASE.2023-12-20T01-00-02Z
+      referencePolicy:
+        type: ""
