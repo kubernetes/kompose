@@ -43,7 +43,6 @@ func (k *Kompose) Convert(options ConvertOptions) ([]runtime.Object, error) {
 		Controller:                  k.getController(options),
 		IsReplicaSetFlag:            *options.Replicas != 0,
 		IsDeploymentConfigFlag:      k.createDeploymentConfig(options),
-		YAMLIndent:                  2,
 		WithKomposeAnnotation:       *options.WithKomposeAnnotations,
 		MultipleContainerMode:       k.multiContainerMode(options),
 		ServiceGroupMode:            k.serviceGroupMode(options),
