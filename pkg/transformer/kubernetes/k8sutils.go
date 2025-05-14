@@ -31,6 +31,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/compose-spec/compose-go/v2/dotenv"
 	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/joho/godotenv"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -960,6 +961,10 @@ func GetEnvsFromFile(file string) (map[string]string, error) {
 	}
 
 	return envLoad, nil
+}
+
+func LoadEnvFiles(file string, lookup func(key string) (string, bool)) (map[string]string, error) {
+	return dotenv.ReadWithLookup(lookup, file)
 }
 
 // GetContentFromFile gets the content from the file..
