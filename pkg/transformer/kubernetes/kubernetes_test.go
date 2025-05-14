@@ -19,6 +19,8 @@ package kubernetes
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -36,6 +38,7 @@ import (
 	networkingv1beta1 "k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
@@ -1252,5 +1255,81 @@ func newSecrets(stringsSecretConfig SecretsConfig) types.Secrets {
 			Name: stringsSecretConfig.nameSecret,
 			File: stringsSecretConfig.pathFile,
 		},
+	}
+}
+
+// TestPargeEnvFiletoConfigMaps tests the conversion of environment variable files to ConfigMap objects
+func TestPargeEnvFiletoConfigMaps(t *testing.T) {
+	// Prepare a temp .env file for the expression test
+	tempFile, err := os.CreateTemp("", ".env")
+	if err != nil {
+		t.Fatalf("Failed to create temp env file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+	content := []byte(`FOO=bar
+BAR=${FOO}_baz
+DOC_ENGINE=${DOC_ENGINE:-elasticsearch}
+COMPOSE_PROFILES=${DOC_ENGINE}
+UNDEFINED_VAR=${MISSING_VAR:-default_value}
+`)
+	if _, err := tempFile.Write(content); err != nil {
+		t.Fatalf("Failed to write to temp env file: %v", err)
+	}
+	tempFile.Close()
+
+	tempFileName := filepath.Base(tempFile.Name())
+	testCases := map[string]struct {
+		service kobject.ServiceConfig
+		opt     kobject.ConvertOptions
+		want    int
+		check   func(t *testing.T, cms []runtime.Object)
+	}{
+		"Env file with variable expressions": {
+			service: kobject.ServiceConfig{
+				Name: "test-app",
+				Environment: []kobject.EnvVar{
+					{
+						Name:  "DOC_ENGINE",
+						Value: "test-env",
+					},
+				},
+				EnvFile: []string{tempFileName},
+			},
+			opt:  kobject.ConvertOptions{InputFiles: []string{tempFile.Name()}},
+			want: 1,
+			check: func(t *testing.T, cms []runtime.Object) {
+				cm, ok := cms[0].(*api.ConfigMap)
+				if !ok {
+					t.Errorf("Returned object is not a ConfigMap")
+					return
+				}
+				if cm.Data["FOO"] != "bar" {
+					t.Errorf("Expected FOO=bar, got %s", cm.Data["FOO"])
+				}
+				if cm.Data["BAR"] != "bar_baz" {
+					t.Errorf("Expected BAR=bar_baz, got %s", cm.Data["BAR"])
+				}
+				if cm.Data["DOC_ENGINE"] != "test-env" {
+					t.Errorf("Expected DOC_ENGINE=test-env, got %s", cm.Data["DOC_ENGINE"])
+				}
+				if cm.Data["COMPOSE_PROFILES"] != "test-env" {
+					t.Errorf("Expected COMPOSE_PROFILES=test-env, got %s", cm.Data["COMPOSE_PROFILES"])
+				}
+				if cm.Data["UNDEFINED_VAR"] != "default_value" {
+					t.Errorf("Expected UNDEFINED_VAR=default_value, got %s", cm.Data["UNDEFINED_VAR"])
+				}
+			},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			k := Kubernetes{}
+			cms := k.PargeEnvFiletoConfigMaps(tc.service.Name, tc.service, tc.opt)
+			if len(cms) != tc.want {
+				t.Errorf("Expected %d ConfigMaps, got %d", tc.want, len(cms))
+			}
+			tc.check(t, cms)
+		})
 	}
 }

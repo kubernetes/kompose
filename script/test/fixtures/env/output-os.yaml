@@ -62,17 +62,9 @@ spec:
         io.kompose.service: another-namenode
     spec:
       containers:
-        - env:
-            - name: BAR
-              valueFrom:
-                configMapKeyRef:
-                  key: BAR
-                  name: hadoop-hive-namenode-env
-            - name: FOO
-              valueFrom:
-                configMapKeyRef:
-                  key: FOO
-                  name: hadoop-hive-namenode-env
+        - envFrom:
+            - configMapRef:
+                name: hadoop-hive-namenode-env
           image: ' '
           name: another-namenode
           ports:
@@ -129,18 +121,11 @@ spec:
     spec:
       containers:
         - env:
-            - name: BAR
-              valueFrom:
-                configMapKeyRef:
-                  key: BAR
-                  name: hadoop-hive-namenode-env
             - name: CLUSTER_NAME
               value: test
-            - name: FOO
-              valueFrom:
-                configMapKeyRef:
-                  key: FOO
-                  name: hadoop-hive-namenode-env
+          envFrom:
+            - configMapRef:
+                name: hadoop-hive-namenode-env
           image: ' '
           name: namenode
           ports:

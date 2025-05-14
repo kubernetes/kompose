@@ -340,12 +340,8 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 				objects = append(objects, pod)
 			}
 
-			if len(service.EnvFile) > 0 {
-				for _, envFile := range service.EnvFile {
-					configMap := o.InitConfigMapForEnv(name, opt, envFile)
-					objects = append(objects, configMap)
-				}
-			}
+			envConfigMaps := o.PargeEnvFiletoConfigMaps(name, service, opt)
+			objects = append(objects, envConfigMaps...)
 		} else {
 			objects = o.CreateWorkloadAndConfigMapObjects(name, service, opt)
 

@@ -31,6 +31,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/compose-spec/compose-go/v2/dotenv"
 	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/joho/godotenv"
 	"github.com/kubernetes/kompose/pkg/kobject"
@@ -547,7 +548,7 @@ func (k *Kubernetes) UpdateKubernetesObjectsMultipleContainers(name string, serv
 // UpdateKubernetesObjects loads configurations to k8s objects
 func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.ServiceConfig, opt kobject.ConvertOptions, objects *[]runtime.Object) error {
 	// Configure the environment variables.
-	envs, err := ConfigEnvs(service, opt)
+	envs, envsFrom, err := ConfigEnvs(service, opt)
 	if err != nil {
 		return errors.Wrap(err, "Unable to load env variables")
 	}
@@ -589,6 +590,7 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 	fillTemplate := func(template *api.PodTemplateSpec) error {
 		template.Spec.Containers[0].Name = GetContainerName(service)
 		template.Spec.Containers[0].Env = envs
+		template.Spec.Containers[0].EnvFrom = envsFrom
 		template.Spec.Containers[0].Command = service.Command
 		template.Spec.Containers[0].Args = GetContainerArgs(service)
 		template.Spec.Containers[0].WorkingDir = service.WorkingDir
@@ -961,6 +963,10 @@ func GetEnvsFromFile(file string) (map[string]string, error) {
 	return envLoad, nil
 }
 
+func LoadEnvFiles(file string, lookup func(key string) (string, bool)) (map[string]string, error) {
+	return dotenv.ReadWithLookup(lookup, file)
+}
+
 // GetContentFromFile gets the content from the file..
 func GetContentFromFile(file string) (string, error) {
 	fileBytes, err := os.ReadFile(file)
@@ -973,12 +979,9 @@ func GetContentFromFile(file string) (string, error) {
 // FormatEnvName format env name
 func FormatEnvName(name string, serviceName string) string {
 	envName := strings.Trim(name, "./")
-	// only take string after the last slash only if the string contains a slash
-	if strings.Contains(envName, "/") {
-		envName = envName[strings.LastIndex(envName, "/")+1:]
-	}
 
-	envName = strings.Replace(envName, ".", "-", -1)
+	// replace all non-alphanumerical characters with dashes to have a unique envName (env filename could be used multiple times)
+	envName = regexp.MustCompile(`[^a-zA-Z0-9]`).ReplaceAllString(envName, "-")
 	envName = getUsableNameEnvFile(envName, serviceName)
 	return envName
 }
