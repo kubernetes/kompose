@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 
@@ -115,18 +116,6 @@ func newServiceConfigWithServiceVolumeMount(volumeMountSubPathValue string) kobj
 	}
 }
 
-func equalStringSlice(s1, s2 []string) bool {
-	if len(s1) != len(s2) {
-		return false
-	}
-	for i := range s1 {
-		if s1[i] != s2[i] {
-			return false
-		}
-	}
-	return true
-}
-
 func equalEnv(kobjectEnvs []kobject.EnvVar, k8sEnvs []api.EnvVar) bool {
 	if len(kobjectEnvs) != len(k8sEnvs) {
 		return false
@@ -198,13 +187,13 @@ func checkPodTemplate(config kobject.ServiceConfig, template api.PodTemplateSpec
 	if !equalPorts(config.Port, container.Ports) {
 		return fmt.Errorf("Found different container ports: %#v vs. %#v", config.Port, container.Ports)
 	}
-	if !equalStringSlice(config.Command, container.Command) {
+	if !slices.Equal(config.Command, container.Command) {
 		return fmt.Errorf("Found different container cmd: %#v vs. %#v", config.Command, container.Command)
 	}
 	if config.WorkingDir != container.WorkingDir {
 		return fmt.Errorf("Found different container WorkingDir: %#v vs. %#v", config.WorkingDir, container.WorkingDir)
 	}
-	if !equalStringSlice(config.Args, container.Args) {
+	if !slices.Equal(config.Args, container.Args) {
 		return fmt.Errorf("Found different container args: %#v vs. %#v", config.Args, container.Args)
 	}
 	if len(template.Spec.Volumes) == 0 || len(template.Spec.Volumes[0].Name) == 0 || template.Spec.Volumes[0].VolumeSource.PersistentVolumeClaim == nil && template.Spec.Volumes[0].ConfigMap == nil {
