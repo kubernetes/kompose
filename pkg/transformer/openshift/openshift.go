@@ -408,6 +408,9 @@ func (o *OpenShift) Transform(komposeObject kobject.KomposeObject, opt kobject.C
 					log.Warningf("Create multiple service to avoid using mixed protocol in the same service when it's loadbalancer type")
 				}
 			} else {
+				if err = service.CheckServiceType(); err != nil {
+					return nil, errors.Wrap(err, "CheckServiceType failed")
+				}
 				svc := o.CreateService(name, service)
 				objects = append(objects, svc)
 
