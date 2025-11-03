@@ -182,7 +182,13 @@ func SecurityContext(name string, service kobject.ServiceConfig) PodSpecOption {
 
 		// update template only if securityContext is not empty
 		if *securityContext != (api.SecurityContext{}) {
-			podSpec.Containers[0].SecurityContext = securityContext
+			//podSpec.Containers[0].SecurityContext = securityContext
+			for i := range podSpec.Containers {
+				if podSpec.Containers[i].Name == GetContainerName(service) {
+					podSpec.Containers[i].SecurityContext = securityContext
+				}
+			}
+
 		}
 		if !reflect.DeepEqual(*podSecurityContext, api.PodSecurityContext{}) {
 			podSpec.SecurityContext = podSecurityContext
@@ -365,3 +371,4 @@ func (podSpec *PodSpec) Append(ops ...PodSpecOption) *PodSpec {
 func (podSpec *PodSpec) Get() api.PodSpec {
 	return podSpec.PodSpec
 }
+
