@@ -1,0 +1,18 @@
+services:
+  dind:
+    container_name: dind
+    image: docker:28.1.1-dind
+    labels:
+      kompose.service.group: cup
+    ports:
+      - 2375:2375
+    privileged: True
+  cup:
+    container_name: cup
+    depends_on:
+      - dind
+    image: ghcr.io/sergi0g/cup:v3.4.0
+    labels:
+      kompose.service.group: cup
+    ports:
+      - 8000:8000

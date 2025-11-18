@@ -1,0 +1,61 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: cup
+  name: cup
+spec:
+  ports:
+    - name: "8000"
+      port: 8000
+      targetPort: 8000
+  selector:
+    io.kompose.service: cup
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: cup
+  name: dind
+spec:
+  ports:
+    - name: "2375"
+      port: 2375
+      targetPort: 2375
+  selector:
+    io.kompose.service: cup
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: cup
+  name: cup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: cup
+  template:
+    metadata:
+      labels:
+        io.kompose.service: cup
+    spec:
+      containers:
+        - image: ghcr.io/sergi0g/cup:v3.4.0
+          name: cup
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          securityContext:
+            privileged: true
+        - image: docker:28.1.1-dind
+          name: dind
+          ports:
+            - containerPort: 2375
+              protocol: TCP
+      restartPolicy: Always---
