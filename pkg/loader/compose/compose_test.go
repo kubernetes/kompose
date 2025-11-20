@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -238,6 +239,102 @@ func TestLoadV3Ports(t *testing.T) {
 			got := loadPorts(tt.ports, tt.expose)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("loadV3Ports() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestLoadExtraHosts(t *testing.T) {
+	for _, tt := range []struct {
+		desc       string
+		extraHosts types.HostsList
+		want       []kobject.HostAliases
+	}{
+		{
+			desc: "single host with IPv4",
+			extraHosts: types.HostsList{
+				"example.com": []string{"192.168.1.100"},
+			},
+			want: []kobject.HostAliases{
+				{IP: "192.168.1.100", Hostnames: []string{"example.com"}},
+			},
+		},
+		{
+			desc: "multiple hosts with the same IP",
+			extraHosts: types.HostsList{
+				"example.com":     []string{"192.168.1.100"},
+				"api.example.com": []string{"192.168.1.100"},
+			},
+			want: []kobject.HostAliases{
+				{IP: "192.168.1.100", Hostnames: []string{"example.com", "api.example.com"}},
+			},
+		},
+		{
+			desc: "multiple hosts with different IPs",
+			extraHosts: types.HostsList{
+				"host1.com": []string{"192.168.1.100"},
+				"host2.com": []string{"192.168.1.101"},
+			},
+			want: []kobject.HostAliases{
+				{IP: "192.168.1.100", Hostnames: []string{"host1.com"}},
+				{IP: "192.168.1.101", Hostnames: []string{"host2.com"}},
+			},
+		},
+		{
+			desc: "IPv6 addresses",
+			extraHosts: types.HostsList{
+				"ipv6.example.com": []string{"2001:db8::1"},
+				"localhost6":       []string{"::1"},
+			},
+			want: []kobject.HostAliases{
+				{IP: "2001:db8::1", Hostnames: []string{"ipv6.example.com"}},
+				{IP: "::1", Hostnames: []string{"localhost6"}},
+			},
+		},
+		{
+			desc: "mixed IPv4 and IPv6",
+			extraHosts: types.HostsList{
+				"ipv4.example.com": []string{"192.168.1.100"},
+				"ipv6.example.com": []string{"2001:db8::1"},
+			},
+			want: []kobject.HostAliases{
+				{IP: "192.168.1.100", Hostnames: []string{"ipv4.example.com"}},
+				{IP: "2001:db8::1", Hostnames: []string{"ipv6.example.com"}},
+			},
+		},
+		{
+			desc: "single host with multiple IPs",
+			extraHosts: types.HostsList{
+				"multi.example.com": []string{"192.168.1.100", "10.0.0.1"},
+			},
+			want: []kobject.HostAliases{
+				{IP: "192.168.1.100", Hostnames: []string{"multi.example.com"}},
+				{IP: "10.0.0.1", Hostnames: []string{"multi.example.com"}},
+			},
+		},
+		{
+			desc:       "empty extra hosts",
+			extraHosts: types.HostsList{},
+			want:       []kobject.HostAliases{},
+		},
+	} {
+		t.Run(tt.desc, func(t *testing.T) {
+			got := loadExtraHosts(tt.extraHosts)
+
+			sortHostAliases := func(ha []kobject.HostAliases) {
+				for i := range ha {
+					sort.Strings(ha[i].Hostnames)
+				}
+				sort.Slice(ha, func(i, j int) bool {
+					return ha[i].IP < ha[j].IP
+				})
+			}
+
+			sortHostAliases(got)
+			sortHostAliases(tt.want)
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("loadExtraHosts() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

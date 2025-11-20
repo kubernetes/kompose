@@ -19,6 +19,7 @@ package compose
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"reflect"
 	"strconv"
@@ -314,6 +315,31 @@ func loadPorts(ports []types.ServicePortConfig, expose []string) []kobject.Ports
 	return komposePorts
 }
 
+// Convert extra hosts from compose to kobject.HostAliases
+func loadExtraHosts(extraHosts types.HostsList) []kobject.HostAliases {
+	ipToHosts := make(map[string][]string)
+
+	for hostname, ips := range extraHosts {
+		for _, ip := range ips {
+			if net.ParseIP(ip) == nil {
+				log.Warnf("Extra hosts contains invalid IP address %q for hostname %q. Kubernetes HostAlias requires valid IPv4 or IPv6 address.", ip, hostname)
+				continue
+			}
+			ipToHosts[ip] = append(ipToHosts[ip], hostname)
+		}
+	}
+
+	hostAliases := make([]kobject.HostAliases, 0, len(ipToHosts))
+	for ip, hostnames := range ipToHosts {
+		hostAliases = append(hostAliases, kobject.HostAliases{
+			IP:        ip,
+			Hostnames: hostnames,
+		})
+	}
+
+	return hostAliases
+}
+
 /*
 	Convert the HealthCheckConfig as designed by Docker to
 
@@ -586,6 +612,9 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 		if err := parseKomposeLabels(composeServiceConfig.Labels, &serviceConfig); err != nil {
 			return kobject.KomposeObject{}, err
 		}
+
+		// Parse extra hosts
+		serviceConfig.HostAliases = loadExtraHosts(composeServiceConfig.ExtraHosts)
 
 		// Log if the name will been changed
 		if normalizeServiceNames(name) != name {
