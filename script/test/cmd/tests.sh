@@ -83,6 +83,10 @@ convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixture
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/pvc-request-size/compose.yaml convert -o $TEMP_DIR/output_dir2/output-k8s.json -j --pvc-request-size=300Mi" "$TEMP_DIR/output_dir2/output-k8s.json"
 convert::check_artifacts_generated "kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/pvc-request-size/compose.yaml convert -o $TEMP_DIR/output_dir2/output-os.json -j --pvc-request-size=300Mi" "$TEMP_DIR/output_dir2/output-os.json"
 
+
+
+
+
 ######
 # Test the path of build image
 # Test build v2 absolute compose file
@@ -417,4 +421,10 @@ convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 # Test deploy.labels in compose.yaml appears in the output
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/deploy/labels/compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/deploy/labels/output-k8s.yaml"
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+
+
+# TEST the security context conversion in service groups
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/security-contexts/compose.yaml convert --stdout --with-kompose-annotation=false -service-group-mode label"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/security-contexts/output-k8s.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
