@@ -718,6 +718,18 @@ func (k *Kubernetes) UpdateKubernetesObjects(name string, service kobject.Servic
 			template.Spec.Subdomain = service.DomainName
 		}
 
+		// Configure hostAliases
+		if len(service.HostAliases) > 0 {
+			var hostAliases []api.HostAlias
+			for _, ha := range service.HostAliases {
+				hostAliases = append(hostAliases, api.HostAlias{
+					IP:        ha.IP,
+					Hostnames: ha.Hostnames,
+				})
+			}
+			template.Spec.HostAliases = hostAliases
+		}
+
 		if serviceAccountName, ok := service.Labels[compose.LabelServiceAccountName]; ok {
 			template.Spec.ServiceAccountName = serviceAccountName
 		}

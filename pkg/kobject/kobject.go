@@ -170,8 +170,9 @@ type ServiceConfig struct {
 	CronJobBackoffLimit      *int32                    `compose:"kompose.cronjob.backoff_limit"`
 	Volumes                  []Volumes                 `compose:""`
 	Secrets                  []types.ServiceSecretConfig
-	HealthChecks             HealthChecks `compose:""`
-	Placement                Placement    `compose:""`
+	HealthChecks             HealthChecks  `compose:""`
+	Placement                Placement     `compose:""`
+	HostAliases              []HostAliases `compose:""`
 	//This is for long LONG SYNTAX link(https://docs.docker.com/compose/compose-file/#long-syntax)
 	Configs []types.ServiceConfigObjConfig `compose:""`
 	//This is for SHORT SYNTAX link(https://docs.docker.com/compose/compose-file/#configs)
@@ -214,6 +215,11 @@ type Ports struct {
 	ContainerPort int32
 	HostIP        string
 	Protocol      string // Upper string
+}
+
+type HostAliases struct {
+	IP        string
+	Hostnames []string
 }
 
 // ID returns an unique id for this port settings, to avoid conflict

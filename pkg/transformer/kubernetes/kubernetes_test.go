@@ -61,6 +61,7 @@ func newServiceConfig() kobject.ServiceConfig {
 		CapAdd:          []string{"cap_add"},
 		CapDrop:         []string{"cap_drop"},
 		Expose:          []string{"expose"}, // not supported
+		HostAliases:     []kobject.HostAliases{{IP: "127.0.0.1", Hostnames: []string{"localhost"}}},
 		Privileged:      true,
 		Restart:         "always",
 		ImagePullSecret: "regcred",
@@ -1320,5 +1321,152 @@ UNDEFINED_VAR=${MISSING_VAR:-default_value}
 			}
 			tc.check(t, cms)
 		})
+	}
+}
+
+func TestHostAliases(t *testing.T) {
+	testCases := map[string]struct {
+		komposeObject kobject.KomposeObject
+		opt           kobject.ConvertOptions
+	}{
+		"Convert with HostAliases": {
+			komposeObject: func() kobject.KomposeObject {
+				ko := newKomposeObject()
+				config := ko.ServiceConfigs["app"]
+				config.HostAliases = []kobject.HostAliases{
+					{IP: "127.0.0.1", Hostnames: []string{"localhost", "local"}},
+					{IP: "::1", Hostnames: []string{"ip6-localhost"}},
+				}
+				ko.ServiceConfigs["app"] = config
+				return ko
+			}(),
+			opt: kobject.ConvertOptions{CreateD: true},
+		},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		k := Kubernetes{}
+		objs, err := k.Transform(test.komposeObject, test.opt)
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
+
+		foundHostAliases := false
+		for _, obj := range objs {
+			if d, ok := obj.(*appsv1.Deployment); ok {
+				hostAliases := d.Spec.Template.Spec.HostAliases
+				if len(hostAliases) != 2 {
+					t.Errorf("Expected 2 HostAliases, got %d", len(hostAliases))
+					continue
+				}
+
+				if hostAliases[0].IP != "127.0.0.1" {
+					t.Errorf("Expected IP 127.0.0.1, got %s", hostAliases[0].IP)
+				}
+				if len(hostAliases[0].Hostnames) != 2 || hostAliases[0].Hostnames[0] != "localhost" || hostAliases[0].Hostnames[1] != "local" {
+					t.Errorf("Expected hostnames [localhost local], got %v", hostAliases[0].Hostnames)
+				}
+
+				if hostAliases[1].IP != "::1" {
+					t.Errorf("Expected IP ::1, got %s", hostAliases[1].IP)
+				}
+				if len(hostAliases[1].Hostnames) != 1 || hostAliases[1].Hostnames[0] != "ip6-localhost" {
+					t.Errorf("Expected hostnames [ip6-localhost], got %v", hostAliases[1].Hostnames)
+				}
+
+				foundHostAliases = true
+			}
+		}
+
+		if !foundHostAliases {
+			t.Error("Did not find HostAliases in generated Deployment")
+		}
+	}
+}
+
+func TestHostAliasesServiceGroup(t *testing.T) {
+	serviceName1 := "web"
+	serviceName2 := "db"
+	testCases := map[string]struct {
+		komposeObject kobject.KomposeObject
+		opt           kobject.ConvertOptions
+	}{
+		"Service Group with HostAliases": {
+			komposeObject: func() kobject.KomposeObject {
+				ko := kobject.KomposeObject{
+					ServiceConfigs: map[string]kobject.ServiceConfig{
+						serviceName1: {
+							Name:  serviceName1,
+							Image: "nginx",
+							Port:  []kobject.Ports{{HostPort: 80, ContainerPort: 80}},
+							HostAliases: []kobject.HostAliases{
+								{IP: "10.0.0.1", Hostnames: []string{"web-alias"}},
+							},
+							GroupAdd: []int64{1000},
+							Labels: map[string]string{
+								"kompose.service.group": "mygroup",
+							},
+						},
+						serviceName2: {
+							Name:  serviceName2,
+							Image: "postgres",
+							Port:  []kobject.Ports{{HostPort: 5432, ContainerPort: 5432}},
+							HostAliases: []kobject.HostAliases{
+								{IP: "10.0.0.2", Hostnames: []string{"db-alias"}},
+							},
+							GroupAdd: []int64{1001},
+							Labels: map[string]string{
+								"kompose.service.group": "mygroup",
+							},
+						},
+					},
+				}
+				return ko
+			}(),
+			opt: kobject.ConvertOptions{ServiceGroupMode: "label", CreateD: true},
+		},
+	}
+
+	for name, test := range testCases {
+		t.Log("Test case:", name)
+		k := Kubernetes{}
+		objs, err := k.Transform(test.komposeObject, test.opt)
+		if err != nil {
+			t.Error(errors.Wrap(err, "k.Transform failed"))
+		}
+
+		foundHostAliases := false
+		for _, obj := range objs {
+			if d, ok := obj.(*appsv1.Deployment); ok {
+				hostAliases := d.Spec.Template.Spec.HostAliases
+				if len(hostAliases) != 2 {
+					t.Errorf("Expected 2 HostAliases, got %d", len(hostAliases))
+					continue
+				}
+
+				// Check first HostAlias
+				found1 := false
+				found2 := false
+				for _, ha := range hostAliases {
+					if ha.IP == "10.0.0.1" && len(ha.Hostnames) == 1 && ha.Hostnames[0] == "web-alias" {
+						found1 = true
+					}
+					if ha.IP == "10.0.0.2" && len(ha.Hostnames) == 1 && ha.Hostnames[0] == "db-alias" {
+						found2 = true
+					}
+				}
+
+				if !found1 || !found2 {
+					t.Errorf("Expected both HostAliases (10.0.0.1/web-alias and 10.0.0.2/db-alias), got %v", hostAliases)
+				}
+
+				foundHostAliases = true
+			}
+		}
+
+		if !foundHostAliases {
+			t.Error("Did not find HostAliases in generated Deployment for Service Group")
+		}
 	}
 }

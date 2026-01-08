@@ -1646,6 +1646,7 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 					SecurityContext(groupName, service),
 					HostName(service),
 					DomainName(service),
+					HostAliases(service),
 					ResourcesLimits(service),
 					ResourcesRequests(service),
 					TerminationGracePeriodSeconds(groupName, service),

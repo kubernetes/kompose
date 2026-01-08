@@ -491,3 +491,50 @@ func TestNamespaceGeneration(t *testing.T) {
 		}
 	}
 }
+
+func TestHostAliasesOpenShift(t *testing.T) {
+	config := newServiceConfig()
+	config.HostAliases = []kobject.HostAliases{
+		{IP: "192.168.1.100", Hostnames: []string{"custom.local"}},
+		{IP: "2001:db8::1", Hostnames: []string{"ipv6.example.com"}},
+	}
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": config},
+	}
+	o := OpenShift{}
+	objs, err := o.Transform(komposeObject, kobject.ConvertOptions{CreateDeploymentConfig: true})
+	if err != nil {
+		t.Error(errors.Wrap(err, "o.Transform failed"))
+	}
+
+	foundHostAliases := false
+	for _, obj := range objs {
+		if dc, ok := obj.(*deployapi.DeploymentConfig); ok {
+			hostAliases := dc.Spec.Template.Spec.HostAliases
+			if len(hostAliases) != 2 {
+				t.Errorf("Expected 2 HostAliases, got %d", len(hostAliases))
+				continue
+			}
+
+			if hostAliases[0].IP != "192.168.1.100" {
+				t.Errorf("Expected IP 192.168.1.100, got %s", hostAliases[0].IP)
+			}
+			if len(hostAliases[0].Hostnames) != 1 || hostAliases[0].Hostnames[0] != "custom.local" {
+				t.Errorf("Expected hostnames [custom.local], got %v", hostAliases[0].Hostnames)
+			}
+
+			if hostAliases[1].IP != "2001:db8::1" {
+				t.Errorf("Expected IP 2001:db8::1, got %s", hostAliases[1].IP)
+			}
+			if len(hostAliases[1].Hostnames) != 1 || hostAliases[1].Hostnames[0] != "ipv6.example.com" {
+				t.Errorf("Expected hostnames [ipv6.example.com], got %v", hostAliases[1].Hostnames)
+			}
+
+			foundHostAliases = true
+		}
+	}
+
+	if !foundHostAliases {
+		t.Error("Did not find HostAliases in generated DeploymentConfig")
+	}
+}
