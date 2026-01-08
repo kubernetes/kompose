@@ -19,6 +19,7 @@ package kobject
 import (
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/compose-spec/compose-go/v2/types"
@@ -27,6 +28,7 @@ import (
 	"github.com/spf13/cast"
 	v1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
+	api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
@@ -348,4 +350,63 @@ func (s *ServiceConfig) GetOSUpdateStrategy() *deployapi.RollingDeploymentStrate
 	}
 
 	return nil
+}
+
+func (s *ServiceConfig) CheckServiceType() error {
+	svcType := s.ServiceType
+	typeFromLabel := s.DeployLabels["kompose.service.type"]
+	if len(svcType) != 0 {
+		return nil
+	} else if len(typeFromLabel) != 0 {
+		_, err := handleServiceType(typeFromLabel)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return nil
+}
+
+func (s *ServiceConfig) GetServiceType() string {
+	svcType := s.ServiceType
+	typeFromLabel := s.DeployLabels["kompose.service.type"]
+	if len(svcType) != 0 {
+		return svcType
+	} else if len(typeFromLabel) != 0 {
+		res, err := handleServiceType(typeFromLabel)
+		if err != nil {
+			return ""
+		}
+		return res
+	}
+	return ""
+}
+
+func (s *ServiceConfig) GetServiceNodePort() int32 {
+	port := s.NodePortPort
+	var portFromLabel int32
+	if labelPort, ok := s.DeployLabels["kompose.service.nodeport.port"]; ok {
+		portFromLabel = cast.ToInt32(labelPort)
+	}
+	if port != 0 {
+		return port
+	} else if portFromLabel != 0 {
+		return portFromLabel
+	}
+	return 0
+}
+
+func handleServiceType(ServiceType string) (string, error) {
+	switch strings.ToLower(ServiceType) {
+	case "", "clusterip":
+		return string(api.ServiceTypeClusterIP), nil
+	case "nodeport":
+		return string(api.ServiceTypeNodePort), nil
+	case "loadbalancer":
+		return string(api.ServiceTypeLoadBalancer), nil
+	case "headless":
+		return "Headless", nil
+	default:
+		return "", errors.New("Unknown value " + ServiceType + " , supported values are 'nodeport, clusterip, headless or loadbalancer'")
+	}
 }
