@@ -220,7 +220,7 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 	}
 	komposeObject, err = l.LoadFile(opt.InputFiles, opt.Profiles, opt.NoInterpolate)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err)
 	}
 
 	komposeObject.Namespace = opt.Namespace
@@ -243,7 +243,7 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 
 			relPath, err := filepath.Rel(workDir, envFile)
 			if err != nil {
-				log.Fatalf(err.Error())
+				log.Fatal(err)
 			}
 
 			service.EnvFile[i] = filepath.ToSlash(relPath)
@@ -257,13 +257,13 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 	objects, err := t.Transform(komposeObject, opt)
 
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err)
 	}
 
 	// Print output
 	err = kubernetes.PrintList(objects, opt)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err)
 	}
 	return objects, err
 }
