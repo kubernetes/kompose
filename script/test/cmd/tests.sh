@@ -425,6 +425,6 @@ convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 
 
 # TEST the security context conversion in service groups
-k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/security-contexts/compose.yaml convert --stdout --with-kompose-annotation=false -service-group-mode label"
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/security-contexts/compose.yaml convert --stdout --with-kompose-annotation=false --service-group-mode label"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/security-contexts/output-k8s.yaml"
-convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1

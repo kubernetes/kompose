@@ -51,11 +51,11 @@ spec:
           ports:
             - containerPort: 8000
               protocol: TCP
-          securityContext:
-            privileged: true
         - image: docker:28.1.1-dind
           name: dind
           ports:
             - containerPort: 2375
               protocol: TCP
-      restartPolicy: Always---
+          securityContext:
+            privileged: true
+      restartPolicy: Always
