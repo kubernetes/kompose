@@ -305,6 +305,20 @@ func DomainName(service kobject.ServiceConfig) PodSpecOption {
 	}
 }
 
+// HostAliases configure the host aliases of a pod
+func HostAliases(service kobject.ServiceConfig) PodSpecOption {
+	return func(podSpec *PodSpec) {
+		if len(service.HostAliases) > 0 {
+			for _, ha := range service.HostAliases {
+				podSpec.HostAliases = append(podSpec.HostAliases, api.HostAlias{
+					IP:        ha.IP,
+					Hostnames: ha.Hostnames,
+				})
+			}
+		}
+	}
+}
+
 func configProbe(healthCheck kobject.HealthCheck) *api.Probe {
 	probe := api.Probe{}
 	// We check to see if it's blank or disable
