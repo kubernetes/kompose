@@ -752,6 +752,7 @@ func (k *Kubernetes) ConfigServicePorts(service kobject.ServiceConfig) []api.Ser
 	servicePorts := []api.ServicePort{}
 	seenPorts := make(map[int]struct{}, len(service.Port))
 
+	serviceType := service.GetServiceType()
 	var servicePort api.ServicePort
 	for _, port := range service.Port {
 		if port.HostPort == 0 {
@@ -766,7 +767,7 @@ func (k *Kubernetes) ConfigServicePorts(service kobject.ServiceConfig) []api.Ser
 		name := strconv.Itoa(int(port.HostPort))
 		if _, ok := seenPorts[int(port.HostPort)]; ok {
 			// https://github.com/kubernetes/kubernetes/issues/2995
-			if service.ServiceType == string(api.ServiceTypeLoadBalancer) {
+			if serviceType == string(api.ServiceTypeLoadBalancer) {
 				log.Fatalf("Service %s of type LoadBalancer cannot use TCP and UDP for the same port", name)
 			}
 			name = fmt.Sprintf("%s-%s", name, strings.ToLower(port.Protocol))
@@ -778,8 +779,9 @@ func (k *Kubernetes) ConfigServicePorts(service kobject.ServiceConfig) []api.Ser
 			TargetPort: targetPort,
 		}
 
-		if service.ServiceType == string(api.ServiceTypeNodePort) && service.NodePortPort != 0 {
-			servicePort.NodePort = service.NodePortPort
+		nodePortPort := service.GetServiceNodePort()
+		if serviceType == string(api.ServiceTypeNodePort) && nodePortPort != 0 {
+			servicePort.NodePort = nodePortPort
 		}
 
 		// If the default is already TCP, no need to include protocol.
@@ -1491,9 +1493,14 @@ func buildServiceImage(opt kobject.ConvertOptions, service kobject.ServiceConfig
 	return nil
 }
 
-func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.ServiceConfig, name string, objects *[]runtime.Object) {
+func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.ServiceConfig, name string, objects *[]runtime.Object) error {
+	err := service.CheckServiceType()
+	if err != nil {
+		return err
+	}
+	svcType := service.GetServiceType()
 	if k.PortsExist(service) {
-		if service.ServiceType == "LoadBalancer" {
+		if svcType == "LoadBalancer" {
 			svcs := k.CreateLBService(name, service)
 			for _, svc := range svcs {
 				svc.Spec.ExternalTrafficPolicy = api.ServiceExternalTrafficPolicyType(service.ServiceExternalTrafficPolicy)
@@ -1513,7 +1520,7 @@ func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.Servi
 			}
 		}
 	} else {
-		if service.ServiceType == "Headless" {
+		if svcType == "Headless" {
 			svc := k.CreateHeadlessService(name, service)
 			*objects = append(*objects, svc)
 			if service.ServiceExternalTrafficPolicy != "" {
@@ -1523,6 +1530,7 @@ func (k *Kubernetes) configKubeServiceAndIngressForService(service kobject.Servi
 			log.Warnf("Service %q won't be created because 'ports' is not specified", service.Name)
 		}
 	}
+	return nil
 }
 
 func (k *Kubernetes) configNetworkPolicyForService(service kobject.ServiceConfig, name string, objects *[]runtime.Object) error {
@@ -1610,7 +1618,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 				}
 				// override..
 				objects = append(objects, k.CreateWorkloadAndConfigMapObjects(groupName, service, opt)...)
-				k.configKubeServiceAndIngressForService(service, groupName, &objects)
+				if err := k.configKubeServiceAndIngressForService(service, groupName, &objects); err != nil {
+					return nil, err
+				}
 
 				// Configure the container volumes.
 				volumesMount, volumes, pvc, cms, err := k.ConfigVolumes(groupName, service)
@@ -1706,7 +1716,9 @@ func (k *Kubernetes) Transform(komposeObject kobject.KomposeObject, opt kobject.
 		if opt.Controller == StatefulStateController {
 			service.ServiceType = "Headless"
 		}
-		k.configKubeServiceAndIngressForService(service, name, &objects)
+		if err := k.configKubeServiceAndIngressForService(service, name, &objects); err != nil {
+			return nil, err
+		}
 		err := k.UpdateKubernetesObjects(name, service, opt, &objects)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error transforming Kubernetes objects")

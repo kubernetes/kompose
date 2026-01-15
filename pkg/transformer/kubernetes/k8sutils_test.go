@@ -329,6 +329,98 @@ func TestCreateServiceWithServiceUser(t *testing.T) {
 	}
 }
 
+/*
+Test the creation of a service with service type NodePort.
+The expected result is that Kompose will set user in PodSpec
+*/
+func TestCreateServiceWithServiceTypeNodePort(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Command:       []string{"cmd"},
+		WorkingDir:    "dir",
+		Args:          []string{"arg1", "arg2"},
+		VolList:       []string{"/tmp/volume"},
+		Network:       []string{"network1", "network2"}, // not supported
+		DeployLabels:  map[string]string{"kompose.service.type": "nodeport", "kompose.service": "my-service"},
+		Annotations:   map[string]string{"kompose.service.type": "nodeport"},
+		CPUQuota:      1,                    // not supported
+		CapAdd:        []string{"cap_add"},  // not supported
+		CapDrop:       []string{"cap_drop"}, // not supported
+		Expose:        []string{"expose"},   // not supported
+		Privileged:    true,
+		Restart:       "always",
+		User:          "1234:5678",
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	for _, obj := range objects {
+		if svc, ok := obj.(*corev1.Service); ok {
+			if svc.Spec.Type != corev1.ServiceTypeNodePort {
+				t.Errorf("Service type is not NodePort")
+			}
+		}
+	}
+}
+
+/*
+Test the creation of a service with service type LoadBalancer.
+The expected result is that Kompose will set user in PodSpec
+*/
+func TestCreateServiceWithServiceTypeLoadBalancer(t *testing.T) {
+	// An example service
+	service := kobject.ServiceConfig{
+		ContainerName: "name",
+		Image:         "image",
+		Environment:   []kobject.EnvVar{{Name: "env", Value: "value"}},
+		Port:          []kobject.Ports{{HostPort: 123, ContainerPort: 456, Protocol: string(corev1.ProtocolTCP)}},
+		Command:       []string{"cmd"},
+		WorkingDir:    "dir",
+		Args:          []string{"arg1", "arg2"},
+		VolList:       []string{"/tmp/volume"},
+		Network:       []string{"network1", "network2"}, // not supported
+		DeployLabels:  map[string]string{"kompose.service.type": "loadbalancer", "kompose.service": "my-service"},
+		Annotations:   map[string]string{"kompose.service.type": "loadbalancer"},
+		CPUQuota:      1,                    // not supported
+		CapAdd:        []string{"cap_add"},  // not supported
+		CapDrop:       []string{"cap_drop"}, // not supported
+		Expose:        []string{"expose"},   // not supported
+		Privileged:    true,
+		Restart:       "always",
+		User:          "1234:5678",
+	}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"app": service},
+	}
+	k := Kubernetes{}
+
+	objects, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true, Replicas: 1})
+	if err != nil {
+		t.Error(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	for _, obj := range objects {
+		if svc, ok := obj.(*corev1.Service); ok {
+			if svc.Spec.Type != corev1.ServiceTypeLoadBalancer {
+				t.Errorf("Service type is not NodePort")
+			}
+		}
+	}
+}
+
 func TestCreateServiceWithConfigLongSyntax(t *testing.T) {
 	content := "setting: true"
 	target := "/etc/config.yaml"

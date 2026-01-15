@@ -432,7 +432,7 @@ func (k *Kubernetes) initSvcObject(name string, service kobject.ServiceConfig, p
 	svc.Spec.Selector = transformer.ConfigLabels(service.Name)
 
 	svc.Spec.Ports = ports
-	svc.Spec.Type = api.ServiceType(service.ServiceType)
+	svc.Spec.Type = api.ServiceType(service.GetServiceType())
 
 	// Configure annotations
 	annotations := transformer.ConfigAnnotations(service)
@@ -458,17 +458,18 @@ func (k *Kubernetes) CreateLBService(name string, service kobject.ServiceConfig)
 
 // CreateService creates a k8s service
 func (k *Kubernetes) CreateService(name string, service kobject.ServiceConfig) *api.Service {
+	serviceType := service.GetServiceType()
 	svc := k.InitSvc(name, service)
 
 	// Configure the service ports.
 	servicePorts := k.ConfigServicePorts(service)
 	svc.Spec.Ports = servicePorts
 
-	if service.ServiceType == "Headless" {
+	if serviceType == "Headless" {
 		svc.Spec.Type = api.ServiceTypeClusterIP
 		svc.Spec.ClusterIP = "None"
 	} else {
-		svc.Spec.Type = api.ServiceType(service.ServiceType)
+		svc.Spec.Type = api.ServiceType(serviceType)
 	}
 
 	// Configure annotations
