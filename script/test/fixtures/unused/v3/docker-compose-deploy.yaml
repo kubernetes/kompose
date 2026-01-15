@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   vote: # test placement and update_config
     image: dockersamples/examplevotingapp_vote:before

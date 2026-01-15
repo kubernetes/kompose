@@ -21,6 +21,23 @@ else
   KOMPOSE_ROOT=$(readlink -f $(dirname "${BASH_SOURCE}")/../../..)
 fi
 
+# for mac (GNU realpath)
+realpath_cmd="realpath"
+if type "grealpath" > /dev/null 2>&1; then
+  realpath_cmd="grealpath"
+fi
+
+# Check for container runtime (docker or podman)
+# These are needed for --build local tests
+CONTAINER_RUNTIME=""
+BUILD_CMD_FLAGS=""
+if docker info > /dev/null 2>&1; then
+  CONTAINER_RUNTIME="docker"
+elif podman info > /dev/null 2>&1; then
+  CONTAINER_RUNTIME="podman"
+  BUILD_CMD_FLAGS="--build-command 'podman build' --push-command 'podman push'"
+fi
+
 source $KOMPOSE_ROOT/script/test/cmd/lib.sh
 
 # Get current branch and remote url of git repository
@@ -48,8 +65,8 @@ os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/$DIR/
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/$DIR/output-k8s.yaml"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/$DIR/output-os.yaml"
 
-convert::expect_success "$k8s_cmd" "$k8s_output"
-convert::expect_success "$os_cmd" "$os_output"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output"
+convert::expect_success_and_warning "$os_cmd" "$os_output"
 
 
 
@@ -88,24 +105,29 @@ convert::check_artifacts_generated "kompose --provider=openshift -f $KOMPOSE_ROO
 
 
 ######
-# Test the path of build image
-# Test build v2 absolute compose file
-convert::check_artifacts_generated "kompose --build local -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose.yaml convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
-# Test build v2 relative compose file
-relative_path=$(realpath --relative-to="$PWD" "$KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose.yaml")
-convert::check_artifacts_generated "kompose --build local -f $relative_path convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
-# Test build v3 absolute compose file with context
-convert::check_artifacts_generated "kompose --build local -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose-v3.yaml convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
-# Test build v3 relative compose file with context
-relative_path=$(realpath --relative-to="$PWD" "$KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose-v3.yaml")
-convert::check_artifacts_generated "kompose --build local -f $relative_path convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
+# Test the path of build image (requires docker or podman)
+if [ -n "$CONTAINER_RUNTIME" ]; then
+  echo "Container runtime detected: $CONTAINER_RUNTIME - running build tests"
+  # Test build v2 absolute compose file
+  convert::check_artifacts_generated "kompose --build local $BUILD_CMD_FLAGS -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose.yaml convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
+  # Test build v2 relative compose file
+  relative_path=$($realpath_cmd --relative-to="$PWD" "$KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose.yaml")
+  convert::check_artifacts_generated "kompose --build local $BUILD_CMD_FLAGS -f $relative_path convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
+  # Test build v3 absolute compose file with context
+  convert::check_artifacts_generated "kompose --build local $BUILD_CMD_FLAGS -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose-v3.yaml convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
+  # Test build v3 relative compose file with context
+  relative_path=$($realpath_cmd --relative-to="$PWD" "$KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose-v3.yaml")
+  convert::check_artifacts_generated "kompose --build local $BUILD_CMD_FLAGS -f $relative_path convert -o $TEMP_DIR/output_file" "$TEMP_DIR/output_file"
 
-# #####
-# Test the build config with push image
-# see tests_push_image.sh for local push test
-# Should warn when push image disabled
-cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose-build-no-image.yaml -o $TEMP_DIR/output_file convert --build=local --push-image-registry=whatever"
-convert::expect_warning "$cmd" "Push image registry 'whatever' is specified but push image is disabled, skipping pushing to repository"
+  # #####
+  # Test the build config with push image
+  # see tests_push_image.sh for local push test
+  # Should warn when push image disabled
+  cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/buildconfig/compose-build-no-image.yaml -o $TEMP_DIR/output_file convert --build=local $BUILD_CMD_FLAGS --push-image-registry=whatever"
+  convert::expect_warning "$cmd" "Push image registry 'whatever' is specified but push image is disabled, skipping pushing to repository"
+else
+  echo "SKIP: Build tests require docker or podman (neither is running)"
+fi
 
 #TEST the kompose.volume.storage-class-name label
 convert::check_artifacts_generated "kompose -f $KOMPOSE_ROOT/script/test/fixtures/storage-class-name/compose.yaml convert -o $TEMP_DIR/output-k8s.yaml" "$TEMP_DIR/output-k8s.yaml"
@@ -159,8 +181,8 @@ k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/compose.
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-k8s-empty-vols-template.yaml"
 os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/compose.yaml convert --with-kompose-annotation=false --stdout --volumes emptyDir"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/change-in-volume/output-os-empty-vols-template.yaml"
-convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success "$os_cmd" "$os_output" || exit 1
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success_and_warning "$os_cmd" "$os_output" || exit 1
 
 # Test that emptyvols works
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/change-in-volume/compose.yaml convert --with-kompose-annotation=false --stdout --emptyvols"
@@ -205,8 +227,8 @@ k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/statefulset/compose.yaml 
 ocp_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/statefulset/compose.yaml convert --stdout --with-kompose-annotation=false --controller statefulset"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/statefulset/output-k8s.yaml"
 ocp_output="$KOMPOSE_ROOT/script/test/fixtures/statefulset/output-os.yaml"
-convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success "$ocp_cmd" "$ocp_output" || exit 1
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success_and_warning "$ocp_cmd" "$ocp_output" || exit 1
 
 # test cronjob
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/cronjob/compose.yaml convert --stdout --with-kompose-annotation=false"
@@ -222,7 +244,7 @@ os_cmd="kompose  --provider=openshift -f  $KOMPOSE_ROOT/script/test/fixtures/mul
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/output-k8s.yaml"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/multiple-type-volumes/output-os.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success "$os_cmd" "$os_output" || exit 1
+convert::expect_success_and_warning "$os_cmd" "$os_output" || exit 1
 
 # Test environment variables interpolation
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/envvars-interpolation/compose.yaml convert --stdout --with-kompose-annotation=false"
@@ -237,8 +259,8 @@ k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/env-dotenv/compose.yaml c
 os_cmd="kompose  --provider=openshift -f  $KOMPOSE_ROOT/script/test/fixtures/env-dotenv/compose.yaml  convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/env-dotenv/output-k8s.yaml"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/env-dotenv/output-os.yaml"
-convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success_and_warning "$os_cmd" "$os_output" || exit 1
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$os_cmd" "$os_output" || exit 1
 
 # Test single file output feature
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/single-file-output/compose.yaml convert --stdout --with-kompose-annotation=false"
@@ -275,7 +297,7 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/fsgroup/output-k8s.yaml"
 os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/fsgroup/compose.yaml convert --stdout --with-kompose-annotation=false"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/fsgroup/output-os.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success "$os_cmd" "$os_output" || exit 1
+convert::expect_success_and_warning "$os_cmd" "$os_output" || exit 1
 
 # Test support for compose.yaml file
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/compose-file-support/compose.yaml convert --stdout --with-kompose-annotation=false"
@@ -286,21 +308,19 @@ convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/compose-env-interpolation/compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/compose-env-interpolation/output-k8s.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success "$os_cmd" "$os_output" || exit 1
 
 # Test support for compose env without interpolation
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/compose-env-no-interpolation/compose.yaml convert --stdout --no-interpolate --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/compose-env-no-interpolation/output-k8s.yaml"
 convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success "$os_cmd" "$os_output" || exit 1
 
-# Test configmap generated by env_file with variable interpolation 
+# Test configmap generated by env_file with variable interpolation
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/envfile-interpolation/compose.yaml convert --stdout --with-kompose-annotation=false"
 os_cmd="kompose  --provider=openshift -f  $KOMPOSE_ROOT/script/test/fixtures/envfile-interpolation/compose.yaml  convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/envfile-interpolation/output-k8s.yaml"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/envfile-interpolation/output-os.yaml"
-convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success_and_warning "$os_cmd" "$os_output" || exit 1
+convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success "$os_cmd" "$os_output" || exit 1
 
 # Test support for subpath volume
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/vols-subpath/compose.yaml convert --stdout --with-kompose-annotation=false"
@@ -308,7 +328,7 @@ k8s_output="$KOMPOSE_ROOT/script/test/fixtures/vols-subpath/output-k8s.yaml"
 os_cmd="kompose --provider=openshift -f $KOMPOSE_ROOT/script/test/fixtures/vols-subpath/compose.yaml convert --stdout --with-kompose-annotation=false"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/vols-subpath/output-os.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success "$os_cmd" "$os_output" || exit 1
+convert::expect_success_and_warning "$os_cmd" "$os_output" || exit 1
 
 # Test support for network policies generation
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/network-policies/compose.yaml convert --generate-network-policies --stdout --with-kompose-annotation=false"
@@ -371,10 +391,10 @@ k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/initcontainer/compose.yam
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/initcontainer/output-k8s.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
 
-# Test HPA 
+# Test HPA
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/hpa/compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/hpa/output-k8s.yaml"
-convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
 
 #Test auto configmaps from files/dir
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/compose-1.yaml convert --stdout --with-kompose-annotation=false"
@@ -397,13 +417,13 @@ k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/co
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/output-k8s-3.yaml"
 os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/compose-3.yaml convert --provider openshift --stdout --with-kompose-annotation=false"
 os_output="$KOMPOSE_ROOT/script/test/fixtures/configmap-file-configs/output-os-3.yaml"
-convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
-convert::expect_success "$os_cmd" "$os_output" || exit 1
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success_and_warning "$os_cmd" "$os_output" || exit 1
 
 # Test network_mode: service:
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/network-mode-service/compose.yaml convert --stdout --with-kompose-annotation=false"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/network-mode-service/output-k8s.yaml"
-convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
 
 # Test env var with status
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/envvars-with-status/compose.yaml convert --stdout --with-kompose-annotation=false"

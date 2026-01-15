@@ -1,4 +1,3 @@
-version: "2"
 services:
   client:
     image: registry.centos.org/centos/centos:7
