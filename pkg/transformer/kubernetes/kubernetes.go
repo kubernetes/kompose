@@ -17,7 +17,6 @@ limitations under the License.
 package kubernetes
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 	"os/exec"
@@ -356,7 +355,7 @@ func initConfigMapData(configMap *api.ConfigMap, data map[string]string) {
 		if isText {
 			stringData[k] = lfText
 		} else {
-			binData[k] = []byte(base64.StdEncoding.EncodeToString([]byte(v)))
+			binData[k] = []byte(v)
 		}
 	}
 
