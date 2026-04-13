@@ -574,6 +574,30 @@ func TestNormalizeServiceNames(t *testing.T) {
 	}
 }
 
+func TestServiceConfigNameNormalized(t *testing.T) {
+	project := &types.Project{
+		Services: types.Services{
+			"my_service": types.ServiceConfig{
+				Name:  "my_service",
+				Image: "nginx",
+			},
+		},
+	}
+
+	komposeObject, err := dockerComposeToKomposeMapping(project)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+
+	sc, ok := komposeObject.ServiceConfigs["my-service"]
+	if !ok {
+		t.Fatal("Expected service config key 'my-service' but it was not found")
+	}
+	if sc.Name != "my-service" {
+		t.Errorf("Expected serviceConfig.Name to be %q, got %q", "my-service", sc.Name)
+	}
+}
+
 func TestNormalizeNetworkNames(t *testing.T) {
 	testCases := []struct {
 		composeNetworkName    string
