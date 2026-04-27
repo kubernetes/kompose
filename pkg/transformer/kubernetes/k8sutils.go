@@ -1278,9 +1278,12 @@ func checkIsEmptyDir(filePath string) (bool, error) {
 		if !file.IsDir() {
 			return false, nil
 		}
-		_, err := checkIsEmptyDir(file.Name())
+		isEmpty, err := checkIsEmptyDir(filepath.Join(filePath, file.Name()))
 		if err != nil {
 			return false, err
+		}
+		if !isEmpty {
+			return false, nil
 		}
 	}
 	return true, nil

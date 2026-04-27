@@ -2503,6 +2503,15 @@ func Test_isConfigFile(t *testing.T) {
 			wantSkip:         false,
 		},
 		{
+			name: "nested dir not empty",
+			args: args{
+				filePath: "../../../script/test/fixtures/configmap-file-configs/certs-level1",
+			},
+			wantUseConfigMap: true,
+			wantReadonly:     true,
+			wantSkip:         false,
+		},
+		{
 			name: "sock",
 			args: args{
 				filePath: "./docker.sock",
@@ -2590,6 +2599,14 @@ func Test_checkIsEmptyDir(t *testing.T) {
 			want:    false,
 			wantErr: false,
 		},
+		{
+			name: "nested dir not empty",
+			args: args{
+				filePath: "../../../script/test/fixtures/configmap-file-configs/certs-level1",
+			},
+			want:    false,
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -2602,6 +2619,39 @@ func Test_checkIsEmptyDir(t *testing.T) {
 				t.Errorf("checkIsEmptyDir() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Test_checkIsEmptyDir_nestedNonEmpty(t *testing.T) {
+	dir := t.TempDir()
+	nested := filepath.Join(dir, "subdir", "deep")
+	if err := os.MkdirAll(nested, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(nested, "file.txt"), []byte("data"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := checkIsEmptyDir(dir)
+	if err != nil {
+		t.Fatalf("checkIsEmptyDir() unexpected error = %v", err)
+	}
+	if got {
+		t.Errorf("checkIsEmptyDir() = true, want false for directory with nested file")
+	}
+}
+
+func Test_checkIsEmptyDir_nestedEmpty(t *testing.T) {
+	dir := t.TempDir()
+	nested := filepath.Join(dir, "a", "b", "c")
+	if err := os.MkdirAll(nested, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	got, err := checkIsEmptyDir(dir)
+	if err != nil {
+		t.Fatalf("checkIsEmptyDir() error = %v", err)
+	}
+	if !got {
+		t.Errorf("checkIsEmptyDir() = %v, want true", got)
 	}
 }
 
