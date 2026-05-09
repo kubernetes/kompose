@@ -282,14 +282,15 @@ func loadPorts(ports []types.ServicePortConfig, expose []string) []kobject.Ports
 	exist := map[string]bool{}
 
 	for _, port := range ports {
+		protocol := strings.ToUpper(port.Protocol)
 		// Convert to a kobject struct with ports
 		komposePorts = append(komposePorts, kobject.Ports{
 			HostPort:      cast.ToInt32(port.Published),
 			ContainerPort: int32(port.Target),
 			HostIP:        port.HostIP,
-			Protocol:      strings.ToUpper(port.Protocol),
+			Protocol:      protocol,
 		})
-		exist[cast.ToString(port.Target)+port.Protocol] = true
+		exist[cast.ToString(port.Target)+protocol] = true
 	}
 
 	for _, port := range expose {
@@ -301,13 +302,14 @@ func loadPorts(ports []types.ServicePortConfig, expose []string) []kobject.Ports
 			protocol = splits[1]
 		}
 
+		protocol = strings.ToUpper(protocol)
 		if exist[portValue+protocol] {
 			continue
 		}
 		komposePorts = append(komposePorts, kobject.Ports{
 			ContainerPort: cast.ToInt32(portValue),
 			HostIP:        "",
-			Protocol:      strings.ToUpper(protocol),
+			Protocol:      protocol,
 		})
 	}
 

@@ -347,7 +347,6 @@ func TestLoadPorts(t *testing.T) {
 			want: []kobject.Ports{
 				{ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 				{ContainerPort: 3000, Protocol: string(api.ProtocolTCP)},
-				{ContainerPort: 80, Protocol: string(api.ProtocolTCP)},
 				{ContainerPort: 8080, Protocol: string(api.ProtocolTCP)},
 			},
 		},
