@@ -587,10 +587,12 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 			return kobject.KomposeObject{}, err
 		}
 
-		// Log if the name will been changed
-		if normalizeServiceNames(name) != name {
-			log.Infof("Service name in docker-compose has been changed from %q to %q", name, normalizeServiceNames(name))
+		// Normalize the service name for Kubernetes (e.g. replace underscores with dashes)
+		normalizedName := normalizeServiceNames(name)
+		if normalizedName != name {
+			log.Infof("Service name in docker-compose has been changed from %q to %q", name, normalizedName)
 		}
+		serviceConfig.Name = normalizedName
 
 		serviceConfig.Configs = composeServiceConfig.Configs
 		serviceConfig.ConfigsMetaData = composeObject.Configs
@@ -603,7 +605,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 		serviceConfig.GroupAdd = groupAdd
 
 		// Final step, add to the array!
-		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
+		komposeObject.ServiceConfigs[normalizedName] = serviceConfig
 	}
 
 	handleVolume(&komposeObject, &composeObject.Volumes)
