@@ -1230,6 +1230,87 @@ func TestKubernetes_CreateSecrets(t *testing.T) {
 	}
 }
 
+// TestConfigSecretVolumes verifies that multiple secrets produce unique mountPaths.
+// See https://github.com/kubernetes/kompose/issues/1894.
+func TestConfigSecretVolumes(t *testing.T) {
+	tests := []struct {
+		name       string
+		secrets    []types.ServiceSecretConfig
+		wantMounts []api.VolumeMount
+	}{
+		{
+			name: "multiple short-syntax secrets get unique mountPaths (issue #1894)",
+			secrets: []types.ServiceSecretConfig{
+				{Source: "secret1", Target: "/run/secrets/secret1"},
+				{Source: "secret2", Target: "/run/secrets/secret2"},
+			},
+			wantMounts: []api.VolumeMount{
+				{Name: "secret1", MountPath: "/run/secrets/secret1", SubPath: "secret1"},
+				{Name: "secret2", MountPath: "/run/secrets/secret2", SubPath: "secret2"},
+			},
+		},
+		{
+			name: "single short-syntax secret",
+			secrets: []types.ServiceSecretConfig{
+				{Source: "only", Target: "/run/secrets/only"},
+			},
+			wantMounts: []api.VolumeMount{
+				{Name: "only", MountPath: "/run/secrets/only", SubPath: "only"},
+			},
+		},
+		{
+			name: "long-syntax with simple-name target (workaround for #1894)",
+			secrets: []types.ServiceSecretConfig{
+				{Source: "secret1", Target: "secret1"},
+				{Source: "secret2", Target: "secret2"},
+			},
+			wantMounts: []api.VolumeMount{
+				{Name: "secret1", MountPath: "/run/secrets/secret1", SubPath: "secret1"},
+				{Name: "secret2", MountPath: "/run/secrets/secret2", SubPath: "secret2"},
+			},
+		},
+		{
+			name: "long-syntax with absolute custom-path targets in same directory",
+			secrets: []types.ServiceSecretConfig{
+				{Source: "a", Target: "/etc/configs/a"},
+				{Source: "b", Target: "/etc/configs/b"},
+			},
+			wantMounts: []api.VolumeMount{
+				{Name: "a", MountPath: "/etc/configs/a", SubPath: "a"},
+				{Name: "b", MountPath: "/etc/configs/b", SubPath: "b"},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k := &Kubernetes{}
+			service := kobject.ServiceConfig{Secrets: tt.secrets}
+			gotMounts, _ := k.ConfigSecretVolumes("test-service", service)
+
+			if len(gotMounts) != len(tt.wantMounts) {
+				t.Fatalf("got %d volumeMounts, want %d (got=%+v)", len(gotMounts), len(tt.wantMounts), gotMounts)
+			}
+			seen := map[string]bool{}
+			for i, vm := range gotMounts {
+				if vm.MountPath != tt.wantMounts[i].MountPath {
+					t.Errorf("mounts[%d].MountPath = %q, want %q", i, vm.MountPath, tt.wantMounts[i].MountPath)
+				}
+				if vm.SubPath != tt.wantMounts[i].SubPath {
+					t.Errorf("mounts[%d].SubPath = %q, want %q", i, vm.SubPath, tt.wantMounts[i].SubPath)
+				}
+				if vm.Name != tt.wantMounts[i].Name {
+					t.Errorf("mounts[%d].Name = %q, want %q", i, vm.Name, tt.wantMounts[i].Name)
+				}
+				if seen[vm.MountPath] {
+					t.Errorf("duplicate mountPath %q across mounts (Kubernetes requires uniqueness)", vm.MountPath)
+				}
+				seen[vm.MountPath] = true
+			}
+		})
+	}
+}
+
 // struct defines the configuration parameters required for creating a secret
 type SecretsConfig struct {
 	nameSecretConfig string

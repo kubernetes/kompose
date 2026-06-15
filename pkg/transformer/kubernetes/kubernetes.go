@@ -931,38 +931,31 @@ func (k *Kubernetes) getSecretPathsLegacy(secretConfig types.ServiceSecretConfig
 	// docker-compose results, but some people might depend on this behavior so this is kept here for compatibility.
 	// See https://github.com/kubernetes/kompose/issues/1280 for more details.
 
-	var itemPath string // should be the filename
-	var mountPath = ""  // should be the directory
-	// if is used the short-syntax
+	var itemPath, mountPath string
+
+	// short-syntax (no target): place at /run/secrets/<source>
 	if secretConfig.Target == "" {
-		// the secret path (mountPath) should be inside the default directory /run/secrets
 		mountPath = "/run/secrets/" + secretConfig.Source
-		// the itemPath should be the source itself
 		itemPath = secretConfig.Source
-	} else {
-		// if is the long-syntax, i should get the last part of path and consider it the filename
-		pathSplitted := strings.Split(secretConfig.Target, "/")
-		lastPart := pathSplitted[len(pathSplitted)-1]
-
-		// if the filename (lastPart) and the target is the same
-		if lastPart == secretConfig.Target {
-			// the secret path should be the source (it need to be inside a directory and only the filename was given)
-			mountPath = secretConfig.Source
-		} else {
-			// should then get the target without the filename (lastPart)
-			mountPath = mountPath + strings.TrimSuffix(secretConfig.Target, "/"+lastPart) // menos ultima parte
-		}
-
-		// if the target isn't absolute path
-		if !strings.HasPrefix(secretConfig.Target, "/") {
-			// concat the default secret directory
-			mountPath = "/run/secrets/" + mountPath
-		}
-
-		itemPath = lastPart
+		secretSubPath = itemPath
+		return itemPath, mountPath, secretSubPath
 	}
 
-	secretSubPath = itemPath //"" // We didn't set a SubPath in legacy behavior
+	// long-syntax: derive the filename from the target path.
+	pathSplitted := strings.Split(secretConfig.Target, "/")
+	itemPath = pathSplitted[len(pathSplitted)-1]
+
+	// Use the full target as the mountPath so that multiple secrets mounted in
+	// the same parent directory each get a unique mountPath (Kubernetes requires
+	// volumeMounts[*].mountPath to be unique). The SubPath below selects the
+	// file within the secret's data, so the file still lands at mountPath.
+	// See https://github.com/kubernetes/kompose/issues/1894.
+	mountPath = secretConfig.Target
+	if !strings.HasPrefix(secretConfig.Target, "/") {
+		mountPath = "/run/secrets/" + mountPath
+	}
+
+	secretSubPath = itemPath
 	return itemPath, mountPath, secretSubPath
 }
 
