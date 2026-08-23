@@ -348,3 +348,45 @@ func TestGetComposeFileDir(t *testing.T) {
 		t.Errorf("Expected $PWD/foobar, got %v", output)
 	}
 }
+
+// TestParseVolumeWithOnlyAnAccessMode covers a named volume given an access
+// mode but no container path, for example "myvol:ro". Stripping the mode
+// empties the list, and reading the container path then indexed [-1].
+func TestParseVolumeWithOnlyAnAccessMode(t *testing.T) {
+	for _, volume := range []string{"myvol:ro", "myvol:rw", "myvol:z", "myvol:Z"} {
+		_, _, _, _, err := ParseVolume(volume)
+		if err == nil {
+			t.Errorf("ParseVolume(%q) returned no error, expected an invalid format error", volume)
+		}
+	}
+}
+
+// TestParseVolumeKeepsValidFormsWorking guards against the check above
+// rejecting volumes that are actually well formed.
+func TestParseVolumeKeepsValidFormsWorking(t *testing.T) {
+	tests := []struct {
+		volume    string
+		name      string
+		host      string
+		container string
+		mode      string
+	}{
+		{"myvol:/data:ro", "myvol", "", "/data", "ro"},
+		{"/host:/data:ro", "", "/host", "/data", "ro"},
+		{"/data:ro", "", "", "/data", "ro"},
+		{"myvol:/data", "myvol", "", "/data", ""},
+	}
+
+	for _, test := range tests {
+		name, host, container, mode, err := ParseVolume(test.volume)
+		if err != nil {
+			t.Errorf("ParseVolume(%q) returned unexpected error %v", test.volume, err)
+			continue
+		}
+		if name != test.name || host != test.host || container != test.container || mode != test.mode {
+			t.Errorf("ParseVolume(%q) = (%q, %q, %q, %q), expected (%q, %q, %q, %q)",
+				test.volume, name, host, container, mode,
+				test.name, test.host, test.container, test.mode)
+		}
+	}
+}

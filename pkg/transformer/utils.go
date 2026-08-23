@@ -108,6 +108,13 @@ func parseVolume(volume string) (name, host, container, mode string, err error) 
 		volumeStrings = volumeStrings[:len(volumeStrings)-1]
 	}
 
+	// Stripping the access mode can empty the list, for example "name:ro",
+	// which leaves no container path to read below.
+	if len(volumeStrings) == 0 {
+		err = fmt.Errorf("invalid volume format: %s", volume)
+		return
+	}
+
 	// Check the volume format as well as host
 	container = volumeStrings[len(volumeStrings)-1]
 	volumeStrings = volumeStrings[:len(volumeStrings)-1]
