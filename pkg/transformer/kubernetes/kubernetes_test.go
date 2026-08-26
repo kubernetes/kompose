@@ -1138,6 +1138,73 @@ func TestNamespaceGenerationBlank(t *testing.T) {
 	}
 }
 
+// TestServiceNameNormalized guards against regressing kompose#1897: the compose
+// loader keys ServiceConfigs by the normalized (dash) name, but ServiceConfig.Name
+// itself is only lowercased, keeping underscores (see parseResourceName in
+// pkg/loader/compose/utils.go). InitSvc must build the Service's metadata.name
+// from the normalized name it's given, not from the stale ServiceConfig.Name field.
+func TestServiceNameNormalized(t *testing.T) {
+	service := newSimpleServiceConfig()
+	service.Name = "my_web_app"
+	service.Port = []kobject.Ports{{HostPort: 8080, ContainerPort: 80, Protocol: string(api.ProtocolTCP)}}
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"my-web-app": service},
+	}
+	k := Kubernetes{}
+	objs, err := k.Transform(komposeObject, kobject.ConvertOptions{CreateD: true})
+	if err != nil {
+		t.Fatal(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	var found bool
+	for _, obj := range objs {
+		if svc, ok := obj.(*api.Service); ok {
+			found = true
+			if svc.ObjectMeta.Name != "my-web-app" {
+				t.Errorf("Expected Service name %q, got %q", "my-web-app", svc.ObjectMeta.Name)
+			}
+		}
+	}
+	if !found {
+		t.Fatal("Expected a Service object to be generated")
+	}
+}
+
+// TestStatefulSetServiceNameNormalized guards against a related regression: the
+// StatefulSet's Spec.ServiceName must match the headless Service's metadata.name
+// (both derived from the normalized name), or the StatefulSet's governing Service
+// reference breaks for any service whose compose name contains an underscore.
+func TestStatefulSetServiceNameNormalized(t *testing.T) {
+	service := newSimpleServiceConfig()
+	service.Name = "my_db_service"
+
+	komposeObject := kobject.KomposeObject{
+		ServiceConfigs: map[string]kobject.ServiceConfig{"my-db-service": service},
+	}
+	k := Kubernetes{}
+	objs, err := k.Transform(komposeObject, kobject.ConvertOptions{Controller: StatefulStateController})
+	if err != nil {
+		t.Fatal(errors.Wrap(err, "k.Transform failed"))
+	}
+
+	var svcName, stsServiceName string
+	for _, obj := range objs {
+		if svc, ok := obj.(*api.Service); ok {
+			svcName = svc.ObjectMeta.Name
+		}
+		if sts, ok := obj.(*appsv1.StatefulSet); ok {
+			stsServiceName = sts.Spec.ServiceName
+		}
+	}
+	if svcName != "my-db-service" {
+		t.Errorf("Expected Service name %q, got %q", "my-db-service", svcName)
+	}
+	if stsServiceName != "my-db-service" {
+		t.Errorf("Expected StatefulSet.Spec.ServiceName %q, got %q", "my-db-service", stsServiceName)
+	}
+}
+
 func TestKubernetes_CreateSecrets(t *testing.T) {
 	var komposeDefaultObject []kobject.KomposeObject
 	dataSecrets := []SecretsConfig{
