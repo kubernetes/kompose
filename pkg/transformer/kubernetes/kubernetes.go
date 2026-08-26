@@ -17,7 +17,6 @@ limitations under the License.
 package kubernetes
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 	"os/exec"
@@ -356,7 +355,10 @@ func initConfigMapData(configMap *api.ConfigMap, data map[string]string) {
 		if isText {
 			stringData[k] = lfText
 		} else {
-			binData[k] = []byte(base64.StdEncoding.EncodeToString([]byte(v)))
+			// api.ConfigMap.BinaryData is []byte, which the JSON/YAML marshaler
+			// already base64-encodes on output. Storing a pre-encoded string here
+			// would base64-encode it a second time.
+			binData[k] = []byte(v)
 		}
 	}
 

@@ -1322,3 +1322,43 @@ UNDEFINED_VAR=${MISSING_VAR:-default_value}
 		})
 	}
 }
+
+func TestInitConfigMapData(t *testing.T) {
+	// A non-UTF8 byte sequence so util.IsText routes it to BinaryData.
+	binaryContent := string([]byte{0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x01})
+
+	configMap := &api.ConfigMap{}
+	initConfigMapData(configMap, map[string]string{
+		"text.txt":  "hello world",
+		"image.png": binaryContent,
+	})
+
+	if got := configMap.Data["text.txt"]; got != "hello world" {
+		t.Errorf("Data[text.txt] = %q, want %q", got, "hello world")
+	}
+
+	// BinaryData must hold the raw bytes. json.Marshal (used when kompose
+	// writes the manifest) base64-encodes []byte fields on its own; encoding
+	// the value again here would produce base64-of-base64 in the output.
+	got, ok := configMap.BinaryData["image.png"]
+	if !ok {
+		t.Fatalf("BinaryData[image.png] missing")
+	}
+	if string(got) != binaryContent {
+		t.Errorf("BinaryData[image.png] = %q, want raw bytes %q", got, binaryContent)
+	}
+
+	// Marshaling the ConfigMap must produce single base64-encoded output that
+	// decodes back to the original bytes.
+	marshaled, err := json.Marshal(configMap)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+	var roundTripped api.ConfigMap
+	if err := json.Unmarshal(marshaled, &roundTripped); err != nil {
+		t.Fatalf("json.Unmarshal failed: %v", err)
+	}
+	if string(roundTripped.BinaryData["image.png"]) != binaryContent {
+		t.Errorf("round-tripped BinaryData[image.png] = %q, want %q", roundTripped.BinaryData["image.png"], binaryContent)
+	}
+}
