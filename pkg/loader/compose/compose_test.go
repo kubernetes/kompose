@@ -354,7 +354,7 @@ func TestLoadPorts(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("port=%q,expose=%q", tt.ports, tt.expose), func(t *testing.T) {
+		t.Run(fmt.Sprintf("port=%v,expose=%q", tt.ports, tt.expose), func(t *testing.T) {
 			got := loadPorts(tt.ports, tt.expose)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("loadPorts() mismatch (-want +got):\n%s", diff)
