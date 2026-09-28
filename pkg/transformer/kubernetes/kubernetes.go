@@ -198,9 +198,10 @@ func (k *Kubernetes) InitPodSpecWithConfigMap(name string, image string, service
 	return pod
 }
 
-// InitSvc initializes Kubernetes Service object
-// The created service name will = ServiceConfig.Name, but the selector may be not.
-// If this service is grouped, the selector may be another name = name
+// InitSvc initializes Kubernetes Service object.
+// name is the normalized service key (the same one used for the workload).
+// ServiceConfig.Name can still be the original compose name, which may contain
+// underscores. A grouped service passes the group name here instead.
 func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Service {
 	svc := &api.Service{
 		TypeMeta: metav1.TypeMeta{
@@ -208,10 +209,9 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   service.Name,
+			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
-		// The selector uses the service.Name, which must be consistent with workloads label
 		Spec: api.ServiceSpec{
 			Selector: transformer.ConfigLabels(name),
 		},

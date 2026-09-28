@@ -81,6 +81,22 @@ func TestCreateService(t *testing.T) {
 	}
 }
 
+func TestCreateServiceUsesNormalizedName(t *testing.T) {
+	service := kobject.ServiceConfig{
+		Name:  "myservice_api",
+		Image: "image",
+		Port:  []kobject.Ports{{HostPort: 8000, ContainerPort: 8000, Protocol: string(corev1.ProtocolTCP)}},
+	}
+	k := Kubernetes{}
+	svc := k.CreateService("myservice-api", service)
+	if svc.Name != "myservice-api" {
+		t.Errorf("service name = %q, want myservice-api", svc.Name)
+	}
+	if got := svc.Spec.Selector["io.kompose.service"]; got != "myservice-api" {
+		t.Errorf("selector = %q, want myservice-api", got)
+	}
+}
+
 /*
 Test the creation of a service with a memory limit and reservation
 */
