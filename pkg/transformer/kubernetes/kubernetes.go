@@ -208,10 +208,10 @@ func (k *Kubernetes) InitSvc(name string, service kobject.ServiceConfig) *api.Se
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   service.Name,
+			Name:   name,
 			Labels: transformer.ConfigLabels(name),
 		},
-		// The selector uses the service.Name, which must be consistent with workloads label
+		// The selector uses the normalized name, which must be consistent with workloads label
 		Spec: api.ServiceSpec{
 			Selector: transformer.ConfigLabels(name),
 		},
@@ -516,7 +516,9 @@ func (k *Kubernetes) InitSS(name string, service kobject.ServiceConfig, replicas
 			Selector: &metav1.LabelSelector{
 				MatchLabels: transformer.ConfigLabels(name),
 			},
-			ServiceName: service.Name,
+			// Must match the headless Service's metadata.name, which InitSvc sets
+			// from this same normalized name — not service.Name.
+			ServiceName: name,
 		},
 	}
 	return ds
