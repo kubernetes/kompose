@@ -108,6 +108,11 @@ func parseVolume(volume string) (name, host, container, mode string, err error) 
 		volumeStrings = volumeStrings[:len(volumeStrings)-1]
 	}
 
+	if len(volumeStrings) == 0 {
+		err = fmt.Errorf("invalid volume format: %s", volume)
+		return
+	}
+
 	// Check the volume format as well as host
 	container = volumeStrings[len(volumeStrings)-1]
 	volumeStrings = volumeStrings[:len(volumeStrings)-1]

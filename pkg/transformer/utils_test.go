@@ -242,6 +242,26 @@ func TestParseWindowsVolumeMountWindowsContainer(t *testing.T) {
 	}
 }
 
+func TestParseVolumeNameAndAccessMode(t *testing.T) {
+	// name + access mode (no container path) used to panic:
+	// parseVolume strips the name and the trailing mode, then indexes [-1].
+	for _, volume := range []string{"myvol:ro", "myvol:rw", "myvol:z", "myvol:Z"} {
+		_, _, _, _, err := ParseVolume(volume)
+		if err == nil {
+			t.Errorf("ParseVolume(%q) succeeded, expected invalid volume format", volume)
+		}
+	}
+
+	// well-formed volumes with a trailing mode still parse
+	name, host, container, mode, err := ParseVolume("myvol:/data:ro")
+	if err != nil {
+		t.Fatalf("ParseVolume(myvol:/data:ro) returned unexpected error %v", err)
+	}
+	if name != "myvol" || host != "" || container != "/data" || mode != "ro" {
+		t.Errorf("ParseVolume(myvol:/data:ro) = (%q, %q, %q, %q), want (myvol, \"\", /data, ro)", name, host, container, mode)
+	}
+}
+
 func TestParseVolume(t *testing.T) {
 	name1 := "datavolume"
 	host1 := "./cache"
