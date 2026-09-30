@@ -14,7 +14,7 @@ require (
 	github.com/novln/docker-parser v1.0.0
 	github.com/openshift/api v0.0.0-20230704153349-abb98ff04d03
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.4
+	github.com/sirupsen/logrus v1.10.2
 	github.com/spf13/cast v1.10.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
