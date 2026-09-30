@@ -2,8 +2,6 @@ module github.com/kubernetes/kompose
 
 go 1.24.0
 
-replace github.com/openshift/api v3.9.0+incompatible => github.com/openshift/api v0.0.0-20230704153349-abb98ff04d03
-
 require (
 	github.com/compose-spec/compose-go/v2 v2.10.0
 	github.com/deckarep/golang-set v1.8.0
@@ -14,7 +12,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-shellwords v1.0.12
 	github.com/novln/docker-parser v1.0.0
-	github.com/openshift/api v3.9.0+incompatible
+	github.com/openshift/api v0.0.0-20230704153349-abb98ff04d03
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/cast v1.10.0
