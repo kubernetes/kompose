@@ -4,7 +4,7 @@ kind: Service
 metadata:
   labels:
     io.kompose.service: front-end
-  name: front_end
+  name: front-end
 spec:
   ports:
     - name: "80"

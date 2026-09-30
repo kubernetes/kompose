@@ -562,16 +562,60 @@ func TestNormalizeServiceNames(t *testing.T) {
 	}{
 		{"foo_bar", "foo-bar"},
 		{"foo", "foo"},
-		{"foo.bar", "foo.bar"},
+		{"foo.bar", "foo-bar"},
 		//{"", ""},
 	}
 
 	for _, testCase := range testCases {
 		returnValue := normalizeServiceNames(testCase.composeServiceName)
 		if returnValue != testCase.normalizedServiceName {
-			t.Logf("Expected %q, got %q", testCase.normalizedServiceName, returnValue)
+			t.Errorf("Expected %q, got %q", testCase.normalizedServiceName, returnValue)
 		}
 	}
+}
+
+func TestLoadComposeServiceNameWithUnderscore(t *testing.T) {
+	composeFile, err := os.CreateTemp(t.TempDir(), "compose-*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(composeFile.Name())
+
+	content := `
+services:
+  foo_bar:
+    image: nginx
+    ports:
+      - "8080:80"
+`
+	if _, err := composeFile.WriteString(content); err != nil {
+		t.Fatal(err)
+	}
+	if err := composeFile.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	c := Compose{}
+	komposeObject, err := c.LoadFile([]string{composeFile.Name()}, nil, true)
+	if err != nil {
+		t.Fatalf("LoadFile failed: %v", err)
+	}
+
+	svc, ok := komposeObject.ServiceConfigs["foo-bar"]
+	if !ok {
+		t.Fatalf("Expected normalized service key %q, got keys: %v", "foo-bar", getKeys(komposeObject.ServiceConfigs))
+	}
+	if svc.Name != "foo-bar" {
+		t.Errorf("Expected service name %q, got %q", "foo-bar", svc.Name)
+	}
+}
+
+func getKeys(m map[string]kobject.ServiceConfig) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 func TestNormalizeNetworkNames(t *testing.T) {

@@ -448,3 +448,11 @@ convert::expect_success "$k8s_cmd" "$k8s_output" || exit 1
 k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/security-contexts/compose.yaml convert --stdout --with-kompose-annotation=false --service-group-mode label"
 k8s_output="$KOMPOSE_ROOT/script/test/fixtures/security-contexts/output-k8s.yaml"
 convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" || exit 1
+
+# Test service names containing dots are normalized to dashes (bug #1897)
+k8s_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/service-name-dots/compose.yaml convert --stdout --with-kompose-annotation=false"
+k8s_output="$KOMPOSE_ROOT/script/test/fixtures/service-name-dots/output-k8s.yaml"
+os_cmd="kompose -f $KOMPOSE_ROOT/script/test/fixtures/service-name-dots/compose.yaml convert --provider openshift --stdout --with-kompose-annotation=false"
+os_output="$KOMPOSE_ROOT/script/test/fixtures/service-name-dots/output-os.yaml"
+convert::expect_success_and_warning "$k8s_cmd" "$k8s_output" "Service name in docker-compose has been changed" || exit 1
+convert::expect_success_and_warning "$os_cmd" "$os_output" "Service name in docker-compose has been changed" || exit 1
