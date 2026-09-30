@@ -10,7 +10,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/joho/godotenv v1.5.1
-	github.com/mattn/go-shellwords v1.0.12
+	github.com/mattn/go-shellwords v1.0.15
 	github.com/novln/docker-parser v1.0.0
 	github.com/openshift/api v0.0.0-20230704153349-abb98ff04d03
 	github.com/pkg/errors v0.9.1
