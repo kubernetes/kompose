@@ -1,0 +1,80 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: api-gateway
+  name: api-gateway
+spec:
+  ports:
+    - name: "9090"
+      port: 9090
+      targetPort: 90
+  selector:
+    io.kompose.service: api-gateway
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: web-server
+  name: web-server
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 80
+  selector:
+    io.kompose.service: web-server
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: api-gateway
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: api-gateway
+  template:
+    metadata:
+      labels:
+        io.kompose.service: api-gateway
+    spec:
+      containers:
+        - image: nginx:1.27
+          name: api-gateway
+          ports:
+            - containerPort: 90
+              protocol: TCP
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: web-server
+  name: web-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: web-server
+  template:
+    metadata:
+      labels:
+        io.kompose.service: web-server
+    spec:
+      containers:
+        - image: nginx:1.27
+          name: web-server
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      restartPolicy: Always
+

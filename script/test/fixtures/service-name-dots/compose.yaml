@@ -1,0 +1,10 @@
+services:
+  web.server:
+    image: nginx:1.27
+    ports:
+      - "8080:80"
+
+  api.gateway:
+    image: nginx:1.27
+    ports:
+      - "9090:90"
