@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -43,6 +44,8 @@ var StdinData []byte
 
 // Compose is docker compose file loader, implements Loader interface
 type Compose struct {
+	// RejectLossyRestartPolicy turns the unless-stopped -> always rewrite into an error.
+	RejectLossyRestartPolicy bool
 }
 
 // checkUnsupportedKey checks if compose-go project contains
@@ -183,7 +186,7 @@ func (c *Compose) LoadFile(files []string, profiles []string, noInterpolate bool
 		log.Warning("No service selected. The profile specified in services of your compose yaml may not exist.")
 	}
 
-	komposeObject, err := dockerComposeToKomposeMapping(project)
+	komposeObject, err := dockerComposeToKomposeMapping(project, c.RejectLossyRestartPolicy)
 	if err != nil {
 		return kobject.KomposeObject{}, err
 	}
@@ -453,7 +456,7 @@ func parseHealthCheck(composeHealthCheck types.HealthCheckConfig, labels types.L
 	}, nil
 }
 
-func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.KomposeObject, error) {
+func dockerComposeToKomposeMapping(composeObject *types.Project, rejectLossyRestart bool) (kobject.KomposeObject, error) {
 	// Step 1. Initialize what's going to be returned
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
@@ -464,6 +467,7 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 	// Step 2. Parse through the object and convert it to kobject.KomposeObject!
 	// Here we "clean up" the service configuration so we return something that includes
 	// all relevant information as well as avoid the unsupported keys as well.
+	var rejectedRestarts []string
 	for _, composeServiceConfig := range composeObject.Services {
 		// Standard import
 		// No need to modify before importation
@@ -554,8 +558,12 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 		}
 
 		if serviceConfig.Restart == "unless-stopped" {
-			log.Warnf("Restart policy 'unless-stopped' in service %s is not supported, convert it to 'always'", name)
-			serviceConfig.Restart = "always"
+			if rejectLossyRestart {
+				rejectedRestarts = append(rejectedRestarts, name)
+			} else {
+				log.Warnf("Restart policy 'unless-stopped' in service %s is not supported, convert it to 'always'", name)
+				serviceConfig.Restart = "always"
+			}
 		}
 
 		if composeServiceConfig.Build != nil {
@@ -604,6 +612,12 @@ func dockerComposeToKomposeMapping(composeObject *types.Project) (kobject.Kompos
 
 		// Final step, add to the array!
 		komposeObject.ServiceConfigs[normalizeServiceNames(name)] = serviceConfig
+	}
+
+	if len(rejectedRestarts) > 0 {
+		// Nothing has been written yet. Drop the partial object so convert stops before stdout or files.
+		sort.Strings(rejectedRestarts)
+		return kobject.KomposeObject{}, fmt.Errorf("service %s: restart policy %q would be converted to %q", strings.Join(rejectedRestarts, ", "), "unless-stopped", "always")
 	}
 
 	handleVolume(&komposeObject, &composeObject.Volumes)
