@@ -29,6 +29,7 @@ import (
 
 	"github.com/kubernetes/kompose/pkg/kobject"
 	"github.com/kubernetes/kompose/pkg/loader"
+	"github.com/kubernetes/kompose/pkg/loader/compose"
 	"github.com/kubernetes/kompose/pkg/transformer"
 	"github.com/kubernetes/kompose/pkg/transformer/kubernetes"
 	"github.com/kubernetes/kompose/pkg/transformer/openshift"
@@ -213,6 +214,9 @@ func Convert(opt kobject.ConvertOptions) ([]runtime.Object, error) {
 	l, err := loader.GetLoader(inputFormat)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if cl, ok := l.(*compose.Compose); ok {
+		cl.RejectLossyRestartPolicy = opt.RejectLossyRestartPolicy
 	}
 
 	komposeObject := kobject.KomposeObject{

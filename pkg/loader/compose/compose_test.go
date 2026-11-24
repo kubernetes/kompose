@@ -19,6 +19,7 @@ package compose
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -799,5 +800,81 @@ func Test_parseKomposeLabels(t *testing.T) {
 				t.Errorf("Name are not equal, expected: %v, output: %v", tt.expected.Name, tt.args.serviceConfig.Name)
 			}
 		})
+	}
+}
+
+func writeCompose(t *testing.T, dir, body string) string {
+	t.Helper()
+	path := filepath.Join(dir, "compose.yaml")
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return path
+}
+
+func TestRejectLossyRestartPolicy(t *testing.T) {
+	dir := t.TempDir()
+	out := filepath.Join(dir, "web-deployment.yaml")
+	if err := os.WriteFile(out, []byte("keep\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// the lossy service is last on purpose
+	composePath := writeCompose(t, dir, `
+services:
+  ok:
+    image: nginx
+    restart: always
+  web:
+    image: nginx
+    restart: unless-stopped
+`)
+
+	c := Compose{RejectLossyRestartPolicy: true}
+	if _, err := c.LoadFile([]string{composePath}, nil, true); err == nil {
+		t.Fatal("expected unless-stopped to be rejected")
+	} else {
+		for _, want := range []string{"web", "unless-stopped", "always"} {
+			if !strings.Contains(err.Error(), want) {
+				t.Errorf("error %q missing %q", err.Error(), want)
+			}
+		}
+	}
+	got, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != "keep\n" {
+		t.Fatalf("existing output file changed: %q", got)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "ok-deployment.yaml")); !os.IsNotExist(err) {
+		t.Fatalf("convert wrote a manifest on rejection: %v", err)
+	}
+
+	plain := Compose{}
+	obj, err := plain.LoadFile([]string{composePath}, nil, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if obj.ServiceConfigs["web"].Restart != "always" {
+		t.Fatalf("default restart = %q, want always", obj.ServiceConfigs["web"].Restart)
+	}
+	if obj.ServiceConfigs["ok"].Restart != "always" {
+		t.Fatalf("ok restart = %q", obj.ServiceConfigs["ok"].Restart)
+	}
+
+	for _, policy := range []string{"no", "always", "on-failure"} {
+		path := writeCompose(t, t.TempDir(), fmt.Sprintf(`
+services:
+  web:
+    image: nginx
+    restart: %s
+`, policy))
+		obj, err := c.LoadFile([]string{path}, nil, true)
+		if err != nil {
+			t.Fatalf("policy %s: %v", policy, err)
+		}
+		if obj.ServiceConfigs["web"].Restart != policy {
+			t.Fatalf("policy %s stored as %q", policy, obj.ServiceConfigs["web"].Restart)
+		}
 	}
 }
